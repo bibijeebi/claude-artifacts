@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Oak Board Bow Guide | Eastern NC Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --oak: #8B5A2B;
+            --oak-dark: #654321;
+            --oak-light: #D4A574;
+            --grain: #F5E6D3;
+            --cream: #FAF6F0;
+            --forest: #2D5016;
+            --forest-light: #4A7023;
+            --charcoal: #1C1C1C;
+            --ember: #B8390E;
+            --gold: #C9A227;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--cream);
+            color: var(--charcoal);
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        /* Wood grain texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(139, 90, 43, 0.02) 2px,
+                    rgba(139, 90, 43, 0.02) 4px
+                );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--oak-dark) 0%, var(--oak) 50%, var(--oak-light) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(0,0,0,0.2) 0%, transparent 50%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            color: var(--cream);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .hero .subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--gold);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator svg {
+            width: 32px;
+            height: 32px;
+            stroke: var(--cream);
+            opacity: 0.7;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background: var(--charcoal);
+            padding: 1rem 2rem;
+            z-index: 100;
+            border-bottom: 3px solid var(--gold);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav a {
+            color: var(--cream);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background: var(--oak);
+            color: white;
+        }
+
+        /* Main Content */
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        section {
+            margin-bottom: 5rem;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--oak-dark);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--oak-light);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2 .phase-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            background: var(--forest);
+            color: white;
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--forest);
+            margin: 2rem 0 1rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: white;
+            border-left: 4px solid var(--oak);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .info-box.warning {
+            border-left-color: var(--ember);
+            background: #FFF8F6;
+        }
+
+        .info-box.tip {
+            border-left-color: var(--forest);
+            background: #F6FBF3;
+        }
+
+        .info-box h4 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            color: inherit;
+        }
+
+        .info-box.warning h4 { color: var(--ember); }
+        .info-box.tip h4 { color: var(--forest); }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: var(--oak-dark);
+            color: white;
+            text-align: left;
+            padding: 0.8rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid var(--grain);
+        }
+
+        tr:nth-child(even) {
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        /* Code blocks */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--charcoal);
+            color: var(--gold);
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--charcoal);
+            color: var(--cream);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        /* Dimension Diagram */
+        .diagram {
+            background: white;
+            border: 2px solid var(--oak-light);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .diagram pre {
+            background: transparent;
+            color: var(--charcoal);
+            text-align: left;
+            display: inline-block;
+            font-size: 0.75rem;
+        }
+
+        .diagram-caption {
+            font-style: italic;
+            color: var(--oak);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Shopping List */
+        .shopping-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .store-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--oak);
+        }
+
+        .store-card h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            color: var(--oak-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .store-card .address {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .store-card ul {
+            list-style: none;
+        }
+
+        .store-card li {
+            padding: 0.3rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .store-card li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--forest);
+        }
+
+        /* Checklist */
+        .checklist {
+            background: linear-gradient(135deg, var(--forest) 0%, var(--forest-light) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .checklist h3 {
+            color: var(--gold);
+            margin-top: 0;
+        }
+
+        .checklist ul {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .checklist li::before {
+            content: '☐';
+            position: absolute;
+            left: 0;
+            font-size: 1.2em;
+        }
+
+        /* Process Steps */
+        .steps {
+            counter-reset: step;
+        }
+
+        .step {
+            position: relative;
+            padding-left: 3.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--oak);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--charcoal);
+            color: var(--cream);
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        footer .credits {
+            margin-top: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--gold);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            nav ul {
+                gap: 0.5rem;
+            }
+            nav a {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.6rem;
+            }
+            .hero h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.6rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .step {
+                padding-left: 3rem;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            nav, .scroll-indicator { display: none; }
+            .hero { min-height: auto; padding: 2rem; }
+            section { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <div class="hero-content">
+            <p class="subtitle">A Complete Build Guide</p>
+            <h1>Red Oak Board Bow</h1>
+            <p>From Home Depot lumber to functional flatbow. A comprehensive guide for Eastern North Carolina with local sourcing, complete instructions, and hard-won wisdom from the bowyer community.</p>
+        </div>
+        <div class="scroll-indicator">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#materials">Materials</a></li>
+            <li><a href="#stores">Local Stores</a></li>
+            <li><a href="#phase1">Select Wood</a></li>
+            <li><a href="#phase2">Layout</a></li>
+            <li><a href="#phase3">Riser</a></li>
+            <li><a href="#phase4">Backing</a></li>
+            <li><a href="#phase5">Tillering</a></li>
+            <li><a href="#phase6">Finish</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="overview">
+            <h2>The Build at a Glance</h2>
+            <p>This guide walks you through building a 72" flatbow from a standard red oak board. Target specs: <strong>~45 lbs @ 28"</strong> draw. Total cost: roughly <strong>$75</strong> for materials and basic tools. Time investment: one weekend of active work plus drying/curing time.</p>
+            
+            <div class="info-box">
+                <h4>Why Red Oak?</h4>
+                <p>Red oak is the classic beginner bow wood because it's cheap ($8-12 per board at Home Depot), available everywhere, and teaches you the fundamentals. It's not the best bow wood, it's weak in compression and benefits from backing, but everybody learns on it. Expect to break your first one. That's part of the process.</p>
+            </div>
+
+            <table>
+                <tr>
+                    <th>Spec</th>
+                    <th>Target Value</th>
+                </tr>
+                <tr>
+                    <td>Total Length</td>
+                    <td>72" (nock to nock: 70")</td>
+                </tr>
+                <tr>
+                    <td>Draw Weight</td>
+                    <td>45# @ 28"</td>
+                </tr>
+                <tr>
+                    <td>Handle Width</td>
+                    <td>1.5" (full board width)</td>
+                </tr>
+                <tr>
+                    <td>Tip Width</td>
+                    <td>3/8" - 1/2"</td>
+                </tr>
+                <tr>
+                    <td>Starting Thickness</td>
+                    <td>3/4" (standard 1×2)</td>
+                </tr>
+                <tr>
+                    <td>Tip Thickness</td>
+                    <td>~3/8" after taper</td>
+                </tr>
+            </table>
+
+            <div class="info-box warning">
+                <h4>Safety First</h4>
+                <p>Bows store serious energy. Wear safety glasses during tillering. If you hear cracking, STOP immediately. Never dry-fire (release without an arrow). Chrysals (compression fractures on the belly) are warning signs, take them seriously.</p>
+            </div>
+        </section>
+
+        <section id="materials">
+            <h2>Materials & Tools</h2>
+            
+            <h3>Wood</h3>
+            <table>
+                <tr>
+                    <th>Item</th>
+                    <th>~Price</th>
+                    <th>Notes</th>
+                </tr>
+                <tr>
+                    <td>Red oak 1×2×8' board</td>
+                    <td>$8-15</td>
+                    <td>Or two 6-footers. Straight grain critical.</td>
+                </tr>
+                <tr>
+                    <td>Handle riser piece</td>
+                    <td>$3-5</td>
+                    <td>Oak, walnut, or any hardwood scrap ~10"</td>
+                </tr>
+            </table>
+
+            <h3>Tools</h3>
+            <table>
+                <tr>
+                    <th>Item</th>
+                    <th>~Price</th>
+                </tr>
+                <tr>
+                    <td>Stanley Surform rasp</td>
+                    <td>$12-15</td>
+                </tr>
+                <tr>
+                    <td>Nicholson 4-way rasp/file</td>
+                    <td>$8-12</td>
+                </tr>
+                <tr>
+                    <td>Rattail file (for nocks)</td>
+                    <td>$5-8</td>
+                </tr>
+                <tr>
+                    <td>Triangle file</td>
+                    <td>$5</td>
+                </tr>
+                <tr>
+                    <td>C-clamps (3-4)</td>
+                    <td>$3-5 each</td>
+                </tr>
+            </table>
+
+            <h3>Supplies</h3>
+            <table>
+                <tr>
+                    <th>Item</th>
+                    <th>~Price</th>
+                </tr>
+                <tr>
+                    <td>Titebond III wood glue</td>
+                    <td>$8-10</td>
+                </tr>
+                <tr>
+                    <td>Drywall/sheetrock tape (backing)</td>
+                    <td>$5</td>
+                </tr>
+                <tr>
+                    <td>Sandpaper (100, 220, 320, 400 grit)</td>
+                    <td>$10</td>
+                </tr>
+                <tr>
+                    <td>Deft spray finish</td>
+                    <td>$8</td>
+                </tr>
+                <tr>
+                    <td>B-50 Dacron string material</td>
+                    <td>$10-15</td>
+                </tr>
+            </table>
+
+            <div class="checklist">
+                <h3>Quick Shopping List (Home Depot Run)</h3>
+                <ul>
+                    <li>Red oak 1×2×8' board (or two 6-footers)</li>
+                    <li>Stanley Surform rasp</li>
+                    <li>Rattail file</li>
+                    <li>Triangle file</li>
+                    <li>C-clamps ×3</li>
+                    <li>Titebond III</li>
+                    <li>Drywall tape</li>
+                    <li>Sandpaper pack (assorted grits)</li>
+                    <li>Deft spray finish</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="stores">
+            <h2>Local Stores (Willow Spring / Fuquay-Varina Area)</h2>
+            
+            <div class="shopping-list">
+                <div class="store-card">
+                    <h4>Home Depot Fuquay-Varina</h4>
+                    <p class="address">901 E Broad St, Fuquay-Varina</p>
+                    <ul>
+                        <li>Red oak 1×2×6' boards</li>
+                        <li>Basic hand tools</li>
+                        <li>Titebond, sandpaper, finish</li>
+                    </ul>
+                </div>
+
+                <div class="store-card">
+                    <h4>Lowe's Garner</h4>
+                    <p class="address">2540 Timber Dr, Garner</p>
+                    <ul>
+                        <li>Same red oak boards</li>
+                        <li>Alternative if HD selection sucks</li>
+                    </ul>
+                </div>
+
+                <div class="store-card">
+                    <h4>Capitol City Lumber</h4>
+                    <p class="address">4000 Atlantic Ave, Raleigh (~25 min)</p>
+                    <ul>
+                        <li>Hickory, white oak, red oak</li>
+                        <li>Various thicknesses</li>
+                        <li>Real lumber yard, better selection</li>
+                    </ul>
+                </div>
+
+                <div class="store-card">
+                    <h4>American Woodyards</h4>
+                    <p class="address">5400 Old Poole Rd, Raleigh</p>
+                    <ul>
+                        <li>Red oak, white oak, hickory</li>
+                        <li>Custom cuts available</li>
+                    </ul>
+                </div>
+
+                <div class="store-card">
+                    <h4>Klingspor's Woodworking</h4>
+                    <p class="address">107 Edinburgh South Dr, Cary (~20 min)</p>
+                    <ul>
+                        <li>Best tool/supply store in area</li>
+                        <li>Quality abrasives and finishes</li>
+                    </ul>
+                </div>
+
+                <div class="store-card">
+                    <h4>3Rivers Archery (Online)</h4>
+                    <p class="address">3riversarchery.com</p>
+                    <ul>
+                        <li>B-50 Dacron string material</li>
+                        <li>Pre-made Flemish strings</li>
+                        <li>Tillering supplies</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="phase1">
+            <h2><span class="phase-num">Phase 1</span> Select Your Board</h2>
+            
+            <p>This is where 90% of bow failures originate. A bad board means a bad bow. Dig through the entire stack at Home Depot. It's worth it.</p>
+
+            <h3>What You're Looking For</h3>
+            <div class="steps">
+                <div class="step">
+                    <strong>Growth rings (end grain):</strong> Look at the end of the board. You want THICK late growth (dark lines) and THIN early growth (light porous areas). Heavy board = dense = good.
+                </div>
+                <div class="step">
+                    <strong>Straight grain:</strong> Look at the 3/4" sides. The grain lines should run straight down the entire length without "running off" to the sides. Perfect grain = less backing needed.
+                </div>
+                <div class="step">
+                    <strong>No knots. Period.</strong> Any knot is a failure point. Walk away.
+                </div>
+                <div class="step">
+                    <strong>No side warping:</strong> A little front-to-back curve is fine (becomes reflex). Side warping makes alignment hell.
+                </div>
+                <div class="step">
+                    <strong>Darker = better:</strong> Darker red oak is typically denser and stronger.
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <h4>Pro Tip</h4>
+                <p>Pick up every board in the stack and compare weights. The heaviest board of the same dimensions is the densest. That's your bow wood.</p>
+            </div>
+        </section>
+
+        <section id="phase2">
+            <h2><span class="phase-num">Phase 2</span> Layout & Rough Out</h2>
+
+            <div class="diagram">
+                <pre>
+                         ←——————————— 72" total ———————————→
+                    
+Tips (3/8"-1/2" wide)    Fades       Handle (1" wide)       Fades      Tips
+         ↓                 ↓               ↓                  ↓          ↓
+    |====|================|====|==========|====|================|====|
+         ←—— 30" limb ———→ ←2"→  ←— 4" —→  ←2"→  ←—— 30" limb ———→
+                          fades    grip    fades
+                </pre>
+                <p class="diagram-caption">Flatbow layout showing handle, fades, limbs, and tips</p>
+            </div>
+
+            <h3>Step-by-Step Layout</h3>
+            <div class="steps">
+                <div class="step">
+                    Find dead center of board (36" mark on a 72" board)
+                </div>
+                <div class="step">
+                    Mark handle area: 4" centered on that mark (2" each side of center)
+                </div>
+                <div class="step">
+                    Mark fade transitions: 2" on each side of handle (total handle+fades = 8")
+                </div>
+                <div class="step">
+                    Mark where taper begins: 15" from center on each side
+                </div>
+                <div class="step">
+                    Mark tip width: 3/8" to 1/2" centered on each tip
+                </div>
+            </div>
+
+            <h3>Align the Tips</h3>
+            <p>Run a string with weights on each end down the length of the board. Make sure it passes through dead center. Mark under the string at each tip. This ensures tips are aligned even if the board has slight warping.</p>
+
+            <h3>Remove Wood</h3>
+            <p><strong>Sides:</strong> Use surform rasp or bandsaw. Cut from the 15" mark to the tips following your taper lines. Leave handle area full width (1.5").</p>
+            
+            <p><strong>Belly (bottom side):</strong></p>
+            <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                <li>Leave handle area at full 3/4" thickness</li>
+                <li>Taper belly from fades toward tips</li>
+                <li>At tips: ~3/8" thick</li>
+                <li>At mid-limb: ~1/2" thick</li>
+                <li>Round the belly corners slightly (makes tillering easier)</li>
+            </ul>
+        </section>
+
+        <section id="phase3">
+            <h2><span class="phase-num">Phase 3</span> Glue On Handle Riser</h2>
+            
+            <p>The riser piece adds mass and stiffness to the handle section, preventing it from bending and concentrating all the flex in the limbs where it belongs.</p>
+
+            <table>
+                <tr>
+                    <th>Dimension</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>Length</td>
+                    <td>10"</td>
+                </tr>
+                <tr>
+                    <td>Width</td>
+                    <td>Same as bow (1.5")</td>
+                </tr>
+                <tr>
+                    <td>Thickness</td>
+                    <td>3/4"</td>
+                </tr>
+            </table>
+
+            <div class="steps">
+                <div class="step">
+                    Find center of riser piece, mark it clearly
+                </div>
+                <div class="step">
+                    Line up center marks on bow and riser
+                </div>
+                <div class="step">
+                    Apply Titebond III to BOTH surfaces, spread with finger
+                </div>
+                <div class="step">
+                    Clamp with 2-3 C-clamps
+                </div>
+                <div class="step">
+                    Wipe excess glue with damp paper towel
+                </div>
+                <div class="step">
+                    <strong>Let dry 24 hours minimum</strong>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <h4>Pro Tip</h4>
+                <p>Use a different colored wood for visual contrast. Walnut on red oak looks sharp and lets you see exactly where the handle transitions to the limbs.</p>
+            </div>
+        </section>
+
+        <section id="phase4">
+            <h2><span class="phase-num">Phase 4</span> Back the Bow</h2>
+            
+            <p><strong>Why back it?</strong> Oak is weak in tension (the back side stretches when you draw). Backing prevents splinters from lifting on the back and snapping the bow. Fiberglass drywall tape with Titebond III is cheap, easy, and effective.</p>
+
+            <h3>Process (Drywall Tape + Titebond III)</h3>
+            <div class="steps">
+                <div class="step">
+                    Lay bow flat, back facing up
+                </div>
+                <div class="step">
+                    Cut 3 strips of drywall tape slightly longer than bow
+                </div>
+                <div class="step">
+                    Squeeze generous line of glue down the back, spread with finger
+                </div>
+                <div class="step">
+                    Lay first strip of tape, smooth from center to tips (saturate the mesh)
+                </div>
+                <div class="step">
+                    Wait 15-20 minutes
+                </div>
+                <div class="step">
+                    Add second layer same way, wait 15-20 minutes
+                </div>
+                <div class="step">
+                    Add third layer
+                </div>
+                <div class="step">
+                    <strong>Let dry 24 hours</strong>
+                </div>
+                <div class="step">
+                    Trim edges with rasp/file (wear gloves, fiberglass itches)
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <h4>Fiberglass Warning</h4>
+                <p>Drywall tape is fiberglass mesh. The dust will make you itch. Wear gloves when trimming and consider a dust mask. Don't sand it bare-handed.</p>
+            </div>
+        </section>
+
+        <section id="phase5">
+            <h2><span class="phase-num">Phase 5</span> Cut String Nocks</h2>
+            
+            <div class="steps">
+                <div class="step">
+                    Mark 1" from each tip on the back
+                </div>
+                <div class="step">
+                    Start groove with triangle file at 45° angle
+                </div>
+                <div class="step">
+                    Finish with rattail file
+                </div>
+                <div class="step">
+                    Round the edges so string doesn't have sharp corners
+                </div>
+                <div class="step">
+                    Cut both sides evenly
+                </div>
+            </div>
+
+            <p><strong>Final bow length: 70" nock-to-nock</strong></p>
+        </section>
+
+        <section id="tillering">
+            <h2><span class="phase-num">Phase 6</span> Tillering</h2>
+            
+            <p>This is the real work. Tillering is the art of making both limbs bend evenly and symmetrically. A well-tillered bow shoots accurately and won't break. Take your time.</p>
+
+            <h3>Make a Tillering Stick</h3>
+            <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                <li>2×4 about 36" long</li>
+                <li>Cut notches every 1" from 6" to 31"</li>
+                <li>Cut a notch at top to rest bow handle in</li>
+            </ul>
+
+            <h3>Make a Tillering String</h3>
+            <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                <li>Long string with loop on one end, timber hitch on other</li>
+                <li>Must be long enough to be slack when on the bow</li>
+                <li>Timber hitch lets you shorten it as you go</li>
+            </ul>
+
+            <h3>The Process</h3>
+
+            <div class="info-box">
+                <h4>Stage 1: Long String (Slack) → 30# @ 20"</h4>
+                <p>Put bow on tillering stick, pull string down just a few inches. Look at limb bend. Are they even? Fix any differences before pulling farther. If one limb is stiffer, remove wood from its belly (long strokes, fade to tip). Exercise limbs 30 times after every wood removal. Fix ANY hinges or flat spots before pulling farther. Goal: <strong>30# @ 20"</strong> with even bend.</p>
+            </div>
+
+            <div class="info-box">
+                <h4>Stage 2: Low Brace (~3") → 40# @ 22"</h4>
+                <p>Shorten string, brace bow at ~3". Continue tillering one inch at a time. Stay under 40# as you work toward 22". Leave outer 5-6" of tips alone (keep them stiff). Watch for hinges (concentrated bend) and flat spots (stiff sections).</p>
+            </div>
+
+            <div class="info-box">
+                <h4>Stage 3: Full Brace (Fist + Thumb) → 45-46# @ 27"</h4>
+                <p>Brace to full height (~7"). Continue one inch at a time. Work slowly, you're close to final weight. Take wood off evenly from both limbs (count strokes). Stop at 45-46# @ 27" (it'll settle to 45# @ 28" after shooting).</p>
+            </div>
+
+            <h3>Checking Your Work</h3>
+            <p><strong>Tiller check:</strong> Measure from fade to string on both sides. Difference should be &lt;1/4". Limb that bends more = top limb.</p>
+            <p><strong>String alignment:</strong> Look down from tip. String should run through center of handle.</p>
+
+            <div class="info-box warning">
+                <h4>Critical Warning</h4>
+                <p>If you hear cracking at ANY point, STOP. Inspect for chrysals (compression fractures on the belly). If you find them, you can heat-treat the belly or the bow may be salvageable, but proceed with extreme caution. Many bows break at this stage. It's part of learning.</p>
+            </div>
+        </section>
+
+        <section id="phase6">
+            <h2><span class="phase-num">Phase 7</span> Shape Handle & Arrow Rest</h2>
+            
+            <div class="steps">
+                <div class="step">
+                    Cut arrow rest 1.25" above center (saw then rasp to shape)
+                </div>
+                <div class="step">
+                    Radius the shelf so arrows/feathers pass smoothly
+                </div>
+                <div class="step">
+                    Round all handle edges for comfort
+                </div>
+                <div class="step">
+                    Shape fades into limbs smoothly (no sharp transitions)
+                </div>
+            </div>
+        </section>
+
+        <section id="finish">
+            <h2><span class="phase-num">Phase 8</span> Finish</h2>
+            
+            <div class="steps">
+                <div class="step">
+                    Sand: 100 grit (remove tool marks) → 220 → 320 → 400 → 600
+                </div>
+                <div class="step">
+                    Wipe down with damp cloth, let dry, sand again with 400
+                </div>
+                <div class="step">
+                    Optional: Spray paint the ugly drywall tape backing
+                </div>
+                <div class="step">
+                    Apply finish: 5 coats Deft spray (20 min between coats)
+                </div>
+                <div class="step">
+                    After coat 3: write specs with Sharpie, then final 2 coats
+                </div>
+                <div class="step">
+                    Wrap handle with leather, lace with artificial sinew
+                </div>
+                <div class="step">
+                    Add rest/strike plate: Self-adhesive velcro (soft side) or leather
+                </div>
+            </div>
+
+            <h3>String It & Shoot</h3>
+            <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                <li><strong>Final string:</strong> Flemish twist B-50 Dacron, 66-67" for a 70" bow</li>
+                <li><strong>Brace height:</strong> fist + thumb (~7")</li>
+                <li>Break it in gradually, watch for problems</li>
+                <li>Expect 1-2" of string follow after break-in</li>
+            </ul>
+
+            <div class="info-box tip">
+                <h4>You Did It</h4>
+                <p>If you made it this far with an intact, shooting bow, congratulations. You now understand wood in a way most people never will. Your second bow will be better. Your third will impress people. Keep at it.</p>
+            </div>
+        </section>
+
+        <section id="alternatives">
+            <h2>Oak vs Hickory: Quick Comparison</h2>
+            
+            <table>
+                <tr>
+                    <th>Factor</th>
+                    <th>Red Oak</th>
+                    <th>Hickory</th>
+                </tr>
+                <tr>
+                    <td>Availability</td>
+                    <td>Home Depot, Lowe's, everywhere</td>
+                    <td>Harder to find, lumber yards better</td>
+                </tr>
+                <tr>
+                    <td>Beginner Forgiveness</td>
+                    <td>Less forgiving, weak in compression</td>
+                    <td>Most forgiving of small errors</td>
+                </tr>
+                <tr>
+                    <td>Failure Mode</td>
+                    <td>Gets chrysals on belly</td>
+                    <td>Better tension/compression balance</td>
+                </tr>
+                <tr>
+                    <td>Backing Required?</td>
+                    <td>Highly recommended</td>
+                    <td>Can go unbacked if following growth ring</td>
+                </tr>
+                <tr>
+                    <td>Best For</td>
+                    <td>Learning (cheap, expect failures)</td>
+                    <td>Better success rate first try</td>
+                </tr>
+            </table>
+
+            <p style="margin-top: 1.5rem;"><strong>Bottom line:</strong> Hickory is objectively better bow wood. But red oak at $8/board teaches you everything you need to know before investing in quality material. Break a few cheap boards, then graduate to hickory.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Built from hard-won wisdom shared by the bowyer community on ArcheryTalk, PaleoPlanet, and r/Bowyer.</p>
+        <p class="credits">Guide compiled January 2026 • Willow Spring, NC</p>
+    </footer>
+</body>
+</html>
