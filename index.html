@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Artifacts | Benny's Deployed Sites</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0b;
+            --surface: #141416;
+            --surface-hover: #1c1c1f;
+            --border: #2a2a2e;
+            --text: #fafafa;
+            --text-muted: #888;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --green: #22c55e;
+            --orange: #f97316;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Subtle grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 4rem 0 3rem;
+        }
+
+        .logo {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Search */
+        .search-container {
+            max-width: 500px;
+            margin: 2rem auto 3rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* Stats bar */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Grid */
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Card */
+        .site-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .site-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--green));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .site-card:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .site-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--green);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card-badge.dir {
+            background: rgba(249, 115, 22, 0.15);
+            color: var(--orange);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .card-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .card-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            header {
+                padding: 2rem 0 1.5rem;
+            }
+            .stats {
+                gap: 1rem;
+            }
+            .sites-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">claude-artifacts.pages.dev</div>
+            <h1>Deployed Sites</h1>
+            <p class="subtitle">Sites and tools built with Claude, deployed to Cloudflare Pages</p>
+        </header>
+
+        <div class="search-container">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="text" class="search-input" id="search" placeholder="Search sites..." autocomplete="off">
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat">
+                <div class="stat-value" id="total-count">-</div>
+                <div class="stat-label">Total Sites</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="page-count">-</div>
+                <div class="stat-label">Pages</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="app-count">-</div>
+                <div class="stat-label">Apps</div>
+            </div>
+        </div>
+
+        <div class="sites-grid" id="sites-grid">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <p>Loading sites...</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Powered by <a href="https://github.com/bibijeebi/claude-artifacts" target="_blank">GitHub</a> + <a href="https://pages.cloudflare.com" target="_blank">Cloudflare Pages</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const REPO_API = 'https://api.github.com/repos/bibijeebi/claude-artifacts/contents/';
+        const BASE_URL = 'https://claude-artifacts.pages.dev';
+
+        // Site metadata - add descriptions and icons here
+        const siteMeta = {
+            'bow-guide.html': {
+                title: 'Red Oak Board Bow Guide',
+                description: 'Complete guide to building a flatbow from Home Depot lumber. Includes local NC store locations, materials list, and step-by-step instructions.',
+                icon: '🏹',
+                category: 'guide'
+            },
+            'nano-banana.html': {
+                title: 'Nano Banana',
+                description: 'A fun experiment or tool involving bananas at the nano scale.',
+                icon: '🍌',
+                category: 'tool'
+            },
+            'claude-stack': {
+                title: 'Claude Stack',
+                description: 'Documentation or guide related to Claude deployment stack and infrastructure.',
+                icon: '📚',
+                category: 'docs'
+            },
+            'melamine-foam': {
+                title: 'Melamine Foam Guide',
+                description: 'Information and guide about melamine foam (Magic Eraser material) and its uses.',
+                icon: '🧽',
+                category: 'guide'
+            }
+        };
+
+        const defaultMeta = {
+            title: null,
+            description: 'A Claude-generated artifact deployed to Cloudflare Pages.',
+            icon: '📄',
+            category: 'page'
+        };
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function getDisplayName(name) {
+            return name
+                .replace(/\.html$/, '')
+                .replace(/-/g, ' ')
+                .replace(/\b\w/g, c => c.toUpperCase());
+        }
+
+        async function fetchSites() {
+            try {
+                const response = await fetch(REPO_API);
+                const data = await response.json();
+                
+                // Filter to only HTML files and directories (potential sites)
+                const sites = data.filter(item => {
+                    if (item.type === 'dir') return true;
+                    if (item.type === 'file' && item.name.endsWith('.html') && item.name !== 'index.html') return true;
+                    return false;
+                });
+
+                return sites;
+            } catch (error) {
+                console.error('Failed to fetch sites:', error);
+                return [];
+            }
+        }
+
+        function renderSites(sites) {
+            const grid = document.getElementById('sites-grid');
+            
+            if (sites.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"/>
+                        </svg>
+                        <p>No sites found matching your search.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = sites.map(site => {
+                const meta = siteMeta[site.name] || defaultMeta;
+                const title = meta.title || getDisplayName(site.name);
+                const isDir = site.type === 'dir';
+                const path = isDir ? `/${site.name}/` : `/${site.name}`;
+                const url = BASE_URL + path;
+
+                return `
+                    <a href="${url}" class="site-card" target="_blank">
+                        <div class="card-header">
+                            <div class="card-icon">${meta.icon}</div>
+                            <span class="card-badge ${isDir ? 'dir' : ''}">${isDir ? 'App' : 'Page'}</span>
+                        </div>
+                        <h3 class="card-title">${title}</h3>
+                        <div class="card-path">${path}</div>
+                        <p class="card-description">${meta.description}</p>
+                        <div class="card-meta">
+                            ${site.size ? `<span>📦 ${formatSize(site.size)}</span>` : ''}
+                            <span>🔗 ${isDir ? 'Directory' : 'Single Page'}</span>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+
+        function updateStats(sites) {
+            const total = sites.length;
+            const pages = sites.filter(s => s.type === 'file').length;
+            const apps = sites.filter(s => s.type === 'dir').length;
+
+            document.getElementById('total-count').textContent = total;
+            document.getElementById('page-count').textContent = pages;
+            document.getElementById('app-count').textContent = apps;
+        }
+
+        let allSites = [];
+
+        async function init() {
+            allSites = await fetchSites();
+            renderSites(allSites);
+            updateStats(allSites);
+
+            // Search functionality
+            const searchInput = document.getElementById('search');
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = allSites.filter(site => {
+                    const meta = siteMeta[site.name] || defaultMeta;
+                    const title = (meta.title || getDisplayName(site.name)).toLowerCase();
+                    const desc = meta.description.toLowerCase();
+                    return site.name.toLowerCase().includes(query) || 
+                           title.includes(query) || 
+                           desc.includes(query);
+                });
+                renderSites(filtered);
+            });
+
+            // Keyboard shortcut: / to focus search
+            document.addEventListener('keydown', (e) => {
+                if (e.key === '/' && document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                if (e.key === 'Escape') {
+                    searchInput.blur();
+                    searchInput.value = '';
+                    renderSites(allSites);
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
