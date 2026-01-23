@@ -62,9 +62,7 @@
       font-weight: 700;
       line-height: 1.1;
       margin-bottom: 20px;
-      background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
     }
     
     .subtitle {
@@ -145,6 +143,29 @@
       flex-shrink: 0;
     }
     
+    /* Screenshot */
+    .screenshot {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin: 24px 0;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    
+    .screenshot img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .screenshot-caption {
+      background: var(--surface-2);
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+    
     /* Cards Grid */
     .cards {
       display: grid;
@@ -199,62 +220,57 @@
       overflow-x: auto;
     }
     
-    /* Architecture Diagram */
-    .architecture {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 48px;
-    }
-    
-    .arch-row {
-      display: flex;
+    /* Two Column with Image */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
       align-items: center;
-      justify-content: center;
-      gap: 32px;
-      margin-bottom: 32px;
-      flex-wrap: wrap;
     }
     
-    .arch-box {
-      background: var(--surface-2);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 28px;
-      text-align: center;
-      min-width: 160px;
+    .two-col.reverse {
+      direction: rtl;
     }
     
-    .arch-box.highlight {
-      border-color: var(--accent);
-      box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
+    .two-col.reverse > * {
+      direction: ltr;
     }
     
-    .arch-box h4 {
-      font-size: 1rem;
-      margin-bottom: 4px;
+    @media (max-width: 800px) {
+      .two-col, .two-col.reverse {
+        grid-template-columns: 1fr;
+        direction: ltr;
+      }
     }
     
-    .arch-box span {
-      font-size: 0.8rem;
+    .two-col-content h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+    
+    .two-col-content p {
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    
+    .two-col-content ul {
+      list-style: none;
+      margin-top: 20px;
+    }
+    
+    .two-col-content li {
+      padding: 8px 0;
+      padding-left: 28px;
+      position: relative;
       color: var(--text-muted);
     }
     
-    .arch-connector {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: var(--text-muted);
-    }
-    
-    .arch-connector .line {
-      width: 2px;
-      height: 40px;
-      background: var(--border);
-    }
-    
-    .arch-connector .arrow {
-      font-size: 14px;
+    .two-col-content li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
     }
     
     /* Capabilities */
@@ -325,7 +341,6 @@
     @media (max-width: 768px) {
       .flow { flex-direction: column; }
       .flow-arrow { transform: rotate(90deg); }
-      .arch-row { flex-direction: column; gap: 16px; }
     }
   </style>
 </head>
@@ -334,7 +349,7 @@
     <header>
       <div class="badge">Technical Deep Dive</div>
       <h1>How Claude Deploys Websites</h1>
-      <p class="subtitle">The complete architecture that lets an AI assistant push code to production with a single request. No IDE needed.</p>
+      <p class="subtitle">The complete architecture that lets an AI assistant push code to production with a single chat message. No IDE, no CLI, no manual steps.</p>
     </header>
 
     <section class="section">
@@ -374,6 +389,52 @@
           </div>
         </div>
       </div>
+      
+      <div class="screenshot">
+        <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/claude-stack/deploy-success.webp" alt="Cloudflare Pages deployment success">
+        <div class="screenshot-caption">What you see after Claude deploys: "Success! Your project is deployed to Region: Earth"</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-label">The Infrastructure</div>
+      <h2>What's Actually Running</h2>
+      
+      <div class="two-col">
+        <div class="two-col-content">
+          <h3>GitHub Repository</h3>
+          <p>Claude pushes HTML files directly to a GitHub repo using the GitHub API. No git CLI needed—just a REST call with base64-encoded content.</p>
+          <p>The repo is connected to Cloudflare Pages, so any commit triggers an automatic deployment. Zero configuration required.</p>
+          <ul>
+            <li>Public repo for artifacts</li>
+            <li>Each artifact gets its own folder</li>
+            <li>Commits show as "Add [artifact name]"</li>
+          </ul>
+        </div>
+        <div class="screenshot">
+          <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/claude-stack/github-repo.webp" alt="GitHub repository">
+          <div class="screenshot-caption">The claude-artifacts repo on GitHub, showing commits made by Claude</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="two-col reverse">
+        <div class="two-col-content">
+          <h3>Cloudflare Worker</h3>
+          <p>A middleware proxy that gives Claude access to Cloudflare services. It handles authentication, bypasses sandbox TLS restrictions, and exposes simple endpoints.</p>
+          <p>The worker connects to R2 (object storage) for images and D1 (SQLite database) for persistent data—all accessible via simple POST requests.</p>
+          <ul>
+            <li><code style="display:inline;padding:2px 6px;">POST /upload</code> → Store files in R2</li>
+            <li><code style="display:inline;padding:2px 6px;">GET /r2/file/*</code> → Serve files publicly</li>
+            <li><code style="display:inline;padding:2px 6px;">POST /d1/query</code> → Query the database</li>
+          </ul>
+        </div>
+        <div class="screenshot">
+          <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/claude-stack/bindings.webp" alt="Worker bindings">
+          <div class="screenshot-caption">Cloudflare dashboard showing the worker's resource bindings: D1 database and R2 storage</div>
+        </div>
+      </div>
     </section>
 
     <section class="section">
@@ -384,91 +445,29 @@
         <div class="card">
           <div class="card-icon" style="background: linear-gradient(135deg, var(--accent), var(--accent-2));">🧠</div>
           <h3>Memory System</h3>
-          <p>Claude remembers API tokens, preferences, and workflows across sessions. When you say "deploy this," Claude already knows where and how.</p>
-          <code>Memory: GitHub token, worker URL, auth keys</code>
+          <p>Claude remembers API tokens, preferences, and workflows across sessions. When you say "deploy this," Claude already knows where and how—no setup every time.</p>
+          <code>Memory stores: GitHub token, worker URL, auth keys, user preferences</code>
         </div>
         
         <div class="card">
           <div class="card-icon" style="background: linear-gradient(135deg, var(--cyan), var(--green));">💻</div>
           <h3>Computer Use</h3>
-          <p>Claude runs in a Linux sandbox with bash, curl, and file system access. It can execute code, make HTTP requests, and manipulate files.</p>
-          <code>curl -X POST api.github.com/repos/.../contents</code>
+          <p>Claude runs in a Linux sandbox with bash, curl, and full file system access. It can execute code, make HTTP requests, create files, and manipulate data.</p>
+          <code>curl -k -X PUT api.github.com/repos/.../contents/file.html</code>
         </div>
         
         <div class="card">
           <div class="card-icon" style="background: linear-gradient(135deg, var(--orange), var(--pink));">⚙️</div>
-          <h3>Cloudflare Worker</h3>
-          <p>A proxy service that handles R2 storage uploads, D1 database queries, and bypasses sandbox TLS restrictions.</p>
-          <code>POST /upload → R2<br>POST /d1/query → Database</code>
+          <h3>User Preferences</h3>
+          <p>Beyond memory, user preferences let you customize Claude's behavior: coding style, response format, tool choices. Claude adapts to how you work.</p>
+          <code>Preferences: "deploy" = Cloudflare, "artifact" = Claude UI</code>
         </div>
         
         <div class="card">
           <div class="card-icon" style="background: linear-gradient(135deg, var(--green), var(--cyan));">🔗</div>
-          <h3>GitHub + Pages Integration</h3>
-          <p>Pushing to a GitHub repo triggers Cloudflare Pages auto-deployment. No CI config needed—just commit and it's live.</p>
-          <code>git push → webhook → build → deploy</code>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="section-label">Architecture</div>
-      <h2>How the Pieces Connect</h2>
-      
-      <div class="architecture">
-        <div class="arch-row">
-          <div class="arch-box highlight">
-            <h4>👤 You</h4>
-            <span>Claude.ai Chat</span>
-          </div>
-        </div>
-        
-        <div class="arch-connector">
-          <span class="arrow">↓</span>
-          <span style="font-size: 0.75rem;">natural language</span>
-        </div>
-        
-        <div class="arch-row">
-          <div class="arch-box highlight">
-            <h4>🤖 Claude</h4>
-            <span>Linux Sandbox + Memory</span>
-          </div>
-        </div>
-        
-        <div class="arch-connector">
-          <span class="arrow">↓</span>
-          <span style="font-size: 0.75rem;">API calls with stored tokens</span>
-        </div>
-        
-        <div class="arch-row">
-          <div class="arch-box">
-            <h4>🔶 Worker</h4>
-            <span>R2, D1 Proxy</span>
-          </div>
-          <div class="arch-box">
-            <h4>🐙 GitHub</h4>
-            <span>Code Storage</span>
-          </div>
-        </div>
-        
-        <div class="arch-connector">
-          <span class="arrow">↓</span>
-          <span style="font-size: 0.75rem;">webhook trigger</span>
-        </div>
-        
-        <div class="arch-row">
-          <div class="arch-box">
-            <h4>📦 R2</h4>
-            <span>Image Storage</span>
-          </div>
-          <div class="arch-box highlight">
-            <h4>🌐 Cloudflare Pages</h4>
-            <span>Auto-Deploy CDN</span>
-          </div>
-          <div class="arch-box">
-            <h4>🗄️ D1</h4>
-            <span>SQLite Database</span>
-          </div>
+          <h3>MCP Integrations</h3>
+          <p>Model Context Protocol lets Claude connect to external tools: web search, file crawling, custom APIs. The ecosystem extends what's possible.</p>
+          <code>Firecrawl, Exa.ai, Zapier, custom workers</code>
         </div>
       </div>
     </section>
@@ -529,38 +528,13 @@
     </div>
 
     <section class="section">
-      <div class="section-label">The Secret Sauce</div>
-      <h2>Why This Actually Works</h2>
-      
-      <div class="cards">
-        <div class="card">
-          <div class="card-icon" style="background: linear-gradient(135deg, var(--pink), var(--orange));">🔑</div>
-          <h3>Stored Credentials</h3>
-          <p>API tokens live in Claude's memory system, not hardcoded. Each session has access to the same keys without re-entering them.</p>
-        </div>
-        
-        <div class="card">
-          <div class="card-icon" style="background: linear-gradient(135deg, var(--green), var(--cyan));">🛠️</div>
-          <h3>Worker as Middleware</h3>
-          <p>Claude's sandbox has TLS quirks. The Cloudflare Worker acts as a trusted proxy, making API calls from Cloudflare's infrastructure.</p>
-        </div>
-        
-        <div class="card">
-          <div class="card-icon" style="background: linear-gradient(135deg, var(--accent), var(--pink));">⚡</div>
-          <h3>Git-Triggered Deploys</h3>
-          <p>No complex CI/CD config. Push to repo → Cloudflare Pages detects the commit → builds and deploys automatically. Zero config.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
       <div class="section-label">How to Build This Yourself</div>
       <h2>The Setup (One-Time)</h2>
       
       <div class="cards">
         <div class="card">
           <h3>1. Create a Cloudflare Worker</h3>
-          <p>Build a simple proxy that handles R2 uploads, D1 queries, and any other APIs you need. Add auth so only Claude can use it.</p>
+          <p>Build a simple proxy that handles R2 uploads, D1 queries, and any other APIs you need. Add bearer token auth so only Claude can use it.</p>
         </div>
         
         <div class="card">
@@ -582,7 +556,7 @@
 
     <footer>
       <p>Built and deployed by Claude · <a href="https://claude.ai">claude.ai</a></p>
-      <p style="margin-top: 8px; font-size: 0.8rem;">This page was created in a chat conversation and auto-deployed via the architecture it describes.</p>
+      <p style="margin-top: 8px; font-size: 0.8rem;">This page was created in a chat conversation and auto-deployed via the architecture it describes. Meta, right?</p>
     </footer>
   </div>
 </body>
