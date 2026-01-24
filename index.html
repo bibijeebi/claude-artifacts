@@ -406,7 +406,7 @@
         <div class="filter-buttons" id="filters">
             <button class="filter-btn" data-filter="page">Pages</button>
             <button class="filter-btn" data-filter="slide">Slides</button>
-            <button class="filter-btn" data-filter="album">Albums</button>
+            <button class="filter-btn" data-filter="gallery">Gallery</button>
             <button class="filter-btn" data-filter="pdf">PDFs</button>
             <button class="filter-btn" data-filter="app">Apps</button>
         </div>
@@ -425,8 +425,8 @@
                 <div class="stat-label">Slides</div>
             </div>
             <div class="stat">
-                <div class="stat-value" id="album-count">-</div>
-                <div class="stat-label">Albums</div>
+                <div class="stat-value" id="gallery-count">-</div>
+                <div class="stat-label">Gallery</div>
             </div>
             <div class="stat">
                 <div class="stat-value" id="pdf-count">-</div>
@@ -677,23 +677,11 @@
                 icon: '🔫',
                 category: 'presentation'
             },
-            'album-quotes.html': {
-                title: 'Quotes',
-                description: 'AI-generated quote images.',
-                icon: '💬',
-                category: 'album'
-            },
-            'album-please-bro.html': {
-                title: 'Please Bro',
-                description: 'Please bro meme collection.',
-                icon: '🙏',
-                category: 'album'
-            },
-            'album-collages.html': {
-                title: 'Collages',
-                description: 'AI-generated collage images.',
+            'gallery.html': {
+                title: 'Gallery',
+                description: '6 albums, 20 images. Quotes, memes, comics, and more.',
                 icon: '🖼️',
-                category: 'album'
+                category: 'gallery'
             }
         };
 
@@ -766,7 +754,7 @@
                 const badgeMap = {
                     'page': { label: 'Page', class: '' },
                     'slide': { label: 'Slides', class: 'slide' },
-                    'album': { label: 'Album', class: 'album' },
+                    'gallery': { label: 'Gallery', class: 'album' },
                     'pdf': { label: 'PDF', class: 'pdf' },
                     'app': { label: 'App', class: 'external' }
                 };
@@ -775,7 +763,7 @@
                 const typeLabels = {
                     'page': 'Single Page',
                     'slide': 'Reveal.js Presentation',
-                    'album': 'Image Gallery',
+                    'gallery': 'Image Gallery',
                     'pdf': 'PDF Document',
                     'app': isDir ? 'Directory' : 'CF Worker'
                 };
@@ -802,14 +790,14 @@
             const total = sites.length;
             const pages = sites.filter(s => s.category === 'page').length;
             const slides = sites.filter(s => s.category === 'slide').length;
-            const albums = sites.filter(s => s.category === 'album').length;
+            const gallery = sites.filter(s => s.category === 'gallery').length;
             const pdfs = sites.filter(s => s.category === 'pdf').length;
             const apps = sites.filter(s => s.category === 'app').length;
 
             document.getElementById('total-count').textContent = total;
             document.getElementById('page-count').textContent = pages;
             document.getElementById('slide-count').textContent = slides;
-            document.getElementById('album-count').textContent = albums;
+            document.getElementById('gallery-count').textContent = gallery;
             document.getElementById('pdf-count').textContent = pdfs;
             document.getElementById('app-count').textContent = apps;
         }
@@ -825,7 +813,7 @@
                 let category = 'page'; // default for files
                 if (site.type === 'dir') category = 'app';
                 if (meta && meta.category === 'presentation') category = 'slide';
-                if (meta && meta.category === 'album') category = 'album';
+                if (meta && meta.category === 'gallery') category = 'gallery';
                 return { ...site, category };
             });
             
@@ -852,7 +840,7 @@
                     filtered = filtered.filter(site => {
                         if (activeFilters.has('page') && site.category === 'page') return true;
                         if (activeFilters.has('slide') && site.category === 'slide') return true;
-                        if (activeFilters.has('album') && site.category === 'album') return true;
+                        if (activeFilters.has('gallery') && site.category === 'gallery') return true;
                         if (activeFilters.has('pdf') && site.category === 'pdf') return true;
                         if (activeFilters.has('app') && site.category === 'app') return true;
                         return false;
@@ -910,6 +898,7 @@
     </script>
 </body>
 </html>
+
 
 
 
