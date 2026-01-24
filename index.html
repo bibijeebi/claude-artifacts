@@ -396,7 +396,6 @@
         </div>
 
         <div class="filter-buttons" id="filters">
-            <button class="filter-btn active" data-filter="all">All</button>
             <button class="filter-btn" data-filter="page">Pages</button>
             <button class="filter-btn" data-filter="pdf">PDFs</button>
             <button class="filter-btn" data-filter="app">Apps</button>
@@ -752,20 +751,20 @@
             renderSites(allSites);
             updateStats(allSites);
 
-            let currentFilter = 'all';
+            let activeFilters = new Set();
             const searchInput = document.getElementById('search');
 
             function applyFilters() {
                 const query = searchInput.value.toLowerCase();
                 let filtered = allSites;
 
-                // Apply type filter
-                if (currentFilter !== 'all') {
+                // Apply type filters (if any active, show only those types)
+                if (activeFilters.size > 0) {
                     filtered = filtered.filter(site => {
-                        if (currentFilter === 'page') return site.type === 'file';
-                        if (currentFilter === 'pdf') return site.type === 'pdf';
-                        if (currentFilter === 'app') return site.type === 'dir' || site.type === 'external';
-                        return true;
+                        if (activeFilters.has('page') && site.type === 'file') return true;
+                        if (activeFilters.has('pdf') && site.type === 'pdf') return true;
+                        if (activeFilters.has('app') && (site.type === 'dir' || site.type === 'external')) return true;
+                        return false;
                     });
                 }
 
@@ -787,12 +786,17 @@
             // Search functionality
             searchInput.addEventListener('input', applyFilters);
 
-            // Filter buttons
+            // Filter buttons (toggle mode)
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    currentFilter = btn.dataset.filter;
+                    const filter = btn.dataset.filter;
+                    if (activeFilters.has(filter)) {
+                        activeFilters.delete(filter);
+                        btn.classList.remove('active');
+                    } else {
+                        activeFilters.add(filter);
+                        btn.classList.add('active');
+                    }
                     applyFilters();
                 });
             });
