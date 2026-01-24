@@ -23,27 +23,7 @@
             margin-bottom: 10px;
         }
         .subtitle { color: #888; font-size: 1rem; }
-
-        /* Stats */
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 20px 0;
-        }
-        .stat {
-            background: rgba(255,255,255,0.1);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
-        }
-        .stat:hover { background: rgba(255,255,255,0.15); }
-        .stat.active { background: rgba(102, 126, 234, 0.3); border-color: #667eea; }
-        .stat-count { font-weight: bold; color: #667eea; }
+        .subtitle .count { color: #667eea; font-weight: bold; }
 
         /* Search */
         .search-container { max-width: 500px; margin: 0 auto 20px; }
@@ -201,10 +181,9 @@
 <body>
     <header>
         <h1>muh shit</h1>
-        <p class="subtitle">all the random crap I've made</p>
+        <p class="subtitle"><span id="total-count"></span> items of random crap</p>
     </header>
     <div class="container">
-        <div class="stats" id="stats"></div>
         <div class="search-container">
             <input type="text" id="search" placeholder="Search... (/ to focus, Esc to clear)">
         </div>
@@ -351,33 +330,14 @@
                 .filter(([key]) => !key.endsWith('.html'))
                 .map(([key, meta]) => ({ key, url: meta.url || key, ...meta }));
             allSites = [...githubSites, ...otherSites].filter(s => s.title).sort((a, b) => a.title.localeCompare(b.title));
-            renderStats();
             renderTagCloud();
             renderSites();
         }
 
-        function renderStats() {
-            const counts = {
-                web: allSites.filter(s => s.tags?.includes('web')).length,
-                doc: allSites.filter(s => s.tags?.includes('doc')).length,
-                app: allSites.filter(s => s.tags?.includes('app')).length,
-                slides: allSites.filter(s => s.tags?.includes('slides')).length,
-                gallery: allSites.filter(s => s.tags?.includes('gallery')).length
-            };
-            document.getElementById('stats').innerHTML = `
-                <div class="stat" data-tag=""><span class="stat-count">${allSites.length}</span> Total</div>
-                <div class="stat" data-tag="web"><span class="stat-count">${counts.web}</span> Web</div>
-                <div class="stat" data-tag="doc"><span class="stat-count">${counts.doc}</span> Docs</div>
-                <div class="stat" data-tag="app"><span class="stat-count">${counts.app}</span> Apps</div>
-                <div class="stat" data-tag="slides"><span class="stat-count">${counts.slides}</span> Slides</div>
-                <div class="stat" data-tag="gallery"><span class="stat-count">${counts.gallery}</span> Gallery</div>
-            `;
-            document.querySelectorAll('.stat').forEach(el => {
-                el.addEventListener('click', () => toggleTag(el.dataset.tag));
-            });
-        }
-
         function renderTagCloud() {
+            // Update total count
+            document.getElementById('total-count').textContent = allSites.length;
+            
             // Count tag frequencies
             const tagCounts = {};
             allSites.forEach(s => s.tags?.forEach(t => { tagCounts[t] = (tagCounts[t] || 0) + 1; }));
@@ -426,9 +386,6 @@
 
         function updateUI() {
             // Update active states
-            document.querySelectorAll('.stat').forEach(el => {
-                el.classList.toggle('active', el.dataset.tag && activeTags.has(el.dataset.tag));
-            });
             document.querySelectorAll('.cloud-tag').forEach(el => {
                 el.classList.toggle('active', activeTags.has(el.dataset.tag));
             });
