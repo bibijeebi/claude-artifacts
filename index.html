@@ -674,7 +674,7 @@
                 title: 'Ostrich Cull Presentation',
                 description: 'Ostrich population management presentation.',
                 icon: '🦃',
-                category: 'pdf',
+                category: 'beamer',
                 url: 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/ostrich_cull_presentation.pdf'
             },
             'payment-systems': {
@@ -967,6 +967,7 @@
                 const badgeMap = {
                     'page': { label: 'Page', class: '' },
                     'slide': { label: 'Slides', class: 'slide' },
+                    'beamer': { label: 'Beamer', class: 'slide' },
                     'album': { label: 'Album', class: 'album' },
                     'pdf': { label: 'PDF', class: 'pdf' },
                     'app': { label: 'App', class: 'external' }
@@ -975,7 +976,8 @@
                 
                 const typeLabels = {
                     'page': 'Single Page',
-                    'slide': 'Reveal.js Presentation',
+                    'slide': 'Reveal.js Slides',
+                    'beamer': 'Beamer Slides (PDF)',
                     'album': 'Photo Album',
                     'pdf': 'PDF Document',
                     'app': isDir ? 'Directory' : 'CF Worker'
@@ -1002,7 +1004,7 @@
         function updateStats(sites) {
             const total = sites.length;
             const pages = sites.filter(s => s.category === 'page').length;
-            const slides = sites.filter(s => s.category === 'slide').length;
+            const slides = sites.filter(s => s.category === 'slide' || s.category === 'beamer').length;
             const albums = sites.filter(s => s.category === 'album').length;
             const pdfs = sites.filter(s => s.category === 'pdf').length;
             const apps = sites.filter(s => s.category === 'app').length;
@@ -1054,7 +1056,7 @@
                 if (activeFilters.size > 0) {
                     filtered = filtered.filter(site => {
                         if (activeFilters.has('page') && site.category === 'page') return true;
-                        if (activeFilters.has('slide') && site.category === 'slide') return true;
+                        if (activeFilters.has('slide') && (site.category === 'slide' || site.category === 'beamer')) return true;
                         if (activeFilters.has('album') && site.category === 'album') return true;
                         if (activeFilters.has('pdf') && site.category === 'pdf') return true;
                         if (activeFilters.has('app') && site.category === 'app') return true;
