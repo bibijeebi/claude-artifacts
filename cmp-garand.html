@@ -539,10 +539,9 @@ let audioEnabled = false;
 document.getElementById("audio-overlay").addEventListener("click", function() {
   this.style.display = "none";
   audioEnabled = true;
-  document.getElementById("garand-ping").play();
 });
-Reveal.on('slidechanged', function() {
-  if (audioEnabled) {
+Reveal.on('slidechanged', function(event) {
+  if (audioEnabled && event.currentSlide.querySelector('.ping-text')) {
     const ping = document.getElementById("garand-ping");
     ping.currentTime = 0;
     ping.play();
