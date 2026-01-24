@@ -367,11 +367,15 @@
         <div class="stats" id="stats">
             <div class="stat">
                 <div class="stat-value" id="total-count">-</div>
-                <div class="stat-label">Total Sites</div>
+                <div class="stat-label">Total</div>
             </div>
             <div class="stat">
                 <div class="stat-value" id="page-count">-</div>
                 <div class="stat-label">Pages</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="pdf-count">-</div>
+                <div class="stat-label">PDFs</div>
             </div>
             <div class="stat">
                 <div class="stat-value" id="app-count">-</div>
@@ -655,11 +659,12 @@
                 const title = meta.title || getDisplayName(site.name);
                 const isDir = site.type === 'dir';
                 const isExternal = site.type === 'external';
-                const path = isExternal ? meta.url : (isDir ? `/${site.name}/` : `/${site.name}`);
-                const url = isExternal ? meta.url : BASE_URL + path;
-                const isPdf = meta.category === 'pdf';
+                const isPdf = site.type === 'pdf';
+                const path = (isExternal || isPdf) ? meta.url : (isDir ? `/${site.name}/` : `/${site.name}`);
+                const url = (isExternal || isPdf) ? meta.url : BASE_URL + path;
                 const badge = isPdf ? 'PDF' : (isExternal ? 'App' : (isDir ? 'App' : 'Page'));
                 const badgeClass = isPdf ? 'pdf' : (isExternal ? 'external' : (isDir ? 'dir' : ''));
+                const typeLabel = isPdf ? 'PDF Document' : (isExternal ? 'CF Worker' : (isDir ? 'Directory' : 'Single Page'));
 
                 return `
                     <a href="${url}" class="site-card" target="_blank">
@@ -668,11 +673,11 @@
                             <span class="card-badge ${badgeClass}">${badge}</span>
                         </div>
                         <h3 class="card-title">${title}</h3>
-                        <div class="card-path">${isExternal ? '↗ Worker' : path}</div>
+                        <div class="card-path">${(isExternal || isPdf) ? '↗ R2' : path}</div>
                         <p class="card-description">${meta.description}</p>
                         <div class="card-meta">
                             ${site.size ? `<span>📦 ${formatSize(site.size)}</span>` : ''}
-                            <span>🔗 ${isExternal ? 'CF Worker' : (isDir ? 'Directory' : 'Single Page')}</span>
+                            <span>🔗 ${typeLabel}</span>
                         </div>
                     </a>
                 `;
@@ -682,10 +687,12 @@
         function updateStats(sites) {
             const total = sites.length;
             const pages = sites.filter(s => s.type === 'file').length;
+            const pdfs = sites.filter(s => s.type === 'pdf').length;
             const apps = sites.filter(s => s.type === 'dir' || s.type === 'external').length;
 
             document.getElementById('total-count').textContent = total;
             document.getElementById('page-count').textContent = pages;
+            document.getElementById('pdf-count').textContent = pdfs;
             document.getElementById('app-count').textContent = apps;
         }
 
@@ -694,10 +701,11 @@
         async function init() {
             allSites = await fetchSites();
             
-            // Add external apps (Workers)
+            // Add external apps and PDFs
             Object.entries(siteMeta).forEach(([key, meta]) => {
                 if (meta.url) {
-                    allSites.push({ name: key, type: 'external', url: meta.url });
+                    const type = meta.category === 'pdf' ? 'pdf' : 'external';
+                    allSites.push({ name: key, type: type, url: meta.url });
                 }
             });
             
