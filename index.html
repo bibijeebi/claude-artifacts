@@ -656,7 +656,7 @@
                 title: 'Gallery',
                 description: 'All albums and images in one place.',
                 icon: '🖼️',
-                category: 'gallery'
+                category: 'page'
             },
             'album-quotes': {
                 title: 'Quotes',
@@ -780,7 +780,6 @@
                 const badgeMap = {
                     'page': { label: 'Page', class: '' },
                     'slide': { label: 'Slides', class: 'slide' },
-                    'gallery': { label: 'Gallery', class: 'album' },
                     'album': { label: 'Album', class: 'album' },
                     'pdf': { label: 'PDF', class: 'pdf' },
                     'app': { label: 'App', class: 'external' }
@@ -790,7 +789,6 @@
                 const typeLabels = {
                     'page': 'Single Page',
                     'slide': 'Reveal.js Presentation',
-                    'gallery': 'Image Gallery',
                     'album': 'Photo Album',
                     'pdf': 'PDF Document',
                     'app': isDir ? 'Directory' : 'CF Worker'
@@ -818,7 +816,7 @@
             const total = sites.length;
             const pages = sites.filter(s => s.category === 'page').length;
             const slides = sites.filter(s => s.category === 'slide').length;
-            const albums = sites.filter(s => s.category === 'album' || s.category === 'gallery').length;
+            const albums = sites.filter(s => s.category === 'album').length;
             const pdfs = sites.filter(s => s.category === 'pdf').length;
             const apps = sites.filter(s => s.category === 'app').length;
 
@@ -841,7 +839,6 @@
                 let category = 'page'; // default for files
                 if (site.type === 'dir') category = 'app';
                 if (meta && meta.category === 'presentation') category = 'slide';
-                if (meta && meta.category === 'gallery') category = 'gallery';
                 if (meta && meta.category === 'album') category = 'album';
                 return { ...site, category };
             });
@@ -871,7 +868,7 @@
                     filtered = filtered.filter(site => {
                         if (activeFilters.has('page') && site.category === 'page') return true;
                         if (activeFilters.has('slide') && site.category === 'slide') return true;
-                        if (activeFilters.has('album') && (site.category === 'album' || site.category === 'gallery')) return true;
+                        if (activeFilters.has('album') && site.category === 'album') return true;
                         if (activeFilters.has('pdf') && site.category === 'pdf') return true;
                         if (activeFilters.has('app') && site.category === 'app') return true;
                         return false;
