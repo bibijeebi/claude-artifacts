@@ -232,6 +232,11 @@
             color: var(--orange);
         }
 
+        .card-badge.external {
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+        }
+
         .card-title {
             font-size: 1.25rem;
             font-weight: 600;
@@ -429,6 +434,20 @@
                 description: 'Comprehensive guide to jar openers: clamp-style, strap wrenches, electric, under-cabinet, and more.',
                 icon: '🫙',
                 category: 'guide'
+            },
+            'weight-tracker': {
+                title: 'Weight Tracker',
+                description: 'D1-backed weight tracking dashboard. Goal: 175 lbs. TDEE ~2979 cal.',
+                icon: '⚖️',
+                category: 'app',
+                url: 'https://weight-tracker.bennyforeman1.workers.dev'
+            },
+            'personal-pastebin': {
+                title: 'Personal Pastebin',
+                description: 'KV-backed pastebin with expiration, titles, and API access.',
+                icon: '📋',
+                category: 'app',
+                url: 'https://personal-pastebin.bennyforeman1.workers.dev'
             }
         };
 
@@ -490,21 +509,24 @@
                 const meta = siteMeta[site.name] || defaultMeta;
                 const title = meta.title || getDisplayName(site.name);
                 const isDir = site.type === 'dir';
-                const path = isDir ? `/${site.name}/` : `/${site.name}`;
-                const url = BASE_URL + path;
+                const isExternal = site.type === 'external';
+                const path = isExternal ? meta.url : (isDir ? `/${site.name}/` : `/${site.name}`);
+                const url = isExternal ? meta.url : BASE_URL + path;
+                const badge = isExternal ? 'App' : (isDir ? 'App' : 'Page');
+                const badgeClass = isExternal ? 'external' : (isDir ? 'dir' : '');
 
                 return `
                     <a href="${url}" class="site-card" target="_blank">
                         <div class="card-header">
                             <div class="card-icon">${meta.icon}</div>
-                            <span class="card-badge ${isDir ? 'dir' : ''}">${isDir ? 'App' : 'Page'}</span>
+                            <span class="card-badge ${badgeClass}">${badge}</span>
                         </div>
                         <h3 class="card-title">${title}</h3>
-                        <div class="card-path">${path}</div>
+                        <div class="card-path">${isExternal ? '↗ Worker' : path}</div>
                         <p class="card-description">${meta.description}</p>
                         <div class="card-meta">
                             ${site.size ? `<span>📦 ${formatSize(site.size)}</span>` : ''}
-                            <span>🔗 ${isDir ? 'Directory' : 'Single Page'}</span>
+                            <span>🔗 ${isExternal ? 'CF Worker' : (isDir ? 'Directory' : 'Single Page')}</span>
                         </div>
                     </a>
                 `;
@@ -514,7 +536,7 @@
         function updateStats(sites) {
             const total = sites.length;
             const pages = sites.filter(s => s.type === 'file').length;
-            const apps = sites.filter(s => s.type === 'dir').length;
+            const apps = sites.filter(s => s.type === 'dir' || s.type === 'external').length;
 
             document.getElementById('total-count').textContent = total;
             document.getElementById('page-count').textContent = pages;
@@ -525,6 +547,14 @@
 
         async function init() {
             allSites = await fetchSites();
+            
+            // Add external apps (Workers)
+            Object.entries(siteMeta).forEach(([key, meta]) => {
+                if (meta.url) {
+                    allSites.push({ name: key, type: 'external', url: meta.url });
+                }
+            });
+            
             renderSites(allSites);
             updateStats(allSites);
 
@@ -561,4 +591,5 @@
     </script>
 </body>
 </html>
+
 
