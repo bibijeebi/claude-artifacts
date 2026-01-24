@@ -664,7 +664,9 @@
                 const data = await response.json();
                 
                 // Filter to only HTML files and directories (potential sites)
+                // Exclude infrastructure directories like 'functions'
                 const sites = data.filter(item => {
+                    if (item.name === 'functions') return false;
                     if (item.type === 'dir') return true;
                     if (item.type === 'file' && item.name.endsWith('.html') && item.name !== 'index.html') return true;
                     return false;
