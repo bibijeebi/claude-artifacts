@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benny & Bekah's Deviled Eggs 🥚</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --gold: #D4A853;
+            --cream: #FFF8E7;
+            --dark: #2C2416;
+            --paprika: #C84B31;
+            --green: #4A7C59;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--gold) 0%, #E8C97A 100%);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '🥚';
+            position: absolute;
+            font-size: 15rem;
+            opacity: 0.1;
+            top: -2rem;
+            right: -2rem;
+        }
+        
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .timer-section {
+            background: var(--dark);
+            color: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .timer-section h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .timer-grid {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .timer-block {
+            background: linear-gradient(145deg, #3a3026, #221c12);
+            border: 3px solid var(--gold);
+            border-radius: 0.75rem;
+            padding: 1.5rem 1rem;
+            min-width: 140px;
+            flex: 1;
+        }
+        
+        .timer-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+        }
+        
+        .timer-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .section h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--paprika);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section h3 {
+            color: var(--green);
+            margin: 1.5rem 0 0.75rem;
+            font-size: 1.1rem;
+        }
+        
+        .ingredient-list {
+            list-style: none;
+            display: grid;
+            gap: 0.5rem;
+        }
+        
+        .ingredient-list li {
+            padding: 0.75rem 1rem;
+            background: var(--cream);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .ingredient-list li::before {
+            content: '✓';
+            color: var(--green);
+            font-weight: 600;
+        }
+        
+        .steps {
+            counter-reset: step;
+            list-style: none;
+        }
+        
+        .steps li {
+            counter-increment: step;
+            padding: 1rem 1rem 1rem 3.5rem;
+            position: relative;
+            margin-bottom: 0.75rem;
+            background: var(--cream);
+            border-radius: 0.5rem;
+        }
+        
+        .steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gold);
+            color: var(--dark);
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, var(--gold) 0%, var(--gold) 100%);
+            background-size: 100% 0.3em;
+            background-repeat: no-repeat;
+            background-position: 0 88%;
+        }
+        
+        .warning {
+            background: #FFF3CD;
+            border-left: 4px solid var(--gold);
+            padding: 1rem 1.25rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin: 1rem 0;
+        }
+        
+        .warning strong {
+            color: var(--paprika);
+        }
+        
+        .tip {
+            background: #E8F5E9;
+            border-left: 4px solid var(--green);
+            padding: 1rem 1.25rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin: 1rem 0;
+        }
+        
+        .filling-recipe {
+            background: linear-gradient(135deg, #FFF8E7 0%, #FFF 100%);
+            border: 2px dashed var(--gold);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .filling-recipe h4 {
+            color: var(--paprika);
+            margin-bottom: 0.75rem;
+        }
+        
+        .filling-recipe ul {
+            list-style: none;
+            display: grid;
+            gap: 0.4rem;
+        }
+        
+        .filling-recipe li {
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .filling-recipe li::before {
+            content: '•';
+            position: absolute;
+            left: 0.5rem;
+            color: var(--gold);
+            font-weight: bold;
+        }
+        
+        .jalapeno-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--green);
+            color: white;
+            padding: 0.3rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--dark);
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 500px) {
+            .hero h1 { font-size: 2rem; }
+            .timer-number { font-size: 2.5rem; }
+            .timer-block { min-width: 100px; padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <h1>Deviled Eggs</h1>
+        <p>Instant Pot 5-5-5 Method + Candied Jalapeño Edition</p>
+    </header>
+    
+    <main class="container">
+        <div class="timer-section">
+            <h2>The 5-5-5 Method</h2>
+            <div class="timer-grid">
+                <div class="timer-block">
+                    <div class="timer-number">5</div>
+                    <div class="timer-label">Minutes<br>Pressure Cook</div>
+                </div>
+                <div class="timer-block">
+                    <div class="timer-number">5</div>
+                    <div class="timer-label">Minutes<br>Natural Release</div>
+                </div>
+                <div class="timer-block">
+                    <div class="timer-number">5</div>
+                    <div class="timer-label">Minutes<br>Ice Bath</div>
+                </div>
+            </div>
+        </div>
+        
+        <section class="section">
+            <h2>📝 What You Need</h2>
+            
+            <h3>For the Eggs</h3>
+            <ul class="ingredient-list">
+                <li>15 eggs</li>
+                <li>1 cup water</li>
+                <li>Big bowl of ice water (ready before eggs finish)</li>
+            </ul>
+            
+            <h3>For the Filling</h3>
+            <ul class="ingredient-list">
+                <li>Hellmann's Real Mayonnaise</li>
+                <li>Grey Poupon Dijon Mustard</li>
+                <li>Worcestershire Sauce</li>
+                <li>Sweet pickle juice (just the liquid!)</li>
+                <li>Salt & pepper</li>
+            </ul>
+            
+            <h3>Toppings</h3>
+            <ul class="ingredient-list">
+                <li>Cape Fear Pirate Candy Jalapeños 🌶️</li>
+                <li>Paprika (optional, for classic look)</li>
+            </ul>
+        </section>
+        
+        <section class="section">
+            <h2>🥚 Phase 1: Hard-Boiled Eggs</h2>
+            
+            <ol class="steps">
+                <li>Add <span class="highlight">1 cup water</span> to Instant Pot</li>
+                <li>Place eggs on trivet (stacking is fine)</li>
+                <li>Seal lid, turn valve to <strong>SEALING</strong></li>
+                <li>Press Pressure Cook → High → <strong>5 minutes</strong></li>
+                <li>Walk away! Takes ~10 min to pressurize, then counts down</li>
+            </ol>
+            
+            <div class="warning">
+                <strong>⚠️ When it beeps:</strong> DO NOT TOUCH for 5 minutes! This is the natural release.
+            </div>
+            
+            <ol class="steps" start="6">
+                <li>After 5 min, turn valve to venting to release remaining pressure</li>
+                <li>Transfer eggs immediately to ice bath for <strong>5 minutes</strong></li>
+                <li>Peel under cold running water if shells stick</li>
+            </ol>
+            
+            <div class="tip">
+                <strong>💡 Pro tip:</strong> Roll peeled egg on counter to crack shell evenly before peeling. Older eggs (1-2 weeks) peel easier than fresh.
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>😈 Phase 2: Devil Those Eggs</h2>
+            
+            <ol class="steps">
+                <li>Slice all 15 eggs in half lengthwise</li>
+                <li>Pop yolks into a bowl, arrange whites on a plate</li>
+                <li>Mash yolks with a fork until smooth (no chunks!)</li>
+            </ol>
+            
+            <div class="filling-recipe">
+                <h4>Mix Into Yolks (for 15 eggs / 30 halves):</h4>
+                <ul>
+                    <li><strong>5-6 tbsp</strong> Hellmann's mayo</li>
+                    <li><strong>1.5 tsp</strong> Grey Poupon</li>
+                    <li><strong>1 tsp</strong> Worcestershire</li>
+                    <li><strong>1-2 tsp</strong> sweet pickle juice</li>
+                    <li>Salt & pepper to taste</li>
+                </ul>
+            </div>
+            
+            <ol class="steps" start="4">
+                <li>Taste the filling and adjust seasonings</li>
+                <li>Spoon or pipe filling back into whites</li>
+                <li>Top with candied jalapeños right before serving</li>
+            </ol>
+            
+            <div class="jalapeno-badge">🌶️ Candied jalapeños go on TOP, not mixed in!</div>
+        </section>
+        
+        <section class="section">
+            <h2>✨ Final Tips</h2>
+            <ul class="ingredient-list">
+                <li>Add jalapeños right before serving so they stay crispy</li>
+                <li>Can be made a day ahead (store covered, add toppings when serving)</li>
+                <li>Dust with paprika for that classic look</li>
+                <li>Refrigerate until ready to serve</li>
+            </ul>
+        </section>
+    </main>
+    
+    <footer>
+        Made with 🥚 for Bekah • January 2026
+    </footer>
+</body>
+</html>
