@@ -127,48 +127,31 @@
             pointer-events: none;
         }
 
-        /* Filter buttons */
-        .filter-buttons {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #888;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .filter-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ccc;
-        }
-
-        .filter-btn.active {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: rgba(99, 102, 241, 0.4);
-            color: #818cf8;
-        }
-
-        /* Stats bar */
+        /* Stats */        /* Stats bar */
         .stats {
             display: flex;
             justify-content: center;
-            gap: 2rem;
+            gap: 1.5rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
         }
 
         .stat {
             text-align: center;
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .stat:hover {
+            background: rgba(129, 140, 248, 0.1);
+        }
+
+        .stat.active {
+            background: rgba(129, 140, 248, 0.15);
+            border-color: rgba(129, 140, 248, 0.3);
         }
 
         .stat-value {
@@ -178,7 +161,7 @@
         }
 
         .stat-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.1em;
@@ -403,36 +386,28 @@
             <input type="text" class="search-input" id="search" placeholder="Search sites..." autocomplete="off">
         </div>
 
-        <div class="filter-buttons" id="filters">
-            <button class="filter-btn" data-filter="page">Pages</button>
-            <button class="filter-btn" data-filter="slide">Slides</button>
-            <button class="filter-btn" data-filter="album">Albums</button>
-            <button class="filter-btn" data-filter="pdf">PDFs</button>
-            <button class="filter-btn" data-filter="app">Apps</button>
-        </div>
-
         <div class="stats" id="stats">
-            <div class="stat">
+            <div class="stat" data-filter="all">
                 <div class="stat-value" id="total-count">-</div>
                 <div class="stat-label">Total</div>
             </div>
-            <div class="stat">
+            <div class="stat" data-filter="page">
                 <div class="stat-value" id="page-count">-</div>
                 <div class="stat-label">Pages</div>
             </div>
-            <div class="stat">
+            <div class="stat" data-filter="slide">
                 <div class="stat-value" id="slide-count">-</div>
                 <div class="stat-label">Slides</div>
             </div>
-            <div class="stat">
+            <div class="stat" data-filter="album">
                 <div class="stat-value" id="album-count">-</div>
                 <div class="stat-label">Albums</div>
             </div>
-            <div class="stat">
+            <div class="stat" data-filter="pdf">
                 <div class="stat-value" id="pdf-count">-</div>
                 <div class="stat-label">PDFs</div>
             </div>
-            <div class="stat">
+            <div class="stat" data-filter="app">
                 <div class="stat-value" id="app-count">-</div>
                 <div class="stat-label">Apps</div>
             </div>
@@ -914,16 +889,24 @@
             // Search functionality
             searchInput.addEventListener('input', applyFilters);
 
-            // Filter buttons (toggle mode)
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const filter = btn.dataset.filter;
-                    if (activeFilters.has(filter)) {
-                        activeFilters.delete(filter);
-                        btn.classList.remove('active');
+            // Stat filters (toggle mode)
+            document.querySelectorAll('.stat[data-filter]').forEach(stat => {
+                stat.addEventListener('click', () => {
+                    const filter = stat.dataset.filter;
+                    
+                    if (filter === 'all') {
+                        // Clear all filters
+                        activeFilters.clear();
+                        document.querySelectorAll('.stat').forEach(s => s.classList.remove('active'));
                     } else {
-                        activeFilters.add(filter);
-                        btn.classList.add('active');
+                        // Toggle this filter
+                        if (activeFilters.has(filter)) {
+                            activeFilters.delete(filter);
+                            stat.classList.remove('active');
+                        } else {
+                            activeFilters.add(filter);
+                            stat.classList.add('active');
+                        }
                     }
                     applyFilters();
                 });
@@ -938,7 +921,9 @@
                 if (e.key === 'Escape') {
                     searchInput.blur();
                     searchInput.value = '';
-                    renderSites(allSites);
+                    activeFilters.clear();
+                    document.querySelectorAll('.stat').forEach(s => s.classList.remove('active'));
+                    applyFilters();
                 }
             });
         }
