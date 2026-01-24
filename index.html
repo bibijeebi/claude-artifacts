@@ -127,6 +127,37 @@
             pointer-events: none;
         }
 
+        /* Filter buttons */
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ccc;
+        }
+
+        .filter-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+            color: #818cf8;
+        }
+
         /* Stats bar */
         .stats {
             display: flex;
@@ -362,6 +393,13 @@
                 <path d="m21 21-4.35-4.35"/>
             </svg>
             <input type="text" class="search-input" id="search" placeholder="Search sites..." autocomplete="off">
+        </div>
+
+        <div class="filter-buttons" id="filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="page">Pages</button>
+            <button class="filter-btn" data-filter="pdf">PDFs</button>
+            <button class="filter-btn" data-filter="app">Apps</button>
         </div>
 
         <div class="stats" id="stats">
@@ -712,19 +750,49 @@
             renderSites(allSites);
             updateStats(allSites);
 
-            // Search functionality
+            let currentFilter = 'all';
             const searchInput = document.getElementById('search');
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase();
-                const filtered = allSites.filter(site => {
-                    const meta = siteMeta[site.name] || defaultMeta;
-                    const title = (meta.title || getDisplayName(site.name)).toLowerCase();
-                    const desc = meta.description.toLowerCase();
-                    return site.name.toLowerCase().includes(query) || 
-                           title.includes(query) || 
-                           desc.includes(query);
-                });
+
+            function applyFilters() {
+                const query = searchInput.value.toLowerCase();
+                let filtered = allSites;
+
+                // Apply type filter
+                if (currentFilter !== 'all') {
+                    filtered = filtered.filter(site => {
+                        if (currentFilter === 'page') return site.type === 'file';
+                        if (currentFilter === 'pdf') return site.type === 'pdf';
+                        if (currentFilter === 'app') return site.type === 'dir' || site.type === 'external';
+                        return true;
+                    });
+                }
+
+                // Apply search filter
+                if (query) {
+                    filtered = filtered.filter(site => {
+                        const meta = siteMeta[site.name] || defaultMeta;
+                        const title = (meta.title || getDisplayName(site.name)).toLowerCase();
+                        const desc = meta.description.toLowerCase();
+                        return site.name.toLowerCase().includes(query) || 
+                               title.includes(query) || 
+                               desc.includes(query);
+                    });
+                }
+
                 renderSites(filtered);
+            }
+
+            // Search functionality
+            searchInput.addEventListener('input', applyFilters);
+
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    applyFilters();
+                });
             });
 
             // Keyboard shortcut: / to focus search
