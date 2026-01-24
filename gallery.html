@@ -80,6 +80,9 @@
   </div>
   <script>
     const R2 = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
+    const thumb = (img) => R2 + 'thumb-' + img;  // Thumbnail URL
+    const full = (img) => R2 + img;              // Full image URL
+    
     const albums = [
       { id: 'quotes', title: 'Quotes', icon: '💬', images: ['album-quotes-1.png','album-quotes-2.png','album-quotes-3.png'] },
       { id: 'please-bro', title: 'Please Bro', icon: '🙏', images: ['album-please-bro-1.png','album-please-bro-2.png'] },
@@ -95,7 +98,7 @@
     function renderAlbums() {
       document.getElementById('albums-grid').innerHTML = albums.map(album => {
         let previews = album.images.slice(0,4).map((img,i) => 
-          i === 3 && album.images.length > 4 ? `<div class="more">+${album.images.length-4}</div>` : `<img src="${R2}${img}" loading="lazy">`
+          i === 3 && album.images.length > 4 ? `<div class="more">+${album.images.length-4}</div>` : `<img src="${thumb(img)}" loading="lazy">`
         ).join('');
         if (album.images.length < 4) previews += '<div style="background:#111"></div>'.repeat(4 - album.images.length);
         return `<div class="album-card" onclick="openAlbum('${album.id}')"><div class="album-preview">${previews}</div><div class="album-info"><div class="album-title">${album.icon} ${album.title}</div><div class="album-count">${album.images.length} images</div></div></div>`;
@@ -108,7 +111,7 @@
       history.pushState(null, '', `#${id}`);
       document.getElementById('album-view-title').textContent = `${currentAlbum.icon} ${currentAlbum.title}`;
       document.getElementById('album-images').innerHTML = currentAlbum.images.map((img, i) => 
-        `<div class="image-card"><img src="${R2}${img}" onclick="openLightbox(${i})" loading="lazy"><button class="download-btn" onclick="event.stopPropagation();downloadImage('${img}')" title="Download"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></div>`
+        `<div class="image-card"><img src="${thumb(img)}" onclick="openLightbox(${i})" loading="lazy"><button class="download-btn" onclick="event.stopPropagation();downloadImage('${img}')" title="Download"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></div>`
       ).join('');
       document.getElementById('album-view').classList.add('active');
       document.body.style.overflow = 'hidden';
@@ -127,7 +130,8 @@
       document.getElementById('lightbox').classList.add('active');
     }
     function updateLightbox() {
-      document.getElementById('lightbox-img').src = R2 + currentAlbum.images[currentImageIndex];
+      // Use FULL image in lightbox
+      document.getElementById('lightbox-img').src = full(currentAlbum.images[currentImageIndex]);
       document.getElementById('lightbox-counter').textContent = `${currentImageIndex + 1} / ${currentAlbum.images.length}`;
     }
     function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
@@ -137,7 +141,8 @@
     }
 
     async function downloadImage(filename) {
-      const res = await fetch(R2 + filename);
+      // Download FULL image
+      const res = await fetch(full(filename));
       const blob = await res.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
