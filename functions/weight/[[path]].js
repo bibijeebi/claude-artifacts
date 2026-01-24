@@ -18,8 +18,8 @@ export async function onRequest(context) {
   }
   
   if (path === "/status" || path === "/" || path === "") {
-    const data = await getStatus(env.DB, userId);
-    const trends = await getTrends(env.DB, userId, 14);
+    const data = await getStatus(env.WEIGHT_DB, userId);
+    const trends = await getTrends(env.WEIGHT_DB, userId, 14);
     const accept = request.headers.get("Accept") || "";
     if (accept.includes("text/html")) {
       return new Response(renderHTML(data, trends), {
@@ -31,54 +31,54 @@ export async function onRequest(context) {
   
   if (path === "/log" && request.method === "POST") {
     const body = await request.json();
-    const result = await logEntry(env.DB, userId, body);
+    const result = await logEntry(env.WEIGHT_DB, userId, body);
     return Response.json(result, { headers: corsHeaders });
   }
   
   if (path === "/burn" && request.method === "POST") {
     const body = await request.json();
-    const result = await logBurn(env.DB, userId, body.calories);
+    const result = await logBurn(env.WEIGHT_DB, userId, body.calories);
     return Response.json(result, { headers: corsHeaders });
   }
   
   if (path === "/history") {
     const days = parseInt(url.searchParams.get("days") || "7");
-    const history = await getHistory(env.DB, userId, days);
+    const history = await getHistory(env.WEIGHT_DB, userId, days);
     return Response.json(history, { headers: corsHeaders });
   }
   
   if (path === "/trends") {
     const days = parseInt(url.searchParams.get("days") || "30");
-    const trends = await getTrends(env.DB, userId, days);
+    const trends = await getTrends(env.WEIGHT_DB, userId, days);
     return Response.json(trends, { headers: corsHeaders });
   }
   
   if (path.startsWith("/log/") && request.method === "DELETE") {
     const logId = parseInt(path.split("/")[2]);
-    const result = await deleteLog(env.DB, userId, logId);
+    const result = await deleteLog(env.WEIGHT_DB, userId, logId);
     return Response.json(result, { headers: corsHeaders });
   }
   
   if (path.startsWith("/log/") && request.method === "PUT") {
     const logId = parseInt(path.split("/")[2]);
     const body = await request.json();
-    const result = await editLog(env.DB, userId, logId, body);
+    const result = await editLog(env.WEIGHT_DB, userId, logId, body);
     return Response.json(result, { headers: corsHeaders });
   }
   
   if (path === "/tdee") {
-    const tdee = await getAdaptiveTDEE(env.DB, userId);
+    const tdee = await getAdaptiveTDEE(env.WEIGHT_DB, userId);
     return Response.json(tdee, { headers: corsHeaders });
   }
   
   if (path === "/user" && request.method === "POST") {
     const body = await request.json();
-    const result = await updateUser(env.DB, userId, body);
+    const result = await updateUser(env.WEIGHT_DB, userId, body);
     return Response.json(result, { headers: corsHeaders });
   }
   
   if (path === "/export") {
-    const data = await exportData(env.DB, userId);
+    const data = await exportData(env.WEIGHT_DB, userId);
     return Response.json(data, { headers: corsHeaders });
   }
   
