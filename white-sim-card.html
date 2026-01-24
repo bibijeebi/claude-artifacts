@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیم کارت سفید | White SIM Card - Iran's Digital Class System</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;700&family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --accent-cyan: #00ffd5;
+            --accent-green: #39ff14;
+            --accent-red: #ff3b3b;
+            --accent-gold: #ffd700;
+            --text-primary: #e8e8e8;
+            --text-secondary: #888;
+            --text-muted: #555;
+            --grid-color: rgba(0, 255, 213, 0.03);
+            --scan-line: rgba(0, 255, 213, 0.02);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Scan lines overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                var(--scan-line) 2px,
+                var(--scan-line) 4px
+            );
+            z-index: 1000;
+        }
+
+        /* Grid background */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 4rem 0 3rem;
+            position: relative;
+        }
+
+        .classification {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            color: var(--accent-red);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 90%, 100% { opacity: 1; }
+            95% { opacity: 0.3; }
+        }
+
+        .persian-title {
+            font-family: 'Noto Naskh Arabic', serif;
+            font-size: 3.5rem;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 30px rgba(0, 255, 213, 0.5);
+            margin-bottom: 0.5rem;
+            direction: rtl;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .date-stamp {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 2rem;
+            letter-spacing: 0.1em;
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 3rem 0;
+        }
+
+        .stat {
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 255, 213, 0.2);
+            padding: 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+        }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 20px rgba(0, 255, 213, 0.4);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 0.5rem;
+        }
+
+        /* Section styling */
+        section {
+            margin: 3rem 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-cyan);
+        }
+
+        .content-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            position: relative;
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-cyan);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Definition box */
+        .definition {
+            background: linear-gradient(135deg, rgba(0, 255, 213, 0.05), transparent);
+            border: 1px solid rgba(0, 255, 213, 0.3);
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .definition-term {
+            font-family: 'Noto Naskh Arabic', serif;
+            font-size: 1.8rem;
+            color: var(--accent-cyan);
+            direction: rtl;
+            margin-bottom: 0.5rem;
+        }
+
+        .definition-pronunciation {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .definition-meaning {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        /* Feature list */
+        .features {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 2px solid var(--accent-green);
+        }
+
+        .feature-icon {
+            color: var(--accent-green);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-size: 0.95rem;
+        }
+
+        /* Who gets them */
+        .recipients {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .recipient {
+            background: var(--bg-secondary);
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+
+        .recipient-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .recipient-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .recipient-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Timeline / Exposure section */
+        .exposure-box {
+            background: linear-gradient(135deg, rgba(255, 59, 59, 0.1), transparent);
+            border: 1px solid rgba(255, 59, 59, 0.3);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .exposure-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .exposure-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-red);
+            background: rgba(255, 59, 59, 0.1);
+            padding: 0.25rem 0.75rem;
+        }
+
+        .exposure-title {
+            font-weight: 600;
+            color: var(--accent-red);
+        }
+
+        /* Quote box */
+        .quote {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 1.5rem 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .quote-text {
+            font-style: italic;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .quote-source {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* OSINT section */
+        .osint-grid {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .osint-item {
+            background: var(--bg-secondary);
+            padding: 1.25rem;
+            border: 1px solid rgba(57, 255, 20, 0.2);
+            position: relative;
+        }
+
+        .osint-item::before {
+            content: 'INDICATOR';
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            padding: 0.15rem 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        .osint-signal {
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .osint-meaning {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Terms section */
+        .terms-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .term-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-secondary);
+        }
+
+        .term-persian {
+            font-family: 'Noto Naskh Arabic', serif;
+            font-size: 1.1rem;
+            color: var(--accent-cyan);
+            direction: rtl;
+            min-width: 150px;
+            text-align: right;
+        }
+
+        .term-english {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 3rem;
+        }
+
+        .footer-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .persian-title {
+                font-size: 2.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .recipients {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glitch effect on hover */
+        .glitch:hover {
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="classification">◆ OSINT Brief ◆</div>
+            <div class="persian-title glitch">سیم کارت سفید</div>
+            <h1>White SIM Card</h1>
+            <p class="subtitle">Iran's secret tiered internet system exposed. How ~50,000 privileged SIM cards bypass the Islamic Republic's censorship infrastructure.</p>
+            <div class="date-stamp">Compiled: January 2026 | Sources: Digiato, Zoomit, Wikipedia FA</div>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-number">~50K</div>
+                <div class="stat-label">Active White SIMs</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">NOV 25</div>
+                <div class="stat-label">Mass Exposure Date</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">85M+</div>
+                <div class="stat-label">Iranians Filtered</div>
+            </div>
+        </div>
+
+        <div class="definition">
+            <div class="definition-term">سیم کارت سفید</div>
+            <div class="definition-pronunciation">/SIM kart-e safid/ — literally "white SIM card"</div>
+            <div class="definition-meaning">A SIM card registered on a government "whitelist" with Iranian mobile carriers, granting unrestricted access to the global internet without filtering or VPN circumvention. Holders can directly access Twitter/X, YouTube, Instagram, Telegram, and other blocked platforms while ordinary citizens cannot.</div>
+        </div>
+
+        <section>
+            <div class="section-header">
+                <div class="section-icon">◈</div>
+                <h2>Key Capabilities</h2>
+            </div>
+            <div class="content-card">
+                <p>White SIM cards provide privileged network access that bypasses Iran's national censorship infrastructure entirely. They are not "jailbroken" or hacked—they are officially whitelisted at the carrier level.</p>
+                
+                <div class="features">
+                    <div class="feature">
+                        <span class="feature-icon">▸</span>
+                        <span class="feature-text"><strong>No filtering:</strong> Direct access to all blocked platforms (X, YouTube, Instagram, Telegram, WhatsApp) without VPN</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">▸</span>
+                        <span class="feature-text"><strong>Shutdown immunity:</strong> Remain functional during nationwide internet blackouts (e.g., the "12-day war" period)</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">▸</span>
+                        <span class="feature-text"><strong>Better performance:</strong> Faster speeds and lower latency because traffic doesn't route through filtering/DPI equipment</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">▸</span>
+                        <span class="feature-text"><strong>Tied to national ID:</strong> Access is linked to the holder's کد ملی (national ID code), not the SIM itself</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-header">
+                <div class="section-icon">◈</div>
+                <h2>Who Gets Them</h2>
+            </div>
+            <div class="content-card">
+                <p>Distribution is not public. White SIMs are allocated based on political position, institutional affiliation, or "operational need."</p>
+                
+                <div class="recipients">
+                    <div class="recipient">
+                        <div class="recipient-icon">🏛️</div>
+                        <div class="recipient-title">Government Officials</div>
+                        <div class="recipient-desc">Senior politicians, MPs, ministry staff, diplomats</div>
+                    </div>
+                    <div class="recipient">
+                        <div class="recipient-icon">📡</div>
+                        <div class="recipient-title">State-Aligned Media</div>
+                        <div class="recipient-desc">Journalists at approved outlets for "international monitoring"</div>
+                    </div>
+                    <div class="recipient">
+                        <div class="recipient-icon">🛂</div>
+                        <div class="recipient-title">Foreign Tourists</div>
+                        <div class="recipient-desc">Tourist SIMs issued at border entry points</div>
+                    </div>
+                    <div class="recipient">
+                        <div class="recipient-icon">💼</div>
+                        <div class="recipient-title">Business Cardholders</div>
+                        <div class="recipient-desc">Those with official trade/commerce cards</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="exposure-box">
+            <div class="exposure-header">
+                <span class="exposure-date">NOV 25, 2025</span>
+                <span class="exposure-title">The X "Account Based In" Exposure</span>
+            </div>
+            <p>Twitter/X rolled out a new feature showing which country an account is managed from. Since X is blocked in Iran, most users connect via VPN and show foreign locations.</p>
+            <p style="margin-top: 1rem;"><strong>The tell:</strong> Any Iranian account showing "Account based in: Iran" is connecting directly—meaning they have unfiltered access. Screenshots flooded social media exposing politicians, pro-regime influencers, and state journalists all tweeting from direct Iranian IPs while preaching the virtues of filtering to ordinary citizens.</p>
+        </div>
+
+        <div class="quote">
+            <div class="quote-text">"The worst thing we're dealing with in this country is filtering. I've ordered the white SIM cards to become black."</div>
+            <div class="quote-source">— President Masoud Pezeshkian, December 2025</div>
+        </div>
+
+        <section>
+            <div class="section-header">
+                <div class="section-icon">◈</div>
+                <h2>OSINT Relevance</h2>
+            </div>
+            <div class="content-card">
+                <p>Understanding this system is critical for attribution, network analysis, and identifying regime-connected accounts in the Iranian information space.</p>
+                
+                <div class="osint-grid">
+                    <div class="osint-item">
+                        <div class="osint-signal">"Account based in: Iran" on X/Twitter</div>
+                        <div class="osint-meaning">Direct connection without VPN = likely white SIM holder = regime-connected or privileged access</div>
+                    </div>
+                    <div class="osint-item">
+                        <div class="osint-signal">Direct Iranian IP hitting filtered platforms</div>
+                        <div class="osint-meaning">Traffic analysis indicator of whitelisted access; useful for identifying state-affiliated operators</div>
+                    </div>
+                    <div class="osint-item">
+                        <div class="osint-signal">Activity during internet shutdowns</div>
+                        <div class="osint-meaning">Accounts active during nationwide blackouts likely have privileged infrastructure access</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-header">
+                <div class="section-icon">◈</div>
+                <h2>Key Farsi Terms</h2>
+            </div>
+            <div class="content-card">
+                <div class="terms-list">
+                    <div class="term-item">
+                        <span class="term-persian">سیم کارت سفید</span>
+                        <span class="term-english">SIM kart-e safid — "white SIM card" (unfiltered access)</span>
+                    </div>
+                    <div class="term-item">
+                        <span class="term-persian">اینترنت طبقاتی</span>
+                        <span class="term-english">internet-e tabaqati — "tiered/class-based internet" (the critique)</span>
+                    </div>
+                    <div class="term-item">
+                        <span class="term-persian">اینترنت بدون فیلتر</span>
+                        <span class="term-english">internet bedun-e filter — "unfiltered internet"</span>
+                    </div>
+                    <div class="term-item">
+                        <span class="term-persian">سفید کردن</span>
+                        <span class="term-english">safid kardan — "to whiten" (verb: to whitelist a SIM)</span>
+                    </div>
+                    <div class="term-item">
+                        <span class="term-persian">اینترنت خبرنگاری</span>
+                        <span class="term-english">internet-e khabarnegari — "journalist internet" (euphemism)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-header">
+                <div class="section-icon">◈</div>
+                <h2>Historical Context</h2>
+            </div>
+            <div class="content-card">
+                <p>The white SIM system originated during the Rouhani administration (2013-2021) when the Communications Ministry opposed blanket filtering. Unable to prevent censorship, they created exemptions for "professional" users—journalists, academics, diplomats.</p>
+                <p>Under Rouhani, white SIM holders had unlimited international bandwidth and connectivity even during the November 2019 nationwide shutdown. When Raisi took office in 2021, many exemptions were revoked. The current Pezeshkian administration inherited ~50,000 active white SIMs and faces public pressure to either eliminate the two-tier system or lift filtering entirely.</p>
+                <p>A 2020 plan to expand white SIMs to ~7 million users (all university students, all journalists, all tourists, all business cardholders) was never implemented due to "lack of cooperation from relevant agencies."</p>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-text">End of Brief ◆ For research and educational purposes</div>
+        </footer>
+    </div>
+</body>
+</html>
