@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery | muh shit</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #34d399, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 1rem;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #818cf8;
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+    
+    /* Album Grid */
+    .albums-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .album-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .album-card:hover {
+      border-color: rgba(52, 211, 153, 0.4);
+      transform: translateY(-2px);
+    }
+    .album-preview {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+      aspect-ratio: 1;
+      background: #111;
+    }
+    .album-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .album-preview .more {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.7);
+      color: #888;
+      font-size: 1.2rem;
+    }
+    .album-info {
+      padding: 16px;
+    }
+    .album-title {
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+    .album-count {
+      color: #666;
+      font-size: 0.85rem;
+    }
+    
+    /* Album View (expanded) */
+    .album-view {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 40px 20px;
+    }
+    .album-view.active { display: block; }
+    .album-view-header {
+      max-width: 1400px;
+      margin: 0 auto 30px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .album-view-close {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .album-view-close:hover { background: rgba(255,255,255,0.2); }
+    .album-view-title {
+      font-size: 1.8rem;
+    }
+    .album-images {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .album-images img {
+      width: 100%;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .album-images img:hover {
+      transform: scale(1.02);
+    }
+    
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.98);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2rem;
+      color: #fff;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+    .lightbox-close:hover { opacity: 1; }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 3rem;
+      color: #fff;
+      cursor: pointer;
+      opacity: 0.7;
+      padding: 20px;
+      user-select: none;
+    }
+    .lightbox-nav:hover { opacity: 1; }
+    .lightbox-prev { left: 10px; }
+    .lightbox-next { right: 10px; }
+  </style>
+</head>
+<body>
+  <a href="/" class="back-link">← Back to dashboard</a>
+  <div class="header">
+    <h1>Gallery</h1>
+    <p class="subtitle">6 albums · 20 images</p>
+  </div>
+  
+  <div class="albums-grid" id="albums-grid"></div>
+  
+  <div class="album-view" id="album-view">
+    <div class="album-view-header">
+      <button class="album-view-close" onclick="closeAlbum()">×</button>
+      <h2 class="album-view-title" id="album-view-title"></h2>
+    </div>
+    <div class="album-images" id="album-images"></div>
+  </div>
+  
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close" onclick="closeLightbox()">×</span>
+    <span class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">&#10094;</span>
+    <img id="lightbox-img" src="" alt="">
+    <span class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">&#10095;</span>
+  </div>
+
+  <script>
+    const R2_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
+    
+    const albums = [
+      {
+        id: 'quotes',
+        title: 'Quotes',
+        images: ['album-quotes-1.png', 'album-quotes-2.png', 'album-quotes-3.png']
+      },
+      {
+        id: 'please-bro',
+        title: 'Please Bro',
+        images: ['album-please-bro-1.png', 'album-please-bro-2.png']
+      },
+      {
+        id: 'collages',
+        title: 'Collages',
+        images: ['album-collages-1.png', 'album-collages-2.png']
+      },
+      {
+        id: 'memes',
+        title: 'Memes',
+        images: ['gallery-memes-1.png', 'gallery-memes-2.png', 'gallery-memes-3.png']
+      },
+      {
+        id: 'jacked-women',
+        title: 'Jacked Double-Chinned Women',
+        images: ['gallery-jacked-women-1.png', 'gallery-jacked-women-2.png', 'gallery-jacked-women-3.png', 'gallery-jacked-women-4.png']
+      },
+      {
+        id: 'want-to-anyway',
+        title: 'But I Want To Anyway Comics',
+        images: ['gallery-want-to-anyway-1.png', 'gallery-want-to-anyway-2.png', 'gallery-want-to-anyway-3.png', 'gallery-want-to-anyway-4.png', 'gallery-want-to-anyway-5.png', 'gallery-want-to-anyway-6.png']
+      }
+    ];
+    
+    let currentAlbum = null;
+    let currentImageIndex = 0;
+    
+    function renderAlbums() {
+      const grid = document.getElementById('albums-grid');
+      grid.innerHTML = albums.map(album => {
+        const previewImages = album.images.slice(0, 4);
+        const remaining = album.images.length - 4;
+        
+        let previews = previewImages.map((img, i) => {
+          if (i === 3 && remaining > 0) {
+            return `<div class="more">+${remaining}</div>`;
+          }
+          return `<img src="${R2_BASE}${img}" alt="" loading="lazy">`;
+        }).join('');
+        
+        // Pad to 4 if needed
+        while (previews.split('<').length - 1 < 4) {
+          previews += '<div style="background:#111"></div>';
+        }
+        
+        return `
+          <div class="album-card" onclick="openAlbum('${album.id}')">
+            <div class="album-preview">${previews}</div>
+            <div class="album-info">
+              <div class="album-title">${album.title}</div>
+              <div class="album-count">${album.images.length} images</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function openAlbum(albumId) {
+      currentAlbum = albums.find(a => a.id === albumId);
+      if (!currentAlbum) return;
+      
+      document.getElementById('album-view-title').textContent = currentAlbum.title;
+      document.getElementById('album-images').innerHTML = currentAlbum.images.map((img, i) => 
+        `<img src="${R2_BASE}${img}" alt="" onclick="openLightbox(${i})" loading="lazy">`
+      ).join('');
+      
+      document.getElementById('album-view').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeAlbum() {
+      document.getElementById('album-view').classList.remove('active');
+      document.body.style.overflow = '';
+      currentAlbum = null;
+    }
+    
+    function openLightbox(index) {
+      currentImageIndex = index;
+      document.getElementById('lightbox-img').src = R2_BASE + currentAlbum.images[index];
+      document.getElementById('lightbox').classList.add('active');
+    }
+    
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+    }
+    
+    function navigateLightbox(dir) {
+      currentImageIndex = (currentImageIndex + dir + currentAlbum.images.length) % currentAlbum.images.length;
+      document.getElementById('lightbox-img').src = R2_BASE + currentAlbum.images[currentImageIndex];
+    }
+    
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('lightbox').classList.contains('active')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') navigateLightbox(-1);
+        if (e.key === 'ArrowRight') navigateLightbox(1);
+      } else if (document.getElementById('album-view').classList.contains('active')) {
+        if (e.key === 'Escape') closeAlbum();
+      }
+    });
+    
+    renderAlbums();
+  </script>
+</body>
+</html>
