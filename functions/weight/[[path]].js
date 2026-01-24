@@ -3,9 +3,6 @@
 
 export async function onRequest(context) {
   const { request, env } = context;
-  const url = new URL(request.url);
-  const path = url.pathname.replace(/^\/weight/, '') || '/';
-  const userId = 1;
   
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -16,6 +13,11 @@ export async function onRequest(context) {
   if (request.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+  
+  try {
+    const url = new URL(request.url);
+    const path = url.pathname.replace(/^\/weight/, '') || '/';
+    const userId = 1;
   
   if (path === "/status" || path === "/" || path === "") {
     const data = await getStatus(env.WEIGHT_DB, userId);
@@ -83,6 +85,12 @@ export async function onRequest(context) {
   }
   
   return new Response("Not found", { status: 404, headers: corsHeaders });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
+    });
+  }
 }
 
 async function getStatus(db, userId) {
