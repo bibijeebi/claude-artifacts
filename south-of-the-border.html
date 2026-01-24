@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>South of the Border: America's Weirdest Rest Stop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Barlow+Condensed:wght@400;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-pink: #ff2d95;
+            --neon-yellow: #ffe135;
+            --neon-turquoise: #00fff7;
+            --neon-orange: #ff6b35;
+            --deep-purple: #1a0a2e;
+            --road-black: #0d0d0d;
+            --cream: #fff8e7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Barlow Condensed', sans-serif;
+            background: var(--road-black);
+            color: var(--cream);
+            overflow-x: hidden;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            background: linear-gradient(180deg, var(--deep-purple) 0%, var(--road-black) 100%);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(255, 45, 149, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(0, 255, 247, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .billboard-frame {
+            background: var(--neon-yellow);
+            padding: 0.5rem;
+            transform: rotate(-2deg);
+            box-shadow: 
+                0 0 30px rgba(255, 225, 53, 0.5),
+                inset 0 0 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+            animation: flicker 4s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 1; }
+            93% { opacity: 0.8; }
+            94% { opacity: 1; }
+            96% { opacity: 0.9; }
+            97% { opacity: 1; }
+        }
+
+        .billboard-inner {
+            background: var(--road-black);
+            padding: 1.5rem 3rem;
+            border: 4px solid var(--neon-orange);
+        }
+
+        .billboard-text {
+            font-family: 'Permanent Marker', cursive;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: var(--neon-yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .hero-title {
+            font-family: 'Monoton', cursive;
+            font-size: clamp(3rem, 12vw, 10rem);
+            color: var(--neon-pink);
+            text-shadow: 
+                0 0 5px rgba(255, 45, 149, 0.8),
+                0 0 15px rgba(255, 45, 149, 0.5),
+                0 0 30px rgba(255, 45, 149, 0.3);
+            line-height: 1;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px rgba(255, 45, 149, 0.8), 0 0 15px rgba(255, 45, 149, 0.5), 0 0 30px rgba(255, 45, 149, 0.3); }
+            to { text-shadow: 0 0 8px rgba(255, 45, 149, 0.9), 0 0 20px rgba(255, 45, 149, 0.6), 0 0 40px rgba(255, 45, 149, 0.4); }
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            color: var(--neon-turquoise);
+            margin-top: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+        }
+
+        .hero-image {
+            max-width: 800px;
+            width: 95%;
+            margin-top: 3rem;
+            border: 8px solid var(--neon-yellow);
+            box-shadow: 0 0 40px rgba(255, 225, 53, 0.3);
+        }
+
+        .hero-image img {
+            width: 100%;
+            display: block;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--neon-yellow);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* Section Styles */
+        section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Monoton', cursive;
+            font-size: clamp(2rem, 6vw, 4rem);
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title.pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255, 45, 149, 0.5); }
+        .section-title.yellow { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255, 225, 53, 0.5); }
+        .section-title.turquoise { color: var(--neon-turquoise); text-shadow: 0 0 10px rgba(0, 255, 247, 0.5); }
+        .section-title.orange { color: var(--neon-orange); text-shadow: 0 0 10px rgba(255, 107, 53, 0.5); }
+
+        .content-block {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            max-width: 800px;
+        }
+
+        .content-block p {
+            margin-bottom: 1.5rem;
+        }
+
+        .highlight {
+            color: var(--neon-yellow);
+            font-weight: 700;
+        }
+
+        .highlight-pink { color: var(--neon-pink); font-weight: 700; }
+        .highlight-turquoise { color: var(--neon-turquoise); font-weight: 700; }
+
+        /* History Section with Images */
+        .history-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin: 3rem 0;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .history-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .history-grid.reverse {
+            direction: rtl;
+        }
+
+        .history-grid.reverse > * {
+            direction: ltr;
+        }
+
+        .history-image {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-image img {
+            width: 100%;
+            display: block;
+            filter: sepia(20%);
+            transition: filter 0.3s;
+        }
+
+        .history-image:hover img {
+            filter: sepia(0%);
+        }
+
+        .history-image.vintage {
+            border: 6px solid var(--cream);
+            box-shadow: 0 0 0 2px var(--road-black), 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .history-image.color {
+            border: 6px solid var(--neon-orange);
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .history-image.color img {
+            filter: none;
+        }
+
+        .image-caption {
+            background: rgba(13, 13, 13, 0.95);
+            padding: 0.75rem 1rem;
+            font-family: 'Permanent Marker', cursive;
+            color: var(--neon-yellow);
+            font-size: 1rem;
+        }
+
+        .history-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+
+        .history-text .year {
+            font-family: 'Monoton', cursive;
+            font-size: 2.5rem;
+            color: var(--neon-orange);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Stats Banner */
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 4rem 2rem;
+            background: linear-gradient(90deg, var(--deep-purple), var(--road-black), var(--deep-purple));
+            border-top: 4px solid var(--neon-yellow);
+            border-bottom: 4px solid var(--neon-yellow);
+            margin: 4rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Monoton', cursive;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            color: var(--neon-yellow);
+            text-shadow: 0 0 10px rgba(255, 225, 53, 0.5);
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 0.5rem;
+            color: var(--cream);
+        }
+
+        /* Pedro Section */
+        .pedro-section {
+            background: linear-gradient(180deg, transparent, rgba(255, 107, 53, 0.1), transparent);
+        }
+
+        .pedro-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .pedro-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .pedro-image {
+            border: 6px solid var(--neon-orange);
+            box-shadow: 0 0 40px rgba(255, 107, 53, 0.4);
+        }
+
+        .pedro-image img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Image Grid */
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .grid-image {
+            position: relative;
+            overflow: hidden;
+            border: 4px solid var(--neon-turquoise);
+            box-shadow: 0 0 20px rgba(0, 255, 247, 0.3);
+        }
+
+        .grid-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+            aspect-ratio: 4/3;
+        }
+
+        .grid-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .grid-image-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(13, 13, 13, 0.9);
+            padding: 0.75rem;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1rem;
+            color: var(--neon-yellow);
+            text-align: center;
+        }
+
+        /* Quote Block */
+        .quote-block {
+            background: linear-gradient(135deg, rgba(255, 45, 149, 0.1), rgba(0, 255, 247, 0.1));
+            border-left: 6px solid var(--neon-pink);
+            padding: 2rem;
+            margin: 3rem 0;
+            font-style: italic;
+            font-size: 1.4rem;
+        }
+
+        .quote-attribution {
+            margin-top: 1rem;
+            font-style: normal;
+            font-weight: 700;
+            color: var(--neon-turquoise);
+        }
+
+        /* Controversy Section */
+        .controversy-section {
+            background: linear-gradient(180deg, transparent, rgba(255, 45, 149, 0.05), transparent);
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        .column-title {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid;
+        }
+
+        .column-title.critics { color: var(--neon-pink); border-color: var(--neon-pink); }
+        .column-title.defenders { color: var(--neon-turquoise); border-color: var(--neon-turquoise); }
+
+        .column-list {
+            list-style: none;
+            font-size: 1.1rem;
+        }
+
+        .column-list li {
+            padding: 0.75rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .column-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--neon-yellow);
+        }
+
+        /* Fun Facts */
+        .fun-facts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .fact-card {
+            background: linear-gradient(135deg, rgba(255, 225, 53, 0.1), rgba(255, 107, 53, 0.1));
+            border: 2px solid var(--neon-yellow);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fact-card::before {
+            content: '!';
+            position: absolute;
+            top: -20px;
+            right: -10px;
+            font-family: 'Monoton', cursive;
+            font-size: 8rem;
+            color: rgba(255, 225, 53, 0.1);
+            pointer-events: none;
+        }
+
+        .fact-card h4 {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.2rem;
+            color: var(--neon-orange);
+            margin-bottom: 0.75rem;
+        }
+
+        /* Billboard dividers */
+        .billboard-divider {
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .mini-billboard {
+            background: var(--neon-yellow);
+            padding: 0.3rem;
+            transform: rotate(1deg);
+            box-shadow: 0 0 20px rgba(255, 225, 53, 0.4);
+        }
+
+        .mini-billboard-inner {
+            background: var(--road-black);
+            padding: 1rem 2rem;
+            border: 3px solid var(--neon-orange);
+        }
+
+        .mini-billboard-text {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.2rem;
+            color: var(--neon-yellow);
+            text-align: center;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--deep-purple);
+            border-top: 4px solid var(--neon-pink);
+        }
+
+        .footer-title {
+            font-family: 'Monoton', cursive;
+            font-size: 2rem;
+            color: var(--neon-yellow);
+            text-shadow: 0 0 10px rgba(255, 225, 53, 0.5);
+        }
+
+        .footer-tagline {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.3rem;
+            color: var(--neon-turquoise);
+            margin-top: 1rem;
+        }
+
+        .footer-location {
+            margin-top: 2rem;
+            font-size: 1.1rem;
+            color: var(--cream);
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="noise-overlay"></div>
+
+    <!-- Hero -->
+    <header class="hero">
+        <div class="billboard-frame">
+            <div class="billboard-inner">
+                <span class="billboard-text">You Never Sausage a Place!</span>
+            </div>
+        </div>
+        <h1 class="hero-title">South of the Border</h1>
+        <p class="hero-subtitle">America's Weirdest Rest Stop</p>
+        <div class="hero-image">
+            <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/sotb-SCDILsob_prov14_620x300.jpg" alt="The Sombrero Tower at sunset with neon signs glowing">
+        </div>
+        <div class="scroll-indicator">↓ Keep Scrolling, Amigo ↓</div>
+    </header>
+
+    <!-- Origin Story -->
+    <section>
+        <h2 class="section-title pink">The Origin Story</h2>
+        
+        <div class="history-grid">
+            <div class="history-image vintage">
+                <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/sotb-SCDILsob_prov01_620x300.jpg" alt="The original South of the Border building in black and white">
+                <div class="image-caption">The Original Building, Early 1950s</div>
+            </div>
+            <div class="history-text">
+                <span class="year">1949</span>
+                <p>A Jewish businessman named <span class="highlight">Alan Schafer</span> had a simple idea: open a beer stand just south of the North Carolina border. Why? Because the NC counties to the north were <span class="highlight-pink">dry counties</span>. Thirsty Tar Heels drove south to grab a cold one.</p>
+                <p>The name was literal. Materials shipped to the site were addressed to "Schafer Project South of the (North Carolina) Border". He shortened it.</p>
+            </div>
+        </div>
+
+        <div class="history-grid reverse">
+            <div class="history-image color">
+                <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/sotb-SCDILsob_pc_60scornedbeef.jpg" alt="South of the Border in the 1960s with vintage cars">
+                <div class="image-caption">The Golden Age, Early 1960s</div>
+            </div>
+            <div class="history-text">
+                <span class="year">1960s</span>
+                <p>Business exploded. Schafer added <span class="highlight">fireworks sales</span> (illegal in NC), a motel, restaurants, and gas stations. In 1964, I-95 was routed RIGHT BY the attraction. The KKK burned crosses on Schafer's lawn for serving Black customers. He didn't stop.</p>
+                <p>Hollywood celebrities like Joan Crawford and Rita Hayworth stayed at the motel and ordered champagne to their rooms.</p>
+            </div>
+        </div>
+
+        <div class="history-grid">
+            <div class="history-image vintage">
+                <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/sotb-SCDILsob_1985pleasure.jpg" alt="Model of Pedro's Pleasure Dome from 1985">
+                <div class="image-caption">Planning Pedro's Pleasure Dome, 1985</div>
+            </div>
+            <div class="history-text">
+                <span class="year">1980s+</span>
+                <p>Schafer kept building. <span class="highlight-turquoise">Pedro's Pleasure Dome</span> - a geodesic dome swimming pool - went up. Reptile Lagoon became the largest indoor cold-blooded animal exhibit in America. The 200-foot Sombrero Tower became a landmark visible for miles.</p>
+                <p>Alan Schafer died in 2001. His grandson Ryan runs it now.</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="billboard-divider">
+        <div class="mini-billboard">
+            <div class="mini-billboard-inner">
+                <span class="mini-billboard-text">Pedro's Weather Report: Chili Today, Hot Tamale!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-banner">
+        <div class="stat-item">
+            <div class="stat-number">350</div>
+            <div class="stat-label">Acres of Kitsch</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">175+</div>
+            <div class="stat-label">Billboards on I-95</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">200</div>
+            <div class="stat-label">Foot Sombrero Tower</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">300</div>
+            <div class="stat-label">Motel Rooms</div>
+        </div>
+    </div>
+
+    <!-- Pedro Section -->
+    <section class="pedro-section">
+        <h2 class="section-title orange">Who the Hell is Pedro?</h2>
+        <div class="pedro-grid">
+            <div class="content-block">
+                <p>
+                    <span class="highlight">Pedro is NOT a real person.</span> He's a cartoon mascot born from casual 1950s racism and possibly... Jewish self-portraiture?
+                </p>
+                <p>
+                    Here's the story: Schafer traveled to Mexico to source trinkets. He brought back two Mexican men and hired them as bellboys. <span class="highlight-pink">White guests started calling them "Pedro and Pancho"</span> then just "Pedro." Schafer turned the nickname into a mascot.
+                </p>
+                <p>
+                    But here's the twist: Academic P. Nicole King described Pedro as <span class="highlight-turquoise">"a southern Jewish guy in brown face"</span> possibly made in Schafer's own image. The "Mexican" mascot may actually look more like the Jewish owner than any Mexican person.
+                </p>
+                <p>
+                    Today, <span class="highlight">every employee is called "Pedro"</span> regardless of their actual race or gender. It's... a choice.
+                </p>
+            </div>
+            <div class="pedro-image">
+                <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/sotb-SCDILsob_13ks_620x300.jpg" alt="The Pedro statue close-up with sombrero tower in background">
+            </div>
+        </div>
+    </section>
+
+    <!-- Attractions Gallery -->
+    <section>
+        <h2 class="section-title turquoise">The Attractions</h2>
+        <div class="image-grid">
+            <div class="grid-image">
+                <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/sotb-SCDILsob_prov20_620x300.jpg" alt="The Peddler Steak House with giant sombrero roof">
+                <div class="grid-image-caption">Sombrero-Shaped Steak House</div>
+            </div>
+            <div class="grid-image">
+                <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/sotb-SCDILsob_prov23.jpg" alt="Giant blue whale statue at Myrtle Beach Shop">
+                <div class="grid-image-caption">The Giant Blue Whale</div>
+            </div>
+            <div class="grid-image">
+                <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/sotb-SCDILsob_ks02.jpg" alt="Colorful South of the Border entrance arch">
+                <div class="grid-image-caption">The Famous Entrance Arch</div>
+            </div>
+        </div>
+        <div class="content-block" style="margin-top: 2rem;">
+            <p>The 350-acre compound includes: miniature golf, truck stop, 300-room motel, multiple souvenir shops, a campground, restaurants, amusement rides, Reptile Lagoon (largest indoor reptile exhibit in the US), and random giant fiberglass animals including a blue whale, an orange brontosaurus wearing a sombrero, and a 100-foot-long red dachshund.</p>
+        </div>
+    </section>
+
+    <div class="billboard-divider">
+        <div class="mini-billboard">
+            <div class="mini-billboard-inner">
+                <span class="mini-billboard-text">Keep Yelling Kids, They'll Stop!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controversy -->
+    <section class="controversy-section">
+        <h2 class="section-title pink">The Controversy</h2>
+        <div class="content-block">
+            <p>
+                Let's address the sombrero-shaped elephant in the room. <span class="highlight-pink">Yes, people have called it racist.</span> In 1993, the Mexican Embassy sent an angry letter. Latino-Americans have called for boycotts. The old billboards with "Mexican-Speak" ("Beeg Deal!" "Too Moch Tequila?") have mostly been removed.
+            </p>
+        </div>
+
+        <div class="two-column">
+            <div>
+                <h3 class="column-title critics">The Critics Say:</h3>
+                <ul class="column-list">
+                    <li>Pedro is a racist caricature of a "Mexican bandito"</li>
+                    <li>The whole aesthetic exoticizes and mocks Mexican culture</li>
+                    <li>The "Mexican-Speak" billboards were straight-up mockery</li>
+                    <li>It's a relic that should've died in the 1960s</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="column-title defenders">The Schafers Say:</h3>
+                <ul class="column-list">
+                    <li>"We didn't invent Pedro. Mexico sells the same imagery."</li>
+                    <li>Alan hired Black, Latino, and Lumbee employees when others wouldn't</li>
+                    <li>He helped register Black voters; KKK burned crosses on his lawn</li>
+                    <li>He served as a delegate at the 1968 Democratic National Convention</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="quote-block">
+            "We didn't invent Pedro. We didn't invent that character. Even the one they complain about the most, Pedro sleeping beside the cactus - I still go to Mexico, I go four times a year, that's something they sell down there."
+            <div class="quote-attribution">- Ryan Schafer, current owner (Alan's grandson)</div>
+        </div>
+    </section>
+
+    <!-- Fun Facts -->
+    <section>
+        <h2 class="section-title yellow">Weird Facts</h2>
+        <div class="fun-facts">
+            <div class="fact-card">
+                <h4>Ben Bernanke Worked Here</h4>
+                <p>Yes, THAT Ben Bernanke. The former Federal Reserve Chairman had a summer job at South of the Border as a teenager. He declined to comment about it.</p>
+            </div>
+            <div class="fact-card">
+                <h4>You Can Get Married in the Sombrero</h4>
+                <p>The 200-foot observation tower has hosted actual weddings. Imagine saying "I do" with a bird's-eye view of a parking lot and I-95.</p>
+            </div>
+            <div class="fact-card">
+                <h4>$40 Million in Billboards</h4>
+                <p>At their peak, over 250 billboards stretched from Philadelphia to Daytona Beach. They still spend a fortune on highway advertising.</p>
+            </div>
+            <div class="fact-card">
+                <h4>Largest Indoor Reptile Exhibit</h4>
+                <p>Reptile Lagoon is the largest indoor cold-blooded animal attraction in the USA. Because why not add alligators to the chaos?</p>
+            </div>
+            <div class="fact-card">
+                <h4>The KKK Hated Them</h4>
+                <p>The Klan followed Schafer's beer trucks, burned crosses on his lawn, and harassed the family for years - partly because they served Black customers equally.</p>
+            </div>
+            <div class="fact-card">
+                <h4>Drive-Through Pedro</h4>
+                <p>The 104-foot Pedro statue has legs spread wide enough that you can literally drive your car through them. It's the I-95's Colossus of Rhodes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-title">South of the Border</div>
+        <div class="footer-tagline">"You're Always a Weiner at Pedro's!"</div>
+        <div class="footer-location">
+            Exit 1, I-95 &bull; Hamer, South Carolina<br>
+            Just south of the NC/SC state line<br>
+            Open 24/7 (because Pedro never sleeps)
+        </div>
+    </footer>
+</body>
+</html>
