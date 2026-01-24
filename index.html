@@ -746,6 +746,13 @@
         function renderSites(sites) {
             const grid = document.getElementById('sites-grid');
             
+            // Sort alphabetically by title
+            sites = [...sites].sort((a, b) => {
+                const titleA = (siteMeta[a.name]?.title || getDisplayName(a.name)).toLowerCase();
+                const titleB = (siteMeta[b.name]?.title || getDisplayName(b.name)).toLowerCase();
+                return titleA.localeCompare(titleB);
+            });
+            
             if (sites.length === 0) {
                 grid.innerHTML = `
                     <div class="empty-state">
