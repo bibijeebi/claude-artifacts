@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accelerationism: The Philosophy Eating Silicon Valley</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent-red: #ff2a6d;
+      --accent-cyan: #05d9e8;
+      --accent-yellow: #f9f871;
+      --accent-purple: #9d4edd;
+      --dark-bg: #0d0221;
+      --darker-bg: #05010d;
+    }
+    
+    .reveal {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 50%, #1a0a2e 100%);
+    }
+    
+    .reveal h1, .reveal h2 {
+      font-family: 'Orbitron', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .reveal h1 { font-size: 2.2em; color: var(--accent-cyan); text-shadow: 0 0 30px var(--accent-cyan); }
+    .reveal h2 { font-size: 1.6em; color: var(--accent-red); margin-bottom: 0.6em; }
+    .reveal h3 { font-size: 1.1em; font-family: 'Space Mono', monospace; color: var(--accent-yellow); }
+    .reveal p, .reveal li { font-size: 0.9em; line-height: 1.5; }
+    
+    .glitch-text {
+      position: relative;
+      animation: glitch 2s infinite;
+    }
+    
+    @keyframes glitch {
+      0%, 90%, 100% { transform: translate(0); }
+      92% { transform: translate(-2px, 1px); }
+      94% { transform: translate(2px, -1px); }
+      96% { transform: translate(-1px, 2px); }
+    }
+    
+    .neon-box {
+      border: 2px solid var(--accent-cyan);
+      box-shadow: 0 0 15px var(--accent-cyan), inset 0 0 15px rgba(5, 217, 232, 0.1);
+      border-radius: 10px;
+      padding: 1.2em;
+      background: rgba(5, 217, 232, 0.05);
+    }
+    
+    .danger-box {
+      border: 2px solid var(--accent-red);
+      box-shadow: 0 0 15px var(--accent-red), inset 0 0 15px rgba(255, 42, 109, 0.1);
+      border-radius: 10px;
+      padding: 1.2em;
+      background: rgba(255, 42, 109, 0.05);
+    }
+    
+    .warning-box {
+      border: 2px solid var(--accent-yellow);
+      box-shadow: 0 0 15px var(--accent-yellow), inset 0 0 15px rgba(249, 248, 113, 0.1);
+      border-radius: 10px;
+      padding: 1.2em;
+      background: rgba(249, 248, 113, 0.05);
+    }
+    
+    .purple-box {
+      border: 2px solid var(--accent-purple);
+      box-shadow: 0 0 15px var(--accent-purple), inset 0 0 15px rgba(157, 78, 221, 0.1);
+      border-radius: 10px;
+      padding: 1.2em;
+      background: rgba(157, 78, 221, 0.05);
+    }
+    
+    .big-number {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 3.5em;
+      font-weight: 900;
+      text-shadow: 0 0 30px currentColor;
+    }
+    
+    .quote-text {
+      font-style: italic;
+      border-left: 3px solid var(--accent-purple);
+      padding-left: 1em;
+      margin: 0.8em 2em;
+      font-size: 0.95em;
+    }
+    
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      margin: 0.5em 0;
+    }
+    
+    .timeline-year {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      min-width: 4em;
+    }
+    
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      z-index: 1000;
+      opacity: 0.3;
+    }
+    
+    .person-card {
+      text-align: center;
+      padding: 0.8em;
+    }
+    
+    .person-card img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent-purple);
+      box-shadow: 0 0 15px var(--accent-purple);
+      margin-bottom: 0.5em;
+    }
+    
+    .person-card h3 {
+      margin-bottom: 0.2em;
+      font-size: 0.9em;
+    }
+    
+    .person-card p {
+      font-size: 0.7em;
+      opacity: 0.8;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin: 1em 2em;
+    }
+    
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin: 1em 1.5em;
+    }
+    
+    .highlight-cyan { color: var(--accent-cyan); }
+    .highlight-red { color: var(--accent-red); }
+    .highlight-yellow { color: var(--accent-yellow); }
+    .highlight-purple { color: var(--accent-purple); }
+    
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 2em;
+      margin: 1em 2em;
+    }
+    
+    .profile-img {
+      width: 200px;
+      height: 200px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 3px solid var(--accent-cyan);
+      box-shadow: 0 0 20px var(--accent-cyan);
+    }
+    
+    .profile-img.danger {
+      border-color: var(--accent-red);
+      box-shadow: 0 0 20px var(--accent-red);
+    }
+    
+    .bg-image-overlay {
+      position: relative;
+    }
+    
+    .bg-image-overlay::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(13, 2, 33, 0.85);
+    }
+    
+    .bg-image-overlay > * {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="scanline"></div>
+  <div class="reveal">
+    <div class="slides">
+      
+      <!-- TITLE SLIDE -->
+      <section data-background-image="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-acceleration-blur.jpg" data-background-opacity="0.3">
+        <h1 class="glitch-text" style="font-size: 2em;">ACCELERATIONISM</h1>
+        <p style="font-family: 'Space Mono', monospace; color: var(--accent-yellow); font-size: 1.1em; margin: 0.5em 0;">
+          The Philosophy Eating Silicon Valley & Washington
+        </p>
+        <p style="font-size: 0.8em; opacity: 0.7; margin-top: 1.5em;">
+          Nick Land // Curtis Yarvin // The Road to DOGE
+        </p>
+        <p style="font-size: 0.7em; color: var(--accent-red); margin-top: 2em;">
+          ▼ Press Space to Begin ▼
+        </p>
+      </section>
+
+      <!-- WHAT IS ACCELERATIONISM -->
+      <section data-background-color="#0d0221">
+        <h2>What is Accelerationism?</h2>
+        <div class="neon-box" style="margin: 1em 2em;">
+          <p style="font-size: 1em; text-align: center;">
+            <span class="highlight-cyan">The belief that capitalism and technology should be</span><br>
+            <span style="font-size: 1.3em; font-weight: 700; color: var(--accent-yellow);">ACCELERATED</span><br>
+            <span class="highlight-cyan">to their extreme conclusions rather than reformed</span>
+          </p>
+        </div>
+        <div class="grid-2" style="margin-top: 1em;">
+          <div class="fragment">
+            <p style="font-size: 0.85em;"><span class="highlight-yellow">LEFT-ACC:</span> Push capitalism until it destroys itself, enabling post-capitalist society</p>
+          </div>
+          <div class="fragment">
+            <p style="font-size: 0.85em;"><span class="highlight-red">RIGHT-ACC:</span> Push capitalism toward technological singularity, transcending humanity</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- INTELLECTUAL ORIGINS -->
+      <section data-background-image="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-singularity-vortex.jpg" data-background-opacity="0.2">
+        <h2>Intellectual Origins</h2>
+        <div style="margin: 0.8em 2em; font-size: 0.85em;">
+          <div class="timeline-item fragment">
+            <span class="timeline-year">1972</span>
+            <span>Deleuze & Guattari's <em>Anti-Oedipus</em>: "Accelerate the process"</span>
+          </div>
+          <div class="timeline-item fragment">
+            <span class="timeline-year">1990s</span>
+            <span>Nick Land founds CCRU at Warwick, mixes philosophy + rave culture + cyberpunk</span>
+          </div>
+          <div class="timeline-item fragment">
+            <span class="timeline-year">2007</span>
+            <span>Curtis Yarvin starts "Unqualified Reservations" blog as Mencius Moldbug</span>
+          </div>
+          <div class="timeline-item fragment">
+            <span class="timeline-year">2012</span>
+            <span>Nick Land publishes "The Dark Enlightenment" essays</span>
+          </div>
+          <div class="timeline-item fragment">
+            <span class="timeline-year">2022</span>
+            <span>"Effective Accelerationism" (e/acc) emerges in Silicon Valley</span>
+          </div>
+          <div class="timeline-item fragment">
+            <span class="timeline-year">2025</span>
+            <span>Yarvin attends Trump inauguration as "informal guest of honor"</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- NICK LAND SECTION -->
+      <section>
+        <section data-background-gradient="linear-gradient(180deg, #1a0a2e 0%, #0d0221 100%)">
+          <h2>NICK LAND</h2>
+          <p style="font-family: 'Space Mono'; color: var(--accent-cyan); font-size: 0.9em;">The Philosopher of Meltdown</p>
+          <div class="profile-section">
+            <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-nick-land.jpeg" alt="Nick Land" class="profile-img">
+            <div class="neon-box" style="flex: 1;">
+              <p style="font-size: 0.85em;">British philosopher, co-founder of the Cybernetic Culture Research Unit (CCRU), 
+              originator of contemporary accelerationism and the term "hyperstition"</p>
+              <p class="fragment" style="font-size: 0.8em; margin-top: 0.8em; opacity: 0.8;">
+                Currently living in Shanghai. Suffered amphetamine-induced breakdown in early 2000s.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section data-background-color="#0d0221">
+          <h2>Land's Core Ideas</h2>
+          <div class="grid-2">
+            <div class="neon-box fragment">
+              <h3>Hyperstition</h3>
+              <p style="font-size: 0.8em;">Ideas that make themselves real through their own existence. 
+              Fiction becomes technology becomes reality.</p>
+            </div>
+            <div class="danger-box fragment">
+              <h3>Technocapital</h3>
+              <p style="font-size: 0.8em;">Capitalism + technology as an autonomous, self-optimizing process that uses humans as temporary hosts.</p>
+            </div>
+            <div class="warning-box fragment">
+              <h3>Singularity</h3>
+              <p style="font-size: 0.8em;">AI will surpass and replace humanity. This is good, actually. Embrace the meltdown.</p>
+            </div>
+            <div class="purple-box fragment">
+              <h3>Anti-Humanism</h3>
+              <p style="font-size: 0.8em;">"Dead labour is far harder to control than the live stuff." Humanity is a phase to be transcended.</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-background-color="#05010d">
+          <h2>Land on Democracy</h2>
+          <div class="quote-text fragment">
+            "Beside the speed machine, or industrial capitalism, there is an ever more perfectly weighted 
+            <span class="highlight-red">decelerator</span>... comically, the fabrication of this braking mechanism 
+            is proclaimed as progress."
+          </div>
+          <div class="danger-box fragment" style="margin: 1em 3em;">
+            <p style="font-size: 0.9em; text-align: center;">
+              Translation: Democracy, equality, and social programs are 
+              <span class="highlight-red">brakes on acceleration</span>.<br>
+              They slow down the techno-capital singularity.
+            </p>
+          </div>
+          <p class="fragment" style="font-size: 0.85em; margin-top: 0.8em;">
+            His solution? <span class="highlight-cyan">CEO-monarchies</span>. States run like corporations. 
+            No voting. Just optimize.
+          </p>
+        </section>
+      </section>
+
+      <!-- CURTIS YARVIN SECTION -->
+      <section>
+        <section data-background-gradient="linear-gradient(180deg, #2a0a1e 0%, #0d0221 100%)">
+          <h2>CURTIS YARVIN</h2>
+          <p style="font-family: 'Space Mono'; color: var(--accent-red); font-size: 0.9em;">a.k.a. Mencius Moldbug</p>
+          <div class="profile-section">
+            <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-curtis-yarvin.jpg" alt="Curtis Yarvin" class="profile-img danger">
+            <div class="danger-box" style="flex: 1;">
+              <p style="font-size: 0.85em;">San Francisco software developer turned political blogger. 
+              Founder of "neoreactionary" (NRx) movement. Now advising people who advise Trump.</p>
+              <p class="fragment" style="font-size: 0.8em; margin-top: 0.8em;">
+                <span class="highlight-yellow">Current status:</span> 3rd most popular "history" newsletter on Substack. 
+                Friends with JD Vance and Peter Thiel.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section data-background-image="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-cathedral-concept.jpg" data-background-opacity="0.25">
+          <h2>The Cathedral</h2>
+          <p style="font-size: 0.9em; margin-bottom: 0.8em;">Yarvin's central concept</p>
+          <div class="warning-box" style="margin: 0.5em 2em;">
+            <p style="font-size: 0.9em; text-align: center;">
+              "The Cathedral" = <span class="highlight-yellow">journalism + academia</span><br>
+              A decentralized but ideologically synchronized network that<br>
+              "shapes public opinion and holds the true power in Western societies"
+            </p>
+          </div>
+          <div class="grid-2 fragment" style="margin-top: 0.8em;">
+            <div style="font-size: 0.8em;">
+              <p><span class="highlight-cyan">His claim:</span> The Cathedral enforces progressive ideology like a religion, 
+              making democracy an illusion</p>
+            </div>
+            <div style="font-size: 0.8em;">
+              <p><span class="highlight-red">The reality:</span> Classic conspiracy thinking dressed up in 
+              systems-theory language for tech bros</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-background-color="#05010d">
+          <h2>Yarvin's "Solutions"</h2>
+          <div class="grid-2">
+            <div class="danger-box fragment">
+              <h3 style="font-size: 1em;">Neo-Monarchism</h3>
+              <p style="font-size: 0.8em;">Replace democracy with CEO-kings. Run countries like startups. 
+              "If Americans want to change their government, they're going to have to get over their dictator phobia."</p>
+            </div>
+            <div class="danger-box fragment">
+              <h3 style="font-size: 1em;">RAGE</h3>
+              <p style="font-size: 0.8em;"><span class="highlight-red">R</span>etire <span class="highlight-red">A</span>ll 
+              <span class="highlight-red">G</span>overnment <span class="highlight-red">E</span>mployees.<br>
+              Fire the entire federal bureaucracy. Sound familiar?</p>
+            </div>
+            <div class="danger-box fragment">
+              <h3 style="font-size: 1em;">"Elves vs Hobbits"</h3>
+              <p style="font-size: 0.8em;">His class system: Elves (educated elites), Hobbits (middle class), 
+              Dwarves/Orcs/Zombies (working class). Mask-off fantasy LARP.</p>
+            </div>
+            <div class="danger-box fragment">
+              <h3 style="font-size: 1em;">Exit Over Voice</h3>
+              <p style="font-size: 0.8em;">Don't vote. Don't protest. Just leave dysfunctional systems. 
+              Build parallel structures (for the rich).</p>
+            </div>
+          </div>
+        </section>
+
+        <section data-background-color="#1a0a2e">
+          <h2>The Receipts</h2>
+          <p style="font-size: 0.85em; margin-bottom: 0.8em;">What Yarvin actually believes:</p>
+          <div style="margin: 0 2em; font-size: 0.85em;">
+            <p class="fragment" style="margin: 0.5em 0;">
+              ✓ <span class="highlight-red">Defended slavery</span>, suggested some races "better suited" for servitude
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              ✓ Argued whites have <span class="highlight-red">inherently higher IQs</span> than Black people
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              ✓ Called for universities to be <span class="highlight-red">"physically and economically liquidated"</span>
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              ✓ <span class="highlight-red">Opposes civil rights programs</span>
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              ✓ Wants Elon Musk to rule America as <span class="highlight-red">CEO-monarch</span>
+            </p>
+          </div>
+          <p class="fragment" style="font-size: 0.8em; margin-top: 1em; color: var(--accent-yellow);">
+            This guy is advising people in the White House.
+          </p>
+        </section>
+      </section>
+
+      <!-- LAND VS YARVIN -->
+      <section data-background-color="#0d0221">
+        <h2>Land vs. Yarvin</h2>
+        <div class="grid-2" style="align-items: start;">
+          <div class="neon-box">
+            <h3 style="text-align: center;">NICK LAND</h3>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• Apocalyptic accelerationist</p>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• AI will replace humanity (good)</p>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• Wants to speed toward singularity</p>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• Abstract, philosophical, weird</p>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• Living in Shanghai</p>
+          </div>
+          <div class="danger-box">
+            <h3 style="text-align: center;">CURTIS YARVIN</h3>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• Pragmatic neoreactionary</p>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• Replace democracy with CEOs</p>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• Wants to seize state power now</p>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• Policy-focused, actionable, dangerous</p>
+            <p style="font-size: 0.75em; margin: 0.3em 0;">• Attending Trump inaugurations</p>
+          </div>
+        </div>
+        <p class="fragment" style="font-size: 0.85em; margin-top: 1em;">
+          <span class="highlight-purple">The synthesis:</span> Land provides the philosophy, Yarvin provides the playbook.
+        </p>
+      </section>
+
+      <!-- E/ACC SECTION -->
+      <section>
+        <section data-background-image="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-dark-enlightenment.jpg" data-background-opacity="0.25">
+          <h2>EFFECTIVE ACCELERATIONISM</h2>
+          <p style="font-family: 'Space Mono'; color: var(--accent-yellow); font-size: 0.9em;">e/acc: The Silicon Valley Flavor</p>
+          <div class="warning-box" style="margin: 1em 3em;">
+            <p style="font-size: 0.9em; text-align: center;">
+              "Nick Land diluted for LinkedIn"<br>
+              <span style="font-size: 0.8em; opacity: 0.7;">— Thomas Murphy</span>
+            </p>
+          </div>
+        </section>
+
+        <section data-background-color="#0d0221">
+          <h2>e/acc Core Beliefs</h2>
+          <div style="margin: 0.5em 2em; font-size: 0.85em;">
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">1.</span> AI development should be <span class="highlight-yellow">unrestricted</span> — 
+              safety concerns are "doomer" talk
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">2.</span> Technology will solve poverty, war, and climate change 
+              <span class="highlight-red">(just trust us bro)</span>
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">3.</span> The universe "wants" us to increase entropy by spreading consciousness
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">4.</span> Regulation = deceleration = existential threat
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">5.</span> Tech elites should control the future
+            </p>
+          </div>
+          <p class="fragment" style="font-size: 0.8em; margin-top: 1em; color: var(--accent-red);">
+            Marc Andreessen, Garry Tan, and other billionaires put "e/acc" in their bios.
+          </p>
+        </section>
+      </section>
+
+      <!-- THE NETWORK -->
+      <section data-background-image="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-network-conspiracy.jpg" data-background-opacity="0.2">
+        <h2>The Network</h2>
+        <p style="font-size: 0.85em; margin-bottom: 0.8em;">How fringe philosophy reaches the White House</p>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; margin: 0.5em 1em;">
+          <div class="person-card purple-box fragment" style="padding: 0.6em;">
+            <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-peter-thiel.jpeg" alt="Peter Thiel">
+            <h3>Peter Thiel</h3>
+            <p>PayPal founder, invested in Yarvin's Urbit</p>
+          </div>
+          <div class="person-card purple-box fragment" style="padding: 0.6em;">
+            <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-jd-vance.jpeg" alt="JD Vance">
+            <h3>JD Vance</h3>
+            <p>VP, Thiel protégé, calls Yarvin "friend"</p>
+          </div>
+          <div class="person-card purple-box fragment" style="padding: 0.6em;">
+            <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-marc-andreessen.jpeg" alt="Marc Andreessen">
+            <h3>Marc Andreessen</h3>
+            <p>a16z founder, e/acc advocate</p>
+          </div>
+        </div>
+        <p class="fragment" style="font-size: 0.8em; margin-top: 0.8em;">
+          Also connected: <span class="highlight-yellow">Elon Musk</span> (Yarvin's preferred CEO-monarch), 
+          <span class="highlight-yellow">Steve Bannon</span>, <span class="highlight-yellow">Michael Anton</span> (State Dept.)
+        </p>
+      </section>
+
+      <!-- DOGE CONNECTION -->
+      <section data-background-gradient="radial-gradient(ellipse at center, #2a1a0e 0%, #0d0221 70%)">
+        <h2>DOGE Is Yarvinism</h2>
+        <div class="danger-box" style="margin: 0.8em 2em;">
+          <p style="font-size: 0.95em; text-align: center;">
+            Yarvin's <span class="highlight-red">RAGE</span> = Retire All Government Employees<br>
+            Musk's <span class="highlight-red">DOGE</span> = Mass federal firings, agency gutting
+          </p>
+        </div>
+        <div style="margin: 1em 2.5em; font-size: 0.85em;">
+          <p class="fragment" style="margin: 0.4em 0;">
+            JD Vance, July 2024: Trump should <span class="highlight-yellow">"fire every single mid-level bureaucrat"</span> 
+            and "replace them with our people" — <em>citing Yarvin by name</em>
+          </p>
+          <p class="fragment" style="margin: 0.4em 0;">
+            Yarvin's dream of a CEO running America like a startup is being <span class="highlight-cyan">actively implemented</span>.
+          </p>
+        </div>
+      </section>
+
+      <!-- SF REPARATIONS CASE STUDY -->
+      <section>
+        <section data-background-image="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-sf-skyline-dystopia.jpg" data-background-opacity="0.3">
+          <h2>Case Study: SF Reparations</h2>
+          <p style="font-size: 0.85em; color: var(--accent-yellow);">How accelerationists read progressive policy</p>
+          <div class="neon-box" style="margin: 0.8em 2em;">
+            <p style="font-size: 0.9em;">
+              December 2024: San Francisco creates "Reparations Fund" framework.<br>
+              Proposal includes <span class="highlight-cyan">$5 million per eligible Black resident</span>.<br>
+              ~46,000 Black residents in SF. City has $1B deficit.
+            </p>
+          </div>
+          <p class="fragment" style="font-size: 0.85em; margin-top: 0.8em;">
+            No money actually allocated. Just a framework for future donations.
+          </p>
+        </section>
+
+        <section data-background-color="#05010d">
+          <h2>The Accelerationist Read</h2>
+          <div class="grid-2">
+            <div class="warning-box">
+              <h3 style="font-size: 0.95em;">LEFT Accelerationist</h3>
+              <p style="font-size: 0.8em;">"Push it further. Make the contradictions visible. 
+              When the system can't deliver $230 billion in reparations, people will see 
+              capitalism can't solve racial inequality."</p>
+            </div>
+            <div class="danger-box">
+              <h3 style="font-size: 0.95em;">RIGHT Accelerationist</h3>
+              <p style="font-size: 0.8em;">"Perfect example of Cathedral dysfunction. 
+              Progressive cities making impossible promises while actual problems fester. 
+              This accelerates collapse of democratic legitimacy."</p>
+            </div>
+          </div>
+          <p class="fragment" style="font-size: 0.85em; margin-top: 0.8em;">
+            Both want the same thing: <span class="highlight-red">systemic breakdown</span>. 
+            Just different endgames.
+          </p>
+        </section>
+
+        <section data-background-color="#1a0a2e">
+          <h2>The Yarvin Analysis</h2>
+          <div class="quote-text" style="font-size: 0.9em;">
+            "Very unpopular policies like mass immigration persist despite strong majorities being against them. 
+            So the question of 'Is democracy good or bad?' is secondary to 'Is it what we actually have?'"
+          </div>
+          <div class="danger-box fragment" style="margin: 0.8em 2em;">
+            <p style="font-size: 0.85em;">
+              In Yarvin's framework: SF reparations = Cathedral virtue signaling.<br>
+              Elites make symbolic gestures while ignoring material conditions.<br>
+              This "proves" democracy doesn't work and justifies <span class="highlight-red">authoritarian alternatives</span>.
+            </p>
+          </div>
+        </section>
+
+        <section data-background-color="#0d0221">
+          <h2>What's Actually Happening</h2>
+          <div style="margin: 0.5em 2em; font-size: 0.85em;">
+            <p class="fragment" style="margin: 0.5em 0;">
+              • SF formally apologized for urban renewal displacement (1940s-70s Fillmore district)
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              • Advisory committee spent 3 years producing 100+ recommendations
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              • Fund created with <span class="highlight-yellow">zero city money</span> — relies on private donations
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              • Mayor Lurie: "We are not allocating money to this fund"
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              • Black population: 5% of SF, but 37% of homeless population
+            </p>
+          </div>
+          <p class="fragment" style="font-size: 0.8em; margin-top: 0.8em; color: var(--accent-cyan);">
+            Real policy or symbolic gesture? Both sides have ammunition.
+          </p>
+        </section>
+      </section>
+
+      <!-- WHY THIS MATTERS -->
+      <section>
+        <section data-background-gradient="linear-gradient(180deg, #2a0a1e 0%, #05010d 100%)">
+          <h2>Why This Matters Now</h2>
+          <div class="big-number highlight-red">2025</div>
+          <p style="font-size: 1em; margin-top: 0.5em;">
+            Accelerationist ideas are <span class="highlight-yellow">in the executive branch</span>
+          </p>
+        </section>
+
+        <section data-background-color="#0d0221">
+          <h2>The Playbook in Action</h2>
+          <div style="margin: 0.5em 2em; font-size: 0.85em;">
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">DOGE:</span> Yarvin's RAGE made real. Mass firings, agency gutting.
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">AI Deregulation:</span> e/acc philosophy becoming policy. Safety concerns dismissed.
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">"Freedom Cities":</span> Yarvin's company-town vision. No democratic governance.
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">University Attacks:</span> Defunding "Cathedral" institutions.
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-cyan">Media War:</span> Discrediting journalism as Cathedral propaganda.
+            </p>
+          </div>
+        </section>
+
+        <section data-background-color="#05010d">
+          <h2>The Contradictions</h2>
+          <div class="grid-2">
+            <div class="warning-box">
+              <p style="font-size: 0.8em;"><span class="highlight-yellow">Claims:</span> "Maximum freedom in all things except politics"</p>
+              <p style="font-size: 0.8em;"><span class="highlight-red">Reality:</span> Concentration of power in tech oligarchs</p>
+            </div>
+            <div class="warning-box">
+              <p style="font-size: 0.8em;"><span class="highlight-yellow">Claims:</span> "Libertarian utopia"</p>
+              <p style="font-size: 0.8em;"><span class="highlight-red">Reality:</span> Proposed reforms "resembled slavery"</p>
+            </div>
+            <div class="warning-box">
+              <p style="font-size: 0.8em;"><span class="highlight-yellow">Claims:</span> "Anti-establishment"</p>
+              <p style="font-size: 0.8em;"><span class="highlight-red">Reality:</span> Funded by billionaires, advising presidents</p>
+            </div>
+            <div class="warning-box">
+              <p style="font-size: 0.8em;"><span class="highlight-yellow">Claims:</span> "Against elites"</p>
+              <p style="font-size: 0.8em;"><span class="highlight-red">Reality:</span> Wants to replace electoral elites with tech elites</p>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- CRITIQUE -->
+      <section>
+        <section data-background-color="#1a0a2e">
+          <h2>The Fundamental Problem</h2>
+          <div class="danger-box" style="margin: 0.8em 2.5em;">
+            <p style="font-size: 1em; text-align: center;">
+              Accelerationism is <span class="highlight-red">historical determinism</span><br>
+              dressed up as edgy philosophy
+            </p>
+          </div>
+          <p class="fragment" style="font-size: 0.85em; margin: 0.8em 2em;">
+            "Capitalism will inevitably lead to X" is the same logical structure as 
+            "History will inevitably lead to communism." Both assume teleology where none exists.
+          </p>
+        </section>
+
+        <section data-background-color="#0d0221">
+          <h2>Yarvin's Specific Stupidity</h2>
+          <div style="margin: 0.5em 2em; font-size: 0.85em;">
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-red">1.</span> "The Cathedral" explains everything and nothing. 
+              Unfalsifiable conspiracy theory.
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-red">2.</span> CEOs are not better at running countries. 
+              See: every company town in history.
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-red">3.</span> "Accountability" in his monarchy comes from... market forces? 
+              The same markets that need regulation?
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-red">4.</span> His historical analysis is motivated reasoning. 
+              Cherry-picks Thomas Carlyle while ignoring why we abandoned feudalism.
+            </p>
+            <p class="fragment" style="margin: 0.5em 0;">
+              <span class="highlight-red">5.</span> Thinks he's red-pilled but got radicalized by Swift Boat trutherism.
+            </p>
+          </div>
+        </section>
+
+        <section data-background-color="#05010d">
+          <h2>The Real Question</h2>
+          <div class="neon-box" style="margin: 1em 2.5em;">
+            <p style="font-size: 1em; text-align: center;">
+              "Whenever you hear someone advocating for acceleration,<br>
+              you should ask: <span class="highlight-cyan">accelerating toward what?</span>"
+            </p>
+          </div>
+          <div class="fragment" style="margin: 1em 2em; font-size: 0.85em;">
+            <p>For Land: Human extinction via AI singularity</p>
+            <p>For Yarvin: Tech oligarchy ruling as monarchs</p>
+            <p>For e/acc: Billionaire-captured superintelligence</p>
+          </div>
+          <p class="fragment" style="font-size: 0.9em; margin-top: 0.8em; color: var(--accent-yellow);">
+            None of these are good.
+          </p>
+        </section>
+      </section>
+
+      <!-- CONCLUSION -->
+      <section data-background-image="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-singularity-vortex.jpg" data-background-opacity="0.2">
+        <h2>Summary</h2>
+        <div style="margin: 0.5em 2em; font-size: 0.85em;">
+          <p class="fragment" style="margin: 0.5em 0;">
+            <span class="highlight-cyan">Accelerationism:</span> Philosophy of pushing systems to breaking point
+          </p>
+          <p class="fragment" style="margin: 0.5em 0;">
+            <span class="highlight-cyan">Nick Land:</span> The apocalyptic theorist, wants AI to eat humanity
+          </p>
+          <p class="fragment" style="margin: 0.5em 0;">
+            <span class="highlight-red">Curtis Yarvin:</span> The policy guy, wants CEO-monarchs and RAGE
+          </p>
+          <p class="fragment" style="margin: 0.5em 0;">
+            <span class="highlight-yellow">e/acc:</span> Silicon Valley's sanitized version, same endgame
+          </p>
+          <p class="fragment" style="margin: 0.5em 0;">
+            <span class="highlight-purple">2025:</span> These ideas are in the White House, shaping DOGE, AI policy, governance
+          </p>
+        </div>
+        <p class="fragment" style="font-size: 0.9em; margin-top: 1em; color: var(--accent-red);">
+          The fringe became the mainstream. Pay attention.
+        </p>
+      </section>
+
+      <!-- FINAL SLIDE -->
+      <section data-background-image="https://claude-deploy.bennyforeman1.workers.dev/r2/file/accel-acceleration-blur.jpg" data-background-opacity="0.3">
+        <h1 style="font-size: 1.8em;">ACCELERATE WHERE?</h1>
+        <p style="font-family: 'Space Mono'; color: var(--accent-cyan); font-size: 1em; margin-top: 1em;">
+          "The techno-capital machine works for us"<br>
+          <span style="font-size: 0.8em; color: var(--accent-red);">— lies billionaires tell themselves</span>
+        </p>
+        <div style="margin-top: 2em;">
+          <p style="font-size: 0.75em; opacity: 0.6;">
+            Questions? Arguments? Touch grass? →
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      controls: true,
+      progress: true,
+      center: true,
+      hash: false,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
+      autoAnimateEasing: 'ease-out',
+      autoAnimateDuration: 0.8,
+      fragments: true,
+      fragmentInURL: false,
+    });
+  </script>
+</body>
+</html>
