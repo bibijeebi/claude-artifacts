@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Please Bro | Album</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 1rem;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .gallery-item {
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .gallery-item:hover {
+      transform: scale(1.02);
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img {
+      max-width: 95%;
+      max-height: 95%;
+      object-fit: contain;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2rem;
+      color: #fff;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+    .lightbox-close:hover { opacity: 1; }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 3rem;
+      color: #fff;
+      cursor: pointer;
+      opacity: 0.7;
+      padding: 20px;
+    }
+    .lightbox-nav:hover { opacity: 1; }
+    .lightbox-prev { left: 10px; }
+    .lightbox-next { right: 10px; }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #818cf8;
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <a href="/" class="back-link">← Back to dashboard</a>
+  <div class="header">
+    <h1>Please Bro</h1>
+    <p class="subtitle">2 images</p>
+  </div>
+  <div class="gallery">
+    <div class="gallery-item" onclick="openLightbox(0)">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/album-please-bro-1.png" alt="Please Bro 1">
+    </div>
+    <div class="gallery-item" onclick="openLightbox(1)">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/album-please-bro-2.png" alt="Please Bro 2">
+    </div>
+  </div>
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+    <span class="lightbox-nav lightbox-prev" onclick="navigate(-1)">&#10094;</span>
+    <img id="lightbox-img" src="" alt="">
+    <span class="lightbox-nav lightbox-next" onclick="navigate(1)">&#10095;</span>
+  </div>
+  <script>
+    const images = [
+      'https://claude-deploy.bennyforeman1.workers.dev/r2/file/album-please-bro-1.png',
+      'https://claude-deploy.bennyforeman1.workers.dev/r2/file/album-please-bro-2.png'
+    ];
+    let currentIndex = 0;
+    function openLightbox(idx) {
+      currentIndex = idx;
+      document.getElementById('lightbox-img').src = images[idx];
+      document.getElementById('lightbox').classList.add('active');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+    }
+    function navigate(dir) {
+      currentIndex = (currentIndex + dir + images.length) % images.length;
+      document.getElementById('lightbox-img').src = images[currentIndex];
+    }
+    document.addEventListener('keydown', (e) => {
+      if (!document.getElementById('lightbox').classList.contains('active')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') navigate(-1);
+      if (e.key === 'ArrowRight') navigate(1);
+    });
+  </script>
+</body>
+</html>
