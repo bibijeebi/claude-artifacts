@@ -406,7 +406,7 @@
         <div class="filter-buttons" id="filters">
             <button class="filter-btn" data-filter="page">Pages</button>
             <button class="filter-btn" data-filter="slide">Slides</button>
-            <button class="filter-btn" data-filter="gallery">Gallery</button>
+            <button class="filter-btn" data-filter="album">Albums</button>
             <button class="filter-btn" data-filter="pdf">PDFs</button>
             <button class="filter-btn" data-filter="app">Apps</button>
         </div>
@@ -425,8 +425,8 @@
                 <div class="stat-label">Slides</div>
             </div>
             <div class="stat">
-                <div class="stat-value" id="gallery-count">-</div>
-                <div class="stat-label">Gallery</div>
+                <div class="stat-value" id="album-count">-</div>
+                <div class="stat-label">Albums</div>
             </div>
             <div class="stat">
                 <div class="stat-value" id="pdf-count">-</div>
@@ -679,9 +679,51 @@
             },
             'gallery.html': {
                 title: 'Gallery',
-                description: '6 albums, 20 images. Quotes, memes, comics, and more.',
+                description: 'All albums and images in one place.',
                 icon: '🖼️',
                 category: 'gallery'
+            },
+            'album-quotes': {
+                title: 'Quotes',
+                description: '3 AI-generated quote images.',
+                icon: '💬',
+                category: 'album',
+                url: '/gallery.html#quotes'
+            },
+            'album-please-bro': {
+                title: 'Please Bro',
+                description: '2 please bro meme images.',
+                icon: '🙏',
+                category: 'album',
+                url: '/gallery.html#please-bro'
+            },
+            'album-collages': {
+                title: 'Collages',
+                description: '2 AI-generated collage images.',
+                icon: '🎨',
+                category: 'album',
+                url: '/gallery.html#collages'
+            },
+            'album-memes': {
+                title: 'Memes',
+                description: '3 meme images.',
+                icon: '😂',
+                category: 'album',
+                url: '/gallery.html#memes'
+            },
+            'album-jacked-women': {
+                title: 'Jacked Double-Chinned Women',
+                description: '4 images of muscular women with double chins.',
+                icon: '💪',
+                category: 'album',
+                url: '/gallery.html#jacked-women'
+            },
+            'album-want-to-anyway': {
+                title: 'But I Want To Anyway',
+                description: '6 comic strip images.',
+                icon: '📰',
+                category: 'album',
+                url: '/gallery.html#want-to-anyway'
             }
         };
 
@@ -746,15 +788,18 @@
                 const title = meta.title || getDisplayName(site.name);
                 const isDir = site.type === 'dir';
                 const isExternal = site.type === 'external';
+                const hasCustomUrl = meta.url;
                 const cat = site.category;
-                const path = (isExternal || cat === 'pdf') ? meta.url : (isDir ? `/${site.name}/` : `/${site.name}`);
-                const url = (isExternal || cat === 'pdf') ? meta.url : BASE_URL + path;
+                const path = hasCustomUrl ? meta.url : (isDir ? `/${site.name}/` : `/${site.name}`);
+                const url = hasCustomUrl ? (meta.url.startsWith('/') ? BASE_URL + meta.url : meta.url) : BASE_URL + path;
+                const pathDisplay = (cat === 'pdf') ? '↗ R2' : (cat === 'album' ? '↗ Gallery' : path);
                 
                 // Badge based on category
                 const badgeMap = {
                     'page': { label: 'Page', class: '' },
                     'slide': { label: 'Slides', class: 'slide' },
                     'gallery': { label: 'Gallery', class: 'album' },
+                    'album': { label: 'Album', class: 'album' },
                     'pdf': { label: 'PDF', class: 'pdf' },
                     'app': { label: 'App', class: 'external' }
                 };
@@ -764,6 +809,7 @@
                     'page': 'Single Page',
                     'slide': 'Reveal.js Presentation',
                     'gallery': 'Image Gallery',
+                    'album': 'Photo Album',
                     'pdf': 'PDF Document',
                     'app': isDir ? 'Directory' : 'CF Worker'
                 };
@@ -775,7 +821,7 @@
                             <span class="card-badge ${badgeInfo.class}">${badgeInfo.label}</span>
                         </div>
                         <h3 class="card-title">${title}</h3>
-                        <div class="card-path">${(isExternal || cat === 'pdf') ? '↗ R2' : path}</div>
+                        <div class="card-path">${pathDisplay}</div>
                         <p class="card-description">${meta.description}</p>
                         <div class="card-meta">
                             ${site.size ? `<span>📦 ${formatSize(site.size)}</span>` : ''}
@@ -790,14 +836,14 @@
             const total = sites.length;
             const pages = sites.filter(s => s.category === 'page').length;
             const slides = sites.filter(s => s.category === 'slide').length;
-            const gallery = sites.filter(s => s.category === 'gallery').length;
+            const albums = sites.filter(s => s.category === 'album' || s.category === 'gallery').length;
             const pdfs = sites.filter(s => s.category === 'pdf').length;
             const apps = sites.filter(s => s.category === 'app').length;
 
             document.getElementById('total-count').textContent = total;
             document.getElementById('page-count').textContent = pages;
             document.getElementById('slide-count').textContent = slides;
-            document.getElementById('gallery-count').textContent = gallery;
+            document.getElementById('album-count').textContent = albums;
             document.getElementById('pdf-count').textContent = pdfs;
             document.getElementById('app-count').textContent = apps;
         }
@@ -814,13 +860,16 @@
                 if (site.type === 'dir') category = 'app';
                 if (meta && meta.category === 'presentation') category = 'slide';
                 if (meta && meta.category === 'gallery') category = 'gallery';
+                if (meta && meta.category === 'album') category = 'album';
                 return { ...site, category };
             });
             
-            // Add external items (PDFs and Workers)
+            // Add external items (PDFs, Workers, and Albums)
             Object.entries(siteMeta).forEach(([key, meta]) => {
                 if (meta.url) {
-                    const category = meta.category === 'pdf' ? 'pdf' : 'app';
+                    let category = 'app';
+                    if (meta.category === 'pdf') category = 'pdf';
+                    if (meta.category === 'album') category = 'album';
                     allSites.push({ name: key, type: 'external', category, url: meta.url });
                 }
             });
@@ -840,7 +889,7 @@
                     filtered = filtered.filter(site => {
                         if (activeFilters.has('page') && site.category === 'page') return true;
                         if (activeFilters.has('slide') && site.category === 'slide') return true;
-                        if (activeFilters.has('gallery') && site.category === 'gallery') return true;
+                        if (activeFilters.has('album') && (site.category === 'album' || site.category === 'gallery')) return true;
                         if (activeFilters.has('pdf') && site.category === 'pdf') return true;
                         if (activeFilters.has('app') && site.category === 'app') return true;
                         return false;
