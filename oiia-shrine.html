@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OIIA OIIA OIIA OIIA OIIA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --neon-green: #39ff14;
+            --neon-pink: #ff6ec7;
+            --neon-cyan: #00ffff;
+            --neon-yellow: #ffff00;
+            --neon-purple: #bf00ff;
+            --dark-bg: #0a0a0a;
+            --glitch-1: #ff0000;
+            --glitch-2: #00ffff;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: white;
+            font-family: 'VT323', monospace;
+            overflow-x: hidden;
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ctext y='24' font-size='24'%3E🐱%3C/text%3E%3C/svg%3E"), auto;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--dark-bg); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(var(--neon-green), var(--neon-pink), var(--neon-cyan));
+            border-radius: 6px;
+        }
+
+        /* Floating OIIA background */
+        .bg-oiia {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .floating-text {
+            position: absolute;
+            font-family: 'Bangers', cursive;
+            font-size: clamp(1rem, 3vw, 2rem);
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+            white-space: nowrap;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        /* Glitch effect */
+        .glitch {
+            position: relative;
+            animation: glitch-skew 1s infinite linear alternate-reverse;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--glitch-1);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 var(--glitch-2);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(31px, 9999px, 94px, 0); transform: skew(0.5deg); }
+            5% { clip: rect(70px, 9999px, 71px, 0); transform: skew(0.4deg); }
+            10% { clip: rect(29px, 9999px, 24px, 0); transform: skew(0.6deg); }
+            15% { clip: rect(43px, 9999px, 65px, 0); transform: skew(0.1deg); }
+            20% { clip: rect(15px, 9999px, 9px, 0); transform: skew(0.2deg); }
+            25% { clip: rect(67px, 9999px, 98px, 0); transform: skew(0.8deg); }
+            30% { clip: rect(99px, 9999px, 23px, 0); transform: skew(0.3deg); }
+            35% { clip: rect(12px, 9999px, 78px, 0); transform: skew(0.5deg); }
+            40% { clip: rect(88px, 9999px, 15px, 0); transform: skew(0.2deg); }
+            45% { clip: rect(34px, 9999px, 56px, 0); transform: skew(0.7deg); }
+            50% { clip: rect(56px, 9999px, 34px, 0); transform: skew(0.1deg); }
+            55% { clip: rect(23px, 9999px, 89px, 0); transform: skew(0.4deg); }
+            60% { clip: rect(78px, 9999px, 12px, 0); transform: skew(0.6deg); }
+            65% { clip: rect(45px, 9999px, 67px, 0); transform: skew(0.3deg); }
+            70% { clip: rect(11px, 9999px, 99px, 0); transform: skew(0.8deg); }
+            75% { clip: rect(67px, 9999px, 45px, 0); transform: skew(0.2deg); }
+            80% { clip: rect(89px, 9999px, 23px, 0); transform: skew(0.5deg); }
+            85% { clip: rect(34px, 9999px, 78px, 0); transform: skew(0.1deg); }
+            90% { clip: rect(56px, 9999px, 11px, 0); transform: skew(0.7deg); }
+            95% { clip: rect(12px, 9999px, 89px, 0); transform: skew(0.4deg); }
+            100% { clip: rect(78px, 9999px, 56px, 0); transform: skew(0.6deg); }
+        }
+
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); transform: skew(0.3deg); }
+            5% { clip: rect(15px, 9999px, 56px, 0); transform: skew(0.7deg); }
+            10% { clip: rect(89px, 9999px, 34px, 0); transform: skew(0.2deg); }
+            15% { clip: rect(23px, 9999px, 78px, 0); transform: skew(0.5deg); }
+            20% { clip: rect(56px, 9999px, 12px, 0); transform: skew(0.1deg); }
+            25% { clip: rect(78px, 9999px, 45px, 0); transform: skew(0.8deg); }
+            30% { clip: rect(34px, 9999px, 89px, 0); transform: skew(0.4deg); }
+            35% { clip: rect(67px, 9999px, 23px, 0); transform: skew(0.6deg); }
+            40% { clip: rect(11px, 9999px, 67px, 0); transform: skew(0.3deg); }
+            45% { clip: rect(99px, 9999px, 11px, 0); transform: skew(0.7deg); }
+            50% { clip: rect(45px, 9999px, 99px, 0); transform: skew(0.2deg); }
+            55% { clip: rect(12px, 9999px, 45px, 0); transform: skew(0.5deg); }
+            60% { clip: rect(89px, 9999px, 67px, 0); transform: skew(0.1deg); }
+            65% { clip: rect(23px, 9999px, 34px, 0); transform: skew(0.8deg); }
+            70% { clip: rect(78px, 9999px, 56px, 0); transform: skew(0.4deg); }
+            75% { clip: rect(56px, 9999px, 78px, 0); transform: skew(0.6deg); }
+            80% { clip: rect(34px, 9999px, 12px, 0); transform: skew(0.3deg); }
+            85% { clip: rect(67px, 9999px, 89px, 0); transform: skew(0.7deg); }
+            90% { clip: rect(11px, 9999px, 23px, 0); transform: skew(0.2deg); }
+            95% { clip: rect(99px, 9999px, 99px, 0); transform: skew(0.5deg); }
+            100% { clip: rect(45px, 9999px, 11px, 0); transform: skew(0.1deg); }
+        }
+
+        @keyframes glitch-skew {
+            0% { transform: skew(0deg); }
+            10% { transform: skew(2deg); }
+            20% { transform: skew(-1deg); }
+            30% { transform: skew(0deg); }
+            40% { transform: skew(1deg); }
+            50% { transform: skew(-2deg); }
+            60% { transform: skew(0deg); }
+            70% { transform: skew(-1deg); }
+            80% { transform: skew(2deg); }
+            90% { transform: skew(0deg); }
+            100% { transform: skew(-1deg); }
+        }
+
+        /* Hero section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            background: 
+                radial-gradient(ellipse at 20% 80%, rgba(57, 255, 20, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 110, 199, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 70%),
+                var(--dark-bg);
+        }
+
+        .hero h1 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(4rem, 15vw, 12rem);
+            letter-spacing: 0.1em;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan), var(--neon-pink), var(--neon-yellow));
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient-shift 3s ease infinite, pulse 0.5s ease infinite;
+            text-shadow: 0 0 80px rgba(57, 255, 20, 0.5);
+            filter: drop-shadow(0 0 30px var(--neon-green));
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .hero-subtitle {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.6rem, 2vw, 1rem);
+            color: var(--neon-cyan);
+            margin-top: 1rem;
+            text-shadow: 0 0 20px var(--neon-cyan);
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .spinning-cat {
+            width: clamp(150px, 30vw, 300px);
+            height: clamp(150px, 30vw, 300px);
+            margin: 2rem 0;
+            animation: spin 2s linear infinite;
+            filter: drop-shadow(0 0 30px var(--neon-pink));
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--neon-green), var(--neon-cyan), var(--neon-pink), var(--neon-purple), var(--neon-green));
+            padding: 8px;
+        }
+
+        .spinning-cat img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            animation: bounce 2s infinite;
+            font-size: 2rem;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+
+        /* Section styling */
+        section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-green), var(--neon-pink), var(--neon-cyan), transparent);
+        }
+
+        h2 {
+            font-family: 'Bangers', cursive;
+            font-size: clamp(2rem, 6vw, 4rem);
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--neon-green);
+            text-shadow: 
+                0 0 10px var(--neon-green),
+                0 0 20px var(--neon-green),
+                0 0 40px var(--neon-green);
+        }
+
+        /* The Cat section */
+        .cat-story {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .cat-info {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--neon-pink);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 
+                0 0 20px rgba(255, 110, 199, 0.3),
+                inset 0 0 20px rgba(255, 110, 199, 0.1);
+        }
+
+        .cat-info h3 {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            color: var(--neon-pink);
+            margin-bottom: 1rem;
+        }
+
+        .cat-info p {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--neon-cyan);
+        }
+
+        .stat-value {
+            font-family: 'Bangers', cursive;
+            font-size: 1.8rem;
+            color: var(--neon-cyan);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--neon-green), var(--neon-pink), var(--neon-cyan), var(--neon-purple));
+            border-radius: 2px;
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(10px);
+            border-color: var(--neon-green);
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.2);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -3rem;
+            top: 1.5rem;
+            width: 20px;
+            height: 20px;
+            background: var(--neon-green);
+            border-radius: 50%;
+            transform: translateX(-8px);
+            box-shadow: 0 0 20px var(--neon-green);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 20px var(--neon-green); }
+            50% { box-shadow: 0 0 40px var(--neon-green), 0 0 60px var(--neon-green); }
+        }
+
+        .timeline-year {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            color: var(--neon-yellow);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-title {
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            color: var(--neon-pink);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-desc {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* Video embeds */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .video-card {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .video-card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-pink), var(--neon-cyan));
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-card:hover::before {
+            opacity: 1;
+        }
+
+        .video-card:hover {
+            transform: scale(1.02);
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 177.78%; /* 9:16 for TikTok */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .video-wrapper.youtube {
+            padding-bottom: 56.25%; /* 16:9 */
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .video-label {
+            padding: 1rem;
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .video-stats {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--neon-cyan);
+        }
+
+        /* Links section */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .link-card {
+            display: block;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 15px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, var(--neon-green), var(--neon-cyan));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .link-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--neon-green);
+            box-shadow: 0 10px 40px rgba(57, 255, 20, 0.3);
+        }
+
+        .link-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .link-card h3 {
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            color: var(--neon-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .link-card p {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .link-card .emoji {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Fun facts */
+        .facts-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .fact-bubble {
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.1), rgba(255, 110, 199, 0.1));
+            border: 2px solid var(--neon-purple);
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            animation: wiggle 3s ease-in-out infinite;
+        }
+
+        .fact-bubble:nth-child(2n) { animation-delay: 0.5s; }
+        .fact-bubble:nth-child(3n) { animation-delay: 1s; }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-1deg); }
+            50% { transform: rotate(1deg); }
+        }
+
+        .fact-bubble:hover {
+            transform: scale(1.1) rotate(0deg) !important;
+            border-color: var(--neon-green);
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.3);
+        }
+
+        /* Indonesia section */
+        .indonesia-box {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(255, 255, 255, 0.05));
+            border: 3px solid #ff0000;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .indonesia-box::before {
+            content: '🇮🇩';
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            font-size: 2.5rem;
+        }
+
+        .indonesia-box h3 {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            color: #ff6666;
+            margin-bottom: 1rem;
+        }
+
+        /* Marquee */
+        .marquee-container {
+            overflow: hidden;
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-pink));
+            padding: 0.5rem 0;
+            margin: 2rem 0;
+        }
+
+        .marquee {
+            display: flex;
+            animation: marquee 20s linear infinite;
+            white-space: nowrap;
+        }
+
+        .marquee span {
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            color: var(--dark-bg);
+            padding: 0 2rem;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, transparent, rgba(57, 255, 20, 0.05));
+        }
+
+        footer p {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cat-ascii {
+            font-family: monospace;
+            font-size: 0.6rem;
+            line-height: 1;
+            color: var(--neon-green);
+            white-space: pre;
+            text-shadow: 0 0 10px var(--neon-green);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline {
+                padding-left: 2rem;
+            }
+            
+            .timeline-item::before {
+                left: -2rem;
+                width: 15px;
+                height: 15px;
+                transform: translateX(-6px);
+            }
+        }
+
+        /* Easter egg */
+        .secret-spin {
+            cursor: pointer;
+            transition: transform 0.5s ease;
+        }
+        
+        .secret-spin:hover {
+            animation: spin 0.5s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating background text -->
+    <div class="bg-oiia" id="bgOiia"></div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="spinning-cat">
+            <img src="https://i.kym-cdn.com/entries/icons/original/000/046/433/oiiaoiia.jpg" alt="OIIA Cat" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%2250%22 x=%2250%22 text-anchor=%22middle%22 font-size=%2260%22%3E🐱%3C/text%3E%3C/svg%3E'">
+        </div>
+        <h1 class="glitch" data-text="OIIA OIIA">OIIA OIIA</h1>
+        <p class="hero-subtitle">THE SPINNING CAT THAT BROKE THE INTERNET</p>
+        <div class="scroll-indicator">👇</div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="marquee-container">
+        <div class="marquee">
+            <span>🐱 OIIA OIIA OIIA 🐱</span>
+            <span>✨ SPINNING CAT ✨</span>
+            <span>🎵 U I I A I O U I I I A I 🎵</span>
+            <span>😹 ETHEL IS QUEEN 😹</span>
+            <span>🔥 BRAINROT ACTIVATED 🔥</span>
+            <span>🐱 OIIA OIIA OIIA 🐱</span>
+            <span>✨ SPINNING CAT ✨</span>
+            <span>🎵 U I I A I O U I I I A I 🎵</span>
+            <span>😹 ETHEL IS QUEEN 😹</span>
+            <span>🔥 BRAINROT ACTIVATED 🔥</span>
+        </div>
+    </div>
+
+    <!-- The Cat -->
+    <section>
+        <h2>🐱 MEET ETHEL 🐱</h2>
+        <div class="cat-story">
+            <div class="cat-info">
+                <h3>The Real One Behind The Meme</h3>
+                <p>Ethel is a <strong>blind rescue cat</strong> with dwarfism, adopted in 2018 from the Cat Welfare Association in Ohio. She was born with a degenerative eye disease and loves to <em>spin in circles at mealtime</em>.</p>
+                <p>Her owner Donna fell in love at first sight. Nobody else wanted to adopt her. Now she's an international internet superstar.</p>
+                <div class="stat-grid">
+                    <div class="stat">
+                        <div class="stat-value">13</div>
+                        <div class="stat-label">Years Old</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">8 lbs</div>
+                        <div class="stat-label">Weight</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label">Blind</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">∞</div>
+                        <div class="stat-label">Spinning Power</div>
+                    </div>
+                </div>
+            </div>
+            <div class="cat-info">
+                <h3>Fun Facts About Ethel</h3>
+                <div class="facts-container">
+                    <div class="fact-bubble">🧦 Hunts & hoards socks</div>
+                    <div class="fact-bubble">🥔 Favorite spot: "The Potato Patch"</div>
+                    <div class="fact-bubble">🐭 Has a squeaky mouse that scares the dog</div>
+                    <div class="fact-bubble">✨ Loves Mylar balls</div>
+                    <div class="fact-bubble">🚫 Doesn't like being held</div>
+                    <div class="fact-bubble">😻 Loves pets though</div>
+                    <div class="fact-bubble">🔄 Spins at every meal</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline -->
+    <section>
+        <h2>📅 THE OIIA TIMELINE 📅</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-year">2018</div>
+                <div class="timeline-title">Donna Adopts Ethel</div>
+                <div class="timeline-desc">A blind, chonky cat with dwarfism finds her forever home from the Cat Welfare Association in Ohio. Nobody else wanted her. Love at first sight.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">JANUARY 2019</div>
+                <div class="timeline-title">The Photo That Started It All</div>
+                <div class="timeline-desc">Ethel's photo gets posted to the Facebook group "Cats On Catnip Group". Latin American meme creators pick it up as "Ai Dise Gratis".</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">APRIL 12, 2023</div>
+                <div class="timeline-title">The Birth of OIIA</div>
+                <div class="timeline-desc">Bilibili user 黑瘦的鱼头 uploads a remix of the "Oo Ee A E A" sound with a spinning 3D cat model. 12+ million views. The brainrot begins.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">APRIL-MAY 2023</div>
+                <div class="timeline-title">China Goes Crazy</div>
+                <div class="timeline-desc">Psytrance remixes, chicken versions, rhythm game adaptations explode on Bilibili and YouTube. The spinning never stops.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">DECEMBER 16, 2024</div>
+                <div class="timeline-title">TikTok Explosion</div>
+                <div class="timeline-desc">@doombreaker03 posts a "FE!N" by Travis Scott remix. 13 million views. 2.5 million likes. In two weeks. The second wave hits.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">DECEMBER 23, 2024</div>
+                <div class="timeline-title">APT Remix Goes Nuclear</div>
+                <div class="timeline-desc">@oicatofficial drops the Bruno Mars & Rosé "APT" remix. 11 million plays. 1.8 million likes. In one week. We're cooked.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">JANUARY 2025</div>
+                <div class="timeline-title">W&W Makes It Official</div>
+                <div class="timeline-desc">Dutch DJ duo W&W (Top 25 DJs globally) releases "OIIA OIIA (Spinning Cat)" as an official track. Proceeds go to Ethel's care and the Cat Welfare Association.</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">NOW</div>
+                <div class="timeline-title">World Domination</div>
+                <div class="timeline-desc">Played at major festivals. Projected on giant screens. Times Square. China. Everywhere. The cat won.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Videos -->
+    <section>
+        <h2>🎬 THE SACRED TEXTS 🎬</h2>
+        <div class="video-grid">
+            <div class="video-card">
+                <div class="video-wrapper youtube">
+                    <iframe src="https://www.youtube.com/embed/LYCYoSiqgqA" title="OIIA Original" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <div class="video-label">
+                    <strong>THE ORIGINAL</strong>
+                    <div class="video-stats">
+                        <span>🔥 OG Spinning Cat</span>
+                    </div>
+                </div>
+            </div>
+            <div class="video-card">
+                <div class="video-wrapper youtube">
+                    <iframe src="https://www.youtube.com/embed/APk4mLodk88" title="OIIA Extended" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <div class="video-label">
+                    <strong>EXTENDED VERSION</strong>
+                    <div class="video-stats">
+                        <span>⏱️ For when you need MORE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <h3 style="text-align: center; margin: 3rem 0 1rem; font-family: 'Bangers', cursive; font-size: 2rem; color: var(--neon-pink);">TikTok Bangers 🔥</h3>
+        
+        <div class="video-grid">
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <iframe src="https://www.tiktok.com/embed/v2/7454950624258526506" allowfullscreen></iframe>
+                </div>
+                <div class="video-label">
+                    <strong>W&W - OIIA CAT RAVE</strong>
+                    <div class="video-stats">
+                        <span>❤️ 9.9M likes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <iframe src="https://www.tiktok.com/embed/v2/7456804755202034990" allowfullscreen></iframe>
+                </div>
+                <div class="video-label">
+                    <strong>ETHEL MADE IT TO THE RAVE</strong>
+                    <div class="video-stats">
+                        <span>❤️ 939K likes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="video-card">
+                <div class="video-wrapper">
+                    <iframe src="https://www.tiktok.com/embed/v2/7462744596678806827" allowfullscreen></iframe>
+                </div>
+                <div class="video-label">
+                    <strong>TAKING OVER THE WORLD</strong>
+                    <div class="video-stats">
+                        <span>❤️ 674K likes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Indonesia box -->
+    <section>
+        <div class="indonesia-box">
+            <h3>Why Do Indonesians Call It "Kucing Akmal"?</h3>
+            <p style="font-size: 1.3rem; line-height: 1.8;">In Indonesia, the meme is known as <strong>"Kucing Akmal"</strong> (Akmal's Cat). "Akmal" is just a common Indonesian name that got randomly attached to the meme – similar to how generic names like "Budi" or "Joko" become meme fodder in Indonesian internet culture.</p>
+            <p style="font-size: 1.3rem; line-height: 1.8; margin-top: 1rem;">The cat's real name was <strong>never</strong> Akmal. It's Ethel. But the Indonesian internet does what it wants. 🤷</p>
+        </div>
+    </section>
+
+    <!-- Links -->
+    <section>
+        <h2>🔗 THE RABBIT HOLE 🔗</h2>
+        <div class="links-grid">
+            <a href="https://www.tiktok.com/@wandwmusic" target="_blank" rel="noopener" class="link-card">
+                <div class="emoji">🎧</div>
+                <h3>W&W on TikTok</h3>
+                <p>The DJs who made it official. All the festival footage lives here.</p>
+            </a>
+            <a href="https://www.tiktok.com/@oiiacat_ethel" target="_blank" rel="noopener" class="link-card">
+                <div class="emoji">🐱</div>
+                <h3>Ethel's Official TikTok</h3>
+                <p>The real queen. Daily Ethel content from her owner.</p>
+            </a>
+            <a href="https://www.instagram.com/oiiacat_ethel/" target="_blank" rel="noopener" class="link-card">
+                <div class="emoji">📸</div>
+                <h3>Ethel's Instagram</h3>
+                <p>More Ethel content. Because you need it.</p>
+            </a>
+            <a href="https://open.spotify.com/search/W%26W%20OIIA%20OIIA%20Spinning%20Cat" target="_blank" rel="noopener" class="link-card">
+                <div class="emoji">🎵</div>
+                <h3>The Track on Spotify</h3>
+                <p>W&W - "OIIA OIIA (Spinning Cat)". Proceeds support Ethel.</p>
+            </a>
+            <a href="https://knowyourmeme.com/memes/oo-ee-a-e-a-cat-remixes" target="_blank" rel="noopener" class="link-card">
+                <div class="emoji">📚</div>
+                <h3>Know Your Meme Entry</h3>
+                <p>The full documented history for the meme historians.</p>
+            </a>
+            <a href="https://www.tiktok.com/tag/oiiaiiooiiai" target="_blank" rel="noopener" class="link-card">
+                <div class="emoji">🏷️</div>
+                <h3>#oiiaiiooiiai</h3>
+                <p>The hashtag. Enter at your own risk. Brainrot awaits.</p>
+            </a>
+            <a href="https://www.catwelfareassoc.org/" target="_blank" rel="noopener" class="link-card">
+                <div class="emoji">🏠</div>
+                <h3>Cat Welfare Association</h3>
+                <p>The Ohio shelter that saved Ethel. W&W proceeds go here.</p>
+            </a>
+            <a href="https://www.tiktok.com/@doombreaker03" target="_blank" rel="noopener" class="link-card">
+                <div class="emoji">💥</div>
+                <h3>@doombreaker03</h3>
+                <p>The creator who sparked the December 2024 resurgence.</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <pre class="cat-ascii">
+    /\_____/\
+   /  o   o  \
+  ( ==  ^  == )
+   )         (
+  (           )
+ ( (  )   (  ) )
+(__(__)___(__)__)
+        </pre>
+        <p style="margin-top: 2rem;">Made with 🐱 and severe brainrot</p>
+        <p style="opacity: 0.5; font-size: 1rem;">Ethel is real. Ethel is queen. Long live the spin.</p>
+        <p style="margin-top: 1rem; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; color: var(--neon-green);">
+            O I I A &nbsp; O I I A &nbsp; O I I A &nbsp; O I I A
+        </p>
+    </footer>
+
+    <script>
+        // Create floating background OIIA text
+        const bgContainer = document.getElementById('bgOiia');
+        const texts = ['OIIA', 'UIA', 'O I I A I O', '🐱', 'SPIN', 'ETHEL', '😹'];
+        const colors = ['#39ff14', '#ff6ec7', '#00ffff', '#ffff00', '#bf00ff'];
+        
+        for (let i = 0; i < 30; i++) {
+            const span = document.createElement('span');
+            span.className = 'floating-text';
+            span.textContent = texts[Math.floor(Math.random() * texts.length)];
+            span.style.left = Math.random() * 100 + '%';
+            span.style.animationDuration = (15 + Math.random() * 20) + 's';
+            span.style.animationDelay = Math.random() * 20 + 's';
+            span.style.color = colors[Math.floor(Math.random() * colors.length)];
+            span.style.fontSize = (0.8 + Math.random() * 1.5) + 'rem';
+            bgContainer.appendChild(span);
+        }
+
+        // Konami code easter egg
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let konamiIndex = 0;
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === konamiCode[konamiIndex]) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    document.body.style.animation = 'spin 0.5s linear infinite';
+                    setTimeout(() => {
+                        document.body.style.animation = '';
+                        alert('🐱 OIIA OIIA OIIA 🐱\n\nYou found the secret!\nEthel appreciates you.');
+                    }, 2000);
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        // Random color flash on scroll
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (Math.abs(currentScroll - lastScroll) > 200) {
+                document.body.style.boxShadow = `inset 0 0 100px ${colors[Math.floor(Math.random() * colors.length)]}40`;
+                setTimeout(() => {
+                    document.body.style.boxShadow = '';
+                }, 100);
+                lastScroll = currentScroll;
+            }
+        });
+    </script>
+</body>
+</html>
