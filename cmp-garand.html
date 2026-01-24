@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMP M1 Garand | The Greatest Battle Implement</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Source+Sans+Pro:wght@400;600;700&family=Courier+Prime:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --olive: #4a5d23;
+      --olive-dark: #3d4d1c;
+      --brass: #b5a642;
+      --brass-glow: #d4c14a;
+      --gunmetal: #2a3439;
+      --gunmetal-light: #3d4a52;
+      --parchment: #f4e9d8;
+      --blood: #8b0000;
+      --rust: #b7410e;
+    }
+    
+    .reveal {
+      font-family: 'Source Sans Pro', sans-serif;
+    }
+    
+    .reveal h1, .reveal h2, .reveal h3 {
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .reveal h1 { font-size: 2.2em; }
+    .reveal h2 { font-size: 1.6em; margin-bottom: 0.5em; }
+    .reveal h3 { font-size: 1.2em; }
+    
+    .stencil {
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+    }
+    
+    .highlight-olive { color: var(--olive); }
+    .highlight-brass { color: var(--brass); }
+    .highlight-rust { color: var(--rust); }
+    
+    .brass-glow {
+      color: var(--brass);
+      text-shadow: 0 0 20px rgba(181, 166, 66, 0.5);
+    }
+    
+    .box-olive {
+      background: rgba(74, 93, 35, 0.2);
+      border: 3px solid var(--olive);
+      border-radius: 8px;
+      padding: 1.2em;
+    }
+    
+    .box-brass {
+      background: rgba(181, 166, 66, 0.15);
+      border: 3px solid var(--brass);
+      border-radius: 8px;
+      padding: 1.2em;
+    }
+    
+    .box-gunmetal {
+      background: rgba(42, 52, 57, 0.6);
+      border: 2px solid var(--gunmetal-light);
+      border-radius: 8px;
+      padding: 1em;
+    }
+    
+    .check { color: #2ecc71; }
+    .cross { color: #e74c3c; }
+    
+    .patton-quote {
+      font-style: italic;
+      font-size: 1.4em;
+      line-height: 1.4;
+      color: var(--parchment);
+    }
+    
+    .ping-text {
+      font-size: 5em;
+      font-weight: 900;
+      background: linear-gradient(180deg, var(--brass-glow) 0%, var(--brass) 50%, #8b7355 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    }
+    
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      margin: 0.4em 0;
+      font-size: 0.9em;
+    }
+    
+    .timeline-num {
+      background: var(--olive);
+      color: white;
+      width: 2em;
+      height: 2em;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75em;
+    }
+    
+    table.data-table th {
+      background: var(--olive-dark);
+      color: white;
+      padding: 0.6em 0.8em;
+      text-align: left;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    table.data-table td {
+      padding: 0.5em 0.8em;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    table.data-table tr:nth-child(even) {
+      background: rgba(255,255,255,0.03);
+    }
+    
+    .status-in { color: #2ecc71; font-weight: 700; }
+    .status-out { color: #e74c3c; font-weight: 700; }
+    
+    .vet-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 2px solid var(--brass);
+      padding: 0.3em 0.8em;
+      border-radius: 4px;
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.9em;
+      color: var(--brass);
+    }
+    
+    .ammo-warning {
+      background: linear-gradient(135deg, rgba(139, 0, 0, 0.3) 0%, rgba(183, 65, 14, 0.3) 100%);
+      border-left: 4px solid var(--blood);
+      padding: 0.8em 1em;
+      margin: 0.5em 2em;
+      font-size: 0.85em;
+      text-align: left;
+    }
+    
+    .rifle-silhouette {
+      opacity: 0.08;
+      position: absolute;
+      bottom: -50px;
+      right: -100px;
+      font-size: 15em;
+      transform: rotate(-15deg);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      
+      <!-- ==================== TITLE SLIDE ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%)">
+        <div style="position: relative;">
+          <p class="stencil" style="font-size: 0.9em; color: var(--olive); margin-bottom: 0.3em;">CIVILIAN MARKSMANSHIP PROGRAM</p>
+          <h1 style="font-size: 3em; margin: 0.2em 0; background: linear-gradient(180deg, #fff 0%, #ccc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">M1 GARAND</h1>
+          <p style="font-size: 1.1em; color: var(--brass); margin-top: 0.5em;">Purchase Guide for Veterans</p>
+          <div style="margin-top: 2em; font-size: 0.8em; opacity: 0.7;">
+            <span class="stencil">EST. 1903</span> · <span>U.S. Government Program</span>
+          </div>
+          <div class="rifle-silhouette">🔫</div>
+        </div>
+      </section>
+
+      <!-- ==================== PATTON QUOTE ==================== -->
+      <section data-background-color="#0a0a0a" data-auto-animate>
+        <div style="max-width: 900px; margin: 0 auto;">
+          <p class="patton-quote fragment fade-up">"In my opinion, the M1 rifle is the <span class="brass-glow">greatest battle implement</span> ever devised."</p>
+          <p class="fragment fade-up" style="margin-top: 1.5em; font-size: 1em; color: var(--brass);">— General George S. Patton, Jr.</p>
+        </div>
+      </section>
+
+      <!-- ==================== THE PING ==================== -->
+      <section data-background-color="#000" data-auto-animate>
+        <div class="ping-text" data-id="ping">PING!</div>
+        <p class="fragment fade-up" style="margin-top: 0.8em; font-size: 1em; opacity: 0.8;">The unmistakable sound of the en bloc clip ejecting</p>
+        <p class="fragment fade-up" style="font-size: 0.85em; color: var(--olive);">8 rounds of .30-06 Springfield · Semi-automatic · Gas-operated</p>
+      </section>
+
+      <!-- ==================== WHAT IS CMP ==================== -->
+      <section data-background-gradient="linear-gradient(180deg, #1a1a1a 0%, #0d1f0d 100%)">
+        <h2 style="color: var(--brass);">What is the CMP?</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1em 2em; font-size: 0.85em;">
+          <div class="box-olive fragment fade-right">
+            <h3 style="color: var(--brass); margin-bottom: 0.4em;">Federally Chartered</h3>
+            <p>Non-profit corporation created by Congress in 1903 under Theodore Roosevelt</p>
+          </div>
+          <div class="box-olive fragment fade-left">
+            <h3 style="color: var(--brass); margin-bottom: 0.4em;">Mission</h3>
+            <p>Promote firearm safety, marksmanship training, and shooting sports</p>
+          </div>
+          <div class="box-olive fragment fade-right">
+            <h3 style="color: var(--brass); margin-bottom: 0.4em;">Surplus Sales</h3>
+            <p>Sells authentic U.S. military surplus firearms directly to citizens</p>
+          </div>
+          <div class="box-olive fragment fade-left">
+            <h3 style="color: var(--brass); margin-bottom: 0.4em;">FFL Exempt</h3>
+            <p>Ships rifles directly to your home in most states</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VETERAN ADVANTAGE ==================== -->
+      <section data-background-color="#0a1520">
+        <h2><span class="highlight-brass">Your Veteran Advantage</span></h2>
+        <p style="font-size: 0.95em; margin-bottom: 1em;">As an E-5+ Marine, your service covers <span class="brass-glow">3 of 4 requirements</span></p>
+        <div style="margin: 1em 3em; font-size: 0.85em; text-align: left;">
+          <div class="timeline-item fragment fade-up">
+            <span class="check" style="font-size: 1.5em;">✓</span>
+            <span><strong>U.S. Citizenship</strong> — Military ID (E-5+) counts</span>
+          </div>
+          <div class="timeline-item fragment fade-up">
+            <span class="cross" style="font-size: 1.5em;">○</span>
+            <span><strong>Club Membership</strong> — Need to join one ($35)</span>
+          </div>
+          <div class="timeline-item fragment fade-up">
+            <span class="check" style="font-size: 1.5em;">✓</span>
+            <span><strong>Marksmanship Proof</strong> — Marine service qualifies</span>
+          </div>
+          <div class="timeline-item fragment fade-up">
+            <span class="check" style="font-size: 1.5em;">✓</span>
+            <span><strong>Legal Eligibility</strong> — Standard NICS check</span>
+          </div>
+        </div>
+        <div class="fragment fade-up" style="margin-top: 1.2em;">
+          <span class="vet-badge">USMC E-5 = FAST TRACK</span>
+        </div>
+      </section>
+
+      <!-- ==================== CLUB MEMBERSHIP ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #1a1a1a 0%, #1a2a1a 100%)">
+        <h2>Easiest Club: <span class="highlight-olive">GCA</span></h2>
+        <div class="box-brass" style="max-width: 700px; margin: 1em auto; text-align: center;">
+          <h3 style="color: var(--brass); margin-bottom: 0.3em; font-size: 1.4em;">Garand Collectors Association</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1em; margin-top: 1em; font-size: 0.9em;">
+            <div>
+              <p style="font-size: 2em; font-weight: 700; color: var(--brass); margin: 0;">$35</p>
+              <p style="opacity: 0.8; margin: 0;">per year</p>
+            </div>
+            <div>
+              <p style="font-size: 2em; font-weight: 700; color: var(--olive); margin: 0;">5 min</p>
+              <p style="opacity: 0.8; margin: 0;">to join online</p>
+            </div>
+            <div>
+              <p style="font-size: 2em; font-weight: 700; color: #2ecc71; margin: 0;">✓</p>
+              <p style="opacity: 0.8; margin: 0;">instant proof</p>
+            </div>
+          </div>
+        </div>
+        <p class="fragment" style="font-size: 0.85em; margin-top: 1em; opacity: 0.8;">Email confirmation works as membership proof</p>
+        <p class="fragment" style="font-size: 0.8em; color: var(--olive);">thegca.org/product/membership/</p>
+      </section>
+
+      <!-- ==================== ALTERNATIVE CLUBS ==================== -->
+      <section data-background-color="#111">
+        <h2 style="font-size: 1.4em;">Alternative Affiliated Orgs</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1em 2.5em; font-size: 0.8em;">
+          <div class="box-gunmetal fragment">
+            <p style="margin: 0;"><strong style="color: var(--brass);">Veterans Orgs</strong></p>
+            <p style="margin: 0.3em 0 0 0; opacity: 0.9;">VFW · American Legion · DAV · Marine Corps League</p>
+          </div>
+          <div class="box-gunmetal fragment">
+            <p style="margin: 0;"><strong style="color: var(--brass);">Military Service</strong></p>
+            <p style="margin: 0.3em 0 0 0; opacity: 0.9;">Active · Reserve · Guard · Retired (ID required)</p>
+          </div>
+          <div class="box-gunmetal fragment">
+            <p style="margin: 0;"><strong style="color: var(--brass);">Law Enforcement</strong></p>
+            <p style="margin: 0.3em 0 0 0; opacity: 0.9;">Agencies · Associations · Retirees</p>
+          </div>
+          <div class="box-gunmetal fragment">
+            <p style="margin: 0;"><strong style="color: var(--brass);">Local Clubs</strong></p>
+            <p style="margin: 0.3em 0 0 0; opacity: 0.9;">2,000+ affiliated shooting clubs nationwide</p>
+          </div>
+        </div>
+        <p class="fragment" style="font-size: 0.85em; margin-top: 1em; color: #e74c3c;">⚠ NRA is NOT a CMP-affiliated organization</p>
+      </section>
+
+      <!-- ==================== PRICING HEADER ==================== -->
+      <section data-background-gradient="linear-gradient(180deg, #0a0a0a 0%, #1a1510 100%)" data-auto-animate>
+        <h2 data-id="price-title" style="color: var(--brass);">Current Pricing</h2>
+        <p style="font-size: 1em; opacity: 0.8;">December 2025 · Prices subject to change</p>
+      </section>
+
+      <!-- ==================== PRICING TABLE ==================== -->
+      <section data-background-gradient="linear-gradient(180deg, #0a0a0a 0%, #1a1510 100%)" data-auto-animate>
+        <h2 data-id="price-title" style="font-size: 1.3em; color: var(--brass); margin-bottom: 0.6em;">Current Pricing</h2>
+        <div style="margin: 0 1.5em;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Grade</th>
+                <th>Price</th>
+                <th>Condition</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="fragment">
+                <td>Rack Grade</td>
+                <td>—</td>
+                <td>Rough but functional, as-is</td>
+                <td class="status-out">SOLD OUT</td>
+              </tr>
+              <tr class="fragment">
+                <td>Field Grade</td>
+                <td>$800</td>
+                <td>Fair to good, reclaimed receiver</td>
+                <td class="status-out">SOLD OUT</td>
+              </tr>
+              <tr class="fragment">
+                <td>Service Grade</td>
+                <td>—</td>
+                <td>Good to very good</td>
+                <td class="status-out">SOLD OUT</td>
+              </tr>
+              <tr class="fragment" style="background: rgba(74, 93, 35, 0.2);">
+                <td><strong>Expert (SA/HRA)</strong></td>
+                <td><strong>$1,150</strong></td>
+                <td>New barrel + stock, .30-06 or .308</td>
+                <td class="status-in">IN STOCK</td>
+              </tr>
+              <tr class="fragment" style="background: rgba(74, 93, 35, 0.15);">
+                <td>Expert (IHC/Win)</td>
+                <td>$1,250</td>
+                <td>Premium receiver manufacturers</td>
+                <td class="status-in">IN STOCK</td>
+              </tr>
+              <tr class="fragment">
+                <td>CMP Special</td>
+                <td>$1,650</td>
+                <td>Competition-ready, 1-2 MOA</td>
+                <td class="status-in">IN STOCK</td>
+              </tr>
+              <tr class="fragment">
+                <td>New Production</td>
+                <td>$1,900</td>
+                <td>Brand new Heritage Arms receiver</td>
+                <td class="status-in">AVAILABLE</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fragment" style="font-size: 0.75em; margin-top: 0.8em; opacity: 0.7;">Add $35 shipping · NC sales tax applies · Limit 12 rifles/year</p>
+      </section>
+
+      <!-- ==================== BEST VALUE ==================== -->
+      <section data-background-color="#0d1f0d">
+        <h2 style="font-size: 1.5em;">Best Value: <span class="highlight-brass">Expert Grade</span></h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1em 2em;">
+          <div class="box-brass fragment" style="text-align: center;">
+            <p style="font-size: 2.5em; font-weight: 900; color: var(--brass); margin: 0;">$1,150</p>
+            <p style="font-size: 0.9em; margin: 0.3em 0;">Springfield or H&R Receiver</p>
+          </div>
+          <div style="text-align: left; font-size: 0.85em;">
+            <p class="fragment" style="margin: 0.4em 0;"><span class="check">✓</span> NEW commercial barrel ("as new" bore)</p>
+            <p class="fragment" style="margin: 0.4em 0;"><span class="check">✓</span> NEW production stock set</p>
+            <p class="fragment" style="margin: 0.4em 0;"><span class="check">✓</span> Authentic USGI receiver</p>
+            <p class="fragment" style="margin: 0.4em 0;"><span class="check">✓</span> Available in .30-06 or .308</p>
+            <p class="fragment" style="margin: 0.4em 0;"><span class="check">✓</span> Excellent accuracy potential</p>
+          </div>
+        </div>
+        <p class="fragment" style="font-size: 0.85em; margin-top: 1em; color: var(--olive);">New barrel = no throat/muzzle wear concerns</p>
+      </section>
+
+      <!-- ==================== PROCESS OVERVIEW ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #1a1a1a 0%, #0a1a2a 100%)">
+        <h2 style="color: var(--brass);">The Process</h2>
+        <div style="margin: 1.2em 2em; font-size: 0.9em;">
+          <div class="timeline-item fragment fade-right">
+            <div class="timeline-num">1</div>
+            <div><strong>Join GCA</strong> — 5 minutes, $35 online</div>
+          </div>
+          <div class="timeline-item fragment fade-right">
+            <div class="timeline-num">2</div>
+            <div><strong>Gather docs</strong> — DD-214, DL, GCA receipt</div>
+          </div>
+          <div class="timeline-item fragment fade-right">
+            <div class="timeline-num">3</div>
+            <div><strong>Submit order</strong> — Online form, 20 minutes</div>
+          </div>
+          <div class="timeline-item fragment fade-right">
+            <div class="timeline-num">4</div>
+            <div><strong>Wait</strong> — 2-4 weeks processing + NICS</div>
+          </div>
+          <div class="timeline-item fragment fade-right">
+            <div class="timeline-num">5</div>
+            <div><strong>Receive</strong> — FedEx to your door, adult sig required</div>
+          </div>
+        </div>
+        <p class="fragment" style="margin-top: 1em; font-size: 1.1em; color: var(--brass);">Total: <strong>3-5 weeks</strong> from click to rifle</p>
+      </section>
+
+      <!-- ==================== NC SPECIFICS ==================== -->
+      <section data-background-color="#0a1520">
+        <h2 style="font-size: 1.5em;"><span class="highlight-olive">North Carolina</span> Notes</h2>
+        <div style="margin: 1.2em 3em; font-size: 0.9em; text-align: left;">
+          <p class="fragment" style="margin: 0.5em 0;"><span class="check">✓</span> No state permits required for rifle purchase</p>
+          <p class="fragment" style="margin: 0.5em 0;"><span class="check">✓</span> Ships directly to residence (no FFL needed)</p>
+          <p class="fragment" style="margin: 0.5em 0;"><span class="check">✓</span> CMP is FFL-exempt by federal charter</p>
+          <p class="fragment" style="margin: 0.5em 0;"><span style="color: var(--brass);">●</span> NC sales tax applies</p>
+          <p class="fragment" style="margin: 0.5em 0;"><span style="color: var(--brass);">●</span> FedEx requires 21+ adult signature with ID scan</p>
+        </div>
+        <p class="fragment" style="font-size: 0.85em; margin-top: 1em; opacity: 0.8;">Willow Spring → Straight to your door</p>
+      </section>
+
+      <!-- ==================== AMMUNITION WARNING ==================== -->
+      <section data-background-gradient="linear-gradient(180deg, #1a0a0a 0%, #0a0a0a 100%)">
+        <h2 style="color: #e74c3c;">⚠ Critical: Ammunition</h2>
+        <p style="font-size: 0.9em; margin-bottom: 0.8em;">These rifles are 70+ years old. Use correct ammo or damage the gas system.</p>
+        <div class="ammo-warning fragment">
+          <p style="margin: 0; font-weight: 700; color: #e74c3c;">FOR .30-06 GARANDS:</p>
+          <p style="margin: 0.3em 0 0 0;">M2 Ball spec · Max 50,000 CUP · 150-174gr bullets only</p>
+          <p style="margin: 0.3em 0 0 0; color: #2ecc71;">Lake City surplus is ideal</p>
+        </div>
+        <div class="ammo-warning fragment">
+          <p style="margin: 0; font-weight: 700; color: #e74c3c;">DO NOT USE:</p>
+          <p style="margin: 0.3em 0 0 0;">Commercial hunting loads · Heavy bullets (180gr+) · Max-pressure ammo</p>
+        </div>
+        <p class="fragment" style="font-size: 0.8em; margin-top: 1em; opacity: 0.8;">.308 Expert Grade: Use 7.62 NATO mil-spec, not commercial .308 Win</p>
+      </section>
+
+      <!-- ==================== WHAT'S INCLUDED ==================== -->
+      <section data-background-color="#111">
+        <h2 style="font-size: 1.4em;">What's in the Box</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1em 2.5em; font-size: 0.85em;">
+          <div class="fragment" style="text-align: left;">
+            <p style="margin: 0.4em 0;"><span class="brass-glow">●</span> Certificate of Authenticity</p>
+            <p style="margin: 0.4em 0;"><span class="brass-glow">●</span> Safety manual</p>
+            <p style="margin: 0.4em 0;"><span class="brass-glow">●</span> One 8-round en bloc clip</p>
+          </div>
+          <div class="fragment" style="text-align: left;">
+            <p style="margin: 0.4em 0;"><span class="brass-glow">●</span> Chamber safety flag</p>
+            <p style="margin: 0.4em 0;"><span class="brass-glow">●</span> Gun lock (federal req)</p>
+            <p style="margin: 0.4em 0;"><span class="brass-glow">●</span> Rifle case (1st purchase/year)</p>
+          </div>
+        </div>
+        <div class="box-gunmetal fragment" style="max-width: 600px; margin: 1.2em auto; font-size: 0.85em;">
+          <p style="margin: 0;"><strong style="color: var(--brass);">Luck of the Draw:</strong> Mail order = random selection within grade. Visit Talladega to hand-pick your exact rifle.</p>
+        </div>
+      </section>
+
+      <!-- ==================== IN-PERSON OPTION ==================== -->
+      <section data-background-gradient="linear-gradient(135deg, #1a1510 0%, #0a0a0a 100%)">
+        <h2 style="font-size: 1.4em;">In-Person: <span class="highlight-brass">Talladega</span></h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1em 2em; font-size: 0.85em;">
+          <div class="box-olive fragment">
+            <h3 style="color: var(--brass); margin-bottom: 0.4em;">CMP Talladega</h3>
+            <p style="margin: 0.3em 0;">Marksmanship Park, AL</p>
+            <p style="margin: 0.3em 0; color: var(--olive);">~5 hours from Willow Spring</p>
+            <p style="margin: 0.5em 0 0 0; font-size: 0.9em; opacity: 0.8;">Walk in, browse, select, walk out same day</p>
+          </div>
+          <div class="box-olive fragment">
+            <h3 style="color: var(--brass); margin-bottom: 0.4em;">Camp Perry</h3>
+            <p style="margin: 0.3em 0;">Port Clinton, OH</p>
+            <p style="margin: 0.3em 0; color: var(--olive);">~8 hours from Willow Spring</p>
+            <p style="margin: 0.5em 0 0 0; font-size: 0.9em; opacity: 0.8;">Larger selection, National Matches venue</p>
+          </div>
+        </div>
+        <p class="fragment" style="font-size: 0.85em; margin-top: 1em;"><span class="check">✓</span> Hand-select your exact rifle</p>
+        <p class="fragment" style="font-size: 0.85em;"><span class="check">✓</span> Bring all documentation</p>
+      </section>
+
+      <!-- ==================== QUICK REFERENCE ==================== -->
+      <section data-background-color="#0a0a0a">
+        <h2 style="font-size: 1.4em; color: var(--brass);">Quick Reference</h2>
+        <div style="font-size: 0.85em; margin: 1em 3em; text-align: left;">
+          <p style="margin: 0.5em 0;"><strong style="color: var(--olive);">CMP Website:</strong> thecmp.org</p>
+          <p style="margin: 0.5em 0;"><strong style="color: var(--olive);">Order Form:</strong> thecmp.org/military-surplus-rifle-order-form/</p>
+          <p style="margin: 0.5em 0;"><strong style="color: var(--olive);">GCA Membership:</strong> thegca.org/product/membership/</p>
+          <p style="margin: 0.5em 0;"><strong style="color: var(--olive);">CMP Email:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="88ebfdfbfce7e5c8fce0edebe5f8a6e7faef">[email&#160;protected]</a></p>
+          <p style="margin: 0.5em 0;"><strong style="color: var(--olive);">Yearly Limit:</strong> 12 surplus rifles (raised Jan 2025)</p>
+          <p style="margin: 0.5em 0;"><strong style="color: var(--olive);">Shipping:</strong> $35 per rifle</p>
+        </div>
+      </section>
+
+      <!-- ==================== FINAL SLIDE ==================== -->
+      <section data-background-gradient="linear-gradient(180deg, #000 0%, #1a1510 50%, #000 100%)">
+        <div class="ping-text" style="font-size: 3.5em;">PING!</div>
+        <p style="font-size: 1.2em; margin-top: 1em; color: var(--parchment);">Go get your piece of American history.</p>
+        <div style="margin-top: 2em;">
+          <p style="font-size: 0.9em; color: var(--olive);">Expert Grade · $1,150 · In Stock Now</p>
+          <p style="font-size: 0.8em; opacity: 0.6; margin-top: 0.5em;">thecmp.org</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      controls: true,
+      progress: true,
+      center: true,
+      hash: false,
+      transition: 'slide'
