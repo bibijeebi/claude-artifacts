@@ -271,6 +271,14 @@
             background: rgba(239, 68, 68, 0.15);
             color: #f87171;
         }
+        .card-badge.slide {
+            background: rgba(251, 191, 36, 0.15);
+            color: #fbbf24;
+        }
+        .card-badge.album {
+            background: rgba(52, 211, 153, 0.15);
+            color: #34d399;
+        }
 
         .card-title {
             font-size: 1.25rem;
@@ -397,6 +405,8 @@
 
         <div class="filter-buttons" id="filters">
             <button class="filter-btn" data-filter="page">Pages</button>
+            <button class="filter-btn" data-filter="slide">Slides</button>
+            <button class="filter-btn" data-filter="album">Albums</button>
             <button class="filter-btn" data-filter="pdf">PDFs</button>
             <button class="filter-btn" data-filter="app">Apps</button>
         </div>
@@ -409,6 +419,14 @@
             <div class="stat">
                 <div class="stat-value" id="page-count">-</div>
                 <div class="stat-label">Pages</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="slide-count">-</div>
+                <div class="stat-label">Slides</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="album-count">-</div>
+                <div class="stat-label">Albums</div>
             </div>
             <div class="stat">
                 <div class="stat-value" id="pdf-count">-</div>
@@ -658,6 +676,24 @@
                 description: 'The greatest battle implement ever devised. How to get one.',
                 icon: '🔫',
                 category: 'presentation'
+            },
+            'album-quotes.html': {
+                title: 'Quotes',
+                description: 'AI-generated quote images.',
+                icon: '💬',
+                category: 'album'
+            },
+            'album-please-bro.html': {
+                title: 'Please Bro',
+                description: 'Please bro meme collection.',
+                icon: '🙏',
+                category: 'album'
+            },
+            'album-collages.html': {
+                title: 'Collages',
+                description: 'AI-generated collage images.',
+                icon: '🖼️',
+                category: 'album'
             }
         };
 
@@ -722,25 +758,40 @@
                 const title = meta.title || getDisplayName(site.name);
                 const isDir = site.type === 'dir';
                 const isExternal = site.type === 'external';
-                const isPdf = site.type === 'pdf';
-                const path = (isExternal || isPdf) ? meta.url : (isDir ? `/${site.name}/` : `/${site.name}`);
-                const url = (isExternal || isPdf) ? meta.url : BASE_URL + path;
-                const badge = isPdf ? 'PDF' : (isExternal ? 'App' : (isDir ? 'App' : 'Page'));
-                const badgeClass = isPdf ? 'pdf' : (isExternal ? 'external' : (isDir ? 'dir' : ''));
-                const typeLabel = isPdf ? 'PDF Document' : (isExternal ? 'CF Worker' : (isDir ? 'Directory' : 'Single Page'));
+                const cat = site.category;
+                const path = (isExternal || cat === 'pdf') ? meta.url : (isDir ? `/${site.name}/` : `/${site.name}`);
+                const url = (isExternal || cat === 'pdf') ? meta.url : BASE_URL + path;
+                
+                // Badge based on category
+                const badgeMap = {
+                    'page': { label: 'Page', class: '' },
+                    'slide': { label: 'Slides', class: 'slide' },
+                    'album': { label: 'Album', class: 'album' },
+                    'pdf': { label: 'PDF', class: 'pdf' },
+                    'app': { label: 'App', class: 'external' }
+                };
+                const badgeInfo = badgeMap[cat] || badgeMap['page'];
+                
+                const typeLabels = {
+                    'page': 'Single Page',
+                    'slide': 'Reveal.js Presentation',
+                    'album': 'Image Gallery',
+                    'pdf': 'PDF Document',
+                    'app': isDir ? 'Directory' : 'CF Worker'
+                };
 
                 return `
                     <a href="${url}" class="site-card" target="_blank">
                         <div class="card-header">
                             <div class="card-icon">${meta.icon}</div>
-                            <span class="card-badge ${badgeClass}">${badge}</span>
+                            <span class="card-badge ${badgeInfo.class}">${badgeInfo.label}</span>
                         </div>
                         <h3 class="card-title">${title}</h3>
-                        <div class="card-path">${(isExternal || isPdf) ? '↗ R2' : path}</div>
+                        <div class="card-path">${(isExternal || cat === 'pdf') ? '↗ R2' : path}</div>
                         <p class="card-description">${meta.description}</p>
                         <div class="card-meta">
                             ${site.size ? `<span>📦 ${formatSize(site.size)}</span>` : ''}
-                            <span>🔗 ${typeLabel}</span>
+                            <span>🔗 ${typeLabels[cat] || 'Single Page'}</span>
                         </div>
                     </a>
                 `;
@@ -749,12 +800,16 @@
 
         function updateStats(sites) {
             const total = sites.length;
-            const pages = sites.filter(s => s.type === 'file').length;
-            const pdfs = sites.filter(s => s.type === 'pdf').length;
-            const apps = sites.filter(s => s.type === 'dir' || s.type === 'external').length;
+            const pages = sites.filter(s => s.category === 'page').length;
+            const slides = sites.filter(s => s.category === 'slide').length;
+            const albums = sites.filter(s => s.category === 'album').length;
+            const pdfs = sites.filter(s => s.category === 'pdf').length;
+            const apps = sites.filter(s => s.category === 'app').length;
 
             document.getElementById('total-count').textContent = total;
             document.getElementById('page-count').textContent = pages;
+            document.getElementById('slide-count').textContent = slides;
+            document.getElementById('album-count').textContent = albums;
             document.getElementById('pdf-count').textContent = pdfs;
             document.getElementById('app-count').textContent = apps;
         }
@@ -762,13 +817,23 @@
         let allSites = [];
 
         async function init() {
-            allSites = await fetchSites();
+            let rawSites = await fetchSites();
             
-            // Add external apps and PDFs
+            // Categorize sites based on siteMeta
+            allSites = rawSites.map(site => {
+                const meta = siteMeta[site.name];
+                let category = 'page'; // default for files
+                if (site.type === 'dir') category = 'app';
+                if (meta && meta.category === 'presentation') category = 'slide';
+                if (meta && meta.category === 'album') category = 'album';
+                return { ...site, category };
+            });
+            
+            // Add external items (PDFs and Workers)
             Object.entries(siteMeta).forEach(([key, meta]) => {
                 if (meta.url) {
-                    const type = meta.category === 'pdf' ? 'pdf' : 'external';
-                    allSites.push({ name: key, type: type, url: meta.url });
+                    const category = meta.category === 'pdf' ? 'pdf' : 'app';
+                    allSites.push({ name: key, type: 'external', category, url: meta.url });
                 }
             });
             
@@ -782,12 +847,14 @@
                 const query = searchInput.value.toLowerCase();
                 let filtered = allSites;
 
-                // Apply type filters (if any active, show only those types)
+                // Apply category filters (if any active, show only those categories)
                 if (activeFilters.size > 0) {
                     filtered = filtered.filter(site => {
-                        if (activeFilters.has('page') && site.type === 'file') return true;
-                        if (activeFilters.has('pdf') && site.type === 'pdf') return true;
-                        if (activeFilters.has('app') && (site.type === 'dir' || site.type === 'external')) return true;
+                        if (activeFilters.has('page') && site.category === 'page') return true;
+                        if (activeFilters.has('slide') && site.category === 'slide') return true;
+                        if (activeFilters.has('album') && site.category === 'album') return true;
+                        if (activeFilters.has('pdf') && site.category === 'pdf') return true;
+                        if (activeFilters.has('app') && site.category === 'app') return true;
                         return false;
                     });
                 }
@@ -843,6 +910,7 @@
     </script>
 </body>
 </html>
+
 
 
 
