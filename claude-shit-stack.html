@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Claude Shit Stack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface-2: #1a1a25;
+      --border: #2a2a3a;
+      --text: #e8e8ed;
+      --text-muted: #8888a0;
+      --accent: #6366f1;
+      --accent-2: #8b5cf6;
+      --green: #10b981;
+      --orange: #f59e0b;
+      --pink: #ec4899;
+      --cyan: #06b6d4;
+    }
+    
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 24px;
+    }
+    
+    h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    
+    h1 .highlight {
+      background: linear-gradient(135deg, var(--pink), var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    
+    .section {
+      margin-bottom: 80px;
+    }
+    
+    .section-label {
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 12px;
+    }
+    
+    /* Flow Diagram */
+    .flow-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px;
+      margin-bottom: 48px;
+    }
+    
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .flow-step {
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+    }
+    
+    .flow-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 16px;
+    }
+    
+    .flow-step h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .flow-step p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    
+    .flow-arrow {
+      color: var(--border);
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    
+    /* Screenshot */
+    .screenshot {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin: 24px 0;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    
+    .screenshot img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .screenshot-caption {
+      background: var(--surface-2);
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+    
+    /* Cards Grid */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+    }
+    
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+    
+    .card code {
+      display: block;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.8rem;
+      color: var(--green);
+      overflow-x: auto;
+    }
+    
+    /* Two Column with Image */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+    
+    .two-col.reverse {
+      direction: rtl;
+    }
+    
+    .two-col.reverse > * {
+      direction: ltr;
+    }
+    
+    @media (max-width: 800px) {
+      .two-col, .two-col.reverse {
+        grid-template-columns: 1fr;
+        direction: ltr;
+      }
+    }
+    
+    .two-col-content h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+    
+    .two-col-content p {
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    
+    .two-col-content ul {
+      list-style: none;
+      margin-top: 20px;
+    }
+    
+    .two-col-content li {
+      padding: 8px 0;
+      padding-left: 28px;
+      position: relative;
+      color: var(--text-muted);
+    }
+    
+    .two-col-content li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+    
+    /* Capabilities */
+    .capabilities {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 32px;
+    }
+    
+    .capability {
+      background: var(--surface-2);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .capability-icon {
+      font-size: 24px;
+    }
+    
+    .capability h4 {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    
+    .capability p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    
+    /* Quote */
+    .quote-block {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      border-left: 4px solid var(--accent);
+      border-radius: 0 16px 16px 0;
+      padding: 32px;
+      margin: 48px 0;
+    }
+    
+    .quote-block p {
+      font-size: 1.25rem;
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+    
+    .quote-block cite {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    /* Stack visualization */
+    .stack-viz {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 500px;
+      margin: 40px auto;
+    }
+    
+    .stack-layer {
+      padding: 16px 24px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+      .flow { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge">A Technical Masterpiece</div>
+      <h1>The Claude <span class="highlight">Shit Stack</span></h1>
+      <p class="subtitle">Memory on memory on worker on GitHub on Cloudflare. The complete architecture that lets an AI yell code into production. Fuck shit stack.</p>
+    </header>
+
+    <section class="section">
+      <div class="section-label">The Stack</div>
+      <h2>What's in the Stack?</h2>
+      
+      <div class="stack-viz">
+        <div class="stack-layer" style="background: linear-gradient(135deg, var(--green), var(--cyan));">🌐 Cloudflare Pages (CDN)</div>
+        <div class="stack-layer" style="background: linear-gradient(135deg, var(--cyan), var(--accent));">📤 GitHub (Auto-Deploy Trigger)</div>
+        <div class="stack-layer" style="background: linear-gradient(135deg, var(--accent), var(--accent-2));">⚙️ Cloudflare Worker (Proxy)</div>
+        <div class="stack-layer" style="background: linear-gradient(135deg, var(--accent-2), var(--pink));">🗄️ R2 + D1 (Storage + Database)</div>
+        <div class="stack-layer" style="background: linear-gradient(135deg, var(--pink), var(--orange));">🧠 Claude Memory (Tokens + Prefs)</div>
+        <div class="stack-layer" style="background: linear-gradient(135deg, var(--orange), #ef4444);">💻 Linux Sandbox (Computer Use)</div>
+        <div class="stack-layer" style="background: var(--surface-2); border: 2px solid var(--border);">💬 You Screaming Profanity</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-label">The Flow</div>
+      <h2>From "Deploy This Shit" to Live Website</h2>
+      
+      <div class="flow-container">
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-icon" style="background: linear-gradient(135deg, var(--pink), var(--accent));">🗣️</div>
+            <h3>You Ask</h3>
+            <p>"Deploy this shit"</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-icon" style="background: linear-gradient(135deg, var(--accent), var(--accent-2));">🧠</div>
+            <h3>Claude Gets It</h3>
+            <p>Memory knows what "deploy" means</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-icon" style="background: linear-gradient(135deg, var(--accent-2), var(--cyan));">📤</div>
+            <h3>Push to GitHub</h3>
+            <p>curl with stored token</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-icon" style="background: linear-gradient(135deg, var(--orange), var(--pink));">⚡</div>
+            <h3>Auto-Deploy</h3>
+            <p>Cloudflare sees commit</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">
+            <div class="flow-icon" style="background: linear-gradient(135deg, var(--green), var(--cyan));">🌐</div>
+            <h3>It's Live</h3>
+            <p>Permanent URL, done</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="screenshot">
+        <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/shit-stack-deploy-success.webp" alt="Cloudflare Pages deployment success">
+        <div class="screenshot-caption">"Success! Your project is deployed to Region: Earth" — the result of saying "deploy this shit"</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-label">The Infrastructure</div>
+      <h2>Actual Screenshots From Building This</h2>
+      
+      <div class="two-col">
+        <div class="two-col-content">
+          <h3>GitHub Repository</h3>
+          <p>Claude pushes files directly via the GitHub API. No git CLI, no IDE, no manual anything. Just REST calls with base64-encoded HTML.</p>
+          <p>The repo is connected to Cloudflare Pages. Commit lands, deployment starts, ~10 seconds later it's live on the CDN.</p>
+          <ul>
+            <li>Each artifact gets its own folder</li>
+            <li>Commits show Claude as the author</li>
+            <li>Public repo, anyone can see the code</li>
+          </ul>
+        </div>
+        <div class="screenshot">
+          <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/shit-stack-github-repo.webp" alt="GitHub repository">
+          <div class="screenshot-caption">The claude-artifacts repo — "Artifacts deployed by Claude"</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="two-col reverse">
+        <div class="two-col-content">
+          <h3>Cloudflare Worker</h3>
+          <p>The middleware that makes it all work. Claude's sandbox has weird TLS issues, so the worker acts as a trusted proxy to Cloudflare's own services.</p>
+          <p>R2 for storing images. D1 for database queries. All exposed as dead-simple POST endpoints with bearer token auth.</p>
+          <ul>
+            <li><code style="display:inline;padding:2px 6px;">POST /upload</code> → Images to R2</li>
+            <li><code style="display:inline;padding:2px 6px;">GET /r2/file/*</code> → Serve publicly</li>
+            <li><code style="display:inline;padding:2px 6px;">POST /d1/query</code> → SQLite queries</li>
+          </ul>
+        </div>
+        <div class="screenshot">
+          <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/shit-stack-bindings.webp" alt="Worker bindings">
+          <div class="screenshot-caption">Worker bindings: D1_DB for the database, R2_BUCKET for storage</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-label">The Magic</div>
+      <h2>Why You Can Scream Profanity and Get Results</h2>
+      
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon" style="background: linear-gradient(135deg, var(--accent), var(--accent-2));">🧠</div>
+          <h3>Memory</h3>
+          <p>Claude remembers your API tokens, preferences, and workflows across every session. "Deploy this" already means something specific—your GitHub, your Cloudflare, your setup.</p>
+          <code>Memory: GitHub token, worker auth, "deploy = push to Pages"</code>
+        </div>
+        
+        <div class="card">
+          <div class="card-icon" style="background: linear-gradient(135deg, var(--cyan), var(--green));">💻</div>
+          <h3>Computer Use</h3>
+          <p>Claude runs in a real Linux sandbox. Bash, curl, file system, the works. It can write code, execute it, make HTTP requests, create files—actually do shit.</p>
+          <code>curl -k -X PUT api.github.com/repos/.../contents</code>
+        </div>
+        
+        <div class="card">
+          <div class="card-icon" style="background: linear-gradient(135deg, var(--orange), var(--pink));">⚙️</div>
+          <h3>User Preferences</h3>
+          <p>You've configured Claude to understand your style. Casual language, specific tools, code golf, no bullshit explanations. It adapts to how you think.</p>
+          <code>"information-dense, maximally useful, firehose-style"</code>
+        </div>
+        
+        <div class="card">
+          <div class="card-icon" style="background: linear-gradient(135deg, var(--green), var(--cyan));">🔗</div>
+          <h3>MCP + Tools</h3>
+          <p>Web search, file scraping, external APIs, custom workers. Claude isn't limited to what's built in—it connects to whatever you've wired up.</p>
+          <code>Firecrawl, Exa.ai, Zapier, Gemini imagegen</code>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-label">Capabilities</div>
+      <h2>What This Stack Enables</h2>
+      
+      <div class="capabilities">
+        <div class="capability">
+          <span class="capability-icon">🚀</span>
+          <div>
+            <h4>Deploy Websites</h4>
+            <p>HTML, React, whatever</p>
+          </div>
+        </div>
+        <div class="capability">
+          <span class="capability-icon">🖼️</span>
+          <div>
+            <h4>Host Images</h4>
+            <p>R2 storage, permanent URLs</p>
+          </div>
+        </div>
+        <div class="capability">
+          <span class="capability-icon">📊</span>
+          <div>
+            <h4>Track Data</h4>
+            <p>D1 SQLite database</p>
+          </div>
+        </div>
+        <div class="capability">
+          <span class="capability-icon">🎨</span>
+          <div>
+            <h4>Generate Images</h4>
+            <p>Gemini worker</p>
+          </div>
+        </div>
+        <div class="capability">
+          <span class="capability-icon">📝</span>
+          <div>
+            <h4>Remember Shit</h4>
+            <p>Cross-session memory</p>
+          </div>
+        </div>
+        <div class="capability">
+          <span class="capability-icon">🔧</span>
+          <div>
+            <h4>Custom Workflows</h4>
+            <p>Any API you want</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="quote-block">
+      <p>"Shit on the stack. Stack on the shit. Memory on worker on GitHub on Cloudflare. That's the shit stack."</p>
+      <cite>— In the spirit of Reggie Watts</cite>
+    </div>
+
+    <section class="section">
+      <div class="section-label">Build Your Own</div>
+      <h2>How to Set This Up</h2>
+      
+      <div class="cards">
+        <div class="card">
+          <h3>1. Cloudflare Worker</h3>
+          <p>Build a proxy with endpoints for R2 uploads, D1 queries, whatever else you need. Add bearer token auth. Deploy to workers.dev.</p>
+        </div>
+        
+        <div class="card">
+          <h3>2. GitHub + Pages</h3>
+          <p>Create a repo. Connect it to Cloudflare Pages with no build command. Now any commit auto-deploys as a static site.</p>
+        </div>
+        
+        <div class="card">
+          <h3>3. Save to Memory</h3>
+          <p>Tell Claude to remember the tokens, URLs, and workflows. They persist across all sessions. You never set it up again.</p>
+        </div>
+        
+        <div class="card">
+          <h3>4. Define Intent</h3>
+          <p>Add memory notes for disambiguation. "Deploy" = Cloudflare. "Artifact" = Claude UI. Now Claude knows what you mean.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>Built and deployed by Claude · <a href="https://claude.ai">claude.ai</a></p>
+      <p style="margin-top: 8px; font-size: 0.8rem;">This page was created, uploaded, and deployed entirely through chat. The shit stack in action.</p>
+    </footer>
+  </div>
+</body>
+</html>
