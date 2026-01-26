@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Artifacts</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 2rem;
+        }
+        
+        header { text-align: center; margin-bottom: 2rem; }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats { color: #888; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .stats span { color: #667eea; font-weight: 600; }
+        
+        .last-refresh { color: #555; font-size: 0.75rem; }
+        
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        nav a {
+            padding: 0.6rem 1.5rem;
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        nav a:hover { border-color: #667eea; color: #667eea; }
+        nav a.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+            color: #fff;
+        }
+        
+        .controls {
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #search {
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 0.95rem;
+        }
+        #search:focus { outline: none; border-color: #667eea; }
+        #search::placeholder { color: #666; }
+        
+        .tabs { display: flex; gap: 0.4rem; }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .tab:hover { border-color: #667eea; color: #667eea; }
+        .tab.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #667eea;
+        }
+        .tab .count { margin-left: 0.3rem; opacity: 0.7; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.3rem;
+        }
+        
+        .card-file {
+            font-size: 0.8rem;
+            color: #667eea;
+            font-family: monospace;
+            margin-bottom: 0.75rem;
+            word-break: break-all;
+        }
+        
+        .card-meta { display: flex; gap: 0.75rem; }
+        
+        .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+        }
+        .badge.site { background: rgba(102, 126, 234, 0.15); color: #667eea; }
+        .badge.pdf { background: rgba(234, 102, 102, 0.15); color: #ea6666; }
+        .badge.size { background: rgba(255,255,255,0.1); color: #888; }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .refresh-btn:hover { transform: scale(1.05); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Claude Artifacts</h1>
+        <div class="stats">Sites: <span id="site-count">0</span> · PDFs: <span id="pdf-count">0</span></div>
+        <div class="last-refresh">Last refreshed: <span id="refresh-time">-</span></div>
+    </header>
+    
+    <nav>
+        <a href="index.html" class="active">Artifacts</a>
+        <a href="gallery.html">Assets</a>
+    </nav>
+    
+    <div class="controls">
+        <input type="text" id="search" placeholder="Search artifacts...">
+        <div class="tabs">
+            <button class="tab active" data-filter="all">All<span class="count" id="count-all"></span></button>
+            <button class="tab" data-filter="site">Sites<span class="count" id="count-site"></span></button>
+            <button class="tab" data-filter="pdf">PDFs<span class="count" id="count-pdf"></span></button>
+        </div>
+    </div>
+    
+    <div class="grid" id="grid"></div>
+    
+    <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    
+    <script>
+        const PAGES_BASE = 'https://claude-artifacts.pages.dev/';
+        const R2_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
+        let allArtifacts = [];
+        
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+        
+        function titleCase(str) {
+            return str
+                .replace(/[-_]/g, ' ')
+                .replace(/\.(html|pdf)$/i, '')
+                .replace(/\d+$/, '')
+                .trim()
+                .replace(/\b\w/g, c => c.toUpperCase());
+        }
+        
+        async function loadSites() {
+            try {
+                const res = await fetch('https://api.github.com/repos/bibijeebi/claude-artifacts/contents');
+                const files = await res.json();
+                return files
+                    .filter(f => f.name.endsWith('.html') && f.name !== 'index.html' && f.name !== 'gallery.html')
+                    .map(f => ({
+                        title: titleCase(f.name),
+                        file: f.name,
+                        url: PAGES_BASE + f.name,
+                        size: f.size,
+                        type: 'site'
+                    }));
+            } catch (e) {
+                console.error('GitHub fetch failed:', e);
+                return [];
+            }
+        }
+        
+        async function loadPDFs() {
+            try {
+                const res = await fetch('https://claude-deploy.bennyforeman1.workers.dev/r2/list');
+                const data = await res.json();
+                return data.files
+                    .filter(f => f.key.endsWith('.pdf') && !f.key.startsWith('_'))
+                    .map(f => ({
+                        title: titleCase(f.key),
+                        file: f.key,
+                        url: R2_BASE + f.key,
+                        size: f.size,
+                        type: 'pdf'
+                    }));
+            } catch (e) {
+                console.error('R2 fetch failed:', e);
+                return [];
+            }
+        }
+        
+        async function loadAll() {
+            const [sites, pdfs] = await Promise.all([loadSites(), loadPDFs()]);
+            allArtifacts = [...sites, ...pdfs].sort((a, b) => a.title.localeCompare(b.title));
+            
+            const siteCount = sites.length;
+            const pdfCount = pdfs.length;
+            
+            document.getElementById('site-count').textContent = siteCount;
+            document.getElementById('pdf-count').textContent = pdfCount;
+            document.getElementById('count-all').textContent = allArtifacts.length;
+            document.getElementById('count-site').textContent = siteCount;
+            document.getElementById('count-pdf').textContent = pdfCount;
+            document.getElementById('refresh-time').textContent = new Date().toLocaleTimeString();
+            
+            filterArtifacts();
+        }
+        
+        function filterArtifacts() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const activeFilter = document.querySelector('.tab.active').dataset.filter;
+            
+            let filtered = allArtifacts;
+            
+            if (activeFilter !== 'all') {
+                filtered = filtered.filter(a => a.type === activeFilter);
+            }
+            
+            if (search) {
+                filtered = filtered.filter(a => 
+                    a.title.toLowerCase().includes(search) || 
+                    a.file.toLowerCase().includes(search)
+                );
+            }
+            
+            const grid = document.getElementById('grid');
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No artifacts found</div>';
+                return;
+            }
+            
+            grid.innerHTML = filtered.map(artifact => `
+                <a href="${artifact.url}" target="_blank" class="card">
+                    <div class="card-title">${artifact.title}</div>
+                    <div class="card-file">${artifact.file}</div>
+                    <div class="card-meta">
+                        <span class="badge ${artifact.type}">${artifact.type}</span>
+                        <span class="badge size">${formatSize(artifact.size)}</span>
+                    </div>
+                </a>
+            `).join('');
+        }
+        
+        document.getElementById('search').addEventListener('input', filterArtifacts);
+        
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                filterArtifacts();
+            });
+        });
+        
+        loadAll();
+    </script>
+</body>
+</html>
