@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jewish Representation in Hollywood</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #D4AF37;
+            --gold-light: #F4E4BA;
+            --gold-dark: #996515;
+            --black: #0a0a0a;
+            --charcoal: #1a1a1a;
+            --gray: #2a2a2a;
+            --text: #e8e8e8;
+            --text-muted: #a0a0a0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--black);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        
+        /* Film strip decoration */
+        .film-strip {
+            position: fixed;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                var(--charcoal) 0px,
+                var(--charcoal) 20px,
+                var(--black) 20px,
+                var(--black) 30px
+            );
+            z-index: 100;
+            opacity: 0.5;
+        }
+        .film-strip.left { left: 0; }
+        .film-strip.right { right: 0; }
+        .film-strip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 8px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 5px,
+                var(--gold-dark) 5px,
+                var(--gold-dark) 15px,
+                transparent 15px,
+                transparent 30px
+            );
+        }
+        .film-strip.left::before { right: 5px; }
+        .film-strip.right::before { left: 5px; }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 80px;
+        }
+        
+        /* Hero */
+        header {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: 
+                radial-gradient(ellipse at center, rgba(212,175,55,0.1) 0%, transparent 70%),
+                var(--black);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '✡';
+            position: absolute;
+            font-size: 600px;
+            color: var(--gold);
+            opacity: 0.03;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 900;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 60px rgba(212,175,55,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .stat-banner {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        
+        /* Sections */
+        section {
+            padding: 100px 0;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--gold);
+        }
+        
+        .section-intro {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 700px;
+        }
+        
+        /* Founders Grid */
+        .founders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .founder-card {
+            background: linear-gradient(135deg, var(--charcoal) 0%, var(--gray) 100%);
+            border: 1px solid var(--gray);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .founder-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+        
+        .founder-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold-dark);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        .founder-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--gold-light);
+            margin-bottom: 0.5rem;
+        }
+        
+        .founder-studio {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .founder-origin {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        /* Name Changes Table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 2rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--charcoal);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
+            color: var(--black);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+            padding: 1.2rem 1.5rem;
+            text-align: left;
+        }
+        
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover td {
+            background: var(--gray);
+        }
+        
+        .stage-name {
+            font-weight: 600;
+            color: var(--gold-light);
+        }
+        
+        .birth-name {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        .era-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .era-classic { background: #4a3728; color: #d4a574; }
+        .era-golden { background: #3d3a28; color: #d4c874; }
+        .era-modern { background: #283d3a; color: #74d4c8; }
+        
+        /* Modern Actors */
+        .actors-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .actor-category {
+            background: var(--charcoal);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--gray);
+        }
+        
+        .category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .actor-list {
+            list-style: none;
+        }
+        
+        .actor-list li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .actor-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .actor-name-main {
+            font-weight: 500;
+        }
+        
+        .actor-note {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+            margin-top: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--gold), var(--gold-dark), var(--gray));
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-bottom: 3rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -3rem;
+            top: 0.5rem;
+            width: 14px;
+            height: 14px;
+            background: var(--gold);
+            border-radius: 50%;
+            border: 3px solid var(--black);
+            transform: translateX(-6px);
+        }
+        
+        .timeline-date {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        
+        /* Stats Section */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--charcoal) 0%, var(--gray) 100%);
+            border: 1px solid var(--gray);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+        }
+        
+        .stat-card .number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            display: block;
+        }
+        
+        .stat-card .label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        /* Quote */
+        blockquote {
+            background: var(--charcoal);
+            border-left: 4px solid var(--gold);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+        
+        blockquote cite {
+            display: block;
+            margin-top: 1rem;
+            font-style: normal;
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+        
+        /* Context Box */
+        .context-box {
+            background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%);
+            border: 1px solid rgba(212,175,55,0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .context-box h3 {
+            color: var(--gold);
+            font-family: 'Playfair Display', serif;
+            margin-bottom: 1rem;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 60px 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        footer .star {
+            font-size: 2rem;
+            color: var(--gold);
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 60px;
+            }
+            
+            .film-strip {
+                width: 25px;
+            }
+            
+            .stat-banner {
+                gap: 2rem;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            section {
+                padding: 60px 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 50px;
+            }
+            
+            .film-strip {
+                width: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="film-strip left"></div>
+    <div class="film-strip right"></div>
+    
+    <header>
+        <div class="hero-content">
+            <h1>The Jewish Story in Hollywood</h1>
+            <p class="subtitle">From immigrant founders to modern icons: a century of outsized influence in American cinema</p>
+            <div class="stat-banner">
+                <div class="stat">
+                    <div class="stat-number">~2%</div>
+                    <div class="stat-label">US Jewish Population</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">6/8</div>
+                    <div class="stat-label">Major Studios Founded</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-label">Years of Influence</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <section id="origins">
+        <div class="container">
+            <h2>The Founding Generation</h2>
+            <p class="section-intro">Jewish immigrants from Eastern Europe, fleeing pogroms and poverty, built Hollywood from scratch. Excluded from established industries, they found opportunity in the new, "low-status" entertainment business.</p>
+            
+            <div class="founders-grid">
+                <div class="founder-card">
+                    <div class="founder-name">Carl Laemmle</div>
+                    <div class="founder-studio">Universal Pictures (1912)</div>
+                    <div class="founder-origin">Born in Laupheim, Germany. Started with nickelodeons in Chicago before founding the studio that would create Dracula, Frankenstein, and the first horror empire.</div>
+                </div>
+                <div class="founder-card">
+                    <div class="founder-name">Adolph Zukor</div>
+                    <div class="founder-studio">Paramount Pictures (1912)</div>
+                    <div class="founder-origin">Hungarian immigrant who arrived with $40 sewn into his vest. Pioneered the feature film format and built the first vertically integrated studio.</div>
+                </div>
+                <div class="founder-card">
+                    <div class="founder-name">Louis B. Mayer</div>
+                    <div class="founder-studio">Metro-Goldwyn-Mayer (1924)</div>
+                    <div class="founder-origin">Born in Minsk, Belarus. Rose from scrap metal dealer to the highest-paid executive in America, creating MGM's "more stars than there are in heaven."</div>
+                </div>
+                <div class="founder-card">
+                    <div class="founder-name">The Warner Brothers</div>
+                    <div class="founder-studio">Warner Bros. (1923)</div>
+                    <div class="founder-origin">Harry, Albert, Sam, and Jack Warner. Polish-Jewish immigrants whose bet on "talkies" with The Jazz Singer revolutionized cinema forever.</div>
+                </div>
+                <div class="founder-card">
+                    <div class="founder-name">Harry Cohn</div>
+                    <div class="founder-studio">Columbia Pictures (1924)</div>
+                    <div class="founder-origin">New York-born son of German-Jewish immigrants. Notorious tyrant who built Columbia from Poverty Row to major studio status.</div>
+                </div>
+                <div class="founder-card">
+                    <div class="founder-name">William Fox</div>
+                    <div class="founder-studio">Fox Film Corporation (1915)</div>
+                    <div class="founder-origin">Hungarian immigrant who pioneered sound-on-film technology. His studio would merge to become 20th Century Fox.</div>
+                </div>
+            </div>
+            
+            <div class="context-box">
+                <h3>Why Entertainment?</h3>
+                <p>Jewish immigrants faced discrimination in banking, law, and manufacturing, the traditional paths to American success. The nascent film industry had no established gatekeepers. It was considered vulgar, beneath "respectable" businessmen. This created an opening for ambitious outsiders willing to take risks on a new medium.</p>
+            </div>
+        </div>
+    </section>
+    
+    <section id="assimilation">
+        <div class="container">
+            <h2>The Assimilation Era</h2>
+            <p class="section-intro">From the 1920s through the 1970s, Jewish actors faced intense pressure to hide their heritage. Name changes weren't optional, they were survival tactics in an industry that sold "American dreams" to suspicious audiences.</p>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stage Name</th>
+                            <th>Birth Name</th>
+                            <th>Era</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="stage-name">Kirk Douglas</td>
+                            <td class="birth-name">Issur Danielovitch</td>
+                            <td><span class="era-tag era-golden">Golden Age</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Tony Curtis</td>
+                            <td class="birth-name">Bernard Schwartz</td>
+                            <td><span class="era-tag era-golden">Golden Age</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Lauren Bacall</td>
+                            <td class="birth-name">Betty Joan Perske</td>
+                            <td><span class="era-tag era-golden">Golden Age</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Edward G. Robinson</td>
+                            <td class="birth-name">Emanuel Goldenberg</td>
+                            <td><span class="era-tag era-classic">Classic</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">John Garfield</td>
+                            <td class="birth-name">Jacob Julius Garfinkle</td>
+                            <td><span class="era-tag era-golden">Golden Age</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Shelley Winters</td>
+                            <td class="birth-name">Shirley Schrift</td>
+                            <td><span class="era-tag era-golden">Golden Age</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Peter Lorre</td>
+                            <td class="birth-name">László Löwenstein</td>
+                            <td><span class="era-tag era-classic">Classic</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Gene Wilder</td>
+                            <td class="birth-name">Jerome Silberman</td>
+                            <td><span class="era-tag era-modern">Modern</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Mel Brooks</td>
+                            <td class="birth-name">Melvin Kaminsky</td>
+                            <td><span class="era-tag era-modern">Modern</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Woody Allen</td>
+                            <td class="birth-name">Allan Stewart Konigsberg</td>
+                            <td><span class="era-tag era-modern">Modern</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Natalie Portman</td>
+                            <td class="birth-name">Neta-Lee Hershlag</td>
+                            <td><span class="era-tag era-modern">Modern</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Winona Ryder</td>
+                            <td class="birth-name">Winona Laura Horowitz</td>
+                            <td><span class="era-tag era-modern">Modern</span></td>
+                        </tr>
+                        <tr>
+                            <td class="stage-name">Jonah Hill</td>
+                            <td class="birth-name">Jonah Hill Feldstein</td>
+                            <td><span class="era-tag era-modern">Modern</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <blockquote>
+                "The Jews who built Hollywood were running from their pasts. They were inventing a new America, an America they desperately wanted to belong to."
+                <cite>— Neal Gabler, "An Empire of Their Own"</cite>
+            </blockquote>
+        </div>
+    </section>
+    
+    <section id="modern">
+        <div class="container">
+            <h2>Modern Era: Open Identity</h2>
+            <p class="section-intro">Since the 1980s, Jewish actors increasingly kept their names and openly identified with their heritage. Jewish characters and storylines moved from subtext to center stage.</p>
+            
+            <div class="actors-section">
+                <div class="actor-category">
+                    <h3 class="category-title">Kept Birth Names</h3>
+                    <ul class="actor-list">
+                        <li><span class="actor-name-main">Barbra Streisand</span></li>
+                        <li><span class="actor-name-main">Dustin Hoffman</span></li>
+                        <li><span class="actor-name-main">Adam Sandler</span></li>
+                        <li><span class="actor-name-main">Seth Rogen</span></li>
+                        <li><span class="actor-name-main">Ben Stiller</span></li>
+                        <li><span class="actor-name-main">Sarah Silverman</span></li>
+                        <li><span class="actor-name-main">Paul Rudd</span></li>
+                        <li><span class="actor-name-main">Joseph Gordon-Levitt</span></li>
+                        <li><span class="actor-name-main">Mila Kunis</span></li>
+                        <li><span class="actor-name-main">Jason Segel</span></li>
+                        <li><span class="actor-name-main">Zach Braff</span></li>
+                        <li><span class="actor-name-main">Elisabeth Moss</span></li>
+                        <li><span class="actor-name-main">Mayim Bialik</span></li>
+                        <li><span class="actor-name-main">David Schwimmer</span></li>
+                        <li><span class="actor-name-main">Lisa Kudrow</span></li>
+                    </ul>
+                </div>
+                
+                <div class="actor-category">
+                    <h3 class="category-title">Jewish Heritage (One Parent)</h3>
+                    <ul class="actor-list">
+                        <li>
+                            <span class="actor-name-main">Scarlett Johansson</span>
+                            <span class="actor-note">Mother's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">Timothée Chalamet</span>
+                            <span class="actor-note">Mother's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">Jake Gyllenhaal</span>
+                            <span class="actor-note">Mother's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">Maggie Gyllenhaal</span>
+                            <span class="actor-note">Mother's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">Harrison Ford</span>
+                            <span class="actor-note">Mother's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">Daniel Day-Lewis</span>
+                            <span class="actor-note">Mother's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">Gwyneth Paltrow</span>
+                            <span class="actor-note">Father's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">James Franco</span>
+                            <span class="actor-note">Mother's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">Dave Franco</span>
+                            <span class="actor-note">Mother's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">Maya Rudolph</span>
+                            <span class="actor-note">Father's side</span>
+                        </li>
+                        <li>
+                            <span class="actor-name-main">Rashida Jones</span>
+                            <span class="actor-note">Mother's side</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="actor-category">
+                    <h3 class="category-title">Prominent Directors</h3>
+                    <ul class="actor-list">
+                        <li><span class="actor-name-main">Steven Spielberg</span></li>
+                        <li><span class="actor-name-main">Stanley Kubrick</span></li>
+                        <li><span class="actor-name-main">Joel & Ethan Coen</span></li>
+                        <li><span class="actor-name-main">Judd Apatow</span></li>
+                        <li><span class="actor-name-main">Barry Levinson</span></li>
+                        <li><span class="actor-name-main">Rob Reiner</span></li>
+                        <li><span class="actor-name-main">J.J. Abrams</span></li>
+                        <li><span class="actor-name-main">Darren Aronofsky</span></li>
+                        <li><span class="actor-name-main">Noah Baumbach</span></li>
+                        <li><span class="actor-name-main">Greta Gerwig</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="timeline">
+        <div class="container">
+            <h2>Historical Timeline</h2>
+            <p class="section-intro">Key moments in the evolution of Jewish representation in Hollywood.</p>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">1900s-1910s</div>
+                    <div class="timeline-title">The Nickelodeon Era</div>
+                    <div class="timeline-desc">Jewish immigrants open nickelodeons and film exchanges in immigrant neighborhoods. The first generation of moguls begin their ascent from exhibitors to producers.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">1920s</div>
+                    <div class="timeline-title">Studio System Established</div>
+                    <div class="timeline-desc">Major studios consolidate power. Jewish founders create the factory model of filmmaking, but Jewish identity remains hidden both behind and in front of the camera.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">1927</div>
+                    <div class="timeline-title">The Jazz Singer</div>
+                    <div class="timeline-desc">Warner Bros. releases the first "talkie," starring Al Jolson (born Asa Yoelson). The film explicitly addresses Jewish assimilation, a rare moment of on-screen identity.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">1930s-1940s</div>
+                    <div class="timeline-title">The Golden Age</div>
+                    <div class="timeline-desc">Peak assimilation pressure. Studios actively avoid Jewish content, fearing both domestic antisemitism and Nazi Germany boycotts. Name changes become standard.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">1960s</div>
+                    <div class="timeline-title">The New Hollywood</div>
+                    <div class="timeline-desc">Dustin Hoffman in The Graduate, Barbra Streisand in Funny Girl. Jewish actors begin appearing as identifiably Jewish characters, though still exceptional.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">1970s-1980s</div>
+                    <div class="timeline-title">Comedy Revolution</div>
+                    <div class="timeline-desc">Mel Brooks, Woody Allen, and Saturday Night Live normalize Jewish comedy. Ethnic humor moves from coded to explicit.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">1993</div>
+                    <div class="timeline-title">Schindler's List</div>
+                    <div class="timeline-desc">Steven Spielberg's Holocaust epic wins Best Picture. Jewish historical trauma becomes prestige cinema, fundamentally shifting what stories Hollywood tells about Jewish identity.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-date">2000s-Present</div>
+                    <div class="timeline-title">Normalization</div>
+                    <div class="timeline-desc">Jewish identity becomes unremarkable in Hollywood. Actors keep their names. Shows like "Transparent" and "The Marvelous Mrs. Maisel" center Jewish stories without apology.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="stats">
+        <div class="container">
+            <h2>By The Numbers</h2>
+            <p class="section-intro">Estimates of Jewish representation in various Hollywood roles, compiled from industry surveys and academic research.</p>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="number">~2%</span>
+                    <div class="label">US Jewish Population</div>
+                </div>
+                <div class="stat-card">
+                    <span class="number">20-40%</span>
+                    <div class="label">Prominent Actors (est.)</div>
+                </div>
+                <div class="stat-card">
+                    <span class="number">~50%</span>
+                    <div class="label">Writers/Producers (est.)</div>
+                </div>
+                <div class="stat-card">
+                    <span class="number">~60%</span>
+                    <div class="label">Top Talent Agents (est.)</div>
+                </div>
+            </div>
+            
+            <div class="context-box">
+                <h3>Context Matters</h3>
+                <p>These numbers reflect historical network effects, not conspiracy. First-generation success created mentorship pipelines, family businesses, and cultural capital that compounded over decades. Similar patterns exist in other immigrant-founded industries: Italian-Americans in construction, Korean-Americans in dry cleaning, Indian-Americans in motels. The difference is Hollywood's visibility.</p>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <div class="star">✡</div>
+            <p>A historical overview of Jewish representation in American cinema</p>
+            <p style="margin-top: 0.5rem; opacity: 0.6;">Research compiled from academic sources and industry data</p>
+        </div>
+    </footer>
+</body>
+</html>
