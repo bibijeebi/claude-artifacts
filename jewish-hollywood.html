@@ -11,388 +11,484 @@
             --gold-light: #F4E4BA;
             --gold-dark: #996515;
             --black: #0a0a0a;
-            --charcoal: #1a1a1a;
-            --gray: #2a2a2a;
+            --charcoal: #141414;
+            --gray: #222;
             --text: #e8e8e8;
-            --text-muted: #a0a0a0;
+            --text-muted: #999;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
         
         body {
             font-family: 'Inter', sans-serif;
             background: var(--black);
             color: var(--text);
             line-height: 1.7;
+            overflow-x: hidden;
         }
         
+        /* Full-bleed Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: url('https://claude-deploy.bennyforeman1.workers.dev/r2/file/jewish-hollywood-hero.jpg') center/cover;
+            filter: brightness(0.4) saturate(0.8);
+            transform: scale(1.1);
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, 
+                rgba(10,10,10,0.3) 0%, 
+                rgba(10,10,10,0.5) 50%,
+                rgba(10,10,10,0.95) 100%);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            max-width: 900px;
+        }
+        
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 900;
+            color: var(--gold);
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 80px rgba(212,175,55,0.4);
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: var(--text-muted);
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+        
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+        
+        .hero-stat {
+            text-align: center;
+        }
+        .hero-stat-number {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            color: var(--gold);
+            display: block;
+        }
+        .hero-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+        
+        /* Sections */
+        section { padding: 100px 0; position: relative; }
+        
+        .container { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+        .container-wide { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-intro {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 600px;
+        }
+        
+        /* Full-width Image with Caption Overlay */
+        .image-full {
+            position: relative;
+            margin: 4rem -2rem;
+            overflow: hidden;
+        }
+        
+        .image-full img {
+            width: 100%;
+            height: 50vh;
+            min-height: 400px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .image-full-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 3rem 2rem 2rem;
+            background: linear-gradient(to top, rgba(10,10,10,0.95), transparent);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        /* Pulled Quote - Overlaps with content */
+        .pull-quote {
+            position: relative;
+            margin: 4rem 0;
+            padding: 3rem;
+            background: linear-gradient(135deg, var(--charcoal) 0%, var(--gray) 100%);
+            border-radius: 20px;
+            border-left: 5px solid var(--gold);
+        }
+        
+        .pull-quote::before {
+            content: '"';
+            font-family: 'Playfair Display', serif;
+            font-size: 8rem;
+            color: var(--gold);
+            opacity: 0.15;
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            line-height: 1;
+        }
+        
+        .pull-quote p {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.2rem, 3vw, 1.6rem);
+            font-style: italic;
+            color: var(--text);
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .pull-quote cite {
+            display: block;
+            margin-top: 1.5rem;
+            font-style: normal;
+            color: var(--gold);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .pull-quote .context {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Star Wars Phenomenon - Visual Cards */
+        .phenomenon-section {
+            background: var(--charcoal);
+            padding: 100px 0;
+        }
+        
+        .phenomenon-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            margin-top: 3rem;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        @media (max-width: 900px) {
+            .phenomenon-grid { grid-template-columns: 1fr; }
+        }
+        
+        .phenomenon-card {
+            padding: 2.5rem;
+            background: var(--gray);
+            position: relative;
+            border-right: 1px solid var(--charcoal);
+        }
+        .phenomenon-card:last-child { border-right: none; }
+        
+        .phenomenon-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+        
+        .card-character {
+            font-size: 0.7rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 0.75rem;
+        }
+        
+        .card-actor {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            color: var(--gold-light);
+            margin-bottom: 1rem;
+        }
+        
+        .card-detail {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+        .card-detail strong { color: var(--text); }
+        
+        /* Founders - Offset Grid */
+        .founders-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 700px) {
+            .founders-grid { grid-template-columns: 1fr; }
+        }
+        
+        .founder-card {
+            background: var(--charcoal);
+            border: 1px solid var(--gray);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .founder-card:nth-child(even) {
+            transform: translateY(30px);
+        }
+        
+        @media (max-width: 700px) {
+            .founder-card:nth-child(even) { transform: none; }
+        }
+        
+        .founder-card:hover {
+            border-color: var(--gold-dark);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        
+        .founder-card:nth-child(even):hover {
+            transform: translateY(25px);
+        }
+        
+        @media (max-width: 700px) {
+            .founder-card:hover, .founder-card:nth-child(even):hover { transform: translateY(-5px); }
+        }
+        
+        .founder-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--gold-light);
+            margin-bottom: 0.25rem;
+        }
+        
+        .founder-studio {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+        
+        .founder-origin {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        /* Name Changes - Clean Table */
+        .table-section {
+            background: var(--charcoal);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+        
+        th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 2px solid var(--gold-dark);
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray);
+            font-size: 0.95rem;
+        }
+        
+        tr:hover td { background: rgba(212,175,55,0.05); }
+        
+        .stage-name { 
+            font-weight: 600; 
+            color: var(--gold-light);
+        }
+        
+        .birth-name { 
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        .era-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .era-golden { background: rgba(212,175,55,0.2); color: var(--gold); }
+        .era-modern { background: rgba(102,234,156,0.15); color: #66ea9c; }
+        
+        /* Context Box */
+        .context-box {
+            background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.02) 100%);
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .context-box h3 {
+            color: var(--gold);
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .context-box p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        
+        .context-box strong { color: var(--gold-light); }
+        
+        /* Stats Section */
+        .stats-section {
+            text-align: center;
+            padding: 120px 0;
+        }
+        
+        .stats-grid {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+        
+        .stat-card {
+            background: var(--charcoal);
+            border: 1px solid var(--gray);
+            border-radius: 15px;
+            padding: 2rem 2.5rem;
+            min-width: 160px;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--gold-dark);
+            transform: translateY(-5px);
+        }
+        
+        .stat-card .number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            display: block;
+        }
+        
+        .stat-card .label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Footer */
+        footer {
+            padding: 60px 0;
+            text-align: center;
+            border-top: 1px solid var(--gray);
+        }
+        
+        .footer-symbol {
+            font-size: 2rem;
+            color: var(--gold);
+            opacity: 0.4;
+            margin-bottom: 1rem;
+        }
+        
+        footer p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        /* Film Strip Decoration */
         .film-strip {
             position: fixed;
             top: 0;
-            width: 25px;
+            width: 20px;
             height: 100%;
-            background: repeating-linear-gradient(to bottom, var(--charcoal) 0px, var(--charcoal) 20px, var(--black) 20px, var(--black) 30px);
+            background: repeating-linear-gradient(to bottom, 
+                var(--charcoal) 0px, var(--charcoal) 15px, 
+                var(--black) 15px, var(--black) 25px);
             z-index: 100;
-            opacity: 0.4;
+            opacity: 0.3;
         }
         .film-strip.left { left: 0; }
         .film-strip.right { right: 0; }
         .film-strip::before {
             content: '';
             position: absolute;
-            top: 0;
-            width: 5px;
+            width: 4px;
             height: 100%;
-            background: repeating-linear-gradient(to bottom, transparent 0px, transparent 5px, var(--gold-dark) 5px, var(--gold-dark) 15px, transparent 15px, transparent 30px);
+            background: repeating-linear-gradient(to bottom, 
+                transparent 0px, transparent 4px, 
+                var(--gold-dark) 4px, var(--gold-dark) 12px, 
+                transparent 12px, transparent 25px);
         }
-        .film-strip.left::before { right: 4px; }
-        .film-strip.right::before { left: 4px; }
+        .film-strip.left::before { right: 3px; }
+        .film-strip.right::before { left: 3px; }
         
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 50px; }
-        
-        /* Hero */
-        header {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            background: linear-gradient(to bottom, rgba(10,10,10,0.5) 0%, rgba(10,10,10,0.9) 100%),
-                url('https://claude-deploy.bennyforeman1.workers.dev/r2/file/jewish-hollywood-hero.jpg') center/cover no-repeat;
-            position: relative;
-        }
-        
-        header::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            height: 400px;
-            background: url('https://claude-deploy.bennyforeman1.workers.dev/r2/file/jewish-hollywood-symbol.jpg') center/contain no-repeat;
-            opacity: 0.08;
-        }
-        
-        .hero-content { position: relative; z-index: 1; padding: 20px; }
-        
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2.2rem, 8vw, 4.5rem);
-            font-weight: 900;
-            color: var(--gold);
-            margin-bottom: 1rem;
-            text-shadow: 0 0 60px rgba(212,175,55,0.3);
-            text-wrap: balance;
-        }
-        
-        .subtitle {
-            font-size: clamp(1rem, 3vw, 1.25rem);
-            color: var(--text-muted);
-            font-weight: 300;
-            max-width: 650px;
-            margin: 0 auto 2.5rem;
-            text-wrap: balance;
-        }
-        
-        .stat-banner {
-            display: flex;
-            justify-content: center;
-            gap: 2.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .stat { text-align: center; min-width: 110px; }
-        .stat-number {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(2rem, 5vw, 2.8rem);
-            font-weight: 700;
-            color: var(--gold);
-        }
-        .stat-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-        
-        /* Sections */
-        section { padding: 70px 0; border-bottom: 1px solid var(--gray); }
-        
-        h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(1.7rem, 5vw, 2.3rem);
-            color: var(--gold);
-            margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-        }
-        h2::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 50px;
-            height: 3px;
-            background: var(--gold);
-        }
-        
-        .section-intro {
-            font-size: 1rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-            max-width: 700px;
-            text-wrap: pretty;
-        }
-        
-        .section-image {
-            width: 100%;
-            max-height: 300px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-        
-        /* Big Quote */
-        .big-quote {
-            background: linear-gradient(135deg, var(--charcoal) 0%, var(--gray) 100%);
-            border-left: 4px solid var(--gold);
-            padding: 2rem;
-            margin: 2.5rem 0;
-            border-radius: 0 12px 12px 0;
-            position: relative;
-        }
-        .big-quote::before {
-            content: '"';
-            font-family: 'Playfair Display', serif;
-            font-size: 5rem;
-            color: var(--gold);
-            opacity: 0.2;
-            position: absolute;
-            top: -10px;
-            left: 15px;
-            line-height: 1;
-        }
-        .big-quote p {
-            font-size: 1.15rem;
-            font-style: italic;
-            color: var(--text);
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 1;
-        }
-        .big-quote cite {
-            display: block;
-            font-style: normal;
-            color: var(--gold);
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-        .big-quote .context {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 0.25rem;
-        }
-        
-        /* Star Wars Section */
-        .phenomenon-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-        
-        .phenomenon-card {
-            background: linear-gradient(135deg, var(--charcoal) 0%, var(--gray) 100%);
-            border: 1px solid var(--gray);
-            border-radius: 12px;
-            padding: 1.5rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .phenomenon-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
-        }
-        
-        .card-character {
-            font-size: 0.75rem;
-            color: var(--gold);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.5rem;
-        }
-        .card-actor {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.4rem;
-            color: var(--gold-light);
-            margin-bottom: 0.75rem;
-        }
-        .card-detail {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-        
-        /* Founders Grid */
-        .founders-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.25rem;
-            margin-top: 2rem;
-        }
-        
-        .founder-card {
-            background: var(--charcoal);
-            border: 1px solid var(--gray);
-            border-radius: 10px;
-            padding: 1.25rem;
-            transition: all 0.3s ease;
-        }
-        .founder-card:hover {
-            border-color: var(--gold-dark);
-            transform: translateY(-3px);
-        }
-        .founder-name {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.2rem;
-            color: var(--gold-light);
-            margin-bottom: 0.3rem;
-        }
-        .founder-studio {
-            color: var(--gold);
-            font-weight: 600;
-            font-size: 0.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .founder-origin {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            line-height: 1.5;
-        }
-        
-        /* Name Table */
-        .table-wrapper {
-            overflow-x: auto;
-            margin-top: 2rem;
-            -webkit-overflow-scrolling: touch;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--charcoal);
-            border-radius: 10px;
-            overflow: hidden;
-            min-width: 480px;
-        }
-        th {
-            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
-            color: var(--black);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-size: 0.75rem;
-            padding: 0.9rem 1rem;
-            text-align: left;
-        }
-        td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--gray);
-            font-size: 0.9rem;
-        }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: var(--gray); }
-        .stage-name { font-weight: 600; color: var(--gold-light); }
-        .birth-name { color: var(--text-muted); font-style: italic; }
-        .era-tag {
-            display: inline-block;
-            padding: 0.15rem 0.5rem;
-            border-radius: 15px;
-            font-size: 0.65rem;
-            font-weight: 500;
-            text-transform: uppercase;
-        }
-        .era-golden { background: #3d3a28; color: #d4c874; }
-        .era-modern { background: #283d3a; color: #74d4c8; }
-        
-        /* Context Box */
-        .context-box {
-            background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(212,175,55,0.05) 100%);
-            border: 1px solid rgba(212,175,55,0.3);
-            border-radius: 10px;
-            padding: 1.25rem;
-            margin: 2rem 0;
-        }
-        .context-box h3 {
-            color: var(--gold);
-            font-family: 'Playfair Display', serif;
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
-        .context-box p {
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-        
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        .stat-card {
-            background: var(--charcoal);
-            border: 1px solid var(--gray);
-            border-radius: 10px;
-            padding: 1.25rem;
-            text-align: center;
-        }
-        .stat-card .number {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--gold);
-        }
-        .stat-card .label {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            margin-top: 0.4rem;
-        }
-        
-        /* Footer */
-        footer {
-            padding: 40px 0;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-        footer .star {
-            font-size: 1.3rem;
-            color: var(--gold);
-            opacity: 0.5;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container { padding: 0 40px; }
-            .film-strip { width: 18px; }
-            section { padding: 50px 0; }
-            .phenomenon-grid, .founders-grid { grid-template-columns: 1fr; }
-            .big-quote { padding: 1.5rem; }
-            .big-quote::before { font-size: 3rem; }
-            header::before { width: 250px; height: 250px; }
-        }
-        @media (max-width: 480px) {
-            .container { padding: 0 35px; }
-            .film-strip { width: 12px; }
+        @media (max-width: 600px) {
+            .film-strip { display: none; }
+            section { padding: 60px 0; }
         }
     </style>
 </head>
@@ -400,32 +496,35 @@
     <div class="film-strip left"></div>
     <div class="film-strip right"></div>
     
-    <header>
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1>The Jewish Story in Hollywood</h1>
-            <p class="subtitle">From the immigrant founders who built the studios to the actors who shaped American cinema: a century of outsized influence</p>
-            <div class="stat-banner">
-                <div class="stat">
-                    <div class="stat-number">~2%</div>
-                    <div class="stat-label">US Jewish Population</div>
+            <p class="hero-subtitle">From the immigrant founders who built the studios to the actors who shaped American cinema: a century of outsized influence</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-number">~2%</span>
+                    <span class="hero-stat-label">US Population</span>
                 </div>
-                <div class="stat">
-                    <div class="stat-number">6/8</div>
-                    <div class="stat-label">Major Studios Founded</div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">6/8</span>
+                    <span class="hero-stat-label">Studios Founded</span>
                 </div>
-                <div class="stat">
-                    <div class="stat-number">100+</div>
-                    <div class="stat-label">Years of Influence</div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">100+</span>
+                    <span class="hero-stat-label">Years</span>
                 </div>
             </div>
         </div>
-    </header>
+    </section>
     
-    <section id="phenomenon">
+    <section class="phenomenon-section">
         <div class="container">
             <h2>The Star Wars Prequels</h2>
-            <p class="section-intro">A case study in just how deeply Jewish connections run through Hollywood: the three leads of the most iconic film franchise all have significant Jewish ties.</p>
-            
+            <p class="section-intro">A case study in how deeply Jewish connections run through Hollywood: the three leads of the most iconic film franchise all have significant Jewish ties.</p>
+        </div>
+        <div class="container-wide">
             <div class="phenomenon-grid">
                 <div class="phenomenon-card">
                     <div class="card-character">Padmé Amidala</div>
@@ -443,42 +542,51 @@
                     <div class="card-detail">Had a daughter with Rachel Bilson, who is Jewish on her father's side. While they never married, the child has Jewish heritage through Bilson's lineage.</div>
                 </div>
             </div>
-            
-            <div class="big-quote">
+        </div>
+        <div class="container">
+            <div class="pull-quote">
                 <p>My involvement in religion has more to do with the Jewish faith now and not the Christian faith, which I was very vaguely brought up in.</p>
                 <cite>— Ewan McGregor</cite>
-                <div class="context">Interview with The Daily Beast while promoting "Last Days in the Desert" (2016)</div>
+                <span class="context">Interview with The Daily Beast, 2016</span>
             </div>
         </div>
     </section>
     
-    <section id="identity">
+    <section>
         <div class="container">
-            <h2>Jewish Identity is Permanent</h2>
-            <p class="section-intro">In traditional Jewish law, once you're Jewish, you're Jewish forever. There's no mechanism to "un-Jew" yourself. Convert to Christianity, become an atheist—doesn't matter. You're still counted in a minyan.</p>
+            <h2>Identity is Permanent</h2>
+            <p class="section-intro">In traditional Jewish law, once you're Jewish, you're Jewish forever. There's no mechanism to "un-Jew" yourself.</p>
             
-            <div class="big-quote">
+            <div class="pull-quote">
                 <p>As a man I've always felt Irish, as an actor I've always felt Jewish.</p>
                 <cite>— Harrison Ford</cite>
-                <div class="context">Ford's mother was Dorothy Nidelman, making him halachically Jewish regardless of his personal identity</div>
+                <span class="context">Ford's mother was Dorothy Nidelman, making him halachically Jewish regardless of his personal identity</span>
             </div>
             
             <div class="context-box">
                 <h3>The Rules</h3>
-                <p><strong>Matrilineal descent:</strong> Jewish mother = Jewish child, regardless of how you're raised. <strong>Conversion:</strong> Even if you convert out, traditional Judaism still considers you Jewish (just an apostate). <strong>Israel's Law of Return:</strong> The one exception—grants citizenship to anyone with a Jewish grandparent, but excludes those who've converted to another religion. This was a political compromise, not a religious ruling.</p>
+                <p><strong>Matrilineal descent:</strong> Jewish mother = Jewish child, regardless of upbringing. <strong>Conversion:</strong> Even if you convert out, traditional Judaism still considers you Jewish (just an apostate). <strong>Israel's Law of Return:</strong> The one exception—grants citizenship to anyone with a Jewish grandparent, but excludes those who've converted to another religion. This was a political compromise, not a religious ruling.</p>
             </div>
-            
-            <img src="https://claude-artifacts.pages.dev/images/Chinese_Theatre_1927.jpg" alt="Grauman's Chinese Theatre 1927" class="section-image">
+        </div>
+        
+        <div class="image-full">
+            <img src="https://claude-artifacts.pages.dev/images/Chinese_Theatre_1927.jpg" alt="Grauman's Chinese Theatre, 1927">
+            <div class="image-full-caption">Grauman's Chinese Theatre, 1927 — Built by Sid Grauman, son of Jewish immigrants</div>
         </div>
     </section>
     
-    <section id="origins">
+    <section>
         <div class="container">
             <h2>The Founding Generation</h2>
             <p class="section-intro">Jewish immigrants from Eastern Europe, fleeing pogroms and poverty, built Hollywood from nothing. Excluded from "respectable" industries, they took a chance on the vulgar new medium of moving pictures.</p>
-            
-            <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jewish-hollywood-studios.jpg" alt="Golden Age Hollywood Studios" class="section-image">
-            
+        </div>
+        
+        <div class="image-full">
+            <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jewish-hollywood-studios.jpg" alt="Golden Age Hollywood Studio Lot">
+            <div class="image-full-caption">A classic studio backlot — where immigrant dreams became American mythology</div>
+        </div>
+        
+        <div class="container">
             <div class="founders-grid">
                 <div class="founder-card">
                     <div class="founder-name">Carl Laemmle</div>
@@ -512,72 +620,70 @@
                 </div>
             </div>
             
-            <div class="big-quote">
+            <div class="pull-quote">
                 <p>The Jews who built Hollywood were running from their pasts. They were inventing a new America, an America they desperately wanted to belong to.</p>
                 <cite>— Neal Gabler</cite>
-                <div class="context">"An Empire of Their Own: How the Jews Invented Hollywood" (1988)</div>
+                <span class="context">"An Empire of Their Own: How the Jews Invented Hollywood" (1988)</span>
             </div>
         </div>
     </section>
     
-    <section id="names">
+    <section class="table-section">
         <div class="container">
             <h2>The Name Change Era</h2>
-            <p class="section-intro">From the 1920s through the 1970s, Jewish actors faced intense pressure to hide their heritage. Name changes weren't vanity—they were survival tactics in an industry that sold "American dreams."</p>
+            <p class="section-intro">From the 1920s through the 1970s, Jewish actors faced intense pressure to hide their heritage. Name changes weren't vanity—they were survival.</p>
             
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Stage Name</th>
-                            <th>Birth Name</th>
-                            <th>Era</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="stage-name">Kirk Douglas</td>
-                            <td class="birth-name">Issur Danielovitch</td>
-                            <td><span class="era-tag era-golden">Golden Age</span></td>
-                        </tr>
-                        <tr>
-                            <td class="stage-name">Tony Curtis</td>
-                            <td class="birth-name">Bernard Schwartz</td>
-                            <td><span class="era-tag era-golden">Golden Age</span></td>
-                        </tr>
-                        <tr>
-                            <td class="stage-name">Lauren Bacall</td>
-                            <td class="birth-name">Betty Joan Perske</td>
-                            <td><span class="era-tag era-golden">Golden Age</span></td>
-                        </tr>
-                        <tr>
-                            <td class="stage-name">Shelley Winters</td>
-                            <td class="birth-name">Shirley Schrift</td>
-                            <td><span class="era-tag era-golden">Golden Age</span></td>
-                        </tr>
-                        <tr>
-                            <td class="stage-name">Gene Wilder</td>
-                            <td class="birth-name">Jerome Silberman</td>
-                            <td><span class="era-tag era-modern">Modern</span></td>
-                        </tr>
-                        <tr>
-                            <td class="stage-name">Natalie Portman</td>
-                            <td class="birth-name">Neta-Lee Hershlag</td>
-                            <td><span class="era-tag era-modern">Modern</span></td>
-                        </tr>
-                        <tr>
-                            <td class="stage-name">Winona Ryder</td>
-                            <td class="birth-name">Winona Horowitz</td>
-                            <td><span class="era-tag era-modern">Modern</span></td>
-                        </tr>
-                        <tr>
-                            <td class="stage-name">Jonah Hill</td>
-                            <td class="birth-name">Jonah Feldstein</td>
-                            <td><span class="era-tag era-modern">Modern</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stage Name</th>
+                        <th>Birth Name</th>
+                        <th>Era</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="stage-name">Kirk Douglas</td>
+                        <td class="birth-name">Issur Danielovitch</td>
+                        <td><span class="era-tag era-golden">Golden Age</span></td>
+                    </tr>
+                    <tr>
+                        <td class="stage-name">Tony Curtis</td>
+                        <td class="birth-name">Bernard Schwartz</td>
+                        <td><span class="era-tag era-golden">Golden Age</span></td>
+                    </tr>
+                    <tr>
+                        <td class="stage-name">Lauren Bacall</td>
+                        <td class="birth-name">Betty Joan Perske</td>
+                        <td><span class="era-tag era-golden">Golden Age</span></td>
+                    </tr>
+                    <tr>
+                        <td class="stage-name">Shelley Winters</td>
+                        <td class="birth-name">Shirley Schrift</td>
+                        <td><span class="era-tag era-golden">Golden Age</span></td>
+                    </tr>
+                    <tr>
+                        <td class="stage-name">Gene Wilder</td>
+                        <td class="birth-name">Jerome Silberman</td>
+                        <td><span class="era-tag era-modern">Modern</span></td>
+                    </tr>
+                    <tr>
+                        <td class="stage-name">Natalie Portman</td>
+                        <td class="birth-name">Neta-Lee Hershlag</td>
+                        <td><span class="era-tag era-modern">Modern</span></td>
+                    </tr>
+                    <tr>
+                        <td class="stage-name">Winona Ryder</td>
+                        <td class="birth-name">Winona Horowitz</td>
+                        <td><span class="era-tag era-modern">Modern</span></td>
+                    </tr>
+                    <tr>
+                        <td class="stage-name">Jonah Hill</td>
+                        <td class="birth-name">Jonah Feldstein</td>
+                        <td><span class="era-tag era-modern">Modern</span></td>
+                    </tr>
+                </tbody>
+            </table>
             
             <div class="context-box">
                 <h3>The Shift</h3>
@@ -586,15 +692,15 @@
         </div>
     </section>
     
-    <section id="stats">
+    <section class="stats-section">
         <div class="container">
             <h2>By The Numbers</h2>
-            <p class="section-intro">Estimates of Jewish representation across Hollywood, compiled from industry surveys and academic research.</p>
+            <p class="section-intro" style="margin: 0 auto 3rem;">Estimates of Jewish representation across Hollywood, compiled from industry surveys and academic research.</p>
             
             <div class="stats-grid">
                 <div class="stat-card">
                     <span class="number">~2%</span>
-                    <div class="label">US Jewish Population</div>
+                    <div class="label">US Population</div>
                 </div>
                 <div class="stat-card">
                     <span class="number">20–40%</span>
@@ -606,11 +712,11 @@
                 </div>
                 <div class="stat-card">
                     <span class="number">~60%</span>
-                    <div class="label">Top Talent Agents</div>
+                    <div class="label">Top Agents</div>
                 </div>
             </div>
             
-            <div class="context-box">
+            <div class="context-box" style="text-align: left; margin-top: 3rem;">
                 <h3>Network Effects, Not Conspiracy</h3>
                 <p>These numbers reflect historical compounding, not coordination. First-generation success created mentorship pipelines, family businesses, and cultural capital. Similar patterns exist in other immigrant-founded industries: Italian-Americans in construction, Korean-Americans in dry cleaning, Indian-Americans in motels. The difference is Hollywood's visibility.</p>
             </div>
@@ -619,7 +725,7 @@
     
     <footer>
         <div class="container">
-            <div class="star">✡</div>
+            <div class="footer-symbol">✡</div>
             <p>A historical overview of Jewish representation in American cinema</p>
         </div>
     </footer>
