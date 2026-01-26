@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gallery - Claude Artifacts</title>
+    <title>Assets - Claude Artifacts</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -26,7 +26,7 @@
             margin-bottom: 0.5rem;
         }
         
-        .stats { color: #888; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .stats { color: #888; font-size: 0.9rem; }
         .stats span { color: #667eea; font-weight: 600; }
         
         nav {
@@ -53,7 +53,7 @@
         }
         
         .controls {
-            max-width: 800px;
+            max-width: 700px;
             margin: 0 auto 1.5rem;
             display: flex;
             gap: 1rem;
@@ -65,7 +65,7 @@
         #search {
             flex: 1;
             min-width: 200px;
-            max-width: 400px;
+            max-width: 350px;
             padding: 0.75rem 1rem;
             border: 1px solid #333;
             border-radius: 10px;
@@ -73,16 +73,10 @@
             color: #fff;
             font-size: 0.95rem;
         }
-        #search:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+        #search:focus { outline: none; border-color: #667eea; }
         #search::placeholder { color: #666; }
         
-        .tabs {
-            display: flex;
-            gap: 0.4rem;
-        }
+        .tabs { display: flex; gap: 0.4rem; }
         
         .tab {
             padding: 0.5rem 1rem;
@@ -100,14 +94,11 @@
             border-color: #667eea;
             color: #667eea;
         }
-        .tab .count {
-            margin-left: 0.3rem;
-            opacity: 0.7;
-        }
+        .tab .count { margin-left: 0.3rem; opacity: 0.7; }
         
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 1rem;
             max-width: 1400px;
             margin: 0 auto;
@@ -152,7 +143,7 @@
         .card-body { padding: 1rem; }
         
         .card-title {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: 600;
             color: #fff;
             margin-bottom: 0.25rem;
@@ -174,11 +165,10 @@
         .card-meta { display: flex; gap: 0.5rem; }
         
         .badge {
-            font-size: 0.65rem;
-            padding: 0.2rem 0.5rem;
-            border-radius: 5px;
+            font-size: 0.6rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
         }
-        .badge.pdf { background: rgba(234, 102, 102, 0.15); color: #ea6666; }
         .badge.image { background: rgba(102, 234, 156, 0.15); color: #66ea9c; }
         .badge.audio { background: rgba(234, 180, 102, 0.15); color: #eab466; }
         .badge.size { background: rgba(255,255,255,0.1); color: #888; }
@@ -208,13 +198,13 @@
 </head>
 <body>
     <header>
-        <h1>Gallery</h1>
-        <div class="stats">Assets: <span id="asset-count">0</span></div>
+        <h1>Assets</h1>
+        <div class="stats">Images: <span id="image-count">0</span> · Audio: <span id="audio-count">0</span></div>
     </header>
     
     <nav>
-        <a href="index.html">Sites</a>
-        <a href="gallery.html" class="active">Gallery</a>
+        <a href="index.html">Artifacts</a>
+        <a href="gallery.html" class="active">Assets</a>
     </nav>
     
     <div class="controls">
@@ -222,7 +212,6 @@
         <div class="tabs">
             <button class="tab active" data-filter="all">All<span class="count" id="count-all"></span></button>
             <button class="tab" data-filter="image">Images<span class="count" id="count-image"></span></button>
-            <button class="tab" data-filter="pdf">PDFs<span class="count" id="count-pdf"></span></button>
             <button class="tab" data-filter="audio">Audio<span class="count" id="count-audio"></span></button>
         </div>
     </div>
@@ -233,7 +222,6 @@
     
     <script>
         const R2_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
-        const THUMB_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/thumb/';
         let allAssets = [];
         
         function formatSize(bytes) {
@@ -253,18 +241,9 @@
         
         function getType(filename) {
             const ext = filename.split('.').pop().toLowerCase();
-            if (ext === 'pdf') return 'pdf';
             if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
             if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
             return 'other';
-        }
-        
-        function getIcon(type) {
-            switch(type) {
-                case 'pdf': return '📄';
-                case 'audio': return '🎵';
-                default: return '📁';
-            }
         }
         
         async function loadAssets() {
@@ -278,15 +257,14 @@
                         if (f.key.startsWith('_')) return false;
                         if (f.key.includes('/')) return false;
                         const type = getType(f.key);
-                        return ['pdf', 'image', 'audio'].includes(type);
+                        return ['image', 'audio'].includes(type);
                     })
                     .map(f => ({
                         title: titleCase(f.key),
                         file: f.key,
                         url: R2_BASE + f.key,
                         size: f.size,
-                        type: getType(f.key),
-                        uploaded: f.uploaded
+                        type: getType(f.key)
                     }))
                     .sort((a, b) => a.title.localeCompare(b.title));
                 
@@ -298,14 +276,14 @@
         }
         
         function updateCounts() {
-            const counts = { all: allAssets.length, image: 0, pdf: 0, audio: 0 };
-            allAssets.forEach(a => { if (counts[a.type] !== undefined) counts[a.type]++; });
+            const images = allAssets.filter(a => a.type === 'image').length;
+            const audio = allAssets.filter(a => a.type === 'audio').length;
             
-            document.getElementById('asset-count').textContent = counts.all;
-            document.getElementById('count-all').textContent = counts.all;
-            document.getElementById('count-image').textContent = counts.image;
-            document.getElementById('count-pdf').textContent = counts.pdf;
-            document.getElementById('count-audio').textContent = counts.audio;
+            document.getElementById('image-count').textContent = images;
+            document.getElementById('audio-count').textContent = audio;
+            document.getElementById('count-all').textContent = allAssets.length;
+            document.getElementById('count-image').textContent = images;
+            document.getElementById('count-audio').textContent = audio;
         }
         
         function filterAssets() {
@@ -337,7 +315,7 @@
                 if (asset.type === 'image') {
                     preview = `<img src="${asset.url}" alt="${asset.title}" loading="lazy">`;
                 } else {
-                    preview = `<span class="icon">${getIcon(asset.type)}</span>`;
+                    preview = `<span class="icon">🎵</span>`;
                 }
                 
                 return `
