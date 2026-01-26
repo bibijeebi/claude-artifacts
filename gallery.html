@@ -65,7 +65,7 @@
         #search {
             flex: 1;
             min-width: 200px;
-            max-width: 350px;
+            max-width: 400px;
             padding: 0.75rem 1rem;
             border: 1px solid #333;
             border-radius: 10px;
@@ -98,7 +98,7 @@
         
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 1rem;
             max-width: 1400px;
             margin: 0 auto;
@@ -121,7 +121,7 @@
         }
         
         .card-preview {
-            height: 140px;
+            aspect-ratio: 4/3;
             background: rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
@@ -140,29 +140,29 @@
             opacity: 0.4;
         }
         
-        .card-body { padding: 1rem; }
+        .card-body { padding: 0.9rem; }
         
         .card-title {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             color: #fff;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.2rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
         .card-file {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #667eea;
             font-family: monospace;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         
-        .card-meta { display: flex; gap: 0.5rem; }
+        .card-meta { display: flex; gap: 0.4rem; }
         
         .badge {
             font-size: 0.6rem;
@@ -231,12 +231,7 @@
         }
         
         function titleCase(str) {
-            return str
-                .replace(/[-_]/g, ' ')
-                .replace(/\.[^.]+$/, '')
-                .replace(/\d+$/, '')
-                .trim()
-                .replace(/\b\w/g, c => c.toUpperCase());
+            return str.replace(/[-_]/g, ' ').replace(/\.[^.]+$/, '').replace(/\b\w/g, c => c.toUpperCase());
         }
         
         function getType(filename) {
@@ -257,7 +252,7 @@
                         if (f.key.startsWith('_')) return false;
                         if (f.key.includes('/')) return false;
                         const type = getType(f.key);
-                        return ['image', 'audio'].includes(type);
+                        return type === 'image' || type === 'audio';
                     })
                     .map(f => ({
                         title: titleCase(f.key),
@@ -268,22 +263,19 @@
                     }))
                     .sort((a, b) => a.title.localeCompare(b.title));
                 
-                updateCounts();
+                const imageCount = allAssets.filter(a => a.type === 'image').length;
+                const audioCount = allAssets.filter(a => a.type === 'audio').length;
+                
+                document.getElementById('image-count').textContent = imageCount;
+                document.getElementById('audio-count').textContent = audioCount;
+                document.getElementById('count-all').textContent = allAssets.length;
+                document.getElementById('count-image').textContent = imageCount;
+                document.getElementById('count-audio').textContent = audioCount;
+                
                 filterAssets();
             } catch (e) {
                 console.error('Failed to load assets:', e);
             }
-        }
-        
-        function updateCounts() {
-            const images = allAssets.filter(a => a.type === 'image').length;
-            const audio = allAssets.filter(a => a.type === 'audio').length;
-            
-            document.getElementById('image-count').textContent = images;
-            document.getElementById('audio-count').textContent = audio;
-            document.getElementById('count-all').textContent = allAssets.length;
-            document.getElementById('count-image').textContent = images;
-            document.getElementById('count-audio').textContent = audio;
         }
         
         function filterAssets() {
@@ -311,12 +303,9 @@
             }
             
             grid.innerHTML = filtered.map(asset => {
-                let preview;
-                if (asset.type === 'image') {
-                    preview = `<img src="${asset.url}" alt="${asset.title}" loading="lazy">`;
-                } else {
-                    preview = `<span class="icon">🎵</span>`;
-                }
+                let preview = asset.type === 'image' 
+                    ? `<img src="${asset.url}" alt="${asset.title}" loading="lazy">`
+                    : `<span class="icon">🎵</span>`;
                 
                 return `
                     <a href="${asset.url}" target="_blank" class="card">
