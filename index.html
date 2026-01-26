@@ -15,10 +15,7 @@
             padding: 2rem;
         }
         
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+        header { text-align: center; margin-bottom: 2rem; }
         
         h1 {
             font-size: 2.5rem;
@@ -29,19 +26,35 @@
             margin-bottom: 0.5rem;
         }
         
-        .stats {
-            color: #888;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
+        .stats { color: #888; font-size: 0.9rem; margin-bottom: 0.25rem; }
         .stats span { color: #667eea; font-weight: 600; }
         
         .last-refresh { color: #555; font-size: 0.75rem; }
         
-        .search-container {
-            max-width: 600px;
-            margin: 1.5rem auto;
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
         }
+        
+        nav a {
+            padding: 0.6rem 1.5rem;
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        nav a:hover { border-color: #667eea; color: #667eea; }
+        nav a.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+            color: #fff;
+        }
+        
+        .search-container { max-width: 600px; margin: 1.5rem auto; }
         
         #search {
             width: 100%;
@@ -59,37 +72,6 @@
             box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
         }
         #search::placeholder { color: #666; }
-        
-        .tabs {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .tab {
-            padding: 0.5rem 1.2rem;
-            border: 1px solid #333;
-            border-radius: 20px;
-            background: transparent;
-            color: #888;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-        .tab:hover { border-color: #667eea; color: #667eea; }
-        .tab.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-color: transparent;
-            color: #fff;
-        }
-        .tab .count {
-            background: rgba(255,255,255,0.2);
-            padding: 0.1rem 0.5rem;
-            border-radius: 10px;
-            margin-left: 0.4rem;
-            font-size: 0.75rem;
-        }
         
         .grid {
             display: grid;
@@ -127,14 +109,9 @@
             color: #667eea;
             font-family: monospace;
             margin-bottom: 0.75rem;
-            word-break: break-all;
         }
         
-        .card-meta {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
+        .card-meta { display: flex; gap: 0.75rem; }
         
         .badge {
             font-size: 0.7rem;
@@ -143,9 +120,6 @@
             background: rgba(102, 126, 234, 0.15);
             color: #667eea;
         }
-        .badge.pdf { background: rgba(234, 102, 102, 0.15); color: #ea6666; }
-        .badge.image { background: rgba(102, 234, 156, 0.15); color: #66ea9c; }
-        .badge.audio { background: rgba(234, 180, 102, 0.15); color: #eab466; }
         
         .refresh-btn {
             position: fixed;
@@ -166,8 +140,6 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
         }
         
-        .hidden { display: none !important; }
-        
         .empty-state {
             text-align: center;
             padding: 3rem;
@@ -179,31 +151,26 @@
 <body>
     <header>
         <h1>Claude Artifacts</h1>
-        <div class="stats">Deployed sites: <span id="site-count">0</span> · Assets: <span id="asset-count">0</span></div>
+        <div class="stats">Deployed sites: <span id="site-count">0</span></div>
         <div class="last-refresh">Last refreshed: <span id="refresh-time">-</span></div>
     </header>
     
-    <div class="search-container">
-        <input type="text" id="search" placeholder="Search artifacts...">
-    </div>
+    <nav>
+        <a href="index.html" class="active">Sites</a>
+        <a href="gallery.html">Gallery</a>
+    </nav>
     
-    <div class="tabs">
-        <button class="tab active" data-filter="all">All<span class="count" id="count-all">0</span></button>
-        <button class="tab" data-filter="site">Sites<span class="count" id="count-site">0</span></button>
-        <button class="tab" data-filter="pdf">PDFs<span class="count" id="count-pdf">0</span></button>
-        <button class="tab" data-filter="image">Images<span class="count" id="count-image">0</span></button>
-        <button class="tab" data-filter="audio">Audio<span class="count" id="count-audio">0</span></button>
+    <div class="search-container">
+        <input type="text" id="search" placeholder="Search sites...">
     </div>
     
     <div class="grid" id="grid"></div>
     
-    <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    <button class="refresh-btn" onclick="loadSites()">↻ Refresh</button>
     
     <script>
-        const R2_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
         const PAGES_BASE = 'https://claude-artifacts.pages.dev/';
-        
-        let allItems = [];
+        let allSites = [];
         
         function formatSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
@@ -214,145 +181,57 @@
         function titleCase(str) {
             return str
                 .replace(/[-_]/g, ' ')
-                .replace(/\.[^.]+$/, '')
-                .replace(/\d+$/, '')
-                .trim()
+                .replace(/\.html$/, '')
                 .replace(/\b\w/g, c => c.toUpperCase());
         }
         
-        function getType(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            if (['html', 'htm'].includes(ext)) return 'site';
-            if (ext === 'pdf') return 'pdf';
-            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
-            if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
-            return 'other';
-        }
-        
-        async function loadGitHub() {
+        async function loadSites() {
             try {
                 const res = await fetch('https://api.github.com/repos/bibijeebi/claude-artifacts/contents');
                 const files = await res.json();
-                return files
-                    .filter(f => f.name.endsWith('.html') && f.name !== 'index.html')
+                allSites = files
+                    .filter(f => f.name.endsWith('.html') && f.name !== 'index.html' && f.name !== 'gallery.html')
                     .map(f => ({
                         title: titleCase(f.name),
                         file: f.name,
                         url: PAGES_BASE + f.name,
-                        size: f.size,
-                        type: 'site',
-                        source: 'github'
-                    }));
+                        size: f.size
+                    }))
+                    .sort((a, b) => a.title.localeCompare(b.title));
+                
+                document.getElementById('site-count').textContent = allSites.length;
+                document.getElementById('refresh-time').textContent = new Date().toLocaleTimeString();
+                filterSites();
             } catch (e) {
-                console.error('GitHub fetch failed:', e);
-                return [];
+                console.error('Failed to load sites:', e);
             }
         }
         
-        async function loadR2() {
-            try {
-                const res = await fetch('https://claude-deploy.bennyforeman1.workers.dev/r2/list');
-                const data = await res.json();
-                return data.files
-                    .filter(f => {
-                        const type = getType(f.key);
-                        if (f.key.startsWith('thumb-')) return false;
-                        if (f.key.startsWith('_')) return false;
-                        if (f.key.includes('/')) return false;
-                        return ['pdf', 'image', 'audio'].includes(type);
-                    })
-                    .map(f => ({
-                        title: titleCase(f.key),
-                        file: f.key,
-                        url: R2_BASE + f.key,
-                        size: f.size,
-                        type: getType(f.key),
-                        source: 'r2',
-                        uploaded: f.uploaded
-                    }));
-            } catch (e) {
-                console.error('R2 fetch failed:', e);
-                return [];
-            }
-        }
-        
-        function renderItems(items) {
-            const grid = document.getElementById('grid');
+        function filterSites() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const filtered = search 
+                ? allSites.filter(s => s.title.toLowerCase().includes(search) || s.file.toLowerCase().includes(search))
+                : allSites;
             
-            if (items.length === 0) {
-                grid.innerHTML = '<div class="empty-state">No items found</div>';
+            const grid = document.getElementById('grid');
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No sites found</div>';
                 return;
             }
             
-            grid.innerHTML = items.map(item => `
-                <a href="${item.url}" target="_blank" class="card" data-type="${item.type}">
-                    <div class="card-title">${item.title}</div>
-                    <div class="card-file">${item.file}</div>
+            grid.innerHTML = filtered.map(site => `
+                <a href="${site.url}" target="_blank" class="card">
+                    <div class="card-title">${site.title}</div>
+                    <div class="card-file">${site.file}</div>
                     <div class="card-meta">
-                        <span class="badge ${item.type}">${item.type}</span>
-                        <span class="badge">${formatSize(item.size)}</span>
+                        <span class="badge">${formatSize(site.size)}</span>
                     </div>
                 </a>
             `).join('');
         }
         
-        function updateCounts() {
-            const counts = { all: allItems.length, site: 0, pdf: 0, image: 0, audio: 0 };
-            allItems.forEach(item => {
-                if (counts[item.type] !== undefined) counts[item.type]++;
-            });
-            
-            document.getElementById('count-all').textContent = counts.all;
-            document.getElementById('count-site').textContent = counts.site;
-            document.getElementById('count-pdf').textContent = counts.pdf;
-            document.getElementById('count-image').textContent = counts.image;
-            document.getElementById('count-audio').textContent = counts.audio;
-            
-            document.getElementById('site-count').textContent = counts.site;
-            document.getElementById('asset-count').textContent = counts.all - counts.site;
-        }
-        
-        function filterItems() {
-            const search = document.getElementById('search').value.toLowerCase();
-            const activeTab = document.querySelector('.tab.active').dataset.filter;
-            
-            let filtered = allItems;
-            
-            if (activeTab !== 'all') {
-                filtered = filtered.filter(item => item.type === activeTab);
-            }
-            
-            if (search) {
-                filtered = filtered.filter(item => 
-                    item.title.toLowerCase().includes(search) || 
-                    item.file.toLowerCase().includes(search)
-                );
-            }
-            
-            renderItems(filtered);
-        }
-        
-        async function loadAll() {
-            const [github, r2] = await Promise.all([loadGitHub(), loadR2()]);
-            allItems = [...github, ...r2].sort((a, b) => a.title.localeCompare(b.title));
-            
-            updateCounts();
-            filterItems();
-            
-            document.getElementById('refresh-time').textContent = new Date().toLocaleTimeString();
-        }
-        
-        document.getElementById('search').addEventListener('input', filterItems);
-        
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                filterItems();
-            });
-        });
-        
-        loadAll();
+        document.getElementById('search').addEventListener('input', filterSites);
+        loadSites();
     </script>
 </body>
 </html>
