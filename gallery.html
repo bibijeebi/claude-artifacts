@@ -1,181 +1,372 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gallery | muh shit</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #0a0a0a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; padding: 40px 20px; }
-    .header { text-align: center; margin-bottom: 40px; }
-    h1 { font-size: 2.5rem; margin-bottom: 10px; background: linear-gradient(135deg, #34d399, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .subtitle { color: #666; font-size: 1rem; }
-    .back-link { display: inline-block; margin-bottom: 20px; color: #818cf8; text-decoration: none; }
-    .back-link:hover { text-decoration: underline; }
-    .albums-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; }
-    .album-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
-    .album-card:hover { border-color: rgba(52, 211, 153, 0.4); transform: translateY(-2px); }
-    .album-preview { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; aspect-ratio: 1; background: #111; }
-    .album-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .album-preview .more { display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); color: #888; font-size: 1.2rem; }
-    .album-info { padding: 16px; }
-    .album-title { font-size: 1.1rem; margin-bottom: 4px; }
-    .album-count { color: #666; font-size: 0.85rem; }
-    .album-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a0a; z-index: 1000; overflow-y: auto; padding: 40px 20px; }
-    .album-view.active { display: block; }
-    .album-view-header { max-width: 1400px; margin: 0 auto 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-    .album-view-close { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .album-view-close:hover { background: rgba(255,255,255,0.2); }
-    .album-view-title { font-size: 1.8rem; flex: 1; }
-    .btn { background: rgba(52, 211, 153, 0.15); border: 1px solid rgba(52, 211, 153, 0.3); color: #34d399; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
-    .btn:hover { background: rgba(52, 211, 153, 0.25); border-color: rgba(52, 211, 153, 0.5); }
-    .album-images { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; max-width: 1400px; margin: 0 auto; }
-    .image-card { position: relative; border-radius: 12px; overflow: hidden; }
-    .image-card img { width: 100%; display: block; cursor: pointer; transition: transform 0.2s; }
-    .image-card:hover img { transform: scale(1.02); }
-    .image-card .download-btn { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; opacity: 0; transition: opacity 0.2s; display: flex; align-items: center; justify-content: center; }
-    .image-card:hover .download-btn { opacity: 1; }
-    .image-card .download-btn:hover { background: rgba(52, 211, 153, 0.8); }
-    .lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 2000; align-items: center; justify-content: center; }
-    .lightbox.active { display: flex; }
-    .lightbox img { max-width: 95%; max-height: 90%; object-fit: contain; }
-    .lightbox-close { position: absolute; top: 20px; right: 30px; font-size: 2rem; color: #fff; cursor: pointer; opacity: 0.7; }
-    .lightbox-close:hover { opacity: 1; }
-    .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); font-size: 3rem; color: #fff; cursor: pointer; opacity: 0.7; padding: 20px; user-select: none; }
-    .lightbox-nav:hover { opacity: 1; }
-    .lightbox-prev { left: 10px; }
-    .lightbox-next { right: 10px; }
-    .lightbox-download { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); }
-    .lightbox-counter { position: absolute; bottom: 30px; right: 30px; color: #666; font-size: 0.9rem; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery - Claude Artifacts</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #e0e0e0;
+            padding: 2rem;
+        }
+        
+        header { text-align: center; margin-bottom: 2rem; }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats { color: #888; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .stats span { color: #667eea; font-weight: 600; }
+        
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        nav a {
+            padding: 0.6rem 1.5rem;
+            border: 1px solid #333;
+            border-radius: 25px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        nav a:hover { border-color: #667eea; color: #667eea; }
+        nav a.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: transparent;
+            color: #fff;
+        }
+        
+        .controls {
+            max-width: 800px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #search {
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 0.95rem;
+        }
+        #search:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        #search::placeholder { color: #666; }
+        
+        .tabs {
+            display: flex;
+            gap: 0.4rem;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: transparent;
+            color: #888;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .tab:hover { border-color: #667eea; color: #667eea; }
+        .tab.active {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            color: #667eea;
+        }
+        .tab .count {
+            margin-left: 0.3rem;
+            opacity: 0.7;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .card-preview {
+            height: 140px;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .card-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .card-preview .icon {
+            font-size: 3rem;
+            opacity: 0.4;
+        }
+        
+        .card-body { padding: 1rem; }
+        
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .card-file {
+            font-size: 0.7rem;
+            color: #667eea;
+            font-family: monospace;
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .card-meta { display: flex; gap: 0.5rem; }
+        
+        .badge {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+        }
+        .badge.pdf { background: rgba(234, 102, 102, 0.15); color: #ea6666; }
+        .badge.image { background: rgba(102, 234, 156, 0.15); color: #66ea9c; }
+        .badge.audio { background: rgba(234, 180, 102, 0.15); color: #eab466; }
+        .badge.size { background: rgba(255,255,255,0.1); color: #888; }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .refresh-btn:hover { transform: scale(1.05); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+    </style>
 </head>
 <body>
-  <a href="/" class="back-link">← Back to dashboard</a>
-  <div class="header">
-    <h1>Gallery</h1>
-    <p class="subtitle" id="gallery-subtitle"></p>
-  </div>
-  <div class="albums-grid" id="albums-grid"></div>
-  <div class="album-view" id="album-view">
-    <div class="album-view-header">
-      <button class="album-view-close" onclick="closeAlbum()" title="Back to albums">←</button>
-      <h2 class="album-view-title" id="album-view-title"></h2>
-      <button class="btn" onclick="downloadAlbum()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download Album
-      </button>
-    </div>
-    <div class="album-images" id="album-images"></div>
-  </div>
-  <div class="lightbox" id="lightbox">
-    <span class="lightbox-close" onclick="closeLightbox()">×</span>
-    <span class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">&#10094;</span>
-    <img id="lightbox-img" src="" alt="">
-    <span class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">&#10095;</span>
-    <button class="btn lightbox-download" onclick="downloadCurrentImage()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download
-    </button>
-    <span class="lightbox-counter" id="lightbox-counter"></span>
-  </div>
-  <script>
-    const R2 = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
-    const thumb = (img) => R2 + 'thumb-' + img.replace(/\.(png|jpe?g)$/, '.webp');  // WebP thumbnail
-    const full = (img) => R2 + img;  // Full image
+    <header>
+        <h1>Gallery</h1>
+        <div class="stats">Assets: <span id="asset-count">0</span></div>
+    </header>
     
-    const albums = [
-      { id: 'quotes', title: 'Quotes', icon: '💬', images: ['album-quotes-1.png','album-quotes-2.png','album-quotes-3.png'] },
-      { id: 'please-bro', title: 'Please Bro', icon: '🙏', images: ['album-please-bro-1.png','album-please-bro-2.png'] },
-      { id: 'collages', title: 'Collages', icon: '🎨', images: ['album-collages-1.png','album-collages-2.png'] },
-      { id: 'memes', title: 'Memes', icon: '😂', images: ['gallery-memes-1.png','gallery-memes-2.png','gallery-memes-3.png'] },
-      { id: 'jacked-women', title: 'Jacked Double-Chinned Women', icon: '💪', images: ['gallery-jacked-women-1.png','gallery-jacked-women-2.png','gallery-jacked-women-3.png','gallery-jacked-women-4.png'] },
-      { id: 'want-to-anyway', title: 'But I Want To Anyway', icon: '📰', images: ['gallery-want-to-anyway-1.png','gallery-want-to-anyway-2.png','gallery-want-to-anyway-3.png','gallery-want-to-anyway-4.png','gallery-want-to-anyway-5.png','gallery-want-to-anyway-6.png'] },
-      { id: 'misc', title: 'Misc', icon: '📦', images: ['misc-gemini-1.png','misc-polo.png','misc-generated-1.jpeg'] }
-    ];
-    let currentAlbum = null, currentImageIndex = 0;
-    const totalImages = albums.reduce((s,a) => s + a.images.length, 0);
-    document.getElementById('gallery-subtitle').textContent = `${albums.length} albums · ${totalImages} images`;
-
-    function renderAlbums() {
-      document.getElementById('albums-grid').innerHTML = albums.map(album => {
-        let previews = album.images.slice(0,4).map((img,i) => 
-          i === 3 && album.images.length > 4 ? `<div class="more">+${album.images.length-4}</div>` : `<img src="${thumb(img)}" loading="lazy">`
-        ).join('');
-        if (album.images.length < 4) previews += '<div style="background:#111"></div>'.repeat(4 - album.images.length);
-        return `<div class="album-card" onclick="openAlbum('${album.id}')"><div class="album-preview">${previews}</div><div class="album-info"><div class="album-title">${album.icon} ${album.title}</div><div class="album-count">${album.images.length} images</div></div></div>`;
-      }).join('');
-    }
-
-    function openAlbum(id) {
-      currentAlbum = albums.find(a => a.id === id);
-      if (!currentAlbum) return;
-      history.pushState(null, '', `#${id}`);
-      document.getElementById('album-view-title').textContent = `${currentAlbum.icon} ${currentAlbum.title}`;
-      document.getElementById('album-images').innerHTML = currentAlbum.images.map((img, i) => 
-        `<div class="image-card"><img src="${thumb(img)}" onclick="openLightbox(${i})" loading="lazy"><button class="download-btn" onclick="event.stopPropagation();downloadImage('${img}')" title="Download"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></div>`
-      ).join('');
-      document.getElementById('album-view').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeAlbum() {
-      document.getElementById('album-view').classList.remove('active');
-      document.body.style.overflow = '';
-      history.pushState(null, '', window.location.pathname);
-      currentAlbum = null;
-    }
-
-    function openLightbox(i) {
-      currentImageIndex = i;
-      updateLightbox();
-      document.getElementById('lightbox').classList.add('active');
-    }
-    function updateLightbox() {
-      // Use FULL image in lightbox
-      document.getElementById('lightbox-img').src = full(currentAlbum.images[currentImageIndex]);
-      document.getElementById('lightbox-counter').textContent = `${currentImageIndex + 1} / ${currentAlbum.images.length}`;
-    }
-    function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
-    function navigateLightbox(d) {
-      currentImageIndex = (currentImageIndex + d + currentAlbum.images.length) % currentAlbum.images.length;
-      updateLightbox();
-    }
-
-    async function downloadImage(filename) {
-      // Download FULL image
-      const res = await fetch(full(filename));
-      const blob = await res.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-    function downloadCurrentImage() { downloadImage(currentAlbum.images[currentImageIndex]); }
-    async function downloadAlbum() {
-      for (const img of currentAlbum.images) {
-        await downloadImage(img);
-        await new Promise(r => setTimeout(r, 300));
-      }
-    }
-
-    document.addEventListener('keydown', e => {
-      if (document.getElementById('lightbox').classList.contains('active')) {
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowLeft') navigateLightbox(-1);
-        if (e.key === 'ArrowRight') navigateLightbox(1);
-      } else if (document.getElementById('album-view').classList.contains('active')) {
-        if (e.key === 'Escape') closeAlbum();
-      }
-    });
-
-    function handleHash() {
-      const h = window.location.hash.slice(1);
-      if (h && albums.find(a => a.id === h)) openAlbum(h);
-    }
-    window.addEventListener('hashchange', handleHash);
-    renderAlbums();
-    handleHash();
-  </script>
+    <nav>
+        <a href="index.html">Sites</a>
+        <a href="gallery.html" class="active">Gallery</a>
+    </nav>
+    
+    <div class="controls">
+        <input type="text" id="search" placeholder="Search assets...">
+        <div class="tabs">
+            <button class="tab active" data-filter="all">All<span class="count" id="count-all"></span></button>
+            <button class="tab" data-filter="image">Images<span class="count" id="count-image"></span></button>
+            <button class="tab" data-filter="pdf">PDFs<span class="count" id="count-pdf"></span></button>
+            <button class="tab" data-filter="audio">Audio<span class="count" id="count-audio"></span></button>
+        </div>
+    </div>
+    
+    <div class="grid" id="grid"></div>
+    
+    <button class="refresh-btn" onclick="loadAssets()">↻ Refresh</button>
+    
+    <script>
+        const R2_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
+        const THUMB_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/thumb/';
+        let allAssets = [];
+        
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+        
+        function titleCase(str) {
+            return str
+                .replace(/[-_]/g, ' ')
+                .replace(/\.[^.]+$/, '')
+                .replace(/\d+$/, '')
+                .trim()
+                .replace(/\b\w/g, c => c.toUpperCase());
+        }
+        
+        function getType(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (ext === 'pdf') return 'pdf';
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
+            if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
+            return 'other';
+        }
+        
+        function getIcon(type) {
+            switch(type) {
+                case 'pdf': return '📄';
+                case 'audio': return '🎵';
+                default: return '📁';
+            }
+        }
+        
+        async function loadAssets() {
+            try {
+                const res = await fetch('https://claude-deploy.bennyforeman1.workers.dev/r2/list');
+                const data = await res.json();
+                
+                allAssets = data.files
+                    .filter(f => {
+                        if (f.key.startsWith('thumb-')) return false;
+                        if (f.key.startsWith('_')) return false;
+                        if (f.key.includes('/')) return false;
+                        const type = getType(f.key);
+                        return ['pdf', 'image', 'audio'].includes(type);
+                    })
+                    .map(f => ({
+                        title: titleCase(f.key),
+                        file: f.key,
+                        url: R2_BASE + f.key,
+                        size: f.size,
+                        type: getType(f.key),
+                        uploaded: f.uploaded
+                    }))
+                    .sort((a, b) => a.title.localeCompare(b.title));
+                
+                updateCounts();
+                filterAssets();
+            } catch (e) {
+                console.error('Failed to load assets:', e);
+            }
+        }
+        
+        function updateCounts() {
+            const counts = { all: allAssets.length, image: 0, pdf: 0, audio: 0 };
+            allAssets.forEach(a => { if (counts[a.type] !== undefined) counts[a.type]++; });
+            
+            document.getElementById('asset-count').textContent = counts.all;
+            document.getElementById('count-all').textContent = counts.all;
+            document.getElementById('count-image').textContent = counts.image;
+            document.getElementById('count-pdf').textContent = counts.pdf;
+            document.getElementById('count-audio').textContent = counts.audio;
+        }
+        
+        function filterAssets() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const activeFilter = document.querySelector('.tab.active').dataset.filter;
+            
+            let filtered = allAssets;
+            
+            if (activeFilter !== 'all') {
+                filtered = filtered.filter(a => a.type === activeFilter);
+            }
+            
+            if (search) {
+                filtered = filtered.filter(a => 
+                    a.title.toLowerCase().includes(search) || 
+                    a.file.toLowerCase().includes(search)
+                );
+            }
+            
+            const grid = document.getElementById('grid');
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-state">No assets found</div>';
+                return;
+            }
+            
+            grid.innerHTML = filtered.map(asset => {
+                let preview;
+                if (asset.type === 'image') {
+                    preview = `<img src="${asset.url}" alt="${asset.title}" loading="lazy">`;
+                } else {
+                    preview = `<span class="icon">${getIcon(asset.type)}</span>`;
+                }
+                
+                return `
+                    <a href="${asset.url}" target="_blank" class="card">
+                        <div class="card-preview">${preview}</div>
+                        <div class="card-body">
+                            <div class="card-title">${asset.title}</div>
+                            <div class="card-file">${asset.file}</div>
+                            <div class="card-meta">
+                                <span class="badge ${asset.type}">${asset.type}</span>
+                                <span class="badge size">${formatSize(asset.size)}</span>
+                            </div>
+                        </div>
+                    </a>
+                `;
+            }).join('');
+        }
+        
+        document.getElementById('search').addEventListener('input', filterAssets);
+        
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                filterAssets();
+            });
+        });
+        
+        loadAssets();
+    </script>
 </body>
 </html>
