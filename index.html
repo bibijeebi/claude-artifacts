@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claude Artifacts</title>
-    <!-- Open Graph -->
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://niggerfaggot.club">
     <meta property="og:title" content="Claude Artifacts">
@@ -12,7 +11,6 @@
     <meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-index.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Claude Artifacts">
     <meta name="twitter:description" content="Collection of Claude-generated web artifacts. Guides, tools, apps, and explainers.">
@@ -41,7 +39,8 @@
         }
         
         .stats { color: #888; font-size: 0.9rem; margin-bottom: 0.25rem; }
-        .stats span { color: #667eea; font-weight: 600; }
+        .stats span { color: #667eea; font-weight: 600; transition: all 0.3s; }
+        .stats .loading { color: #555; }
         
         .last-refresh { color: #555; font-size: 0.75rem; }
         
@@ -129,6 +128,11 @@
             text-decoration: none;
             color: inherit;
             display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .card:hover {
             transform: translateY(-3px);
@@ -200,12 +204,68 @@
             color: #666;
             grid-column: 1 / -1;
         }
+        
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 12px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .skeleton-card {
+            height: 140px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .loading-status {
+            text-align: center;
+            padding: 1rem;
+            color: #666;
+            font-size: 0.85rem;
+            grid-column: 1 / -1;
+        }
+        .loading-status .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #333;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .source-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0 8px;
+            padding: 4px 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        .source-status.loaded { color: #10b981; }
+        .source-status.loading { color: #667eea; }
+        .source-status.error { color: #ea6666; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot.loaded { background: #10b981; }
+        .dot.loading { background: #667eea; animation: pulse 1s infinite; }
+        .dot.error { background: #ea6666; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
     </style>
 </head>
 <body>
     <header>
         <h1>Claude Artifacts</h1>
-        <div class="stats">Apps: <span id="app-count">0</span> · Sites: <span id="site-count">0</span> · PDFs: <span id="pdf-count">0</span></div>
+        <div class="stats">Apps: <span id="app-count" class="loading">-</span> · Sites: <span id="site-count" class="loading">-</span> · PDFs: <span id="pdf-count" class="loading">-</span></div>
         <div class="last-refresh">Last refreshed: <span id="refresh-time">-</span></div>
     </header>
     
@@ -224,15 +284,29 @@
         </div>
     </div>
     
-    <div class="grid" id="grid"></div>
+    <div id="loading-status" class="loading-status">
+        <span class="source-status loading" id="status-apps"><span class="dot loading"></span>Apps</span>
+        <span class="source-status loading" id="status-sites"><span class="dot loading"></span>Sites</span>
+        <span class="source-status loading" id="status-pdfs"><span class="dot loading"></span>PDFs</span>
+    </div>
     
-    <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    <div class="grid" id="grid">
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+    </div>
+    
+    <button class="refresh-btn" onclick="loadAll(true)">↻ Refresh</button>
     
     <script>
         const PAGES_BASE = 'https://niggerfaggot.club/';
         const R2_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
+        const CACHE_KEY = 'claude-artifacts-cache';
+        const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
         
-        // Subdomain apps - add new apps here
         const APPS = [
             {
                 title: 'Weight Tracker',
@@ -243,7 +317,8 @@
             }
         ];
         
-        let allArtifacts = [];
+        let artifacts = { apps: [], sites: [], pdfs: [] };
+        let loadingState = { apps: 'loading', sites: 'loading', pdfs: 'loading' };
         
         function formatSize(bytes) {
             if (!bytes) return null;
@@ -253,91 +328,58 @@
         }
         
         function titleCase(str) {
-            return str
-                .replace(/[-_]/g, ' ')
-                .replace(/\.(html|pdf)$/i, '')
-                .replace(/\d+$/, '')
-                .trim()
-                .replace(/\b\w/g, c => c.toUpperCase());
+            return str.replace(/[-_]/g, ' ').replace(/\.(html|pdf)$/i, '').replace(/\d+$/, '').trim().replace(/\b\w/g, c => c.toUpperCase());
         }
         
-        async function loadSites() {
-            try {
-                const res = await fetch('https://api.github.com/repos/bibijeebi/claude-artifacts/contents');
-                const files = await res.json();
-                return files
-                    .filter(f => f.name.endsWith('.html') && f.name !== 'index.html' && f.name !== 'gallery.html')
-                    .map(f => ({
-                        title: titleCase(f.name),
-                        file: f.name,
-                        url: PAGES_BASE + f.name,
-                        size: f.size,
-                        type: 'site'
-                    }));
-            } catch (e) {
-                console.error('GitHub fetch failed:', e);
-                return [];
-            }
-        }
-        
-        async function loadPDFs() {
-            try {
-                const res = await fetch('https://claude-deploy.bennyforeman1.workers.dev/r2/list');
-                const data = await res.json();
-                return data.files
-                    .filter(f => f.key.endsWith('.pdf') && !f.key.startsWith('_'))
-                    .map(f => ({
-                        title: titleCase(f.key),
-                        file: f.key,
-                        url: R2_BASE + f.key,
-                        size: f.size,
-                        type: 'pdf'
-                    }));
-            } catch (e) {
-                console.error('R2 fetch failed:', e);
-                return [];
-            }
-        }
-        
-        async function loadAll() {
-            const [sites, pdfs] = await Promise.all([loadSites(), loadPDFs()]);
+        function updateStatus(source, status) {
+            loadingState[source] = status;
+            const el = document.getElementById(`status-${source}`);
+            el.className = `source-status ${status}`;
+            el.innerHTML = `<span class="dot ${status}"></span>${source.charAt(0).toUpperCase() + source.slice(1)}`;
             
-            // Apps first, then sites, then PDFs
-            allArtifacts = [...APPS, ...sites, ...pdfs].sort((a, b) => {
-                // Apps always first
+            // Hide loading status when all done
+            if (Object.values(loadingState).every(s => s !== 'loading')) {
+                setTimeout(() => {
+                    document.getElementById('loading-status').style.display = 'none';
+                }, 500);
+            }
+        }
+        
+        function updateCounts() {
+            const appCount = artifacts.apps.length;
+            const siteCount = artifacts.sites.length;
+            const pdfCount = artifacts.pdfs.length;
+            const total = appCount + siteCount + pdfCount;
+            
+            document.getElementById('app-count').textContent = appCount;
+            document.getElementById('app-count').classList.remove('loading');
+            document.getElementById('site-count').textContent = siteCount;
+            document.getElementById('site-count').classList.remove('loading');
+            document.getElementById('pdf-count').textContent = pdfCount;
+            document.getElementById('pdf-count').classList.remove('loading');
+            document.getElementById('count-all').textContent = total;
+            document.getElementById('count-app').textContent = appCount;
+            document.getElementById('count-site').textContent = siteCount;
+            document.getElementById('count-pdf').textContent = pdfCount;
+            document.getElementById('refresh-time').textContent = new Date().toLocaleTimeString();
+        }
+        
+        function renderCards() {
+            const search = document.getElementById('search').value.toLowerCase();
+            const activeFilter = document.querySelector('.tab.active').dataset.filter;
+            
+            let all = [...artifacts.apps, ...artifacts.sites, ...artifacts.pdfs].sort((a, b) => {
                 if (a.type === 'app' && b.type !== 'app') return -1;
                 if (b.type === 'app' && a.type !== 'app') return 1;
                 return a.title.localeCompare(b.title);
             });
             
-            const appCount = APPS.length;
-            const siteCount = sites.length;
-            const pdfCount = pdfs.length;
-            
-            document.getElementById('app-count').textContent = appCount;
-            document.getElementById('site-count').textContent = siteCount;
-            document.getElementById('pdf-count').textContent = pdfCount;
-            document.getElementById('count-all').textContent = allArtifacts.length;
-            document.getElementById('count-app').textContent = appCount;
-            document.getElementById('count-site').textContent = siteCount;
-            document.getElementById('count-pdf').textContent = pdfCount;
-            document.getElementById('refresh-time').textContent = new Date().toLocaleTimeString();
-            
-            filterArtifacts();
-        }
-        
-        function filterArtifacts() {
-            const search = document.getElementById('search').value.toLowerCase();
-            const activeFilter = document.querySelector('.tab.active').dataset.filter;
-            
-            let filtered = allArtifacts;
-            
             if (activeFilter !== 'all') {
-                filtered = filtered.filter(a => a.type === activeFilter);
+                all = all.filter(a => a.type === activeFilter);
             }
             
             if (search) {
-                filtered = filtered.filter(a => 
+                all = all.filter(a => 
                     a.title.toLowerCase().includes(search) || 
                     a.file.toLowerCase().includes(search) ||
                     (a.description && a.description.toLowerCase().includes(search))
@@ -346,12 +388,16 @@
             
             const grid = document.getElementById('grid');
             
-            if (filtered.length === 0) {
+            if (all.length === 0 && Object.values(loadingState).every(s => s !== 'loading')) {
                 grid.innerHTML = '<div class="empty-state">No artifacts found</div>';
                 return;
             }
             
-            grid.innerHTML = filtered.map(artifact => `
+            if (all.length === 0) {
+                return; // Still loading, keep skeletons
+            }
+            
+            grid.innerHTML = all.map(artifact => `
                 <a href="${artifact.url}" target="_blank" class="card ${artifact.type === 'app' ? 'app-card' : ''}">
                     <div class="card-title">${artifact.title}</div>
                     <div class="card-file">${artifact.file}</div>
@@ -364,16 +410,140 @@
             `).join('');
         }
         
-        document.getElementById('search').addEventListener('input', filterArtifacts);
+        async function loadApps() {
+            artifacts.apps = APPS;
+            updateStatus('apps', 'loaded');
+            updateCounts();
+            renderCards();
+        }
+        
+        async function loadSites() {
+            try {
+                const res = await fetch('https://api.github.com/repos/bibijeebi/claude-artifacts/contents');
+                const files = await res.json();
+                artifacts.sites = files
+                    .filter(f => f.name.endsWith('.html') && f.name !== 'index.html' && f.name !== 'gallery.html')
+                    .map(f => ({
+                        title: titleCase(f.name),
+                        file: f.name,
+                        url: PAGES_BASE + f.name,
+                        size: f.size,
+                        type: 'site'
+                    }));
+                updateStatus('sites', 'loaded');
+            } catch (e) {
+                console.error('GitHub fetch failed:', e);
+                updateStatus('sites', 'error');
+            }
+            updateCounts();
+            renderCards();
+        }
+        
+        async function loadPDFs() {
+            try {
+                const res = await fetch('https://claude-deploy.bennyforeman1.workers.dev/r2/list');
+                const data = await res.json();
+                artifacts.pdfs = data.files
+                    .filter(f => f.key.endsWith('.pdf') && !f.key.startsWith('_'))
+                    .map(f => ({
+                        title: titleCase(f.key),
+                        file: f.key,
+                        url: R2_BASE + f.key,
+                        size: f.size,
+                        type: 'pdf'
+                    }));
+                updateStatus('pdfs', 'loaded');
+            } catch (e) {
+                console.error('R2 fetch failed:', e);
+                updateStatus('pdfs', 'error');
+            }
+            updateCounts();
+            renderCards();
+        }
+        
+        function loadFromCache() {
+            try {
+                const cached = localStorage.getItem(CACHE_KEY);
+                if (cached) {
+                    const { data, timestamp } = JSON.parse(cached);
+                    if (Date.now() - timestamp < CACHE_TTL) {
+                        artifacts = data;
+                        updateCounts();
+                        renderCards();
+                        // Still show as loaded
+                        updateStatus('apps', 'loaded');
+                        updateStatus('sites', 'loaded');
+                        updateStatus('pdfs', 'loaded');
+                        return true;
+                    }
+                }
+            } catch (e) {}
+            return false;
+        }
+        
+        function saveToCache() {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    data: artifacts,
+                    timestamp: Date.now()
+                }));
+            } catch (e) {}
+        }
+        
+        async function loadAll(forceRefresh = false) {
+            // Reset state
+            loadingState = { apps: 'loading', sites: 'loading', pdfs: 'loading' };
+            document.getElementById('loading-status').style.display = 'block';
+            
+            // Try cache first (unless force refresh)
+            if (!forceRefresh && loadFromCache()) {
+                console.log('Loaded from cache');
+                return;
+            }
+            
+            // Reset UI for loading
+            document.getElementById('app-count').textContent = '-';
+            document.getElementById('app-count').classList.add('loading');
+            document.getElementById('site-count').textContent = '-';
+            document.getElementById('site-count').classList.add('loading');
+            document.getElementById('pdf-count').textContent = '-';
+            document.getElementById('pdf-count').classList.add('loading');
+            
+            // Update status indicators
+            ['apps', 'sites', 'pdfs'].forEach(s => updateStatus(s, 'loading'));
+            
+            // Show skeletons
+            document.getElementById('grid').innerHTML = `
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+            `;
+            
+            // Load all sources in parallel, render as each completes
+            await Promise.all([
+                loadApps(),
+                loadSites(),
+                loadPDFs()
+            ]);
+            
+            // Save to cache
+            saveToCache();
+        }
+        
+        document.getElementById('search').addEventListener('input', renderCards);
         
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
-                filterArtifacts();
+                renderCards();
             });
         });
         
+        // Initial load
         loadAll();
     </script>
 </body>
