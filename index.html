@@ -6,16 +6,16 @@
     <title>Claude Artifacts</title>
     <!-- Open Graph -->
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://claude-artifacts.pages.dev/index.html">
+    <meta property="og:url" content="https://niggerfaggot.club">
     <meta property="og:title" content="Claude Artifacts">
-    <meta property="og:description" content="Collection of Claude-generated web artifacts. Guides, tools, and explainers.">
+    <meta property="og:description" content="Collection of Claude-generated web artifacts. Guides, tools, apps, and explainers.">
     <meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-index.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Claude Artifacts">
-    <meta name="twitter:description" content="Collection of Claude-generated web artifacts. Guides, tools, and explainers.">
+    <meta name="twitter:description" content="Collection of Claude-generated web artifacts. Guides, tools, apps, and explainers.">
     <meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-index.png">
     
     <style>
@@ -69,7 +69,7 @@
         }
         
         .controls {
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto 1.5rem;
             display: flex;
             gap: 1rem;
@@ -92,7 +92,7 @@
         #search:focus { outline: none; border-color: #667eea; }
         #search::placeholder { color: #666; }
         
-        .tabs { display: flex; gap: 0.4rem; }
+        .tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; }
         
         .tab {
             padding: 0.5rem 1rem;
@@ -135,6 +135,14 @@
             border-color: rgba(102, 126, 234, 0.5);
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
+        .card.app-card {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent);
+        }
+        .card.app-card:hover {
+            border-color: rgba(16, 185, 129, 0.6);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+        }
         
         .card-title {
             font-size: 1.1rem;
@@ -150,8 +158,16 @@
             margin-bottom: 0.75rem;
             word-break: break-all;
         }
+        .card.app-card .card-file { color: #10b981; }
         
-        .card-meta { display: flex; gap: 0.75rem; }
+        .card-desc {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        
+        .card-meta { display: flex; gap: 0.75rem; flex-wrap: wrap; }
         
         .badge {
             font-size: 0.7rem;
@@ -160,6 +176,7 @@
         }
         .badge.site { background: rgba(102, 126, 234, 0.15); color: #667eea; }
         .badge.pdf { background: rgba(234, 102, 102, 0.15); color: #ea6666; }
+        .badge.app { background: rgba(16, 185, 129, 0.15); color: #10b981; }
         .badge.size { background: rgba(255,255,255,0.1); color: #888; }
         
         .refresh-btn {
@@ -188,7 +205,7 @@
 <body>
     <header>
         <h1>Claude Artifacts</h1>
-        <div class="stats">Sites: <span id="site-count">0</span> · PDFs: <span id="pdf-count">0</span></div>
+        <div class="stats">Apps: <span id="app-count">0</span> · Sites: <span id="site-count">0</span> · PDFs: <span id="pdf-count">0</span></div>
         <div class="last-refresh">Last refreshed: <span id="refresh-time">-</span></div>
     </header>
     
@@ -201,6 +218,7 @@
         <input type="text" id="search" placeholder="Search artifacts...">
         <div class="tabs">
             <button class="tab active" data-filter="all">All<span class="count" id="count-all"></span></button>
+            <button class="tab" data-filter="app">Apps<span class="count" id="count-app"></span></button>
             <button class="tab" data-filter="site">Sites<span class="count" id="count-site"></span></button>
             <button class="tab" data-filter="pdf">PDFs<span class="count" id="count-pdf"></span></button>
         </div>
@@ -211,11 +229,24 @@
     <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
     
     <script>
-        const PAGES_BASE = 'https://claude-artifacts.pages.dev/';
+        const PAGES_BASE = 'https://niggerfaggot.club/';
         const R2_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
+        
+        // Subdomain apps - add new apps here
+        const APPS = [
+            {
+                title: 'Weight Tracker',
+                file: 'health.niggerfaggot.club',
+                url: 'https://health.niggerfaggot.club',
+                description: 'Operation 210 - Weight tracking with real-time interpolation, body composition, and VO₂ max.',
+                type: 'app'
+            }
+        ];
+        
         let allArtifacts = [];
         
         function formatSize(bytes) {
+            if (!bytes) return null;
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
@@ -270,14 +301,24 @@
         
         async function loadAll() {
             const [sites, pdfs] = await Promise.all([loadSites(), loadPDFs()]);
-            allArtifacts = [...sites, ...pdfs].sort((a, b) => a.title.localeCompare(b.title));
             
+            // Apps first, then sites, then PDFs
+            allArtifacts = [...APPS, ...sites, ...pdfs].sort((a, b) => {
+                // Apps always first
+                if (a.type === 'app' && b.type !== 'app') return -1;
+                if (b.type === 'app' && a.type !== 'app') return 1;
+                return a.title.localeCompare(b.title);
+            });
+            
+            const appCount = APPS.length;
             const siteCount = sites.length;
             const pdfCount = pdfs.length;
             
+            document.getElementById('app-count').textContent = appCount;
             document.getElementById('site-count').textContent = siteCount;
             document.getElementById('pdf-count').textContent = pdfCount;
             document.getElementById('count-all').textContent = allArtifacts.length;
+            document.getElementById('count-app').textContent = appCount;
             document.getElementById('count-site').textContent = siteCount;
             document.getElementById('count-pdf').textContent = pdfCount;
             document.getElementById('refresh-time').textContent = new Date().toLocaleTimeString();
@@ -298,7 +339,8 @@
             if (search) {
                 filtered = filtered.filter(a => 
                     a.title.toLowerCase().includes(search) || 
-                    a.file.toLowerCase().includes(search)
+                    a.file.toLowerCase().includes(search) ||
+                    (a.description && a.description.toLowerCase().includes(search))
                 );
             }
             
@@ -310,12 +352,13 @@
             }
             
             grid.innerHTML = filtered.map(artifact => `
-                <a href="${artifact.url}" target="_blank" class="card">
+                <a href="${artifact.url}" target="_blank" class="card ${artifact.type === 'app' ? 'app-card' : ''}">
                     <div class="card-title">${artifact.title}</div>
                     <div class="card-file">${artifact.file}</div>
+                    ${artifact.description ? `<div class="card-desc">${artifact.description}</div>` : ''}
                     <div class="card-meta">
                         <span class="badge ${artifact.type}">${artifact.type}</span>
-                        <span class="badge size">${formatSize(artifact.size)}</span>
+                        ${artifact.size ? `<span class="badge size">${formatSize(artifact.size)}</span>` : ''}
                     </div>
                 </a>
             `).join('');
