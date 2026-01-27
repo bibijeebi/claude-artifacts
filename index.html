@@ -302,6 +302,78 @@
         const CACHE_KEY = 'claude-artifacts-cache';
         const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
         
+        const DESCRIPTIONS = {
+            // PDFs
+            'air-rifle-guide.pdf': 'PCP and CO₂ air rifles for weak shoulders. Umarex Komplete NCR recommendation.',
+            'american_colonial_heritage_report-3.pdf': 'Colonial American genealogy and heritage research.',
+            'anki-infographic-3.pdf': 'Visual guide to spaced repetition and Anki workflow.',
+            'asia-travel-guide.pdf': 'Southeast Asia travel planning and itinerary guide.',
+            'bates_county_report.pdf': 'Missouri county analysis for relocation research.',
+            'bekah-harmonica-guide-2.pdf': 'Harmonica learning guide for Bekah.',
+            'bekah-raleigh-opportunities.pdf': 'Raleigh-area career opportunities for Marine Corps veterans.',
+            'big_cats_reality-2.pdf': 'Reality check on private big cat ownership.',
+            'birdhouse-plans.pdf': 'DIY birdhouse construction plans.',
+            'blade-guide-2.pdf': 'Knife steel and blade geometry reference.',
+            'cli_argument_parsing.pdf': 'Command-line argument parsing patterns and libraries.',
+            'dubai_chocolate_investigation.pdf': 'Investigation into Dubai chocolate trend.',
+            'duct-cleaning-simulator-spec-3.pdf': 'Carolina Quality Air training simulator specification.',
+            'frozen-desserts-guide.pdf': 'Ice cream, gelato, and frozen dessert techniques.',
+            'glp1-comprehensive-review-2.pdf': 'GLP-1 agonists (Ozempic, etc.) comprehensive review.',
+            'housing_analysis.pdf': 'Housing market analysis for relocation planning.',
+            'how_to_have_tiger.pdf': 'Legal requirements for exotic cat ownership.',
+            'kong-grooming-guide-5.pdf': 'Saint Bernard grooming and coat maintenance guide.',
+            'llm_eval_prompts.pdf': 'LLM evaluation prompts and testing methodology.',
+            'madison-area-guide-2.pdf': 'Madison, WI area guide for vet school relocation.',
+            'navy_nuke_guide-3.pdf': 'Navy Nuclear Program overview and career guide.',
+            'nbct-guide-3.pdf': 'National Board Certification for Teachers guide.',
+            'omoore_irish_heritage_report-5.pdf': 'O\'Moore Irish clan heritage research.',
+            'operation-210-4.pdf': 'Operation 210 cutting phase protocol.',
+            'operation-210-beyond-the-cut.pdf': 'Post-cut bulking protocol. Injury-adjusted power rack program to 210 lbs.',
+            'ostrich_cull_presentation.pdf': 'Texas ostrich population management presentation.',
+            'packers_acquisition_strategy-2.pdf': 'Green Bay Packers stock and ownership analysis.',
+            'payment_systems.pdf': 'Payment processing systems overview.',
+            'pico-ble-keyboard-proposal.pdf': 'Raspberry Pi Pico BLE keyboard project proposal.',
+            'radio-fundamentals.pdf': 'Amateur radio fundamentals and licensing.',
+            'radio_guide.pdf': 'Radio communication guide and equipment.',
+            'scottish_heritage_report-7.pdf': 'Scottish clan heritage research (Clan Stewart).',
+            'weight_tracker_proposal-2.pdf': 'Weight tracking app technical specification.',
+            'wisconsin-guide.pdf': 'Wisconsin relocation guide for vet school.',
+            // Sites
+            'accelerationism.html': 'Philosophy overview: e/acc, effective accelerationism, and related movements.',
+            'archery-calculator.html': 'Arrow spine calculator and bow setup tool.',
+            'ballistics.html': 'Ballistics calculator and trajectory analysis.',
+            'birdseed.html': 'Bird feed types and regional recommendations.',
+            'bow-guide.html': 'Compound bow selection and setup guide.',
+            'claude-shit-stack.html': 'Claude deployment infrastructure documentation.',
+            'cmp-garand.html': 'Civilian Marksmanship Program M1 Garand guide.',
+            'deviled-eggs.html': 'Deviled eggs recipe variations.',
+            'dishwasher.html': 'Dishwasher optimization and loading guide.',
+            'dna-guide.html': 'DNA testing services comparison and guide.',
+            'does-it-matter.html': 'Philosophical exploration.',
+            'garden.html': 'Garden planning and planting guide.',
+            'germany-energy.html': 'German energy policy analysis.',
+            'jar-opener.html': 'Jar opener product comparison.',
+            'jewish-hollywood.html': 'Hollywood industry demographics analysis.',
+            'liquid-gold.html': 'Raw milk and dairy guide.',
+            'lost-in-translation.html': 'Movie analysis: Lost in Translation.',
+            'melamine-foam.html': 'Melamine foam (Magic Eraser) uses and science.',
+            'nano-banana.html': 'Banana ripening science explainer.',
+            'nc-raw-milk-guide.html': 'North Carolina raw milk sourcing guide.',
+            'nk-defectors.html': 'North Korean defector stories and analysis.',
+            'nord-stream.html': 'Nord Stream pipeline incident analysis.',
+            'oiia-shrine.html': 'OIIA cat meme shrine.',
+            'raw-milk-ice-cream.html': 'Raw milk ice cream recipes.',
+            'root-beer-guide.html': 'Root beer brands and homemade recipes.',
+            'soap-dish-guide.html': 'Soap dish selection guide.',
+            'south-of-the-border.html': 'South of the Border roadside attraction guide.',
+            'switch-explainer.html': 'Nintendo Switch modding explainer.',
+            'theta2.html': 'Theta2 engine technical documentation.',
+            'tiktok-israel-infographic.html': 'TikTok content moderation analysis.',
+            'va-scam.html': 'VA benefits scam awareness guide.',
+            'vet-schools.html': 'Veterinary school comparison and admissions.',
+            'white-sim-card.html': 'SIM card and mobile carrier guide.',
+        };
+        
         const APPS = [
             {
                 title: 'Weight Tracker',
@@ -423,6 +495,7 @@
                         file: f.name,
                         url: PAGES_BASE + f.name,
                         size: f.size,
+                        description: DESCRIPTIONS[f.name] || null,
                         type: 'site'
                     }));
                 updateStatus('sites', 'loaded');
@@ -445,6 +518,7 @@
                         file: f.key,
                         url: R2_BASE + f.key,
                         size: f.size,
+                        description: DESCRIPTIONS[f.key] || null,
                         type: 'pdf'
                     }));
                 updateStatus('pdfs', 'loaded');
