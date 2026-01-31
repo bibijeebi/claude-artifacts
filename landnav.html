@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Land Navigation | The Complete Field Guide</title>
+    <meta property="og:title" content="Land Navigation - The Complete Field Guide">
+    <meta property="og:description" content="Master map reading, compass work, dead reckoning, and field communications. From USGS topos to pace beads, everything you need to navigate without GPS.">
+    <meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/landnav-og-wide.jpg">
+    <meta property="og:url" content="https://niggerfaggot.club/landnav.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/landnav-og-wide.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --olive: #4a5240;
+            --olive-dark: #2d3228;
+            --tan: #c9b896;
+            --tan-light: #e8dcc8;
+            --earth: #8b7355;
+            --forest: #3d4a38;
+            --cream: #f5f0e6;
+            --rust: #a65d3f;
+            --charcoal: #1a1a1a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Source Serif 4', Georgia, serif;
+            background: var(--cream);
+            color: var(--charcoal);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Topo contour line background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(74, 82, 64, 0.03) 40px,
+                    rgba(74, 82, 64, 0.03) 41px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(74, 82, 64, 0.03) 40px,
+                    rgba(74, 82, 64, 0.03) 41px
+                );
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--olive-dark);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--rust);
+        }
+
+        .nav-brand {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--tan);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-family: 'Oswald', sans-serif;
+            color: var(--tan-light);
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--rust);
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 6rem 2rem 4rem;
+            background: linear-gradient(135deg, var(--olive-dark) 0%, var(--forest) 100%);
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://claude-deploy.bennyforeman1.workers.dev/r2/file/landnav-hero.png') center/cover;
+            opacity: 0.25;
+            filter: grayscale(30%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .hero h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(3rem, 10vw, 7rem);
+            font-weight: 700;
+            color: var(--tan);
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            line-height: 1;
+            margin-bottom: 1rem;
+            text-shadow: 4px 4px 0 var(--charcoal);
+        }
+
+        .hero-subtitle {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.3rem;
+            color: var(--tan-light);
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 2rem;
+        }
+
+        .hero-intro {
+            font-size: 1.2rem;
+            color: var(--cream);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            opacity: 0.9;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            font-family: 'Oswald', sans-serif;
+            background: var(--rust);
+            color: var(--cream);
+            padding: 1rem 3rem;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            border: 2px solid var(--rust);
+        }
+
+        .hero-cta:hover {
+            background: transparent;
+            color: var(--tan);
+        }
+
+        /* Compass rose decoration */
+        .compass-rose {
+            position: absolute;
+            bottom: -150px;
+            right: -150px;
+            width: 400px;
+            height: 400px;
+            opacity: 0.1;
+            border: 2px solid var(--tan);
+            border-radius: 50%;
+        }
+
+        .compass-rose::before,
+        .compass-rose::after {
+            content: '';
+            position: absolute;
+            background: var(--tan);
+        }
+
+        .compass-rose::before {
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            transform: translateY(-50%);
+        }
+
+        .compass-rose::after {
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            transform: translateX(-50%);
+        }
+
+        /* Main content */
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        section {
+            margin-bottom: 6rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--olive);
+        }
+
+        .section-number {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--olive);
+            opacity: 0.3;
+            line-height: 1;
+        }
+
+        h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--olive-dark);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        h3 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--forest);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 2.5rem 0 1rem;
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            font-size: 1.1rem;
+        }
+
+        .lead {
+            font-size: 1.3rem;
+            color: var(--earth);
+            border-left: 4px solid var(--rust);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Image cards */
+        .image-card {
+            margin: 2rem 0;
+            background: white;
+            border: 1px solid var(--tan);
+            overflow: hidden;
+            box-shadow: 8px 8px 0 var(--olive);
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-card figcaption {
+            padding: 1rem 1.5rem;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.9rem;
+            color: var(--olive);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--tan-light);
+        }
+
+        /* Tables */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            font-family: 'Oswald', sans-serif;
+            background: var(--olive-dark);
+            color: var(--tan);
+            padding: 1rem;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--tan);
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(201, 184, 150, 0.15);
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1.5rem 0 1.5rem 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.8rem;
+        }
+
+        /* Code/technical */
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--tan-light);
+            padding: 0.2rem 0.5rem;
+            font-size: 0.9rem;
+            border-radius: 3px;
+        }
+
+        /* Callout boxes */
+        .callout {
+            background: var(--olive-dark);
+            color: var(--cream);
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .callout::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--rust);
+        }
+
+        .callout-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            color: var(--tan);
+        }
+
+        .callout p {
+            margin-bottom: 0.8rem;
+        }
+
+        .callout p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Two column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Steps/process */
+        .steps {
+            counter-reset: step;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .steps li {
+            counter-increment: step;
+            position: relative;
+            padding-left: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--olive);
+            color: var(--tan);
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Links */
+        a {
+            color: var(--rust);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        a:hover {
+            color: var(--olive-dark);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--olive-dark);
+            color: var(--tan);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        footer p {
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Grid reference marker */
+        .grid-ref {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--olive);
+            opacity: 0.5;
+        }
+
+        /* Highlight */
+        .highlight {
+            background: linear-gradient(120deg, var(--tan-light) 0%, var(--tan-light) 100%);
+            background-repeat: no-repeat;
+            background-size: 100% 40%;
+            background-position: 0 90%;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">Land Nav</div>
+        <ul class="nav-links">
+            <li><a href="#maps">Maps</a></li>
+            <li><a href="#compass">Compass</a></li>
+            <li><a href="#techniques">Techniques</a></li>
+            <li><a href="#radio">Radio</a></li>
+            <li><a href="#start">Get Started</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Land Navigation</h1>
+            <p class="hero-subtitle">The Complete Field Guide</p>
+            <p class="hero-intro">Master the skills that work when GPS fails. Map reading, compass work, dead reckoning, and field communications. Navigate anywhere, in any conditions, with nothing but paper, a needle, and your brain.</p>
+            <a href="#maps" class="hero-cta">Begin Training</a>
+        </div>
+        <div class="compass-rose"></div>
+    </section>
+
+    <main>
+        <!-- MAPS SECTION -->
+        <section id="maps">
+            <div class="section-header">
+                <span class="section-number">01</span>
+                <h2>Maps</h2>
+            </div>
+
+            <p class="lead">The foundation of all land navigation is the map. Without understanding what you're looking at, a compass is just a spinning needle.</p>
+
+            <figure class="image-card">
+                <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/landnav-maps.png" alt="Topographic map spread on table">
+                <figcaption>USGS 7.5-minute series: the gold standard</figcaption>
+            </figure>
+
+            <h3>Where to Get Maps</h3>
+
+            <p><strong>USGS Topographic Maps</strong> are the gold standard for land navigation in the United States. The 7.5-minute series provides 1:24,000 scale coverage of the entire country with approximately 20-foot contour intervals. You can purchase physical copies at <a href="https://store.usgs.gov">store.usgs.gov</a> or download free PDFs from the USGS topoView tool. Terrain accuracy is excellent, within a few meters vertically. Human features like roads and structures may be 10-40 years stale depending on when that specific quadrangle was last updated.</p>
+
+            <p><strong>CalTopo</strong> is your power tool. This free web application lets you build custom maps from multiple data sources: USGS topos, satellite imagery, slope shading, land ownership overlays, and forest service layers. Export to PDF at any scale, print at home, or send to a print shop. This is how most serious backcountry navigators operate today.</p>
+
+            <p><strong>National Geographic Trails Illustrated</strong> maps cover popular recreation areas with more current trail information and are printed on waterproof paper. Good for hiking, less detailed than USGS for serious nav work.</p>
+
+            <p><strong>Forest Service and BLM maps</strong> show roads, trails, and land boundaries that USGS might miss on federal lands. Often available free at ranger stations.</p>
+
+            <h3>Map Accuracy</h3>
+
+            <p>Terrain features on USGS topos are highly accurate. Contour lines, elevations, ridgelines, drainages, saddles, and peaks are surveyed data. What goes stale over time: roads get built or abandoned, structures appear or disappear, vegetation changes, trails shift. For land navigation purposes, this mostly doesn't matter because you're navigating by terrain, which doesn't move.</p>
+
+            <p>One thing that does drift: the <span class="highlight">magnetic declination</span> printed on old maps shifts approximately 0.1° per year in most of CONUS. Always verify current declination for your area before using an old map.</p>
+
+            <h3>Printing Options</h3>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Pros</th>
+                            <th>Cons</th>
+                            <th>Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Home inkjet, regular paper</td>
+                            <td>Cheap, immediate</td>
+                            <td>Not durable, bleeds when wet</td>
+                            <td>~$0.10</td>
+                        </tr>
+                        <tr>
+                            <td>Home inkjet, Rite in the Rain</td>
+                            <td>Water resistant, field-ready</td>
+                            <td>Expensive paper, muted colors</td>
+                            <td>~$1/sheet</td>
+                        </tr>
+                        <tr>
+                            <td>FedEx/Staples large format</td>
+                            <td>Big maps, good color</td>
+                            <td>Not waterproof</td>
+                            <td>$3-8/map</td>
+                        </tr>
+                        <tr>
+                            <td>Specialty waterproof print</td>
+                            <td>UV/tear/water resistant</td>
+                            <td>Expensive, longer lead time</td>
+                            <td>$15-30+/map</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p>For training, regular paper is fine. For field use, either laminate cheap prints or use waterproof paper/printing.</p>
+        </section>
+
+        <!-- COMPASS SECTION -->
+        <section id="compass">
+            <div class="section-header">
+                <span class="section-number">02</span>
+                <h2>The Compass</h2>
+            </div>
+
+            <p class="lead">A quality baseplate compass with declination adjustment is a lifetime tool. Buy once, train forever.</p>
+
+            <div class="two-col">
+                <div>
+                    <h3>What to Buy</h3>
+
+                    <p>The standard recommendation is a <strong>Suunto MC-2</strong> or <strong>Silva Ranger</strong>. These are baseplate compasses with sighting mirrors, declination adjustment screws, and luminous markings. Expect to pay $40-60 new. They last decades with zero maintenance.</p>
+
+                    <p>Skip cheap compasses. They stick, the bearings drift, and the housings crack. Counterfeits exist on Amazon and eBay for both Suunto and Silva, so buy from REI, a legitimate outdoor retailer, or direct from the manufacturer.</p>
+
+                    <h3>Buying Used</h3>
+
+                    <p>A used compass from Facebook Marketplace or a garage sale can work, but the savings are minimal ($20-30 used vs $45 new). If you inspect one, check for:</p>
+
+                    <ul>
+                        <li>Bubbles in the liquid (small is okay, big bubble means compromised seal)</li>
+                        <li>Needle swings freely, settles quickly, doesn't stick</li>
+                        <li>Declination adjustment still clicks and holds position</li>
+                        <li>No cracks in housing or baseplate</li>
+                        <li>Luminous markings still glow (charge with flashlight, check in dark)</li>
+                    </ul>
+                </div>
+                <div>
+                    <figure class="image-card">
+                        <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/landnav-compass.png" alt="Baseplate compass on topographic map">
+                        <figcaption>Baseplate compass with declination adjustment</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <h3>Understanding Declination</h3>
+
+            <p>Declination is the angular difference between true north (the geographic North Pole, what maps are oriented to) and magnetic north (where your compass needle actually points). Your compass doesn't point to the top of the map. It points to a moving magnetic field currently located somewhere in northern Canada.</p>
+
+            <p>In North Carolina, magnetic north is roughly 8-9° west of true north. If you read a bearing off your map and walk it on your compass without correcting, you'll drift west of your intended target. Over 1 kilometer, an 8° error puts you approximately 140 meters off course.</p>
+
+            <div class="callout">
+                <div class="callout-title">Handling Declination</div>
+                <p><strong>Option 1: Adjust the compass.</strong> Good compasses have a declination adjustment screw. Set it once for your area, then bearings transfer directly between map and compass without mental math.</p>
+                <p><strong>Option 2: Add/subtract manually.</strong> West declination means magnetic north is west of true north. To convert a map bearing to a compass bearing in a west-declination zone, add the declination. Various mnemonics exist ("West is best, add to the rest"), but just learn the math for your area.</p>
+                <p>Declination changes over time and varies by location. Check NOAA's magnetic declination calculator for current values.</p>
+            </div>
+        </section>
+
+        <!-- TECHNIQUES SECTION -->
+        <section id="techniques">
+            <div class="section-header">
+                <span class="section-number">03</span>
+                <h2>Navigation Techniques</h2>
+            </div>
+
+            <p class="lead">The core skills: dead reckoning, pace counting, terrain association, and resection. Master these and you can navigate anywhere.</p>
+
+            <h3>Dead Reckoning</h3>
+
+            <p>Navigation by tracking your direction and distance from a known starting point. You know where you started, you know what direction you walked, you know how far you walked, therefore you know where you are now. No GPS, no landmarks required, works in zero visibility.</p>
+
+            <p>The problem: errors accumulate. You're off by 3° on your azimuth, your pace count is slightly wrong, you went around an obstacle and didn't compensate perfectly. Over short distances this is fine. Over miles, you can end up significantly off. Dead reckoning gets you close; terrain association and other techniques confirm your position.</p>
+
+            <p><strong>Example:</strong> Move 800 meters on azimuth 247° to reach the objective. You shoot 247° on your compass, walk that direction, count your paces until you've covered 800m. You should be there, plus or minus some error.</p>
+
+            <h3>Pace Beads (Ranger Beads)</h3>
+
+            <div class="two-col">
+                <div>
+                    <p>A manual counter for tracking distance walked. Typically a loop of cord with two sections of beads: 9 beads in the lower section, 4-5 in the upper.</p>
+
+                    <p><strong>Calibration:</strong> Count how many paces (every time your left foot hits ground, pick one foot and be consistent) it takes you to walk 100 meters on flat terrain. This is your "pace count," commonly 62-68 for most people.</p>
+
+                    <p><strong>In the field:</strong> Every time you complete your pace count (100m walked), pull down one bead from the lower section. When all 9 lower beads are down (900m), pull down one upper bead (1km), reset the lower beads, continue.</p>
+
+                    <p><strong>Why not a pedometer?</strong> Step detection isn't accurate on uneven terrain. More importantly, your pace count changes with slope. Uphill, your stride shortens, you need more paces per 100m. Pace beads force you to stay engaged and consciously recalibrate. They also work with dead batteries, numb fingers, darkness, and rain.</p>
+                </div>
+                <div>
+                    <figure class="image-card">
+                        <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/landnav-pacebeads.png" alt="Ranger pace beads on paracord">
+                        <figcaption>Pace beads: 9 lower (100m each), 4-5 upper (1km each)</figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <h3>Terrain Association</h3>
+
+            <p>The skill of matching what you see on the map to what you see on the ground. Look at the map: there's a ridgeline running northeast, a drainage on the left, a saddle ahead. Look at the terrain: there's the ridge, there's the draw, there's the low point between two hills. You know where you are.</p>
+
+            <p>This is the most important land nav skill and the hardest to teach. It develops with practice. The more time you spend comparing maps to ground, the faster you recognize features.</p>
+
+            <h3>Resection</h3>
+
+            <p>Finding your position by taking bearings to two or more known points. You can see a hilltop to the north, a water tower to the east. Shoot bearings to each, convert to back-azimuths, plot the lines on your map. Where they intersect is where you are.</p>
+
+            <h3>Other Gear Worth Having</h3>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Purpose</th>
+                            <th>Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Map case</td>
+                            <td>Protects map, lets you write on it with grease pencil</td>
+                            <td>$5-15</td>
+                        </tr>
+                        <tr>
+                            <td>UTM grid reader</td>
+                            <td>Faster, more accurate coordinate plotting</td>
+                            <td>$5-10</td>
+                        </tr>
+                        <tr>
+                            <td>Protractor</td>
+                            <td>Plot bearings on map</td>
+                            <td>$3-8</td>
+                        </tr>
+                        <tr>
+                            <td>Mechanical pencil</td>
+                            <td>Mark map (grease pencil for wet conditions)</td>
+                            <td>$2</td>
+                        </tr>
+                        <tr>
+                            <td>Pace beads</td>
+                            <td>Track distance, dead reckoning</td>
+                            <td>$5 or DIY</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- RADIO SECTION -->
+        <section id="radio">
+            <div class="section-header">
+                <span class="section-number">04</span>
+                <h2>Field Communications</h2>
+            </div>
+
+            <p class="lead">Navigation and communication go together. When you're in the backcountry, radio is often your only link to others.</p>
+
+            <div class="two-col">
+                <div>
+                    <figure class="image-card">
+                        <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/landnav-radio.png" alt="Handheld radio with map">
+                        <figcaption>Handheld radio: your backcountry lifeline</figcaption>
+                    </figure>
+                </div>
+                <div>
+                    <h3>Why Radio Matters</h3>
+
+                    <p>Cell service doesn't exist in most backcountry. Radio lets you coordinate with hunting partners, call for help, monitor weather, and maintain situational awareness. A cheap Baofeng and a Technician license opens up a lot of capability.</p>
+
+                    <h3>License Levels</h3>
+
+                    <p><strong>Technician:</strong> Entry level, $15 exam, gives VHF/UHF privileges (line-of-sight, local repeaters). Good for hunting parties, local coordination.</p>
+
+                    <p><strong>General:</strong> Adds HF privileges for long-distance communication. Useful if you want to reach beyond your immediate area.</p>
+
+                    <p>Study for free at <a href="https://hamstudy.org">hamstudy.org</a>, find a testing session through ARRL.</p>
+                </div>
+            </div>
+
+            <h3>Integrating Radio with Navigation</h3>
+
+            <p>Radio improves navigation in several ways. You can relay your position to others using grid coordinates ("I'm at grid 17S PJ 84523 67291"). You can get bearing information from others ("I can see your signal, you're approximately 270 degrees from my position"). You can coordinate movement with a team. In an emergency, you can communicate your location without relying on cell service.</p>
+
+            <p>The grid coordinate system (UTM/MGRS) that works for map navigation is the same system used for radio position reporting. Learn one, use both.</p>
+        </section>
+
+        <!-- GET STARTED SECTION -->
+        <section id="start">
+            <div class="section-header">
+                <span class="section-number">05</span>
+                <h2>Getting Started</h2>
+            </div>
+
+            <p class="lead">A practical path from zero to competent. This isn't complicated, it just takes practice.</p>
+
+            <ol class="steps">
+                <li>
+                    <strong>Get your local map.</strong> Go to USGS topoView, find the 7.5-minute quadrangle covering your area, download the PDF or order a physical copy.
+                </li>
+                <li>
+                    <strong>Get a real compass.</strong> Suunto MC-2 or Silva Ranger. Set the declination adjustment for your area. Don't touch it again.
+                </li>
+                <li>
+                    <strong>Learn the basics in order.</strong> Map orientation (aligning map to terrain). Terrain association (matching map to ground). Plotting points with grid coordinates. Shooting and following azimuths. Resection.
+                </li>
+                <li>
+                    <strong>Practice somewhere you know.</strong> Walk your property or a local park with map and compass. Deliberately navigate to specific features. Get lost on purpose in a bounded area.
+                </li>
+                <li>
+                    <strong>Graduate to unfamiliar terrain.</strong> Once confident locally, pick somewhere you don't know and navigate without looking at your phone. Build to longer distances and more complex routes.
+                </li>
+            </ol>
+
+            <div class="callout">
+                <div class="callout-title">Physical vs Digital</div>
+                <p><strong>Why physical still matters:</strong> Zero battery dependency. Works in any weather, any temperature. Provides situational awareness a small screen can't match. Forces you to actually understand terrain. If GPS gets degraded (solar event, jamming, spoofing), compass and map still work. The skill transfers even when you don't have a map.</p>
+                <p><strong>Where digital wins:</strong> Real-time position verification. Current imagery. Easy route recording. Sharing locations with others.</p>
+                <p><strong>Practical approach:</strong> Use both. Phone/GPS for convenience and verification, map/compass as primary skill and backup. Download offline maps (Gaia GPS, OnX, Avenza) so you're not dependent on cell service.</p>
+            </div>
+
+            <h3>Resources</h3>
+
+            <ul>
+                <li><a href="https://ngmdb.usgs.gov/topoview/">USGS topoView</a> &mdash; Free downloadable topographic maps</li>
+                <li><a href="https://caltopo.com">CalTopo</a> &mdash; Custom map building and printing</li>
+                <li><a href="https://www.ngdc.noaa.gov/geomag/calculators/magcalc.shtml">NOAA Magnetic Declination Calculator</a> &mdash; Current declination for any location</li>
+                <li><a href="https://hamstudy.org">HamStudy.org</a> &mdash; Free amateur radio exam prep</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>Navigate with confidence. Trust your training.</p>
+    </footer>
+</body>
+</html>
