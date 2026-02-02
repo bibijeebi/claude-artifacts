@@ -317,60 +317,16 @@ p + p { margin-top: 1rem; }
 .callout p { font-size: 0.92rem; color: var(--text-dim); }
 .callout strong { color: var(--text); }
 
-/* ===== VENN DIAGRAM ===== */
-.venn-wrapper {
-  display: flex; justify-content: center; align-items: center;
+/* ===== VENN DIAGRAM (SVG) ===== */
+.venn-svg-wrapper {
   margin: 3rem 0;
-  position: relative;
-  height: 380px;
 }
-.venn-circle {
-  position: absolute;
-  width: 260px; height: 260px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  flex-direction: column;
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 500;
-  transition: transform 0.3s ease;
-}
-.venn-circle:hover { transform: scale(1.03); }
-.venn-left {
-  left: calc(50% - 220px);
-  background: radial-gradient(circle, rgba(96,165,250,0.12) 0%, rgba(96,165,250,0.04) 70%);
-  border: 1.5px solid rgba(96,165,250,0.25);
-}
-.venn-right {
-  left: calc(50% - 40px);
-  background: radial-gradient(circle, rgba(52,211,153,0.12) 0%, rgba(52,211,153,0.04) 70%);
-  border: 1.5px solid rgba(52,211,153,0.25);
-}
-.venn-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-.venn-left .venn-label { color: var(--carbs); }
-.venn-right .venn-label { color: var(--nucleic); }
-.venn-items { color: var(--text-dim); line-height: 1.8; font-size: 0.8rem; }
-.venn-left .venn-items { padding-right: 60px; }
-.venn-right .venn-items { padding-left: 60px; }
-.venn-overlap {
-  position: absolute;
-  left: calc(50% - 50px);
-  width: 100px;
-  text-align: center;
-  z-index: 2;
-  font-size: 0.75rem;
-  color: var(--text);
-  font-weight: 600;
-  line-height: 1.7;
-  background: rgba(11,14,20,0.5);
-  padding: 10px 8px;
-  border-radius: 8px;
+.venn-svg {
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 /* ===== ENERGY BARS ===== */
@@ -485,17 +441,7 @@ footer .emoji { font-size: 1.5rem; margin-bottom: 0.75rem; }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 700px) {
-  .venn-wrapper { height: auto; flex-direction: column; gap: 0; padding: 1rem 0; }
-  .venn-circle { position: relative; left: auto !important; width: 100%; height: auto; border-radius: 16px; padding: 1.5rem; }
-  .venn-left .venn-items, .venn-right .venn-items { padding: 0; }
-  .venn-overlap {
-    position: relative; left: auto;
-    width: 100%; padding: 0.75rem;
-    background: var(--bg-elevated);
-    border-radius: 8px;
-    margin: -8px 0;
-    z-index: 2;
-  }
+  .venn-svg { max-width: 100%; }
   .process-flow { flex-direction: column; }
   .process-step:first-child { border-radius: 12px 12px 0 0; }
   .process-step:last-child { border-radius: 0 0 12px 12px; }
@@ -536,24 +482,42 @@ footer .emoji { font-size: 1.5rem; margin-bottom: 0.75rem; }
     <p class="lead">"Macro" just means big. Macromolecules are big molecules. Macronutrients are nutrients your body needs in big amounts. Three of them overlap, which is why everyone mixes them up. But the fourth member of each club is completely different.</p>
   </div>
 
-  <div class="venn-wrapper reveal">
-    <div class="venn-circle venn-left">
-      <div class="venn-label">Macronutrients</div>
-      <div class="venn-items">
-        <div style="color:var(--alcohol)">Alcohol ✦</div>
-        <div style="font-size:0.65rem; color:var(--text-muted); margin-top:4px">(the crasher)</div>
-      </div>
-    </div>
-    <div class="venn-overlap">
-      Proteins<br>Carbs<br>Fats
-    </div>
-    <div class="venn-circle venn-right">
-      <div class="venn-label">Macromolecules</div>
-      <div class="venn-items">
-        <div style="color:var(--nucleic)">Nucleic Acids ✦</div>
-        <div style="font-size:0.65rem; color:var(--text-muted); margin-top:4px">(DNA &amp; RNA)</div>
-      </div>
-    </div>
+  <div class="venn-svg-wrapper reveal">
+    <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" class="venn-svg">
+      <defs>
+        <radialGradient id="leftGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(96,165,250,0.12)"/>
+          <stop offset="100%" stop-color="rgba(96,165,250,0.02)"/>
+        </radialGradient>
+        <radialGradient id="rightGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="rgba(52,211,153,0.12)"/>
+          <stop offset="100%" stop-color="rgba(52,211,153,0.02)"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Left circle -->
+      <circle cx="280" cy="200" r="180" fill="url(#leftGrad)" stroke="rgba(96,165,250,0.25)" stroke-width="1.5"/>
+      <!-- Right circle -->
+      <circle cx="520" cy="200" r="180" fill="url(#rightGrad)" stroke="rgba(52,211,153,0.25)" stroke-width="1.5"/>
+
+      <!-- Left label: MACRONUTRIENTS -->
+      <text x="195" y="150" text-anchor="middle" fill="#7a8599" font-family="'IBM Plex Mono', monospace" font-size="9" letter-spacing="2" text-transform="uppercase">MACRONUTRIENTS</text>
+      <!-- Left unique: Alcohol -->
+      <text x="195" y="200" text-anchor="middle" fill="#f87171" font-family="'DM Sans', sans-serif" font-size="18" font-weight="600">Alcohol ✦</text>
+      <text x="195" y="228" text-anchor="middle" fill="#4a5568" font-family="'DM Sans', sans-serif" font-size="13">(the crasher)</text>
+
+      <!-- Overlap: Proteins, Carbs, Fats -->
+      <rect x="355" y="148" width="90" height="104" rx="8" fill="rgba(11,14,20,0.6)"/>
+      <text x="400" y="178" text-anchor="middle" fill="#e2e8f0" font-family="'DM Sans', sans-serif" font-size="16" font-weight="600">Proteins</text>
+      <text x="400" y="210" text-anchor="middle" fill="#e2e8f0" font-family="'DM Sans', sans-serif" font-size="16" font-weight="600">Carbs</text>
+      <text x="400" y="242" text-anchor="middle" fill="#e2e8f0" font-family="'DM Sans', sans-serif" font-size="16" font-weight="600">Fats</text>
+
+      <!-- Right label: MACROMOLECULES -->
+      <text x="605" y="150" text-anchor="middle" fill="#7a8599" font-family="'IBM Plex Mono', monospace" font-size="9" letter-spacing="2" text-transform="uppercase">MACROMOLECULES</text>
+      <!-- Right unique: Nucleic Acids -->
+      <text x="605" y="200" text-anchor="middle" fill="#34d399" font-family="'DM Sans', sans-serif" font-size="18" font-weight="600">Nucleic Acids ✦</text>
+      <text x="605" y="228" text-anchor="middle" fill="#4a5568" font-family="'DM Sans', sans-serif" font-size="13">(DNA &amp; RNA)</text>
+    </svg>
   </div>
 
   <div class="callout key reveal">
