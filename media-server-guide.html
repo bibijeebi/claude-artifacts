@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self-Hosted Media Server Guide</title>
+<meta property="og:title" content="Self-Hosted Media Server Guide">
+<meta property="og:description" content="Complete guide to building a fully automated, self-hosted streaming platform with Jellyfin, the *arr stack, VPN-protected torrenting, and Cloudflare Tunnel access.">
+<meta property="og:url" content="https://niggerfaggot.club/media-server-guide.html">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --accent: #6366f1;
+    --accent2: #22d3ee;
+    --green: #34d399;
+    --orange: #fb923c;
+    --red: #f87171;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    z-index: 9999;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  header {
+    padding: 80px 0 60px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(99,102,241,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid rgba(34,211,238,0.3);
+    padding: 4px 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text) 0%, var(--text-dim) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    max-width: 640px;
+    line-height: 1.7;
+  }
+
+  .toc {
+    padding: 40px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .toc-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+
+  .toc-grid a {
+    color: var(--accent2);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 6px 0;
+    transition: color 0.2s;
+  }
+
+  .toc-grid a:hover { color: var(--text); }
+  .toc-grid a::before { content: '→ '; color: var(--border); }
+
+  section {
+    padding: 48px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  section:last-of-type { border-bottom: none; }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 32px 0 12px;
+    color: var(--text);
+  }
+
+  p { margin-bottom: 16px; color: var(--text-dim); }
+  p strong { color: var(--text); }
+
+  .pipeline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 32px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+
+  .pipeline-steps {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pipeline-step {
+    text-align: center;
+    padding: 16px 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-width: 120px;
+  }
+
+  .pipeline-step .icon { font-size: 1.5rem; margin-bottom: 6px; }
+  .pipeline-step .label { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+  .pipeline-step .sublabel { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
+
+  .pipeline-arrow {
+    color: var(--accent);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .service-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 16px 0;
+    transition: border-color 0.2s;
+  }
+
+  .service-card:hover { border-color: var(--accent); }
+
+  .service-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .service-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .service-name { font-size: 1.1rem; font-weight: 600; }
+
+  .service-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .meta-tag {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  .meta-tag.port { color: var(--accent2); border-color: rgba(34,211,238,0.2); }
+  .meta-tag.url { color: var(--green); border-color: rgba(52,211,153,0.2); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.88rem;
+  }
+
+  th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    color: var(--text-dim);
+  }
+
+  tr:hover td { background: rgba(99,102,241,0.03); }
+
+  td code, p code {
+    font-family: var(--mono);
+    font-size: 0.82em;
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    color: var(--accent2);
+  }
+
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 16px 0;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-dim);
+  }
+
+  .network-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin: 20px 0;
+  }
+
+  .network-diagram h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .network-diagram pre {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: var(--text-dim);
+  }
+
+  .cred-note {
+    background: rgba(99,102,241,0.06);
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+  }
+
+  .cred-note strong { color: var(--accent); }
+
+  footer {
+    padding: 48px 0;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+
+  footer a { color: var(--accent2); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    .container { padding: 0 16px; }
+    header { padding: 48px 0 36px; }
+    section { padding: 32px 0; }
+    .pipeline { padding: 20px; }
+    .pipeline-steps { flex-direction: column; }
+    .pipeline-arrow { transform: rotate(90deg); }
+    .service-card { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="container">
+  <header>
+    <div class="badge">Infrastructure Guide</div>
+    <h1>Self-Hosted Media Server</h1>
+    <p class="subtitle">A fully automated streaming platform on a single Windows desktop. Request content through a web UI, download via VPN-protected torrents, auto-organize, auto-subtitle, watch from anywhere.</p>
+  </header>
+
+  <nav class="toc">
+    <div class="toc-label">Contents</div>
+    <div class="toc-grid">
+      <a href="#pipeline">How It Works</a>
+      <a href="#services">The Services</a>
+      <a href="#networking">Networking</a>
+      <a href="#security">Security</a>
+      <a href="#service-map">Service Map</a>
+      <a href="#files">File Locations</a>
+      <a href="#credentials">Credentials</a>
+      <a href="#ux">User Experience</a>
+    </div>
+  </nav>
+
+  <section id="pipeline">
+    <h2>How It Works</h2>
+    <div class="pipeline">
+      <div class="pipeline-steps">
+        <div class="pipeline-step">
+          <div class="icon">🎬</div>
+          <div class="label">Request</div>
+          <div class="sublabel">Jellyseerr</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="icon">🔍</div>
+          <div class="label">Search</div>
+          <div class="sublabel">Prowlarr</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="icon">⬇️</div>
+          <div class="label">Download</div>
+          <div class="sublabel">qBittorrent + VPN</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="icon">📁</div>
+          <div class="label">Organize</div>
+          <div class="sublabel">Radarr / Sonarr</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="icon">💬</div>
+          <div class="label">Subtitle</div>
+          <div class="sublabel">Bazarr</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="icon">📺</div>
+          <div class="label">Watch</div>
+          <div class="sublabel">Jellyfin</div>
+        </div>
+      </div>
+    </div>
+    <p>Someone opens the request portal on their phone, logs in with Google, searches for a show, and hits "Request." That request goes to <strong>Jellyseerr</strong>, which tells <strong>Radarr</strong> (movies) or <strong>Sonarr</strong> (TV) to find it. They ask <strong>Prowlarr</strong> to search torrent indexers. When a match is found, <strong>qBittorrent</strong> downloads it through the VPN so your ISP can't see what's being downloaded. Once complete, Radarr/Sonarr rename and move the file to the proper folder, then notify <strong>Jellyfin</strong> to scan. <strong>Bazarr</strong> monitors the library and automatically downloads English subtitles. The content is then streamable from any device, anywhere.</p>
+  </section>
+
+  <section id="services">
+    <h2>The Services</h2>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon" style="background:rgba(99,102,241,0.15);color:var(--accent);">J</div>
+        <div class="service-name">Jellyfin</div>
+      </div>
+      <p>Netflix-like interface for watching content. Handles transcoding, user accounts, playback tracking, and streaming to any device.</p>
+      <div class="service-meta">
+        <span class="meta-tag port">:8096</span>
+        <span class="meta-tag url">watch.*</span>
+        <span class="meta-tag">Caddy + Port Forward</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon" style="background:rgba(168,85,247,0.15);color:#a855f7;">S</div>
+        <div class="service-name">Jellyseerr</div>
+      </div>
+      <p>Clean UI where users browse trending content and request movies/shows. Automatically sends requests to Radarr/Sonarr. Built from source with Node.js + pnpm.</p>
+      <div class="service-meta">
+        <span class="meta-tag port">:5055</span>
+        <span class="meta-tag url">tv.*</span>
+        <span class="meta-tag">Cloudflare Tunnel</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon" style="background:rgba(251,146,60,0.15);color:var(--orange);">R</div>
+        <div class="service-name">Radarr</div>
+      </div>
+      <p>Movie library manager. Receives requests from Jellyseerr, searches for downloads via Prowlarr, sends torrents to qBittorrent, renames/organizes files, and notifies Jellyfin when done.</p>
+      <div class="service-meta">
+        <span class="meta-tag port">:7878</span>
+        <span class="meta-tag url">radarr.*</span>
+        <span class="meta-tag">HD-1080p</span>
+        <span class="meta-tag">D:\Media\Movies</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon" style="background:rgba(34,211,238,0.15);color:var(--accent2);">S</div>
+        <div class="service-name">Sonarr</div>
+      </div>
+      <p>Same as Radarr but for TV series. Handles seasons, episodes, and monitoring for new episodes of ongoing shows.</p>
+      <div class="service-meta">
+        <span class="meta-tag port">:8989</span>
+        <span class="meta-tag url">sonarr.*</span>
+        <span class="meta-tag">HD-1080p</span>
+        <span class="meta-tag">D:\Media\TV</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon" style="background:rgba(52,211,153,0.15);color:var(--green);">P</div>
+        <div class="service-name">Prowlarr</div>
+      </div>
+      <p>Centralized indexer management. Configure torrent search sources once here, Prowlarr syncs them to both Radarr and Sonarr automatically.</p>
+      <div class="service-meta">
+        <span class="meta-tag port">:9696</span>
+        <span class="meta-tag url">prowlarr.*</span>
+        <span class="meta-tag">TPB</span>
+        <span class="meta-tag">YTS</span>
+        <span class="meta-tag">LimeTorrents</span>
+        <span class="meta-tag">EZTV</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon" style="background:rgba(248,113,113,0.15);color:var(--red);">q</div>
+        <div class="service-name">qBittorrent</div>
+      </div>
+      <p>Torrent client. Bound to the VPN's WireGuard network interface so it can only download through the VPN. If VPN drops, torrents stop. Your real IP is never exposed.</p>
+      <div class="service-meta">
+        <span class="meta-tag port">:8080</span>
+        <span class="meta-tag url">dl.*</span>
+        <span class="meta-tag">VPN-bound</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon" style="background:rgba(234,179,8,0.15);color:#eab308;">B</div>
+        <div class="service-name">Bazarr</div>
+      </div>
+      <p>Monitors your library via Radarr/Sonarr and automatically downloads matching English subtitles from OpenSubtitles and Podnapisi. Drops .srt files next to video files.</p>
+      <div class="service-meta">
+        <span class="meta-tag port">:6767</span>
+        <span class="meta-tag url">subs.*</span>
+        <span class="meta-tag">OpenSubtitles</span>
+        <span class="meta-tag">Podnapisi</span>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon" style="background:rgba(99,102,241,0.15);color:var(--accent);">V</div>
+        <div class="service-name">VPN (Surfshark / any WireGuard VPN)</div>
+      </div>
+      <p>Encrypts torrent traffic. Split tunneling configured so only qBittorrent routes through VPN. Everything else uses regular internet for full-speed access.</p>
+      <div class="service-meta">
+        <span class="meta-tag">WireGuard</span>
+        <span class="meta-tag">Split Tunnel</span>
+        <span class="meta-tag">qBittorrent only</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="networking">
+    <h2>Networking Architecture</h2>
+
+    <h3>Method 1: Cloudflare Tunnel (Admin Tools + Request Portal)</h3>
+    <div class="network-diagram">
+      <h4>No port forwarding needed</h4>
+      <pre>Browser → Cloudflare Edge → Google OAuth → Cloudflare Tunnel → localhost:PORT</pre>
+    </div>
+    <p>All admin services and Jellyseerr go through a <strong>Cloudflare Tunnel</strong>, a persistent outbound connection from your desktop to Cloudflare. <strong>Cloudflare Access</strong> sits in front and requires Google login. Only whitelisted email addresses are allowed. Sessions last 30 days.</p>
+    <p>This method <strong>cannot</strong> be used for Jellyfin because Cloudflare's TOS prohibits streaming video through their free tunnel service.</p>
+
+    <h3>Method 2: Caddy Reverse Proxy + Port Forwarding (Jellyfin)</h3>
+    <div class="network-diagram">
+      <h4>Direct HTTPS with Let's Encrypt</h4>
+      <pre>Browser → Public IP:443 → Router → LAN_IP:443 → Caddy → localhost:8096</pre>
+    </div>
+    <p>Jellyfin is accessed via direct port forwarding. Port 443 on your router forwards to Caddy, which handles HTTPS with a real Let's Encrypt certificate and proxies to Jellyfin. No Cloudflare in the middle, so video streaming is unrestricted.</p>
+
+    <h3>Method 3: Tailscale (P2P Alternative)</h3>
+    <div class="network-diagram">
+      <h4>Zero-config peer-to-peer WireGuard</h4>
+      <pre>Device (Tailscale) → P2P WireGuard tunnel → TAILSCALE_IP:8096</pre>
+    </div>
+    <p>Tailscale creates a peer-to-peer VPN mesh. Access Jellyfin directly at its Tailscale IP with zero bandwidth limits and no port forwarding.</p>
+
+    <h3>DNS</h3>
+    <p>Domain is managed in Cloudflare. The <code>watch.*</code> subdomain points to your public IP as a DNS-only A record. All other subdomains are CNAMEs pointing to the tunnel.</p>
+
+    <h3>DDNS</h3>
+    <p>A PowerShell script runs every 5 minutes via Windows Task Scheduler. It checks your current public IP against the Cloudflare DNS A record and updates it via the Cloudflare API if it changed. Only affects the Jellyfin route since tunnel subdomains don't depend on your IP.</p>
+
+    <h3>Local Network Gotchas</h3>
+    <p><strong>DHCP Reservation:</strong> The desktop's MAC address is bound to a fixed LAN IP in the router so port forwarding doesn't break.</p>
+    <p><strong>Hairpin NAT:</strong> Most consumer routers don't support accessing your own public IP from inside the network. Use <code>localhost:8096</code> directly or add a hosts file override.</p>
+  </section>
+
+  <section id="security">
+    <h2>Security</h2>
+    <p><strong>Cloudflare Access:</strong> A wildcard app on <code>*.yourdomain.com</code> with Google OAuth. Only whitelisted Gmail accounts are authorized.</p>
+    <p><strong>VPN Binding:</strong> qBittorrent is bound to the VPN's WireGuard interface. If the VPN drops, torrents stop. Your real IP is never exposed to torrent peers.</p>
+    <p><strong>HTTPS Everywhere:</strong> Caddy provides Let's Encrypt certs for Jellyfin. Cloudflare provides TLS termination for all tunnel subdomains.</p>
+    <p><strong>Windows Sleep Disabled:</strong> Desktop stays awake so services remain available 24/7.</p>
+  </section>
+
+  <section id="service-map">
+    <h2>Service Map</h2>
+    <table>
+      <thead>
+        <tr><th>Service</th><th>Port</th><th>Subdomain</th><th>Access</th><th>Auth</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Jellyfin</strong></td><td><code>8096</code></td><td>watch.*</td><td>Caddy + port fwd</td><td>Jellyfin login</td></tr>
+        <tr><td><strong>Jellyseerr</strong></td><td><code>5055</code></td><td>tv.*</td><td>Cloudflare Tunnel</td><td>Google OAuth</td></tr>
+        <tr><td><strong>Radarr</strong></td><td><code>7878</code></td><td>radarr.*</td><td>Cloudflare Tunnel</td><td>Google OAuth</td></tr>
+        <tr><td><strong>Sonarr</strong></td><td><code>8989</code></td><td>sonarr.*</td><td>Cloudflare Tunnel</td><td>Google OAuth</td></tr>
+        <tr><td><strong>Prowlarr</strong></td><td><code>9696</code></td><td>prowlarr.*</td><td>Cloudflare Tunnel</td><td>Google OAuth</td></tr>
+        <tr><td><strong>qBittorrent</strong></td><td><code>8080</code></td><td>dl.*</td><td>Cloudflare Tunnel</td><td>Google OAuth</td></tr>
+        <tr><td><strong>Bazarr</strong></td><td><code>6767</code></td><td>subs.*</td><td>Cloudflare Tunnel</td><td>Google OAuth</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="files">
+    <h2>File Locations</h2>
+    <table>
+      <thead><tr><th>What</th><th>Path</th></tr></thead>
+      <tbody>
+        <tr><td>Movies</td><td><code>D:\Media\Movies</code></td></tr>
+        <tr><td>TV Shows</td><td><code>D:\Media\TV</code></td></tr>
+        <tr><td>Caddy config</td><td><code>C:\caddy\Caddyfile</code></td></tr>
+        <tr><td>DDNS script</td><td><code>C:\caddy\ddns-update.ps1</code></td></tr>
+        <tr><td>Jellyseerr</td><td><code>C:\Jellyseerr</code></td></tr>
+        <tr><td>Bazarr settings</td><td><code>C:\ProgramData\Bazarr</code></td></tr>
+      </tbody>
+    </table>
+    <h3>Windows Services (via NSSM)</h3>
+    <p>All services run as Windows services and start automatically on boot: Caddy, Jellyseerr, Jellyfin, Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, cloudflared, and Tailscale.</p>
+  </section>
+
+  <section id="credentials">
+    <h2>Credentials Reference</h2>
+    <div class="cred-note"><strong>Note:</strong> No actual credentials are listed here. This shows what credentials are needed and where to find them.</div>
+    <table>
+      <thead><tr><th>Service</th><th>What You Need</th></tr></thead>
+      <tbody>
+        <tr><td>Jellyfin</td><td>Admin username + password (set during initial setup wizard)</td></tr>
+        <tr><td>qBittorrent</td><td>Web UI credentials (set in Options → Web UI)</td></tr>
+        <tr><td>Prowlarr</td><td>Admin credentials (set during setup)</td></tr>
+        <tr><td>Radarr API</td><td>Auto-generated at Settings → General → API Key</td></tr>
+        <tr><td>Sonarr API</td><td>Auto-generated at Settings → General → API Key</td></tr>
+        <tr><td>Jellyfin API</td><td>Create at Dashboard → API Keys (one each for Radarr, Sonarr, Jellyseerr)</td></tr>
+        <tr><td>Cloudflare API Token</td><td>Create at dash.cloudflare.com → API Tokens (needs Zone:DNS:Edit + Account:Tunnel:Edit)</td></tr>
+        <tr><td>Cloudflare Zone ID</td><td>Found on domain overview page in Cloudflare dashboard</td></tr>
+        <tr><td>Cloudflare Tunnel ID</td><td>Generated when creating tunnel via <code>cloudflared tunnel create</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ux">
+    <h2>User Experience</h2>
+    <div class="pipeline" style="text-align:center;">
+      <p style="font-size:1.1rem;color:var(--text);margin-bottom:8px;"><strong>The end user workflow:</strong></p>
+      <p style="color:var(--text-dim);margin:0;">
+        Open <code>tv.yourdomain.com</code> → Log in with Google (once/30 days) → Search & Request → Wait for download → Open <code>watch.yourdomain.com</code> → Watch with subtitles
+      </p>
+    </div>
+    <p><strong>No maintenance required.</strong> Everything is automated, runs on boot, and self-updates DNS. New episodes of monitored shows download automatically when available.</p>
+  </section>
+
+  <footer>
+    <p>Built with the *arr stack, Cloudflare, and too much caffeine.</p>
+  </footer>
+</div>
+</body>
+</html>
