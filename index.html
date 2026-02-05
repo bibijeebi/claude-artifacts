@@ -147,6 +147,15 @@
             border-color: rgba(16, 185, 129, 0.6);
             box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
         }
+        .card.service-card {
+            border-color: rgba(251, 146, 60, 0.3);
+            background: linear-gradient(135deg, rgba(251, 146, 60, 0.05), transparent);
+        }
+        .card.service-card:hover {
+            border-color: rgba(251, 146, 60, 0.6);
+            box-shadow: 0 10px 30px rgba(251, 146, 60, 0.2);
+        }
+        .card.service-card .card-file { color: #fb923c; }
         
         .card-title {
             font-size: 1.1rem;
@@ -181,6 +190,7 @@
         .badge.site { background: rgba(102, 126, 234, 0.15); color: #667eea; }
         .badge.pdf { background: rgba(234, 102, 102, 0.15); color: #ea6666; }
         .badge.app { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .badge.service { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
         .badge.size { background: rgba(255,255,255,0.1); color: #888; }
         
         .refresh-btn {
@@ -265,7 +275,7 @@
 <body>
     <header>
         <h1>muh shit</h1>
-        <div class="stats">Apps: <span id="app-count" class="loading">-</span> · Sites: <span id="site-count" class="loading">-</span> · PDFs: <span id="pdf-count" class="loading">-</span></div>
+        <div class="stats">Apps: <span id="app-count" class="loading">-</span> · Services: <span id="service-count" class="loading">-</span> · Sites: <span id="site-count" class="loading">-</span> · PDFs: <span id="pdf-count" class="loading">-</span></div>
         <div class="last-refresh">Last refreshed: <span id="refresh-time">-</span></div>
     </header>
     
@@ -274,6 +284,7 @@
         <div class="tabs">
             <button class="tab active" data-filter="all">All<span class="count" id="count-all"></span></button>
             <button class="tab" data-filter="app">Apps<span class="count" id="count-app"></span></button>
+            <button class="tab" data-filter="service">Services<span class="count" id="count-service"></span></button>
             <button class="tab" data-filter="site">Sites<span class="count" id="count-site"></span></button>
             <button class="tab" data-filter="pdf">PDFs<span class="count" id="count-pdf"></span></button>
         </div>
@@ -408,49 +419,49 @@
                 file: 'tv.niggerfaggot.club',
                 url: 'https://tv.niggerfaggot.club',
                 description: 'Media request portal - search and request movies/shows. Auto-downloads via Radarr/Sonarr.',
-                type: 'app'
+                type: 'service'
             },
             {
                 title: 'Jellyfin',
                 file: 'watch.niggerfaggot.club',
                 url: 'https://watch.niggerfaggot.club',
                 description: 'Media server - stream movies and TV shows from the home library.',
-                type: 'app'
+                type: 'service'
             },
             {
                 title: 'Radarr',
                 file: 'radarr.niggerfaggot.club',
                 url: 'https://radarr.niggerfaggot.club',
                 description: 'Movie automation - monitors, grabs, and organizes movie downloads.',
-                type: 'app'
+                type: 'service'
             },
             {
                 title: 'Sonarr',
                 file: 'sonarr.niggerfaggot.club',
                 url: 'https://sonarr.niggerfaggot.club',
                 description: 'TV automation - monitors, grabs, and organizes TV show downloads.',
-                type: 'app'
+                type: 'service'
             },
             {
                 title: 'Prowlarr',
                 file: 'prowlarr.niggerfaggot.club',
                 url: 'https://prowlarr.niggerfaggot.club',
                 description: 'Indexer manager - feeds torrent search results to Radarr and Sonarr.',
-                type: 'app'
+                type: 'service'
             },
             {
                 title: 'Bazarr',
                 file: 'subs.niggerfaggot.club',
                 url: 'https://subs.niggerfaggot.club',
                 description: 'Subtitle automation - auto-downloads subtitles for movies and TV shows.',
-                type: 'app'
+                type: 'service'
             },
             {
                 title: 'Downloads',
                 file: 'dl.niggerfaggot.club',
                 url: 'https://dl.niggerfaggot.club',
                 description: 'qBittorrent web UI - torrent client management.',
-                type: 'app'
+                type: 'service'
             },
             {
                 title: 'Downloads',
@@ -490,19 +501,23 @@
         }
         
         function updateCounts() {
-            const appCount = artifacts.apps.length;
+            const appCount = artifacts.apps.filter(a => a.type === 'app').length;
+            const serviceCount = artifacts.apps.filter(a => a.type === 'service').length;
             const siteCount = artifacts.sites.length;
             const pdfCount = artifacts.pdfs.length;
-            const total = appCount + siteCount + pdfCount;
+            const total = artifacts.apps.length + siteCount + pdfCount;
             
             document.getElementById('app-count').textContent = appCount;
             document.getElementById('app-count').classList.remove('loading');
+            document.getElementById('service-count').textContent = serviceCount;
+            document.getElementById('service-count').classList.remove('loading');
             document.getElementById('site-count').textContent = siteCount;
             document.getElementById('site-count').classList.remove('loading');
             document.getElementById('pdf-count').textContent = pdfCount;
             document.getElementById('pdf-count').classList.remove('loading');
             document.getElementById('count-all').textContent = total;
             document.getElementById('count-app').textContent = appCount;
+            document.getElementById('count-service').textContent = serviceCount;
             document.getElementById('count-site').textContent = siteCount;
             document.getElementById('count-pdf').textContent = pdfCount;
             document.getElementById('refresh-time').textContent = new Date().toLocaleTimeString();
@@ -513,8 +528,8 @@
             const activeFilter = document.querySelector('.tab.active').dataset.filter;
             
             let all = [...artifacts.apps, ...artifacts.sites, ...artifacts.pdfs].sort((a, b) => {
-                if (a.type === 'app' && b.type !== 'app') return -1;
-                if (b.type === 'app' && a.type !== 'app') return 1;
+                const order = { app: 0, service: 1, site: 2, pdf: 3 };
+                if (order[a.type] !== order[b.type]) return order[a.type] - order[b.type];
                 return a.title.localeCompare(b.title);
             });
             
@@ -542,7 +557,7 @@
             }
             
             grid.innerHTML = all.map(artifact => `
-                <a href="${artifact.url}" target="_blank" class="card ${artifact.type === 'app' ? 'app-card' : ''}">
+                <a href="${artifact.url}" target="_blank" class="card ${artifact.type === 'app' ? 'app-card' : artifact.type === 'service' ? 'service-card' : ''}">
                     <div class="card-title">${artifact.title}</div>
                     <div class="card-file">${artifact.file}</div>
                     ${artifact.description ? `<div class="card-desc">${artifact.description}</div>` : ''}
@@ -650,6 +665,8 @@
             // Reset UI for loading
             document.getElementById('app-count').textContent = '-';
             document.getElementById('app-count').classList.add('loading');
+            document.getElementById('service-count').textContent = '-';
+            document.getElementById('service-count').classList.add('loading');
             document.getElementById('site-count').textContent = '-';
             document.getElementById('site-count').classList.add('loading');
             document.getElementById('pdf-count').textContent = '-';
