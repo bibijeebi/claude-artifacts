@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Operation Walkabout</title>
 <meta property="og:title" content="Operation Walkabout">
-<meta property="og:description" content="GPS-guided interactive walking tour from Piney Grove Mini Mart to Collins Crossing, Holly Springs NC">
+<meta property="og:description" content="GPS-guided interactive walking tour — Piney Grove to Collins Crossing, Holly Springs NC">
 <meta property="og:url" content="https://niggerfaggot.club/walkabout.html">
 <meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#0a0a14;--card:#111122;--card-active:#1a2a3a;--accent:#00d4ff;--accent2:#0066ff;--green:#4caf50;--red:#f44336;--gold:#ffd700;--text:#e0e0e0;--dim:#667;--border:#1a1a2e;--border-active:#1e3a5f}
@@ -27,26 +29,23 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,
 .tab{flex:1;padding:10px 0;text-align:center;cursor:pointer;background:var(--bg);color:var(--dim);border-bottom:2px solid transparent;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;transition:all .2s}
 .tab.active{background:#1a1a2e;color:var(--accent);border-bottom-color:var(--accent)}
 .content{padding:12px 16px 100px}
-.waypoint{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.waypoint{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all .3s}
 .waypoint.nearby{border-color:var(--accent);animation:pulse 2s infinite}
 .waypoint.visited{border-color:var(--green);opacity:.85}
 .waypoint.expanded{background:var(--card-active);border-color:var(--border-active)}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,0)}50%{box-shadow:0 0 12px 2px rgba(0,212,255,.3)}}
 .wp-header{display:flex;justify-content:space-between;align-items:center}
 .wp-left{display:flex;align-items:center;gap:10px}
-.wp-icon{font-size:22px}
-.wp-title{font-weight:700;font-size:14px;color:#fff}
+.wp-icon{font-size:22px}.wp-title{font-weight:700;font-size:14px;color:#fff}
 .wp-dist{font-size:10px;color:var(--accent)}
 .wp-badge{font-size:8px;padding:2px 6px;border-radius:4px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
 .wp-badge.nearby{background:rgba(0,212,255,.15);color:var(--accent)}
 .wp-badge.visited{background:rgba(76,175,80,.15);color:var(--green)}
-.wp-body{margin-top:10px}
-.wp-body p{font-size:13px;line-height:1.6;color:#ccc}
+.wp-body{margin-top:10px}.wp-body p{font-size:13px;line-height:1.6;color:#ccc}
 .bonus{margin-top:10px;padding:8px 12px;background:rgba(0,212,255,.08);border-radius:6px;border-left:3px solid var(--accent)}
 .bonus span:first-child{font-size:10px;color:var(--accent);font-weight:700}
 .bonus span:last-child{font-size:12px;color:#aaa}
-.arrow{color:#445;font-size:18px;transition:transform .3s}
-.arrow.open{transform:rotate(180deg)}
+.arrow{color:#445;font-size:18px;transition:transform .3s}.arrow.open{transform:rotate(180deg)}
 .trivia-card{background:linear-gradient(135deg,var(--card-active),#0d1b2a);border:1px solid var(--border-active);border-radius:12px;padding:20px}
 .trivia-q{font-size:16px;font-weight:700;color:#fff;margin-bottom:20px;line-height:1.4}
 .trivia-opt{padding:12px 16px;border-radius:8px;background:var(--card);border:1px solid var(--border);cursor:pointer;font-size:14px;font-weight:600;color:#ccc;transition:all .2s;margin-bottom:8px}
@@ -61,34 +60,38 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,
 .gps-status.searching{background:rgba(255,215,0,.1);color:var(--gold)}
 .gps-status.locked{background:rgba(76,175,80,.1);color:var(--green)}
 .gps-status.error{background:rgba(244,67,54,.1);color:var(--red)}
+.gps-status.waiting{background:rgba(0,212,255,.1);color:var(--accent)}
 .gps-dot{width:8px;height:8px;border-radius:50%;animation:blink 1.5s infinite}
-.gps-dot.searching{background:var(--gold)}
-.gps-dot.locked{background:var(--green)}
-.gps-dot.error{background:var(--red)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .challenge-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .challenge-cell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--card);border:1px solid var(--border);font-size:14px;cursor:pointer;color:#445}
 .challenge-cell.done{background:rgba(76,175,80,.2);border-color:var(--green);color:var(--green)}
 .challenge-cell.active{border-color:var(--accent)}
-.discovery{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn .3s}
-.discovery-card{background:linear-gradient(135deg,#1a2a3a,#0d1b2a);border:2px solid var(--accent);border-radius:16px;padding:24px;max-width:340px;text-align:center;animation:scaleIn .4s}
+.discovery{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .3s}
+.discovery-card{background:linear-gradient(135deg,#1a2a3a,#0d1b2a);border:2px solid var(--accent);border-radius:16px;padding:24px;max-width:340px;margin:16px;text-align:center;animation:scaleIn .4s}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes scaleIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
 .compass{width:60px;height:60px;border-radius:50%;border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px}
 .discovery-title{font-size:10px;color:var(--accent);letter-spacing:2px;font-weight:700;margin-bottom:8px}
+#mapEl{height:240px;border-radius:10px;border:1px solid var(--border-active);margin-bottom:12px;z-index:1}
+.start-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,20,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;padding:24px;text-align:center}
+.start-btn{padding:16px 48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:18px;font-weight:800;border:none;cursor:pointer;letter-spacing:1px;animation:pulse-btn 2s infinite}
+@keyframes pulse-btn{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,.4)}50%{box-shadow:0 0 20px 6px rgba(0,212,255,.2)}}
+.leaflet-container{background:#0a0a14!important}
 </style>
 </head>
 <body>
+<div class="start-overlay" id="startOverlay">
+<div style="font-size:64px;margin-bottom:20px">🗺️</div>
+<h1 style="font-size:24px;font-weight:800;color:#fff;margin-bottom:8px">Operation Walkabout</h1>
+<p style="font-size:14px;color:#aaa;margin-bottom:24px;line-height:1.5;max-width:320px">GPS-guided walking tour from Piney Grove Mini Mart to Collins Crossing, Holly Springs NC.</p>
+<button class="start-btn" onclick="startTracking()">START TRACKING</button>
+<p style="font-size:11px;color:#445;margin-top:16px">Requires location permission</p>
+</div>
 <div class="header">
 <div class="header-row">
-<div>
-<div class="label mono">OPERATION WALKABOUT</div>
-<div class="title">Piney Grove → Collins Crossing</div>
-</div>
-<div style="text-align:right">
-<div style="font-size:11px;color:var(--dim)">WALKING</div>
-<div class="timer mono" id="timer">0:00</div>
-</div>
+<div><div class="label mono">OPERATION WALKABOUT</div><div class="title">Piney Grove → Collins Crossing</div></div>
+<div style="text-align:right"><div style="font-size:11px;color:var(--dim)">WALKING</div><div class="timer mono" id="timer">0:00</div></div>
 </div>
 <div class="strip">
 <div><span style="font-size:18px">🥶</span><span style="font-size:14px;font-weight:700;color:#fff;margin-left:6px">33°F</span><span style="font-size:11px;color:var(--dim);margin-left:4px">Cloudy</span></div>
@@ -98,307 +101,157 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,
 <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
 <div class="milestones mono"><span>MINI MART</span><span>SPENCE FARM</span><span>SHEETZ</span><span>COLLINS XNG</span></div>
 </div>
-
 <div class="tabs">
-<div class="tab active" data-tab="intel" onclick="switchTab('intel')">📖 Intel</div>
+<div class="tab active" data-tab="map" onclick="switchTab('map')">🗺️ Map</div>
+<div class="tab" data-tab="intel" onclick="switchTab('intel')">📖 Intel</div>
 <div class="tab" data-tab="trivia" onclick="switchTab('trivia')">🧠 Trivia</div>
 <div class="tab" data-tab="challenge" onclick="switchTab('challenge')">👁️ I Spy</div>
 </div>
-
 <div class="content" id="content"></div>
 <div class="discovery" id="discovery" style="display:none" onclick="closeDisco()"></div>
-
 <script>
-const START = { lat: 35.5974, lng: -78.8369 };
-const END = { lat: 35.6337, lng: -78.8304 };
-const TOTAL_DIST = haversine(START.lat, START.lng, END.lat, END.lng);
-
-const WAYPOINTS = [
-  { id:"start", lat:35.5974, lng:-78.8369, radius:50, icon:"🏁", title:"Piney Grove Mini Mart",
-    content:"You started here. The U-Haul is dropped off, you've got a Celsius and Cheez-Its, and zero restrooms. Let's move.",
-    bonus:"This place has 2.6 stars and won't let toddlers use the bathroom. Classic." },
-  { id:"nuke", lat:35.6050, lng:-78.8385, radius:80, icon:"☢️", title:"Shearon Harris Cooling Tower",
-    content:"That 523-foot tower to your west is the Shearon Harris Nuclear Plant. It powers 600,000+ homes with 964 megawatts of carbon-free electricity. Built in 1987, it uses Harris Lake (4,100 acres) for cooling. In 2010 they installed a refurbished generator from Three Mile Island's damaged reactor.",
-    bonus:"Originally planned as 4 reactors. Only 1 was built. Cost $3.9 billion after TMI safety upgrades." },
-  { id:"tuscarora", lat:35.6100, lng:-78.8400, radius:80, icon:"🏹", title:"Tuscarora Hunting Grounds",
-    content:"Before Europeans, the Tuscarora hunted this entire area. They fled NC around 1720 to escape colonists and became the sixth nation of the Iroquois Confederacy. You're jogging through ancient hunting land right now.",
-    bonus:"The Piney Woods community between Wilbon and Holly Springs has been settled since colonial times. A woman named Cora Lassiter, born here in 1918, remembered riding to town with her uncle to deposit coins at the Holly Springs bank." },
-  { id:"scottish", lat:35.6150, lng:-78.8405, radius:80, icon:"🏴\u200d☠️", title:"A Scottish Tailor's Legacy",
-    content:"Archibald Leslie, a Scottish tailor, arrived around 1817, opened a shop, and built a 38-room mansion called Leslie Hall near the springs. Slaves carved the pine mantelpieces. It became one of the biggest mansions in Wake County — with its own ballroom. Union troops later camped in it during the Civil War.",
-    bonus:"Clan Stewart energy: a Scottish tailor built this whole town up. The Leslie-Alford-Mims House is still standing." },
-  { id:"springs", lat:35.6210, lng:-78.8410, radius:80, icon:"💧", title:"The Original Holly Springs",
-    content:"The town's name: free-flowing springs merging into a stream, surrounded by 40-foot holly trees. In 1779, surveyor John Humphries accidentally wrote 'Holley Spring Branch' instead of 'Holland's Spring Branch' — and the name stuck forever. A cartographic typo became a town.",
-    bonus:"In 1896, the two main holly trees were 40 feet tall and 30 feet apart, with the closest just 25 feet from the spring." },
-  { id:"deserted", lat:35.6260, lng:-78.8380, radius:80, icon:"⚔️", title:"The Deserted Village",
-    content:"Holly Springs was booming pre-Civil War: academy, Masonic lodge, mansion. The war wrecked everything. When Apex got a railroad and Holly Springs didn't, everyone bailed. Historian M.N. Amis called it 'a deserted village' in 1871. George Benton Alford revived the whole town starting in 1875.",
-    bonus:"In 1865, about 50 freed men pooled resources and bought land for an African-American Baptist Church between Buckhorn and Fuquay Roads." },
-  { id:"electric", lat:35.6310, lng:-78.8350, radius:80, icon:"⚡", title:"Thursday Afternoon Electricity",
-    content:"Holly Springs got electricity in 1922, but only in the evenings and Thursday afternoons — so women could do their ironing. That's it. Thursday afternoon ironing power. Now there's a nuclear plant next door pushing 964 megawatts 24/7.",
-    bonus:"A 2011 tornado touched down near the town center, uprooting trees and destroying homes. Holly Springs rebuilt." },
-  { id:"walgreens", lat:35.6340, lng:-78.8340, radius:100, icon:"💊", title:"Walgreens — Moleskin Stop",
-    content:"301 N Main St. Grab your moleskin for those work boots. Open 7am-10pm. It's got 2.4 stars because the pharmacy is chaos, but the front store is fine for what you need.",
-    bonus:"Music & Arts in Cary (426 Crossroads Blvd) for the Al Cass oil and slide juice — that's a Bekah errand." },
-  { id:"end", lat:35.6337, lng:-78.8304, radius:100, icon:"🏆", title:"Collins Crossing — You Made It",
-    content:"Bojangles, Chick-fil-A, Mellow Mushroom, Greek Basma, Sheetz — all with restrooms. Tell Bekah to grab you here. You earned it.",
-    bonus:"Total route: ~2.5 miles. On a 33°F cloudy Monday morning. In work boots. Absolute unit." }
+const START={lat:35.5974,lng:-78.8369},END={lat:35.6337,lng:-78.8304};
+const TOTAL_DIST=haversine(START.lat,START.lng,END.lat,END.lng);
+const ROUTE_PATH=[[35.5974,-78.8369],[35.6000,-78.8375],[35.6030,-78.8382],[35.6060,-78.8390],[35.6088,-78.8400],[35.6110,-78.8405],[35.6140,-78.8408],[35.6170,-78.8410],[35.6200,-78.8412],[35.6230,-78.8410],[35.6260,-78.8395],[35.6290,-78.8375],[35.6310,-78.8355],[35.6330,-78.8335],[35.6337,-78.8304]];
+const WAYPOINTS=[
+{id:"start",lat:35.5974,lng:-78.8369,radius:50,icon:"🏁",title:"Piney Grove Mini Mart",content:"You started here. The U-Haul is dropped off, you've got a Celsius and Cheez-Its, and zero restrooms.",bonus:"2.6 stars. Won't let toddlers use the bathroom."},
+{id:"nuke",lat:35.6050,lng:-78.8385,radius:80,icon:"☢️",title:"Shearon Harris Cooling Tower",content:"That 523-foot tower to your west is the Shearon Harris Nuclear Plant. Powers 600,000+ homes with 964 MW of carbon-free electricity. Built 1987, uses Harris Lake (4,100 acres) for cooling. In 2010 they installed a refurbished generator from Three Mile Island.",bonus:"Originally planned as 4 reactors. Only 1 built. Cost $3.9B after TMI safety upgrades."},
+{id:"tuscarora",lat:35.6100,lng:-78.8400,radius:80,icon:"🏹",title:"Tuscarora Hunting Grounds",content:"Before Europeans, the Tuscarora hunted this entire area. They fled NC around 1720, headed north, became the sixth nation of the Iroquois Confederacy.",bonus:"The Piney Woods community between Wilbon and Holly Springs has been settled since colonial times."},
+{id:"scottish",lat:35.6150,lng:-78.8405,radius:80,icon:"🏴‍☠️",title:"A Scottish Tailor's Legacy",content:"Archibald Leslie, a Scottish tailor, arrived ~1817, opened a shop, built a 38-room mansion called Leslie Hall. Slaves carved the pine mantelpieces. One of the biggest mansions in Wake County — with its own ballroom.",bonus:"Clan Stewart energy: a Scottish tailor built this whole town up."},
+{id:"springs",lat:35.6210,lng:-78.8410,radius:80,icon:"💧",title:"The Original Holly Springs",content:"Free-flowing springs merging into a stream, surrounded by 40-foot holly trees. In 1779, a surveyor wrote 'Holley Spring Branch' instead of 'Holland's Spring Branch' — the name stuck forever.",bonus:"In 1896, the two main holly trees were 40 feet tall and 30 feet apart."},
+{id:"deserted",lat:35.6260,lng:-78.8380,radius:80,icon:"⚔️",title:"The Deserted Village",content:"Holly Springs boomed pre-Civil War. The war wrecked everything. When Apex got a railroad and Holly Springs didn't, everyone bailed. A historian called it 'a deserted village' in 1871.",bonus:"In 1865, ~50 freed men pooled resources and bought land for an African-American Baptist Church."},
+{id:"electric",lat:35.6310,lng:-78.8350,radius:80,icon:"⚡",title:"Thursday Afternoon Electricity",content:"Holly Springs got electricity in 1922, but only in the evenings and Thursday afternoons — so women could do their ironing. Now there's a nuclear plant pushing 964 MW 24/7.",bonus:"A 2011 tornado touched down near the town center, uprooting trees and destroying homes."},
+{id:"walgreens",lat:35.6554,lng:-78.8351,radius:100,icon:"💊",title:"Walgreens — Moleskin Stop",content:"301 N Main St. Grab moleskin for those work boots. Open 7am-10pm.",bonus:"Music & Arts in Cary for Al Cass oil + slide juice — Bekah errand."},
+{id:"end",lat:35.6337,lng:-78.8304,radius:100,icon:"🏆",title:"Collins Crossing — You Made It",content:"Bojangles, Chick-fil-A, Mellow Mushroom, Greek Basma, Sheetz — all with restrooms. Tell Bekah to grab you here.",bonus:"~2.5 miles. 33°F. Work boots. Absolute unit."}
 ];
-
-const TRIVIA = [
-  { q:"How tall is the Shearon Harris cooling tower?", a:"523 feet", opts:["350 feet","523 feet","680 feet","410 feet"] },
-  { q:"What Native American tribe hunted this area?", a:"Tuscarora", opts:["Cherokee","Tuscarora","Catawba","Lumbee"] },
-  { q:"What year was Holly Springs incorporated?", a:"1877", opts:["1822","1854","1877","1901"] },
-  { q:"How many homes does Shearon Harris power?", a:"600,000+", opts:["200,000+","400,000+","600,000+","1,000,000+"] },
-  { q:"Holly Springs' 1922 electricity schedule?", a:"Evenings + Thursday afternoons", opts:["All day weekdays","Evenings + Thursday afternoons","Weekends only","6am to 6pm"] },
-  { q:"What Scottish tailor built a 38-room mansion?", a:"Archibald Leslie", opts:["Robert Burns","Archibald Leslie","William Wallace","James Stewart"] },
-  { q:"What reactor's generator was installed at Harris in 2010?", a:"Three Mile Island", opts:["Chernobyl","Three Mile Island","Fukushima","Indian Point"] },
-  { q:"What did a 1779 surveyor accidentally rename?", a:"Holland's Spring Branch", opts:["Holly Creek","Holland's Spring Branch","Pine Branch","Wilbon Creek"] }
+const TRIVIA=[
+{q:"How tall is the Shearon Harris cooling tower?",a:"523 feet",opts:["350 feet","523 feet","680 feet","410 feet"]},
+{q:"What Native American tribe hunted this area?",a:"Tuscarora",opts:["Cherokee","Tuscarora","Catawba","Lumbee"]},
+{q:"What year was Holly Springs incorporated?",a:"1877",opts:["1822","1854","1877","1901"]},
+{q:"How many homes does Shearon Harris power?",a:"600,000+",opts:["200,000+","400,000+","600,000+","1,000,000+"]},
+{q:"Holly Springs' 1922 electricity schedule?",a:"Evenings + Thursday afternoons",opts:["All day weekdays","Evenings + Thursday afternoons","Weekends only","6am to 6pm"]},
+{q:"What Scottish tailor built a 38-room mansion?",a:"Archibald Leslie",opts:["Robert Burns","Archibald Leslie","William Wallace","James Stewart"]},
+{q:"What reactor's generator was installed at Harris in 2010?",a:"Three Mile Island",opts:["Chernobyl","Three Mile Island","Fukushima","Indian Point"]},
+{q:"What did a 1779 surveyor accidentally rename?",a:"Holland's Spring Branch",opts:["Holly Creek","Holland's Spring Branch","Pine Branch","Wilbon Creek"]}
 ];
+const CHALLENGES=["Count every mailbox in the next 2 minutes","Find something red that isn't a stop sign","Spot a bird — what kind?","Find the oldest-looking tree","House with Christmas lights still up?","Spot a dog in someone's yard","Find a vehicle older than 2010","Count driveways until next intersection","Something that doesn't belong in a rural area","Find a holly tree (spiky leaves, red berries)"];
 
-const CHALLENGES = [
-  "Count every mailbox you pass in the next 2 minutes",
-  "Find something red that isn't a stop sign",
-  "Spot a bird — what kind?",
-  "Find the oldest-looking tree you can see",
-  "Look for a house with Christmas lights still up",
-  "Spot a dog in someone's yard",
-  "Find a vehicle older than 2010",
-  "Count driveways until the next intersection",
-  "Spot something that doesn't belong in a rural area",
-  "Find a holly tree (spiky leaves, red berries)"
-];
+let S={tab:'map',gps:null,gpsStatus:'waiting',watchId:null,started:false,visited:new Set(),expanded:null,discovery:null,triviaIdx:0,triviaSelected:null,triviaScore:0,triviaAnswered:0,challengeIdx:0,challengeDone:new Set(),startTime:null,elapsed:0,totalWalked:0,lastPos:null,breadcrumbs:[]};
+let map=null,posMarker=null,accCircle=null,breadLine=null;
 
-let state = {
-  tab: 'intel', gps: null, gpsStatus: 'searching', watchId: null,
-  visited: new Set(), expanded: null, discovery: null,
-  triviaIdx: 0, triviaSelected: null, triviaScore: 0, triviaAnswered: 0,
-  challengeIdx: 0, challengeDone: new Set(),
-  startTime: Date.now(), elapsed: 0, totalWalked: 0, lastPos: null
-};
+function haversine(a,b,c,d){const R=3958.8,dL=(c-a)*Math.PI/180,dN=(d-b)*Math.PI/180;const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dN/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
+function fmtTime(ms){const s=Math.floor(ms/1000),m=Math.floor(s/60);return m+':'+(s%60).toString().padStart(2,'0')}
+function fmtDist(mi){return mi<.1?Math.round(mi*5280)+' ft':mi.toFixed(2)+' mi'}
 
-function haversine(lat1,lon1,lat2,lon2) {
-  const R=3958.8, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+function startTracking(){
+  document.getElementById('startOverlay').style.display='none';
+  S.started=true;S.startTime=Date.now();
+  if(!navigator.geolocation){S.gpsStatus='error';render();return}
+  S.gpsStatus='searching';render();
+  S.watchId=navigator.geolocation.watchPosition(p=>{
+    const g={lat:p.coords.latitude,lng:p.coords.longitude,acc:p.coords.accuracy};
+    S.gps=g;S.gpsStatus='locked';
+    if(S.lastPos){const d=haversine(S.lastPos.lat,S.lastPos.lng,g.lat,g.lng);if(d<0.05&&d>0.001)S.totalWalked+=d}
+    S.lastPos=g;S.breadcrumbs.push([g.lat,g.lng]);if(S.breadcrumbs.length>500)S.breadcrumbs.shift();
+    checkWP();updateMap();render();
+  },e=>{S.gpsStatus='error';render()},{enableHighAccuracy:true,maximumAge:3000,timeout:10000});
 }
 
-function fmtTime(ms){const s=Math.floor(ms/1000),m=Math.floor(s/60);return `${m}:${(s%60).toString().padStart(2,'0')}`}
-function fmtDist(mi){return mi<.1?`${Math.round(mi*5280)} ft`:`${mi.toFixed(2)} mi`}
+function checkWP(){if(!S.gps)return;WAYPOINTS.forEach(w=>{if(haversine(S.gps.lat,S.gps.lng,w.lat,w.lng)<w.radius/5280&&!S.visited.has(w.id)){S.visited.add(w.id);if(w.id!=='start')showDisco(w)}})}
+function showDisco(w){S.discovery=w;const el=document.getElementById('discovery');el.style.display='flex';el.innerHTML='<div class="discovery-card" onclick="event.stopPropagation()"><div class="compass">'+w.icon+'</div><div class="discovery-title mono">WAYPOINT DISCOVERED</div><div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:12px">'+w.title+'</div><p style="font-size:13px;line-height:1.6;color:#ccc;margin-bottom:16px">'+w.content+'</p><div class="btn btn-primary" onclick="closeDisco()">GOT IT</div></div>';if(navigator.vibrate)navigator.vibrate([100,50,100])}
+function closeDisco(){S.discovery=null;document.getElementById('discovery').style.display='none'}
+function switchTab(t){S.tab=t;document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('active',e.dataset.tab===t));render();if(t==='map')setTimeout(()=>{if(map)map.invalidateSize()},100)}
+function wpDist(w){return S.gps?fmtDist(haversine(S.gps.lat,S.gps.lng,w.lat,w.lng)):'---'}
+function wpStat(w){if(S.visited.has(w.id))return'visited';if(!S.gps)return'';return haversine(S.gps.lat,S.gps.lng,w.lat,w.lng)<(w.radius*2)/5280?'nearby':''}
+function toggleExp(i){S.expanded=S.expanded===i?null:i;render()}
+function doTrivia(o){if(S.triviaSelected)return;S.triviaSelected=o;S.triviaAnswered++;if(o===TRIVIA[S.triviaIdx].a)S.triviaScore++;render()}
+function nextTrivia(){S.triviaSelected=null;S.triviaIdx=(S.triviaIdx+1)%TRIVIA.length;render()}
+function doneChallenge(){S.challengeDone.add(S.challengeIdx);render()}
+function setChallenge(i){S.challengeIdx=i;render()}
+function skipChallenge(){S.challengeIdx=(S.challengeIdx+1)%CHALLENGES.length;render()}
 
-function initGPS() {
-  if (!navigator.geolocation) { state.gpsStatus='error'; return; }
-  state.watchId = navigator.geolocation.watchPosition(
-    pos => {
-      const p = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy };
-      state.gps = p;
-      state.gpsStatus = 'locked';
-      if (state.lastPos) {
-        const d = haversine(state.lastPos.lat, state.lastPos.lng, p.lat, p.lng);
-        if (d < 0.05 && d > 0.001) state.totalWalked += d;
-      }
-      state.lastPos = p;
-      checkWaypoints();
-      render();
-    },
-    err => { state.gpsStatus = 'error'; render(); },
-    { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
-  );
-}
-
-function checkWaypoints() {
-  if (!state.gps) return;
-  WAYPOINTS.forEach(wp => {
-    const d = haversine(state.gps.lat, state.gps.lng, wp.lat, wp.lng);
-    const rMi = wp.radius / 5280;
-    if (d < rMi && !state.visited.has(wp.id)) {
-      state.visited.add(wp.id);
-      if (wp.id !== 'start') showDiscovery(wp);
-    }
+function initMap(){
+  map=L.map('mapEl',{zoomControl:false,attributionControl:false}).setView([35.615,-78.835],13);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(map);
+  L.control.zoom({position:'bottomright'}).addTo(map);
+  L.polyline(ROUTE_PATH,{color:'#00d4ff',weight:3,opacity:.6,dashArray:'8,6'}).addTo(map);
+  WAYPOINTS.forEach(w=>{
+    const sz=w.id==='start'||w.id==='end'?28:20;
+    L.marker([w.lat,w.lng],{icon:L.divIcon({html:'<div style="font-size:'+sz+'px;text-align:center;filter:drop-shadow(0 0 4px rgba(0,0,0,.8))">'+w.icon+'</div>',iconSize:[sz+8,sz+8],iconAnchor:[(sz+8)/2,(sz+8)/2],className:''})}).addTo(map).bindPopup('<b>'+w.title+'</b>');
   });
+  posMarker=L.circleMarker([START.lat,START.lng],{radius:7,fillColor:'#00d4ff',fillOpacity:1,color:'#fff',weight:2}).addTo(map);
+  accCircle=L.circle([START.lat,START.lng],{radius:50,color:'#00d4ff',fillColor:'#00d4ff',fillOpacity:.08,weight:1,opacity:.3}).addTo(map);
+  breadLine=L.polyline([],{color:'#4caf50',weight:2,opacity:.7}).addTo(map);
+  map.fitBounds(L.polyline(ROUTE_PATH).getBounds().pad(0.15));
 }
+function updateMap(){if(!map||!S.gps)return;posMarker.setLatLng([S.gps.lat,S.gps.lng]);accCircle.setLatLng([S.gps.lat,S.gps.lng]);accCircle.setRadius(S.gps.acc||50);breadLine.setLatLngs(S.breadcrumbs)}
 
-function showDiscovery(wp) {
-  state.discovery = wp;
-  const el = document.getElementById('discovery');
-  el.style.display = 'flex';
-  el.innerHTML = `<div class="discovery-card" onclick="event.stopPropagation()">
-    <div class="compass">${wp.icon}</div>
-    <div class="discovery-title mono">WAYPOINT DISCOVERED</div>
-    <div style="font-size:20px;font-weight:800;color:#fff;margin-bottom:12px">${wp.title}</div>
-    <p style="font-size:13px;line-height:1.6;color:#ccc;margin-bottom:16px">${wp.content}</p>
-    <div class="btn btn-primary" onclick="closeDisco()">GOT IT</div>
-  </div>`;
-  if (navigator.vibrate) navigator.vibrate([100,50,100]);
+function render(){
+  const c=document.getElementById('content');
+  if(S.tab==='map')renderMap(c);else if(S.tab==='intel')renderIntel(c);else if(S.tab==='trivia')renderTrivia(c);else renderChal(c);
 }
-
-function closeDisco() {
-  state.discovery = null;
-  document.getElementById('discovery').style.display = 'none';
+function gpsBar(){
+  const cl=S.gpsStatus==='locked'?'locked':S.gpsStatus==='error'?'error':S.gpsStatus==='waiting'?'waiting':'searching';
+  const tx=S.gpsStatus==='locked'?'GPS LOCKED — '+Math.round(S.gps?.acc||0)+'m accuracy':S.gpsStatus==='error'?'GPS UNAVAILABLE':'ACQUIRING GPS...';
+  const col=cl==='locked'?'var(--green)':cl==='error'?'var(--red)':'var(--gold)';
+  return '<div class="gps-status '+cl+'"><div class="gps-dot" style="background:'+col+'"></div><span class="mono" style="font-size:10px">'+tx+'</span></div>';
 }
-
-function switchTab(t) {
-  state.tab = t;
-  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === t));
-  render();
-}
-
-function wpDistText(wp) {
-  if (!state.gps) return '---';
-  const d = haversine(state.gps.lat, state.gps.lng, wp.lat, wp.lng);
-  return fmtDist(d);
-}
-
-function wpStatus(wp) {
-  if (state.visited.has(wp.id)) return 'visited';
-  if (!state.gps) return '';
-  const d = haversine(state.gps.lat, state.gps.lng, wp.lat, wp.lng);
-  if (d < (wp.radius * 2) / 5280) return 'nearby';
-  return '';
-}
-
-function toggleExpand(idx) {
-  state.expanded = state.expanded === idx ? null : idx;
-  render();
-}
-
-function handleTrivia(opt) {
-  if (state.triviaSelected) return;
-  state.triviaSelected = opt;
-  state.triviaAnswered++;
-  if (opt === TRIVIA[state.triviaIdx].a) state.triviaScore++;
-  render();
-}
-
-function nextTrivia() {
-  state.triviaSelected = null;
-  state.triviaIdx = (state.triviaIdx + 1) % TRIVIA.length;
-  render();
-}
-
-function completeChallenge() {
-  state.challengeDone.add(state.challengeIdx);
-  render();
-}
-
-function setChallenge(i) {
-  state.challengeIdx = i;
-  render();
-}
-
-function skipChallenge() {
-  state.challengeIdx = (state.challengeIdx + 1) % CHALLENGES.length;
-  render();
-}
-
-function render() {
-  const c = document.getElementById('content');
-  if (state.tab === 'intel') renderIntel(c);
-  else if (state.tab === 'trivia') renderTrivia(c);
-  else renderChallenge(c);
-}
-
-function renderIntel(c) {
-  const gpsClass = state.gpsStatus === 'locked' ? 'locked' : state.gpsStatus === 'error' ? 'error' : 'searching';
-  const gpsText = state.gpsStatus === 'locked'
-    ? `GPS LOCKED — ${Math.round(state.gps?.acc || 0)}m accuracy`
-    : state.gpsStatus === 'error' ? 'GPS UNAVAILABLE — manual mode' : 'ACQUIRING GPS...';
-
-  let html = `<div class="gps-status ${gpsClass}"><div class="gps-dot ${gpsClass}"></div><span class="mono" style="font-size:10px">${gpsText}</span></div>`;
-  html += `<div class="mono label" style="margin-bottom:12px">WAYPOINTS — ${state.visited.size}/${WAYPOINTS.length} DISCOVERED</div>`;
-
-  WAYPOINTS.forEach((wp, i) => {
-    const status = wpStatus(wp);
-    const isExp = state.expanded === i;
-    const badge = status === 'visited' ? '<span class="wp-badge visited mono">✓ VISITED</span>'
-      : status === 'nearby' ? '<span class="wp-badge nearby mono">● NEARBY</span>' : '';
-
-    html += `<div class="waypoint ${status} ${isExp?'expanded':''}" onclick="toggleExpand(${i})">
-      <div class="wp-header">
-        <div class="wp-left">
-          <span class="wp-icon">${wp.icon}</span>
-          <div><div class="wp-title">${wp.title}</div><div class="wp-dist mono">${wpDistText(wp)} away</div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px">${badge}<span class="arrow ${isExp?'open':''}">▼</span></div>
-      </div>
-      ${isExp ? `<div class="wp-body"><p>${wp.content}</p><div class="bonus"><span class="mono">BONUS: </span><span>${wp.bonus}</span></div></div>` : ''}
-    </div>`;
-  });
-  c.innerHTML = html;
-}
-
-function renderTrivia(c) {
-  const t = TRIVIA[state.triviaIdx];
-  const sel = state.triviaSelected;
-
-  let optsHtml = t.opts.map(o => {
-    let cls = 'trivia-opt';
-    if (sel) {
-      cls += ' disabled';
-      if (o === t.a) cls += ' correct';
-      else if (o === sel) cls += ' wrong';
-    }
-    return `<div class="${cls}" onclick="handleTrivia('${o.replace(/'/g,"\\'")}')">${o}</div>`;
-  }).join('');
-
-  c.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <div class="mono label">HOLLY SPRINGS TRIVIA</div>
-      <div style="background:var(--border);padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700">
-        <span style="color:var(--green)">${state.triviaScore}</span><span style="color:var(--dim)"> / ${state.triviaAnswered}</span>
-      </div>
-    </div>
-    <div class="trivia-card">
-      <div class="mono" style="font-size:10px;color:var(--dim);margin-bottom:8px">Q${state.triviaIdx+1} OF ${TRIVIA.length}</div>
-      <div class="trivia-q">${t.q}</div>
-      ${optsHtml}
-      ${sel ? `<div class="btn btn-primary" style="margin-top:16px" onclick="nextTrivia()">NEXT →</div>` : ''}
-    </div>`;
-}
-
-function renderChallenge(c) {
-  const ch = CHALLENGES[state.challengeIdx];
-  const done = state.challengeDone.has(state.challengeIdx);
-
-  let grid = CHALLENGES.map((_, i) => {
-    let cls = 'challenge-cell';
-    if (state.challengeDone.has(i)) cls += ' done';
-    if (i === state.challengeIdx) cls += ' active';
-    return `<div class="${cls}" onclick="setChallenge(${i})">${state.challengeDone.has(i) ? '✓' : i+1}</div>`;
-  }).join('');
-
-  c.innerHTML = `
-    <div class="mono label" style="margin-bottom:12px">WALKING CHALLENGES — ${state.challengeDone.size}/${CHALLENGES.length}</div>
-    <div class="trivia-card" style="margin-bottom:16px;text-align:center">
-      <div style="font-size:40px;margin-bottom:12px">${done ? '✅' : '👀'}</div>
-      <div style="font-size:18px;font-weight:700;color:#fff;line-height:1.4;margin-bottom:16px">${ch}</div>
-      <div style="display:flex;gap:8px">
-        ${!done ? `<div class="btn btn-green" style="flex:1" onclick="completeChallenge()">✓ DONE</div>` : ''}
-        <div class="btn btn-ghost" style="flex:1" onclick="skipChallenge()">SKIP →</div>
-      </div>
-    </div>
-    <div class="challenge-grid">${grid}</div>`;
-}
-
-function updateHeader() {
-  state.elapsed = Date.now() - state.startTime;
-  document.getElementById('timer').textContent = fmtTime(state.elapsed);
-
-  let progress = 0;
-  if (state.gps) {
-    const walked = haversine(START.lat, START.lng, state.gps.lat, state.gps.lng);
-    progress = Math.min(100, (walked / TOTAL_DIST) * 100);
-    document.getElementById('distDisplay').textContent = fmtDist(walked) + ' walked';
-    const remaining = haversine(state.gps.lat, state.gps.lng, END.lat, END.lng);
-    const pace = state.totalWalked > 0.01 ? state.elapsed / state.totalWalked : 45*60*1000/TOTAL_DIST;
-    const etaMs = remaining * pace;
-    document.getElementById('eta').textContent = etaMs > 0 ? fmtTime(etaMs) : 'ARRIVED';
-    document.getElementById('eta').style.color = etaMs < 5*60*1000 ? 'var(--green)' : 'var(--gold)';
+function renderMap(c){
+  let stats='';
+  if(S.gps){
+    const toEnd=haversine(S.gps.lat,S.gps.lng,END.lat,END.lng);
+    stats='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">'+
+    '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center"><div class="mono" style="font-size:9px;color:var(--dim);margin-bottom:4px">WALKED</div><div style="font-size:16px;font-weight:800;color:var(--green)">'+fmtDist(S.totalWalked)+'</div></div>'+
+    '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center"><div class="mono" style="font-size:9px;color:var(--dim);margin-bottom:4px">REMAINING</div><div style="font-size:16px;font-weight:800;color:var(--gold)">'+fmtDist(toEnd)+'</div></div>'+
+    '<div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center"><div class="mono" style="font-size:9px;color:var(--dim);margin-bottom:4px">WAYPOINTS</div><div style="font-size:16px;font-weight:800;color:var(--accent)">'+S.visited.size+'/'+WAYPOINTS.length+'</div></div></div>';
   }
-  document.getElementById('progressBar').style.width = progress + '%';
+  let near='<div class="mono label" style="margin-top:12px;margin-bottom:8px">NEAREST WAYPOINTS</div>';
+  const sorted=[...WAYPOINTS].filter(w=>!S.visited.has(w.id));
+  if(S.gps)sorted.sort((a,b)=>haversine(S.gps.lat,S.gps.lng,a.lat,a.lng)-haversine(S.gps.lat,S.gps.lng,b.lat,b.lng));
+  sorted.slice(0,3).forEach(w=>{
+    const st=wpStat(w),badge=st==='nearby'?'<span class="wp-badge nearby mono">● NEARBY</span>':'';
+    near+='<div class="waypoint '+st+'"><div class="wp-header"><div class="wp-left"><span class="wp-icon">'+w.icon+'</span><div><div class="wp-title">'+w.title+'</div><div class="wp-dist mono">'+wpDist(w)+' away</div></div></div>'+badge+'</div></div>';
+  });
+  c.innerHTML=gpsBar()+stats+'<div id="mapEl"></div>'+near;
+  setTimeout(()=>{if(!document.getElementById('mapEl'))return;if(!map)initMap();else{map.invalidateSize();updateMap()}},50);
 }
-
-setInterval(updateHeader, 1000);
-initGPS();
-render();
+function renderIntel(c){
+  let h=gpsBar()+'<div class="mono label" style="margin-bottom:12px">WAYPOINTS — '+S.visited.size+'/'+WAYPOINTS.length+' DISCOVERED</div>';
+  WAYPOINTS.forEach((w,i)=>{
+    const st=wpStat(w),ex=S.expanded===i;
+    const badge=st==='visited'?'<span class="wp-badge visited mono">✓ VISITED</span>':st==='nearby'?'<span class="wp-badge nearby mono">● NEARBY</span>':'';
+    h+='<div class="waypoint '+st+(ex?' expanded':'')+'" onclick="toggleExp('+i+')"><div class="wp-header"><div class="wp-left"><span class="wp-icon">'+w.icon+'</span><div><div class="wp-title">'+w.title+'</div><div class="wp-dist mono">'+wpDist(w)+' away</div></div></div><div style="display:flex;align-items:center;gap:8px">'+badge+'<span class="arrow'+(ex?' open':'')+'">▼</span></div></div>'+(ex?'<div class="wp-body"><p>'+w.content+'</p><div class="bonus"><span class="mono">BONUS: </span><span>'+w.bonus+'</span></div></div>':'')+'</div>';
+  });
+  c.innerHTML=h;
+}
+function renderTrivia(c){
+  const t=TRIVIA[S.triviaIdx],sel=S.triviaSelected;
+  let opts=t.opts.map(o=>{let cl='trivia-opt';if(sel){cl+=' disabled';if(o===t.a)cl+=' correct';else if(o===sel)cl+=' wrong'}return'<div class="'+cl+'" onclick="doTrivia(\''+o.replace(/'/g,"\\'")+'\')">'+o+'</div>'}).join('');
+  c.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div class="mono label">HOLLY SPRINGS TRIVIA</div><div style="background:var(--border);padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700"><span style="color:var(--green)">'+S.triviaScore+'</span><span style="color:var(--dim)"> / '+S.triviaAnswered+'</span></div></div><div class="trivia-card"><div class="mono" style="font-size:10px;color:var(--dim);margin-bottom:8px">Q'+(S.triviaIdx+1)+' OF '+TRIVIA.length+'</div><div class="trivia-q">'+t.q+'</div>'+opts+(sel?'<div class="btn btn-primary" style="margin-top:16px" onclick="nextTrivia()">NEXT →</div>':'')+'</div>';
+}
+function renderChal(c){
+  const ch=CHALLENGES[S.challengeIdx],dn=S.challengeDone.has(S.challengeIdx);
+  let grid=CHALLENGES.map((_,i)=>'<div class="challenge-cell'+(S.challengeDone.has(i)?' done':'')+(i===S.challengeIdx?' active':'')+'" onclick="setChallenge('+i+')">'+(S.challengeDone.has(i)?'✓':i+1)+'</div>').join('');
+  c.innerHTML='<div class="mono label" style="margin-bottom:12px">WALKING CHALLENGES — '+S.challengeDone.size+'/'+CHALLENGES.length+'</div><div class="trivia-card" style="margin-bottom:16px;text-align:center"><div style="font-size:40px;margin-bottom:12px">'+(dn?'✅':'👀')+'</div><div style="font-size:18px;font-weight:700;color:#fff;line-height:1.4;margin-bottom:16px">'+ch+'</div><div style="display:flex;gap:8px">'+(dn?'':'<div class="btn btn-green" style="flex:1" onclick="doneChallenge()">✓ DONE</div>')+'<div class="btn btn-ghost" style="flex:1" onclick="skipChallenge()">SKIP →</div></div></div><div class="challenge-grid">'+grid+'</div>';
+}
+function tick(){
+  if(!S.started)return;
+  S.elapsed=Date.now()-S.startTime;
+  document.getElementById('timer').textContent=fmtTime(S.elapsed);
+  let prog=0;
+  if(S.gps){
+    const walked=haversine(START.lat,START.lng,S.gps.lat,S.gps.lng);
+    prog=Math.min(100,(walked/TOTAL_DIST)*100);
+    document.getElementById('distDisplay').textContent=fmtDist(walked)+' walked';
+    const rem=haversine(S.gps.lat,S.gps.lng,END.lat,END.lng);
+    const pace=S.totalWalked>0.01?S.elapsed/S.totalWalked:45*60*1000/TOTAL_DIST;
+    const eta=rem*pace;
+    document.getElementById('eta').textContent=eta>0?fmtTime(eta):'ARRIVED';
+    document.getElementById('eta').style.color=eta<5*60*1000?'var(--green)':'var(--gold)';
+  }
+  document.getElementById('progressBar').style.width=prog+'%';
+}
+setInterval(tick,1000);render();
 </script>
 </body>
 </html>
