@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BB Broth — Bekah's Bone Broth</title>
+<meta property="og:title" content="BB Broth — Bekah's Bone Broth">
+<meta property="og:description" content="Slow-simmered 12-hour chicken stock from a Costco rotisserie carcass. Bekah's from-scratch recipe for rich, golden, freezer-ready broth.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/bb-broth-og-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/bb-broth.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/bb-broth-og-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c8942a;
+    --gold-light: #e8bf6a;
+    --cream: #faf3e6;
+    --brown: #3d2b1f;
+    --brown-light: #5c3d2e;
+    --sage: #7a8c6e;
+    --warm-white: #fff8f0;
+    --steam: rgba(255,255,255,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    color: var(--brown);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 19px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background:
+      radial-gradient(ellipse at 30% 80%, rgba(200,148,42,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 20%, rgba(122,140,110,0.1) 0%, transparent 50%),
+      var(--cream);
+    padding: 2rem;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c8942a' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .brand {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 1rem;
+    animation: fadeDown 1s ease-out;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 12vw, 9rem);
+    font-weight: 700;
+    line-height: 0.9;
+    color: var(--brown);
+    margin-bottom: 0.5rem;
+    animation: fadeUp 1s ease-out;
+  }
+
+  .hero h1 span {
+    display: block;
+    font-size: 0.35em;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    margin-top: 0.5rem;
+  }
+
+  .tagline {
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--brown-light);
+    opacity: 0.8;
+    max-width: 500px;
+    animation: fadeUp 1s ease-out 0.3s both;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    animation: bob 2s ease-in-out infinite;
+    color: var(--gold);
+    font-size: 1.5rem;
+  }
+
+  /* Steam animation */
+  .steam-container {
+    position: absolute;
+    top: 15%;
+    width: 100%;
+    height: 70%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .steam {
+    position: absolute;
+    width: 8px;
+    background: linear-gradient(to top, rgba(200,148,42,0.08), transparent);
+    border-radius: 50%;
+    animation: rise 4s ease-in infinite;
+  }
+
+  .steam:nth-child(1) { left: 20%; height: 80px; animation-delay: 0s; }
+  .steam:nth-child(2) { left: 45%; height: 100px; animation-delay: 1.2s; }
+  .steam:nth-child(3) { left: 70%; height: 60px; animation-delay: 2.4s; }
+  .steam:nth-child(4) { left: 35%; height: 90px; animation-delay: 0.8s; }
+  .steam:nth-child(5) { left: 60%; height: 70px; animation-delay: 1.8s; }
+
+  /* Content */
+  .content {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+  }
+
+  .section {
+    margin-bottom: 4rem;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeUp 0.8s ease-out forwards;
+  }
+
+  .section:nth-child(1) { animation-delay: 0.1s; }
+  .section:nth-child(2) { animation-delay: 0.2s; }
+  .section:nth-child(3) { animation-delay: 0.3s; }
+  .section:nth-child(4) { animation-delay: 0.4s; }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--brown);
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block;
+  }
+
+  h2::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 60%;
+    height: 2px;
+    background: var(--gold);
+  }
+
+  .origin-story {
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--brown-light);
+    border-left: 3px solid var(--gold);
+    padding-left: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Ingredients */
+  .ingredients-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .ingredient {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--warm-white);
+    border-radius: 12px;
+    border: 1px solid rgba(200,148,42,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .ingredient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(200,148,42,0.12);
+  }
+
+  .ingredient-icon {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+
+  .ingredient-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .ingredient-text strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--brown);
+  }
+
+  .ingredient-text em {
+    font-size: 0.85rem;
+    color: var(--brown-light);
+    font-style: italic;
+  }
+
+  /* Steps */
+  .steps {
+    counter-reset: step;
+    margin-top: 1.5rem;
+  }
+
+  .step {
+    counter-increment: step;
+    position: relative;
+    padding: 1.5rem 1.5rem 1.5rem 4.5rem;
+    margin-bottom: 1.25rem;
+    background: var(--warm-white);
+    border-radius: 12px;
+    border: 1px solid rgba(200,148,42,0.1);
+  }
+
+  .step::before {
+    content: counter(step);
+    position: absolute;
+    left: 1.25rem;
+    top: 1.4rem;
+    width: 2rem;
+    height: 2rem;
+    background: var(--gold);
+    color: var(--warm-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .step h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    margin-bottom: 0.3rem;
+    color: var(--brown);
+  }
+
+  .step p {
+    font-size: 0.95rem;
+    color: var(--brown-light);
+  }
+
+  /* Timer callout */
+  .timer {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 100%);
+    color: var(--cream);
+    border-radius: 16px;
+    margin-top: 2rem;
+  }
+
+  .timer-icon {
+    font-size: 3rem;
+    flex-shrink: 0;
+  }
+
+  .timer-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--gold-light);
+    margin-bottom: 0.25rem;
+  }
+
+  .timer-text p {
+    font-size: 0.95rem;
+    opacity: 0.85;
+  }
+
+  /* Pro tips */
+  .tips {
+    margin-top: 1.5rem;
+  }
+
+  .tip {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding: 1rem 1.25rem;
+    background: rgba(122,140,110,0.08);
+    border-radius: 10px;
+    border-left: 3px solid var(--sage);
+  }
+
+  .tip-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 2px; }
+  .tip p { font-size: 0.95rem; color: var(--brown-light); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--brown);
+    color: var(--cream);
+  }
+
+  .footer p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    opacity: 0.7;
+  }
+
+  .footer .heart { color: var(--gold); }
+
+  /* Warning */
+  .warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(200,148,42,0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: var(--gold);
+    font-weight: 600;
+    margin-top: 0.75rem;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+  }
+
+  @keyframes rise {
+    0% { opacity: 0; transform: translateY(0) scaleX(1); }
+    30% { opacity: 1; }
+    70% { opacity: 0.5; transform: translateY(-150px) scaleX(1.5); }
+    100% { opacity: 0; transform: translateY(-250px) scaleX(2); }
+  }
+
+  @media (max-width: 600px) {
+    .ingredients-grid { grid-template-columns: 1fr; }
+    .timer { flex-direction: column; text-align: center; }
+    .content { padding: 3rem 1.25rem 4rem; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="steam-container">
+    <div class="steam"></div>
+    <div class="steam"></div>
+    <div class="steam"></div>
+    <div class="steam"></div>
+    <div class="steam"></div>
+  </div>
+  <div class="brand">From the Foreman Kitchen</div>
+  <h1>BB Broth<span>Bekah's Bone Broth</span></h1>
+  <p class="tagline">Slow-simmered 12-hour chicken stock from a Costco rotisserie carcass. Real broth. No shortcuts.</p>
+  <div class="scroll-hint">↓</div>
+</section>
+
+<div class="content">
+
+  <div class="section">
+    <p class="origin-story">It started with a shredded rotisserie chicken from Costco and Bekah deciding the carcass wasn't going in the trash. Carrots got peeled. Celery got chopped. The big pot came out. Twelve hours later, liquid gold.</p>
+  </div>
+
+  <div class="section">
+    <h2>What You Need</h2>
+    <div class="ingredients-grid">
+      <div class="ingredient">
+        <div class="ingredient-icon">🍗</div>
+        <div class="ingredient-text">
+          <strong>Chicken Carcass</strong>
+          <em>1 rotisserie chicken, meat shredded off</em>
+        </div>
+      </div>
+      <div class="ingredient">
+        <div class="ingredient-icon">🥕</div>
+        <div class="ingredient-text">
+          <strong>Carrots</strong>
+          <em>Peeled, cut into chunks</em>
+        </div>
+      </div>
+      <div class="ingredient">
+        <div class="ingredient-icon">🥬</div>
+        <div class="ingredient-text">
+          <strong>Celery</strong>
+          <em>Same size pieces as the carrots</em>
+        </div>
+      </div>
+      <div class="ingredient">
+        <div class="ingredient-icon">🧄</div>
+        <div class="ingredient-text">
+          <strong>Garlic Cloves</strong>
+          <em>Whole, smashed or halved</em>
+        </div>
+      </div>
+      <div class="ingredient">
+        <div class="ingredient-icon">🧅</div>
+        <div class="ingredient-text">
+          <strong>Onion</strong>
+          <em>Quartered (or onion powder in a pinch)</em>
+        </div>
+      </div>
+      <div class="ingredient">
+        <div class="ingredient-icon">🍃</div>
+        <div class="ingredient-text">
+          <strong>Bay Leaves</strong>
+          <em>1–2 leaves</em>
+        </div>
+      </div>
+      <div class="ingredient">
+        <div class="ingredient-icon">💧</div>
+        <div class="ingredient-text">
+          <strong>Cold Water</strong>
+          <em>Enough to just cover everything</em>
+        </div>
+      </div>
+    </div>
+    <div class="warning">⚠️ Use cold water. Not hot. Cold.</div>
+  </div>
+
+  <div class="section">
+    <h2>The Method</h2>
+    <div class="steps">
+      <div class="step">
+        <h3>Strip the Bird</h3>
+        <p>Shred all usable meat off your Costco rotisserie chicken. Set the meat aside for sandwiches, tacos, whatever. The carcass, bones, skin, cartilage, all that good stuff goes in the pot.</p>
+      </div>
+      <div class="step">
+        <h3>Prep the Vegetables</h3>
+        <p>Peel and chop your carrots into rough chunks. Cut celery to roughly the same size. Smash a few garlic cloves. Quarter an onion if you've got one. If not, onion powder works.</p>
+      </div>
+      <div class="step">
+        <h3>Load the Pot</h3>
+        <p>Carcass in first. Vegetables around it. Toss in your bay leaves and garlic. Fill with cold water until everything is just barely covered. No more.</p>
+      </div>
+      <div class="step">
+        <h3>Bring to a Boil</h3>
+        <p>Crank the heat. Once you've got a rolling boil, immediately drop it down to the lowest simmer you can manage. You want gentle bubbles, not a jacuzzi.</p>
+      </div>
+      <div class="step">
+        <h3>Walk Away</h3>
+        <p>Let it go. 12 hours minimum. The longer it simmers, the more gelatin and flavor you extract from those bones. Your house is going to smell incredible.</p>
+      </div>
+      <div class="step">
+        <h3>Strain & Store</h3>
+        <p>Strain through a fine mesh sieve. Discard the solids. Let the broth cool, then pour into freezer molds. You've now got homemade stock on demand.</p>
+      </div>
+    </div>
+
+    <div class="timer">
+      <div class="timer-icon">⏱️</div>
+      <div class="timer-text">
+        <h3>12+ Hours</h3>
+        <p>Low and slow. That's the whole secret. The collagen breaks down, the marrow renders out, and you end up with stock that gels in the fridge. That's how you know it's real.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Bekah's Tips</h2>
+    <div class="tips">
+      <div class="tip">
+        <div class="tip-icon">❄️</div>
+        <p><strong>Always start with cold water.</strong> Hot water can seal the outside of bones too quickly and prevent full extraction. Cold water draws out more collagen and flavor as it slowly heats.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-icon">🧊</div>
+        <p><strong>Freeze in big molds.</strong> Ice cube trays work for small portions, but grab some silicone molds for larger blocks. One block = one pot of soup.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-icon">🥇</div>
+        <p><strong>The jiggle test.</strong> Good broth will solidify in the fridge like Jell-O. That's pure gelatin from the bones. If it jiggles, you nailed it.</p>
+      </div>
+      <div class="tip">
+        <div class="tip-icon">♻️</div>
+        <p><strong>Don't waste the bird.</strong> A $5 Costco rotisserie gives you dinner AND stock. That's two meals and a freezer full of broth from one chicken.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer class="footer">
+  <p>Made with <span class="heart">♥</span> in Willow Spring, NC</p>
+  <p style="font-size: 0.85rem; margin-top: 0.5rem; font-family: 'Crimson Pro', serif;">BB Broth — Bekah's Bone Broth © 2026</p>
+</footer>
+
+</body>
+</html>
