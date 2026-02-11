@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seedance 2.0 — The Complete Guide</title>
+<meta property="og:title" content="Seedance 2.0 — The Complete Guide">
+<meta property="og:description" content="Everything you need to know about ByteDance's AI video model. Access methods, prompt strategies, the @ reference system, and practical tips.">
+<meta property="og:url" content="https://niggerfaggot.club/seedance-guide.html">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/seedance-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/seedance-og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0c;--surface:#111114;--surface2:#18181c;--border:#222228;
+  --text:#e8e6e3;--text2:#9a9898;--accent:#ff4d2a;--accent2:#ff7043;
+  --green:#22c55e;--blue:#3b82f6;--yellow:#eab308;--purple:#a855f7;
+  --font-display:'Instrument Serif',Georgia,serif;
+  --font-body:'DM Sans',system-ui,sans-serif;
+  --font-mono:'Space Mono',monospace;
+}
+html{scroll-behavior:smooth;background:var(--bg);color:var(--text)}
+body{font-family:var(--font-body);line-height:1.7;font-size:16px;overflow-x:hidden}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#333}
+
+/* Grain overlay */
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  z-index:9999;opacity:.4}
+
+/* Hero */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:2rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(ellipse at 50% 40%,rgba(255,77,42,.08) 0%,transparent 60%);
+  animation:pulse 8s ease-in-out infinite alternate}
+@keyframes pulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.1);opacity:1}}
+.hero-badge{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--accent);border:1px solid rgba(255,77,42,.3);padding:.4rem 1rem;border-radius:2px;
+  margin-bottom:2rem;display:inline-block;backdrop-filter:blur(4px);
+  animation:fadeUp .8s ease both}
+.hero h1{font-family:var(--font-display);font-size:clamp(3rem,8vw,7rem);line-height:1;
+  font-weight:400;letter-spacing:-.02em;margin-bottom:1.5rem;animation:fadeUp .8s .1s ease both}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{font-size:1.15rem;color:var(--text2);max-width:600px;line-height:1.8;animation:fadeUp .8s .2s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero-meta{margin-top:2.5rem;font-family:var(--font-mono);font-size:.7rem;color:var(--text2);
+  letter-spacing:.1em;text-transform:uppercase;animation:fadeUp .8s .3s ease both}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,10,12,.85);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;gap:1.5rem;
+  overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+nav::-webkit-scrollbar{display:none}
+nav a{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text2);text-decoration:none;white-space:nowrap;transition:color .2s;flex-shrink:0}
+nav a:hover{color:var(--accent)}
+
+/* Container */
+.container{max-width:780px;margin:0 auto;padding:0 2rem}
+
+/* Sections */
+section{padding:5rem 0}
+section+section{border-top:1px solid var(--border)}
+.section-label{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:1rem}
+.section-title{font-family:var(--font-display);font-size:clamp(2rem,4vw,3rem);font-weight:400;
+  line-height:1.15;margin-bottom:1.5rem}
+.section-title em{font-style:italic}
+
+p{color:var(--text2);margin-bottom:1.25rem}
+p strong{color:var(--text);font-weight:500}
+
+/* Spec grid */
+.spec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;
+  background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;
+  margin:2rem 0}
+.spec-item{background:var(--surface);padding:1.25rem;text-align:center}
+.spec-value{font-family:var(--font-display);font-size:1.8rem;color:var(--text);margin-bottom:.25rem}
+.spec-label{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text2)}
+
+/* Access paths */
+.path-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  padding:2rem;margin:1.5rem 0;position:relative;overflow:hidden;transition:border-color .3s}
+.path-card:hover{border-color:rgba(255,77,42,.3)}
+.path-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.path-card.easy::before{background:var(--green)}
+.path-card.medium::before{background:var(--yellow)}
+.path-card.hard::before{background:var(--accent)}
+.path-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.path-name{font-family:var(--font-display);font-size:1.5rem}
+.path-tag{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:.3rem .7rem;border-radius:2px;white-space:nowrap}
+.path-tag.green{color:var(--green);border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.06)}
+.path-tag.yellow{color:var(--yellow);border:1px solid rgba(234,179,8,.3);background:rgba(234,179,8,.06)}
+.path-tag.red{color:var(--accent);border:1px solid rgba(255,77,42,.3);background:rgba(255,77,42,.06)}
+
+/* Steps */
+.steps{margin:1.5rem 0;counter-reset:step}
+.step{display:flex;gap:1rem;margin-bottom:1.25rem;align-items:flex-start}
+.step::before{counter-increment:step;content:counter(step);font-family:var(--font-mono);font-size:.7rem;
+  min-width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);border-radius:50%;color:var(--text2);flex-shrink:0;margin-top:2px}
+.step-content{color:var(--text2);font-size:.95rem;line-height:1.6}
+.step-content strong{color:var(--text)}
+.step-content code{font-family:var(--font-mono);font-size:.8rem;background:var(--surface2);
+  padding:.15rem .4rem;border-radius:3px;color:var(--accent2)}
+
+/* Code blocks */
+pre{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:1.25rem;
+  overflow-x:auto;margin:1.25rem 0;font-family:var(--font-mono);font-size:.8rem;line-height:1.7;color:var(--text2)}
+pre .comment{color:#555}
+pre .keyword{color:var(--accent2)}
+pre .string{color:var(--green)}
+
+/* Callout */
+.callout{border-left:3px solid var(--accent);background:rgba(255,77,42,.04);padding:1.25rem 1.5rem;
+  margin:1.5rem 0;border-radius:0 4px 4px 0}
+.callout.warn{border-left-color:var(--yellow);background:rgba(234,179,8,.04)}
+.callout.info{border-left-color:var(--blue);background:rgba(59,130,246,.04)}
+.callout.green{border-left-color:var(--green);background:rgba(34,197,94,.04)}
+.callout-title{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;
+  margin-bottom:.5rem}
+.callout .callout-title{color:var(--accent)}
+.callout.warn .callout-title{color:var(--yellow)}
+.callout.info .callout-title{color:var(--blue)}
+.callout.green .callout-title{color:var(--green)}
+.callout p{margin-bottom:.5rem;font-size:.9rem}
+.callout p:last-child{margin-bottom:0}
+
+/* Prompt examples */
+.prompt-example{background:var(--surface);border:1px solid var(--border);border-radius:6px;
+  margin:1.5rem 0;overflow:hidden}
+.prompt-label{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--text2);padding:.75rem 1.25rem;background:var(--surface2);border-bottom:1px solid var(--border)}
+.prompt-text{padding:1.25rem;font-size:.9rem;color:var(--text);line-height:1.7}
+.prompt-text .ref{color:var(--accent);font-weight:600}
+
+/* Features list */
+.feature-row{display:flex;gap:1rem;padding:1.25rem 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.feature-row:last-child{border-bottom:none}
+.feature-icon{font-size:1.3rem;flex-shrink:0;width:32px;text-align:center;padding-top:.1rem}
+.feature-body h4{font-size:1rem;color:var(--text);margin-bottom:.3rem;font-weight:500}
+.feature-body p{font-size:.88rem;margin-bottom:0}
+
+/* Comparison */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);
+  border:1px solid var(--border);border-radius:4px;overflow:hidden;margin:1.5rem 0}
+.compare-cell{background:var(--surface);padding:.85rem 1rem;font-size:.85rem}
+.compare-cell.header{background:var(--surface2);font-family:var(--font-mono);font-size:.6rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--text2)}
+.compare-cell.label{color:var(--text2);font-size:.8rem}
+.compare-cell .yes{color:var(--green)}
+.compare-cell .no{color:#555}
+.compare-cell .partial{color:var(--yellow)}
+
+/* SMS services table */
+.sms-table{width:100%;border-collapse:collapse;margin:1.5rem 0}
+.sms-table th{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text2);text-align:left;padding:.75rem 1rem;background:var(--surface2);border-bottom:1px solid var(--border)}
+.sms-table td{padding:.75rem 1rem;border-bottom:1px solid var(--border);font-size:.88rem;color:var(--text2)}
+.sms-table td:first-child{color:var(--text);font-weight:500}
+.sms-table a{color:var(--accent2);text-decoration:none;border-bottom:1px solid rgba(255,112,67,.3)}
+.sms-table a:hover{color:var(--accent)}
+
+/* Footer */
+footer{padding:3rem 2rem;text-align:center;border-top:1px solid var(--border);
+  font-family:var(--font-mono);font-size:.65rem;color:#444;letter-spacing:.1em}
+
+/* Responsive */
+@media(max-width:640px){
+  .container{padding:0 1.25rem}
+  section{padding:3rem 0}
+  .compare-grid{grid-template-columns:1fr;gap:0}
+  .compare-cell.header:not(:first-child){display:none}
+  .path-header{flex-direction:column}
+  .spec-grid{grid-template-columns:repeat(2,1fr)}
+  nav{padding:.75rem 1.25rem}
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">ByteDance / Jimeng AI</div>
+  <h1>Seedance <em>2.0</em></h1>
+  <p class="hero-sub">ByteDance's AI video model that lets you direct, not just prompt. Multi-input references, native audio, 2K resolution, and actual creative control. Here's everything you need to get in and start using it.</p>
+  <p class="hero-meta">Updated February 11, 2026</p>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a href="#wtf">What Is It</a>
+  <a href="#specs">Specs</a>
+  <a href="#access">How to Get In</a>
+  <a href="#sms">Phone Number Guide</a>
+  <a href="#reference">The @ System</a>
+  <a href="#prompts">Prompt Examples</a>
+  <a href="#features">Key Features</a>
+  <a href="#tips">Pro Tips</a>
+</nav>
+
+<!-- What Is It -->
+<section id="wtf">
+  <div class="container">
+    <div class="section-label">Overview</div>
+    <h2 class="section-title">What the hell <em>is</em> Seedance 2.0?</h2>
+    <p>Seedance 2.0 is ByteDance's (TikTok's parent company) new AI video generation model. Every other AI video tool works roughly the same way: type a prompt, get a video, hope for the best. Seedance 2.0 is different because it lets you feed it <strong>images, videos, audio, AND text all at once</strong>, then assign each input a specific role using an @ reference system.</p>
+    <p>You're not prompting. You're <strong>directing</strong>. Upload a dance video as motion reference, a photo as your character, an audio file as the soundtrack, and text describing the scene. The model understands what each piece is for and combines them. That's the paradigm shift.</p>
+    <p>It launched February 10, 2026 via ByteDance's Jimeng/Dreamina platform. The international API is expected to go fully public on February 24 through BytePlus. Right now you can access it early through a few different paths.</p>
+    
+    <div class="callout warn">
+      <div class="callout-title">Heads Up — Feb 10 Restriction</div>
+      <p>ByteDance just suspended the ability to upload <strong>real human face photos</strong> as reference subjects due to privacy concerns. They also added a live verification step (record your own face/voice) before you can create digital avatars. The face-lock character consistency feature is currently restricted.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Specs -->
+<section id="specs">
+  <div class="container">
+    <div class="section-label">Technical Specs</div>
+    <h2 class="section-title">What you're <em>working</em> with</h2>
+    <div class="spec-grid">
+      <div class="spec-item"><div class="spec-value">9</div><div class="spec-label">Max Images</div></div>
+      <div class="spec-item"><div class="spec-value">3</div><div class="spec-label">Max Videos</div></div>
+      <div class="spec-item"><div class="spec-value">3</div><div class="spec-label">Audio Files</div></div>
+      <div class="spec-item"><div class="spec-value">12</div><div class="spec-label">Total Files</div></div>
+      <div class="spec-item"><div class="spec-value">2K</div><div class="spec-label">Resolution</div></div>
+      <div class="spec-item"><div class="spec-value">4-15s</div><div class="spec-label">Duration</div></div>
+      <div class="spec-item"><div class="spec-value">15s</div><div class="spec-label">Max Video Input</div></div>
+      <div class="spec-item"><div class="spec-value">~60s</div><div class="spec-label">Generation Time</div></div>
+    </div>
+    <p>It generates <strong>native sound effects, music, dialogue with lip sync, and environmental audio</strong> simultaneously with the video. Multiple languages supported for lip sync including English, Chinese, and Spanish.</p>
+  </div>
+</section>
+
+<!-- Access -->
+<section id="access">
+  <div class="container">
+    <div class="section-label">Getting In</div>
+    <h2 class="section-title">Three ways <em>to access</em> Seedance 2.0</h2>
+    <p>There are 3 paths ranked from easiest to most full-featured. You don't necessarily need the Chinese phone number route.</p>
+
+    <!-- Path 1: BytePlus -->
+    <div class="path-card easy">
+      <div class="path-header">
+        <div class="path-name">BytePlus API</div>
+        <div class="path-tag green">Easiest — No Chinese Number</div>
+      </div>
+      <p>BytePlus is ByteDance's <strong>international</strong> developer platform. No Chinese phone number needed, just a regular email signup. Seedance 1.5 Pro is already live with 2M free tokens. <strong>Seedance 2.0 API expected Feb 24.</strong></p>
+      <div class="steps">
+        <div class="step"><div class="step-content">Go to <strong>byteplus.com</strong> and create an account with email</div></div>
+        <div class="step"><div class="step-content">Navigate to <strong>ModelArk</strong> in the console</div></div>
+        <div class="step"><div class="step-content">Generate an API key, start calling the Seedance endpoint</div></div>
+      </div>
+      <p>The catch: this is API/developer-oriented, not a nice visual GUI. Best if you're comfortable with code or want to integrate it into a workflow. Third-party wrappers like <strong>Replicate, Together AI, Fal.ai</strong> will also have Seedance 2.0 after the 24th with friendlier interfaces.</p>
+    </div>
+
+    <!-- Path 2: Little Skylark -->
+    <div class="path-card medium">
+      <div class="path-header">
+        <div class="path-name">Little Skylark App</div>
+        <div class="path-tag yellow">Free Tier — Mobile App</div>
+      </div>
+      <p>Search for <strong>"小云雀" (Xiao Yunque)</strong> in your app store. ByteDance's lighter creative app that's currently in a growth phase, offering <strong>free Seedance 2.0 generations</strong> with zero point deduction. You get 3 free gens on first login plus 120 daily points.</p>
+      <div class="steps">
+        <div class="step"><div class="step-content">Download <strong>Little Skylark</strong> from App Store or Google Play</div></div>
+        <div class="step"><div class="step-content">Create account and log in</div></div>
+        <div class="step"><div class="step-content">Go to video generation tab, <strong>manually select Seedance 2.0</strong> from dropdown (defaults to older model)</div></div>
+      </div>
+      <p>Simpler interface than Jimeng but has the core text-to-video and image-to-video features. May still require Chinese account verification depending on region.</p>
+    </div>
+
+    <!-- Path 3: Jimeng -->
+    <div class="path-card hard">
+      <div class="path-header">
+        <div class="path-name">Jimeng (Dreamina)</div>
+        <div class="path-tag red">Full Features — Chinese Number Required</div>
+      </div>
+      <p>The full experience with all multimodal features: the @ reference system, multi-image/video/audio input, "All-Round Reference" director mode. <strong>This is where the magic from the demos lives.</strong> Requires a Douyin (Chinese TikTok) account.</p>
+      <div class="steps">
+        <div class="step"><div class="step-content">Get a <strong>Chinese +86 phone number</strong> via SMS verification service (see guide below)</div></div>
+        <div class="step"><div class="step-content">Create a <strong>Douyin</strong> account using that number (browser or app)</div></div>
+        <div class="step"><div class="step-content">Go to <strong>jimeng.jianying.com</strong> and sign in with Douyin credentials</div></div>
+        <div class="step"><div class="step-content">Navigate to <strong>Generate → Video Generate → Seedance 2.0</strong></div></div>
+      </div>
+      <p>The UI is in Chinese, so <strong>use Chrome's built-in page translator</strong>. Free tier gets a few daily gens. The Standard Membership at ~69 RMB/month (~$9.50 USD) unlocks Fast Mode, commercial licensing, and the full director-level features.</p>
+    </div>
+
+    <!-- Volcengine bonus -->
+    <div class="callout info">
+      <div class="callout-title">Bonus — Volcengine Playground</div>
+      <p>ByteDance's cloud platform at <strong>console.volcengine.com</strong> has a Playground where you can select "Doubao-Seedance-2.0" under Vision models. New users get <strong>8 free 15-second HD video generations</strong>. Nice for quick testing without committing to anything.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SMS Phone Number -->
+<section id="sms">
+  <div class="container">
+    <div class="section-label">The Phone Number Problem</div>
+    <h2 class="section-title">Getting a <em>Chinese</em> +86 number</h2>
+    <p>If you're going the Jimeng route, you need a Chinese phone number because <strong>Douyin requires +86 SMS verification</strong> and Jimeng uses Douyin as its login provider. No Douyin account = no Jimeng access. The entire auth chain is Chinese-number-gated.</p>
+    
+    <p><strong>How it works:</strong> SMS verification services maintain pools of real Chinese SIM cards (not VoIP). You rent one temporarily, the service receives the SMS on the physical SIM, and displays the verification code to you on a web dashboard. You never touch a physical phone. The number gets recycled after you're done.</p>
+
+    <p>There are two tiers of services:</p>
+
+    <div class="callout green">
+      <div class="callout-title">Recommended — Paid Services ($0.50-2.00)</div>
+      <p>You create an account, deposit $1-5, select "Douyin/TikTok" as the service and "China" as the country, get a <strong>private number assigned just to you</strong> for ~20 minutes. Code arrives in your dashboard. Much more reliable than free options.</p>
+    </div>
+
+    <table class="sms-table">
+      <thead>
+        <tr><th>Service</th><th>Cost</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="https://sms-activate.io" target="_blank">SMS-Activate</a></td>
+          <td>~$0.50-2.00</td>
+          <td>Best overall. Select "Douyin" + "China". Private number, reliable delivery.</td>
+        </tr>
+        <tr>
+          <td><a href="https://smspool.net" target="_blank">SMSPool</a></td>
+          <td>~$0.50-1.50</td>
+          <td>Good alternative. Non-VoIP numbers, works for Chinese services.</td>
+        </tr>
+        <tr>
+          <td><a href="https://grizzlysms.com" target="_blank">Grizzly SMS</a></td>
+          <td>~$0.50-2.00</td>
+          <td>Specifically advertises Douyin support. Simple interface.</td>
+        </tr>
+        <tr>
+          <td><a href="https://smspva.com" target="_blank">SMSPVA</a></td>
+          <td>~$0.30-1.00</td>
+          <td>Budget option. Real SIM numbers, 20min rental window.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="sms-table">
+      <thead>
+        <tr><th>Free Service</th><th>Cost</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="https://smsonline.cloud/country/China" target="_blank">SMSOnline.cloud</a></td>
+          <td>Free</td>
+          <td>Public/shared numbers. First-come-first-served on codes. Try 3-5 numbers.</td>
+        </tr>
+        <tr>
+          <td><a href="https://quackr.io/temporary-numbers/china" target="_blank">Quackr.io</a></td>
+          <td>Free</td>
+          <td>Free Chinese numbers. Shared, so Douyin may have blocked some.</td>
+        </tr>
+        <tr>
+          <td><a href="https://receive-sms.cc/Receive-SMS-From/DouYin" target="_blank">receive-sms.cc</a></td>
+          <td>Free</td>
+          <td>Has a Douyin-specific page. Shows recent verification codes publicly.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <div class="callout-title">Correction from viral thread</div>
+      <p>The original Twitter thread recommended <strong>TextVerified</strong> for Chinese numbers. TextVerified only sells US numbers. It won't work for Douyin. Use <strong>SMS-Activate or SMSPool</strong> instead.</p>
+    </div>
+
+    <div class="section-label" style="margin-top:2rem">Step by Step — SMS-Activate</div>
+    <div class="steps">
+      <div class="step"><div class="step-content">Go to <strong>sms-activate.io</strong>, create an account</div></div>
+      <div class="step"><div class="step-content">Deposit <strong>$2-3</strong> via crypto or card (minimum is low)</div></div>
+      <div class="step"><div class="step-content">In the service list, search for <strong>"Douyin"</strong> or <strong>"TikTok"</strong>. Select <strong>China</strong> as country</div></div>
+      <div class="step"><div class="step-content">Click buy. You get a <strong>+86 number</strong> displayed in your dashboard</div></div>
+      <div class="step"><div class="step-content"><strong>Copy the number.</strong> Go to Douyin signup, paste it in the phone field, hit "send code"</div></div>
+      <div class="step"><div class="step-content">Go back to SMS-Activate. The <strong>verification code</strong> appears in your activation panel within 1-2 minutes</div></div>
+      <div class="step"><div class="step-content">Enter the code on Douyin. <strong>Done.</strong> You now have a Douyin account</div></div>
+      <div class="step"><div class="step-content">Head to <strong>jimeng.jianying.com</strong>, sign in with Douyin, and you're in Seedance 2.0</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- The @ Reference System -->
+<section id="reference">
+  <div class="container">
+    <div class="section-label">Core Concept</div>
+    <h2 class="section-title">The <em>@</em> reference system</h2>
+    <p>This is what makes Seedance 2.0 fundamentally different from every other AI video tool. When you upload files, they get auto-labeled: <strong>@Image1, @Image2, @Video1, @Audio1</strong>, etc. You reference them in your prompt to assign each file a specific role.</p>
+    
+    <p>Think of it like casting a film. You're telling the AI: <strong>"this file is the actor, this file is the cinematographer's reel, this file is the soundtrack."</strong> Each @ reference has a purpose.</p>
+
+    <div class="feature-row">
+      <div class="feature-icon">🎬</div>
+      <div class="feature-body">
+        <h4>Motion / Camera Reference</h4>
+        <p>"Reference @Video1 for camera movement" — steals the cinematography from any video and applies it to your scene</p>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">👤</div>
+      <div class="feature-body">
+        <h4>Character Reference</h4>
+        <p>"@Image1 is the main character" — locks face identity throughout the video (currently restricted for real faces)</p>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">🎨</div>
+      <div class="feature-body">
+        <h4>Style Reference</h4>
+        <p>"Use @Image2 for visual style" — applies color grading, lighting, aesthetic from a reference image</p>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">🎵</div>
+      <div class="feature-body">
+        <h4>Audio Reference</h4>
+        <p>"Use @Audio1 for background music" — syncs the generated video to your audio track</p>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">🏠</div>
+      <div class="feature-body">
+        <h4>Environment Reference</h4>
+        <p>"@Image3 as the setting" — uses an image as the scene/location for your video</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Prompt Examples -->
+<section id="prompts">
+  <div class="container">
+    <div class="section-label">Prompt Craft</div>
+    <h2 class="section-title"><em>Example</em> prompts</h2>
+    <p>The key is being explicit about what each @ reference controls. Here are real prompt patterns:</p>
+
+    <div class="prompt-example">
+      <div class="prompt-label">Camera + Character + Setting</div>
+      <div class="prompt-text">Reference <span class="ref">@Image1</span> for the man's appearance in <span class="ref">@Image2</span>'s elevator setting. Fully replicate <span class="ref">@Video1</span>'s camera movements and the protagonist's facial expressions. Hitchcock zoom when startled, then several orbit shots inside the elevator. Doors open, tracking shot following him out.</div>
+    </div>
+
+    <div class="prompt-example">
+      <div class="prompt-label">Ad Creative Replication</div>
+      <div class="prompt-text">Replace the person in <span class="ref">@Video1</span> with the girl in <span class="ref">@Image1</span>. Reference <span class="ref">@Video1</span>'s camera work and transitions. Keep the same editing rhythm and pacing.</div>
+    </div>
+
+    <div class="prompt-example">
+      <div class="prompt-label">Motion Transfer</div>
+      <div class="prompt-text"><span class="ref">@Image1</span> performs the dance from <span class="ref">@Video1</span>. Match the choreography exactly. Use <span class="ref">@Audio1</span> for background music. Beat-synced editing.</div>
+    </div>
+
+    <div class="prompt-example">
+      <div class="prompt-label">Multi-Shot Storytelling</div>
+      <div class="prompt-text">Shot 1 is a wide view of the city at sunset. Shot 2 is a close-up of the character from <span class="ref">@Image1</span> looking out a window. Shot 3 is a tracking shot following them down a hallway. Consistent character, smooth transitions between scenes.</div>
+    </div>
+
+    <div class="prompt-example">
+      <div class="prompt-label">Video Extension</div>
+      <div class="prompt-text">Extend <span class="ref">@Video1</span> by 15 seconds. The character walks through the door into a sunlit garden. Wide establishing shot, then slow push-in to a close-up. Ambient nature sounds.</div>
+    </div>
+
+    <div class="prompt-example">
+      <div class="prompt-label">One-Take Continuity</div>
+      <div class="prompt-text"><span class="ref">@Image1</span> through <span class="ref">@Image5</span>, one continuous tracking shot following a runner up stairs, through corridors, onto the roof, ending with an overhead view of the city. No cuts. One continuous take.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Key Features -->
+<section id="features">
+  <div class="container">
+    <div class="section-label">Capabilities</div>
+    <h2 class="section-title">What it <em>actually</em> does</h2>
+    
+    <div class="feature-row">
+      <div class="feature-icon">🎥</div>
+      <div class="feature-body">
+        <h4>Motion + Camera Replication</h4>
+        <p>Upload a reference video and Seedance extracts choreography, camera techniques (dolly, tracking, crane, handheld), editing rhythm, and specific moves (Hitchcock zooms, whip pans, orbit shots). You're stealing cinematography from any video.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">🔄</div>
+      <div class="feature-body">
+        <h4>Creative Template Replication</h4>
+        <p>Find an ad format, transition effect, or editing style you like. Upload it as reference, swap in your own product/character. One-click recreation of trending content. Massive for ad scaling.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">➕</div>
+      <div class="feature-body">
+        <h4>Video Extension + Continuation</h4>
+        <p>Take an existing clip and extend it with smooth continuity. Not just "generate more" but "keep filming" with shot-to-shot coherence.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">✂️</div>
+      <div class="feature-body">
+        <h4>Video Editing</h4>
+        <p>Modify existing videos without regenerating: character replacement, add/remove elements, apply new styles, change narrative direction. Preserves the original motion and composition.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">🔊</div>
+      <div class="feature-body">
+        <h4>Audio Sync + Lip Sync</h4>
+        <p>Generates realistic lip-sync matched to mouth movements in multiple languages. Environmental sounds (wind, rain, traffic) based on scene content. Sound effects matched to on-screen actions. Music that follows visual rhythm.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">🎶</div>
+      <div class="feature-body">
+        <h4>Beat-Synced Editing</h4>
+        <p>Music video style content that actually hits the beats. Outfit changes, scene transitions, and camera moves timed to the music. Upload audio reference and the visual editing syncs to it.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">📖</div>
+      <div class="feature-body">
+        <h4>Multi-Shot Storytelling</h4>
+        <p>Describe a sequence of shots in one prompt. The AI understands they belong to the same story. Multi-camera narrative flow with synced audio, consistent characters, smooth transitions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pro Tips -->
+<section id="tips">
+  <div class="container">
+    <div class="section-label">Get Good</div>
+    <h2 class="section-title"><em>Pro</em> tips</h2>
+
+    <div class="feature-row">
+      <div class="feature-icon">📸</div>
+      <div class="feature-body">
+        <h4>High-Quality References</h4>
+        <p>If @Image1 is blurry, your video will be blurry. Use 2K or 4K images. The AI needs clean source material to work with.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-body">
+        <h4>Be Explicit About References</h4>
+        <p>"Reference @Video1's camera movement" hits way harder than just mentioning the file. Tell the model exactly what you want from each reference.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">🔀</div>
+      <div class="feature-body">
+        <h4>Combine Video + Image Tags</h4>
+        <p>Upload a photo as @Image1, a dance video as @Video1, prompt: "@Image1 performs the dance from @Video1." Perfect motion transfer to a custom character. This is the power move.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">🔁</div>
+      <div class="feature-body">
+        <h4>Iterate Small Changes</h4>
+        <p>Don't rewrite your whole prompt if you don't like a result. Change one word or swap one reference file. Generation is fast enough to try 10 versions in 5 minutes.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">📝</div>
+      <div class="feature-body">
+        <h4>Edit vs. Reference</h4>
+        <p>Make clear whether you want to EDIT an existing video (modify it) or use it as a REFERENCE for something new (copy its style/motion). Different intent, different results.</p>
+      </div>
+    </div>
+
+    <div class="feature-row">
+      <div class="feature-icon">🌐</div>
+      <div class="feature-body">
+        <h4>Chrome Translate</h4>
+        <p>Jimeng is in Chinese. Right-click → "Translate to English" in Chrome. Works fine for navigation. The prompt input box accepts English text.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison -->
+<section id="compare">
+  <div class="container">
+    <div class="section-label">Context</div>
+    <h2 class="section-title">How it <em>compares</em></h2>
+    <div class="compare-grid">
+      <div class="compare-cell header">Feature</div>
+      <div class="compare-cell header">Seedance 2.0</div>
+      <div class="compare-cell header">Sora 2 / Veo 3</div>
+      <div class="compare-cell label">Multi-modal input (img+vid+audio+text)</div>
+      <div class="compare-cell"><span class="yes">✓ Yes, all four</span></div>
+      <div class="compare-cell"><span class="partial">~ Text + image only</span></div>
+      <div class="compare-cell label">@ reference system</div>
+      <div class="compare-cell"><span class="yes">✓ Full control</span></div>
+      <div class="compare-cell"><span class="no">✗ No equivalent</span></div>
+      <div class="compare-cell label">Native audio generation</div>
+      <div class="compare-cell"><span class="yes">✓ Lip sync + SFX</span></div>
+      <div class="compare-cell"><span class="partial">~ Veo 3 has audio</span></div>
+      <div class="compare-cell label">Resolution</div>
+      <div class="compare-cell">2K native</div>
+      <div class="compare-cell">1080p</div>
+      <div class="compare-cell label">Max duration</div>
+      <div class="compare-cell">15 seconds</div>
+      <div class="compare-cell">20 seconds</div>
+      <div class="compare-cell label">Multi-shot in one prompt</div>
+      <div class="compare-cell"><span class="yes">✓ Yes</span></div>
+      <div class="compare-cell"><span class="partial">~ Limited</span></div>
+      <div class="compare-cell label">Approximate cost</div>
+      <div class="compare-cell">~$0.01/sec (API)</div>
+      <div class="compare-cell">~$0.05-0.20/sec</div>
+      <div class="compare-cell label">Easy western access</div>
+      <div class="compare-cell"><span class="partial">~ Feb 24 API</span></div>
+      <div class="compare-cell"><span class="yes">✓ Yes</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Use Cases -->
+<section>
+  <div class="container">
+    <div class="section-label">Applications</div>
+    <h2 class="section-title">What to <em>make</em> with it</h2>
+    
+    <div class="feature-row">
+      <div class="feature-icon">📦</div>
+      <div class="feature-body">
+        <h4>Ads + E-commerce</h4>
+        <p>Product demos with synced narration. Replicate winning ad creatives with your own products. Template-based scaling where you find what works and reproduce it infinitely.</p>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">🌍</div>
+      <div class="feature-body">
+        <h4>Content Localization</h4>
+        <p>Multi-language versions with native lip-sync. Reference original video for motion, generate new dialogue in the target language. One shoot, every market.</p>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">📱</div>
+      <div class="feature-body">
+        <h4>Short-Form Content</h4>
+        <p>Combine multiple clips, audio, and effects in minutes for TikToks, Reels, Shorts. The multi-input system is built for this workflow.</p>
+      </div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-icon">🖼️</div>
+      <div class="feature-body">
+        <h4>Storyboard to Video</h4>
+        <p>Upload storyboard panels as reference images, describe the motion between them. Your static boards become moving scenes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Compiled Feb 2026 &middot; Not affiliated with ByteDance &middot; Info sourced from public documentation + testing
+</footer>
+
+<script>
+// Smooth reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('section > .container').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(24px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+
+// Active nav highlighting
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 120) current = s.getAttribute('id');
+  });
+  navLinks.forEach(a => {
+    a.style.color = a.getAttribute('href') === '#' + current ? '#ff4d2a' : '';
+  });
+});
+</script>
+</body>
+</html>
