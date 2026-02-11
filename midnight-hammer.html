@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation Midnight Hammer — B-2 Strikes on Iran</title>
+<meta property="og:title" content="Operation Midnight Hammer — B-2 Strikes on Iran">
+<meta property="og:description" content="Interactive briefing on the historic B-2 stealth bomber strikes on Iranian nuclear facilities and the 2026 military buildup.">
+<meta property="og:url" content="https://niggerfaggot.club/midnight-hammer.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0e13;--surface:#111820;--surface2:#1a2330;--border:#1e2a3a;
+--text:#c8d6e5;--text-dim:#6b7f95;--text-bright:#e8f0f8;
+--accent:#ff4d4d;--accent2:#ff8c42;--green:#22c55e;--blue:#3b82f6;
+--amber:#f59e0b;--cyan:#06b6d4;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.6;overflow-x:hidden}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* Scanline overlay */
+body::after{content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+pointer-events:none;z-index:9999}
+
+/* Header */
+header{padding:2rem 1.5rem;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+background:linear-gradient(135deg,rgba(255,77,77,.05),transparent 40%,rgba(255,140,66,.03));pointer-events:none}
+.classification{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.3em;
+color:var(--accent);text-transform:uppercase;margin-bottom:.5rem;
+animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+h1{font-size:clamp(1.8rem,5vw,3rem);font-weight:700;color:var(--text-bright);letter-spacing:-.02em;line-height:1.1}
+h1 span{color:var(--accent)}
+.subtitle{color:var(--text-dim);font-size:.95rem;margin-top:.5rem;max-width:600px}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,14,19,.92);backdrop-filter:blur(12px);
+border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;gap:1rem;overflow-x:auto}
+nav a{color:var(--text-dim);text-decoration:none;font-size:.8rem;font-family:'JetBrains Mono',monospace;
+letter-spacing:.05em;white-space:nowrap;transition:color .2s;padding:.25rem .5rem;border-radius:4px}
+nav a:hover{color:var(--text-bright);background:var(--surface2)}
+
+/* Sections */
+section{padding:3rem 1.5rem;border-bottom:1px solid var(--border);max-width:1200px;margin:0 auto}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.25em;
+color:var(--accent);text-transform:uppercase;margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem}
+.section-label::before{content:'';width:12px;height:1px;background:var(--accent)}
+h2{font-size:clamp(1.3rem,3vw,1.8rem);font-weight:700;color:var(--text-bright);margin-bottom:1rem}
+p{margin-bottom:1rem;max-width:720px}
+
+/* Map */
+#map{width:100%;height:500px;border-radius:8px;border:1px solid var(--border);margin:1.5rem 0}
+.leaflet-popup-content-wrapper{background:var(--surface)!important;color:var(--text)!important;
+border:1px solid var(--border)!important;border-radius:8px!important;box-shadow:0 8px 32px rgba(0,0,0,.5)!important}
+.leaflet-popup-tip{background:var(--surface)!important;border:1px solid var(--border)!important}
+.leaflet-popup-content{font-family:'DM Sans',sans-serif!important;font-size:.85rem!important;line-height:1.5!important}
+.leaflet-popup-content h3{font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.1em;
+color:var(--accent);text-transform:uppercase;margin-bottom:.35rem}
+.leaflet-popup-content .pop-detail{color:var(--text-dim);font-size:.8rem}
+.popup-tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:.65rem;
+font-family:'JetBrains Mono',monospace;letter-spacing:.05em;margin-top:.35rem}
+.tag-target{background:rgba(255,77,77,.15);color:var(--accent)}
+.tag-origin{background:rgba(59,130,246,.15);color:var(--blue)}
+.tag-asset{background:rgba(34,197,94,.15);color:var(--green)}
+.tag-duna{background:rgba(255,140,66,.15);color:var(--accent2)}
+.tag-buildup{background:rgba(245,158,11,.15);color:var(--amber)}
+
+/* Second map */
+#map2{width:100%;height:500px;border-radius:8px;border:1px solid var(--border);margin:1.5rem 0}
+
+/* Timeline */
+.timeline{position:relative;padding-left:2rem;margin:2rem 0}
+.timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:2rem;padding-left:1.5rem}
+.tl-item::before{content:'';position:absolute;left:-2rem;top:.35rem;width:14px;height:14px;
+border-radius:50%;border:2px solid var(--accent);background:var(--bg)}
+.tl-item.green::before{border-color:var(--green)}
+.tl-item.blue::before{border-color:var(--blue)}
+.tl-item.amber::before{border-color:var(--amber)}
+.tl-item.cyan::before{border-color:var(--cyan)}
+.tl-date{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;color:var(--text-dim);margin-bottom:.25rem}
+.tl-title{font-weight:700;color:var(--text-bright);font-size:1rem;margin-bottom:.25rem}
+.tl-body{font-size:.9rem;color:var(--text);max-width:640px}
+
+/* Stats grid */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1.5rem 0}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;
+position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat.red::before{background:var(--accent)}
+.stat.blue::before{background:var(--blue)}
+.stat.green::before{background:var(--green)}
+.stat.amber::before{background:var(--amber)}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:700;color:var(--text-bright);line-height:1}
+.stat-label{font-size:.75rem;color:var(--text-dim);margin-top:.35rem;letter-spacing:.03em}
+
+/* Duna callout */
+.callout{background:linear-gradient(135deg,rgba(255,140,66,.08),rgba(255,77,77,.05));
+border:1px solid rgba(255,140,66,.2);border-radius:8px;padding:1.5rem;margin:1.5rem 0;max-width:720px}
+.callout-title{font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.15em;
+color:var(--accent2);text-transform:uppercase;margin-bottom:.5rem}
+
+/* Comparison table */
+.comparison{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.85rem}
+.comparison th{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.1em;
+text-transform:uppercase;color:var(--text-dim);text-align:left;padding:.75rem 1rem;
+border-bottom:2px solid var(--border);background:var(--surface)}
+.comparison td{padding:.75rem 1rem;border-bottom:1px solid var(--border);vertical-align:top}
+.comparison tr:hover td{background:var(--surface)}
+.comparison .highlight{color:var(--accent);font-weight:700}
+
+/* Flight path */
+.flight-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:1.5rem 0}
+.flight-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.5rem}
+.flight-card h3{font-family:'JetBrains Mono',monospace;font-size:.75rem;letter-spacing:.15em;
+color:var(--blue);text-transform:uppercase;margin-bottom:.75rem}
+.flight-card p{font-size:.85rem;margin-bottom:.5rem}
+
+/* Footer */
+footer{padding:2rem 1.5rem;text-align:center;color:var(--text-dim);font-size:.75rem;
+font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+@media(max-width:640px){
+section{padding:2rem 1rem}
+#map,#map2{height:350px}
+.stats{grid-template-columns:repeat(2,1fr)}
+.flight-info{grid-template-columns:1fr}
+.comparison{font-size:.75rem}
+.comparison th,.comparison td{padding:.5rem}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="classification">UNCLASSIFIED // OPEN SOURCE INTELLIGENCE</div>
+<h1>Operation <span>Midnight Hammer</span></h1>
+<p class="subtitle">The historic B-2 stealth bomber strike on Iranian nuclear facilities and the escalating 2026 military buildup. All data from open-source reporting.</p>
+</header>
+
+<nav>
+<a href="#overview">Overview</a>
+<a href="#map-section">Strike Map</a>
+<a href="#timeline">Timeline</a>
+<a href="#weapons">Weapons</a>
+<a href="#duna">Duna's Front Row</a>
+<a href="#buildup">2026 Buildup</a>
+<a href="#buildup-map">Buildup Map</a>
+<a href="#whats-next">What's Next</a>
+</nav>
+
+<section id="overview">
+<div class="section-label">Situation Overview</div>
+<h2>What Happened on June 21-22, 2025</h2>
+<p>On the night of June 21, 2025, seven B-2 Spirit stealth bombers launched from Whiteman Air Force Base in Missouri on an 18-hour, one-way flight to Iran. Their mission: deliver 14 GBU-57 Massive Ordnance Penetrator (MOP) bunker-buster bombs onto Iran's most critical nuclear enrichment facilities. Six additional B-2s flew to Guam as decoys. It was the largest B-2 strike in U.S. history, the first combat use of the MOP, and the longest B-2 mission since 2001.</p>
+<p>The operation, codenamed <strong style="color:var(--accent)">Midnight Hammer</strong>, involved over 125 aircraft, 4,000 personnel, and more than 75 precision-guided weapons. A U.S. submarine simultaneously launched 24+ Tomahawk cruise missiles at the Isfahan nuclear facility. F-35 and F-22 fighters entered Iranian airspace to suppress air defenses. Iran's fighters never launched. Their SAMs never saw the strike package.</p>
+
+<div class="stats">
+<div class="stat red"><div class="stat-val">7</div><div class="stat-label">B-2 bombers in strike</div></div>
+<div class="stat red"><div class="stat-val">14</div><div class="stat-label">Bunker busters dropped</div></div>
+<div class="stat blue"><div class="stat-val">125+</div><div class="stat-label">Aircraft involved</div></div>
+<div class="stat green"><div class="stat-val">75+</div><div class="stat-label">Precision weapons used</div></div>
+<div class="stat amber"><div class="stat-val">30hr</div><div class="stat-label">Round-trip mission time</div></div>
+<div class="stat blue"><div class="stat-val">4,000</div><div class="stat-label">Personnel involved</div></div>
+<div class="stat red"><div class="stat-val">22,000</div><div class="stat-label">Centrifuges destroyed</div></div>
+<div class="stat green"><div class="stat-val">0</div><div class="stat-label">U.S. casualties</div></div>
+</div>
+</section>
+
+<section id="map-section">
+<div class="section-label">Strike Map</div>
+<h2>Operation Midnight Hammer — Key Locations</h2>
+<p>The B-2s launched from central Missouri, flew east across the Atlantic and Mediterranean, refueling 6-7 times mid-air, before entering Iranian airspace. Three nuclear facilities were struck simultaneously between 6:40 PM and 7:05 PM ET (2:10-2:35 AM Iran time).</p>
+<div id="map"></div>
+</section>
+
+<section id="timeline">
+<div class="section-label">Operational Timeline</div>
+<h2>How It Unfolded</h2>
+
+<div class="timeline">
+<div class="tl-item blue">
+<div class="tl-date">Jun 13, 2025</div>
+<div class="tl-title">Israel launches surprise strikes on Iran</div>
+<div class="tl-body">The Iran-Israel War begins. Israeli forces begin degrading Iranian air defenses, inadvertently creating the opening the U.S. needs.</div>
+</div>
+<div class="tl-item">
+<div class="tl-date">Jun 21, 2025 — ~00:30 ET</div>
+<div class="tl-title">B-2s depart Whiteman AFB</div>
+<div class="tl-body">13 B-2 Spirits launch from Whiteman in the early hours. Seven head east toward Iran. Six head west to Guam as decoys to misdirect tracking.</div>
+</div>
+<div class="tl-item green">
+<div class="tl-date">Jun 21 — throughout the day</div>
+<div class="tl-title">6-7 aerial refuelings over the Atlantic</div>
+<div class="tl-body">KC-135 and KC-46A tankers prepositioned along the route. Each refueling takes 15-30 minutes, pilots flying within 10 feet of the tanker.</div>
+</div>
+<div class="tl-item amber">
+<div class="tl-date">Jun 21 — ~17:00 ET (12:30 AM Iran)</div>
+<div class="tl-title">Submarine launches 24+ Tomahawks at Isfahan</div>
+<div class="tl-body">A U.S. submarine in the CENTCOM AOR fires Tomahawk cruise missiles at Isfahan nuclear technology center. Timed to hit last, preserving surprise.</div>
+</div>
+<div class="tl-item">
+<div class="tl-date">Jun 21 — ~18:00 ET (1:30 AM Iran)</div>
+<div class="tl-title">Strike package enters Iranian airspace</div>
+<div class="tl-body">B-2s joined by F-35 and F-22 fighters. Fighter escorts launch ~30 munitions at potential SAM sites. No Iranian fighters launch. No SAM engagement detected.</div>
+</div>
+<div class="tl-item">
+<div class="tl-date">Jun 21 — 18:40 ET (2:10 AM Iran)</div>
+<div class="tl-title">First MOPs hit Fordow</div>
+<div class="tl-body">The lead B-2 drops two GBU-57s on the Fordow enrichment plant, buried 260-300 feet inside a mountain. First-ever combat use of the MOP. Total of 12 MOPs hit Fordow.</div>
+</div>
+<div class="tl-item">
+<div class="tl-date">Jun 21 — 18:40-19:05 ET</div>
+<div class="tl-title">All three sites struck in 25 minutes</div>
+<div class="tl-body">Fordow: 12 MOPs. Natanz: 2 MOPs. Isfahan: 24+ Tomahawks. Total: 75+ precision-guided weapons across three facilities.</div>
+</div>
+<div class="tl-item green">
+<div class="tl-date">Jun 22, 2025 — afternoon</div>
+<div class="tl-title">B-2s return to Whiteman</div>
+<div class="tl-body">~12 hours after weapons release, all seven B-2s land safely. Local news crews wait in Knob Noster. The bombers left unnoticed and returned to cameras.</div>
+</div>
+<div class="tl-item cyan">
+<div class="tl-date">Jun 22, 2025 — evening</div>
+<div class="tl-title">Trump announces: "Obliterated"</div>
+<div class="tl-body">"Iran's key nuclear enrichment facilities have been completely and totally obliterated." Pentagon briefing confirms "extremely severe damage and destruction."</div>
+</div>
+<div class="tl-item blue">
+<div class="tl-date">Jun 24, 2025</div>
+<div class="tl-title">Ceasefire</div>
+<div class="tl-body">Iran retaliates with a symbolic missile strike on a U.S. base in Qatar (casualties avoided, likely pre-coordinated). Trump announces ceasefire the next day.</div>
+</div>
+<div class="tl-item amber">
+<div class="tl-date">Jul 2025 — Pentagon assessment</div>
+<div class="tl-title">Iran set back ~2 years</div>
+<div class="tl-body">Pentagon estimates Iran's nuclear program set back around 2 years. Independent analysis: all 22,000 centrifuges destroyed or inoperable. Iran has no path to weapons-grade uranium at known sites "for the first time in 15 years."</div>
+</div>
+</div>
+</section>
+
+<section id="weapons">
+<div class="section-label">Weapons Systems</div>
+<h2>What Hit Iran</h2>
+
+<table class="comparison">
+<thead>
+<tr><th>Weapon</th><th>Details</th><th>Targets</th></tr>
+</thead>
+<tbody>
+<tr>
+<td class="highlight">GBU-57A/B MOP</td>
+<td>30,000 lbs (13,600 kg). 20 feet long. Penetrates 100+ feet of reinforced concrete or 200+ feet of earth. Can only be carried by B-2. Programmable delayed fuze detonates at target depth.</td>
+<td>12 on Fordow, 2 on Natanz (14 total)</td>
+</tr>
+<tr>
+<td class="highlight">Tomahawk TLAM</td>
+<td>Cruise missile, submarine-launched. 1,000+ mile range. Precision GPS/TERCOM guidance.</td>
+<td>24+ on Isfahan</td>
+</tr>
+<tr>
+<td class="highlight">SEAD munitions</td>
+<td>~30 air-to-ground weapons from F-35/F-22 fighters targeting Iranian surface-to-air missile systems.</td>
+<td>SAM sites along approach corridor</td>
+</tr>
+</tbody>
+</table>
+
+<div class="flight-info">
+<div class="flight-card">
+<h3>B-2 Spirit</h3>
+<p><strong style="color:var(--text-bright)">The only aircraft on Earth that can carry the MOP.</strong></p>
+<p>Flying wing stealth bomber. 172 ft wingspan. Crew of 2. Range: 6,900 miles (11,100 km). Two internal bomb bays. Near-invisible to radar due to shape and radar-absorbent coating.</p>
+<p>Only 20 operational B-2s exist. All based at Whiteman AFB, Missouri. Cost: ~$2 billion each.</p>
+</div>
+<div class="flight-card">
+<h3>Mission Profile</h3>
+<p><strong style="color:var(--text-bright)">30+ hour round trip from Missouri to Iran and back.</strong></p>
+<p>Route: Whiteman → Atlantic → Mediterranean → Middle East → Iran → reverse. 6-7 mid-air refuelings. Strict crew rest/diet protocols. Pilots in cockpit for the entire mission with no autopilot for combat phases.</p>
+<p>Decoy flight: 6 B-2s flew west to Guam to confuse OSINT trackers and foreign intelligence.</p>
+</div>
+</div>
+</section>
+
+<section id="duna">
+<div class="section-label">Local Perspective</div>
+<h2>Duna's Front Row Seat</h2>
+
+<div class="callout">
+<div class="callout-title">Why B-2s keep flying over Hume, Missouri</div>
+<p style="margin-bottom:0"><strong style="color:var(--text-bright)">Whiteman Air Force Base in Knob Noster, MO is the ONLY operational home of the entire B-2 fleet on the planet.</strong> All 20 B-2 Spirits live there. Hume is roughly 50 miles away. Every B-2 you see flying is either training, doing proficiency hours, or heading to/from an actual mission.</p>
+</div>
+
+<p>On the night of June 21, 2025, 13 B-2s launched from Whiteman just after midnight local time. They left unnoticed. When seven of them returned the next afternoon, local news crews were staged in Knob Noster. Anyone living within 50-100 miles of Whiteman would have potentially seen or heard the largest B-2 deployment in history rolling out overhead.</p>
+
+<p>The B-2s are <strong>not spy planes</strong>. They're heavy strategic bombers. The "stealth" means enemy radar can't detect them effectively. It has nothing to do with domestic surveillance. If the government wanted to watch someone, they'd use a satellite or a small drone you'd never notice, not a $2 billion bomber doing laps. Actual reconnaissance aircraft (U-2, RQ-4 Global Hawk, RC-135) fly at 60,000-70,000+ feet where you'd never see them.</p>
+
+<p>When you see increased B-2 activity over Hume, it means one of two things: routine training flights (pilots need flight hours), or heightened readiness for a potential operation. Right now in February 2026, it's likely the latter.</p>
+</section>
+
+<section id="buildup">
+<div class="section-label">Current Situation — February 2026</div>
+<h2>The Buildup for Round 2</h2>
+
+<p>As of February 2026, the U.S. has assembled what Trump calls a "massive armada" within striking range of Iran. Diplomatic talks are set for Friday in Oman, but the two sides are far apart. Military analysts and Israeli leadership estimate conflict could begin within 2 weeks to 2 months.</p>
+
+<div class="timeline">
+<div class="tl-item amber">
+<div class="tl-date">Late Dec 2025</div>
+<div class="tl-title">Massive protests erupt across Iran</div>
+<div class="tl-body">The largest wave of unrest since 1979. The regime responds with a brutal crackdown. Thousands killed. The IRGC and Basij are consumed with domestic control.</div>
+</div>
+<div class="tl-item">
+<div class="tl-date">Jan 26, 2026</div>
+<div class="tl-title">USS Abraham Lincoln CSG deploys to Arabian Sea</div>
+<div class="tl-body">Nuclear-powered carrier with Carrier Air Wing 9, guided-missile destroyers, cruisers. Additional ships: USS McFaul and USS Mitscher in Strait of Hormuz, USS Delbert D. Black in Red Sea.</div>
+</div>
+<div class="tl-item">
+<div class="tl-date">Late Jan 2026</div>
+<div class="tl-title">Fresh sanctions on Iranian officials</div>
+<div class="tl-body">Treasury targets Interior Minister Momeni and businessman Zanjani. Treasury Secretary Bessent says Iranian leaders are moving tens of millions out of the country, "abandoning ship."</div>
+</div>
+<div class="tl-item">
+<div class="tl-date">Feb 2, 2026</div>
+<div class="tl-title">Trump announces 25 new B-2 orders</div>
+<div class="tl-body">"They saw what happened in Iran with those beautiful B-2 bombers. We just ordered 25 more of them." Iranian leadership tells Khamenei that public anger means "fear is no longer a deterrent."</div>
+</div>
+<div class="tl-item">
+<div class="tl-date">Feb 3, 2026</div>
+<div class="tl-title">IRGC gunboats attempt to seize U.S. tanker</div>
+<div class="tl-body">Six IRGC Navy gunboats surround the Stena Imperative in the Strait of Hormuz. USS McFaul escorts it through. Same day: F-35C shoots down Iranian Shahed 139 drone near USS Abraham Lincoln.</div>
+</div>
+<div class="tl-item">
+<div class="tl-date">Feb 5, 2026</div>
+<div class="tl-title">Iran deploys Khorramshahr-4 missile</div>
+<div class="tl-body">Long-range ballistic missile placed in underground facility. Signals shift from defensive to offensive military doctrine. IRGC says they have "finger on the trigger."</div>
+</div>
+<div class="tl-item cyan">
+<div class="tl-date">Feb 8, 2026</div>
+<div class="tl-title">Iran: unexploded MOPs still in nuclear sites</div>
+<div class="tl-body">Foreign Minister Araghchi says unexploded GBU-57 bunker busters remain at bombed facilities. Uses this to block IAEA inspections. Concern: if recovered, Iran gets access to modern bunker-penetrating weapon technology.</div>
+</div>
+<div class="tl-item blue">
+<div class="tl-date">Feb 9, 2026</div>
+<div class="tl-title">F-35As deploy to RAF Lakenheath, UK</div>
+<div class="tl-body">Six F-35A Lightning IIs land in UK after crossing the Atlantic. More stealth assets moving closer to the Middle East.</div>
+</div>
+<div class="tl-item amber">
+<div class="tl-date">Feb 2026 — This Week</div>
+<div class="tl-title">Talks set for Friday in Oman</div>
+<div class="tl-body">Iran says talks should only cover nuclear program. U.S. demands include missiles, proxies, and human rights. Sides are far apart. Trump has the armada ready if talks fail.</div>
+</div>
+</div>
+
+<table class="comparison">
+<thead>
+<tr><th>Asset</th><th>Location</th><th>Role</th></tr>
+</thead>
+<tbody>
+<tr><td class="highlight">USS Abraham Lincoln CSG</td><td>Arabian Sea</td><td>Carrier strike group, air superiority</td></tr>
+<tr><td>USS Nimitz CSG</td><td>En route to region</td><td>Second carrier strike group</td></tr>
+<tr><td>USS George H.W. Bush</td><td>Expected in coming months</td><td>Third carrier option</td></tr>
+<tr><td>USS McFaul (DDG-74)</td><td>Strait of Hormuz</td><td>Destroyer, escort</td></tr>
+<tr><td>USS Mitscher (DDG-57)</td><td>Strait of Hormuz</td><td>Destroyer</td></tr>
+<tr><td>USS Roosevelt (DDG-80)</td><td>Mediterranean</td><td>Destroyer</td></tr>
+<tr><td>USS Bulkeley</td><td>Mediterranean</td><td>Destroyer</td></tr>
+<tr><td>F-15E Strike Eagles</td><td>Muwaffaq Salti AB, Jordan</td><td>Strike aircraft</td></tr>
+<tr><td>F-35A Lightning II (×6)</td><td>RAF Lakenheath, UK</td><td>Stealth strike (staging)</td></tr>
+<tr><td>UK Eurofighter Typhoons</td><td>Al-Udeid AB, Qatar</td><td>Allied air support</td></tr>
+<tr><td>LCS Canberra/Tulsa/Santa Barbara</td><td>Persian Gulf</td><td>Littoral combat ships</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="buildup-map">
+<div class="section-label">2026 Force Posture</div>
+<h2>Current U.S. Military Buildup — Map</h2>
+<p>Known positions of major U.S. and allied military assets as of early February 2026, based on open-source reporting.</p>
+<div id="map2"></div>
+</section>
+
+<section id="whats-next">
+<div class="section-label">Assessment</div>
+<h2>What's Next</h2>
+<p>Iran's nuclear program was set back approximately 2 years by Operation Midnight Hammer. But Iran has signaled intent to reconstitute, and the regime is simultaneously facing existential domestic unrest. The U.S. military buildup suggests Washington is prepared for a second round of strikes if diplomacy fails.</p>
+<p>Key indicators to watch: outcome of Friday's Oman talks, any Strait of Hormuz escalation, B-2 activity at Whiteman (visible from ~50 miles away in places like Hume, MO), and whether Iran attempts to rebuild enrichment capacity at unknown locations.</p>
+<p>Israeli IDF Chief of Staff estimated conflict could begin within 2 weeks to 2 months from mid-January 2026. German Chancellor Merz suggested the Iranian regime is in its "final days and weeks." Iranian opposition figure Reza Pahlavi has publicly called for targeted military strikes.</p>
+
+<div class="callout">
+<div class="callout-title">Bottom line</div>
+<p style="margin-bottom:0">If you live near Whiteman AFB and you're seeing more B-2 activity than usual, it's not because they're watching you. It's because the only aircraft on Earth that can carry a 30,000-pound bunker buster might need to do it again.</p>
+</div>
+</section>
+
+<footer>
+<p>All information sourced from open-source reporting: CBS News, PBS, USNI News, Air & Space Forces Magazine, ABC News, Fox News, Al Jazeera, CFR, Wikipedia, Reuters. Updated February 2026.</p>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ===== MAP 1: Operation Midnight Hammer =====
+const map = L.map('map',{scrollWheelZoom:false}).setView([32,45],4);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+attribution:'&copy; OSM &copy; CARTO',maxZoom:18
+}).addTo(map);
+
+const locations = [
+{lat:38.7267,lng:-93.5478,name:'Whiteman AFB',detail:'Home of ALL 20 B-2 Spirits. Strike origin.',tag:'tag-origin',tagText:'ORIGIN'},
+{lat:38.1826,lng:-94.3510,name:'Hume, Missouri',detail:"Duna's location. ~50 miles from Whiteman.",tag:'tag-duna',tagText:'DUNA'},
+{lat:34.0000,lng:51.9833,name:'Fordow Enrichment Plant',detail:'260-300 ft underground in a mountain. Hit with 12 MOPs.',tag:'tag-target',tagText:'TARGET'},
+{lat:33.7244,lng:51.7275,name:'Natanz Nuclear Facility',detail:'Three underground buildings, 50,000 centrifuge capacity. Hit with 2 MOPs.',tag:'tag-target',tagText:'TARGET'},
+{lat:32.6546,lng:51.6680,name:'Isfahan Nuclear Tech Center',detail:'Uranium conversion facility. Hit with 24+ Tomahawk missiles.',tag:'tag-target',tagText:'TARGET'},
+{lat:13.4443,lng:144.7937,name:'Andersen AFB, Guam',detail:'6 decoy B-2s sent here to misdirect intelligence.',tag:'tag-origin',tagText:'DECOY'},
+];
+
+locations.forEach(loc=>{
+const color = loc.tag==='tag-target'?'#ff4d4d':loc.tag==='tag-origin'?'#3b82f6':
+loc.tag==='tag-duna'?'#ff8c42':'#22c55e';
+const marker = L.circleMarker([loc.lat,loc.lng],{
+radius:loc.tag==='tag-duna'?6:8,fillColor:color,color:color,weight:2,opacity:.9,fillOpacity:.4
+}).addTo(map);
+marker.bindPopup(`<h3>${loc.name}</h3><p class="pop-detail">${loc.detail}</p><span class="popup-tag ${loc.tag}">${loc.tagText}</span>`);
+});
+
+// Flight path: Whiteman -> Atlantic -> Med -> Iran
+const flightPath = [
+[38.7267,-93.5478],[39.5,-70],[38,-40],[36,-10],[36,10],[35,25],[34,35],[34,45],[34,51.98]
+];
+L.polyline(flightPath,{color:'#3b82f6',weight:2,opacity:.4,dashArray:'8,8'}).addTo(map);
+
+// Decoy path
+const decoyPath = [[38.7267,-93.5478],[35,-120],[30,-150],[20,-170],[13.44,144.79]];
+L.polyline(decoyPath,{color:'#6b7f95',weight:1.5,opacity:.3,dashArray:'6,10'}).addTo(map);
+
+// ===== MAP 2: 2026 Buildup =====
+const map2 = L.map('map2',{scrollWheelZoom:false}).setView([25,55],4);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+attribution:'&copy; OSM &copy; CARTO',maxZoom:18
+}).addTo(map2);
+
+const buildup = [
+{lat:38.7267,lng:-93.5478,name:'Whiteman AFB',detail:'B-2 home base. Increased activity reported.',tag:'tag-origin',tagText:'B-2 BASE'},
+{lat:14.5,lng:62,name:'USS Abraham Lincoln CSG',detail:'Arabian Sea. Carrier Air Wing 9. Deployed Jan 26.',tag:'tag-asset',tagText:'CARRIER'},
+{lat:26.3,lng:56.5,name:'USS McFaul & Mitscher',detail:'Strait of Hormuz. Escort/deterrence.',tag:'tag-asset',tagText:'DESTROYERS'},
+{lat:20,lng:40,name:'USS Delbert D. Black',detail:'Red Sea patrol.',tag:'tag-asset',tagText:'DESTROYER'},
+{lat:35,lng:32,name:'USS Roosevelt & Bulkeley',detail:'Mediterranean Sea positioning.',tag:'tag-asset',tagText:'DESTROYERS'},
+{lat:31.825,lng:36.783,name:'Muwaffaq Salti AB, Jordan',detail:'F-15E Strike Eagles relocated here.',tag:'tag-buildup',tagText:'F-15Es'},
+{lat:52.409,lng:0.561,name:'RAF Lakenheath, UK',detail:'6x F-35A Lightning IIs arrived Feb 9.',tag:'tag-buildup',tagText:'F-35As'},
+{lat:25.117,lng:51.315,name:'Al-Udeid AB, Qatar',detail:'UK Eurofighter Typhoons deployed here.',tag:'tag-buildup',tagText:'TYPHOONS'},
+{lat:26.5,lng:53,name:'LCS Group — Persian Gulf',detail:'USS Canberra, Tulsa, Santa Barbara.',tag:'tag-asset',tagText:'LCS'},
+{lat:34.0,lng:51.98,name:'Fordow',detail:'Damaged June 2025. Unexploded MOPs reported inside.',tag:'tag-target',tagText:'DAMAGED'},
+{lat:33.72,lng:51.73,name:'Natanz',detail:'Damaged June 2025. Centrifuges destroyed.',tag:'tag-target',tagText:'DAMAGED'},
+{lat:32.65,lng:51.67,name:'Isfahan',detail:'Damaged June 2025. Hit by Tomahawks.',tag:'tag-target',tagText:'DAMAGED'},
+{lat:23.6,lng:58.5,name:'Oman — Diplomatic Talks',detail:'US-Iran negotiations set for this Friday.',tag:'tag-buildup',tagText:'TALKS'},
+];
+
+buildup.forEach(loc=>{
+const color = loc.tag==='tag-target'?'#ff4d4d':loc.tag==='tag-origin'?'#3b82f6':
+loc.tag==='tag-asset'?'#22c55e':loc.tag==='tag-buildup'?'#f59e0b':'#ff8c42';
+const marker = L.circleMarker([loc.lat,loc.lng],{
+radius:8,fillColor:color,color:color,weight:2,opacity:.9,fillOpacity:.4
+}).addTo(map2);
+marker.bindPopup(`<h3>${loc.name}</h3><p class="pop-detail">${loc.detail}</p><span class="popup-tag ${loc.tag}">${loc.tagText}</span>`);
+});
+</script>
+</body>
+</html>
