@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Knowing a Little About Tech Makes AI Terrifying</title>
+<meta property="og:title" content="Why Knowing a Little About Tech Makes AI Terrifying">
+<meta property="og:description" content="The Dunning-Kruger Effect explains why people who know just enough about technology are the most scared of AI. A visual explainer.">
+<meta property="og:url" content="https://niggerfaggot.club/dk-ai.html">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/dk-og-wide.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/dk-og-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1612;
+    --paper: #f6f1eb;
+    --rust: #c0542b;
+    --teal: #2a7a6e;
+    --gold: #d4a24e;
+    --slate: #5c5650;
+    --cream: #ede4d8;
+    --blush: #f0d9c8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; font-size: 18px; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.72;
+    font-weight: 400;
+    overflow-x: hidden;
+  }
+
+  /* --- HERO --- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    background: linear-gradient(165deg, var(--cream) 0%, var(--paper) 40%, var(--blush) 100%);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c0542b' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  .hero-label {
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 1.5rem;
+    position: relative;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    max-width: 14ch;
+    color: var(--ink);
+    position: relative;
+    animation: fadeUp 0.8s ease 0.15s both;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--rust);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--slate);
+    max-width: 38ch;
+    margin-top: 1.5rem;
+    font-weight: 300;
+    position: relative;
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2rem;
+    animation: bounce 2s ease infinite;
+    color: var(--slate);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+
+  /* --- SECTIONS --- */
+  .section {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .section-wide {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    color: var(--ink);
+  }
+
+  h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--rust);
+  }
+
+  p { margin-bottom: 1.25rem; }
+
+  .lead {
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: var(--slate);
+    line-height: 1.8;
+  }
+
+  strong { font-weight: 600; }
+
+  /* --- CALLOUT BOX --- */
+  .callout {
+    background: var(--cream);
+    border-left: 4px solid var(--teal);
+    padding: 1.5rem 2rem;
+    border-radius: 0 8px 8px 0;
+    margin: 2rem 0;
+  }
+
+  .callout p:last-child { margin-bottom: 0; }
+
+  .callout-rust {
+    border-left-color: var(--rust);
+    background: #faf0ea;
+  }
+
+  .callout-gold {
+    border-left-color: var(--gold);
+    background: #faf5ea;
+  }
+
+  /* --- IMAGE BLOCKS --- */
+  .img-block {
+    margin: 2.5rem 0;
+    text-align: center;
+  }
+
+  .img-block img {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(26, 22, 18, 0.12);
+  }
+
+  .img-block figcaption {
+    font-size: 0.8rem;
+    color: var(--slate);
+    margin-top: 0.75rem;
+    font-style: italic;
+  }
+
+  /* --- CURVE DIAGRAM (SVG-based) --- */
+  .curve-container {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 24px rgba(26, 22, 18, 0.08);
+    margin: 2.5rem 0;
+    overflow-x: auto;
+  }
+
+  .curve-container svg { width: 100%; height: auto; }
+
+  /* --- SPECTRUM BAR --- */
+  .spectrum {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .spectrum-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .spectrum-card h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .spectrum-card p {
+    font-size: 0.85rem;
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+
+  .sc-low { background: #e8f5f2; color: var(--teal); }
+  .sc-mid { background: #fae8e0; color: var(--rust); }
+  .sc-high { background: #e8edf5; color: #3a5a8c; }
+
+  /* --- DIVIDER --- */
+  .divider {
+    text-align: center;
+    margin: 0;
+    padding: 1rem 0;
+    color: var(--gold);
+    font-size: 1.5rem;
+    letter-spacing: 0.5em;
+  }
+
+  /* --- FOOTER --- */
+  footer {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--slate);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--cream);
+  }
+
+  footer a { color: var(--teal); text-decoration: none; }
+
+  /* --- ANIMATIONS --- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* --- RESPONSIVE --- */
+  @media (max-width: 640px) {
+    html { font-size: 16px; }
+    .spectrum { grid-template-columns: 1fr; }
+    .curve-container { padding: 1rem; }
+    .section, .section-wide { padding: 3rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <span class="hero-label">Psychology × Technology</span>
+  <h1>Why Knowing <em>a Little</em> About Tech Makes AI <em>Terrifying</em></h1>
+  <p class="hero-sub">The Dunning-Kruger Effect explains why the people who panic most about artificial intelligence are almost never the experts.</p>
+  <a href="#start" class="hero-scroll">scroll ↓</a>
+</header>
+
+<!-- ===== INTRO ===== -->
+<section id="start" class="section reveal">
+  <h2>Hey Bekah — here's the thing.</h2>
+  <p class="lead">You've probably noticed it: someone learns what "machine learning" means, reads two headlines about ChatGPT, and suddenly they're convinced Skynet is six months away. Meanwhile, the people who actually <em>build</em> AI systems are mostly worried about stuff like training data bias and GPU costs.</p>
+  <p>That gap between panic and understanding has a name. Psychologists have studied it for decades. It's called the <strong>Dunning-Kruger Effect</strong>, and once you see it, you can't unsee it — especially in conversations about AI.</p>
+</section>
+
+<div class="divider">✦ ✦ ✦</div>
+
+<!-- ===== WHAT IS DK ===== -->
+<section class="section reveal">
+  <h2>The Dunning-Kruger Effect, Explained Simply</h2>
+  <p>In 1999, two Cornell psychologists — David Dunning and Justin Kruger — published a paper with a title that basically says it all: <em>"Unskilled and Unaware of It."</em> Their research found a consistent pattern in how people assess their own competence:</p>
+
+  <div class="callout">
+    <p><strong>The core finding:</strong> People with limited knowledge in a subject tend to dramatically overestimate how much they understand. People with deep knowledge tend to slightly underestimate themselves. The less you know, the less equipped you are to recognize what you don't know.</p>
+  </div>
+
+  <p>This isn't about intelligence. Smart people fall into this trap constantly. It's about the relationship between knowledge and self-awareness. When you first learn something, you don't yet have the framework to see how much more there is. You're standing at the base of a mountain, but you think you're at the summit because you can't see the rest of the climb.</p>
+</section>
+
+<!-- ===== THE CURVE ===== -->
+<section class="section-wide reveal">
+  <h2>The Curve Everyone's Talking About</h2>
+  <p>Here's the famous visualization. Pay attention to the labels — each phase feels very different emotionally.</p>
+
+  <div class="curve-container">
+    <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg">
+      <!-- Grid lines -->
+      <line x1="80" y1="360" x2="760" y2="360" stroke="#e0d8cf" stroke-width="1"/>
+      <line x1="80" y1="280" x2="760" y2="280" stroke="#e0d8cf" stroke-width="0.5" stroke-dasharray="4"/>
+      <line x1="80" y1="200" x2="760" y2="200" stroke="#e0d8cf" stroke-width="0.5" stroke-dasharray="4"/>
+      <line x1="80" y1="120" x2="760" y2="120" stroke="#e0d8cf" stroke-width="0.5" stroke-dasharray="4"/>
+      <line x1="80" y1="40" x2="760" y2="40" stroke="#e0d8cf" stroke-width="0.5" stroke-dasharray="4"/>
+
+      <!-- Axis labels -->
+      <text x="420" y="400" text-anchor="middle" font-family="Source Sans 3" font-size="13" fill="#5c5650" font-weight="600" letter-spacing="0.1em">KNOWLEDGE / EXPERIENCE →</text>
+      <text x="30" y="200" text-anchor="middle" font-family="Source Sans 3" font-size="13" fill="#5c5650" font-weight="600" letter-spacing="0.1em" transform="rotate(-90, 30, 200)">CONFIDENCE →</text>
+
+      <!-- The curve -->
+      <path d="M 100 340 C 130 340, 150 60, 220 60 C 280 60, 300 80, 340 320 C 370 320, 420 310, 500 200 C 560 120, 640 100, 760 110" fill="none" stroke="#c0542b" stroke-width="3.5" stroke-linecap="round"/>
+
+      <!-- Phase markers -->
+      <!-- Mt Stupid -->
+      <circle cx="220" cy="60" r="6" fill="#c0542b"/>
+      <text x="220" y="38" text-anchor="middle" font-family="Fraunces" font-size="15" fill="#c0542b" font-weight="700">"Mount Stupid"</text>
+
+      <!-- Valley of Despair -->
+      <circle cx="350" cy="320" r="6" fill="#2a7a6e"/>
+      <text x="350" y="348" text-anchor="middle" font-family="Fraunces" font-size="14" fill="#2a7a6e" font-weight="700">Valley of Despair</text>
+
+      <!-- Slope of Enlightenment -->
+      <text x="510" y="178" text-anchor="middle" font-family="Fraunces" font-size="14" fill="#5c5650" font-weight="600">Slope of</text>
+      <text x="510" y="196" text-anchor="middle" font-family="Fraunces" font-size="14" fill="#5c5650" font-weight="600">Enlightenment</text>
+
+      <!-- Plateau -->
+      <text x="700" y="90" text-anchor="middle" font-family="Fraunces" font-size="14" fill="#3a5a8c" font-weight="700">Plateau of</text>
+      <text x="700" y="108" text-anchor="middle" font-family="Fraunces" font-size="14" fill="#3a5a8c" font-weight="700">Sustainability</text>
+
+      <!-- "You are here" arrow for the AI panic person -->
+      <line x1="195" y1="80" x2="210" y2="68" stroke="#d4a24e" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="140" y="95" font-family="Source Sans 3" font-size="12" fill="#d4a24e" font-weight="600">AI PANIC</text>
+      <text x="135" y="109" font-family="Source Sans 3" font-size="12" fill="#d4a24e" font-weight="600">LIVES HERE</text>
+
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+          <path d="M 0 0 L 8 4 L 0 8 z" fill="#d4a24e"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+
+  <p>The x-axis is how much you actually know. The y-axis is how confident you feel. Notice where the peak of confidence lands: right at the beginning, when you've learned just enough to form opinions but not enough to know those opinions are wrong.</p>
+</section>
+
+<div class="divider">✦ ✦ ✦</div>
+
+<!-- ===== THE AI APPLICATION ===== -->
+<section class="section reveal">
+  <h2>Now Apply This to AI Fear</h2>
+
+  <p>Here's where it gets really interesting. When someone learns a <em>little</em> about how AI works — enough to know it can generate text, create images, analyze data — they enter a specific phase of the Dunning-Kruger curve. And in this context, the overconfidence doesn't show up as arrogance. It shows up as <strong>terror</strong>.</p>
+
+  <div class="callout callout-rust">
+    <p><strong>The key insight:</strong> On Mount Stupid, you're not just overconfident about what you know. You're also overconfident about what you <em>think</em> AI can do. You have just enough knowledge to imagine the worst-case scenario, but not enough to understand the limitations, failure modes, and mundane reality of how these systems actually work.</p>
+  </div>
+
+  <figure class="img-block">
+    <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/dk-scared.png" alt="Person terrified by AI on their computer screen" loading="lazy">
+    <figcaption>The emotional state of someone at the top of Mount Stupid encountering AI</figcaption>
+  </figure>
+
+  <p>Think about the typical AI panic cycle. Someone who reads tech news casually picks up on phrases like "artificial general intelligence," "neural networks," and "exponential growth." These are real concepts, but without deeper understanding, they connect the dots in the scariest possible way: <em>AI is a brain, brains are smart, exponential means fast, therefore robot apocalypse.</em></p>
+
+  <p>The logic <em>feels</em> airtight to them because they don't have the knowledge to see the gaps. They don't know about the difference between narrow AI and general AI. They don't know that "neural network" is a loose metaphor, not a literal brain. They don't know that current AI systems can't actually reason, plan, or want anything. They just know enough vocabulary to scare themselves.</p>
+</section>
+
+<!-- ===== THREE LEVELS ===== -->
+<section class="section-wide reveal">
+  <h2>Three Levels of AI Understanding</h2>
+  <p>Here's what each phase of knowledge actually looks like when it comes to people's relationship with AI:</p>
+
+  <div class="spectrum">
+    <div class="spectrum-card sc-low">
+      <h4>🌱 Knows Nothing</h4>
+      <p>"I don't really get AI. I just use my phone." Unbothered. Uses Siri without thinking about it. Not scared because they haven't been primed with scary vocabulary yet.</p>
+    </div>
+    <div class="spectrum-card sc-mid">
+      <h4>⚡ Knows a Little</h4>
+      <p>"AI is advancing exponentially and nobody is stopping it." Maximum fear. Reads headlines. Watches YouTube explainers. Has heard of GPT. Thinks we're 2 years from Terminator.</p>
+    </div>
+    <div class="spectrum-card sc-high">
+      <h4>🧠 Knows a Lot</h4>
+      <p>"The alignment problem is real but current models are basically fancy autocomplete." Measured concern about specific, real issues. Uses AI daily as a tool. Sleeps fine at night.</p>
+    </div>
+  </div>
+
+  <p>The person in the middle column is the one posting Facebook rants about AI destroying humanity. Not because they're dumb — often they're quite smart — but because they're at the exact point on the knowledge curve where confidence (in this case, confidence in their threat assessment) is at its absolute peak.</p>
+</section>
+
+<div class="divider">✦ ✦ ✦</div>
+
+<!-- ===== WHY THIS MATTERS ===== -->
+<section class="section reveal">
+  <h2>Why Does This Actually Matter?</h2>
+
+  <figure class="img-block">
+    <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/dk-chill.png" alt="Expert calmly working alongside AI tools" loading="lazy">
+    <figcaption>People with deep AI knowledge: concerned about real things, unbothered by sci-fi scenarios</figcaption>
+  </figure>
+
+  <p>It matters because the loudest voices in any tech conversation are almost always the ones at the top of Mount Stupid. They're the ones writing viral tweets, sharing alarming articles, and confidently explaining to you at dinner parties why your job will be automated by next Tuesday.</p>
+
+  <p>Meanwhile, the actual experts — the people building, researching, and stress-testing these systems — are having much more boring and specific conversations about things like data poisoning, hallucination rates, energy consumption, and whether RLHF actually produces aligned behavior.</p>
+
+  <div class="callout callout-gold">
+    <p><strong>The pattern:</strong> The gap between "what scared people think AI can do" and "what AI can actually do" is enormous. Current AI can't reliably count the number of R's in "strawberry." It routinely makes up fake citations. It will confidently tell you wrong information with perfect grammar. These are not the hallmarks of a system about to achieve world domination.</p>
+  </div>
+
+  <h3>Real Expert Concerns vs. Mount Stupid Concerns</h3>
+
+  <p><strong>Mount Stupid says:</strong> "AI will become sentient and decide to destroy us."<br>
+  <strong>Experts say:</strong> "AI has no sentience, no goals, no desires. But people might use it to create convincing misinformation at scale, and that's a real problem we need policy for."</p>
+
+  <p><strong>Mount Stupid says:</strong> "AI will replace all jobs within 5 years."<br>
+  <strong>Experts say:</strong> "AI will change how certain tasks are done within certain jobs. The transition will be messy and uneven, and we need better retraining infrastructure."</p>
+
+  <p><strong>Mount Stupid says:</strong> "Nobody understands how AI works, not even the people who made it."<br>
+  <strong>Experts say:</strong> "Interpretability is genuinely a challenge, but we understand quite a lot about transformer architectures, attention mechanisms, and training dynamics. The 'black box' framing is oversimplified."</p>
+</section>
+
+<div class="divider">✦ ✦ ✦</div>
+
+<!-- ===== WHAT TO DO ===== -->
+<section class="section reveal">
+  <h2>So What Do You Do With This?</h2>
+
+  <p>Recognizing the Dunning-Kruger Effect in yourself and others isn't about dismissing concerns. Some concerns about AI are very legitimate. It's about <strong>calibrating</strong> your confidence to your actual knowledge level. Here's the practical takeaway:</p>
+
+  <p><strong>If you feel absolutely certain about an AI take, check yourself.</strong> The more certain you feel, the more likely you are at the peak of Mount Stupid. Real experts hedge. They say "it depends." They distinguish between different types of AI. They acknowledge uncertainty. If your mental model of AI doesn't include uncertainty, your model is wrong.</p>
+
+  <p><strong>Seek out boring explanations.</strong> If someone's explanation of AI makes you feel excited or terrified, it's probably optimized for engagement, not accuracy. The truth about AI is mostly boring: statistics, linear algebra, gradient descent, loss functions. If you want to actually understand it, you have to be willing to be bored first.</p>
+
+  <p><strong>Use AI yourself.</strong> Nothing kills Mount Stupid faster than hands-on experience. Spend an hour with ChatGPT or Claude trying to get it to do something useful. You'll quickly discover both what it's genuinely good at and how hilariously wrong it can be. It's hard to fear Skynet after watching an AI confidently insist that 7 × 8 = 54.</p>
+
+  <div class="callout">
+    <p><strong>The bottom line:</strong> A little knowledge creates maximum fear. More knowledge creates appropriate, calibrated concern. The path from panic to understanding goes directly through the Valley of Despair — the humbling realization that you know less than you thought — and that's actually a good thing. The valley is where real learning starts.</p>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <p>Made with care by Benny for Bekah, 2026<br>
+  Because understanding <em>why</em> people panic is half the battle.</p>
+</footer>
+
+<script>
+// Intersection Observer for scroll reveals
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
