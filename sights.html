@@ -12,10 +12,47 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 html, body { overflow-x: hidden; }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  --bg: #f6f1eb;
+  --bg-card: #fff;
+  --bg-card-hover: #faf7f3;
+  --text: #2a2218;
+  --text-muted: #6b5e4f;
+  --accent: #a0622a;
+  --accent-light: #9e5e22;
+  --accent-dark: #7a4a18;
+  --green: #3d7a2e;
+  --green-light: #3d7a2e;
+  --green-bg: #edf5ea;
+  --red: #b54a3a;
+  --red-bg: #faf0ee;
+  --border: #ddd2c4;
+  --shadow: rgba(0,0,0,0.08);
+  --img-bg: #f0ebe4;
+  --tldr-bg: linear-gradient(135deg, #fdf0e0, #f5e6d0);
+  --tldr-border: #d4a86a;
+  --tldr-strong: #7a4a18;
+  --scope-bg: #f9f5f0;
+  --bottom-bg: linear-gradient(135deg, #eef5eb, #e4efdf);
+  --bottom-border: #8cb87a;
+  --tag-full-bg: #3d7a2e;
+  --tag-full-text: #fff;
+  --tag-partial-bg: #d4a86a;
+  --tag-partial-text: #4a2e0a;
+  --tag-fiber-bg: #c4daf0;
+  --tag-fiber-text: #1e3a5a;
+  --tag-peep-bg: #e0cce8;
+  --tag-peep-text: #3a1e4a;
+  --tag-budget-bg: #e8dcc8;
+  --tag-budget-text: #4a3a1e;
+  --thead-bg: #f5f0e8;
+  --table-check: #3d7a2e;
+  --table-cross: #b54a3a;
+}
+
+[data-theme="dark"] {
   --bg: #1a1612;
   --bg-card: #241f1a;
   --bg-card-hover: #2e2722;
@@ -26,9 +63,31 @@ html, body { overflow-x: hidden; }
   --accent-dark: #8b5a1f;
   --green: #5a8a4a;
   --green-light: #7db568;
-  --red: #b54a3a;
+  --green-bg: #1e2a1a;
+  --red: #d45a48;
+  --red-bg: #2a1a18;
   --border: #3a322a;
   --shadow: rgba(0,0,0,0.4);
+  --img-bg: #2e2722;
+  --tldr-bg: linear-gradient(135deg, #3a2a12, #2e2010);
+  --tldr-border: #c4813a;
+  --tldr-strong: #ffd699;
+  --scope-bg: #241f1a;
+  --bottom-bg: linear-gradient(135deg, #1e2a1a, #2a3520);
+  --bottom-border: #5a8a4a;
+  --tag-full-bg: #5a8a4a;
+  --tag-full-text: #fff;
+  --tag-partial-bg: #8b5a1f;
+  --tag-partial-text: #e8ddd0;
+  --tag-fiber-bg: #3a5a7a;
+  --tag-fiber-text: #b0d0f0;
+  --tag-peep-bg: #5a3a6a;
+  --tag-peep-text: #d0b0e0;
+  --tag-budget-bg: #6a5a3a;
+  --tag-budget-text: #e0d0a0;
+  --thead-bg: #2e2722;
+  --table-check: #7db568;
+  --table-cross: #d45a48;
 }
 
 body {
@@ -38,26 +97,41 @@ body {
   line-height: 1.7;
   font-size: 17px;
   font-weight: 300;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 20% 0%, rgba(196,129,58,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 100%, rgba(90,138,74,0.04) 0%, transparent 60%);
-  pointer-events: none;
-  z-index: 0;
+  transition: background 0.3s, color 0.3s;
 }
 
 .container {
   max-width: 780px;
   margin: 0 auto;
   padding: 0 24px;
-  position: relative;
-  z-index: 1;
 }
+
+/* Theme Toggle */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px var(--shadow);
+  transition: background 0.3s, border-color 0.3s, transform 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.theme-toggle:hover { border-color: var(--accent); transform: scale(1.05); }
+.theme-toggle:active { transform: scale(0.95); }
+.theme-toggle svg { width: 20px; height: 20px; fill: var(--text-muted); transition: fill 0.3s; }
+.theme-toggle .icon-sun { display: none; }
+.theme-toggle .icon-moon { display: block; }
+[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
 
 header {
   padding: 60px 0 40px;
@@ -65,7 +139,6 @@ header {
   border-bottom: 1px solid var(--border);
   margin-bottom: 48px;
 }
-
 header .overline {
   font-size: 12px;
   letter-spacing: 4px;
@@ -74,21 +147,14 @@ header .overline {
   font-weight: 600;
   margin-bottom: 16px;
 }
-
 h1 {
   font-family: 'Playfair Display', serif;
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 700;
-  color: var(--text);
   line-height: 1.2;
   margin-bottom: 12px;
 }
-
-h1 em {
-  color: var(--accent-light);
-  font-style: italic;
-}
-
+h1 em { color: var(--accent-light); font-style: italic; }
 header .subtitle {
   font-size: 18px;
   color: var(--text-muted);
@@ -96,35 +162,7 @@ header .subtitle {
   margin: 0 auto;
 }
 
-.rifle-hero {
-  margin: 0 -24px 48px;
-  position: relative;
-  overflow: hidden;
-  border-radius: 12px;
-  margin-left: 0;
-  margin-right: 0;
-}
-
-.rifle-hero img {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-}
-
-.rifle-hero .caption {
-  text-align: center;
-  padding: 12px 16px;
-  font-size: 14px;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-section {
-  margin-bottom: 56px;
-}
-
+section { margin-bottom: 56px; }
 h2 {
   font-family: 'Playfair Display', serif;
   font-size: 1.6rem;
@@ -134,29 +172,18 @@ h2 {
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
 }
-
-h3 {
-  font-family: 'Source Sans 3', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
 p { margin-bottom: 16px; }
+strong { color: var(--text); font-weight: 600; }
 
 .tldr {
-  background: linear-gradient(135deg, var(--accent-dark), #6b3f12);
+  background: var(--tldr-bg);
   border-radius: 12px;
   padding: 28px 32px;
   margin-bottom: 48px;
-  border: 1px solid var(--accent);
+  border: 1px solid var(--tldr-border);
   position: relative;
   overflow: hidden;
 }
-
 .tldr::before {
   content: 'TL;DR';
   position: absolute;
@@ -165,18 +192,11 @@ p { margin-bottom: 16px; }
   font-family: 'Playfair Display', serif;
   font-size: 5rem;
   font-weight: 700;
-  color: rgba(255,255,255,0.04);
+  color: rgba(128,80,20,0.06);
   pointer-events: none;
 }
-
-.tldr p {
-  font-size: 18px;
-  font-weight: 400;
-  line-height: 1.6;
-  margin-bottom: 0;
-}
-
-.tldr strong { color: #ffd699; }
+.tldr p { font-size: 18px; font-weight: 400; line-height: 1.6; margin-bottom: 0; }
+.tldr strong { color: var(--tldr-strong); }
 
 .option-card {
   background: var(--bg-card);
@@ -185,20 +205,12 @@ p { margin-bottom: 16px; }
   padding: 28px;
   margin-bottom: 24px;
   transition: border-color 0.3s, background 0.3s;
+  box-shadow: 0 1px 4px var(--shadow);
 }
-
-.option-card:hover {
-  border-color: var(--accent-dark);
-  background: var(--bg-card-hover);
-}
-
-.option-card.recommended {
-  border-color: var(--green);
-  position: relative;
-}
-
+.option-card:hover { border-color: var(--accent-dark); background: var(--bg-card-hover); }
+.option-card.recommended { border-color: var(--green); position: relative; }
 .option-card.recommended::after {
-  content: '★ RECOMMENDED';
+  content: '\2605  RECOMMENDED';
   position: absolute;
   top: -12px;
   right: 20px;
@@ -218,40 +230,23 @@ p { margin-bottom: 16px; }
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
-
-.option-header img {
+.option-header .img-wrap {
   width: 140px;
-  height: 100px;
-  object-fit: contain;
-  background: #fff;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--img-bg);
   border-radius: 8px;
   padding: 8px;
   flex-shrink: 0;
+  overflow: hidden;
 }
-
+.option-header .img-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .option-header .info { flex: 1; min-width: 200px; }
-
-.option-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.option-price {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--green-light);
-}
-
-.option-price .msrp {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  text-decoration: line-through;
-  font-weight: 400;
-  margin-left: 8px;
-}
-
+.option-name { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; margin-bottom: 4px; }
+.option-price { font-size: 1.5rem; font-weight: 700; color: var(--green-light); }
+.option-price .msrp { font-size: 0.85rem; color: var(--text-muted); text-decoration: line-through; font-weight: 400; margin-left: 8px; }
 .tag {
   display: inline-block;
   font-size: 11px;
@@ -263,50 +258,22 @@ p { margin-bottom: 16px; }
   margin-right: 6px;
   margin-top: 6px;
 }
+.tag.adj-full { background: var(--tag-full-bg); color: var(--tag-full-text); }
+.tag.adj-partial { background: var(--tag-partial-bg); color: var(--tag-partial-text); }
+.tag.fiber { background: var(--tag-fiber-bg); color: var(--tag-fiber-text); }
+.tag.peep { background: var(--tag-peep-bg); color: var(--tag-peep-text); }
+.tag.budget { background: var(--tag-budget-bg); color: var(--tag-budget-text); }
 
-.tag.adj-full { background: var(--green); color: #fff; }
-.tag.adj-partial { background: var(--accent-dark); color: var(--text); }
-.tag.fiber { background: #3a5a7a; color: #b0d0f0; }
-.tag.peep { background: #5a3a6a; color: #d0b0e0; }
-.tag.budget { background: #6a5a3a; color: #e0d0a0; }
-
-.pros-cons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 16px;
-}
-
-@media (max-width: 500px) {
-  .pros-cons { grid-template-columns: 1fr; }
-}
-
-.pros h4, .cons h4 {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 8px;
-  font-weight: 700;
-}
-
+.pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.pros { background: var(--green-bg); border-radius: 8px; padding: 14px 16px; }
+.cons { background: var(--red-bg); border-radius: 8px; padding: 14px 16px; }
+.pros h4, .cons h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; font-weight: 700; }
 .pros h4 { color: var(--green-light); }
 .cons h4 { color: var(--red); }
-
-.pros ul, .cons ul {
-  list-style: none;
-  padding: 0;
-}
-
-.pros li, .cons li {
-  font-size: 15px;
-  padding: 3px 0;
-  padding-left: 18px;
-  position: relative;
-  color: var(--text-muted);
-}
-
+.pros ul, .cons ul { list-style: none; padding: 0; }
+.pros li, .cons li { font-size: 15px; padding: 3px 0; padding-left: 18px; position: relative; color: var(--text-muted); }
 .pros li::before { content: '+'; position: absolute; left: 0; color: var(--green-light); font-weight: 700; }
-.cons li::before { content: '−'; position: absolute; left: 0; color: var(--red); font-weight: 700; }
+.cons li::before { content: '\2212'; position: absolute; left: 2px; color: var(--red); font-weight: 700; }
 
 .comparison-table-wrap {
   overflow-x: auto;
@@ -314,17 +281,11 @@ p { margin-bottom: 16px; }
   margin: 24px 0;
   border-radius: 12px;
   border: 1px solid var(--border);
+  box-shadow: 0 1px 4px var(--shadow);
 }
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
-  min-width: 500px;
-}
-
+table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 520px; }
 thead th {
-  background: var(--bg-card);
+  background: var(--thead-bg);
   padding: 14px 16px;
   text-align: left;
   font-weight: 700;
@@ -334,66 +295,38 @@ thead th {
   color: var(--accent-light);
   border-bottom: 2px solid var(--accent-dark);
 }
-
 tbody td {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border);
   color: var(--text-muted);
+  background: var(--bg-card);
+  transition: background 0.2s;
 }
-
-tbody tr:hover td {
-  background: var(--bg-card-hover);
-  color: var(--text);
-}
-
-tbody td:first-child {
-  font-weight: 600;
-  color: var(--text);
-}
-
-.check { color: var(--green-light); }
-.cross { color: var(--red); }
+tbody tr:hover td { background: var(--bg-card-hover); color: var(--text); }
+tbody td:first-child { font-weight: 600; color: var(--text); }
+.check { color: var(--table-check); font-weight: 700; }
+.cross { color: var(--table-cross); }
 
 .scope-section {
-  background: var(--bg-card);
+  background: var(--scope-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 28px;
 }
-
-.scope-option {
-  padding: 16px 0;
-  border-bottom: 1px solid var(--border);
-}
-
+.scope-option { padding: 16px 0; border-bottom: 1px solid var(--border); }
 .scope-option:last-child { border-bottom: none; }
-
-.scope-option .label {
-  font-weight: 700;
-  color: var(--accent-light);
-  margin-bottom: 4px;
-}
+.scope-option .label { font-weight: 700; color: var(--accent-light); margin-bottom: 4px; }
 
 .bottom-line {
-  background: linear-gradient(135deg, #1e2a1a, #2a3520);
-  border: 1px solid var(--green);
+  background: var(--bottom-bg);
+  border: 1px solid var(--bottom-border);
   border-radius: 12px;
   padding: 28px 32px;
   margin-top: 48px;
   text-align: center;
 }
-
-.bottom-line h2 {
-  border: none;
-  text-align: center;
-  color: var(--green-light);
-}
-
-.bottom-line p {
-  font-size: 18px;
-  max-width: 600px;
-  margin: 0 auto;
-}
+.bottom-line h2 { border: none; text-align: center; color: var(--green-light); }
+.bottom-line p { font-size: 18px; max-width: 600px; margin: 0 auto; }
 
 footer {
   text-align: center;
@@ -404,10 +337,11 @@ footer {
   margin-top: 56px;
 }
 
+@media (max-width: 500px) { .pros-cons { grid-template-columns: 1fr; } }
 @media (max-width: 600px) {
   .container { padding: 0 16px; }
   header { padding: 40px 0 28px; }
-  .option-header img { width: 100%; height: auto; max-width: 200px; }
+  .option-header .img-wrap { width: 100%; height: auto; max-width: 200px; padding: 12px; }
   .option-card { padding: 20px; }
   .tldr { padding: 20px; }
 }
@@ -415,28 +349,27 @@ footer {
 </head>
 <body>
 
-<div class="container">
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">
+  <svg class="icon-sun" viewBox="0 0 24 24"><path d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-3a1 1 0 01-1-1V1a1 1 0 112 0v2a1 1 0 01-1 1zm0 18a1 1 0 01-1-1v-2a1 1 0 112 0v2a1 1 0 01-1 1zm9-9h-2a1 1 0 110-2h2a1 1 0 110 2zM4 13H2a1 1 0 110-2h2a1 1 0 110 2zm15.07-6.49a1 1 0 01-.71-.29l-1.41-1.41a1 1 0 111.41-1.41l1.41 1.41a1 1 0 01-.7 1.7zM6.34 19.66a1 1 0 01-.71-.29l-1.41-1.41a1 1 0 111.41-1.41l1.41 1.41a1 1 0 01-.7 1.7zM19.78 19.66a1 1 0 01-.7-1.7l1.41-1.42a1 1 0 111.41 1.41l-1.41 1.41a1 1 0 01-.71.3zM4.93 6.51a1 1 0 01-.7-1.7l1.41-1.42a1 1 0 011.41 1.41L5.64 6.22a1 1 0 01-.71.29z"/></svg>
+  <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
+</button>
 
+<div class="container">
   <header>
     <div class="overline">Rifle Upgrade Guide</div>
     <h1>Benny's <em>Sight Upgrade</em> for the 511</h1>
     <p class="subtitle">A quick guide to the rear sight options I'm looking at for my Remington 511 Scoremaster .22 rifle.</p>
   </header>
 
-  <div class="rifle-hero">
-    <img src="https://oldguns.net/wp-content/uploads/2024/02/1960-Remington-Model-511-Scoremaster-22-Rimfire-Bolt-Action-Rifle-Full.jpg" alt="Remington 511 Scoremaster bolt action rifle">
-    <div class="caption">The Remington 511 Scoremaster — a classic bolt-action .22 from the 1940s–60s. Mine is just like this one.</div>
-  </div>
-
   <section>
     <h2>What's the Deal?</h2>
     <p>The factory rear sight on my Remington 511 is a simple stamped-steel elevator sight that sits on a <strong>3/8" dovetail</strong> cut into the barrel. It only adjusts for elevation (up/down) in rough steps, and you can't adjust windage (left/right) at all without drifting the whole thing with a punch. It's not great.</p>
     <p>I want to replace it with something that has <strong>proper adjustments</strong> for both windage and elevation, and ideally <strong>fiber optic inserts</strong> so it's easier to see in low light (dawn and dusk when squirrels are most active).</p>
-    <p>All three options below drop right into the same 3/8" dovetail slot on the barrel — no drilling, no gunsmithing, just remove two screws, slide the old sight out, slide the new one in.</p>
+    <p>All three options below drop right into the same 3/8" dovetail slot on the barrel. No drilling, no gunsmithing, just remove two screws, slide the old sight out, slide the new one in.</p>
   </section>
 
   <div class="tldr">
-    <p>I'm leaning toward the <strong>HIVIZ UNI2006</strong> — it's only about $21, fully adjustable for both windage and elevation, has fiber optics, and fits right in. Best bang for the buck. The Williams is nicer but costs twice as much for the same job.</p>
+    <p>I'm leaning toward the <strong>HIVIZ UNI2006</strong>, about $21, fully adjustable for both windage and elevation, has fiber optics, and fits right in. Best bang for the buck. The Williams is nicer but costs twice as much for the same job.</p>
   </div>
 
   <section>
@@ -444,10 +377,12 @@ footer {
 
     <div class="option-card recommended">
       <div class="option-header">
-        <img src="https://www.hivizsights.com/wp-content/uploads/2022/01/UNI2006-2-1.png" alt="HIVIZ UNI2006 Universal Rear Sight">
+        <div class="img-wrap">
+          <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/hiviz-uni2006.jpg" alt="HIVIZ UNI2006 Universal Rear Sight">
+        </div>
         <div class="info">
           <div class="option-name">HIVIZ UNI2006</div>
-          <div class="option-price">~$21 <span class="msrp">MSRP varies</span></div>
+          <div class="option-price">~$21 <span class="msrp">MSRP $32.51</span></div>
           <div>
             <span class="tag adj-full">Fully Adjustable</span>
             <span class="tag fiber">Fiber Optic</span>
@@ -455,7 +390,7 @@ footer {
           </div>
         </div>
       </div>
-      <p>Universal rear sight that fits any 3/8" dovetail. Fiber optic green LitePipes for high visibility. Screw-adjustable for both windage and elevation — no need to drift with a punch. Aluminum construction, lightweight.</p>
+      <p>Universal rear sight that fits any 3/8" dovetail. Fiber optic green LitePipes for high visibility. Screw-adjustable for both windage and elevation, no need to drift with a punch. All steel construction with interchangeable LitePipes in green and red.</p>
       <div class="pros-cons">
         <div class="pros">
           <h4>Pros</h4>
@@ -469,9 +404,9 @@ footer {
         <div class="cons">
           <h4>Cons</h4>
           <ul>
-            <li>Aluminum, not steel</li>
             <li>Less "classic" look</li>
             <li>Some reviews mention fitment varies</li>
+            <li>Not as heavy-duty as Williams</li>
           </ul>
         </div>
       </div>
@@ -479,17 +414,19 @@ footer {
 
     <div class="option-card">
       <div class="option-header">
-        <img src="https://palmettostatearmory.com/media/catalog/product/cache/small_image/300x300/beff4985b56e3afdbeabfc89641a4582/5/3/053506602179_2.jpg" alt="Williams 60217 FireSight Set">
+        <div class="img-wrap">
+          <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/williams-firesight.png" alt="Williams 60217 FireSight Set">
+        </div>
         <div class="info">
           <div class="option-name">Williams 60217 FireSight</div>
-          <div class="option-price">~$34–44</div>
+          <div class="option-price">~$34-44</div>
           <div>
             <span class="tag adj-full">Fully Adjustable</span>
             <span class="tag fiber">Fiber Optic</span>
           </div>
         </div>
       </div>
-      <p>The Williams WDOS set comes with both a front fiber optic bead and a rear WGRS peep sight. I only need the rear piece since my front sight is soldered in. The rear is fully adjustable — screw elevation, drift windage. Steel construction, built to last.</p>
+      <p>The Williams WDOS set comes with both a front fiber optic bead and a rear WGRS peep sight. I only need the rear piece since my front sight is soldered in. The rear is fully adjustable with screw elevation and drift windage. Steel construction, built to last.</p>
       <div class="pros-cons">
         <div class="pros">
           <h4>Pros</h4>
@@ -504,7 +441,7 @@ footer {
           <h4>Cons</h4>
           <ul>
             <li>About twice the price of the HIVIZ</li>
-            <li>Williams site warns 2–4 week shipping</li>
+            <li>Williams site warns 2-4 week shipping</li>
             <li>Half the set is useless for my rifle</li>
           </ul>
         </div>
@@ -513,7 +450,9 @@ footer {
 
     <div class="option-card">
       <div class="option-header">
-        <img src="https://www.brownells.com/on/demandware.static/-/Sites-brownells-master/default/dwbe8e5aaf/images/1_DZ/100/005/024/100005024_1.jpg" alt="Marble Arms Bullseye Short">
+        <div class="img-wrap">
+          <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/marble-bullseye-lg.jpg" alt="Marble Arms Bullseye Short rear sight">
+        </div>
         <div class="info">
           <div class="option-name">Marble Arms Bullseye Short</div>
           <div class="option-price">~$15 <span class="msrp">$26.99</span></div>
@@ -561,48 +500,13 @@ footer {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Price</td>
-            <td>~$21</td>
-            <td>~$34–44</td>
-            <td>~$15 (on sale)</td>
-          </tr>
-          <tr>
-            <td>Elevation</td>
-            <td><span class="check">✓</span> Screw adjust</td>
-            <td><span class="check">✓</span> Screw adjust</td>
-            <td><span class="cross">~</span> Step elevator</td>
-          </tr>
-          <tr>
-            <td>Windage</td>
-            <td><span class="check">✓</span> Screw adjust</td>
-            <td><span class="cross">~</span> Drift only</td>
-            <td><span class="cross">~</span> Drift only</td>
-          </tr>
-          <tr>
-            <td>Fiber Optic</td>
-            <td><span class="check">✓</span> Green</td>
-            <td><span class="check">✓</span> Green rear / Red front</td>
-            <td><span class="cross">✗</span> None</td>
-          </tr>
-          <tr>
-            <td>Sight Type</td>
-            <td>Open notch</td>
-            <td>Open notch</td>
-            <td>Peep (bullseye)</td>
-          </tr>
-          <tr>
-            <td>Material</td>
-            <td>Aluminum</td>
-            <td>Steel</td>
-            <td>Steel</td>
-          </tr>
-          <tr>
-            <td>Fits 3/8" Dovetail</td>
-            <td><span class="check">✓</span></td>
-            <td><span class="check">✓</span></td>
-            <td><span class="check">✓</span></td>
-          </tr>
+          <tr><td>Price</td><td>~$21</td><td>~$34-44</td><td>~$15 (on sale)</td></tr>
+          <tr><td>Elevation</td><td><span class="check">&#10003; Screw adjust</span></td><td><span class="check">&#10003; Screw adjust</span></td><td><span class="cross">~ Step elevator</span></td></tr>
+          <tr><td>Windage</td><td><span class="check">&#10003; Screw adjust</span></td><td><span class="cross">~ Drift only</span></td><td><span class="cross">~ Drift only</span></td></tr>
+          <tr><td>Fiber Optic</td><td><span class="check">&#10003; Green</span></td><td><span class="check">&#10003; Green/Red</span></td><td><span class="cross">&#10007; None</span></td></tr>
+          <tr><td>Sight Type</td><td>Open notch</td><td>Open notch</td><td>Peep (bullseye)</td></tr>
+          <tr><td>Material</td><td>Steel</td><td>Steel</td><td>Steel</td></tr>
+          <tr><td>Fits 3/8" Dovetail</td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td><td><span class="check">&#10003;</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -612,36 +516,60 @@ footer {
     <h2>What About a Scope?</h2>
     <div class="scope-section">
       <p>My 511 doesn't have a grooved receiver or factory scope mounting holes, which makes scoping it a bit of a project. Here are the realistic options:</p>
-
       <div class="scope-option">
         <div class="label">Option A: Drill & Tap the Receiver</div>
-        <p>A gunsmith drills and taps holes into the receiver for Weaver #43 bases. This is the "proper" way to mount a scope. Costs about $30–50 for the labor plus bases and rings. Permanent modification, but gives a solid mount.</p>
+        <p>A gunsmith drills and taps holes into the receiver for Weaver #43 bases. Costs about $30-50 for the labor plus bases and rings. Permanent modification, but gives a solid mount.</p>
       </div>
-
       <div class="scope-option">
         <div class="label">Option B: Weaver Side Mount (eBay)</div>
-        <p>Old-school Weaver N-series side mounts were made for the 510/511/512 series. They bolt to the left side of the receiver using the existing rear sight screw holes. No drilling. Find them on eBay for $20–40. Period-correct look.</p>
+        <p>Old-school Weaver N-series side mounts were made for the 510/511/512 series. They bolt to the left side of the receiver using the existing rear sight screw holes. No drilling. Find them on eBay for $20-40.</p>
       </div>
-
       <div class="scope-option">
         <div class="label">Option C: Dovetail Adapter Rail</div>
         <p>A 3/8" dovetail-to-Picatinny adapter could sit in the barrel dovetail, but it's only one mounting point, positioned far forward. Bad eye relief, wobbly. Not recommended.</p>
       </div>
-
-      <p style="margin-top:16px; color: var(--text-muted); font-style:italic;">For now I'm sticking with iron sights — this is a backyard squirrel rifle shooting .22 CB shorts at 50 feet, not a precision target gun. A good adjustable rear sight is all I really need.</p>
+      <p style="margin-top:16px; color: var(--text-muted); font-style:italic;">For now I'm sticking with iron sights. This is a backyard squirrel rifle shooting .22 CB shorts at 50 feet, not a precision target gun. A good adjustable rear sight is all I really need.</p>
     </div>
   </section>
 
   <div class="bottom-line">
     <h2>Bottom Line</h2>
-    <p>I'm probably going with the <strong>HIVIZ UNI2006</strong> for about $21. It gives me full windage and elevation adjustment with fiber optics, drops right into the existing dovetail, and it's the best value of the three. Easy install, no gunsmith needed.</p>
+    <p>I'm probably going with the <strong>HIVIZ UNI2006</strong> for about $21. Full windage and elevation adjustment with fiber optics, drops right into the existing dovetail, and it's the best value of the three. Easy install, no gunsmith needed.</p>
   </div>
 
   <footer>
-    <p>Made with love by Benny — February 2026</p>
+    <p>Made with love by Benny, February 2026</p>
   </footer>
-
 </div>
 
+<script>
+(function() {
+  var html = document.documentElement;
+  var stored = localStorage.getItem('theme');
+  if (stored === 'dark') {
+    html.setAttribute('data-theme', 'dark');
+  } else if (stored === 'light') {
+    // explicit light, no data-theme needed
+  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    html.setAttribute('data-theme', 'dark');
+  }
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+    if (!localStorage.getItem('theme')) {
+      if (e.matches) html.setAttribute('data-theme', 'dark');
+      else html.removeAttribute('data-theme');
+    }
+  });
+})();
+function toggleTheme() {
+  var html = document.documentElement;
+  if (html.getAttribute('data-theme') === 'dark') {
+    html.removeAttribute('data-theme');
+    localStorage.setItem('theme', 'light');
+  } else {
+    html.setAttribute('data-theme', 'dark');
+    localStorage.setItem('theme', 'dark');
+  }
+}
+</script>
 </body>
 </html>
