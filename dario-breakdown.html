@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dario Amodei: The Exponential Is Ending — Interview Breakdown</title>
+<meta property="og:title" content="Dario Amodei: The Exponential Is Ending">
+<meta property="og:description" content="A comprehensive breakdown of Dario Amodei's 2026 interview with Dwarkesh Patel — on scaling, timelines, compute economics, and the country of geniuses.">
+<meta property="og:url" content="https://niggerfaggot.club/dario-breakdown.html">
+<meta property="og:image" content="https://niggerfaggot.club/dario-breakdown.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+
+:root {
+  --bg: #0a0a0c;
+  --bg-elevated: #111115;
+  --bg-card: #16161b;
+  --text: #e8e6e1;
+  --text-dim: #8a8880;
+  --text-faint: #55534e;
+  --accent: #f97316;
+  --accent-glow: rgba(249, 115, 22, 0.15);
+  --accent-subtle: rgba(249, 115, 22, 0.08);
+  --border: rgba(255,255,255,0.06);
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'DM Sans', -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* ═══ HERO ═══ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 4rem 2rem 6rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(249,115,22,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(249,115,22,0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(to top, var(--bg), transparent);
+  pointer-events: none;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 70% 50% at 50% 40%, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 40%, black 20%, transparent 70%);
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.8s ease forwards 0.2s;
+}
+
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(3rem, 8vw, 7rem);
+  line-height: 1.0;
+  font-weight: 400;
+  color: var(--text);
+  max-width: 900px;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeUp 0.8s ease forwards 0.4s;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-subtitle {
+  font-family: var(--sans);
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  max-width: 540px;
+  margin-top: 2rem;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.8s ease forwards 0.6s;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2.5rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.8s;
+}
+
+.hero-meta span { display: flex; align-items: center; gap: 0.5rem; }
+.hero-meta .dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; }
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 1s;
+}
+
+.scroll-hint span {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+/* ═══ LAYOUT ═══ */
+.container {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ═══ TABLE OF CONTENTS ═══ */
+.toc-section {
+  padding: 6rem 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.toc-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.toc-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 2rem;
+}
+
+.toc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.toc-item {
+  background: var(--bg);
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.toc-item:hover {
+  background: var(--bg-elevated);
+  color: var(--accent);
+}
+
+.toc-num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-faint);
+  min-width: 1.8rem;
+  transition: color 0.25s ease;
+}
+
+.toc-item:hover .toc-num { color: var(--accent); }
+
+.toc-text {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+/* ═══ SECTIONS ═══ */
+.section {
+  padding: 5rem 0;
+  border-top: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.section-num::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.section h2 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 2rem;
+  color: var(--text);
+}
+
+.section p {
+  font-size: 1.05rem;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+
+.section p strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ═══ BLOCKQUOTES ═══ */
+blockquote {
+  position: relative;
+  margin: 2.5rem 0;
+  padding: 1.8rem 2rem;
+  background: var(--bg-elevated);
+  border-left: 2px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  line-height: 1.75;
+  color: var(--text);
+  font-style: italic;
+}
+
+blockquote::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--accent-subtle), transparent 60%);
+  border-radius: 0 6px 6px 0;
+  pointer-events: none;
+}
+
+blockquote p {
+  color: var(--text) !important;
+  margin-bottom: 0 !important;
+  font-size: inherit !important;
+}
+
+blockquote p + p {
+  margin-top: 1rem !important;
+}
+
+/* ═══ PULL QUOTES ═══ */
+.pull-quote {
+  margin: 3.5rem -2rem;
+  padding: 3rem 2rem;
+  position: relative;
+  text-align: center;
+}
+
+.pull-quote::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.pull-quote::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.pull-quote p {
+  font-family: var(--serif);
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  line-height: 1.45;
+  color: var(--text) !important;
+  font-style: italic;
+  max-width: 600px;
+  margin: 0 auto !important;
+}
+
+.pull-quote .attr {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-faint) !important;
+  margin-top: 1.5rem !important;
+  font-style: normal;
+}
+
+/* ═══ STAT CARDS ═══ */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+
+.stat-card {
+  background: var(--bg);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.stat-val {
+  font-family: var(--serif);
+  font-size: 2.2rem;
+  color: var(--accent);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: 0.5rem;
+}
+
+/* ═══ SPECTRUM BAR ═══ */
+.spectrum {
+  margin: 2.5rem 0;
+  padding: 2rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.spectrum-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+.spectrum-track {
+  position: relative;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 0 1rem;
+}
+
+.spectrum-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), rgba(249,115,22,0.3));
+  border-radius: 2px;
+  transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.spectrum-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+}
+
+.spectrum-items {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.spectrum-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.spectrum-item .marker {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.spectrum-item.dim .marker {
+  background: var(--text-faint);
+}
+
+.spectrum-item.dim {
+  color: var(--text-faint);
+}
+
+/* ═══ CALLOUT BOX ═══ */
+.callout {
+  margin: 2.5rem 0;
+  padding: 1.5rem 2rem;
+  background: var(--accent-subtle);
+  border: 1px solid rgba(249,115,22,0.15);
+  border-radius: 6px;
+}
+
+.callout-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.callout p {
+  font-size: 0.95rem !important;
+  color: var(--text) !important;
+  margin-bottom: 0 !important;
+}
+
+/* ═══ TIMELINE ═══ */
+.timeline {
+  margin: 2.5rem 0;
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--accent), var(--border));
+}
+
+.tl-item {
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -2rem;
+  top: 0.55rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+}
+
+.tl-year {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+.tl-text {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-top: 0.25rem;
+}
+
+.tl-val {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ═══ DIVIDER ═══ */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 4rem 0;
+  color: var(--text-faint);
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.divider svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0.3;
+}
+
+/* ═══ KEY TAKEAWAY ═══ */
+.key-takeaway {
+  margin: 5rem 0;
+  padding: 3rem 2.5rem;
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.key-takeaway::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.key-takeaway h3 {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+.key-takeaway p {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  line-height: 1.65;
+  color: var(--text) !important;
+}
+
+/* ═══ FOOTER ═══ */
+footer {
+  padding: 4rem 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+footer p {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
+
+footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 0.8; transform: scaleY(1.2); }
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .hero { padding: 3rem 1.5rem 4rem; }
+  .container { padding: 0 1.5rem; }
+  .section { padding: 3.5rem 0; }
+  .toc-grid { grid-template-columns: 1fr; }
+  .stat-row { grid-template-columns: 1fr 1fr; }
+  .pull-quote { margin: 2.5rem -0.5rem; }
+  blockquote { padding: 1.2rem 1.5rem; font-size: 1rem; }
+  .hero-meta { flex-wrap: wrap; gap: 1rem; }
+  .key-takeaway { padding: 2rem 1.5rem; }
+}
+
+/* Wrap any overflow */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-eyebrow">Interview Breakdown &mdash; Dwarkesh Patel &times; Dario Amodei</div>
+  <h1 class="hero-title">The Exponential<br><em>Is Ending</em></h1>
+  <p class="hero-subtitle">Anthropic's CEO on scaling laws, trillion-dollar compute bets, the country of geniuses, and why the average person has no idea what's coming.</p>
+  <div class="hero-meta">
+    <span><span class="dot"></span> February 2026</span>
+    <span><span class="dot"></span> 20 Sections</span>
+    <span><span class="dot"></span> ~25 min read</span>
+  </div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</header>
+
+<!-- ═══ TABLE OF CONTENTS ═══ -->
+<nav class="toc-section">
+  <div class="toc-inner">
+    <div class="toc-label">Table of Contents</div>
+    <div class="toc-grid">
+      <a class="toc-item" href="#s1"><span class="toc-num">01</span><span class="toc-text">The Scaling Hypothesis: Still Holding</span></a>
+      <a class="toc-item" href="#s2"><span class="toc-num">02</span><span class="toc-text">Sample Efficiency & The Bitter Lesson</span></a>
+      <a class="toc-item" href="#s3"><span class="toc-num">03</span><span class="toc-text">Timelines: Confidence Levels</span></a>
+      <a class="toc-item" href="#s4"><span class="toc-num">04</span><span class="toc-text">Coding Productivity: The Spectrum</span></a>
+      <a class="toc-item" href="#s5"><span class="toc-num">05</span><span class="toc-text">The METR Study & Internal Evidence</span></a>
+      <a class="toc-item" href="#s6"><span class="toc-num">06</span><span class="toc-text">Recursive Self-Improvement</span></a>
+      <a class="toc-item" href="#s7"><span class="toc-num">07</span><span class="toc-text">Diffusion: Real but Fast</span></a>
+      <a class="toc-item" href="#s8"><span class="toc-num">08</span><span class="toc-text">On-the-Job Learning</span></a>
+      <a class="toc-item" href="#s9"><span class="toc-num">09</span><span class="toc-text">Context Length: Engineering Problem</span></a>
+      <a class="toc-item" href="#s10"><span class="toc-num">10</span><span class="toc-text">The Compute Buying Dilemma</span></a>
+      <a class="toc-item" href="#s11"><span class="toc-num">11</span><span class="toc-text">The Profitability Model</span></a>
+      <a class="toc-item" href="#s12"><span class="toc-num">12</span><span class="toc-text">Industry Structure: Oligopoly</span></a>
+      <a class="toc-item" href="#s13"><span class="toc-num">13</span><span class="toc-text">API & Business Models</span></a>
+      <a class="toc-item" href="#s14"><span class="toc-num">14</span><span class="toc-text">Claude Code: Why Anthropic Won</span></a>
+      <a class="toc-item" href="#s15"><span class="toc-num">15</span><span class="toc-text">China & Export Controls</span></a>
+      <a class="toc-item" href="#s16"><span class="toc-num">16</span><span class="toc-text">AI Regulation: State vs. Federal</span></a>
+      <a class="toc-item" href="#s17"><span class="toc-num">17</span><span class="toc-text">Developing World & Distribution</span></a>
+      <a class="toc-item" href="#s18"><span class="toc-num">18</span><span class="toc-text">The Soul Spec: Rules vs. Principles</span></a>
+      <a class="toc-item" href="#s19"><span class="toc-num">19</span><span class="toc-text">Company Culture & the DVQ</span></a>
+      <a class="toc-item" href="#s20"><span class="toc-num">20</span><span class="toc-text">What History Will Miss</span></a>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+<!-- ═══ SECTION 1 ═══ -->
+<section class="section" id="s1">
+  <div class="section-num">Section 01</div>
+  <h2>The Scaling Hypothesis: Still Holding</h2>
+  <p>Dario's core thesis hasn't budged since 2017, when he wrote "The Big Blob of Compute Hypothesis" right as GPT-1 came out. He lists seven factors that actually matter, and dismisses everything else as noise:</p>
+  <blockquote><p>What it says is that all the cleverness, all the techniques, all the "we need a new method to do something", that doesn't matter very much. There are only a few things that matter.</p></blockquote>
+  <p>The seven: raw compute, data quantity, data quality and distribution (must be broad), training duration, scalable objective functions (pre-training loss + RL goal-seeking), and numerical stability so <strong>"the big blob of compute flows in this laminar way instead of running into problems."</strong></p>
+  <p>On RL scaling specifically, he's emphatic it follows the same log-linear pattern as pre-training:</p>
+  <blockquote><p>Even other companies have published things in some of their releases that say, "We train the model on math contests &mdash; AIME or other things &mdash; and how well the model does is log-linear in how long we've trained it." We see that as well, and it's not just math contests. It's a wide variety of RL tasks.</p></blockquote>
+  <p>He draws a direct parallel to the GPT-1 to GPT-2 transition. Early RL is narrow (math competitions), just as GPT-1 trained on fanfiction. Generalization comes from breadth. They're starting with simple RL, moving to code, now many other tasks, and increasingly getting generalization across all of them.</p>
+</section>
+
+<!-- ═══ SECTION 2 ═══ -->
+<section class="section" id="s2">
+  <div class="section-num">Section 02</div>
+  <h2>Sample Efficiency & The Bitter Lesson</h2>
+  <p>Dwarkesh raises Rich Sutton's critique: something with the "true core of human learning" shouldn't need billions of dollars just to learn Excel. The fact we're building bespoke RL environments hints we're scaling the wrong thing.</p>
+  <p>Dario separates the question carefully. First, he calls RL vs. pre-training a "red herring" &mdash; they're the same mechanism at different stages. But he acknowledges a genuine puzzle:</p>
+  <blockquote><p>There is a puzzle either way, which is that in pre-training we use trillions of tokens. Humans don't see trillions of words. So there is an actual sample efficiency difference here. There is actually something different here. The models start from scratch and they need much more training.</p></blockquote>
+  <p>His resolution maps LLM training onto a hierarchy of biological learning, but at different points than you'd expect:</p>
+  <blockquote><p>Maybe we should think of pre-training &mdash; and for that matter, RL as well &mdash; as something that exists in the middle space between human evolution and human on-the-spot learning. And we should think of the in-context learning that the models do as something between long-term human learning and short-term human learning.</p></blockquote>
+  <p>The key insight: once trained, models are actually excellent at adapting in-context. The sample inefficiency is a property of training from blank-slate random weights, not a limitation of the trained model's capabilities.</p>
+</section>
+
+<!-- ═══ SECTION 3 ═══ -->
+<section class="section" id="s3">
+  <div class="section-num">Section 03</div>
+  <h2>Timelines: Confidence Levels</h2>
+  <p>Dario lays out his beliefs in layers, each with explicit confidence levels:</p>
+
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-val">90%</div>
+      <div class="stat-label">"Country of Geniuses" within 10 years</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">~50%</div>
+      <div class="stat-label">Hunch: 1&ndash;3 years</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">~5%</div>
+      <div class="stat-label">Geopolitical Failure Mode</div>
+    </div>
+  </div>
+
+  <blockquote><p>On the ten-year timeline I'm at 90%, which is about as certain as you can be. I think it's crazy to say that this won't happen by 2035.</p></blockquote>
+  <blockquote><p>I have a hunch &mdash; this is more like a 50/50 thing &mdash; that it's going to be more like one to two, maybe more like one to three.</p></blockquote>
+
+  <p>He's especially confident on verifiable domains like coding, but flags one genuine uncertainty:</p>
+
+  <blockquote><p>My one little bit of fundamental uncertainty, even on long timescales, is about tasks that aren't verifiable: planning a mission to Mars; doing some fundamental scientific discovery like CRISPR; writing a novel.</p></blockquote>
+
+  <p>He immediately qualifies: generalization already bridges this gap. <strong>"We already see substantial generalization from things that verify to things that don't."</strong> The 5% failure scenario is geopolitical, not technical: multiple companies collapsing, Taiwan invaded, fabs destroyed.</p>
+</section>
+
+<!-- ═══ SECTION 4 ═══ -->
+<section class="section" id="s4">
+  <div class="section-num">Section 04</div>
+  <h2>Coding Productivity: The Spectrum</h2>
+  <p>People keep collapsing a long spectrum into a single claim. Dario lays out the progression explicitly:</p>
+
+  <div class="spectrum">
+    <div class="spectrum-title">The SWE Automation Spectrum</div>
+    <div class="spectrum-track"><div class="spectrum-fill" style="width: 35%;"></div></div>
+    <div class="spectrum-labels"><span>Where we are</span><span>Full automation</span></div>
+    <div class="spectrum-items">
+      <div class="spectrum-item"><span class="marker"></span> 90% of code lines written by AI &mdash; happened</div>
+      <div class="spectrum-item"><span class="marker"></span> 100% of code lines &mdash; big gap from 90%</div>
+      <div class="spectrum-item dim"><span class="marker"></span> 90% of end-to-end SWE tasks (compile, test, deploy, memos)</div>
+      <div class="spectrum-item dim"><span class="marker"></span> 100% of today's SWE tasks</div>
+      <div class="spectrum-item dim"><span class="marker"></span> New higher-level tasks created & automated</div>
+      <div class="spectrum-item dim"><span class="marker"></span> 90% less demand for SWEs</div>
+    </div>
+  </div>
+
+  <blockquote><p>People thought I was saying that we won't need 90% of the software engineers. Those things are worlds apart.</p></blockquote>
+
+  <p>Dwarkesh pushes: where's the software renaissance? People start greenfield projects with Claude Code but where are all the new products? Dario acknowledges the tension but frames it within his central theme:</p>
+
+  <blockquote><p>I simultaneously agree with you that it's a reason why these things don't happen instantly, but at the same time, I think the effect is gonna be very fast.</p></blockquote>
+
+  <p>His estimate of current total factor productivity from coding models: <strong>15-20%</strong>, up from about 5% six months ago. Just now becoming large enough to register as a factor.</p>
+</section>
+
+<!-- ═══ SECTION 5 ═══ -->
+<section class="section" id="s5">
+  <div class="section-num">Section 05</div>
+  <h2>The METR Study & Internal Evidence</h2>
+  <p>One of the hardest-hitting exchanges. Dwarkesh cites the study where experienced developers reported feeling more productive with AI but actually had a <strong>20% downlift</strong> in merged output. How do you square that?</p>
+  <p>Dario's counter is visceral and pulls no punches:</p>
+
+  <blockquote>
+    <p>Within Anthropic, this is just really unambiguous. We're under an incredible amount of commercial pressure and make it even harder for ourselves because we have all this safety stuff we do that I think we do more than other companies. The pressure to survive economically while also keeping our values is just incredible.</p>
+    <p>There is zero time for bullshit. There is zero time for feeling like we're productive when we're not.</p>
+  </blockquote>
+
+  <div class="pull-quote">
+    <p>Why do you think we're concerned about competitors using the tools? Because we think we're ahead of the competitors. We wouldn't be going through all this trouble if this were secretly reducing our productivity.</p>
+    <p class="attr">Dario Amodei</p>
+  </div>
+
+  <p>He grounds it in observable, unambiguous output: <strong>"We see the end productivity every few months in the form of model launches. There's no kidding yourself about this."</strong></p>
+</section>
+
+<!-- ═══ SECTION 6 ═══ -->
+<section class="section" id="s6">
+  <div class="section-num">Section 06</div>
+  <h2>Recursive Self-Improvement: Why No Lasting Advantage?</h2>
+  <p>If coding models give such productivity gains, why do labs keep trading the podium? Why hasn't the best-coding-model lab run away with it?</p>
+
+  <blockquote><p>I think my model of the situation is that there's an advantage that's gradually growing... Six months ago, it was maybe 5%. So it didn't matter. 5% doesn't register. It's now just getting to the point where it's one of several factors that kind of matters.</p></blockquote>
+
+  <p>He also acknowledges a leakage problem: <strong>"we're not perfectly good at preventing some of these other companies from using our models internally."</strong></p>
+  <p>His framing is explicitly anti-singularity, anti-fizzle &mdash; the mantra that runs through the entire interview:</p>
+
+  <blockquote><p>My theme in all of this is all of this is soft takeoff, soft, smooth exponentials, although the exponentials are relatively steep.</p></blockquote>
+</section>
+
+<!-- ═══ SECTION 7 ═══ -->
+<section class="section" id="s7">
+  <div class="section-num">Section 07</div>
+  <h2>Diffusion: Real but Fast</h2>
+  <p>Dwarkesh calls diffusion <strong>"cope that people say"</strong> and argues AIs have inherent advantages over human onboarding: read your entire Slack in minutes, share knowledge across instances, no adverse selection in hiring.</p>
+  <p>Dario pushes back with granular detail. Even Claude Code, which is trivially easy to adopt individually:</p>
+
+  <blockquote><p>Big enterprises, big financial companies, big pharmaceutical companies, all of them are adopting Claude Code much faster than enterprises typically adopt new technology. But again, it takes time. You have to go through legal, you have to provision it for everyone. It has to pass security and compliance.</p></blockquote>
+
+  <p>He rejects both extremes. Not the "diffusion means this doesn't matter" camp, and not the "instant recursive improvement" camp. But he's emphatic about where we stand right now:</p>
+
+  <div class="pull-quote">
+    <p>If we had the "country of geniuses in a data center", we would know it. Everyone in this room would know it. Everyone in Washington would know it. We don't have that now. That is very clear.</p>
+    <p class="attr">Dario Amodei</p>
+  </div>
+</section>
+
+<!-- ═══ SECTION 8 ═══ -->
+<section class="section" id="s8">
+  <div class="section-num">Section 08</div>
+  <h2>On-the-Job Learning: The Core Debate</h2>
+  <p>Dwarkesh's most persistent challenge across the entire interview. He frames it through video editing: editors spend months building context on audience preferences, host tastes, tradeoffs. When should we expect AI to match that six-month ramp?</p>
+  <p>Dario's answer is multi-layered. First, coding progressed fast <em>because</em> codebases serve as external memory. Dwarkesh presses: doesn't that prove other domains without that scaffold will be harder? Dario flips it:</p>
+
+  <blockquote><p>What we think of as learning &mdash; "I started this job, it's going to take me six months to understand the code base" &mdash; the model just did it in the context.</p></blockquote>
+
+  <p>Two existing mechanisms may be sufficient without solving "continual learning" as a distinct problem: pre-training/RL generalization handles broad capability, while in-context learning handles job-specific adaptation. A million tokens is a lot &mdash; <strong>"That can be days of human learning."</strong></p>
+  <p>He points to the historical pattern of supposed barriers dissolving inside the blob of compute:</p>
+
+  <blockquote><p>People talked about, "How do your models keep track of nouns and verbs?" "They can understand syntactically, but they can't understand semantically? It's only statistical correlations." ... But then suddenly it turns out you can do code and math very well.</p></blockquote>
+
+  <p>His timeline for the video editor question: <strong>"one to two years, maybe one to three years."</strong></p>
+</section>
+
+<!-- ═══ SECTION 9 ═══ -->
+<section class="section" id="s9">
+  <div class="section-num">Section 09</div>
+  <h2>Context Length: Engineering, Not Research</h2>
+  <p>Dwarkesh notes context lengths have been stuck around 128K since GPT-4 Turbo, with degradation at longer lengths. Dario's claim is stark:</p>
+
+  <blockquote><p>This isn't a research problem. This is an engineering and inference problem. If you want to serve long context, you have to store your entire KV cache. It's difficult to store all the memory in the GPUs, to juggle the memory around.</p></blockquote>
+
+  <p>The quality degradation has a specific, mundane cause: if you train at a small context length and serve at a longer one, performance drops. Train at the longer length and the problem goes away. Both training at longer lengths and serving them efficiently are engineering challenges that are actively being worked on.</p>
+</section>
+
+<!-- ═══ SECTION 10 ═══ -->
+<section class="section" id="s10">
+  <div class="section-num">Section 10</div>
+  <h2>The Compute Buying Dilemma</h2>
+  <p>This is where the interview gets most financially revealing. Dwarkesh essentially asks: if you believe your own timelines, why aren't you buying $10 trillion of compute?</p>
+
+  <div class="callout">
+    <div class="callout-label">Anthropic Revenue Trajectory</div>
+    <p>2023: $0 → $100M &nbsp;/&nbsp; 2024: $100M → $1B &nbsp;/&nbsp; 2025: $1B → $9-10B &nbsp;/&nbsp; January 2026: added "another few billion"</p>
+  </div>
+
+  <p>The demand prediction problem is existential:</p>
+
+  <blockquote><p>If my revenue is not $1 trillion dollars, if it's even $800 billion, there's no force on earth, there's no hedge on earth that could stop me from going bankrupt if I buy that much compute. If I'm just off by a year in that rate of growth, or if the growth rate is 5x a year instead of 10x a year, then you go bankrupt.</p></blockquote>
+
+  <p>The industry math works out to his predictions regardless:</p>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-year">2026</div>
+      <div class="tl-text"><span class="tl-val">~10-15 GW</span> industry compute</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2027</div>
+      <div class="tl-text"><span class="tl-val">~30-40 GW</span> (~3x/year scaling)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2028</div>
+      <div class="tl-text"><span class="tl-val">~100 GW</span> &mdash; at ~$10B/GW = $1T+</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2029</div>
+      <div class="tl-text"><span class="tl-val">~300 GW</span> &mdash; multi-trillion annual spend</div>
+    </div>
+  </div>
+
+  <p>His concern about competitors: <strong>"I get the impression that some of the other companies have not written down the spreadsheet, that they don't really understand the risks they're taking."</strong></p>
+</section>
+
+<!-- ═══ SECTION 11 ═══ -->
+<section class="section" id="s11">
+  <div class="section-num">Section 11</div>
+  <h2>The Profitability Model</h2>
+  <p>Counterintuitive claim: profitability isn't a milestone you reach. It's a <em>byproduct of accurate demand prediction.</em></p>
+
+  <blockquote><p>I actually think profitability happens when you underestimated the amount of demand you were going to get and loss happens when you overestimated the amount of demand you were going to get, because you're buying the data centers ahead of time.</p></blockquote>
+
+  <p>The stylized model: ~50% compute for training, ~50% for inference. Inference gross margins above 50%. If demand matches predictions, each generation of models is profitable. The company only loses money because it's exponentially scaling up training for the next model. <strong>"Each model makes money, but the company loses money."</strong></p>
+  <p>Why 50% on training specifically? Log-linear returns create diminishing returns at higher fractions. Going from 50% to 70% gets you only a 1.4x bigger model through that extra $20B. That marginal dollar is better spent on inference or engineering.</p>
+</section>
+
+<!-- ═══ SECTION 12 ═══ -->
+<section class="section" id="s12">
+  <div class="section-num">Section 12</div>
+  <h2>Industry Structure: Oligopoly</h2>
+  <p>Dario draws the cloud computing parallel directly:</p>
+
+  <blockquote><p>There are three, maybe four, players within cloud. I think that's the same for AI, three, maybe four. The reason is that it's so expensive. It requires so much expertise and so much capital to run a cloud company.</p></blockquote>
+
+  <p>The moat isn't network effects. It's capital + expertise barriers creating Cournot equilibrium with positive margins. And AI models are <em>more</em> differentiated than cloud:</p>
+
+  <blockquote><p>Everyone knows Claude is good at different things than GPT is good at, than Gemini is good at. It's not just that Claude's good at coding, GPT is good at math and reasoning. It's more subtle than that. Models are good at different types of coding. Models have different styles.</p></blockquote>
+
+  <p>The wild card he acknowledges: if AI can fully build AI, the whole economy could flatten. <strong>"I don't know what quite happens in that world where basically anyone can do anything, anyone can build anything, and there's no moat around anything at all."</strong></p>
+</section>
+
+<!-- ═══ SECTION 13 ═══ -->
+<section class="section" id="s13">
+  <div class="section-num">Section 13</div>
+  <h2>API & Business Models</h2>
+  <p>Surprisingly bullish on the API's durability, grounded in the pace of progress itself:</p>
+
+  <blockquote><p>If the technology is advancing quickly, if it's advancing exponentially, what that means is there's always a surface area of new use cases that have been developed in the last three months. Any kind of product surface you put in place is always at risk of sort of becoming irrelevant.</p></blockquote>
+
+  <p>The API is bare-metal access to the frontier. There will always be a thousand experimenters, 100 becoming startups, 10 becoming big, 2 or 3 defining how a model generation gets used.</p>
+  <p>On the massive variance in token value:</p>
+
+  <blockquote><p>Think about what is the value of the tokens that the model outputs when someone calls them up and says, "My Mac isn't working," the model's like, "restart it." ... Whereas if the model goes to one of the pharmaceutical companies and it says, "this molecule you're developing, you should take the aromatic ring from that end of the molecule and put it on that end" ... Those tokens could be worth tens of millions of dollars.</p></blockquote>
+
+  <p>He predicts pay-for-results and labor-like hourly pricing will coexist alongside per-token API pricing.</p>
+</section>
+
+<!-- ═══ SECTION 14 ═══ -->
+<section class="section" id="s14">
+  <div class="section-num">Section 14</div>
+  <h2>Claude Code: Why Anthropic Won</h2>
+  <p>The origin story is disarmingly simple: internal tool, observed product-market fit, shipped externally.</p>
+
+  <blockquote><p>Around the beginning of 2025, I said, "I think the time has come where you can have nontrivial acceleration of your own research if you're an AI company by using these models."</p></blockquote>
+
+  <p>The competitive advantage is eating your own cooking: developing the model <em>and</em> being the power user creates a tight feedback loop. Hundreds of engineers using it daily, seeing what works and what doesn't, feeding that back into both the product and the underlying model.</p>
+  <p>Why coding and not pharma, despite Dario's biology background? <strong>"We don't have any of the resources that are needed to launch a pharmaceutical company."</strong> They built where they had the tightest iteration loop.</p>
+</section>
+
+<!-- ═══ SECTION 15 ═══ -->
+<section class="section" id="s15">
+  <div class="section-num">Section 15</div>
+  <h2>China & Export Controls</h2>
+  <p>Dario's strongest geopolitical stance. He's frustrated that chip export controls aren't enforced despite clear bipartisan support:</p>
+
+  <blockquote><p>That's squarely within the policy beliefs of almost everyone in Congress of both parties. The case is very clear. The counterarguments against it, I'll politely call them fishy. Yet it doesn't happen and we sell the chips because there's so much money riding on it.</p></blockquote>
+
+  <p>His concerns about China having equivalent AI are threefold. Nuclear-style mutual destruction but potentially worse. Strategic instability from uncertainty about who would win an AI-vs-AI confrontation. And authoritarian lock-in: governments using AI to oppress their own people in ways that become <strong>"very hard to displace."</strong></p>
+  <p>His proposed framework: sell cures and products to authoritarian countries, but <em>not</em> compute infrastructure. Build data centers in Africa, not China.</p>
+  <p>The most provocative idea he floats:</p>
+
+  <blockquote><p>Could there be developments we can make... that create an equilibrium where it becomes infeasible for authoritarian countries to deny their people private use of the benefits of the technology? Are there equilibria where we can give everyone in an authoritarian country their own AI model that defends them from surveillance?</p></blockquote>
+</section>
+
+<!-- ═══ SECTION 16 ═══ -->
+<section class="section" id="s16">
+  <div class="section-num">Section 16</div>
+  <h2>AI Regulation: State vs. Federal</h2>
+  <p>On the Tennessee emotional-support-AI bill: <strong>"I think that particular law is dumb."</strong> On the federal moratorium banning state AI regulation for 10 years with no federal replacement:</p>
+
+  <blockquote><p>Given the serious dangers that I lay out in "Adolescence of Technology" around things like biological weapons and bioterrorism autonomy risk, and the timelines we've been talking about &mdash; 10 years is an eternity &mdash; I think that's a crazy thing to do.</p></blockquote>
+
+  <p>His preferred model: federal preemption that <em>sets</em> a standard. Start with transparency, escalate as risks materialize. He sees an asymmetry in regulatory priorities: deregulate the beneficial stuff (especially drug approval pipelines), ramp up safety legislation.</p>
+
+  <blockquote><p>AI models are going to greatly accelerate the rate at which we discover drugs, and the pipeline will get jammed up. The pipeline will not be prepared to process all the stuff that's going through it. Maybe we don't need all this superstructure around it that was designed around an era of drugs that barely work and often have serious side effects.</p></blockquote>
+
+  <p>He's not worried about benefits being blocked in developed countries &mdash; <strong>"When there's a lot of money to be made on something and it's clearly the best available alternative, it's actually hard for the regulatory system to stop it."</strong> His real concern is the developing world.</p>
+</section>
+
+<!-- ═══ SECTION 17 ═══ -->
+<section class="section" id="s17">
+  <div class="section-num">Section 17</div>
+  <h2>Developing World & Distribution</h2>
+  <p>Dwarkesh raises the fundamental problem: catch-up growth historically works because developing countries have underutilized labor. If labor is no longer the constraint, that mechanism breaks.</p>
+  <p>Dario's response is practical: build data centers in Africa, ensure AI-driven biotech startups happen in the developing world, make sure some of the humans supervising AI during the transition are in those countries.</p>
+  <p>He worries about geographic inequality even within the developed world:</p>
+
+  <blockquote><p>The growth rate could be like 50% in Silicon Valley and parts of the world that are socially connected to Silicon Valley, and not that much faster than its current pace elsewhere. I think that'd be a pretty messed up world.</p></blockquote>
+</section>
+
+<!-- ═══ SECTION 18 ═══ -->
+<section class="section" id="s18">
+  <div class="section-num">Section 18</div>
+  <h2>The Soul Spec: Rules vs. Principles</h2>
+  <p>Two key distinctions. On rules vs. principles, it's empirical:</p>
+
+  <blockquote><p>If you give it a list of rules &mdash; "don't tell people how to hot-wire a car, don't speak in Korean" &mdash; it doesn't really understand the rules, and it's hard to generalize from them. Whereas if you give it principles... that turns out to be a more effective way to train the model.</p></blockquote>
+
+  <p>On corrigibility vs. autonomy, Claude is firmly on one side:</p>
+
+  <blockquote><p>Everything about the model is closer to the direction that it should mostly do what people want. It should mostly follow instructions. We're not trying to build something that goes off and runs the world on its own. We're actually pretty far on the corrigible side.</p></blockquote>
+
+  <p>He describes three feedback loops for the constitution: internal iteration, competition between companies' constitutions (his favorite &mdash; a kind of archipelago of AI governance), and broader societal input. He even floats the idea of representative government having input, while acknowledging the legislative process is currently too slow for it.</p>
+</section>
+
+<!-- ═══ SECTION 19 ═══ -->
+<section class="section" id="s19">
+  <div class="section-num">Section 19</div>
+  <h2>Company Culture & the DVQ</h2>
+  <p>Dario spends <strong>"a third, maybe 40%"</strong> of his time on culture. His primary tool is the biweekly "Dario Vision Quest":</p>
+
+  <blockquote><p>I wasn't the one who named it that. That's the name it received, and it's one of these names that I tried to fight because it made it sound like I was going off and smoking peyote or something. But the name just stuck.</p></blockquote>
+
+  <p>Every two weeks: a 3-4 page document, presented to the whole company, covering models, products, industry, geopolitics, followed by Q&A. The philosophy is radical transparency:</p>
+
+  <blockquote><p>The point is to get a reputation of telling the company the truth about what's happening, to call things what they are, to acknowledge problems, to avoid the sort of corpo speak, the kind of defensive communication that often is necessary in public.</p></blockquote>
+
+  <p>He takes an implicit shot at competitors without naming names: <strong>"We've seen as some of the other AI companies have grown... we're starting to see decoherence and people fighting each other."</strong></p>
+</section>
+
+<!-- ═══ SECTION 20 ═══ -->
+<section class="section" id="s20">
+  <div class="section-num">Section 20</div>
+  <h2>What History Will Miss</h2>
+  <p>Three things future historians will struggle to reconstruct:</p>
+  <p><strong>The obliviousness.</strong> At every point on the exponential, the world outside didn't understand it.</p>
+
+  <blockquote><p>Anything that actually happened looks inevitable in retrospect. When people look back, it will be hard for them to put themselves in the place of people who were actually making a bet on this thing to happen that wasn't inevitable.</p></blockquote>
+
+  <p><strong>The insularity.</strong> If we're one to two years away, the average person on the street has no idea.</p>
+  <p><strong>The chaos of decision-making.</strong> Decisions that look calculated in retrospect were made under impossible time pressure:</p>
+
+  <blockquote><p>One of my worries is that some very critical decision will be some decision where someone just comes into my office and is like, "Dario, you have two minutes. Should we do thing A or thing B?" ... I'm like, "I don't know. I have to eat lunch. Let's do B." That ends up being the most consequential thing ever.</p></blockquote>
+</section>
+
+<!-- ═══ KEY TAKEAWAY ═══ -->
+<div class="key-takeaway">
+  <h3>The Throughline</h3>
+  <p>Dario's entire worldview is organized around a single meta-principle: <strong>steep but smooth exponentials, never instantaneous, never slow.</strong> Every answer &mdash; scaling, diffusion, profitability, geopolitics, regulation &mdash; gets filtered through this lens. He explicitly rejects both "AI won't matter because diffusion" and "recursive self-improvement will give us Dyson spheres in nanoseconds."</p>
+  <p style="margin-top: 1rem;">The most revealing tension: Dwarkesh repeatedly pushes on whether Dario's <em>actions</em> (compute buying, profitability targets, cautious scaling) are consistent with his <em>stated beliefs</em> (1-3 year timelines). Dario's resolution is the demand prediction problem &mdash; the asymmetry between "I'm 90% sure this happens" and "I can bet the company on the exact year" is what constrains behavior even under strong conviction.</p>
+</div>
+
+</main>
+
+<footer>
+  <p>Breakdown of Dario Amodei's interview with <a href="https://www.dwarkeshpatel.com" target="_blank">Dwarkesh Patel</a>, February 2026</p>
+</footer>
+
+<script>
+// Scroll-triggered section reveals
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.section, .key-takeaway').forEach(el => observer.observe(el));
+
+// Animate spectrum bars on scroll
+const specObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const fill = entry.target.querySelector('.spectrum-fill');
+      if (fill) {
+        fill.style.width = fill.style.width; // trigger reflow
+      }
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.spectrum').forEach(el => specObserver.observe(el));
+
+// Hide scroll hint on scroll
+let scrollHintHidden = false;
+window.addEventListener('scroll', () => {
+  if (!scrollHintHidden && window.scrollY > 200) {
+    document.querySelector('.scroll-hint').style.opacity = '0';
+    document.querySelector('.scroll-hint').style.transition = 'opacity 0.5s ease';
+    scrollHintHidden = true;
+  }
+}, { passive: true });
+</script>
+</body>
+</html>
