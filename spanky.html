@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spanky — AI-Adaptive Learning</title>
+<meta property="og:title" content="Spanky — AI-Adaptive Learning">
+<meta property="og:description" content="Anki meets AI tutoring. Spaced repetition with adaptive difficulty and real-time explanations. Currently loaded: NC Piedmont Nature Deck.">
+<meta property="og:url" content="https://niggerfaggot.club/spanky.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Mono:wght@400;500&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+
+:root {
+  --bg: #0a0e0a;
+  --surface: #131a13;
+  --surface2: #1a231a;
+  --surface3: #222d22;
+  --border: #2a3a2a;
+  --border2: #3a4d3a;
+  --text: #d4dcc8;
+  --text-dim: #8a9a7a;
+  --text-muted: #5a6a4a;
+  --accent: #c8a846;
+  --accent-dim: #9a7e2e;
+  --accent-glow: #c8a84633;
+  --green: #4a8a3a;
+  --green-bright: #6abf52;
+  --red: #b84a3a;
+  --red-bright: #e06050;
+  --blue: #4a7ab8;
+  --orange: #c87a2a;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --shadow-lg: 0 8px 48px rgba(0,0,0,0.6);
+}
+
+body {
+  font-family: 'Nunito Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.logo {
+  font-family: 'Instrument Serif', serif;
+  font-size: 32px;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+
+.logo span {
+  color: var(--text-dim);
+  font-size: 14px;
+  font-family: 'DM Mono', monospace;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Model toggle */
+.model-toggle {
+  display: flex;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+}
+
+.model-toggle button {
+  padding: 6px 12px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.model-toggle button.active {
+  background: var(--accent-dim);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.model-toggle button:hover:not(.active) {
+  color: var(--text);
+}
+
+/* Stats bar */
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-label { color: var(--text-muted); }
+.stat-value { color: var(--accent); font-weight: 500; }
+.stat-value.green { color: var(--green-bright); }
+.stat-value.red { color: var(--red-bright); }
+
+/* NAV TABS */
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+
+.nav-tab {
+  flex: 1;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+}
+
+.nav-tab.active {
+  background: var(--surface3);
+  color: var(--accent);
+}
+
+.nav-tab:hover:not(.active) {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+/* VIEWS */
+.view { display: none; }
+.view.active { display: block; }
+
+/* CARD STUDY VIEW */
+.card-container {
+  perspective: 1000px;
+  margin-bottom: 20px;
+}
+
+.flashcard {
+  position: relative;
+  min-height: 360px;
+  border-radius: var(--radius-lg);
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.flashcard.flipped { transform: rotateY(180deg); }
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.card-front {
+  background: linear-gradient(145deg, var(--surface), var(--surface2));
+}
+
+.card-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(145deg, var(--surface2), var(--surface3));
+}
+
+.card-category {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.card-difficulty {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.diff-new { background: var(--blue); color: white; }
+.diff-learning { background: var(--orange); color: white; }
+.diff-review { background: var(--green); color: white; }
+.diff-hard { background: var(--red); color: white; }
+
+.card-question {
+  font-family: 'Instrument Serif', serif;
+  font-size: 26px;
+  line-height: 1.3;
+  color: var(--text);
+  max-width: 90%;
+}
+
+.card-hint {
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.card-img {
+  width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+}
+
+.card-answer {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.card-detail {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 95%;
+}
+
+.card-number {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.flip-hint {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+}
+
+/* Rating buttons */
+.rating-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.rate-btn {
+  padding: 14px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.rate-btn:hover { border-color: var(--border2); background: var(--surface2); }
+
+.rate-btn .interval {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.rate-btn.again { border-color: #5a2a2a; }
+.rate-btn.again:hover { background: #3a1a1a; border-color: var(--red); }
+.rate-btn.hard { border-color: #5a4a1a; }
+.rate-btn.hard:hover { background: #3a2a0a; border-color: var(--orange); }
+.rate-btn.good { border-color: #2a4a2a; }
+.rate-btn.good:hover { background: #1a3a1a; border-color: var(--green); }
+.rate-btn.easy { border-color: #2a3a5a; }
+.rate-btn.easy:hover { background: #1a2a3a; border-color: var(--blue); }
+
+/* AI Tutor panel */
+.ai-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.ai-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.ai-panel-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-pulse {
+  width: 8px;
+  height: 8px;
+  background: var(--green-bright);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.ai-panel-body {
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-dim);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ai-panel-body.loading::after {
+  content: '...';
+  animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+  0% { content: '.'; }
+  33% { content: '..'; }
+  66% { content: '...'; }
+}
+
+.ai-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.ai-btn {
+  padding: 6px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.ai-btn:hover {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+/* DECK VIEW */
+.deck-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.deck-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 24px;
+  color: var(--accent);
+}
+
+.deck-search {
+  padding: 8px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  outline: none;
+  width: 200px;
+}
+
+.deck-search:focus { border-color: var(--accent-dim); }
+.deck-search::placeholder { color: var(--text-muted); }
+
+.category-filter {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.cat-chip {
+  padding: 5px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cat-chip.active {
+  background: var(--accent-dim);
+  color: var(--bg);
+  border-color: var(--accent-dim);
+}
+
+.cat-chip:hover:not(.active) {
+  border-color: var(--border2);
+  color: var(--text);
+}
+
+.card-list {
+  display: grid;
+  gap: 8px;
+}
+
+.card-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.card-row:hover {
+  border-color: var(--border2);
+  background: var(--surface2);
+}
+
+.card-row-q {
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-row-cat {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.card-row-streak {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--green-bright);
+}
+
+.card-row-due {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* STATS VIEW */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+}
+
+.stat-card-value {
+  font-family: 'Instrument Serif', serif;
+  font-size: 36px;
+  color: var(--accent);
+}
+
+.stat-card-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.streak-chart {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.streak-chart h3 {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.heatmap {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.heat-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--surface2);
+  min-width: 14px;
+}
+
+.heat-1 { background: #1a3a1a; }
+.heat-2 { background: #2a5a2a; }
+.heat-3 { background: #3a7a3a; }
+.heat-4 { background: #4a9a4a; }
+.heat-5 { background: var(--green-bright); }
+
+/* Category breakdown */
+.cat-breakdown {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.cat-breakdown h3 {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.cat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.cat-bar-label {
+  width: 100px;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: right;
+}
+
+.cat-bar-track {
+  flex: 1;
+  height: 12px;
+  background: var(--surface2);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cat-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 6px;
+  transition: width 0.5s;
+}
+
+.cat-bar-pct {
+  width: 40px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Empty/done states */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 24px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.empty-state-text {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.primary-btn {
+  padding: 12px 24px;
+  background: var(--accent-dim);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.primary-btn:hover { background: var(--accent); }
+
+/* SETTINGS VIEW */
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.settings-section h3 {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.setting-row:last-child { border-bottom: none; }
+
+.setting-label {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.setting-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.setting-input {
+  padding: 6px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  width: 80px;
+  text-align: center;
+}
+
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--surface3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border: 1px solid var(--border);
+}
+
+.toggle.on { background: var(--green); border-color: var(--green); }
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle.on::after { transform: translateX(20px); }
+
+.danger-btn {
+  padding: 10px 20px;
+  background: var(--red);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Nunito Sans', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.danger-btn:hover { background: var(--red-bright); }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container { padding: 12px; }
+  header { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .stats-bar { gap: 8px; font-size: 12px; }
+  .rating-buttons { grid-template-columns: repeat(2, 1fr); }
+  .card-question { font-size: 20px; }
+  .card-answer { font-size: 22px; }
+  .card-row { grid-template-columns: 1fr auto; }
+  .card-row-cat, .card-row-streak { display: none; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Animations */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-container { animation: slideIn 0.3s ease-out; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="logo">Spanky <span>v1.0 — nature deck</span></div>
+    <div class="header-controls">
+      <div class="model-toggle">
+        <button class="active" onclick="setModel('openai')" id="btn-openai">GPT-5.2</button>
+        <button onclick="setModel('anthropic')" id="btn-anthropic">Opus 4.6</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat"><span class="stat-label">due:</span> <span class="stat-value" id="stat-due">0</span></div>
+    <div class="stat"><span class="stat-label">new:</span> <span class="stat-value" id="stat-new">0</span></div>
+    <div class="stat"><span class="stat-label">learning:</span> <span class="stat-value" id="stat-learning">0</span></div>
+    <div class="stat"><span class="stat-label">mastered:</span> <span class="stat-value green" id="stat-mastered">0</span></div>
+    <div class="stat"><span class="stat-label">streak:</span> <span class="stat-value" id="stat-streak">0</span></div>
+    <div class="stat"><span class="stat-label">today:</span> <span class="stat-value" id="stat-today">0</span></div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('study')">Study</button>
+    <button class="nav-tab" onclick="showView('deck')">Deck</button>
+    <button class="nav-tab" onclick="showView('stats')">Stats</button>
+    <button class="nav-tab" onclick="showView('settings')">Settings</button>
+  </div>
+
+  <!-- STUDY VIEW -->
+  <div class="view active" id="view-study">
+    <div id="study-content"></div>
+  </div>
+
+  <!-- DECK VIEW -->
+  <div class="view" id="view-deck">
+    <div class="deck-header">
+      <div class="deck-title">Nature Deck</div>
+      <input type="text" class="deck-search" placeholder="search cards..." oninput="filterDeck(this.value)">
+    </div>
+    <div class="category-filter" id="cat-filter"></div>
+    <div class="card-list" id="card-list"></div>
+  </div>
+
+  <!-- STATS VIEW -->
+  <div class="view" id="view-stats">
+    <div class="stats-grid" id="stats-overview"></div>
+    <div class="streak-chart">
+      <h3>Last 28 Days</h3>
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+    <div class="cat-breakdown" id="cat-breakdown">
+      <h3>Category Mastery</h3>
+    </div>
+  </div>
+
+  <!-- SETTINGS VIEW -->
+  <div class="view" id="view-settings">
+    <div class="settings-section">
+      <h3>Study Settings</h3>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">New cards per day</div>
+          <div class="setting-desc">Max new cards introduced per session</div>
+        </div>
+        <input type="number" class="setting-input" id="set-new-per-day" value="20" min="1" max="100" onchange="saveSettings()">
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Max reviews per day</div>
+          <div class="setting-desc">Cap on review cards per session</div>
+        </div>
+        <input type="number" class="setting-input" id="set-max-reviews" value="100" min="10" max="500" onchange="saveSettings()">
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Auto-play AI tutor</div>
+          <div class="setting-desc">Get AI explanations on wrong answers</div>
+        </div>
+        <div class="toggle on" id="toggle-auto-ai" onclick="toggleSetting(this, 'autoAI')"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Sound effects</div>
+          <div class="setting-desc">Feedback sounds on rating</div>
+        </div>
+        <div class="toggle" id="toggle-sound" onclick="toggleSetting(this, 'sound')"></div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <h3>Data</h3>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">Reset all progress</div>
+          <div class="setting-desc">Wipes all review history and stats</div>
+        </div>
+        <button class="danger-btn" onclick="resetProgress()">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG =====
+const API_URL = 'https://spanky-api.bennyforeman1.workers.dev';
+let currentModel = { provider: 'openai', model: 'gpt-5.2' };
+
+function setModel(provider) {
+  if (provider === 'openai') {
+    currentModel = { provider: 'openai', model: 'gpt-5.2' };
+    document.getElementById('btn-openai').classList.add('active');
+    document.getElementById('btn-anthropic').classList.remove('active');
+  } else {
+    currentModel = { provider: 'anthropic', model: 'claude-opus-4-6' };
+    document.getElementById('btn-anthropic').classList.add('active');
+    document.getElementById('btn-openai').classList.remove('active');
+  }
+  localStorage.setItem('spanky-model', provider);
+}
+
+// ===== NATURE DECK — NC Piedmont / Willow Spring Area =====
+const DECK = [
+  // === BIRDS ===
+  { id:'b1', cat:'Birds', q:'Red-tailed hawk — large raptor, broad rounded wings, rust-red tail. What is it?', a:'Red-tailed Hawk', detail:'Buteo jamaicensis. Most common hawk in NC. Hunts from perches and soaring. Listen for the classic "kreeee" scream. Wingspan 45-52". Year-round resident.', hint:'Soaring overhead, fan-shaped tail catches the light reddish' },
+  { id:'b2', cat:'Birds', q:'Small blue-gray bird with rusty flanks, white eye-ring, pumps tail while perched. What is it?', a:'Blue-gray Gnatcatcher', detail:'Polioptila caerulea. Tiny insectivore common in deciduous woods. Makes a thin "spee spee" call. Builds a beautiful lichen-covered nest. Summer breeder in NC.', hint:'Tiny, nervous energy, flicks its long tail constantly' },
+  { id:'b3', cat:'Birds', q:'Brilliant red all over with black face mask, thick orange-red bill, crest. What is it?', a:'Northern Cardinal', detail:'Cardinalis cardinalis. NC state bird. Year-round resident. Female is buffy brown with red tinges. Song: "birdy birdy birdy" or "cheer cheer cheer". Loves sunflower seeds.', hint:'NC state bird, the female is brownish with red accents' },
+  { id:'b4', cat:'Birds', q:'Black and white woodpecker with red chevron on back of head (male), undulating flight. What is it?', a:'Downy Woodpecker', detail:'Dryobates pubescens. Smallest NA woodpecker (6"). Distinguished from Hairy by short bill relative to head width. Common at suet feeders. Drums on dead branches.', hint:'Smallest woodpecker, short stubby bill, found at feeders' },
+  { id:'b5', cat:'Birds', q:'Gray bird with black cap and bib, white cheeks, says its own name. What is it?', a:'Carolina Chickadee', detail:'Poecile carolinensis. Year-round resident. "Chick-a-dee-dee-dee" call. Fee-bee song (4 notes vs Black-capped\'s 2). Cavity nester. Mixes in winter flocks with titmice, nuthatches.', hint:'Fee-bee-fee-bay song, travels in mixed flocks' },
+  { id:'b6', cat:'Birds', q:'Gray crested bird with peach/orange flanks, large black eyes. What is it?', a:'Tufted Titmouse', detail:'Baeolophus bicolor. Year-round resident. "Peter peter peter" song. Bold feeder visitor. Caches food for winter. Often flocks with chickadees. 6" long.', hint:'Crested gray bird, always at the feeder, "peter peter" call' },
+  { id:'b7', cat:'Birds', q:'Small nuthatch going headfirst down tree trunks, blue-gray above, rusty below. What is it?', a:'White-breasted Nuthatch', detail:'Sitta carolinensis. Walks down trees headfirst searching bark for insects. "Yank yank yank" nasal call. Year-round. Stores seeds in bark crevices.', hint:'Goes DOWN the trunk headfirst, nasal honking call' },
+  { id:'b8', cat:'Birds', q:'Small brown bird with upturned tail, incredibly loud bubbly song for its size. What is it?', a:'Carolina Wren', detail:'Thryothorus ludovicianus. "Teakettle teakettle teakettle" song. Rufous above, buff below, bold white eyebrow stripe. Nests in any cavity: mailboxes, flowerpots, garages. Year-round.', hint:'Tiny but LOUD, rusty brown, bold white eyebrow, nests everywhere' },
+  { id:'b9', cat:'Birds', q:'Large black bird with fan-shaped tail, iridescent purple sheen, walks on lawns. What is it?', a:'Common Grackle', detail:'Quiscalus quiscula. Gregarious blackbird. Males have iridescent purple-bronze plumage. Yellow eyes. Keel-shaped tail in flight. Forms enormous winter roosts. 12" long.', hint:'Yellow eyes, metallic sheen, long keel-shaped tail' },
+  { id:'b10', cat:'Birds', q:'Robin-sized gray bird with black mask and tail, yellow tail tip, eats berries in flocks. What is it?', a:'Cedar Waxwing', detail:'Bombycilla cedrorum. Sleek, silky plumage. Named for red waxy tips on wing feathers. Nomadic frugivore traveling in large flocks. High-pitched "sreeee" calls. Berry-loving.', hint:'Silky smooth, black mask, yellow-tipped tail, berry fanatic' },
+  { id:'b11', cat:'Birds', q:'Large woodpecker, mostly black with red crest, white neck stripes, rectangular head. What is it?', a:'Pileated Woodpecker', detail:'Dryocopus pileatus. Crow-sized (16-19"). Makes distinctive rectangular excavations in dead trees for carpenter ants. Loud "wuk-wuk-wuk" call. Year-round in mature forests.', hint:'Crow-sized, flaming red crest, makes rectangular holes' },
+  { id:'b12', cat:'Birds', q:'Small hawk with blue-gray back, rusty bars on chest, hunts songbirds at feeders. What is it?', a:'Cooper\'s Hawk', detail:'Accipiter cooperii. Agile accipiter specializing in bird prey. Rounded tail tip (vs Sharp-shinned\'s square). Year-round resident. Ambush predator at feeders. 14-20" long.', hint:'The feeder hawk, rounded tail, fast through trees' },
+  { id:'b13', cat:'Birds', q:'Small falcon with rusty back, blue-gray wings (male), hovers while hunting insects. What is it?', a:'American Kestrel', detail:'Falco sparverius. Smallest NA falcon. Two black face stripes. Hunts from wires/perches for grasshoppers, mice, lizards. Cavity nester. 9-12". Declining in eastern US.', hint:'Smallest falcon, colorful, hovers, sits on power lines' },
+  { id:'b14', cat:'Birds', q:'Large turkey-like ground bird, iridescent bronze, bare red/blue head, fanned tail display. What is it?', a:'Wild Turkey', detail:'Meleagris gallopavo. Males (toms) to 25 lbs. Females (hens) smaller, duller. Roost in trees. Eat acorns, seeds, insects. "Gobble" in spring. Very common in NC Piedmont woodlands.', hint:'Ground bird, bald head, gobbles, roosts in trees at night' },
+  { id:'b15', cat:'Birds', q:'Medium gray bird that mimics other birds, sings all day and night, long tail. What is it?', a:'Northern Mockingbird', detail:'Mimus polyglottos. Champion mimic — learns 200+ songs in lifetime. Gray with white wing patches visible in flight. Sings from high perches, even at night. Very territorial. Year-round.', hint:'Gray with white wing flashes, sings other birds\' songs endlessly' },
+  { id:'b16', cat:'Birds', q:'Chunky sparrow-sized bird, streaky brown, hops on ground, song is a musical trill. What is it?', a:'Song Sparrow', detail:'Melospiza melodia. Brown streaked sparrow with central breast spot. Pumps tail in flight. Sings from exposed perches. One of the most widespread sparrows. Year-round in NC.', hint:'Streaky brown, dark central breast spot, pumps tail' },
+  { id:'b17', cat:'Birds', q:'Small bright blue bird, rusty breast, sits on fence posts and nest boxes. What is it?', a:'Eastern Bluebird', detail:'Sialia sialis. Brilliant blue above, rusty breast, white belly. Cavity nester — nest boxes critical for recovery. Hunts insects from low perches. Year-round in NC. Soft "turee" call.', hint:'Electric blue back, rusty chest, loves nest boxes on posts' },
+  { id:'b18', cat:'Birds', q:'Large soaring bird, dark, holds wings in a V shape (dihedral), wobbles in flight, red head. What is it?', a:'Turkey Vulture', detail:'Cathartes aura. Soars with wings in dihedral V. Bare red head (adult). Finds carrion by smell — unique among birds. 6-foot wingspan. Year-round in NC. Roosts communally.', hint:'Tips/wobbles while soaring, V-shaped wings, bald red head' },
+  { id:'b19', cat:'Birds', q:'Tiny hyperactive yellow-green bird, often in pine trees, no wing bars. What is it?', a:'Pine Warbler', detail:'Setophaga pinus. One of few warblers year-round in SE. Males bright yellow with olive back. Musical trill song. Almost exclusively in pine forests. Common in NC Piedmont loblolly pines.', hint:'Yellow warbler in pines year-round, musical trill' },
+  { id:'b20', cat:'Birds', q:'Medium bird with brown back, spotted breast, pulls earthworms from lawns. What is it?', a:'American Robin', detail:'Turdus migratorius. Dark gray-brown above, brick-red breast. Iconic lawn forager. "Cheerily cheer-up cheerio" song. Year-round in NC though populations shift seasonally. Early morning singer.', hint:'Red breast, hops on lawns tilting head to find worms' },
+
+  // === TREES ===
+  { id:'t1', cat:'Trees', q:'Tall pine, needles in bundles of 3 (6-9"), thick plated bark, large cones. What tree is it?', a:'Loblolly Pine', detail:'Pinus taeda. THE dominant pine of the NC Piedmont. Fast-growing, 60-90\'. Bark becomes thick reddish-brown plates with age. Major timber species. Seeds important for wildlife. Fire-adapted.', hint:'Most common pine here, needles in 3s, scaly bark plates' },
+  { id:'t2', cat:'Trees', q:'Tall pine, needles in bundles of 2 (1.5-3"), small prickly cones, scrubby. What tree is it?', a:'Virginia Pine', detail:'Pinus virginiana. Scrubby pine of poor soils, 30-60\'. Short twisted needles in 2s. Small ovoid cones with sharp prickle. Common on abandoned farmland in Piedmont. Short-lived pioneer species.', hint:'Scrubby short-needled pine (2s), sharp cone prickles, poor soil' },
+  { id:'t3', cat:'Trees', q:'Large oak with rounded leaf lobes (no bristle tips), gray furrowed bark, huge spreading crown. What tree is it?', a:'White Oak', detail:'Quercus alba. Majestic tree to 100\'. Rounded leaf lobes (white oak group). Acorns mature in 1 year, sweeter, preferred by wildlife. Gray scaly bark. Can live 500+ years. Premium hardwood.', hint:'Rounded lobes, NO bristle tips, gray bark, acorns wildlife loves' },
+  { id:'t4', cat:'Trees', q:'Oak with bristle-tipped lobes, inner bark is yellowish-orange, common in Piedmont uplands. What tree is it?', a:'Southern Red Oak', detail:'Quercus falcata. 60-80\'. Leaves have 3-5 bristle-tipped lobes, often bell-shaped. Inner bark distinctly orange-yellow. Acorns take 2 years to mature. Major Piedmont upland species.', hint:'Bristle-tipped lobes, orange inner bark, "falcata" = sickle-shaped lobes' },
+  { id:'t5', cat:'Trees', q:'Tall straight tree with tulip-shaped leaves, showy yellow-green flowers, columnar trunk. What tree is it?', a:'Tulip Poplar', detail:'Liriodendron tulipifera. Not a true poplar — actually magnolia family. Fastest growing eastern hardwood, to 120\'. Distinctive 4-lobed flat-tipped leaves. Excellent bee tree. Major lumber species.', hint:'Unique 4-lobed leaf with flat tip, tulip-shaped flowers, grows fast' },
+  { id:'t6', cat:'Trees', q:'Medium tree with smooth gray bark (elephant skin), simple toothed leaves, edible nuts in spiny husks. What tree is it?', a:'American Beech', detail:'Fagus grandifolia. Smooth gray bark persists throughout life (often carved with graffiti). Holds dead tan leaves in winter (marcescence). Edible triangular beechuts. Shade-tolerant understory tree.', hint:'Unmistakable smooth gray bark, holds dead leaves in winter' },
+  { id:'t7', cat:'Trees', q:'Large tree with opposite palmately compound leaves (5-7 leaflets), spiny fruit capsules. What tree is it?', a:'Red Buckeye / Horsechestnut', detail:'Aesculus species. Red Buckeye (A. pavia) is native NC understory tree with red flower clusters in spring. Palmate leaves. Toxic shiny brown nuts in spiny husks. Small tree 15-25\'.', hint:'Opposite leaves with 5-7 finger-like leaflets, red spring flowers' },
+  { id:'t8', cat:'Trees', q:'Tall tree, alternate compound leaves with 7-11 leaflets, winged seeds (samaras), diamond-patterned bark. What tree is it?', a:'Green Ash', detail:'Fraxinus pennsylvanica. Was very common floodplain/yard tree, 50-70\'. Opposite compound leaves. Now devastated by Emerald Ash Borer. Diamond-ridged bark. Winged seeds in clusters.', hint:'Opposite compound leaves, currently being killed by emerald ash borer' },
+  { id:'t9', cat:'Trees', q:'Small understory tree with huge simple leaves (6-12"), pawpaw-like tropical look, purple flowers. What tree is it?', a:'Pawpaw', detail:'Asimina triloba. Largest native fruit in NA — tastes like banana custard. Tropical-looking leaves. Maroon flowers in spring. Grows in moist understory, colonial patches. Zebra swallowtail host plant.', hint:'Tropical leaves in NC woods, custard-banana fruit in fall' },
+  { id:'t10', cat:'Trees', q:'Medium tree, alternate simple leaves with 5 pointed lobes, brilliant fall color, winged seeds (helicopters). What tree is it?', a:'Red Maple', detail:'Acer rubrum. 40-60\'. Something red every season: buds, flowers, leaf stems, fall color. Very common in Piedmont. Tolerates wet to dry soils. Opposite leaves, winged samaras. One of first trees to flower in spring.', hint:'Red buds, red flowers, red stems, red fall color. Opposite leaves.' },
+  { id:'t11', cat:'Trees', q:'Large tree with deeply furrowed dark bark, alternate pinnately compound leaves (15-23 leaflets), round green fruits that stain. What tree is it?', a:'Black Walnut', detail:'Juglans nigra. 50-75\'. Prized wood. Produces juglone — toxic to many plants (allelopathy). Round green husks stain hands brown. Compound leaves with 15-23 leaflets. Valuable nuts if you can crack them.', hint:'Staining green nuts, kills nearby plants with juglone' },
+  { id:'t12', cat:'Trees', q:'Tall tree with distinctive star-shaped 5-pointed leaves, spiky ball fruits, glossy leaves with fall color. What tree is it?', a:'Sweetgum', detail:'Liquidambar styraciflua. 60-80\'. Unmistakable star-shaped leaves. Spiky "gumball" seed pods. Brilliant multi-color fall foliage (red, orange, yellow, purple simultaneously). Cork-ridged twigs. Common Piedmont species.', hint:'Star-shaped 5-pointed leaves, annoying spiky gumballs on ground' },
+
+  // === WILDFLOWERS ===
+  { id:'f1', cat:'Wildflowers', q:'Earliest spring woodland flower, white/pink petals, mottled liver-shaped leaves. What is it?', a:'Hepatica', detail:'Hepatica americana (Round-lobed). One of first spring bloomers (Feb-Mar). Flowers appear before new leaves. Mottled 3-lobed evergreen leaves resemble a liver. Found in rich deciduous woods.', hint:'Very early spring, liver-shaped leaves, hence the name' },
+  { id:'f2', cat:'Wildflowers', q:'Spring woodland flower, white trillium with 3 leaves, 3 petals, found in rich forest. What is it?', a:'Large-flowered Trillium', detail:'Trillium grandiflorum. Everything in 3s: 3 leaves, 3 sepals, 3 white petals aging to pink. 12-18". April-May in rich mesic forests. Slow to establish from seed (5-7 years to flower). NC native.', hint:'Everything in threes, white petals turn pink with age' },
+  { id:'f3', cat:'Wildflowers', q:'Bright orange trumpet-shaped flowers in summer, not a true lily, grows along roadsides. What is it?', a:'Daylily', detail:'Hemerocallis fulva. Naturalized from Asia, not native. Each flower lasts one day. Tuberous roots spread aggressively along roadsides and ditches. Edible flowers and tubers. June-July. Very common.', hint:'Each bloom lasts just one day, orange roadside clumps' },
+  { id:'f4', cat:'Wildflowers', q:'Tall yellow daisy-like flowers in late summer/fall, many species, goldenrod. What is it?', a:'Goldenrod', detail:'Solidago species. Multiple species in NC Piedmont. Does NOT cause hay fever (ragweed does). Important late-season pollinator food. State flower (S. gigantea). Plume-like flower clusters. 2-5\' tall.', hint:'NOT the allergy culprit (that\'s ragweed), essential fall pollinator plant' },
+  { id:'f5', cat:'Wildflowers', q:'Delicate spring ephemeral, white flowers with 5 deeply cut petals looking fringed, basal leaves. What is it?', a:'Cutleaf Toothwort', detail:'Cardamine concatenata. Spring ephemeral, March-April. Deeply divided palmate leaves. White to pinkish cross-shaped flowers. Entire plant disappears by summer. Mustard family. Edible peppery root.', hint:'Spring ephemeral with fringed petals, peppery edible roots' },
+  { id:'f6', cat:'Wildflowers', q:'Pink/purple spring wildflower, heart-shaped leaves, small clusters, "wild bleeding heart" look. What is it?', a:'Eastern Redbud (flowers)', detail:'Cercis canadensis. Small tree (20-30\') but iconic Piedmont spring wildflower display. Pink-purple pea-like flowers directly on branches/trunk (cauliflory) before leaves emerge. Heart-shaped leaves. March-April.', hint:'Pink pea-flowers burst right from bare branches in early spring' },
+  { id:'f7', cat:'Wildflowers', q:'Low creeping vine with round leaves, small lavender flowers, minty fragrance when crushed. What is it?', a:'Ground Ivy / Gill-over-the-ground', detail:'Glechoma hederacea. Naturalized from Europe. Square stems (mint family). Scalloped round leaves. Small purple tubular flowers. Aggressive lawn "weed" but historically used medicinally. Fragrant when mowed.', hint:'Creeping mint-family lawn invader, square stems, round scalloped leaves' },
+  { id:'f8', cat:'Wildflowers', q:'Tall late-summer flower with pink-purple daisy-like rays, large center cone, attracts butterflies. What is it?', a:'Purple Coneflower', detail:'Echinacea purpurea. Native to eastern US. 2-4\' tall. Drooping pink-purple ray petals around spiny central cone. Important pollinator plant. Medicinal herb. Blooms June-September. Goldfinches eat seeds.', hint:'Drooping purple petals, spiny center cone, the herbal supplement plant' },
+
+  // === ANIMAL TRACKS ===
+  { id:'tr1', cat:'Tracks', q:'Track shows 5 toes with long fingers on front, like a tiny human handprint with claws. About 2-3" long. What animal?', a:'Raccoon', detail:'Procyon lotor. Front track looks like a small human hand (5 long toes). Hind track longer, more like a small human foot. Often found near water, mud. Walk pattern shows hind foot landing next to or on front track.', hint:'Tiny human handprints in the mud, found near water and trash cans' },
+  { id:'tr2', cat:'Tracks', q:'Track shows 4 toes with claws, roughly round/symmetrical, 2-3" wide, often in a trotting pattern. What animal?', a:'Red Fox', detail:'Vulpes vulpes. Oval/round track, 4 toes with claws showing. More compact than dog — negative space forms an X between toes and pad. Direct register trot (hind in front track). About 2" wide.', hint:'Compact oval, neat X-shape in negative space, very tidy trot pattern' },
+  { id:'tr3', cat:'Tracks', q:'Two teardrop/heart-shaped halves (cleaves), pointed forward, about 2-3" long. Walking or bounding pattern. What animal?', a:'White-tailed Deer', detail:'Odocoileus virginianus. Cloven hoof — 2 pointed teardrop-shaped toes. Dewclaws may register in deep mud/snow (2 small dots behind main print). Stride varies with gait. Very common in NC Piedmont.', hint:'Two pointed teardrops side by side, most common large animal track around' },
+  { id:'tr4', cat:'Tracks', q:'Very small track, 4 front toes / 5 hind toes, bounding pattern with hind feet landing ahead of fronts, under 1" wide. What animal?', a:'Eastern Gray Squirrel', detail:'Sciurus carolinensis. Bounding gait: 2 larger hind feet land AHEAD of smaller front feet. Front has 4 toes, hind has 5. Tracks typically <1" wide. Common pattern: tree to tree with bounding trail.', hint:'Bounding pattern — big hind prints land in front of smaller fronts, near trees' },
+  { id:'tr5', cat:'Tracks', q:'5 toes front and back, pigeon-toed walk, large wide track 3-4" wide, claw marks may show far from toes. What animal?', a:'Opossum', detail:'Virginiana didelphis. Very distinctive: hind foot has opposable thumb (no claw) spread wide. Front track shows 5 splayed toes. Pigeon-toed, waddling walk. Tail may drag. 2-3" wide tracks.', hint:'Hind foot has an opposable thumb sticking out sideways, waddles' },
+  { id:'tr6', cat:'Tracks', q:'Small track, 5 toes, elongated with prominent claws, often in pairs (bounding). 1-1.5" long. Near water. What animal?', a:'Mink', detail:'Neovison vison. Elongated 5-toed track, about 1-1.5". Often bounds (pairs of tracks). Found along streams, ponds, wetlands. Webbing may show faintly. Semi-aquatic mustelid. Fierce predator of fish, crayfish, birds.', hint:'Elongated 5-toed paired tracks along streams, fierce little predator' },
+
+  // === MAMMALS ===
+  { id:'m1', cat:'Mammals', q:'Large gray/brown squirrel, bushy tail, most common tree squirrel in eastern US yards. What is it?', a:'Eastern Gray Squirrel', detail:'Sciurus carolinensis. 18-20" including tail. Gray with white belly. Builds leaf nests (dreys) and uses tree cavities. Caches acorns (scatter-hoarding). Major oak seed disperser. Active year-round.', hint:'The ubiquitous yard squirrel, gray with white belly' },
+  { id:'m2', cat:'Mammals', q:'Small nocturnal marsupial, bare prehensile tail, white face, "plays dead" when threatened. What is it?', a:'Virginia Opossum', detail:'Didelphis virginiana. Only NA marsupial. 15-20" body + tail. Opposable thumbs on hind feet. 50 teeth (most of any NA mammal). Eats tons of ticks. Immune to most snake venom. Nocturnal, solitary.', hint:'Only North American marsupial, tick destroyer, plays dead' },
+  { id:'m3', cat:'Mammals', q:'Medium dog-like animal, gray/brown/red mixed fur, pointed ears, bushy tail, adaptable to suburbs. What is it?', a:'Coyote', detail:'Coyotas latrans. 30-40 lbs. Expanding range in NC since 1980s. Now found throughout Piedmont. Opportunistic omnivore. Pair-bonds. Yipping/howling chorus at night. Bigger than fox, smaller than wolf.', hint:'Relatively recent arrival in NC, the nighttime howlers' },
+  { id:'m4', cat:'Mammals', q:'Small mammal with black mask, ringed tail, dexterous front paws, raids trash cans at night. What is it?', a:'Raccoon', detail:'Procyon lotor. 12-30 lbs. Extremely dexterous front paws. Excellent climbers. Omnivorous. Den in tree hollows, attics, storm drains. Nocturnal. Can carry rabies. "Lotor" means "washer" — washes food in water.', hint:'Masked bandit, washes food in water, opens anything' },
+  { id:'m5', cat:'Mammals', q:'Largest rodent in NC, semi-aquatic, flat paddle tail, builds dams, fells trees with teeth. What is it?', a:'North American Beaver', detail:'Castor canadensis. 30-70 lbs. Largest NA rodent. Builds dams, lodges. Orange iron-rich enamel on incisors. Flat scaly tail used as rudder and alarm signal (slapping water). Keystone species — creates wetland habitat.', hint:'Dam builder, flat tail slap, keystone species creating wetlands' },
+  { id:'m6', cat:'Mammals', q:'Small brown bat, most common bat in eastern US, hibernates in caves, devastated by white-nose syndrome. What is it?', a:'Big Brown Bat / Little Brown Bat', detail:'Eptesicus fuscus / Myotis lucifugus. Little Brown Bat severely declining from White-Nose Syndrome (fungus). Big Brown Bat more resilient. Both eat thousands of insects nightly. Echolocation. Roost in buildings, trees, caves.', hint:'Insect-eating night flyer, white-nose syndrome devastating populations' },
+  { id:'m7', cat:'Mammals', q:'Small red-brown squirrel with white belly, smaller than gray squirrel, very vocal and territorial. What is it?', a:'Eastern Fox Squirrel', detail:'Sciurus niger. Largest tree squirrel in NA. Variable color: rusty/orange, gray-black. Bigger than gray squirrel (20-25"). Prefers open parkland with mature trees. Less common in suburbs than grays.', hint:'Bigger, more orange/rusty than the gray squirrel, open forest' },
+
+  // === REPTILES & AMPHIBIANS ===
+  { id:'r1', cat:'Herps', q:'Large dark rat snake, excellent climber, vibrates tail in leaves to mimic rattlesnake, constrictors. What is it?', a:'Eastern Rat Snake', detail:'Pantherophis alleghaniensis. 4-6\'. Glossy black above (adults), white chin/throat. Juveniles heavily blotched. Excellent climbers — found in attics, barns. Non-venomous. Major rodent controller. Vibrates tail defensively.', hint:'Big black snake in your attic/barn, harmless, eats rats' },
+  { id:'r2', cat:'Herps', q:'Venomous pit viper, triangular head, hourglass-shaped crossbands, coppery head. Most common venomous snake in NC. What is it?', a:'Copperhead', detail:'Agkistrodon contortrix. 2-3\'. Hourglass/Hershey Kiss pattern bands. Heat-sensing pit organs. Responsible for most venomous snakebites in eastern US but bites rarely fatal. Ambush predator. Camouflage expert in leaf litter.', hint:'Hourglass crossbands, copper-colored head, leaf litter camouflage master' },
+  { id:'r3', cat:'Herps', q:'Small lizard with bright blue tail (juvenile), brown/black striped body, extremely fast on the ground. What is it?', a:'Five-lined Skink', detail:'Plestiodon fasciatus. 5-8.5". Juveniles have brilliant electric blue tail (breaks off if grabbed — autotomy). Adults lose blue; males develop orange jaw in breeding season. Common on logs, rocks, porches.', hint:'Juveniles have an electric blue tail that snaps off when grabbed' },
+  { id:'r4', cat:'Herps', q:'Small tree-climbing frog, can change from green to gray/brown, adhesive toe pads, loud chorus. What is it?', a:'Cope\'s Gray Treefrog', detail:'Hyla chrysoscelis. 1.5-2". Can change color green to gray in minutes (chromatophores). Adhesive toe pads for climbing. Loud trilling chorus near water at night in spring/summer. Warty skin texture unlike smooth green treefrog.', hint:'Changes color green to gray, trills loudly at night, climbs with toe pads' },
+  { id:'r5', cat:'Herps', q:'Large box-shaped turtle with hinged plastron that closes completely, domed shell, terrestrial. What is it?', a:'Eastern Box Turtle', detail:'Terrapene carolina. 4-7" shell. High domed shell, variable orange/yellow/brown pattern. Hinged plastron closes like a box — complete protection. Terrestrial. Lives 50-100+ years. State reptile of NC. Declining from road mortality/habitat loss.', hint:'Hinged bottom shell closes completely, NC state reptile, very long-lived' },
+  { id:'r6', cat:'Herps', q:'Small orange/red salamander with black spots, found in forest leaf litter, toxic skin secretions. What is it?', a:'Eastern Red-spotted Newt (eft stage)', detail:'Notophthalmus viridescens. The bright orange "red eft" is the terrestrial juvenile stage (2-3 years). Adults are aquatic and olive-green. Toxic skin (tetrodotoxin). Found walking on forest floor after rain. Warning coloration.', hint:'Bright orange = warning color, toxic skin, terrestrial juvenile of an aquatic adult' },
+
+  // === FUNGI & OTHER ===
+  { id:'g1', cat:'Fungi', q:'Shelf/bracket fungus growing on dead trees, looks like layered shelves, often with colorful zones. What is it?', a:'Turkey Tail', detail:'Trametes versicolor. Very common bracket fungus on dead hardwoods. Thin, flexible, leathery shelves with concentric color zones (brown, tan, blue, green). Important decomposer. Studied for medicinal properties (PSK compound).', hint:'Colorful concentric zones on thin flexible shelves, very common on dead wood' },
+  { id:'g2', cat:'Fungi', q:'Bright orange/red gelatinous blobs on dead wood after rain, "witch\'s butter." What is it?', a:'Orange Jelly Fungus', detail:'Dacrymyces palmatus or Tremella mesenterica. Brain-like or blobby orange gelatinous masses on dead wood. Appear after rain, shrivel when dry. Decomposers of wood lignin. Harmless. Edible but flavorless.', hint:'Orange brain-like blobs that appear on wet dead wood then shrivel when dry' },
+  { id:'g3', cat:'Fungi', q:'Large white puffball mushroom, round, found in fields/lawns, edible when young (interior pure white). What is it?', a:'Giant Puffball', detail:'Calvatia gigantea. Can reach 20"+ diameter. Edible when interior is pure white and firm. If any yellow/green/brown inside — spores are developing, don\'t eat. Slice and fry like bread. Found in meadows, lawns. Summer-fall.', hint:'Huge white ball in the lawn, edible only when perfectly white inside' },
+
+  // === INSECTS ===
+  { id:'i1', cat:'Insects', q:'Large orange and black butterfly, milkweed specialist, famous long-distance migration. What is it?', a:'Monarch Butterfly', detail:'Danaus plexippus. Caterpillars feed ONLY on milkweed (Asclepias). Toxic from milkweed cardenolides. Eastern population migrates to central Mexico (up to 3,000 miles). Declining due to milkweed/habitat loss. Plant milkweed to help.', hint:'Milkweed obligate, migrates thousands of miles to Mexico' },
+  { id:'i2', cat:'Insects', q:'Large green praying insect with triangular head, raptorial front legs, ambush predator in gardens. What is it?', a:'Carolina Mantis', detail:'Stagmomantis carolina. Native mantis (vs invasive Chinese mantis which is larger). 2-3" long. Green or brown/gray. Triangular head rotates 180°. Ambush predator of other insects. Egg cases (oothecae) overwinter on twigs.', hint:'Native species (smaller than the introduced Chinese mantis), rotatable head' },
+  { id:'i3', cat:'Insects', q:'Loud buzzing cicada emerging periodically from ground, leaves exoskeleton shells on trees. What is it?', a:'Annual / Periodical Cicada', detail:'Neotibicen (annual) / Magicicada (periodical). Annual cicadas emerge every summer (loud buzzing). Periodical cicadas emerge on 13 or 17-year cycles. Nymphs feed on tree roots underground. Exuviae (shed skins) stick to bark. Harmless.', hint:'Loud summer buzz, crunchy shells stuck to trees, nymphs live underground for years' },
+  { id:'i4', cat:'Insects', q:'Firefly/lightning bug, bioluminescent abdomen flashing at night in summer, larvae eat slugs and snails. What is it?', a:'Firefly (Photinus species)', detail:'Photinus pyralis most common. Males flash while flying, females respond from ground/vegetation. Each species has unique flash pattern. Larvae (glowworms) are predators of slugs/snails. Declining from light pollution and pesticides.', hint:'Species-specific flash codes, larvae eat slugs, declining from light pollution' },
+];
+
+// ===== SPACED REPETITION ENGINE (SM-2 variant) =====
+function getProgress() {
+  return JSON.parse(localStorage.getItem('spanky-progress') || '{}');
+}
+
+function saveProgress(p) {
+  localStorage.setItem('spanky-progress', JSON.stringify(p));
+}
+
+function getCardState(cardId) {
+  const p = getProgress();
+  return p[cardId] || {
+    interval: 0,      // days until next review
+    ease: 2.5,         // easiness factor
+    reps: 0,           // successful reps in a row
+    lapses: 0,         // times forgotten
+    due: 0,            // timestamp when due
+    lastReview: 0,     // timestamp of last review
+    state: 'new',      // new, learning, review, mastered
+    streak: 0,
+  };
+}
+
+function updateCard(cardId, quality) {
+  // quality: 0=again, 1=hard, 2=good, 3=easy
+  const p = getProgress();
+  const s = getCardState(cardId);
+  const now = Date.now();
+
+  if (quality === 0) {
+    // Again — reset
+    s.interval = 0;
+    s.reps = 0;
+    s.lapses++;
+    s.streak = 0;
+    s.state = 'learning';
+    s.due = now + 60000; // 1 min
+    s.ease = Math.max(1.3, s.ease - 0.2);
+  } else if (quality === 1) {
+    // Hard
+    if (s.reps === 0) {
+      s.interval = 1;
+      s.state = 'learning';
+    } else {
+      s.interval = Math.max(1, Math.round(s.interval * 1.2));
+      s.state = 'review';
+    }
+    s.reps++;
+    s.streak++;
+    s.ease = Math.max(1.3, s.ease - 0.15);
+    s.due = now + s.interval * 86400000;
+  } else if (quality === 2) {
+    // Good
+    if (s.reps === 0) {
+      s.interval = 1;
+    } else if (s.reps === 1) {
+      s.interval = 3;
+    } else {
+      s.interval = Math.round(s.interval * s.ease);
+    }
+    s.reps++;
+    s.streak++;
+    s.state = s.interval >= 21 ? 'mastered' : 'review';
+    s.due = now + s.interval * 86400000;
+  } else if (quality === 3) {
+    // Easy
+    if (s.reps === 0) {
+      s.interval = 4;
+    } else {
+      s.interval = Math.round(s.interval * s.ease * 1.3);
+    }
+    s.reps++;
+    s.streak++;
+    s.ease = Math.min(3.0, s.ease + 0.15);
+    s.state = s.interval >= 21 ? 'mastered' : 'review';
+    s.due = now + s.interval * 86400000;
+  }
+
+  s.lastReview = now;
+  p[cardId] = s;
+  saveProgress(p);
+  logStudyDay();
+  return s;
+}
+
+function getInterval(cardId, quality) {
+  const s = getCardState(cardId);
+  if (quality === 0) return '1m';
+  if (quality === 1) {
+    if (s.reps === 0) return '1d';
+    return Math.max(1, Math.round(s.interval * 1.2)) + 'd';
+  }
+  if (quality === 2) {
+    if (s.reps === 0) return '1d';
+    if (s.reps === 1) return '3d';
+    return Math.round(s.interval * s.ease) + 'd';
+  }
+  if (quality === 3) {
+    if (s.reps === 0) return '4d';
+    return Math.round(s.interval * s.ease * 1.3) + 'd';
+  }
+}
+
+function getDueCards() {
+  const now = Date.now();
+  const settings = getSettings();
+  const p = getProgress();
+
+  const due = [];
+  const newCards = [];
+
+  for (const card of DECK) {
+    const s = p[card.id];
+    if (!s) {
+      newCards.push(card);
+    } else if (s.due <= now) {
+      due.push({ ...card, _state: s });
+    }
+  }
+
+  // Sort: learning first (shortest interval), then review by due date
+  due.sort((a, b) => {
+    if (a._state.state === 'learning' && b._state.state !== 'learning') return -1;
+    if (b._state.state === 'learning' && a._state.state !== 'learning') return 1;
+    return a._state.due - b._state.due;
+  });
+
+  // Limit reviews
+  const reviewCards = due.slice(0, settings.maxReviews);
+
+  // Add new cards up to daily limit
+  const todayStr = new Date().toDateString();
+  const todayNew = Object.values(p).filter(s => s.state !== 'new' && new Date(s.lastReview).toDateString() === todayStr && s.reps === 1).length;
+  const newAllowed = Math.max(0, settings.newPerDay - todayNew);
+  const newToAdd = newCards.slice(0, newAllowed);
+
+  return [...reviewCards, ...newToAdd];
+}
+
+// ===== STUDY SESSION =====
+let studyQueue = [];
+let currentCardIndex = 0;
+let isFlipped = false;
+let todayReviewed = 0;
+
+function startStudy() {
+  studyQueue = getDueCards();
+  currentCardIndex = 0;
+  isFlipped = false;
+  todayReviewed = parseInt(localStorage.getItem('spanky-today-count') || '0');
+  const todayStr = localStorage.getItem('spanky-today-date');
+  if (todayStr !== new Date().toDateString()) {
+    todayReviewed = 0;
+    localStorage.setItem('spanky-today-date', new Date().toDateString());
+    localStorage.setItem('spanky-today-count', '0');
+  }
+  renderStudy();
+  updateStats();
+}
+
+function renderStudy() {
+  const container = document.getElementById('study-content');
+
+  if (studyQueue.length === 0 || currentCardIndex >= studyQueue.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">&#127793;</div>
+        <div class="empty-state-title">All caught up!</div>
+        <div class="empty-state-text">No cards due right now. Come back later or add study some new cards.</div>
+        <button class="primary-btn" onclick="forceNewCards()">Study 10 New Cards</button>
+      </div>
+    `;
+    return;
+  }
+
+  const card = studyQueue[currentCardIndex];
+  const state = getCardState(card.id);
+  const stateLabel = state.state === 'new' ? 'new' : state.state;
+  const stateClass = state.state === 'new' ? 'diff-new' : state.state === 'learning' ? 'diff-learning' : state.state === 'mastered' ? 'diff-hard' : 'diff-review';
+
+  container.innerHTML = `
+    <div class="card-container" onclick="flipCard()">
+      <div class="flashcard ${isFlipped ? 'flipped' : ''}" id="flashcard">
+        <div class="card-face card-front">
+          <span class="card-category">${card.cat}</span>
+          <span class="card-difficulty ${stateClass}">${stateLabel}</span>
+          <div class="card-question">${card.q}</div>
+          ${card.hint && !isFlipped ? `<div class="card-hint">${card.hint}</div>` : ''}
+          <span class="card-number">${currentCardIndex + 1} / ${studyQueue.length}</span>
+          <span class="flip-hint">tap to reveal</span>
+        </div>
+        <div class="card-face card-back">
+          <span class="card-category">${card.cat}</span>
+          <div class="card-answer">${card.a}</div>
+          <div class="card-detail">${card.detail}</div>
+          <span class="card-number">${currentCardIndex + 1} / ${studyQueue.length}</span>
+        </div>
+      </div>
+    </div>
+
+    ${isFlipped ? `
+    <div class="rating-buttons">
+      <button class="rate-btn again" onclick="event.stopPropagation(); rateCard(0)">
+        Again <span class="interval">${getInterval(card.id, 0)}</span>
+      </button>
+      <button class="rate-btn hard" onclick="event.stopPropagation(); rateCard(1)">
+        Hard <span class="interval">${getInterval(card.id, 1)}</span>
+      </button>
+      <button class="rate-btn good" onclick="event.stopPropagation(); rateCard(2)">
+        Good <span class="interval">${getInterval(card.id, 2)}</span>
+      </button>
+      <button class="rate-btn easy" onclick="event.stopPropagation(); rateCard(3)">
+        Easy <span class="interval">${getInterval(card.id, 3)}</span>
+      </button>
+    </div>
+    ` : ''}
+
+    <div class="ai-panel" id="ai-panel">
+      <div class="ai-panel-header" onclick="toggleAIPanel()">
+        <div class="ai-panel-title">
+          <span class="ai-pulse"></span>
+          AI Tutor — ${currentModel.provider === 'openai' ? 'GPT-5.2' : 'Opus 4.6'}
+        </div>
+        <span style="color:var(--text-muted);font-size:12px" id="ai-toggle-text">expand</span>
+      </div>
+      <div class="ai-panel-body" id="ai-body" style="display:none"></div>
+      <div class="ai-actions" id="ai-actions" style="display:none">
+        <button class="ai-btn" onclick="askAI('explain')">Explain deeper</button>
+        <button class="ai-btn" onclick="askAI('mnemonic')">Give me a mnemonic</button>
+        <button class="ai-btn" onclick="askAI('similar')">What's similar?</button>
+        <button class="ai-btn" onclick="askAI('quiz')">Quiz me differently</button>
+        <button class="ai-btn" onclick="askAI('context')">Where would I see this?</button>
+        <button class="ai-btn" onclick="askAI('funfact')">Fun fact</button>
+      </div>
+    </div>
+  `;
+}
+
+function flipCard() {
+  if (isFlipped) return;
+  isFlipped = true;
+  renderStudy();
+
+  // Auto-AI on wrong answer history
+  const card = studyQueue[currentCardIndex];
+  const state = getCardState(card.id);
+  const settings = getSettings();
+  if (settings.autoAI && state.lapses > 0) {
+    toggleAIPanel();
+    askAI('explain');
+  }
+}
+
+function rateCard(quality) {
+  const card = studyQueue[currentCardIndex];
+  const result = updateCard(card.id, quality);
+
+  todayReviewed++;
+  localStorage.setItem('spanky-today-count', todayReviewed.toString());
+
+  // If "Again", re-insert card near end of queue
+  if (quality === 0) {
+    const reinsertAt = Math.min(currentCardIndex + 5, studyQueue.length);
+    studyQueue.splice(reinsertAt, 0, card);
+  }
+
+  currentCardIndex++;
+  isFlipped = false;
+  renderStudy();
+  updateStats();
+}
+
+function forceNewCards() {
+  const p = getProgress();
+  let added = 0;
+  studyQueue = [];
+  currentCardIndex = 0;
+  isFlipped = false;
+
+  for (const card of DECK) {
+    if (!p[card.id] && added < 10) {
+      studyQueue.push(card);
+      added++;
+    }
+  }
+
+  if (added === 0) {
+    // All cards seen, show random for review
+    const shuffled = [...DECK].sort(() => Math.random() - 0.5);
+    studyQueue = shuffled.slice(0, 10);
+  }
+
+  renderStudy();
+}
+
+// ===== AI TUTOR =====
+let aiPanelOpen = false;
+
+function toggleAIPanel() {
+  aiPanelOpen = !aiPanelOpen;
+  document.getElementById('ai-body').style.display = aiPanelOpen ? 'block' : 'none';
+  document.getElementById('ai-actions').style.display = aiPanelOpen ? 'flex' : 'none';
+  document.getElementById('ai-toggle-text').textContent = aiPanelOpen ? 'collapse' : 'expand';
+}
+
+async function askAI(type) {
+  const card = studyQueue[currentCardIndex];
+  if (!card) return;
+
+  const state = getCardState(card.id);
+  const body = document.getElementById('ai-body');
+  body.style.display = 'block';
+  document.getElementById('ai-actions').style.display = 'flex';
+  aiPanelOpen = true;
+  document.getElementById('ai-toggle-text').textContent = 'collapse';
+  body.innerHTML = '<span style="color:var(--accent)">Thinking...</span>';
+
+  const prompts = {
+    explain: `The student is learning about "${card.a}" (${card.cat}). They've gotten it wrong ${state.lapses} times. Give a clear, memorable explanation of this species/topic. Include identification tips, habitat, and behavior. Be concise but vivid — help them REMEMBER this. 3-4 sentences max. They're in Willow Spring, NC (Piedmont region).`,
+    mnemonic: `Create a memorable mnemonic device or memory trick for remembering "${card.a}" and its key identifying features: ${card.detail}. Make it funny, vivid, or personally relevant. One creative mnemonic, 1-2 sentences.`,
+    similar: `What species or items could "${card.a}" be confused with in the NC Piedmont? Give 2-3 look-alikes with the KEY distinguishing features. Be brief and practical — focus on the field marks that differentiate them.`,
+    quiz: `Create one alternative quiz question about "${card.a}" that tests a different aspect than: "${card.q}". Focus on habitat, behavior, season, sound, or ecological role. Format: just the question, then the answer in brackets.`,
+    context: `Where and when would someone in Willow Spring, NC (Wake County Piedmont) most likely encounter "${card.a}"? Be specific about habitat, time of year, time of day, and what to look/listen for. 2-3 sentences. Practical field tips.`,
+    funfact: `Share one genuinely surprising or fascinating fact about "${card.a}" that most people don't know. Make it memorable and interesting. 1-2 sentences.`,
+  };
+
+  const system = `You are an expert naturalist tutoring someone learning the flora, fauna, and ecology of the NC Piedmont region (specifically Willow Spring / southern Wake County). Be concise, practical, and engaging. Use field naturalist language. No fluff.`;
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        provider: currentModel.provider,
+        model: currentModel.model,
+        system,
+        messages: [{ role: 'user', content: prompts[type] }],
+      }),
+    });
+    const data = await resp.json();
+    body.innerHTML = data.text ? formatAIResponse(data.text) : `<span style="color:var(--red)">Error: ${data.error || 'Unknown error'}</span>`;
+  } catch (e) {
+    body.innerHTML = `<span style="color:var(--red)">Connection error: ${e.message}</span>`;
+  }
+}
+
+function formatAIResponse(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--accent)">$1</strong>')
+    .replace(/\n/g, '<br>');
+}
+
+// ===== DECK VIEW =====
+let activeCat = 'all';
+let searchTerm = '';
+
+function renderDeck() {
+  // Category chips
+  const cats = ['all', ...new Set(DECK.map(c => c.cat))];
+  const filterEl = document.getElementById('cat-filter');
+  filterEl.innerHTML = cats.map(c =>
+    `<button class="cat-chip ${activeCat === c ? 'active' : ''}" onclick="setCat('${c}')">${c === 'all' ? 'All' : c} (${c === 'all' ? DECK.length : DECK.filter(d => d.cat === c).length})</button>`
+  ).join('');
+
+  // Card list
+  const filtered = DECK.filter(c => {
+    const catMatch = activeCat === 'all' || c.cat === activeCat;
+    const searchMatch = !searchTerm || c.a.toLowerCase().includes(searchTerm) || c.q.toLowerCase().includes(searchTerm);
+    return catMatch && searchMatch;
+  });
+
+  const listEl = document.getElementById('card-list');
+  listEl.innerHTML = filtered.map(c => {
+    const s = getCardState(c.id);
+    const dueStr = s.state === 'new' ? 'new' : s.due <= Date.now() ? 'due now' : `due ${formatDue(s.due)}`;
+    return `
+      <div class="card-row" onclick="previewCard('${c.id}')">
+        <div class="card-row-q">${c.a}</div>
+        <div class="card-row-cat">${c.cat}</div>
+        <div class="card-row-streak">${s.streak > 0 ? '🔥' + s.streak : ''}</div>
+        <div class="card-row-due">${dueStr}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setCat(cat) {
+  activeCat = cat;
+  renderDeck();
+}
+
+function filterDeck(val) {
+  searchTerm = val.toLowerCase();
+  renderDeck();
+}
+
+function formatDue(ts) {
+  const diff = ts - Date.now();
+  const days = Math.ceil(diff / 86400000);
+  if (days <= 0) return 'now';
+  if (days === 1) return 'tomorrow';
+  return `in ${days}d`;
+}
+
+function previewCard(id) {
+  const card = DECK.find(c => c.id === id);
+  if (!card) return;
+  // Jump to study view with this card
+  studyQueue = [card];
+  currentCardIndex = 0;
+  isFlipped = false;
+  showView('study');
+  renderStudy();
+}
+
+// ===== STATS VIEW =====
+function renderStats() {
+  const p = getProgress();
+  const cards = Object.values(p);
+  const now = Date.now();
+
+  const mastered = cards.filter(s => s.state === 'mastered').length;
+  const learning = cards.filter(s => s.state === 'learning' || s.state === 'review').length;
+  const unseen = DECK.length - cards.length;
+  const totalReviews = cards.reduce((sum, s) => sum + s.reps + s.lapses, 0);
+  const avgEase = cards.length ? (cards.reduce((sum, s) => sum + s.ease, 0) / cards.length).toFixed(2) : '—';
+  const maxStreak = cards.reduce((max, s) => Math.max(max, s.streak), 0);
+
+  document.getElementById('stats-overview').innerHTML = `
+    <div class="stat-card"><div class="stat-card-value">${DECK.length}</div><div class="stat-card-label">Total Cards</div></div>
+    <div class="stat-card"><div class="stat-card-value">${mastered}</div><div class="stat-card-label">Mastered</div></div>
+    <div class="stat-card"><div class="stat-card-value">${learning}</div><div class="stat-card-label">In Progress</div></div>
+    <div class="stat-card"><div class="stat-card-value">${unseen}</div><div class="stat-card-label">Unseen</div></div>
+    <div class="stat-card"><div class="stat-card-value">${totalReviews}</div><div class="stat-card-label">Total Reviews</div></div>
+    <div class="stat-card"><div class="stat-card-value">${avgEase}</div><div class="stat-card-label">Avg Ease</div></div>
+  `;
+
+  // Heatmap
+  const studyLog = JSON.parse(localStorage.getItem('spanky-study-log') || '{}');
+  const heatEl = document.getElementById('heatmap');
+  heatEl.innerHTML = '';
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(now - i * 86400000);
+    const key = d.toISOString().split('T')[0];
+    const count = studyLog[key] || 0;
+    const level = count === 0 ? '' : count <= 5 ? 'heat-1' : count <= 15 ? 'heat-2' : count <= 30 ? 'heat-3' : count <= 50 ? 'heat-4' : 'heat-5';
+    heatEl.innerHTML += `<div class="heat-cell ${level}" title="${key}: ${count} reviews"></div>`;
+  }
+
+  // Category breakdown
+  const catEl = document.getElementById('cat-breakdown');
+  const cats = [...new Set(DECK.map(c => c.cat))];
+  let catHTML = '<h3>Category Mastery</h3>';
+  for (const cat of cats) {
+    const catCards = DECK.filter(c => c.cat === cat);
+    const catMastered = catCards.filter(c => p[c.id]?.state === 'mastered').length;
+    const pct = Math.round((catMastered / catCards.length) * 100);
+    catHTML += `
+      <div class="cat-bar-row">
+        <div class="cat-bar-label">${cat}</div>
+        <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%"></div></div>
+        <div class="cat-bar-pct">${pct}%</div>
+      </div>
+    `;
+  }
+  catEl.innerHTML = catHTML;
+}
+
+// ===== STUDY LOG =====
+function logStudyDay() {
+  const log = JSON.parse(localStorage.getItem('spanky-study-log') || '{}');
+  const today = new Date().toISOString().split('T')[0];
+  log[today] = (log[today] || 0) + 1;
+  localStorage.setItem('spanky-study-log', JSON.stringify(log));
+}
+
+// ===== SETTINGS =====
+function getSettings() {
+  return JSON.parse(localStorage.getItem('spanky-settings') || '{"newPerDay":20,"maxReviews":100,"autoAI":true,"sound":false}');
+}
+
+function saveSettings() {
+  const s = getSettings();
+  s.newPerDay = parseInt(document.getElementById('set-new-per-day').value) || 20;
+  s.maxReviews = parseInt(document.getElementById('set-max-reviews').value) || 100;
+  localStorage.setItem('spanky-settings', JSON.stringify(s));
+}
+
+function toggleSetting(el, key) {
+  const s = getSettings();
+  s[key] = !s[key];
+  el.classList.toggle('on');
+  localStorage.setItem('spanky-settings', JSON.stringify(s));
+}
+
+function resetProgress() {
+  if (confirm('Reset ALL progress? This cannot be undone.')) {
+    localStorage.removeItem('spanky-progress');
+    localStorage.removeItem('spanky-study-log');
+    localStorage.removeItem('spanky-today-count');
+    startStudy();
+    updateStats();
+  }
+}
+
+// ===== NAVIGATION =====
+function showView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  document.querySelectorAll('.nav-tab')[['study','deck','stats','settings'].indexOf(view)].classList.add('active');
+
+  if (view === 'study') startStudy();
+  if (view === 'deck') renderDeck();
+  if (view === 'stats') renderStats();
+}
+
+function updateStats() {
+  const p = getProgress();
+  const cards = Object.values(p);
+  const now = Date.now();
+
+  const due = DECK.filter(c => { const s = p[c.id]; return s && s.due <= now; }).length;
+  const unseen = DECK.filter(c => !p[c.id]).length;
+  const learning = cards.filter(s => s.state === 'learning' || s.state === 'review').length;
+  const mastered = cards.filter(s => s.state === 'mastered').length;
+  const maxStreak = cards.reduce((max, s) => Math.max(max, s.streak), 0);
+
+  document.getElementById('stat-due').textContent = due;
+  document.getElementById('stat-new').textContent = unseen;
+  document.getElementById('stat-learning').textContent = learning;
+  document.getElementById('stat-mastered').textContent = mastered;
+  document.getElementById('stat-streak').textContent = maxStreak;
+  document.getElementById('stat-today').textContent = localStorage.getItem('spanky-today-count') || '0';
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT') return;
+
+  if (e.code === 'Space' || e.code === 'Enter') {
+    e.preventDefault();
+    if (!isFlipped) flipCard();
+  }
+  if (isFlipped) {
+    if (e.key === '1') rateCard(0);
+    if (e.key === '2') rateCard(1);
+    if (e.key === '3') rateCard(2);
+    if (e.key === '4') rateCard(3);
+  }
+});
+
+// ===== INIT =====
+const savedModel = localStorage.getItem('spanky-model');
+if (savedModel === 'anthropic') setModel('anthropic');
+
+// Load settings into UI
+const initSettings = getSettings();
+document.getElementById('set-new-per-day').value = initSettings.newPerDay;
+document.getElementById('set-max-reviews').value = initSettings.maxReviews;
+if (!initSettings.autoAI) document.getElementById('toggle-auto-ai').classList.remove('on');
+if (initSettings.sound) document.getElementById('toggle-sound').classList.add('on');
+
+startStudy();
+</script>
+</body>
+</html>
