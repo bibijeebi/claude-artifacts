@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Physician vs. Veterinarian Supply Pipelines</title>
 <meta property="og:title" content="Physician vs. Veterinarian Supply Pipelines in the U.S.">
-<meta property="og:description" content="How two professions artificially constrain supply through completely different mechanisms, and what's changing.">
+<meta property="og:description" content="How two professions constrain supply through completely different mechanisms, and what's changing.">
 <meta property="og:url" content="https://niggerfaggot.club/physician-vs-vet.html">
 <meta name="twitter:card" content="summary_large_image">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 html, body { overflow-x: hidden; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
+[data-theme="dark"] {
   --bg: #0c0f14;
   --surface: #141820;
   --surface2: #1a1f2a;
@@ -27,6 +27,28 @@ html, body { overflow-x: hidden; }
   --accent-vet-dim: rgba(16,185,129,0.12);
   --accent-warn: #f59e0b;
   --accent-warn-dim: rgba(245,158,11,0.1);
+  --toggle-icon: "\2600";
+  --timeline-dot-border: var(--bg);
+  --table-stripe: rgba(255,255,255,0.02);
+}
+
+[data-theme="light"] {
+  --bg: #fafaf9;
+  --surface: #ffffff;
+  --surface2: #f3f4f6;
+  --border: #e5e7eb;
+  --text: #374151;
+  --text-dim: #6b7280;
+  --heading: #111827;
+  --accent-md: #2563eb;
+  --accent-md-dim: rgba(37,99,235,0.08);
+  --accent-vet: #059669;
+  --accent-vet-dim: rgba(5,150,105,0.08);
+  --accent-warn: #d97706;
+  --accent-warn-dim: rgba(217,119,6,0.06);
+  --toggle-icon: "\263E";
+  --timeline-dot-border: var(--bg);
+  --table-stripe: rgba(0,0,0,0.02);
 }
 
 body {
@@ -36,12 +58,43 @@ body {
   line-height: 1.72;
   font-size: 16.5px;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .container {
   max-width: 820px;
   margin: 0 auto;
   padding: 0 24px;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  -webkit-tap-highlight-color: transparent;
+  color: var(--text);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.theme-toggle::after {
+  content: var(--toggle-icon);
 }
 
 header {
@@ -76,6 +129,7 @@ h1 {
   font-size: 15.5px;
   line-height: 1.75;
   color: var(--text);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .tldr strong { color: var(--heading); }
@@ -131,6 +185,7 @@ p { margin-bottom: 16px; }
 
 @media (max-width: 600px) {
   .stats-grid { grid-template-columns: 1fr; }
+  .theme-toggle { top: 12px; right: 12px; width: 40px; height: 40px; font-size: 16px; }
 }
 
 .stat-card {
@@ -138,6 +193,7 @@ p { margin-bottom: 16px; }
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 20px 22px;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .stat-card.md { border-left: 3px solid var(--accent-md); }
@@ -163,18 +219,6 @@ p { margin-bottom: 16px; }
   font-size: 13px;
   color: var(--text-dim);
   margin-top: 4px;
-}
-
-.comparison-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 28px 0;
-  font-size: 14.5px;
-}
-
-.comparison-table div.table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 .table-wrap {
@@ -208,8 +252,8 @@ p { margin-bottom: 16px; }
   vertical-align: top;
 }
 
+.table-wrap tr:nth-child(even) td { background: var(--table-stripe); }
 .table-wrap tr:last-child td { border-bottom: none; }
-.table-wrap .dim { color: var(--text-dim); }
 .table-wrap .md-val { color: var(--accent-md); font-weight: 500; }
 .table-wrap .vet-val { color: var(--accent-vet); font-weight: 500; }
 
@@ -219,6 +263,7 @@ p { margin-bottom: 16px; }
   border-radius: 10px;
   padding: 22px 26px;
   margin: 24px 0;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .callout.warn {
@@ -226,13 +271,8 @@ p { margin-bottom: 16px; }
   background: var(--accent-warn-dim);
 }
 
-.callout.md-callout {
-  border-left: 3px solid var(--accent-md);
-}
-
-.callout.vet-callout {
-  border-left: 3px solid var(--accent-vet);
-}
+.callout.md-callout { border-left: 3px solid var(--accent-md); }
+.callout.vet-callout { border-left: 3px solid var(--accent-vet); }
 
 .callout .callout-title {
   font-weight: 600;
@@ -264,7 +304,7 @@ p { margin-bottom: 16px; }
   height: 10px;
   border-radius: 50%;
   background: var(--accent-md);
-  border: 2px solid var(--bg);
+  border: 2px solid var(--timeline-dot-border);
 }
 
 .timeline-item.vet-item::before { background: var(--accent-vet); }
@@ -303,12 +343,14 @@ footer {
 </head>
 <body>
 
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark mode"></button>
+
 <div class="container">
   <header>
     <div class="overline">Policy Analysis &middot; February 2026</div>
     <h1>Physician vs. Veterinarian Supply Pipelines in the U.S.</h1>
     <div class="tldr">
-      <strong>Bottom line:</strong> Both professions artificially constrain supply, but the mechanisms are completely different. Physicians are bottlenecked <em>downstream</em> by a federal residency cap that the AMA itself lobbied for, propped up by $15B/year in Medicare funding that inflates compensation. Veterinarians are bottlenecked <em>upstream</em> by a tiny number of accredited schools with limited seats, operating in a free market with no government payer inflating their earnings. The result: it's statistically harder to become a vet than a doctor, but doctors still earn roughly 1.5&ndash;2.5x more depending on specialty.
+      <strong>Bottom line:</strong> Both professions constrain supply, but the mechanisms are completely different. Physicians are bottlenecked <em>downstream</em> by a federal residency cap that the AMA itself lobbied for, propped up by $15B/year in Medicare funding that inflates compensation. Veterinarians are bottlenecked <em>upstream</em> by a tiny number of accredited schools with limited seats, operating in a free market with no government payer. The result: it's statistically harder to get into vet school than medical school, but physicians still earn roughly 1.5&ndash;2.5x more depending on specialty.
     </div>
   </header>
 
@@ -316,22 +358,22 @@ footer {
     <div class="stat-card md">
       <div class="label">Physicians &middot; Annual Graduates</div>
       <div class="value">~29,000</div>
-      <div class="note">MD + DO combined</div>
+      <div class="note">MD + DO combined (2025 NRMP)</div>
     </div>
     <div class="stat-card vet">
       <div class="label">Veterinarians &middot; Annual Graduates</div>
-      <div class="value">~3,200</div>
+      <div class="value">~3,500</div>
       <div class="note">DVM from U.S. schools</div>
     </div>
     <div class="stat-card md">
       <div class="label">Med School Acceptance Rate</div>
-      <div class="value">~42%</div>
-      <div class="note">Of qualified applicants</div>
+      <div class="value">~44%</div>
+      <div class="note">Of qualified applicants (AAMC 2024)</div>
     </div>
     <div class="stat-card vet">
       <div class="label">Vet School Acceptance Rate</div>
       <div class="value">10&ndash;15%</div>
-      <div class="note">Across 34 accredited schools</div>
+      <div class="note">Across 35 accredited programs</div>
     </div>
     <div class="stat-card md">
       <div class="label">Physician Avg Salary</div>
@@ -355,10 +397,10 @@ footer {
   <h3 class="md-tag"><span class="tag">Physicians</span> The Residency Bottleneck</h3>
 
   <h4>Education Gate (relatively wide)</h4>
-  <p>Roughly 162 MD-granting medical schools plus ~40 DO schools produce about 29,000 graduates annually. Medical school acceptance rates sit around 40&ndash;44%. This gate has widened: classes grew 20% during the 2010s and continue expanding at ~2.5%/year.</p>
+  <p>Roughly 159 MD-granting medical schools plus ~44 DO schools produce about 29,000 graduates annually. Medical school acceptance rates sit around 44%. This gate has widened: the 2025 entering class was the largest ever at 23,440 MD matriculants, and total MD enrollment hit an all-time high of 100,723.</p>
 
   <h4>The Bottleneck (residency)</h4>
-  <p>You cannot practice medicine independently without completing residency. The Balanced Budget Act of 1997 froze Medicare-funded residency positions at each hospital's 1996 level. In the 2025 match, there were 37,667 PGY-1 positions for ~47,000 applicants&mdash;9,500 went unmatched. That's 0.82 seats per applicant. Hospitals can fund residents above their cap (70% do), but the unfunded cost discourages expansion.</p>
+  <p>You cannot practice medicine independently without completing residency. The Balanced Budget Act of 1997 froze Medicare-funded residency positions at each hospital's 1996 level. In the 2025 match: 40,041 PGY-1 positions were offered to 47,208 active applicants, and about 9,500 went unmatched. That's 0.85 seats per applicant. Hospitals can fund residents above their cap (70% do), but the unfunded cost discourages expansion.</p>
 
   <h4>The Payment System</h4>
   <p>Medicare is the largest single payer of U.S. healthcare and spends ~$15 billion annually on GME alone. Medicare reimbursement rates set the floor for physician compensation because private insurers benchmark against them (often paying 150&ndash;250% of Medicare). This government payment infrastructure is a massive wage amplifier with no veterinary equivalent.</p>
@@ -371,7 +413,7 @@ footer {
   <h3 class="vet-tag"><span class="tag">Veterinarians</span> The School Bottleneck</h3>
 
   <h4>Education Gate (this IS the bottleneck)</h4>
-  <p>34 AVMA-accredited vet schools in 27 states, with 4 more holding provisional accreditation. Total U.S. DVM enrollment is ~15,000. About 3,200 DVMs graduate annually. Class sizes range from 40&ndash;70 (newer programs) to 169 (Iowa State). Acceptance rates are 10&ndash;15%, making vet school significantly harder to enter than medical school.</p>
+  <p>35 AVMA-accredited vet schools in the U.S., of which 30 are fully accredited and 5 hold provisional accreditation, spread across 28 states and Puerto Rico. Total U.S. DVM enrollment is ~15,000. About 3,500 DVMs graduate annually from U.S. programs. Class sizes range from 40&ndash;75 (newer programs) to 169 (Iowa State). Acceptance rates are 10&ndash;15%, making vet school significantly harder to enter than medical school.</p>
 
   <h4>No Downstream Bottleneck</h4>
   <p>Unlike physicians, vets have no mandatory post-graduate residency. Earn the DVM, pass the NAVLE, practice independently. Veterinary residencies exist for specialization but are optional. There's no Medicare-style federal funding mechanism controlling residency slots.</p>
@@ -398,17 +440,17 @@ footer {
       <tbody>
         <tr>
           <td>Schools</td>
-          <td class="md-val">~200 (MD+DO)</td>
-          <td class="vet-val">34 accredited</td>
+          <td class="md-val">~203 (MD+DO)</td>
+          <td class="vet-val">35 (30 full + 5 provisional)</td>
         </tr>
         <tr>
           <td>Annual graduates</td>
           <td class="md-val">~29,000</td>
-          <td class="vet-val">~3,200</td>
+          <td class="vet-val">~3,500</td>
         </tr>
         <tr>
           <td>Acceptance rate</td>
-          <td class="md-val">~42%</td>
+          <td class="md-val">~44%</td>
           <td class="vet-val">10&ndash;15%</td>
         </tr>
         <tr>
@@ -439,22 +481,22 @@ footer {
         <tr>
           <td>Avg student debt</td>
           <td>$200K&ndash;$250K</td>
-          <td>~$212K (class of 2025)</td>
+          <td>~$203K (AVMA, class of 2024)</td>
         </tr>
         <tr>
           <td>Debt-to-income ratio</td>
-          <td class="md-val">Manageable</td>
-          <td class="vet-val">1.4:1 (improving)</td>
+          <td class="md-val">~0.7:1 (manageable)</td>
+          <td class="vet-val">~1.4:1 (improving)</td>
         </tr>
         <tr>
           <td>Projected shortage</td>
-          <td>86,000 by 2036</td>
+          <td>86,000 by 2036 (AAMC)</td>
           <td>~17,000 by 2032 (76% of need met)</td>
         </tr>
         <tr>
           <td>Malpractice liability</td>
           <td>High (7-figure verdicts possible)</td>
-          <td>Low (damages = animal's value)</td>
+          <td>Low (damages = animal's fair market value)</td>
         </tr>
       </tbody>
     </table>
@@ -469,7 +511,7 @@ footer {
     </div>
     <div class="timeline-item">
       <div class="year">1930s&ndash;40s</div>
-      <div class="desc">AMA lobbies for physician supply reductions during the Great Depression. Pushes citizenship requirements for licenses to block Jewish doctors fleeing Nazi Europe.</div>
+      <div class="desc">AMA lobbies for physician supply reductions during the Great Depression. In 1938, the AMA House of Delegates calls for full U.S. citizenship as a prerequisite for medical licensure. By decade's end, 30+ states require citizenship or naturalization papers, effectively blocking refugee physicians, including Jewish doctors fleeing Nazi Europe.</div>
     </div>
     <div class="timeline-item">
       <div class="year">1965</div>
@@ -501,7 +543,7 @@ footer {
     </div>
     <div class="timeline-item vet-item">
       <div class="year">2024&ndash;2025</div>
-      <div class="desc">11 new vet school programs in pipeline (33% increase). Rowan, Utah State, Arkansas State, Lyon College, Clemson, and others open or begin accepting students.</div>
+      <div class="desc">~11 new vet school programs in pipeline (33% increase). Rowan (NJ, 75 students, provisional Sept 2025), Utah State, Arkansas State, Lyon College, Clemson, and others open or begin accepting students.</div>
     </div>
     <div class="timeline-item warn-item">
       <div class="year">2025</div>
@@ -518,7 +560,7 @@ footer {
   <h3 class="md-tag"><span class="tag">Physicians</span> Three Disruptions</h3>
 
   <h4>1. Medicare GME Expansion</h4>
-  <p>Congress has distributed over 600 of 1,200 new residency positions authorized in 2021 and 2023. H.R. 3890 proposes 14,000 more over seven years. These are meaningful but modest against a projected 86,000-physician shortfall.</p>
+  <p>Congress has distributed over 600 of 1,200 new residency positions authorized in 2021 and 2023. H.R. 3890 proposes 14,000 more over seven years. These are meaningful but modest against a projected 86,000-physician shortfall by 2036.</p>
 
   <h4>2. State-Level IMG Pathways (the big one)</h4>
   <p>18 states now let foreign-trained doctors practice without completing a U.S. residency. Requirements typically include ECFMG certification, USMLE passage, 3&ndash;5 years of clinical practice abroad, a U.S. job offer, and 2&ndash;3 years of supervised practice. Most restrict to underserved areas or primary care. ABIM's Pathway E now allows these physicians to pursue board certification. This could eventually erode the residency bottleneck that's kept physician salaries elevated for three decades, though early adoption is modest (Washington state has granted ~40 licenses so far).</p>
@@ -528,7 +570,7 @@ footer {
 
   <h3 class="vet-tag"><span class="tag">Veterinarians</span> The School Explosion</h3>
 
-  <p>~11 new DVM programs are in development, representing a potential 33% increase in accredited schools. Existing schools are also expanding class sizes. This is unprecedented.</p>
+  <p>~11 new DVM programs are in development, representing a potential 33% increase in accredited schools. Existing schools are also expanding class sizes. This is unprecedented. Rowan University in New Jersey opened its doors to 75 inaugural students in September 2025, becoming the first vet school in the state and receiving provisional AVMA accreditation the same day students matriculated.</p>
 
   <div class="callout warn">
     <div class="callout-title">The Counterargument</div>
@@ -544,9 +586,26 @@ footer {
   <p>The liability argument is real but secondary. Physician malpractice errors can kill people, and wrongful death lawsuits yield seven-figure verdicts. Veterinary malpractice damages are generally limited to the animal's fair market value plus treatment costs. This justifies <em>some</em> pay gap, but not the full 1.5&ndash;2.5x earnings differential. The structural supply and payment mechanisms are the primary drivers.</p>
 
   <footer>
-    Research compiled February 2026. Salary data corrected per AVMA 2025 Report on the Economic State of the Veterinary Profession. Sources: AAMC, AVMA, AAVMC, GAO, AMA, CMS, BLS, Harvard Petrie-Flom Center.
+    Research compiled February 2026. Salary data per AVMA 2025 Report on the Economic State of the Veterinary Profession (class of 2024 data). Match data per NRMP 2025 Main Residency Match. Enrollment data per AAMC 2025 and AAVMC 2024&ndash;2025 Annual Data Report. Sources: AAMC, AVMA, AAVMC, NRMP, GAO, AMA, CMS, BLS, Harvard Petrie-Flom Center.
   </footer>
 </div>
+
+<script>
+function toggleTheme() {
+  var html = document.documentElement;
+  var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch(e) {}
+}
+(function() {
+  try {
+    var saved = localStorage.getItem('theme');
+    if (saved) { document.documentElement.setAttribute('data-theme', saved); return; }
+  } catch(e) {}
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+    document.documentElement.setAttribute('data-theme', 'light');
+})();
+</script>
 
 </body>
 </html>
