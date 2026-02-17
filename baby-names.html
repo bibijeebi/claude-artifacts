@@ -39,22 +39,18 @@ body.light{background:#f0f2f5;color:#1a1a2a}
 .pill.active{color:#fff}
 .pill.active.boy-active{background:#3498db}
 .pill.active.girl-active{background:#e91e8a}
-.wheel-container{position:relative;width:min(380px,85vw);height:min(380px,85vw);margin:0 auto}
+.wheel-wrap{display:flex;justify-content:center;margin:0 auto}
+.wheel-container{position:relative;width:min(380px,85vw);aspect-ratio:1}
 .pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;z-index:10;border-left:14px solid transparent;border-right:14px solid transparent;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
 .dark .pointer{border-top:24px solid #f1c40f}
 .light .pointer{border-top:24px solid #e74c3c}
 .wheel-svg{width:100%;height:100%;filter:drop-shadow(0 4px 20px rgba(0,0,0,.3))}
-.wheel-g{transform-origin:190px 190px}
-.wheel-g.spinning{transition:transform 4s cubic-bezier(.17,.67,.12,.99)}
-.seg-text{fill:white;font-weight:700;text-anchor:middle;dominant-baseline:middle;text-shadow:0 1px 3px rgba(0,0,0,.5);letter-spacing:.5px}
 .dark .center-outer{fill:#1a1a2e;stroke:rgba(255,255,255,.2)}
 .light .center-outer{fill:#fff;stroke:rgba(0,0,0,.1)}
 .dark .center-inner{fill:#16213e}
 .light .center-inner{fill:#f8f9fa}
-.spin-hit{fill:transparent;cursor:pointer}
 .dark .spin-text{fill:#f1c40f}
 .light .spin-text{fill:#e74c3c}
-.spin-text{font-size:14px;font-weight:900;cursor:pointer;letter-spacing:1.5px;text-anchor:middle;dominant-baseline:middle}
 .result-area{min-height:70px;display:flex;align-items:center;justify-content:center;position:relative;margin-top:12px}
 .result-name{font-size:clamp(28px,7vw,44px);font-weight:900;background:linear-gradient(135deg,#e74c3c,#f39c12,#2ecc71,#3498db);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
@@ -101,9 +97,11 @@ body.light{background:#f0f2f5;color:#1a1a2a}
 
   <div class="cat-pills" id="catPills"></div>
 
-  <div class="wheel-container">
-    <div class="pointer"></div>
-    <svg class="wheel-svg" viewBox="0 0 380 380" id="wheelSvg"></svg>
+  <div class="wheel-wrap">
+    <div class="wheel-container" id="wheelContainer">
+      <div class="pointer"></div>
+      <svg class="wheel-svg" id="wheelSvg"></svg>
+    </div>
   </div>
 
   <div class="result-area" id="resultArea"></div>
@@ -119,128 +117,225 @@ body.light{background:#f0f2f5;color:#1a1a2a}
   <button class="filtered-btn" onclick="toggleFiltered()" id="filteredBtn">▸ Names That Didn't Make the Cut (32)</button>
   <div id="filteredPanel" style="display:none"></div>
 
-  <p class="footer muted">Names sourced from SSA top baby names 2014–2024, filtered for zero connotations.<br>No Karens, Chads, or Berthas were harmed in the making of this spinner.</p>
+  <p class="footer muted">Names sourced from SSA top baby names 2014-2024, filtered for zero connotations.<br>No Karens, Chads, or Berthas were harmed in the making of this spinner.</p>
 </div>
 
 <script>
-const NAMES={boys:{"Top Picks":["Liam","Noah","Oliver","James","Henry","Lucas","Benjamin","Theodore","Jack","Alexander","Owen","Samuel","Daniel","Leo","Ethan","Sebastian"],Classic:["William","Thomas","Charles","Edward","George","Arthur","Frederick","Robert","Patrick","Philip","Walter","Albert","Lawrence","Francis","Edmund","Vincent"],Modern:["Asher","Grayson","Maverick","Brooks","Declan","Emmett","Hudson","Lincoln","Miles","Nolan","Rowan","Weston","Beckett","Callum","Griffin","Bennett"],Biblical:["Elijah","Isaac","Gabriel","Caleb","Nathan","Aaron","Levi","Micah","Jonah","Seth","Silas","Ezra","Joel","Eli","Simon","Tobias"]},girls:{"Top Picks":["Olivia","Emma","Charlotte","Amelia","Sophia","Ava","Isabella","Mia","Evelyn","Penelope","Chloe","Nora","Grace","Hannah","Scarlett","Eleanor"],Classic:["Victoria","Catherine","Margaret","Elizabeth","Caroline","Josephine","Adelaide","Genevieve","Cecilia","Rosalind","Beatrice","Helena","Evangeline","Madeleine","Dorothea","Margot"],Modern:["Luna","Harper","Aria","Nova","Everly","Riley","Paisley","Kinsley","Emilia","Ellie","Sadie","Piper","Wren","Maeve","Quinn","Sloane"],Nature:["Lily","Violet","Hazel","Ivy","Willow","Aurora","Ruby","Iris","Jasmine","Daisy","Rosemary","Fern","Sage","Laurel","Briar","Clover"]}};
-const FILTERED=[{n:"Karen",r:"Manager's worst nightmare"},{n:"Bertha",r:"\"Big Bertha\" — eternal fat joke"},{n:"Helga",r:"Mean lunch lady energy"},{n:"Stacy",r:"Her mom's got it goin' on"},{n:"Becky",r:"\"Oh my God, Becky\""},{n:"Felicia",r:"Bye."},{n:"Alexa",r:"Will never stop turning on the lights"},{n:"Siri",r:"See above, but Apple"},{n:"Chad",r:"The alpha-bro meme"},{n:"Kyle",r:"Monster Energy, drywall damage"},{n:"Kevin",r:"International symbol for stupid"},{n:"Dick",r:"...yeah"},{n:"Donald",r:"Too politically loaded either way"},{n:"Damien",r:"Literal demon child (The Omen)"},{n:"Candy",r:"Stripper name hall of fame"},{n:"Crystal",r:"Either meth or stripper, pick one"},{n:"Destiny",r:"See: Crystal"},{n:"Barbie",r:"Plastic fantastic"},{n:"Gertrude",r:"Born elderly"},{n:"Mildred",r:"Also born elderly"},{n:"Brock",r:"Turner ruined it for everyone"},{n:"Regina",r:"On Wednesdays we wear pink"},{n:"Isis",r:"Mythology ruined by terrorism"},{n:"Nevaeh",r:"Heaven backwards. We know. Still no."},{n:"Tucker",r:"Too Carlson-coded"},{n:"Dexter",r:"Serial killer show"},{n:"Norman",r:"Bates Motel permanent resident"},{n:"Gaylord",r:"Self-explanatory in 2026"},{n:"Katrina",r:"Hurricane PTSD"},{n:"Fanny",r:"Means butt in British English"},{n:"Jezebel",r:"Biblical harlot, gossip blog"},{n:"Harvey",r:"Weinstein'd"}];
-const COLORS=["#e74c3c","#3498db","#2ecc71","#f39c12","#9b59b6","#1abc9c","#e67e22","#2980b9","#27ae60","#8e44ad","#16a085","#d35400","#c0392b","#2c3e50","#f1c40f","#7f8c8d","#e74c3c","#3498db","#2ecc71","#f39c12"];
-let gender="boys",category="Top Picks",rotation=0,spinning=false,history=[];
+const NAMES = {
+  boys: {
+    "Classic": ["James","Henry","William","Thomas","Charles","Edward","George","Arthur","Robert","Patrick","Walter","Vincent","Edmund","Philip"],
+    "Strong": ["Liam","Jack","Oliver","Owen","Leo","Ethan","Lucas","Gabriel","Bennett","Benjamin"],
+    "All Boys": ["James","Henry","William","Thomas","Charles","Edward","George","Arthur","Robert","Patrick","Walter","Vincent","Liam","Jack","Oliver","Owen","Leo","Ethan","Lucas","Gabriel","Bennett","Benjamin","Edmund","Philip"]
+  },
+  girls: {
+    "Classic": ["Charlotte","Catherine","Margaret","Caroline","Victoria","Elizabeth","Beatrice","Helena","Margot","Rosalind","Cecilia","Eleanor","Scarlett"],
+    "Sweet & Short": ["Emma","Olivia","Sophia","Ava","Mia","Nora","Grace","Chloe","Amelia"],
+    "Nature": ["Lily","Violet","Hazel","Ivy","Ruby","Iris","Willow","Daisy","Fern","Wren"],
+    "Modern Edge": ["Maeve","Sadie","Quinn","Sloane","Harper","Luna","Piper"],
+    "All Girls": ["Charlotte","Catherine","Margaret","Caroline","Victoria","Elizabeth","Beatrice","Helena","Margot","Rosalind","Cecilia","Eleanor","Scarlett","Emma","Olivia","Sophia","Ava","Mia","Nora","Grace","Chloe","Amelia","Lily","Violet","Hazel","Ivy","Ruby","Iris","Willow","Daisy","Fern","Wren","Maeve","Sadie","Quinn","Sloane","Harper","Luna","Piper"]
+  }
+};
 
-function toggleTheme(){
-  const d=document.body;
-  if(d.classList.contains("dark")){d.classList.replace("dark","light");document.getElementById("themeBtn").textContent="🌙"}
-  else{d.classList.replace("light","dark");document.getElementById("themeBtn").textContent="☀️"}
+const FILTERED = [
+  {n:"Karen",r:"Manager's worst nightmare"},
+  {n:"Bertha",r:"\"Big Bertha\" — eternal fat joke"},
+  {n:"Helga",r:"Mean lunch lady energy"},
+  {n:"Stacy",r:"Her mom's got it goin' on"},
+  {n:"Becky",r:"\"Oh my God, Becky\""},
+  {n:"Felicia",r:"Bye."},
+  {n:"Alexa",r:"Will never stop turning on the lights"},
+  {n:"Siri",r:"See above, but Apple"},
+  {n:"Chad",r:"The alpha-bro meme"},
+  {n:"Kyle",r:"Monster Energy, drywall damage"},
+  {n:"Kevin",r:"International symbol for stupid"},
+  {n:"Dick",r:"...yeah"},
+  {n:"Donald",r:"Too politically loaded either way"},
+  {n:"Damien",r:"Literal demon child (The Omen)"},
+  {n:"Candy",r:"Stripper name hall of fame"},
+  {n:"Crystal",r:"Either meth or stripper, pick one"},
+  {n:"Destiny",r:"See: Crystal"},
+  {n:"Barbie",r:"Plastic fantastic"},
+  {n:"Gertrude",r:"Born elderly"},
+  {n:"Mildred",r:"Also born elderly"},
+  {n:"Brock",r:"Turner ruined it for everyone"},
+  {n:"Regina",r:"On Wednesdays we wear pink"},
+  {n:"Isis",r:"Mythology ruined by terrorism"},
+  {n:"Nevaeh",r:"Heaven backwards. We know. Still no."},
+  {n:"Tucker",r:"Too Carlson-coded"},
+  {n:"Dexter",r:"Serial killer show"},
+  {n:"Norman",r:"Bates Motel permanent resident"},
+  {n:"Gaylord",r:"Self-explanatory in 2026"},
+  {n:"Katrina",r:"Hurricane PTSD"},
+  {n:"Fanny",r:"Means butt in British English"},
+  {n:"Jezebel",r:"Biblical harlot, gossip blog"},
+  {n:"Harvey",r:"Weinstein'd"}
+];
+
+const COLORS = ["#e74c3c","#3498db","#2ecc71","#f39c12","#9b59b6","#1abc9c","#e67e22","#2980b9","#27ae60","#8e44ad","#16a085","#d35400","#c0392b","#2c3e50","#f1c40f","#7f8c8d"];
+
+let gender = "boys", category = "Classic", rotation = 0, spinning = false, history = [];
+
+function toggleTheme() {
+  const d = document.body;
+  if (d.classList.contains("dark")) { d.classList.replace("dark","light"); document.getElementById("themeBtn").textContent = "🌙"; }
+  else { d.classList.replace("light","dark"); document.getElementById("themeBtn").textContent = "☀️"; }
 }
 
-function setGender(g){
-  gender=g;
-  document.getElementById("boyBtn").className="gender-btn"+(g==="boys"?" active-boy":"");
-  document.getElementById("girlBtn").className="gender-btn"+(g==="girls"?" active-girl":"");
-  const cats=Object.keys(NAMES[g]);
-  if(!cats.includes(category))category=cats[0];
-  renderPills();renderWheel();
+function setGender(g) {
+  gender = g;
+  document.getElementById("boyBtn").className = "gender-btn" + (g === "boys" ? " active-boy" : "");
+  document.getElementById("girlBtn").className = "gender-btn" + (g === "girls" ? " active-girl" : "");
+  const cats = Object.keys(NAMES[g]);
+  if (!cats.includes(category)) category = cats[0];
+  renderPills(); renderWheel();
 }
 
-function setCategory(c){category=c;renderPills();renderWheel();}
+function setCategory(c) { category = c; renderPills(); renderWheel(); }
 
-function renderPills(){
-  const cats=[...Object.keys(NAMES[gender]),"Chaos"];
-  const el=document.getElementById("catPills");
-  el.innerHTML=cats.map(c=>{
-    const active=(c===category);
-    const cls="pill"+(active?" active "+(gender==="boys"?"boy-active":"girl-active"):"");
-    return`<button class="${cls}" onclick="setCategory('${c}')">${c==="Chaos"?"🎲 Chaos":c}</button>`;
+function renderPills() {
+  const cats = Object.keys(NAMES[gender]);
+  document.getElementById("catPills").innerHTML = cats.map(c => {
+    const active = (c === category);
+    const cls = "pill" + (active ? " active " + (gender === "boys" ? "boy-active" : "girl-active") : "");
+    const escaped = c.replace(/'/g, "\\'");
+    return `<button class="${cls}" onclick="setCategory('${escaped}')">${c}</button>`;
   }).join("");
 }
 
-function getWheelNames(){
-  if(category==="Chaos"){
-    const all=[...new Set(Object.values(NAMES[gender]).flat())];
-    for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]];}
-    return all.slice(0,18);
+let currentNames = [];
+
+function renderWheel() {
+  let source = NAMES[gender][category] || NAMES[gender][Object.keys(NAMES[gender])[0]];
+
+  // For "All" categories with too many names, pick random 14
+  if (source.length > 16) {
+    const shuffled = [...source].sort(() => Math.random() - 0.5);
+    source = shuffled.slice(0, 14);
   }
-  return NAMES[gender][category]||NAMES[gender][Object.keys(NAMES[gender])[0]];
-}
+  currentNames = source;
 
-let currentNames=[];
-function renderWheel(){
-  currentNames=getWheelNames();
-  const svg=document.getElementById("wheelSvg");
-  const n=currentNames.length,seg=360/n,cx=190,cy=190,r=180;
-  const fontSize=n>18?10:n>14?11.5:13;
-  let paths="";
-  for(let i=0;i<n;i++){
-    const s=i*seg,e=(i+1)*seg,mid=s+seg/2;
-    paths+=`<path d="${arcPath(cx,cy,r,s,e)}" fill="${COLORS[i%COLORS.length]}" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>`;
-    paths+=`<text class="seg-text" x="${cx}" y="${cy-r*.6}" font-size="${fontSize}" transform="rotate(${mid},${cx},${cy})">${currentNames[i]}</text>`;
+  const n = currentNames.length;
+  const seg = 360 / n;
+  const S = 400;
+  const cx = S / 2, cy = S / 2, r = S / 2 - 12;
+
+  const fontSize = n <= 7 ? 17 : n <= 10 ? 15 : n <= 14 ? 13 : 11;
+  const textR = r * 0.65;
+
+  const svg = document.getElementById("wheelSvg");
+  svg.setAttribute("viewBox", `0 0 ${S} ${S}`);
+
+  let html = `<g id="wheelG" style="transform-origin:${cx}px ${cy}px;transform:rotate(0deg)">`;
+
+  for (let i = 0; i < n; i++) {
+    const startAngle = i * seg;
+    const endAngle = (i + 1) * seg;
+    const midAngle = startAngle + seg / 2;
+
+    const s = polarToCart(cx, cy, r, endAngle);
+    const e = polarToCart(cx, cy, r, startAngle);
+    const large = seg > 180 ? 1 : 0;
+    const path = `M${cx},${cy} L${s.x},${s.y} A${r},${r} 0 ${large} 0 ${e.x},${e.y} Z`;
+
+    html += `<path d="${path}" fill="${COLORS[i % COLORS.length]}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>`;
+
+    // Position text at midpoint of segment, along the radius
+    const tp = polarToCart(cx, cy, textR, midAngle);
+    // Rotate text to be readable (flip if on bottom half)
+    let textAngle = midAngle;
+    let anchor = "middle";
+    // Radial text: rotate so text reads outward from center
+    html += `<text x="${tp.x}" y="${tp.y}" fill="white" font-size="${fontSize}" font-weight="700" text-anchor="middle" dominant-baseline="middle" transform="rotate(${midAngle},${tp.x},${tp.y})" style="text-shadow:0 1px 3px rgba(0,0,0,.7);font-family:Inter,-apple-system,system-ui,sans-serif">${currentNames[i]}</text>`;
   }
-  rotation=0;
-  svg.innerHTML=`<g class="wheel-g" id="wheelG" style="transform:rotate(0deg)">${paths}<circle class="center-outer" cx="${cx}" cy="${cy}" r="38" stroke-width="2"/><circle class="center-inner" cx="${cx}" cy="${cy}" r="35"/></g><circle class="spin-hit" cx="${cx}" cy="${cy}" r="35" onclick="spin()"/><text class="spin-text" x="${cx}" y="${cy}" onclick="spin()">SPIN</text>`;
-  document.getElementById("resultArea").innerHTML="";
+
+  html += `<circle class="center-outer" cx="${cx}" cy="${cy}" r="42" stroke-width="2"/>`;
+  html += `<circle class="center-inner" cx="${cx}" cy="${cy}" r="39"/>`;
+  html += `</g>`;
+
+  html += `<circle cx="${cx}" cy="${cy}" r="39" fill="transparent" style="cursor:pointer" onclick="spin()"/>`;
+  html += `<text class="spin-text" x="${cx}" y="${cy}" font-size="15" font-weight="900" text-anchor="middle" dominant-baseline="middle" style="cursor:pointer;letter-spacing:1.5px" onclick="spin()">SPIN</text>`;
+
+  svg.innerHTML = html;
+  rotation = 0;
+  document.getElementById("resultArea").innerHTML = "";
 }
 
-function polarToCart(cx,cy,r,deg){const rad=(deg-90)*Math.PI/180;return{x:cx+r*Math.cos(rad),y:cy+r*Math.sin(rad)};}
-function arcPath(cx,cy,r,start,end){
-  const s=polarToCart(cx,cy,r,end),e=polarToCart(cx,cy,r,start),large=end-start>180?1:0;
-  return`M${cx},${cy} L${s.x},${s.y} A${r},${r} 0 ${large} 0 ${e.x},${e.y} Z`;
+function polarToCart(cx, cy, r, deg) {
+  const rad = (deg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 }
 
-function spin(){
-  if(spinning)return;spinning=true;
-  const spinText=document.querySelector(".spin-text");spinText.textContent="...";
-  document.getElementById("resultArea").innerHTML="";
-  const extra=(5+Math.random()*5)*360,rand=Math.random()*360;
-  rotation+=extra+rand;
-  const g=document.getElementById("wheelG");
-  g.classList.add("spinning");
-  g.style.transform=`rotate(${rotation}deg)`;
-  setTimeout(()=>{
-    const n=currentNames.length,seg=360/n;
-    const norm=rotation%360;
-    const idx=Math.floor((360-norm+seg/2)/seg)%n;
-    const picked=currentNames[idx];
-    const icon=gender==="boys"?"👦":"👧";
-    history.unshift({name:picked,icon});
-    if(history.length>12)history.length=12;
+function spin() {
+  if (spinning) return;
+  spinning = true;
+  const spinText = document.querySelector(".spin-text");
+  spinText.textContent = "...";
+  document.getElementById("resultArea").innerHTML = "";
+
+  const extra = (5 + Math.random() * 5) * 360;
+  const rand = Math.random() * 360;
+  rotation += extra + rand;
+
+  const g = document.getElementById("wheelG");
+  g.style.transition = "transform 4s cubic-bezier(.17,.67,.12,.99)";
+  g.style.transform = `rotate(${rotation}deg)`;
+
+  setTimeout(() => {
+    const n = currentNames.length, seg = 360 / n;
+    const norm = rotation % 360;
+    const idx = Math.floor((360 - norm + seg / 2) / seg) % n;
+    const picked = currentNames[idx];
+    const icon = gender === "boys" ? "👦" : "👧";
+    history.unshift({ name: picked, icon });
+    if (history.length > 12) history.length = 12;
     renderHistory();
-    document.getElementById("resultArea").innerHTML=`<div style="text-align:center"><div class="result-name">${picked}</div>${confettiHTML()}</div>`;
-    spinning=false;spinText.textContent="SPIN";
-    g.classList.remove("spinning");
-    setTimeout(()=>{const c=document.getElementById("resultArea").querySelector(".confetti-wrap");if(c)c.remove();},2000);
-  },4200);
+
+    document.getElementById("resultArea").innerHTML = `<div style="text-align:center"><div class="result-name">${picked}</div>${confettiHTML()}</div>`;
+    spinning = false;
+    spinText.textContent = "SPIN";
+    g.style.transition = "none";
+
+    setTimeout(() => {
+      const c = document.getElementById("resultArea").querySelector(".confetti-wrap");
+      if (c) c.remove();
+    }, 2000);
+  }, 4200);
 }
 
-function confettiHTML(){
-  let h='<div class="confetti-wrap" style="position:absolute;top:50%;left:50%;pointer-events:none">';
-  for(let i=0;i<24;i++){
-    const x=(Math.random()-.5)*260,y=-(Math.random()*120+40),c=COLORS[Math.floor(Math.random()*COLORS.length)],
-      sz=Math.random()*8+4,d=Math.random()*.3,br=Math.random()>.5?"50%":"2px";
-    h+=`<div class="confetti-particle" style="width:${sz}px;height:${sz}px;background:${c};border-radius:${br};left:${x}px;top:${y}px;animation-delay:${d}s"></div>`;
+function confettiHTML() {
+  let h = '<div class="confetti-wrap" style="position:absolute;top:50%;left:50%;pointer-events:none">';
+  for (let i = 0; i < 24; i++) {
+    const x = (Math.random() - .5) * 260, y = -(Math.random() * 120 + 40);
+    const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const sz = Math.random() * 8 + 4, d = Math.random() * .3;
+    const br = Math.random() > .5 ? "50%" : "2px";
+    h += `<div class="confetti-particle" style="width:${sz}px;height:${sz}px;background:${c};border-radius:${br};left:${x}px;top:${y}px;animation-delay:${d}s"></div>`;
   }
-  return h+"</div>";
+  return h + "</div>";
 }
 
-function renderHistory(){
-  const card=document.getElementById("historyCard"),list=document.getElementById("picksList");
-  if(!history.length){card.style.display="none";return;}
-  card.style.display="block";
-  list.innerHTML=history.map(h=>`<span class="pick">${h.icon} ${h.name}</span>`).join("");
+function renderHistory() {
+  const card = document.getElementById("historyCard"), list = document.getElementById("picksList");
+  if (!history.length) { card.style.display = "none"; return; }
+  card.style.display = "block";
+  list.innerHTML = history.map(h => `<span class="pick">${h.icon} ${h.name}</span>`).join("");
 }
-function clearHistory(){history=[];renderHistory();}
+function clearHistory() { history = []; renderHistory(); }
 
-let filteredOpen=false;
-function toggleFiltered(){
-  filteredOpen=!filteredOpen;
-  const btn=document.getElementById("filteredBtn"),panel=document.getElementById("filteredPanel");
-  btn.textContent=(filteredOpen?"▾":"▸")+" Names That Didn't Make the Cut (32)";
-  if(!filteredOpen){panel.style.display="none";return;}
-  panel.style.display="block";
-  panel.innerHTML=`<div class="card"><div class="filtered-grid">${FILTERED.map(f=>`<div class="filtered-row"><span class="filtered-name">${f.n}</span><span class="filtered-reason muted">${f.r}</span></div>`).join("")}</div></div>`;
+let filteredOpen = false;
+function toggleFiltered() {
+  filteredOpen = !filteredOpen;
+  const btn = document.getElementById("filteredBtn"), panel = document.getElementById("filteredPanel");
+  btn.innerHTML = (filteredOpen ? "▾" : "▸") + " Names That Didn't Make the Cut (32)";
+  if (!filteredOpen) { panel.style.display = "none"; return; }
+  panel.style.display = "block";
+  panel.innerHTML = `<div class="card"><div class="filtered-grid">${FILTERED.map(f =>
+    `<div class="filtered-row"><span class="filtered-name">${f.n}</span><span class="filtered-reason muted">${f.r}</span></div>`
+  ).join("")}</div></div>`;
 }
 
-renderPills();renderWheel();
+renderPills();
+renderWheel();
 </script>
 </body>
 </html>
