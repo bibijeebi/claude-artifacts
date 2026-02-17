@@ -255,10 +255,13 @@ function spin(){
     drawWheel();
     if(t<1){requestAnimationFrame(frame);return;}
     currentAngle=targetAngle;
-    var n=currentNames.length,seg=360/n;
+    var n=currentNames.length,segDeg=360/n;
+    // Wheel drawn with segment i starting at (currentAngle + i*segDeg) from top, going clockwise
+    // Pointer is at top. Find which segment is there.
     var norm=((currentAngle%360)+360)%360;
-    var idx=Math.floor((360-norm+seg/2)/seg)%n;
-    var picked=currentNames[((idx%n)+n)%n];
+    var pointerOnWheel=(360-norm)%360;
+    var idx=Math.floor(pointerOnWheel/segDeg)%n;
+    var picked=currentNames[idx];
     history.unshift({name:picked,icon:gender==="boys"?"👦":"👧"});
     if(history.length>12)history.length=12;
     renderHistory();
