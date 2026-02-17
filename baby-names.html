@@ -139,63 +139,100 @@ function drawWheel(){
   ctx.translate(cx,cy);
   ctx.rotate(currentAngle*Math.PI/180);
 
+  // Draw outer rim ring
+  ctx.beginPath();
+  ctx.arc(0,0,R,0,Math.PI*2);
+  ctx.fillStyle=isDark?"#222244":"#ccccdd";
+  ctx.fill();
+
+  const innerR=R*0.3; // inner circle radius
+
   for(let i=0;i<n;i++){
     const startA=i*seg-Math.PI/2;
     const endA=(i+1)*seg-Math.PI/2;
-    // Segment
+
+    // Draw segment (donut shape from innerR to R-4)
+    const segR=R-2*dpr;
     ctx.beginPath();
-    ctx.moveTo(0,0);
-    ctx.arc(0,0,R,startA,endA);
+    ctx.arc(0,0,segR,startA,endA);
+    ctx.arc(0,0,innerR,endA,startA,true);
     ctx.closePath();
     ctx.fillStyle=COLORS[i%COLORS.length];
     ctx.fill();
-    ctx.strokeStyle="rgba(255,255,255,0.2)";
-    ctx.lineWidth=1*dpr;
+    ctx.strokeStyle="rgba(255,255,255,0.25)";
+    ctx.lineWidth=1.5*dpr;
     ctx.stroke();
 
-    // Text
-    const midA=startA+(endA-startA)/2;
-    const textR=R*0.65;
-    ctx.save();
-    ctx.rotate(midA);
-    ctx.translate(textR,0);
-    ctx.rotate(Math.PI/2);
-    const fontSize=n<=7?17:n<=10?15:n<=14?13:11;
-    ctx.font=`700 ${fontSize*dpr}px Inter,-apple-system,system-ui,sans-serif`;
+    // Draw text letter by letter along arc near outer edge
+    const name=currentNames[i];
+    const fontSize=n<=7?16:n<=10?14:n<=14?12:10.5;
+    ctx.font=`800 ${fontSize*dpr}px Inter,-apple-system,system-ui,sans-serif`;
     ctx.fillStyle="white";
     ctx.textAlign="center";
     ctx.textBaseline="middle";
-    ctx.shadowColor="rgba(0,0,0,0.6)";
-    ctx.shadowBlur=3*dpr;
-    ctx.fillText(currentNames[i],0,0);
+    ctx.shadowColor="rgba(0,0,0,0.5)";
+    ctx.shadowBlur=2*dpr;
+
+    // Measure total angular width of the name
+    const textR=R*0.72; // radius where text sits
+    const charWidths=[];
+    let totalW=0;
+    for(let c=0;c<name.length;c++){
+      const w=ctx.measureText(name[c]).width;
+      charWidths.push(w);
+      totalW+=w;
+    }
+    // Add spacing between chars
+    const spacing=1.5*dpr;
+    const totalArc=totalW+(name.length-1)*spacing;
+    const totalAngle=totalArc/textR;
+
+    const midA=startA+(endA-startA)/2;
+    let charAngle=midA-totalAngle/2;
+
+    for(let c=0;c<name.length;c++){
+      const halfChar=charWidths[c]/(2*textR);
+      charAngle+=halfChar;
+      ctx.save();
+      ctx.rotate(charAngle);
+      ctx.translate(0,-textR);
+      ctx.fillText(name[c],0,0);
+      ctx.restore();
+      charAngle+=halfChar+spacing/textR;
+    }
     ctx.shadowBlur=0;
-    ctx.restore();
   }
 
-  // Center circle
+  // Inner circle
   ctx.beginPath();
-  ctx.arc(0,0,R*0.22,0,Math.PI*2);
+  ctx.arc(0,0,innerR+2*dpr,0,Math.PI*2);
   ctx.fillStyle=isDark?"#1a1a2e":"#fff";
   ctx.fill();
-  ctx.strokeStyle=isDark?"rgba(255,255,255,0.2)":"rgba(0,0,0,0.1)";
+  ctx.strokeStyle=isDark?"rgba(255,255,255,0.15)":"rgba(0,0,0,0.08)";
   ctx.lineWidth=2*dpr;
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.arc(0,0,R*0.2,0,Math.PI*2);
+  ctx.arc(0,0,innerR,0,Math.PI*2);
   ctx.fillStyle=isDark?"#16213e":"#f8f9fa";
   ctx.fill();
 
   // SPIN text
-  const spinColor=isDark?"#f1c40f":"#e74c3c";
-  ctx.font=`900 ${15*dpr}px Inter,-apple-system,system-ui,sans-serif`;
-  ctx.fillStyle=spinColor;
+  ctx.font=`900 ${16*dpr}px Inter,-apple-system,system-ui,sans-serif`;
+  ctx.fillStyle=isDark?"#f1c40f":"#e74c3c";
   ctx.textAlign="center";
   ctx.textBaseline="middle";
-  ctx.letterSpacing=`${1.5*dpr}px`;
+  ctx.shadowBlur=0;
   ctx.fillText(spinning?"...":"SPIN",0,0);
 
   ctx.restore();
+
+  // Outer decorative ring
+  ctx.beginPath();
+  ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle=isDark?"rgba(255,255,255,0.1)":"rgba(0,0,0,0.06)";
+  ctx.lineWidth=3*dpr;
+  ctx.stroke();
 }
 
 function toggleTheme(){
@@ -238,16 +275,7 @@ function loadNames(){
   drawWheel();
 }
 
-canvas.addEventListener("click",function(e){
-  // Check if click is near center
-  const rect=canvas.getBoundingClientRect();
-  const dpr=window.devicePixelRatio||1;
-  const x=(e.clientX-rect.left)*dpr-cx;
-  const y=(e.clientY-rect.top)*dpr-cy;
-  const dist=Math.sqrt(x*x+y*y);
-  // Click anywhere to spin (but center area is obvious button)
-  spin();
-});
+canvas.addEventListener("click",spin);
 
 function spin(){
   if(spinning)return;
@@ -267,13 +295,10 @@ function spin(){
     const t=Math.min(elapsed/duration,1);
     currentAngle=startAngle+(targetAngle-startAngle)*easeOut(t);
     drawWheel();
-
     if(t<1){
       requestAnimationFrame(animate);
     }else{
       currentAngle=targetAngle;
-      drawWheel();
-      // Determine result: pointer is at top (12 o'clock = -90deg = 270deg)
       const n=currentNames.length,seg=360/n;
       const norm=((currentAngle%360)+360)%360;
       const idx=Math.floor((360-norm+seg/2)/seg)%n;
