@@ -39,13 +39,11 @@ body.light{background:#f0f2f5;color:#1a1a2a}
 .pill.active{color:#fff}
 .pill.active.boy-active{background:#3498db}
 .pill.active.girl-active{background:#e91e8a}
-.wheel-outer{position:relative;width:100%;max-width:380px;margin:0 auto;padding-top:20px}
-.pointer-row{text-align:center;margin-bottom:-4px;position:relative;z-index:10}
+.pointer-row{text-align:center;margin-bottom:-4px;position:relative;z-index:10;padding-top:16px}
 .pointer-arrow{display:inline-block;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
 .dark .pointer-arrow{border-top:24px solid #f1c40f}
 .light .pointer-arrow{border-top:24px solid #e74c3c}
-.wheel-box{position:relative;width:100%;padding-bottom:100%;overflow:hidden}
-.wheel-box canvas{position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer}
+#wheelCanvas{display:block;margin:0 auto;cursor:pointer}
 .result-area{min-height:70px;display:flex;align-items:center;justify-content:center;position:relative;margin-top:12px}
 .result-name{font-size:clamp(28px,7vw,44px);font-weight:900;background:linear-gradient(135deg,#e74c3c,#f39c12,#2ecc71,#3498db);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
@@ -76,7 +74,7 @@ body.light{background:#f0f2f5;color:#1a1a2a}
 </style>
 </head>
 <body class="dark">
-<div class="container">
+<div class="container" id="main">
   <div class="header">
     <div>
       <div class="title">Baby Name Roulette</div>
@@ -89,10 +87,8 @@ body.light{background:#f0f2f5;color:#1a1a2a}
     <button class="gender-btn" id="girlBtn" onclick="setGender('girls')">👧 Girl Names</button>
   </div>
   <div class="cat-pills" id="catPills"></div>
-  <div class="wheel-outer">
-    <div class="pointer-row"><div class="pointer-arrow"></div></div>
-    <div class="wheel-box"><canvas id="wheelCanvas"></canvas></div>
-  </div>
+  <div class="pointer-row"><div class="pointer-arrow"></div></div>
+  <canvas id="wheelCanvas"></canvas>
   <div class="result-area" id="resultArea"></div>
   <div class="card" id="historyCard" style="display:none">
     <div class="card-header">
@@ -113,17 +109,19 @@ const COLORS=["#e74c3c","#3498db","#2ecc71","#f39c12","#9b59b6","#1abc9c","#e67e
 let gender="boys",category="Classic",currentAngle=0,spinning=false,history=[],currentNames=[];
 const canvas=document.getElementById("wheelCanvas");
 const ctx=canvas.getContext("2d");
-let W=0,cx=0,cy=0,R=0;
+let dpr=1,cssSize=0,R=0,CX=0,CY=0;
 
 function resize(){
-  const box=canvas.parentElement;
-  const size=box.clientWidth;
-  const dpr=window.devicePixelRatio||1;
-  canvas.width=size*dpr;
-  canvas.height=size*dpr;
-  canvas.style.width=size+"px";
-  canvas.style.height=size+"px";
-  W=size*dpr;cx=W/2;cy=W/2;R=W/2-W*0.03;
+  dpr=window.devicePixelRatio||1;
+  const containerW=document.getElementById("main").clientWidth;
+  cssSize=Math.min(380,containerW-24);
+  canvas.style.width=cssSize+"px";
+  canvas.style.height=cssSize+"px";
+  canvas.width=cssSize*dpr;
+  canvas.height=cssSize*dpr;
+  CX=canvas.width/2;
+  CY=canvas.height/2;
+  R=CX-CX*0.04;
   drawWheel();
 }
 
@@ -131,31 +129,22 @@ function drawWheel(){
   const n=currentNames.length;
   if(!n)return;
   const seg=(Math.PI*2)/n;
-  const dpr=window.devicePixelRatio||1;
   const isDark=document.body.classList.contains("dark");
+  const innerR=R*0.28;
 
-  ctx.clearRect(0,0,W,W);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
   ctx.save();
-  ctx.translate(cx,cy);
+  ctx.translate(CX,CY);
   ctx.rotate(currentAngle*Math.PI/180);
 
-  // Draw outer rim ring
-  ctx.beginPath();
-  ctx.arc(0,0,R,0,Math.PI*2);
-  ctx.fillStyle=isDark?"#222244":"#ccccdd";
-  ctx.fill();
-
-  const innerR=R*0.3; // inner circle radius
-
   for(let i=0;i<n;i++){
-    const startA=i*seg-Math.PI/2;
-    const endA=(i+1)*seg-Math.PI/2;
+    const a0=i*seg-Math.PI/2;
+    const a1=(i+1)*seg-Math.PI/2;
 
-    // Draw segment (donut shape from innerR to R-4)
-    const segR=R-2*dpr;
+    // Segment
     ctx.beginPath();
-    ctx.arc(0,0,segR,startA,endA);
-    ctx.arc(0,0,innerR,endA,startA,true);
+    ctx.arc(0,0,R,a0,a1);
+    ctx.arc(0,0,innerR,a1,a0,true);
     ctx.closePath();
     ctx.fillStyle=COLORS[i%COLORS.length];
     ctx.fill();
@@ -163,62 +152,71 @@ function drawWheel(){
     ctx.lineWidth=1.5*dpr;
     ctx.stroke();
 
-    // Draw text letter by letter along arc near outer edge
+    // Curved text along outer rim
     const name=currentNames[i];
-    const fontSize=n<=7?16:n<=10?14:n<=14?12:10.5;
-    ctx.font=`800 ${fontSize*dpr}px Inter,-apple-system,system-ui,sans-serif`;
+    const fontSize=(n<=7?15:n<=10?13.5:n<=14?11.5:10)*dpr;
+    ctx.font="800 "+fontSize+"px Inter,-apple-system,system-ui,sans-serif";
     ctx.fillStyle="white";
     ctx.textAlign="center";
     ctx.textBaseline="middle";
     ctx.shadowColor="rgba(0,0,0,0.5)";
     ctx.shadowBlur=2*dpr;
 
-    // Measure total angular width of the name
-    const textR=R*0.72; // radius where text sits
-    const charWidths=[];
-    let totalW=0;
+    const textR=R*0.73;
+    const charAngles=[];
+    let totalAngle=0;
+    const gap=0.015; // radians between chars
     for(let c=0;c<name.length;c++){
       const w=ctx.measureText(name[c]).width;
-      charWidths.push(w);
-      totalW+=w;
+      const a=w/textR;
+      charAngles.push(a);
+      totalAngle+=a;
+      if(c<name.length-1)totalAngle+=gap;
     }
-    // Add spacing between chars
-    const spacing=1.5*dpr;
-    const totalArc=totalW+(name.length-1)*spacing;
-    const totalAngle=totalArc/textR;
 
-    const midA=startA+(endA-startA)/2;
-    let charAngle=midA-totalAngle/2;
+    const midA=a0+(a1-a0)/2;
+    let cursor=midA-totalAngle/2;
 
     for(let c=0;c<name.length;c++){
-      const halfChar=charWidths[c]/(2*textR);
-      charAngle+=halfChar;
+      const halfA=charAngles[c]/2;
+      cursor+=halfA;
       ctx.save();
-      ctx.rotate(charAngle);
+      ctx.rotate(cursor);
       ctx.translate(0,-textR);
       ctx.fillText(name[c],0,0);
       ctx.restore();
-      charAngle+=halfChar+spacing/textR;
+      cursor+=halfA+gap;
     }
     ctx.shadowBlur=0;
   }
 
-  // Inner circle
+  // Peg dots at segment boundaries
+  for(let i=0;i<n;i++){
+    const a=i*seg-Math.PI/2;
+    const px=Math.cos(a)*R*0.92;
+    const py=Math.sin(a)*R*0.92;
+    ctx.beginPath();
+    ctx.arc(px,py,3*dpr,0,Math.PI*2);
+    ctx.fillStyle="rgba(255,255,255,0.6)";
+    ctx.fill();
+  }
+
+  // Center hub
   ctx.beginPath();
   ctx.arc(0,0,innerR+2*dpr,0,Math.PI*2);
-  ctx.fillStyle=isDark?"#1a1a2e":"#fff";
+  ctx.fillStyle=isDark?"#1a1a2e":"#ffffff";
   ctx.fill();
   ctx.strokeStyle=isDark?"rgba(255,255,255,0.15)":"rgba(0,0,0,0.08)";
   ctx.lineWidth=2*dpr;
   ctx.stroke();
-
   ctx.beginPath();
   ctx.arc(0,0,innerR,0,Math.PI*2);
   ctx.fillStyle=isDark?"#16213e":"#f8f9fa";
   ctx.fill();
 
-  // SPIN text
-  ctx.font=`900 ${16*dpr}px Inter,-apple-system,system-ui,sans-serif`;
+  // SPIN label
+  const sf=16*dpr;
+  ctx.font="900 "+sf+"px Inter,-apple-system,system-ui,sans-serif";
   ctx.fillStyle=isDark?"#f1c40f":"#e74c3c";
   ctx.textAlign="center";
   ctx.textBaseline="middle";
@@ -226,13 +224,6 @@ function drawWheel(){
   ctx.fillText(spinning?"...":"SPIN",0,0);
 
   ctx.restore();
-
-  // Outer decorative ring
-  ctx.beginPath();
-  ctx.arc(cx,cy,R,0,Math.PI*2);
-  ctx.strokeStyle=isDark?"rgba(255,255,255,0.1)":"rgba(0,0,0,0.06)";
-  ctx.lineWidth=3*dpr;
-  ctx.stroke();
 }
 
 function toggleTheme(){
@@ -241,7 +232,6 @@ function toggleTheme(){
   else{d.classList.replace("light","dark");document.getElementById("themeBtn").textContent="☀️"}
   drawWheel();
 }
-
 function setGender(g){
   gender=g;
   document.getElementById("boyBtn").className="gender-btn"+(g==="boys"?" active-boy":"");
@@ -250,9 +240,7 @@ function setGender(g){
   if(!cats.includes(category))category=cats[0];
   renderPills();loadNames();
 }
-
 function setCategory(c){category=c;renderPills();loadNames();}
-
 function renderPills(){
   const cats=Object.keys(NAMES[gender]);
   document.getElementById("catPills").innerHTML=cats.map(c=>{
@@ -262,13 +250,9 @@ function renderPills(){
     return`<button class="${cls}" onclick="setCategory('${escaped}')">${c}</button>`;
   }).join("");
 }
-
 function loadNames(){
   let source=NAMES[gender][category]||NAMES[gender][Object.keys(NAMES[gender])[0]];
-  if(source.length>16){
-    const s=[...source].sort(()=>Math.random()-.5);
-    source=s.slice(0,14);
-  }
+  if(source.length>16){source=[...source].sort(()=>Math.random()-.5).slice(0,14);}
   currentNames=source;
   currentAngle=0;
   document.getElementById("resultArea").innerHTML="";
@@ -281,53 +265,39 @@ function spin(){
   if(spinning)return;
   spinning=true;
   document.getElementById("resultArea").innerHTML="";
-
-  const targetExtra=(5+Math.random()*5)*360+Math.random()*360;
-  const targetAngle=currentAngle+targetExtra;
+  const targetAngle=currentAngle+(5+Math.random()*5)*360+Math.random()*360;
   const startAngle=currentAngle;
   const duration=4000;
-  const startTime=performance.now();
-
-  function easeOut(t){return 1-Math.pow(1-t,4);}
-
-  function animate(now){
-    const elapsed=now-startTime;
-    const t=Math.min(elapsed/duration,1);
-    currentAngle=startAngle+(targetAngle-startAngle)*easeOut(t);
+  const t0=performance.now();
+  function ease(t){return 1-Math.pow(1-t,4);}
+  function frame(now){
+    const t=Math.min((now-t0)/duration,1);
+    currentAngle=startAngle+(targetAngle-startAngle)*ease(t);
     drawWheel();
-    if(t<1){
-      requestAnimationFrame(animate);
-    }else{
-      currentAngle=targetAngle;
-      const n=currentNames.length,seg=360/n;
-      const norm=((currentAngle%360)+360)%360;
-      const idx=Math.floor((360-norm+seg/2)/seg)%n;
-      const picked=currentNames[((idx%n)+n)%n];
-      const icon=gender==="boys"?"👦":"👧";
-      history.unshift({name:picked,icon});
-      if(history.length>12)history.length=12;
-      renderHistory();
-      document.getElementById("resultArea").innerHTML=`<div style="text-align:center"><div class="result-name">${picked}</div>${confettiHTML()}</div>`;
-      spinning=false;
-      drawWheel();
-      setTimeout(()=>{const c=document.getElementById("resultArea").querySelector(".cfw");if(c)c.remove();},2000);
-    }
+    if(t<1){requestAnimationFrame(frame);return;}
+    currentAngle=targetAngle;
+    const n=currentNames.length,seg=360/n;
+    const norm=((currentAngle%360)+360)%360;
+    const idx=Math.floor((360-norm+seg/2)/seg)%n;
+    const picked=currentNames[((idx%n)+n)%n];
+    history.unshift({name:picked,icon:gender==="boys"?"👦":"👧"});
+    if(history.length>12)history.length=12;
+    renderHistory();
+    document.getElementById("resultArea").innerHTML=`<div style="text-align:center"><div class="result-name">${picked}</div>${confettiHTML()}</div>`;
+    spinning=false;drawWheel();
+    setTimeout(()=>{const c=document.getElementById("resultArea").querySelector(".cfw");if(c)c.remove();},2000);
   }
-  requestAnimationFrame(animate);
+  requestAnimationFrame(frame);
 }
 
 function confettiHTML(){
   let h='<div class="cfw" style="position:absolute;top:50%;left:50%;pointer-events:none">';
   for(let i=0;i<24;i++){
-    const x=(Math.random()-.5)*260,y=-(Math.random()*120+40);
-    const c=COLORS[Math.floor(Math.random()*COLORS.length)];
-    const sz=Math.random()*8+4,d=Math.random()*.3;
-    const br=Math.random()>.5?"50%":"2px";
+    const x=(Math.random()-.5)*260,y=-(Math.random()*120+40),c=COLORS[Math.floor(Math.random()*COLORS.length)],sz=Math.random()*8+4,d=Math.random()*.3,br=Math.random()>.5?"50%":"2px";
     h+=`<div class="confetti-particle" style="width:${sz}px;height:${sz}px;background:${c};border-radius:${br};left:${x}px;top:${y}px;animation-delay:${d}s"></div>`;
   }
   return h+"</div>";
 }
-
 function renderHistory(){
   const card=document.getElementById("historyCard"),list=document.getElementById("picksList");
   if(!history.length){card.style.display="none";return;}
@@ -349,8 +319,7 @@ function toggleFiltered(){
 }
 
 window.addEventListener("resize",resize);
-renderPills();
-loadNames();
+renderPills();loadNames();
 resize();
 </script>
 </body>
