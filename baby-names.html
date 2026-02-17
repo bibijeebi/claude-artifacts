@@ -39,12 +39,13 @@ body.light{background:#f0f2f5;color:#1a1a2a}
 .pill.active{color:#fff}
 .pill.active.boy-active{background:#3498db}
 .pill.active.girl-active{background:#e91e8a}
-.wheel-wrap{display:flex;justify-content:center}
-.wheel-container{position:relative;width:min(380px,85vw);aspect-ratio:1}
-.pointer{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;z-index:10;border-left:14px solid transparent;border-right:14px solid transparent;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
-.dark .pointer{border-top:24px solid #f1c40f}
-.light .pointer{border-top:24px solid #e74c3c}
-.wheel-svg{width:100%;height:100%;filter:drop-shadow(0 4px 20px rgba(0,0,0,.3))}
+.wheel-outer{position:relative;width:100%;max-width:380px;margin:0 auto;padding-top:20px}
+.pointer-row{text-align:center;margin-bottom:-4px;position:relative;z-index:10}
+.pointer-arrow{display:inline-block;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+.dark .pointer-arrow{border-top:24px solid #f1c40f}
+.light .pointer-arrow{border-top:24px solid #e74c3c}
+.wheel-box{position:relative;width:100%;padding-bottom:100%;overflow:hidden}
+.wheel-box canvas{position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer}
 .result-area{min-height:70px;display:flex;align-items:center;justify-content:center;position:relative;margin-top:12px}
 .result-name{font-size:clamp(28px,7vw,44px);font-weight:900;background:linear-gradient(135deg,#e74c3c,#f39c12,#2ecc71,#3498db);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
 @keyframes popIn{0%{transform:scale(.3);opacity:0}100%{transform:scale(1);opacity:1}}
@@ -88,11 +89,9 @@ body.light{background:#f0f2f5;color:#1a1a2a}
     <button class="gender-btn" id="girlBtn" onclick="setGender('girls')">👧 Girl Names</button>
   </div>
   <div class="cat-pills" id="catPills"></div>
-  <div class="wheel-wrap">
-    <div class="wheel-container">
-      <div class="pointer"></div>
-      <svg class="wheel-svg" id="wheelSvg"></svg>
-    </div>
+  <div class="wheel-outer">
+    <div class="pointer-row"><div class="pointer-arrow"></div></div>
+    <div class="wheel-box"><canvas id="wheelCanvas"></canvas></div>
   </div>
   <div class="result-area" id="resultArea"></div>
   <div class="card" id="historyCard" style="display:none">
@@ -107,30 +106,103 @@ body.light{background:#f0f2f5;color:#1a1a2a}
   <p class="footer muted">Names sourced from SSA top baby names 2014-2024, filtered for zero connotations.<br>No Karens, Chads, or Berthas were harmed in the making of this spinner.</p>
 </div>
 <script>
-const NAMES = {
-  boys: {
-    "Classic": ["James","Henry","William","Thomas","Charles","Edward","George","Arthur","Robert","Patrick","Walter","Vincent","Edmund","Philip"],
-    "Strong": ["Liam","Jack","Oliver","Owen","Leo","Ethan","Lucas","Gabriel","Bennett","Benjamin"],
-    "All Boys": ["James","Henry","William","Thomas","Charles","Edward","George","Arthur","Robert","Patrick","Walter","Vincent","Liam","Jack","Oliver","Owen","Leo","Ethan","Lucas","Gabriel","Bennett","Benjamin","Edmund","Philip"]
-  },
-  girls: {
-    "Classic": ["Charlotte","Catherine","Margaret","Caroline","Victoria","Elizabeth","Beatrice","Helena","Margot","Rosalind","Cecilia","Eleanor","Scarlett"],
-    "Sweet & Short": ["Emma","Olivia","Sophia","Ava","Mia","Nora","Grace","Chloe","Amelia"],
-    "Nature": ["Lily","Violet","Hazel","Ivy","Ruby","Iris","Willow","Daisy","Fern","Wren"],
-    "Modern Edge": ["Maeve","Sadie","Quinn","Sloane","Harper","Luna","Piper"],
-    "All Girls": ["Charlotte","Catherine","Margaret","Caroline","Victoria","Elizabeth","Beatrice","Helena","Margot","Rosalind","Cecilia","Eleanor","Scarlett","Emma","Olivia","Sophia","Ava","Mia","Nora","Grace","Chloe","Amelia","Lily","Violet","Hazel","Ivy","Ruby","Iris","Willow","Daisy","Fern","Wren","Maeve","Sadie","Quinn","Sloane","Harper","Luna","Piper"]
-  }
-};
+const NAMES={boys:{"Classic":["James","Henry","William","Thomas","Charles","Edward","George","Arthur","Robert","Patrick","Walter","Vincent","Edmund","Philip"],"Strong":["Liam","Jack","Oliver","Owen","Leo","Ethan","Lucas","Gabriel","Bennett","Benjamin"],"All Boys":["James","Henry","William","Thomas","Charles","Edward","George","Arthur","Robert","Patrick","Walter","Vincent","Liam","Jack","Oliver","Owen","Leo","Ethan","Lucas","Gabriel","Bennett","Benjamin","Edmund","Philip"]},girls:{"Classic":["Charlotte","Catherine","Margaret","Caroline","Victoria","Elizabeth","Beatrice","Helena","Margot","Rosalind","Cecilia","Eleanor","Scarlett"],"Sweet & Short":["Emma","Olivia","Sophia","Ava","Mia","Nora","Grace","Chloe","Amelia"],"Nature":["Lily","Violet","Hazel","Ivy","Ruby","Iris","Willow","Daisy","Fern","Wren"],"Modern Edge":["Maeve","Sadie","Quinn","Sloane","Harper","Luna","Piper"],"All Girls":["Charlotte","Catherine","Margaret","Caroline","Victoria","Elizabeth","Beatrice","Helena","Margot","Rosalind","Cecilia","Eleanor","Scarlett","Emma","Olivia","Sophia","Ava","Mia","Nora","Grace","Chloe","Amelia","Lily","Violet","Hazel","Ivy","Ruby","Iris","Willow","Daisy","Fern","Wren","Maeve","Sadie","Quinn","Sloane","Harper","Luna","Piper"]}};
 const FILTERED=[{n:"Karen",r:"Manager's worst nightmare"},{n:"Bertha",r:"\"Big Bertha\" — eternal fat joke"},{n:"Helga",r:"Mean lunch lady energy"},{n:"Stacy",r:"Her mom's got it goin' on"},{n:"Becky",r:"\"Oh my God, Becky\""},{n:"Felicia",r:"Bye."},{n:"Alexa",r:"Will never stop turning on the lights"},{n:"Siri",r:"See above, but Apple"},{n:"Chad",r:"The alpha-bro meme"},{n:"Kyle",r:"Monster Energy, drywall damage"},{n:"Kevin",r:"International symbol for stupid"},{n:"Dick",r:"...yeah"},{n:"Donald",r:"Too politically loaded either way"},{n:"Damien",r:"Literal demon child (The Omen)"},{n:"Candy",r:"Stripper name hall of fame"},{n:"Crystal",r:"Either meth or stripper, pick one"},{n:"Destiny",r:"See: Crystal"},{n:"Barbie",r:"Plastic fantastic"},{n:"Gertrude",r:"Born elderly"},{n:"Mildred",r:"Also born elderly"},{n:"Brock",r:"Turner ruined it for everyone"},{n:"Regina",r:"On Wednesdays we wear pink"},{n:"Isis",r:"Mythology ruined by terrorism"},{n:"Nevaeh",r:"Heaven backwards. We know. Still no."},{n:"Tucker",r:"Too Carlson-coded"},{n:"Dexter",r:"Serial killer show"},{n:"Norman",r:"Bates Motel permanent resident"},{n:"Gaylord",r:"Self-explanatory in 2026"},{n:"Katrina",r:"Hurricane PTSD"},{n:"Fanny",r:"Means butt in British English"},{n:"Jezebel",r:"Biblical harlot, gossip blog"},{n:"Harvey",r:"Weinstein'd"}];
 const COLORS=["#e74c3c","#3498db","#2ecc71","#f39c12","#9b59b6","#1abc9c","#e67e22","#2980b9","#27ae60","#8e44ad","#16a085","#d35400","#c0392b","#2c3e50","#f1c40f","#7f8c8d"];
 
-let gender="boys", category="Classic", currentAngle=0, spinning=false, history=[], currentNames=[], animId=null;
+let gender="boys",category="Classic",currentAngle=0,spinning=false,history=[],currentNames=[];
+const canvas=document.getElementById("wheelCanvas");
+const ctx=canvas.getContext("2d");
+let W=0,cx=0,cy=0,R=0;
+
+function resize(){
+  const box=canvas.parentElement;
+  const size=box.clientWidth;
+  const dpr=window.devicePixelRatio||1;
+  canvas.width=size*dpr;
+  canvas.height=size*dpr;
+  canvas.style.width=size+"px";
+  canvas.style.height=size+"px";
+  W=size*dpr;cx=W/2;cy=W/2;R=W/2-W*0.03;
+  drawWheel();
+}
+
+function drawWheel(){
+  const n=currentNames.length;
+  if(!n)return;
+  const seg=(Math.PI*2)/n;
+  const dpr=window.devicePixelRatio||1;
+  const isDark=document.body.classList.contains("dark");
+
+  ctx.clearRect(0,0,W,W);
+  ctx.save();
+  ctx.translate(cx,cy);
+  ctx.rotate(currentAngle*Math.PI/180);
+
+  for(let i=0;i<n;i++){
+    const startA=i*seg-Math.PI/2;
+    const endA=(i+1)*seg-Math.PI/2;
+    // Segment
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.arc(0,0,R,startA,endA);
+    ctx.closePath();
+    ctx.fillStyle=COLORS[i%COLORS.length];
+    ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,0.2)";
+    ctx.lineWidth=1*dpr;
+    ctx.stroke();
+
+    // Text
+    const midA=startA+(endA-startA)/2;
+    const textR=R*0.65;
+    ctx.save();
+    ctx.rotate(midA);
+    ctx.translate(textR,0);
+    ctx.rotate(Math.PI/2);
+    const fontSize=n<=7?17:n<=10?15:n<=14?13:11;
+    ctx.font=`700 ${fontSize*dpr}px Inter,-apple-system,system-ui,sans-serif`;
+    ctx.fillStyle="white";
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+    ctx.shadowColor="rgba(0,0,0,0.6)";
+    ctx.shadowBlur=3*dpr;
+    ctx.fillText(currentNames[i],0,0);
+    ctx.shadowBlur=0;
+    ctx.restore();
+  }
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(0,0,R*0.22,0,Math.PI*2);
+  ctx.fillStyle=isDark?"#1a1a2e":"#fff";
+  ctx.fill();
+  ctx.strokeStyle=isDark?"rgba(255,255,255,0.2)":"rgba(0,0,0,0.1)";
+  ctx.lineWidth=2*dpr;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(0,0,R*0.2,0,Math.PI*2);
+  ctx.fillStyle=isDark?"#16213e":"#f8f9fa";
+  ctx.fill();
+
+  // SPIN text
+  const spinColor=isDark?"#f1c40f":"#e74c3c";
+  ctx.font=`900 ${15*dpr}px Inter,-apple-system,system-ui,sans-serif`;
+  ctx.fillStyle=spinColor;
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.letterSpacing=`${1.5*dpr}px`;
+  ctx.fillText(spinning?"...":"SPIN",0,0);
+
+  ctx.restore();
+}
 
 function toggleTheme(){
   const d=document.body;
   if(d.classList.contains("dark")){d.classList.replace("dark","light");document.getElementById("themeBtn").textContent="🌙"}
   else{d.classList.replace("light","dark");document.getElementById("themeBtn").textContent="☀️"}
-  renderWheel();
+  drawWheel();
 }
 
 function setGender(g){
@@ -139,10 +211,10 @@ function setGender(g){
   document.getElementById("girlBtn").className="gender-btn"+(g==="girls"?" active-girl":"");
   const cats=Object.keys(NAMES[g]);
   if(!cats.includes(category))category=cats[0];
-  renderPills();renderWheel();
+  renderPills();loadNames();
 }
 
-function setCategory(c){category=c;renderPills();renderWheel();}
+function setCategory(c){category=c;renderPills();loadNames();}
 
 function renderPills(){
   const cats=Object.keys(NAMES[gender]);
@@ -154,68 +226,32 @@ function renderPills(){
   }).join("");
 }
 
-function polar(cx,cy,r,deg){
-  const rad=(deg-90)*Math.PI/180;
-  return{x:cx+r*Math.cos(rad),y:cy+r*Math.sin(rad)};
-}
-
-function arcPath(cx,cy,r,s,e){
-  const p1=polar(cx,cy,r,e),p2=polar(cx,cy,r,s),large=(e-s)>180?1:0;
-  return`M${cx},${cy}L${p1.x},${p1.y}A${r},${r} 0 ${large} 0 ${p2.x},${p2.y}Z`;
-}
-
-function renderWheel(){
+function loadNames(){
   let source=NAMES[gender][category]||NAMES[gender][Object.keys(NAMES[gender])[0]];
   if(source.length>16){
     const s=[...source].sort(()=>Math.random()-.5);
     source=s.slice(0,14);
   }
   currentNames=source;
-  const isDark=document.body.classList.contains("dark");
-
-  const n=currentNames.length, seg=360/n;
-  const S=400, cx=S/2, cy=S/2, r=S/2-12;
-  const fontSize=n<=7?17:n<=10?15:n<=14?13:11;
-  const textR=r*0.65;
-
-  const svg=document.getElementById("wheelSvg");
-  svg.setAttribute("viewBox",`0 0 ${S} ${S}`);
-
-  // Build static segments (no rotation group - we rotate the whole SVG group via attribute)
-  let segs="";
-  for(let i=0;i<n;i++){
-    const startA=i*seg, endA=(i+1)*seg, midA=startA+seg/2;
-    segs+=`<path d="${arcPath(cx,cy,r,startA,endA)}" fill="${COLORS[i%COLORS.length]}" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>`;
-
-    // Text: position along radius, flip if in bottom half so always readable
-    const tp=polar(cx,cy,textR,midA);
-    const normalizedMid=midA%360;
-    // If text would be upside down (between 90 and 270), flip it
-    const flip=normalizedMid>90&&normalizedMid<270;
-    const textAngle=flip?midA+180:midA;
-    segs+=`<text x="${tp.x}" y="${tp.y}" fill="white" font-size="${fontSize}" font-weight="700" text-anchor="middle" dominant-baseline="middle" transform="rotate(${textAngle},${tp.x},${tp.y})" style="font-family:Inter,-apple-system,system-ui,sans-serif">${currentNames[i]}</text>`;
-  }
-
-  // Center circles
-  const outerFill=isDark?"#1a1a2e":"#fff";
-  const outerStroke=isDark?"rgba(255,255,255,.2)":"rgba(0,0,0,.1)";
-  const innerFill=isDark?"#16213e":"#f8f9fa";
-  const spinColor=isDark?"#f1c40f":"#e74c3c";
-
-  svg.innerHTML=
-    `<g id="wheelG" transform="rotate(${currentAngle},${cx},${cy})">${segs}`+
-    `<circle cx="${cx}" cy="${cy}" r="42" fill="${outerFill}" stroke="${outerStroke}" stroke-width="2"/>`+
-    `<circle cx="${cx}" cy="${cy}" r="39" fill="${innerFill}"/>`+
-    `</g>`+
-    `<circle cx="${cx}" cy="${cy}" r="39" fill="transparent" style="cursor:pointer" onclick="spin()"/>`+
-    `<text x="${cx}" y="${cy}" fill="${spinColor}" font-size="15" font-weight="900" text-anchor="middle" dominant-baseline="middle" style="cursor:pointer;letter-spacing:1.5px;font-family:Inter,-apple-system,system-ui,sans-serif" id="spinLabel" onclick="spin()">SPIN</text>`;
+  currentAngle=0;
+  document.getElementById("resultArea").innerHTML="";
+  drawWheel();
 }
 
-// RAF-based spin animation (Safari compatible - no CSS transitions on SVG)
+canvas.addEventListener("click",function(e){
+  // Check if click is near center
+  const rect=canvas.getBoundingClientRect();
+  const dpr=window.devicePixelRatio||1;
+  const x=(e.clientX-rect.left)*dpr-cx;
+  const y=(e.clientY-rect.top)*dpr-cy;
+  const dist=Math.sqrt(x*x+y*y);
+  // Click anywhere to spin (but center area is obvious button)
+  spin();
+});
+
 function spin(){
   if(spinning)return;
   spinning=true;
-  document.getElementById("spinLabel").textContent="...";
   document.getElementById("resultArea").innerHTML="";
 
   const targetExtra=(5+Math.random()*5)*360+Math.random()*360;
@@ -224,26 +260,21 @@ function spin(){
   const duration=4000;
   const startTime=performance.now();
 
-  function easeOut(t){
-    // cubic bezier approximation of (0.17, 0.67, 0.12, 0.99)
-    return 1-Math.pow(1-t,4);
-  }
+  function easeOut(t){return 1-Math.pow(1-t,4);}
 
   function animate(now){
     const elapsed=now-startTime;
     const t=Math.min(elapsed/duration,1);
-    const eased=easeOut(t);
-    currentAngle=startAngle+(targetAngle-startAngle)*eased;
-
-    const g=document.getElementById("wheelG");
-    if(g)g.setAttribute("transform",`rotate(${currentAngle},200,200)`);
+    currentAngle=startAngle+(targetAngle-startAngle)*easeOut(t);
+    drawWheel();
 
     if(t<1){
-      animId=requestAnimationFrame(animate);
+      requestAnimationFrame(animate);
     }else{
       currentAngle=targetAngle;
-      // Determine result
-      const n=currentNames.length, seg=360/n;
+      drawWheel();
+      // Determine result: pointer is at top (12 o'clock = -90deg = 270deg)
+      const n=currentNames.length,seg=360/n;
       const norm=((currentAngle%360)+360)%360;
       const idx=Math.floor((360-norm+seg/2)/seg)%n;
       const picked=currentNames[((idx%n)+n)%n];
@@ -251,18 +282,13 @@ function spin(){
       history.unshift({name:picked,icon});
       if(history.length>12)history.length=12;
       renderHistory();
-
       document.getElementById("resultArea").innerHTML=`<div style="text-align:center"><div class="result-name">${picked}</div>${confettiHTML()}</div>`;
-      document.getElementById("spinLabel").textContent="SPIN";
       spinning=false;
-
-      setTimeout(()=>{
-        const c=document.getElementById("resultArea").querySelector(".cfw");
-        if(c)c.remove();
-      },2000);
+      drawWheel();
+      setTimeout(()=>{const c=document.getElementById("resultArea").querySelector(".cfw");if(c)c.remove();},2000);
     }
   }
-  animId=requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 }
 
 function confettiHTML(){
@@ -297,8 +323,10 @@ function toggleFiltered(){
   ).join("")}</div></div>`;
 }
 
+window.addEventListener("resize",resize);
 renderPills();
-renderWheel();
+loadNames();
+resize();
 </script>
 </body>
 </html>
