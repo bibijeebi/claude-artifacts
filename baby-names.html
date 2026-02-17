@@ -109,7 +109,7 @@ const COLORS=["#e74c3c","#3498db","#2ecc71","#f39c12","#9b59b6","#1abc9c","#e67e
 let gender="boys",category="Classic",currentAngle=0,spinning=false,history=[],currentNames=[];
 const canvas=document.getElementById("wheelCanvas");
 const ctx=canvas.getContext("2d");
-let dpr=1,cssSize=0,R=0,CX=0,CY=0;
+let dpr=1,cssSize=0,R=0;
 
 function resize(){
   dpr=window.devicePixelRatio||1;
@@ -117,117 +117,96 @@ function resize(){
   cssSize=Math.min(380,containerW-24);
   canvas.style.width=cssSize+"px";
   canvas.style.height=cssSize+"px";
-  canvas.width=cssSize*dpr;
-  canvas.height=cssSize*dpr;
-  CX=canvas.width/2;
-  CY=canvas.height/2;
-  R=CX-CX*0.04;
+  canvas.width=Math.round(cssSize*dpr);
+  canvas.height=Math.round(cssSize*dpr);
+  R=canvas.width/2*0.95;
   drawWheel();
 }
 
 function drawWheel(){
   const n=currentNames.length;
   if(!n)return;
-  const seg=(Math.PI*2)/n;
+  const w=canvas.width,h=canvas.height;
+  const cx=w/2,cy=h/2;
+  const seg=Math.PI*2/n;
   const isDark=document.body.classList.contains("dark");
-  const innerR=R*0.28;
+  const hubR=R*0.22;
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.save();
-  ctx.translate(CX,CY);
-  ctx.rotate(currentAngle*Math.PI/180);
+  ctx.clearRect(0,0,w,h);
 
+  // Draw each segment
   for(let i=0;i<n;i++){
-    const a0=i*seg-Math.PI/2;
-    const a1=(i+1)*seg-Math.PI/2;
+    // Angle: 0 = top (12 o'clock). We offset by -PI/2 so 0rad = top
+    var a0=currentAngle*Math.PI/180+i*seg-Math.PI/2;
+    var a1=a0+seg;
+    var mid=a0+seg/2;
 
-    // Segment
+    // Pie slice
     ctx.beginPath();
-    ctx.arc(0,0,R,a0,a1);
-    ctx.arc(0,0,innerR,a1,a0,true);
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,R,a0,a1);
     ctx.closePath();
     ctx.fillStyle=COLORS[i%COLORS.length];
     ctx.fill();
-    ctx.strokeStyle="rgba(255,255,255,0.25)";
-    ctx.lineWidth=1.5*dpr;
+    ctx.strokeStyle="rgba(255,255,255,0.2)";
+    ctx.lineWidth=dpr;
     ctx.stroke();
 
-    // Curved text along outer rim
-    const name=currentNames[i];
-    const fontSize=(n<=7?15:n<=10?13.5:n<=14?11.5:10)*dpr;
+    // Name text - radial, pushed toward outer edge
+    // Position text at 72% of radius from center
+    var textR=R*0.72;
+    var tx=cx+Math.cos(mid)*textR;
+    var ty=cy+Math.sin(mid)*textR;
+
+    ctx.save();
+    ctx.translate(tx,ty);
+    // Rotate text to align with the radius (pointing outward)
+    // mid is the angle from center, text should read outward
+    // We rotate so text baseline follows the radius
+    ctx.rotate(mid+Math.PI/2);
+
+    var fontSize=(n<=7?16:n<=10?14:n<=14?12:10.5)*dpr;
     ctx.font="800 "+fontSize+"px Inter,-apple-system,system-ui,sans-serif";
     ctx.fillStyle="white";
     ctx.textAlign="center";
     ctx.textBaseline="middle";
-    ctx.shadowColor="rgba(0,0,0,0.5)";
-    ctx.shadowBlur=2*dpr;
-
-    const textR=R*0.73;
-    const charAngles=[];
-    let totalAngle=0;
-    const gap=0.015; // radians between chars
-    for(let c=0;c<name.length;c++){
-      const w=ctx.measureText(name[c]).width;
-      const a=w/textR;
-      charAngles.push(a);
-      totalAngle+=a;
-      if(c<name.length-1)totalAngle+=gap;
-    }
-
-    const midA=a0+(a1-a0)/2;
-    let cursor=midA-totalAngle/2;
-
-    for(let c=0;c<name.length;c++){
-      const halfA=charAngles[c]/2;
-      cursor+=halfA;
-      ctx.save();
-      ctx.rotate(cursor);
-      ctx.translate(0,-textR);
-      ctx.fillText(name[c],0,0);
-      ctx.restore();
-      cursor+=halfA+gap;
-    }
+    ctx.shadowColor="rgba(0,0,0,0.6)";
+    ctx.shadowBlur=3*dpr;
+    ctx.fillText(currentNames[i],0,0);
     ctx.shadowBlur=0;
+    ctx.restore();
   }
 
-  // Peg dots at segment boundaries
-  for(let i=0;i<n;i++){
-    const a=i*seg-Math.PI/2;
-    const px=Math.cos(a)*R*0.92;
-    const py=Math.sin(a)*R*0.92;
-    ctx.beginPath();
-    ctx.arc(px,py,3*dpr,0,Math.PI*2);
-    ctx.fillStyle="rgba(255,255,255,0.6)";
-    ctx.fill();
-  }
-
-  // Center hub
+  // Hub
   ctx.beginPath();
-  ctx.arc(0,0,innerR+2*dpr,0,Math.PI*2);
+  ctx.arc(cx,cy,hubR+3*dpr,0,Math.PI*2);
   ctx.fillStyle=isDark?"#1a1a2e":"#ffffff";
   ctx.fill();
-  ctx.strokeStyle=isDark?"rgba(255,255,255,0.15)":"rgba(0,0,0,0.08)";
+  ctx.strokeStyle=isDark?"rgba(255,255,255,0.15)":"rgba(0,0,0,0.1)";
   ctx.lineWidth=2*dpr;
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(0,0,innerR,0,Math.PI*2);
+  ctx.arc(cx,cy,hubR,0,Math.PI*2);
   ctx.fillStyle=isDark?"#16213e":"#f8f9fa";
   ctx.fill();
 
-  // SPIN label
-  const sf=16*dpr;
-  ctx.font="900 "+sf+"px Inter,-apple-system,system-ui,sans-serif";
+  // SPIN
+  ctx.font="900 "+(15*dpr)+"px Inter,-apple-system,system-ui,sans-serif";
   ctx.fillStyle=isDark?"#f1c40f":"#e74c3c";
   ctx.textAlign="center";
   ctx.textBaseline="middle";
-  ctx.shadowBlur=0;
-  ctx.fillText(spinning?"...":"SPIN",0,0);
+  ctx.fillText(spinning?"...":"SPIN",cx,cy);
 
-  ctx.restore();
+  // Outer ring
+  ctx.beginPath();
+  ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle=isDark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.06)";
+  ctx.lineWidth=3*dpr;
+  ctx.stroke();
 }
 
 function toggleTheme(){
-  const d=document.body;
+  var d=document.body;
   if(d.classList.contains("dark")){d.classList.replace("dark","light");document.getElementById("themeBtn").textContent="🌙"}
   else{d.classList.replace("light","dark");document.getElementById("themeBtn").textContent="☀️"}
   drawWheel();
@@ -236,86 +215,86 @@ function setGender(g){
   gender=g;
   document.getElementById("boyBtn").className="gender-btn"+(g==="boys"?" active-boy":"");
   document.getElementById("girlBtn").className="gender-btn"+(g==="girls"?" active-girl":"");
-  const cats=Object.keys(NAMES[g]);
+  var cats=Object.keys(NAMES[g]);
   if(!cats.includes(category))category=cats[0];
   renderPills();loadNames();
 }
 function setCategory(c){category=c;renderPills();loadNames();}
 function renderPills(){
-  const cats=Object.keys(NAMES[gender]);
-  document.getElementById("catPills").innerHTML=cats.map(c=>{
-    const active=(c===category);
-    const cls="pill"+(active?" active "+(gender==="boys"?"boy-active":"girl-active"):"");
-    const escaped=c.replace(/'/g,"\\'");
-    return`<button class="${cls}" onclick="setCategory('${escaped}')">${c}</button>`;
+  var cats=Object.keys(NAMES[gender]);
+  document.getElementById("catPills").innerHTML=cats.map(function(c){
+    var active=(c===category);
+    var cls="pill"+(active?" active "+(gender==="boys"?"boy-active":"girl-active"):"");
+    var escaped=c.replace(/'/g,"\\'");
+    return'<button class="'+cls+'" onclick="setCategory(\''+escaped+'\')">'+c+'</button>';
   }).join("");
 }
 function loadNames(){
-  let source=NAMES[gender][category]||NAMES[gender][Object.keys(NAMES[gender])[0]];
-  if(source.length>16){source=[...source].sort(()=>Math.random()-.5).slice(0,14);}
+  var source=NAMES[gender][category]||NAMES[gender][Object.keys(NAMES[gender])[0]];
+  if(source.length>16){source=source.slice().sort(function(){return Math.random()-.5}).slice(0,14);}
   currentNames=source;
   currentAngle=0;
   document.getElementById("resultArea").innerHTML="";
   drawWheel();
 }
 
-canvas.addEventListener("click",spin);
+canvas.addEventListener("click",function(){spin()});
 
 function spin(){
   if(spinning)return;
   spinning=true;
   document.getElementById("resultArea").innerHTML="";
-  const targetAngle=currentAngle+(5+Math.random()*5)*360+Math.random()*360;
-  const startAngle=currentAngle;
-  const duration=4000;
-  const t0=performance.now();
+  var targetAngle=currentAngle+(5+Math.random()*5)*360+Math.random()*360;
+  var startAngle=currentAngle;
+  var duration=4000;
+  var t0=performance.now();
   function ease(t){return 1-Math.pow(1-t,4);}
   function frame(now){
-    const t=Math.min((now-t0)/duration,1);
+    var t=Math.min((now-t0)/duration,1);
     currentAngle=startAngle+(targetAngle-startAngle)*ease(t);
     drawWheel();
     if(t<1){requestAnimationFrame(frame);return;}
     currentAngle=targetAngle;
-    const n=currentNames.length,seg=360/n;
-    const norm=((currentAngle%360)+360)%360;
-    const idx=Math.floor((360-norm+seg/2)/seg)%n;
-    const picked=currentNames[((idx%n)+n)%n];
+    var n=currentNames.length,seg=360/n;
+    var norm=((currentAngle%360)+360)%360;
+    var idx=Math.floor((360-norm+seg/2)/seg)%n;
+    var picked=currentNames[((idx%n)+n)%n];
     history.unshift({name:picked,icon:gender==="boys"?"👦":"👧"});
     if(history.length>12)history.length=12;
     renderHistory();
-    document.getElementById("resultArea").innerHTML=`<div style="text-align:center"><div class="result-name">${picked}</div>${confettiHTML()}</div>`;
+    document.getElementById("resultArea").innerHTML='<div style="text-align:center"><div class="result-name">'+picked+'</div>'+confettiHTML()+'</div>';
     spinning=false;drawWheel();
-    setTimeout(()=>{const c=document.getElementById("resultArea").querySelector(".cfw");if(c)c.remove();},2000);
+    setTimeout(function(){var c=document.getElementById("resultArea").querySelector(".cfw");if(c)c.remove();},2000);
   }
   requestAnimationFrame(frame);
 }
 
 function confettiHTML(){
-  let h='<div class="cfw" style="position:absolute;top:50%;left:50%;pointer-events:none">';
-  for(let i=0;i<24;i++){
-    const x=(Math.random()-.5)*260,y=-(Math.random()*120+40),c=COLORS[Math.floor(Math.random()*COLORS.length)],sz=Math.random()*8+4,d=Math.random()*.3,br=Math.random()>.5?"50%":"2px";
-    h+=`<div class="confetti-particle" style="width:${sz}px;height:${sz}px;background:${c};border-radius:${br};left:${x}px;top:${y}px;animation-delay:${d}s"></div>`;
+  var h='<div class="cfw" style="position:absolute;top:50%;left:50%;pointer-events:none">';
+  for(var i=0;i<24;i++){
+    var x=(Math.random()-.5)*260,y=-(Math.random()*120+40),c=COLORS[Math.floor(Math.random()*COLORS.length)],sz=Math.random()*8+4,d=Math.random()*.3,br=Math.random()>.5?"50%":"2px";
+    h+='<div class="confetti-particle" style="width:'+sz+'px;height:'+sz+'px;background:'+c+';border-radius:'+br+';left:'+x+'px;top:'+y+'px;animation-delay:'+d+'s"></div>';
   }
   return h+"</div>";
 }
 function renderHistory(){
-  const card=document.getElementById("historyCard"),list=document.getElementById("picksList");
+  var card=document.getElementById("historyCard"),list=document.getElementById("picksList");
   if(!history.length){card.style.display="none";return;}
   card.style.display="block";
-  list.innerHTML=history.map(h=>`<span class="pick">${h.icon} ${h.name}</span>`).join("");
+  list.innerHTML=history.map(function(h){return'<span class="pick">'+h.icon+" "+h.name+'</span>';}).join("");
 }
 function clearHistory(){history=[];renderHistory();}
 
-let filteredOpen=false;
+var filteredOpen=false;
 function toggleFiltered(){
   filteredOpen=!filteredOpen;
-  const btn=document.getElementById("filteredBtn"),panel=document.getElementById("filteredPanel");
+  var btn=document.getElementById("filteredBtn"),panel=document.getElementById("filteredPanel");
   btn.innerHTML=(filteredOpen?"▾":"▸")+" Names That Didn't Make the Cut (32)";
   if(!filteredOpen){panel.style.display="none";return;}
   panel.style.display="block";
-  panel.innerHTML=`<div class="card"><div class="filtered-grid">${FILTERED.map(f=>
-    `<div class="filtered-row"><span class="filtered-name">${f.n}</span><span class="filtered-reason muted">${f.r}</span></div>`
-  ).join("")}</div></div>`;
+  panel.innerHTML='<div class="card"><div class="filtered-grid">'+FILTERED.map(function(f){
+    return'<div class="filtered-row"><span class="filtered-name">'+f.n+'</span><span class="filtered-reason muted">'+f.r+'</span></div>';
+  }).join("")+'</div></div>';
 }
 
 window.addEventListener("resize",resize);
