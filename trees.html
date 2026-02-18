@@ -1159,239 +1159,239 @@ tbody tr:last-child td { border-bottom: none; }
 </div>
 
 <script>
-// Client-side image loader using Wikipedia REST API
-// Runs in the user's browser where Wikipedia is accessible
-const TREE_IMAGES = {
-  'oak': {
-    wiki: 'Quercus_alba',
-    searches: [
-      { query: 'Quercus alba', labels: ['White Oak'] },
-      { query: 'Quercus phellos', labels: ['Willow Oak'] },
-      { query: 'Quercus nigra', labels: ['Water Oak'] },
-    ]
+// Tree image config: Wikipedia articles + desired image categories
+const TREES = {
+  oak: {
+    pages: ['Quercus_alba', 'Quercus_phellos', 'Quercus_nigra'],
+    want: ['bark', 'leaf', 'leaves', 'acorn', 'tree'],
   },
-  'pecan': {
-    wiki: 'Pecan',
-    searches: [
-      { query: 'Carya illinoinensis', labels: ['Pecan'] },
-    ]
+  pecan: {
+    pages: ['Pecan'],
+    want: ['bark', 'trunk', 'leaf', 'leaves', 'nut', 'fruit', 'husk', 'pecan'],
   },
-  'catalpa': {
-    wiki: 'Catalpa_bignonioides',
-    searches: [
-      { query: 'Catalpa bignonioides', labels: ['Catalpa'] },
-      { query: 'Catalpa speciosa', labels: ['Northern Catalpa'] },
-    ]
+  catalpa: {
+    pages: ['Catalpa_bignonioides', 'Catalpa_speciosa'],
+    want: ['bark', 'leaf', 'leaves', 'pod', 'seed', 'flower', 'catalpa'],
   },
-  'pine': {
-    wiki: 'Pinus_taeda',
-    searches: [
-      { query: 'Pinus taeda', labels: ['Loblolly Pine'] },
-    ]
+  pine: {
+    pages: ['Pinus_taeda'],
+    want: ['bark', 'needle', 'cone', 'trunk', 'taeda'],
   },
-  'magnolia': {
-    wiki: 'Magnolia_grandiflora',
-    searches: [
-      { query: 'Magnolia grandiflora', labels: ['Southern Magnolia'] },
-    ]
+  magnolia: {
+    pages: ['Magnolia_grandiflora'],
+    want: ['bark', 'leaf', 'leaves', 'flower', 'fruit', 'seed', 'cone'],
   },
-  'hickory': {
-    wiki: 'Carya_tomentosa',
-    searches: [
-      { query: 'Carya tomentosa', labels: ['Mockernut Hickory'] },
-    ]
+  hickory: {
+    pages: ['Carya_tomentosa', 'Carya_glabra'],
+    want: ['bark', 'trunk', 'leaf', 'leaves', 'nut', 'fruit'],
   },
-  'sweetgum': {
-    wiki: 'Liquidambar_styraciflua',
-    searches: [
-      { query: 'Liquidambar styraciflua', labels: ['Sweetgum'] },
-    ]
+  sweetgum: {
+    pages: ['Liquidambar_styraciflua'],
+    want: ['bark', 'leaf', 'leaves', 'fruit', 'ball', 'gum', 'seed'],
   },
-  'tulip': {
-    wiki: 'Liriodendron_tulipifera',
-    searches: [
-      { query: 'Liriodendron tulipifera', labels: ['Tulip Poplar'] },
-    ]
+  tulip: {
+    pages: ['Liriodendron_tulipifera'],
+    want: ['bark', 'trunk', 'leaf', 'leaves', 'flower', 'fruit', 'seed'],
   },
-  'maple': {
-    wiki: 'Acer_rubrum',
-    searches: [
-      { query: 'Acer rubrum', labels: ['Red Maple'] },
-    ]
+  maple: {
+    pages: ['Acer_rubrum'],
+    want: ['bark', 'leaf', 'leaves', 'flower', 'samara', 'seed', 'fruit'],
   },
-  'walnut': {
-    wiki: 'Juglans_nigra',
-    searches: [
-      { query: 'Juglans nigra', labels: ['Black Walnut'] },
-    ]
+  walnut: {
+    pages: ['Juglans_nigra'],
+    want: ['bark', 'trunk', 'leaf', 'leaves', 'nut', 'fruit', 'walnut'],
   },
-  'ash': {
-    wiki: 'Fraxinus_americana',
-    searches: [
-      { query: 'Fraxinus americana', labels: ['White Ash'] },
-    ]
+  ash: {
+    pages: ['Fraxinus_americana'],
+    want: ['bark', 'trunk', 'leaf', 'leaves', 'seed', 'samara', 'fruit', 'ash'],
   },
 };
 
+const JUNK = /icon|logo|map|range|distribution|status|iucn|threatened|conservation|red.list|commons-logo|wikispecies|wikimedia|wiktionary|symbol|gnome|edit-clear|crystal|ambox|question.book|wiki.letter|text-x|folder|lock-|nuvola|disambig|flag|oojs|potw/i;
+
+const API = 'https://en.wikipedia.org/w/api.php';
+
+async function fetchJson(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+
+// Get all image filenames from a Wikipedia article
+async function getImageFiles(page) {
+  const url = `${API}?action=query&titles=${page}&prop=images&imlimit=50&format=json&origin=*`;
+  const d = await fetchJson(url);
+  const pages = Object.values(d.query.pages);
+  const files = [];
+  for (const p of pages) {
+    for (const img of (p.images || [])) {
+      files.push(img.title); // "File:Something.jpg"
+    }
+  }
+  return files;
+}
+
+// Get thumbnail URL for a specific file
+async function getThumbUrl(fileTitle, width = 500) {
+  const url = `${API}?action=query&titles=${encodeURIComponent(fileTitle)}&prop=imageinfo&iiprop=url&iiurlwidth=${width}&format=json&origin=*`;
+  const d = await fetchJson(url);
+  const pages = Object.values(d.query.pages);
+  for (const p of pages) {
+    const ii = (p.imageinfo || [])[0];
+    if (ii) return ii.thumburl || ii.url;
+  }
+  return null;
+}
+
+// Score a filename for relevance
+function scoreFile(filename, wantTerms) {
+  const lower = filename.toLowerCase();
+  if (JUNK.test(lower)) return -1;
+  if (!/\.(jpg|jpeg|png)$/i.test(lower)) return -1; // skip SVG etc
+  let score = 0;
+  for (const term of wantTerms) {
+    if (lower.includes(term)) score += 10;
+  }
+  return score;
+}
+
+// Deduplicate by rough similarity
+function dedupeFiles(files) {
+  const seen = new Set();
+  return files.filter(f => {
+    // Normalize: remove numbers, sizes, underscores
+    const key = f.toLowerCase().replace(/[\d_\-\(\)]/g, '').replace(/file:/i, '').substring(0, 30);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 async function loadTreeImages() {
   const cards = document.querySelectorAll('.tree-card');
-  
+
   for (const card of cards) {
     const iconEl = card.querySelector('.tree-icon');
     if (!iconEl) continue;
+    const treeType = Array.from(iconEl.classList).find(c => c !== 'tree-icon');
+    if (!treeType || !TREES[treeType]) continue;
     
-    // Determine tree type from icon class
-    const classes = Array.from(iconEl.classList);
-    const treeType = classes.find(c => c !== 'tree-icon');
-    if (!treeType || !TREE_IMAGES[treeType]) continue;
-    
-    const config = TREE_IMAGES[treeType];
+    const config = TREES[treeType];
     const body = card.querySelector('.tree-card-body');
     if (!body) continue;
     
-    // Create image grid container
     const imgGrid = document.createElement('div');
     imgGrid.className = 'tree-images';
     imgGrid.innerHTML = '<div class="tree-img-card"><div class="img-placeholder loading"></div></div>'.repeat(3);
     
-    // Insert after bark-desc
     const barkDesc = body.querySelector('.bark-desc');
-    if (barkDesc) {
-      barkDesc.after(imgGrid);
-    } else {
-      body.prepend(imgGrid);
-    }
+    if (barkDesc) barkDesc.after(imgGrid);
+    else body.prepend(imgGrid);
     
-    // Fetch images from Wikipedia media list
-    try {
-      const resp = await fetch(`https://en.wikipedia.org/api/rest_v1/page/media-list/${config.wiki}`);
-      if (!resp.ok) throw new Error('API error');
-      const data = await resp.json();
-      
-      // Aggressively filter out non-photo junk from Wikipedia
-      const JUNK_PATTERNS = [
-        /icon/i, /map/i, /range/i, /flag/i, /OOjs/i, /Status/i,
-        /IUCN/i, /Threatened/i, /Endangered/i, /Vulnerable/i,
-        /Conservation/i, /Red_List/i, /Redlist/i, /Least_Concern/i,
-        /distribution/i, /Commons-logo/i, /Wikispecies/i, /Wikimedia/i,
-        /Logo/i, /Wiktionary/i, /Symbol/i, /Gnome/i, /Edit-clear/i,
-        /Crystal/i, /Ambox/i, /Question_book/i, /Wiki_letter/i,
-        /Text-x/i, /Folder/i, /Lock-/i, /Nuvola/i, /Disambig/i,
-        /\.svg/i, /diagram/i, /chart/i, /graph/i, /schematic/i,
-      ];
-      
-      // Score images by how useful they are for ID
-      const ID_BOOST = [
-        /bark/i, /trunk/i, /leaf/i, /leaves/i, /foliage/i,
-        /acorn/i, /nut/i, /fruit/i, /seed/i, /pod/i, /cone/i,
-        /flower/i, /bloom/i, /blossom/i, /catkin/i,
-        /needle/i, /branch/i, /twig/i, /bud/i, /samara/i,
-        /husk/i, /gumball/i, /ball/i,
-      ];
-      
-      const images = (data.items || [])
-        .filter(item => {
-          if (!item.srcset || item.type !== 'image') return false;
-          const src = item.srcset[0]?.src || '';
-          const title = item.title || '';
-          const caption = item.caption?.text || '';
-          const combined = src + ' ' + title + ' ' + caption;
-          // Kill anything matching junk patterns
-          if (JUNK_PATTERNS.some(p => p.test(combined))) return false;
-          // Must be a real photo URL (has commons/thumb in path)
-          if (!src.includes('commons') && !src.includes('upload.wikimedia')) return false;
-          return true;
-        })
-        .map(item => {
-          const src = item.srcset[0]?.src || '';
-          const fullSrc = src.startsWith('//') ? 'https:' + src : src;
-          const bigSrc = fullSrc.replace(/\/\d+px-/, '/500px-');
-          const caption = item.caption?.text || '';
-          const title = item.title || '';
-          const combined = title + ' ' + caption;
-          // Score: boost images with ID-relevant keywords
-          let score = 0;
-          ID_BOOST.forEach(p => { if (p.test(combined)) score += 10; });
-          // Boost images with the species name in them
-          if (combined.toLowerCase().includes(config.wiki.toLowerCase().replace(/_/g, ' '))) score += 5;
-          return { src: bigSrc, caption, score };
-        })
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 4);
-      
-      if (images.length === 0) throw new Error('No images found');
-      
-      // Populate image grid
-      imgGrid.innerHTML = '';
-      images.forEach((img, i) => {
-        const card = document.createElement('div');
-        card.className = 'tree-img-card';
-        const imgEl = document.createElement('img');
-        imgEl.src = img.src;
-        imgEl.alt = img.caption || treeType;
-        imgEl.loading = 'lazy';
-        imgEl.className = 'loading';
-        imgEl.onload = () => imgEl.classList.remove('loading');
-        imgEl.onerror = () => {
-          card.innerHTML = `<div class="img-placeholder">Image unavailable</div>`;
-        };
-        const label = document.createElement('div');
-        label.className = 'img-label';
-        // Use caption if available, truncated
-        const capText = img.caption || '';
-        label.textContent = capText.length > 60 ? capText.substring(0, 57) + '...' : capText;
-        card.appendChild(imgEl);
-        if (capText) card.appendChild(label);
-        imgGrid.appendChild(card);
-      });
-      
-      // Add credit line
-      const credit = document.createElement('div');
-      credit.className = 'wiki-credit';
-      credit.innerHTML = `Images via <a href="https://en.wikipedia.org/wiki/${config.wiki}" target="_blank">Wikipedia</a>`;
-      imgGrid.after(credit);
-      
-    } catch (e) {
-      // Fallback: try page summary for at least one image
+    // Don't await - fire all trees in parallel
+    (async () => {
       try {
-        const resp = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${config.wiki}`);
-        const data = await resp.json();
-        if (data.originalimage?.source) {
-          imgGrid.innerHTML = '';
-          const card = document.createElement('div');
-          card.className = 'tree-img-card';
-          card.style.gridColumn = '1 / -1';
-          card.style.maxWidth = '400px';
-          const img = document.createElement('img');
-          img.src = data.originalimage.source;
-          img.alt = data.title || treeType;
-          img.loading = 'lazy';
-          img.style.height = '250px';
-          img.onload = () => img.style.opacity = 1;
-          img.onerror = () => { card.innerHTML = '<div class="img-placeholder">Image unavailable</div>'; };
-          card.appendChild(img);
-          imgGrid.appendChild(card);
-          
-          const credit = document.createElement('div');
-          credit.className = 'wiki-credit';
-          credit.innerHTML = `Image via <a href="https://en.wikipedia.org/wiki/${config.wiki}" target="_blank">Wikipedia</a>`;
-          imgGrid.after(credit);
-        } else {
-          imgGrid.innerHTML = `<div class="tree-img-card" style="grid-column:1/-1"><div class="img-placeholder">Search "<em>${config.wiki.replace(/_/g,' ')}</em>" on Google Images for reference photos</div></div>`;
+        // Gather image filenames from all relevant Wikipedia pages
+        let allFiles = [];
+        for (const page of config.pages) {
+          try {
+            const files = await getImageFiles(page);
+            allFiles.push(...files);
+          } catch(e) { /* skip failed pages */ }
         }
-      } catch (e2) {
-        imgGrid.innerHTML = `<div class="tree-img-card" style="grid-column:1/-1"><div class="img-placeholder">Search "<em>${config.wiki.replace(/_/g,' ')}</em>" on Google Images for reference photos</div></div>`;
+        
+        // Score and sort by relevance
+        const scored = allFiles
+          .map(f => ({ file: f, score: scoreFile(f, config.want) }))
+          .filter(x => x.score > 0)
+          .sort((a, b) => b.score - a.score);
+        
+        // Dedupe and take top 4
+        const unique = dedupeFiles(scored.map(x => x.file)).slice(0, 4);
+        
+        if (unique.length === 0) throw new Error('No relevant images');
+        
+        // Fetch thumbnail URLs in parallel
+        const thumbPromises = unique.map(f => getThumbUrl(f).catch(() => null));
+        const thumbUrls = await Promise.all(thumbPromises);
+        
+        // Build image grid
+        const validImages = unique
+          .map((f, i) => ({ file: f, url: thumbUrls[i] }))
+          .filter(x => x.url);
+        
+        if (validImages.length === 0) throw new Error('No thumbnails resolved');
+        
+        imgGrid.innerHTML = '';
+        for (const img of validImages) {
+          const div = document.createElement('div');
+          div.className = 'tree-img-card';
+          
+          const imgEl = document.createElement('img');
+          imgEl.src = img.url;
+          // Clean up filename for alt/label
+          const cleanName = img.file
+            .replace(/^File:/i, '')
+            .replace(/\.[^.]+$/, '')
+            .replace(/_/g, ' ')
+            .replace(/\d{3,}/g, '')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .substring(0, 60);
+          imgEl.alt = cleanName;
+          imgEl.loading = 'lazy';
+          imgEl.className = 'loading';
+          imgEl.onload = () => imgEl.classList.remove('loading');
+          imgEl.onerror = () => { div.innerHTML = '<div class="img-placeholder">Failed to load</div>'; };
+          
+          const label = document.createElement('div');
+          label.className = 'img-label';
+          label.textContent = cleanName;
+          
+          div.appendChild(imgEl);
+          div.appendChild(label);
+          imgGrid.appendChild(div);
+        }
+        
+        // Credit
+        const credit = document.createElement('div');
+        credit.className = 'wiki-credit';
+        credit.innerHTML = `Images via <a href="https://en.wikipedia.org/wiki/${config.pages[0]}" target="_blank">Wikipedia</a> / Wikimedia Commons`;
+        imgGrid.after(credit);
+        
+      } catch(e) {
+        // Fallback: page summary thumbnail
+        try {
+          const r = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${config.pages[0]}`);
+          const d = await r.json();
+          if (d.thumbnail?.source) {
+            imgGrid.innerHTML = '';
+            const div = document.createElement('div');
+            div.className = 'tree-img-card';
+            div.style.gridColumn = '1 / -1';
+            div.style.maxWidth = '500px';
+            const img = document.createElement('img');
+            img.src = d.thumbnail.source.replace(/\/\d+px-/, '/600px-');
+            img.alt = d.title;
+            img.loading = 'lazy';
+            img.style.height = '280px';
+            img.onload = () => img.style.opacity = 1;
+            div.appendChild(img);
+            imgGrid.appendChild(div);
+          } else {
+            throw new Error('no fallback');
+          }
+        } catch(e2) {
+          imgGrid.innerHTML = `<div class="tree-img-card" style="grid-column:1/-1"><div class="img-placeholder">Search images: <a href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(config.pages[0].replace(/_/g,' '))+'+bark+leaf+identification'}" target="_blank" style="color:var(--gold)">${config.pages[0].replace(/_/g,' ')}</a></div></div>`;
+        }
       }
-    }
+    })();
   }
 }
 
-// Load images after page renders
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', loadTreeImages);
-} else {
-  loadTreeImages();
-}
+document.readyState === 'loading'
+  ? document.addEventListener('DOMContentLoaded', loadTreeImages)
+  : loadTreeImages();
 </script>
 
 </body>
