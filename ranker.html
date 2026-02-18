@@ -504,11 +504,13 @@ function App() {
 
         // ═══ IMPORT ═══
         view === "import" && React.createElement("div", null,
-          React.createElement("div", { style: { fontSize: 14, color: t.sub, marginBottom: 12 } }, "Paste export JSON (supports both new BT format and old ELO history format):"),
-          React.createElement("textarea", { value: impTxt, onChange: e => setImpTxt(e.target.value), rows: 12, style: { width: "100%", background: t.inputBg, color: t.fg, border: "1px solid " + t.inputBorder, borderRadius: 10, padding: 14, fontSize: 13, fontFamily: "monospace", resize: "vertical", boxSizing: "border-box", marginBottom: 12, lineHeight: 1.5 } }),
-          React.createElement("div", { style: { display: "flex", gap: 8 } },
-            React.createElement("button", { onClick: doImport, style: btn(t.green, "#fff") }, "Restore"),
-            React.createElement("button", { onClick: () => setView("battle"), style: btn(t.btnBg, t.btnFg) }, "Cancel")
+          React.createElement("div", { style: { fontSize: 14, color: t.sub, marginBottom: 12 } }, "Upload an export JSON file (supports both BT and old ELO format):"),
+          React.createElement("input", { type: "file", accept: ".json", onChange: e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { setImpTxt(r.result); }; r.readAsText(f); }, style: { display: "none" }, id: "imp-file" }),
+          React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center" } },
+            React.createElement("button", { onClick: () => document.getElementById("imp-file").click(), style: btn(t.btnBg, t.btnFg, { fontSize: 15, padding: "12px 20px" }) }, "Choose File"),
+            impTxt && React.createElement("button", { onClick: doImport, style: btn(t.green, "#fff", { fontSize: 15, padding: "12px 20px" }) }, "Restore"),
+            React.createElement("button", { onClick: () => { setImpTxt(""); setView("battle"); }, style: btn(t.btnBg, t.btnFg) }, "Cancel"),
+            impTxt && React.createElement("span", { style: { fontSize: 13, color: t.up, fontWeight: 600 } }, "File loaded")
           )
         )
       )
