@@ -494,7 +494,7 @@ function App() {
         view === "export" && React.createElement("div", null,
           React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" } },
             React.createElement("button", { onClick: doExport, style: btn(t.accentB, "#fff") }, "Generate Export"),
-            React.createElement("button", { onClick: () => navigator.clipboard.writeText(expTxt), style: btn(t.btnBg, t.btnFg) }, "Copy"),
+            React.createElement("button", { onClick: () => { const ts = new Date().toISOString().replace(/[:.]/g,"-").slice(0,19); const blob = new Blob([expTxt], {type:"application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "names-export-" + ts + ".json"; a.click(); URL.revokeObjectURL(a.href); }, style: btn(t.btnBg, t.btnFg) }, "Download"),
             React.createElement("button", { onClick: () => setView("import"), style: btn(t.gold, "#000") }, "Import"),
             React.createElement("button", { onClick: reset, style: btn(t.dangerBg, t.dangerFg) }, "Reset All")
           ),
