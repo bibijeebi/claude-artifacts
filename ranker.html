@@ -272,14 +272,13 @@ function App() {
     const h = (e) => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
       switch (e.key) {
-        case "ArrowLeft": case "a": case "A": e.preventDefault(); vote("left"); break;
-        case "ArrowRight": case "d": case "D": e.preventDefault(); vote("right"); break;
-        case "ArrowDown": case "s": case "S": e.preventDefault(); vote("tie"); break;
-        case "ArrowUp": case "x": case "X": case " ": e.preventDefault(); skip(); break;
+        case "ArrowLeft": case "l": case "L": e.preventDefault(); vote("left"); break;
+        case "ArrowRight": case "r": case "R": e.preventDefault(); vote("right"); break;
+        case "ArrowDown": case "t": case "T": if (!e.metaKey && !e.ctrlKey) { e.preventDefault(); vote("tie"); } break;
+        case "ArrowUp": case "s": case "S": case " ": e.preventDefault(); skip(); break;
         case "z": case "Z": if (e.metaKey || e.ctrlKey) { e.preventDefault(); doUndo(); } break;
         case "1": e.preventDefault(); switchG("b"); break;
         case "2": e.preventDefault(); switchG("g"); break;
-        case "t": case "T": if (!e.metaKey && !e.ctrlKey) { e.preventDefault(); toggleTheme(); } break;
       }
     };
     window.addEventListener("keydown", h);
@@ -405,7 +404,7 @@ function App() {
             ),
             // Hotkey buttons
             React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 12 } },
-              [["left", "\u2190 LEFT", "A", t.leftBtn, t.leftFg], ["tie", "\u2193 TIE", "S", t.tieBtn, t.tieFg], ["right", "RIGHT \u2192", "D", t.rightBtn, t.rightFg], ["skip", "\u2191 SKIP", "X", t.skipBtn, t.skipFg]].map(([action, label, key, bg, fg]) =>
+              [["left", "\u2190 LEFT", "L", t.leftBtn, t.leftFg], ["tie", "\u2193 TIE", "T", t.tieBtn, t.tieFg], ["right", "RIGHT \u2192", "R", t.rightBtn, t.rightFg], ["skip", "\u2191 SKIP", "S", t.skipBtn, t.skipFg]].map(([action, label, key, bg, fg]) =>
                 React.createElement("button", { key: action, onClick: () => action === "skip" ? skip() : vote(action), style: { padding: "18px 8px", borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit", background: bg, color: fg, fontWeight: 700, fontSize: 16, boxShadow: t.shadow, transition: "all 0.1s" } },
                   React.createElement("div", null, label),
                   React.createElement("div", { style: { fontSize: 12, color: t.sub2, marginTop: 4, fontWeight: 500 } }, key)
@@ -415,7 +414,7 @@ function App() {
             // Undo + hints
             React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 } },
               React.createElement("button", { onClick: doUndo, disabled: !undo.length, style: btn(t.btnBg, undo.length ? t.btnFg : t.sub2, { cursor: undo.length ? "pointer" : "default", opacity: undo.length ? 1 : 0.5 }) }, "Undo (" + undo.length + ")"),
-              React.createElement("span", { style: { fontSize: 12, color: t.sub2 } }, "A/D pick \u00B7 S tie \u00B7 X skip \u00B7 \u2318Z undo \u00B7 1/2 gender \u00B7 T theme")
+              React.createElement("span", { style: { fontSize: 12, color: t.sub2 } }, "L/R pick \u00B7 T tie \u00B7 S skip \u00B7 \u2318Z undo \u00B7 1/2 gender")
             ),
             // Mini leaderboards
             React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } },
