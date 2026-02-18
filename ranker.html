@@ -167,8 +167,6 @@ function App() {
   const [flash, setFlash] = useState(null);
   const [view, setView] = useState("battle");
   const [loading, setLoading] = useState(true);
-  const [sesh, setSesh] = useState(0);
-  const [streak, setStreak] = useState(0);
   const [undo, setUndo] = useState([]);
   const [expTxt, setExpTxt] = useState("");
   const [impTxt, setImpTxt] = useState("");
@@ -224,7 +222,7 @@ function App() {
     for (const id of pool) newR[id] = btToRating(pi[id]);
     setRatings(newR);
     const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
-    setData(nd); setSesh(c => c + 1); setStreak(s => s + 1);
+    setData(nd);
     setPair(pickPair(gender, voter, newCmps, allPi));
     save(nd);
   }, [data, pair, gender, voter, ratings, save]);
@@ -235,7 +233,7 @@ function App() {
     const voterCmps = data.comparisons.filter(c => c.voter === voter && pool.includes(c.a));
     const pi = solveBT(voterCmps, pool);
     const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
-    setPair(pickPair(gender, voter, data.comparisons, allPi)); setStreak(0);
+    setPair(pickPair(gender, voter, data.comparisons, allPi));
   }, [data, gender, voter]);
 
   const doUndo = useCallback(() => {
@@ -243,7 +241,6 @@ function App() {
     const p = undo[undo.length - 1];
     setUndo(s => s.slice(0, -1));
     setData(p.data); setPair(p.pair); setGender(p.gender);
-    setSesh(c => Math.max(0, c - 1));
     const { ratings: r } = recomputeAll(p.data.comparisons, voter);
     setRatings(r); save(p.data);
   }, [undo, voter, save]);
@@ -329,7 +326,7 @@ function App() {
   const reset = useCallback(() => {
     if (!confirm("Nuke all comparison data?")) return;
     const nd = { comparisons: [], lastGender: "b", lastVoter: voter };
-    setData(nd); setGender("b"); setSesh(0); setStreak(0); setUndo([]);
+    setData(nd); setGender("b"); setUndo([]);
     setRatings(Object.fromEntries(NAMES.map(n => [n.id, 1000])));
     setPair(pickPair("b", voter, [], Object.fromEntries(NAMES.map(n => [n.id, 1.0]))));
     save(nd);
@@ -370,7 +367,7 @@ function App() {
               React.createElement("option", { value: "bekah" }, "Becca")
             ),
             React.createElement("button", { onClick: toggleTheme, style: { ...btn(t.btnBg, t.btnFg), fontSize: 18, padding: "4px 10px", lineHeight: 1 }, title: "Toggle theme (T)" }, theme === "dark" ? "\u2600\uFE0F" : "\uD83C\uDF19"),
-            React.createElement("span", { style: { fontSize: 12, color: t.sub } }, "sesh:" + sesh + " x" + streak)
+            React.createElement("span", { style: { fontSize: 12, color: t.sub } }, data.comparisons.filter(c => c.voter === voter).length + " total")
           )
         ),
 
@@ -505,8 +502,7 @@ function App() {
         // ═══ EXPORT ═══
         view === "export" && React.createElement("div", null,
           React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" } },
-            React.createElement("button", { onClick: doExport, style: btn(t.accentB, "#fff") }, "Generate Export"),
-            React.createElement("button", { onClick: () => { const ts = new Date().toISOString().replace(/[:.]/g,"-").slice(0,19); const blob = new Blob([expTxt], {type:"application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "names-export-" + ts + ".json"; a.click(); URL.revokeObjectURL(a.href); }, style: btn(t.btnBg, t.btnFg) }, "Download"),
+            React.createElement("button", { onClick: () => { const ts = new Date().toISOString().replace(/[:.]/g,"-").slice(0,19); const blob = new Blob([expTxt], {type:"application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "names-export-" + ts + ".json"; a.click(); URL.revokeObjectURL(a.href); }, style: btn(t.accentB, "#fff") }, "Download"),
             React.createElement("button", { onClick: () => setView("import"), style: btn(t.gold, "#000") }, "Import"),
             React.createElement("button", { onClick: reset, style: btn(t.dangerBg, t.dangerFg) }, "Reset All")
           ),
