@@ -107,12 +107,10 @@ function solveBT(comparisons, ids) {
 
 function btToRating(pi) { return Math.round(1000 + 400 * Math.log10(Math.max(pi, 0.001))); }
 
-// ── Active learning pair picker ──
+// ── Active learning pair picker (top-heavy) ──
 function pickPair(gender, voter, comparisons, pi) {
   const pool = NAMES.filter(n => n.g === gender);
-  const yes = pool.filter(n => n.v === "y");
-  const src = Math.random() < 0.7 && yes.length >= 2 ? yes : pool;
-  if (src.length < 2) return [pool[0], pool[1]];
+  if (pool.length < 2) return [pool[0], pool[1]];
   const voterCmps = comparisons.filter(c => c.voter === voter);
   const cmpCt = {};
   pool.forEach(n => cmpCt[n.id] = 0);
@@ -125,6 +123,20 @@ function pickPair(gender, voter, comparisons, pi) {
   }
   const totalCmps = voterCmps.filter(c => pool.some(n => n.id === c.a || n.id === c.b)).length;
   const avgCmp = totalCmps > 0 ? (totalCmps * 2) / pool.length : 0;
+  // Rank names by pi to compute rank boost
+  const ranked = [...pool].sort((a, b) => (pi[b.id] || 1) - (pi[a.id] || 1));
+  const rankOf = {};
+  ranked.forEach((n, i) => rankOf[n.id] = i);
+  const q1 = Math.floor(pool.length * 0.25); // top 25%
+  const q2 = Math.floor(pool.length * 0.50); // top 50%
+  // Rank boost: top 25% = 1.0, next 25% = 0.5, bottom 50% = 0.1
+  const rankBoost = (id) => rankOf[id] < q1 ? 1.0 : rankOf[id] < q2 ? 0.5 : 0.1;
+  // In early phase (< 3 avg), use full pool evenly for coverage
+  // After that, 80% of picks come from top 50% pool
+  let src = pool;
+  if (avgCmp >= 3) {
+    src = Math.random() < 0.8 ? ranked.slice(0, q2) : pool;
+  }
   let best = null, bestScore = -1;
   const tries = Math.min(800, src.length * (src.length - 1) / 2);
   for (let t = 0; t < tries; t++) {
@@ -139,8 +151,12 @@ function pickPair(gender, voter, comparisons, pi) {
     const close = Math.exp(-Math.abs(logA - logB) * 2);
     const need = Math.exp(-Math.min(cmpCt[a.id] || 0, cmpCt[b.id] || 0) * 0.25);
     const novel = played === 0 ? 1.0 : 0.2 / played;
-    const w = avgCmp < 2 ? [0.2, 0.55, 0.25] : avgCmp < 5 ? [0.4, 0.35, 0.25] : [0.55, 0.2, 0.25];
-    const score = close * w[0] + need * w[1] + novel * w[2] + Math.random() * 0.05;
+    const rb = (rankBoost(a.id) + rankBoost(b.id)) / 2;
+    // Early: coverage-first. Mid: balanced. Late: rank + closeness heavy
+    const w = avgCmp < 2 ? [0.2, 0.5, 0.2, 0.1] :
+              avgCmp < 5 ? [0.3, 0.2, 0.15, 0.35] :
+                           [0.35, 0.1, 0.1, 0.45];
+    const score = close * w[0] + need * w[1] + novel * w[2] + rb * w[3] + Math.random() * 0.03;
     if (score > bestScore) { bestScore = score; best = [a, b]; }
   }
   return best || [src[0], src[1]];
