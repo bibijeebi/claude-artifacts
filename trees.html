@@ -1268,36 +1268,67 @@ async function loadTreeImages() {
       if (!resp.ok) throw new Error('API error');
       const data = await resp.json();
       
-      // Filter for useful images (not icons, maps, etc)
+      // Aggressively filter out non-photo junk from Wikipedia
+      const JUNK_PATTERNS = [
+        /icon/i, /map/i, /range/i, /flag/i, /OOjs/i, /Status/i,
+        /IUCN/i, /Threatened/i, /Endangered/i, /Vulnerable/i,
+        /Conservation/i, /Red_List/i, /Redlist/i, /Least_Concern/i,
+        /distribution/i, /Commons-logo/i, /Wikispecies/i, /Wikimedia/i,
+        /Logo/i, /Wiktionary/i, /Symbol/i, /Gnome/i, /Edit-clear/i,
+        /Crystal/i, /Ambox/i, /Question_book/i, /Wiki_letter/i,
+        /Text-x/i, /Folder/i, /Lock-/i, /Nuvola/i, /Disambig/i,
+        /\.svg/i, /diagram/i, /chart/i, /graph/i, /schematic/i,
+      ];
+      
+      // Score images by how useful they are for ID
+      const ID_BOOST = [
+        /bark/i, /trunk/i, /leaf/i, /leaves/i, /foliage/i,
+        /acorn/i, /nut/i, /fruit/i, /seed/i, /pod/i, /cone/i,
+        /flower/i, /bloom/i, /blossom/i, /catkin/i,
+        /needle/i, /branch/i, /twig/i, /bud/i, /samara/i,
+        /husk/i, /gumball/i, /ball/i,
+      ];
+      
       const images = (data.items || [])
         .filter(item => {
-          if (!item.srcset) return false;
+          if (!item.srcset || item.type !== 'image') return false;
           const src = item.srcset[0]?.src || '';
-          if (src.includes('Icon') || src.includes('Map') || src.includes('Range') || src.includes('flag') || src.includes('OOjs')) return false;
-          if (item.type !== 'image') return false;
+          const title = item.title || '';
+          const caption = item.caption?.text || '';
+          const combined = src + ' ' + title + ' ' + caption;
+          // Kill anything matching junk patterns
+          if (JUNK_PATTERNS.some(p => p.test(combined))) return false;
+          // Must be a real photo URL (has commons/thumb in path)
+          if (!src.includes('commons') && !src.includes('upload.wikimedia')) return false;
           return true;
         })
         .map(item => {
           const src = item.srcset[0]?.src || '';
           const fullSrc = src.startsWith('//') ? 'https:' + src : src;
-          // Get a good size
           const bigSrc = fullSrc.replace(/\/\d+px-/, '/500px-');
           const caption = item.caption?.text || '';
-          return { src: bigSrc, caption };
+          const title = item.title || '';
+          const combined = title + ' ' + caption;
+          // Score: boost images with ID-relevant keywords
+          let score = 0;
+          ID_BOOST.forEach(p => { if (p.test(combined)) score += 10; });
+          // Boost images with the species name in them
+          if (combined.toLowerCase().includes(config.wiki.toLowerCase().replace(/_/g, ' '))) score += 5;
+          return { src: bigSrc, caption, score };
         })
+        .sort((a, b) => b.score - a.score)
         .slice(0, 4);
       
       if (images.length === 0) throw new Error('No images found');
       
       // Populate image grid
       imgGrid.innerHTML = '';
-      const labels = ['Bark', 'Leaf / Foliage', 'Fruit / Seed', 'Full Tree'];
       images.forEach((img, i) => {
         const card = document.createElement('div');
         card.className = 'tree-img-card';
         const imgEl = document.createElement('img');
         imgEl.src = img.src;
-        imgEl.alt = img.caption || labels[i] || treeType;
+        imgEl.alt = img.caption || treeType;
         imgEl.loading = 'lazy';
         imgEl.className = 'loading';
         imgEl.onload = () => imgEl.classList.remove('loading');
@@ -1306,9 +1337,11 @@ async function loadTreeImages() {
         };
         const label = document.createElement('div');
         label.className = 'img-label';
-        label.textContent = img.caption ? img.caption.substring(0, 50) : (labels[i] || '');
+        // Use caption if available, truncated
+        const capText = img.caption || '';
+        label.textContent = capText.length > 60 ? capText.substring(0, 57) + '...' : capText;
         card.appendChild(imgEl);
-        card.appendChild(label);
+        if (capText) card.appendChild(label);
         imgGrid.appendChild(card);
       });
       
