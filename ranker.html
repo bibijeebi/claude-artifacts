@@ -191,6 +191,7 @@ function App() {
   const [ratings, setRatings] = useState({});
   const [theme, setTheme] = useState(() => localStorage.getItem("bt-theme") || "dark");
   const [showPicker, setShowPicker] = useState(true);
+  const declinedRef = useRef({});
 
   const t = THEMES[theme];
   const accent = gender === "b" ? t.accentB : t.accentG;
@@ -248,10 +249,42 @@ function App() {
     for (const id of pool) newR[id] = btToRating(pi[id]);
     setRatings(newR);
     const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
+    const curE = getElim(nd, voter, gender);
+    const activePool = pool.filter(id => !curE.includes(id));
+    const activeCmps = voterCmps.filter(c => activePool.includes(c.a) && activePool.includes(c.b));
+    const avgCmpActive = activePool.length > 0 ? (activeCmps.length * 2) / activePool.length : 0;
     setData(nd);
-    setPair(pickPair(gender, voter, newCmps, allPi, getElim(nd, voter, gender)));
+    setPair(pickPair(gender, voter, newCmps, allPi, curE));
     save(nd);
-  }, [data, pair, gender, voter, ratings, save]);
+    // Auto-elimination prompts
+    setTimeout(() => {
+      const dKey = voter + "-" + gender;
+      const fullSize = NAMES.filter(n => n.g === gender).length;
+      if (curE.length === 0 && avgCmpActive >= 5 && !declinedRef.current[dKey + "-60"]) {
+        if (confirm("You've hit 5+ avg comparisons per name for " + (gender === "b" ? "boys" : "girls") + ". Ready to eliminate the bottom 60% and focus on your top 60?\n\nThis speeds up ranking dramatically. (Reversible from Board view)")) {
+          const ranked = [...activePool].sort((x, y) => (pi[y] || 1) - (pi[x] || 1));
+          const toElim = ranked.slice(60);
+          const elim = { ...(nd.eliminated || {}) };
+          if (!elim[voter]) elim[voter] = {};
+          elim[voter][gender] = toElim;
+          const nd2 = { ...nd, eliminated: elim };
+          setData(nd2); save(nd2);
+          setPair(pickPair(gender, voter, newCmps, allPi, toElim));
+        } else { declinedRef.current[dKey + "-60"] = true; }
+      } else if (curE.length > 0 && activePool.length > 45 && avgCmpActive >= 8 && !declinedRef.current[dKey + "-40"]) {
+        if (confirm("Top 60 " + (gender === "b" ? "boys" : "girls") + " are well-ranked at 8+ avg comparisons. Ready to cut to top 40 for final refinement?\n\n(Reversible from Board view)")) {
+          const ranked = [...activePool].sort((x, y) => (pi[y] || 1) - (pi[x] || 1));
+          const newElim = [...curE, ...ranked.slice(40)];
+          const elim = { ...(nd.eliminated || {}) };
+          if (!elim[voter]) elim[voter] = {};
+          elim[voter][gender] = newElim;
+          const nd2 = { ...nd, eliminated: elim };
+          setData(nd2); save(nd2);
+          setPair(pickPair(gender, voter, newCmps, allPi, newElim));
+        } else { declinedRef.current[dKey + "-40"] = true; }
+      }
+    }, 150);
+  }, [data, pair, gender, voter, ratings, save, getElim]);
 
   const skip = useCallback(() => {
     if (!data) return;
