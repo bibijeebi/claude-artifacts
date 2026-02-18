@@ -108,9 +108,11 @@ function solveBT(comparisons, ids) {
 function btToRating(pi) { return Math.round(1000 + 400 * Math.log10(Math.max(pi, 0.001))); }
 
 // ── Active learning pair picker (top-heavy) ──
-function pickPair(gender, voter, comparisons, pi) {
-  const pool = NAMES.filter(n => n.g === gender);
-  if (pool.length < 2) return [pool[0], pool[1]];
+function pickPair(gender, voter, comparisons, pi, elimIds) {
+  const allPool = NAMES.filter(n => n.g === gender);
+  const elim = new Set(elimIds || []);
+  const pool = allPool.filter(n => !elim.has(n.id));
+  if (pool.length < 2) return pool.length === 2 ? [pool[0], pool[1]] : allPool.length >= 2 ? [allPool[0], allPool[1]] : null;
   const voterCmps = comparisons.filter(c => c.voter === voter);
   const cmpCt = {};
   pool.forEach(n => cmpCt[n.id] = 0);
@@ -193,6 +195,14 @@ function App() {
   const t = THEMES[theme];
   const accent = gender === "b" ? t.accentB : t.accentG;
 
+  // Eliminated names: {voterName: {b: [ids], g: [ids]}}
+  const getElim = useCallback((d, v, g) => {
+    return (d?.eliminated?.[v]?.[g]) || [];
+  }, []);
+  const isElim = useCallback((d, v, g, id) => {
+    return (d?.eliminated?.[v]?.[g] || []).includes(id);
+  }, []);
+
   const toggleTheme = useCallback(() => {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
@@ -207,14 +217,14 @@ function App() {
         setData(d); setGender(d.lastGender || "b"); setVoter(d.lastVoter || "benny");
         const { pi, ratings: r } = recomputeAll(d.comparisons || [], d.lastVoter || "benny");
         setRatings(r);
-        setPair(pickPair(d.lastGender || "b", d.lastVoter || "benny", d.comparisons || [], pi));
+        setPair(pickPair(d.lastGender || "b", d.lastVoter || "benny", d.comparisons || [], pi, (d.eliminated?.[d.lastVoter || "benny"]?.[d.lastGender || "b"]) || []));
       } else throw 0;
     } catch {
-      const d = { comparisons: [], lastGender: "b", lastVoter: "benny" };
+      const d = { comparisons: [], lastGender: "b", lastVoter: "benny", eliminated: {} };
       setData(d);
       setRatings(Object.fromEntries(NAMES.map(n => [n.id, 1000])));
       const pi = Object.fromEntries(NAMES.map(n => [n.id, 1.0]));
-      setPair(pickPair("b", "benny", [], pi));
+      setPair(pickPair("b", "benny", [], pi, []));
     }
     setLoading(false);
   }, []);
@@ -239,7 +249,7 @@ function App() {
     setRatings(newR);
     const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
     setData(nd);
-    setPair(pickPair(gender, voter, newCmps, allPi));
+    setPair(pickPair(gender, voter, newCmps, allPi, getElim(nd, voter, gender)));
     save(nd);
   }, [data, pair, gender, voter, ratings, save]);
 
@@ -249,8 +259,8 @@ function App() {
     const voterCmps = data.comparisons.filter(c => c.voter === voter && pool.includes(c.a));
     const pi = solveBT(voterCmps, pool);
     const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
-    setPair(pickPair(gender, voter, data.comparisons, allPi));
-  }, [data, gender, voter]);
+    setPair(pickPair(gender, voter, data.comparisons, allPi, getElim(data, voter, gender)));
+  }, [data, gender, voter, getElim]);
 
   const doUndo = useCallback(() => {
     if (!undo.length) return;
@@ -269,9 +279,9 @@ function App() {
       const voterCmps = data.comparisons.filter(c => c.voter === voter && pool.includes(c.a));
       const pi = solveBT(voterCmps, pool);
       const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
-      setPair(pickPair(ng, voter, data.comparisons, allPi));
+      setPair(pickPair(ng, voter, data.comparisons, allPi, getElim(data, voter, ng)));
     }
-  }, [data, voter, save]);
+  }, [data, voter, save, getElim]);
 
   const switchVoter = useCallback((nv) => {
     setVoter(nv); setShowPicker(false);
@@ -279,9 +289,9 @@ function App() {
       const nd = { ...data, lastVoter: nv }; setData(nd); save(nd);
       const { pi, ratings: r } = recomputeAll(nd.comparisons, nv);
       setRatings(r);
-      setPair(pickPair(gender, nv, nd.comparisons, pi));
+      setPair(pickPair(gender, nv, nd.comparisons, pi, getElim(nd, nv, gender)));
     }
-  }, [data, gender, save]);
+  }, [data, gender, save, getElim]);
 
   useEffect(() => {
     if (view !== "battle") return;
@@ -321,7 +331,7 @@ function App() {
 
   const doExport = useCallback(() => {
     if (!data) return;
-    setExpTxt(JSON.stringify({ exported: new Date().toISOString(), comparisons: data.comparisons, lastGender: gender, lastVoter: voter }, null, 2));
+    setExpTxt(JSON.stringify({ exported: new Date().toISOString(), comparisons: data.comparisons, eliminated: data.eliminated || {}, lastGender: gender, lastVoter: voter }, null, 2));
     setView("export");
   }, [data, gender, voter]);
 
@@ -330,22 +340,56 @@ function App() {
       const d = JSON.parse(impTxt);
       let cmps = d.comparisons || [];
       if (!cmps.length && d.history) cmps = d.history.map(h => ({ voter: "benny", a: h.a, b: h.b, w: h.w === "left" ? "a" : h.w === "right" ? "b" : "tie", t: h.t }));
-      const nd = { comparisons: cmps, lastGender: d.lastGender || "b", lastVoter: d.lastVoter || "benny" };
+      const nd = { comparisons: cmps, lastGender: d.lastGender || "b", lastVoter: d.lastVoter || "benny", eliminated: d.eliminated || {} };
       setData(nd); setGender(nd.lastGender); setVoter(nd.lastVoter);
       const { pi, ratings: r } = recomputeAll(cmps, nd.lastVoter);
-      setRatings(r); setPair(pickPair(nd.lastGender, nd.lastVoter, cmps, pi));
+      setRatings(r); setPair(pickPair(nd.lastGender, nd.lastVoter, cmps, pi, getElim(nd, nd.lastVoter, nd.lastGender)));
       save(nd); setImpTxt(""); setView("battle");
     } catch (e) { alert("Bad JSON: " + e.message); }
   }, [impTxt, save]);
 
   const reset = useCallback(() => {
     if (!confirm("Nuke all comparison data?")) return;
-    const nd = { comparisons: [], lastGender: "b", lastVoter: voter };
+    const nd = { comparisons: [], lastGender: "b", lastVoter: voter, eliminated: {} };
     setData(nd); setGender("b"); setUndo([]);
     setRatings(Object.fromEntries(NAMES.map(n => [n.id, 1000])));
-    setPair(pickPair("b", voter, [], Object.fromEntries(NAMES.map(n => [n.id, 1.0]))));
+    setPair(pickPair("b", voter, [], Object.fromEntries(NAMES.map(n => [n.id, 1.0])), []));
     save(nd);
   }, [voter, save]);
+
+  const eliminateBelow = useCallback((rank) => {
+    if (!data) return;
+    const board = getBoard(gender);
+    const toElim = board.slice(rank).map(n => n.id);
+    const kept = board.slice(0, rank).length;
+    if (!confirm("Eliminate " + toElim.length + " names below rank " + rank + "? (" + kept + " active remain)\nThis is reversible.")) return;
+    const elim = { ...(data.eliminated || {}) };
+    if (!elim[voter]) elim[voter] = {};
+    elim[voter][gender] = toElim;
+    const nd = { ...data, eliminated: elim };
+    setData(nd); save(nd);
+    const pool = NAMES.filter(n => n.g === gender).map(n => n.id);
+    const voterCmps = data.comparisons.filter(c => c.voter === voter && pool.includes(c.a));
+    const pi = solveBT(voterCmps, pool);
+    const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
+    setPair(pickPair(gender, voter, data.comparisons, allPi, toElim));
+  }, [data, gender, voter, save, getBoard]);
+
+  const restoreAll = useCallback(() => {
+    if (!data) return;
+    const elim = { ...(data.eliminated || {}) };
+    if (elim[voter]) elim[voter][gender] = [];
+    const nd = { ...data, eliminated: elim };
+    setData(nd); save(nd);
+    const pool = NAMES.filter(n => n.g === gender).map(n => n.id);
+    const voterCmps = data.comparisons.filter(c => c.voter === voter && pool.includes(c.a));
+    const pi = solveBT(voterCmps, pool);
+    const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
+    setPair(pickPair(gender, voter, data.comparisons, allPi, []));
+  }, [data, gender, voter, save]);
+
+  const curElim = data ? getElim(data, voter, gender) : [];
+  const elimSet = new Set(curElim);
 
   if (loading || !data) return React.createElement("div", { style: { background: "#0c0c0f", color: "#e8e8ec", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "system-ui", fontSize: 18 } }, "Loading...");
 
@@ -361,6 +405,8 @@ function App() {
   );
 
   const bp = NAMES.filter(n => n.g === "b"), gp = NAMES.filter(n => n.g === "g");
+  const bElimCt = getElim(data, voter, "b").length, gElimCt = getElim(data, voter, "g").length;
+  const bActive = bp.length - bElimCt, gActive = gp.length - gElimCt;
   const bStats = voterStats(voter, "b"), gStats = voterStats(voter, "g");
   const btn = (bg, fg, extra) => ({ padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "inherit", background: bg, color: fg, transition: "all 0.1s", ...extra });
   const conf = (cmp) => cmp >= 6 ? { l: "solid", c: t.conf.high } : cmp >= 3 ? { l: "ok", c: t.conf.med } : { l: "thin", c: t.conf.low };
@@ -389,10 +435,10 @@ function App() {
         // ─── Gender toggle ───
         React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16 } },
           React.createElement("button", { onClick: () => switchG("b"), style: { flex: 1, padding: "12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: 14, background: gender === "b" ? t.boyOn : t.off, color: gender === "b" ? t.boyFg : t.offFg, transition: "all 0.15s", boxShadow: t.shadow } },
-            "BOYS (" + bp.length + ") \u00B7 " + bStats.total + " cmp \u00B7 " + bStats.names + "/" + bStats.pool + " seen" + (gender === "b" ? " [1]" : "")
+            "BOYS" + (bElimCt ? " (" + bActive + "/" + bp.length + ")" : " (" + bp.length + ")") + " \u00B7 " + bStats.total + " cmp" + (gender === "b" ? " [1]" : "")
           ),
           React.createElement("button", { onClick: () => switchG("g"), style: { flex: 1, padding: "12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: 14, background: gender === "g" ? t.girlOn : t.off, color: gender === "g" ? t.girlFg : t.offFg, transition: "all 0.15s", boxShadow: t.shadow } },
-            "GIRLS (" + gp.length + ") \u00B7 " + gStats.total + " cmp \u00B7 " + gStats.names + "/" + gStats.pool + " seen" + (gender === "g" ? " [2]" : "")
+            "GIRLS" + (gElimCt ? " (" + gActive + "/" + gp.length + ")" : " (" + gp.length + ")") + " \u00B7 " + gStats.total + " cmp" + (gender === "g" ? " [2]" : "")
           )
         ),
 
@@ -453,14 +499,22 @@ function App() {
 
         // ═══ BOARD ═══
         view === "board" && React.createElement("div", { style: { background: t.card, borderRadius: 12, padding: 16, border: "1px solid " + t.border, boxShadow: t.shadow } },
+          // Elimination controls
+          React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 14, alignItems: "center", flexWrap: "wrap" } },
+            React.createElement("span", { style: { fontSize: 13, color: t.sub, fontWeight: 600 } }, elimSet.size ? (gender === "b" ? bActive : gActive) + " active / " + (gender === "b" ? bp : gp).length + " total" : (gender === "b" ? bp : gp).length + " names"),
+            React.createElement("button", { onClick: () => eliminateBelow(60), style: btn(t.gold, "#000") }, "Keep top 60"),
+            React.createElement("button", { onClick: () => eliminateBelow(40), style: btn(t.accentG, "#fff") }, "Keep top 40"),
+            elimSet.size > 0 && React.createElement("button", { onClick: restoreAll, style: btn(t.btnBg, t.btnFg) }, "Restore all")
+          ),
           getBoard(gender).map((n, i) => {
             const c = conf(n.cmp);
-            return React.createElement("div", { key: n.id, style: { display: "flex", alignItems: "center", fontSize: 14, padding: "5px 6px", color: n.rating > 1050 ? t.up : n.rating > 1000 ? t.up2 : n.rating < 950 ? t.down : n.rating < 1000 ? t.down2 : t.mid, borderBottom: (i === 9 || i === 19) ? "1px solid " + t.line : "none", lineHeight: 1.4 } },
+            const dead = elimSet.has(n.id);
+            return React.createElement("div", { key: n.id, style: { display: "flex", alignItems: "center", fontSize: 14, padding: "5px 6px", opacity: dead ? 0.3 : 1, color: dead ? t.sub2 : n.rating > 1050 ? t.up : n.rating > 1000 ? t.up2 : n.rating < 950 ? t.down : n.rating < 1000 ? t.down2 : t.mid, borderBottom: (i === 9 || i === 19 || i === 39 || i === 59) ? "1px solid " + t.line : "none", lineHeight: 1.4 } },
               React.createElement("span", { style: { minWidth: 40, fontVariantNumeric: "tabular-nums", fontWeight: i < 10 ? 700 : 400 } }, (i + 1) + "."),
-              React.createElement("span", { style: { flex: 1, fontWeight: i < 10 ? 600 : 400 } }, n.n + (n.v === "m" ? " ~" : "")),
-              React.createElement("span", { style: { minWidth: 90, textAlign: "right", color: t.sub, fontSize: 12 } }, n.c),
+              React.createElement("span", { style: { flex: 1, fontWeight: i < 10 ? 600 : 400 } }, n.n + (n.v === "m" ? " ~" : "") + (dead ? " \u2717" : "")),
+              React.createElement("span", { style: { minWidth: 90, textAlign: "right", color: dead ? t.sub2 : t.sub, fontSize: 12 } }, n.c),
               React.createElement("span", { style: { minWidth: 52, textAlign: "right", fontVariantNumeric: "tabular-nums", fontWeight: 600 } }, n.rating),
-              React.createElement("span", { style: { minWidth: 64, textAlign: "right", fontSize: 12, color: c.c } }, "(" + n.cmp + ") " + c.l)
+              React.createElement("span", { style: { minWidth: 64, textAlign: "right", fontSize: 12, color: dead ? t.sub2 : c.c } }, "(" + n.cmp + ") " + c.l)
             );
           })
         ),
