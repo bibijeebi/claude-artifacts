@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Name Ranker</title>
+<meta property="og:title" content="Foreman Name Ranker">
+<meta property="og:description" content="Bradley-Terry pairwise ranking system for baby names with active learning pair selection">
+<meta property="og:url" content="https://niggerfaggot.club/ranker.html">
+<meta name="twitter:card" content="summary">
+<style>
+  html, body { margin: 0; padding: 0; overflow-x: hidden; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  .nosel { user-select: none; -webkit-user-select: none; }
+  textarea { box-sizing: border-box; }
+  button { cursor: pointer; }
+  button:active { transform: scale(0.97); }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.2/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+const NAMES = [{"id":"mlqtsoefh7y9y","n":"Henry","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoefh9jtj","n":"Charles","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoefraxmm","n":"Edward","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoefoaz1l","n":"George","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoefwr6i1","n":"Arthur","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoefjqqqr","n":"Oliver","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoef16mnu","n":"Vincent","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoefjcixt","n":"Philip","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoef9vxjz","n":"Patrick","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoefbff4e","n":"Robert","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoefb5i0j","n":"Jack","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoef2es09","n":"James","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoef5ihhn","n":"William","g":"b","c":"Classic","v":"y"},{"id":"mlqtsoefzrvdq","n":"Graham","g":"b","c":"Scottish/Celtic","v":"y"},{"id":"mlqtsoefm7tcq","n":"Grant","g":"b","c":"Scottish/Celtic","v":"y"},{"id":"mlqtsoefjgz5a","n":"Callum","g":"b","c":"Scottish/Celtic","v":"y"},{"id":"mlqtsoeflc3y2","n":"Reid","g":"b","c":"Scottish/Celtic","v":"y"},{"id":"mlqtsoefmvxel","n":"Sterling","g":"b","c":"Scottish/Celtic","v":"y"},{"id":"mlqtsoefs09c4","n":"Alistair","g":"b","c":"Scottish/Celtic","v":"m"},{"id":"mlqtsoefuhsit","n":"Rowan","g":"b","c":"Scottish/Celtic","v":"y"},{"id":"mlqtsoefl6j2h","n":"Beckett","g":"b","c":"Scottish/Celtic","v":"y"},{"id":"mlqtsoef10oyg","n":"Laurent","g":"b","c":"French","v":"y"},{"id":"mlqtsoefj1524","n":"Marcel","g":"b","c":"French","v":"m"},{"id":"mlqtsoefyuvz0","n":"Everett","g":"b","c":"French","v":"y"},{"id":"mlqtsoeflz3ik","n":"Clement","g":"b","c":"French","v":"m"},{"id":"mlqtsoefyblai","n":"Remy","g":"b","c":"French","v":"m"},{"id":"mlqtsoef9rshd","n":"Conrad","g":"b","c":"German/Nordic","v":"y"},{"id":"mlqtsoefv1rba","n":"Emeric","g":"b","c":"German/Nordic","v":"y"},{"id":"mlqtsoef7eidw","n":"Henrik","g":"b","c":"German/Nordic","v":"y"},{"id":"mlqtsoef36d6k","n":"Soren","g":"b","c":"German/Nordic","v":"y"},{"id":"mlqtsoefqliqh","n":"Axel","g":"b","c":"German/Nordic","v":"y"},{"id":"mlqtsoefxraxt","n":"Luca","g":"b","c":"Italian","v":"y"},{"id":"mlqtsoeflkh68","n":"Enzo","g":"b","c":"Italian","v":"y"},{"id":"mlqtsoeff2nl0","n":"Emilio","g":"b","c":"Italian","v":"y"},{"id":"mlqtsoefg1xh6","n":"Lorenzo","g":"b","c":"Italian","v":"y"},{"id":"mlqtsoef1n6gd","n":"Dimitri","g":"b","c":"Slavic/Eastern","v":"y"},{"id":"mlqtsoef0ycf3","n":"Casimir","g":"b","c":"Slavic/Eastern","v":"m"},{"id":"mlqtsoefemlij","n":"Rafael","g":"b","c":"Iberian","v":"y"},{"id":"mlqtsoef1xjl0","n":"Santiago","g":"b","c":"Iberian","v":"y"},{"id":"mlqtsoef8vbif","n":"Owen","g":"b","c":"Modern-strong","v":"y"},{"id":"mlqtsoefk3kk2","n":"Lucas","g":"b","c":"Modern-strong","v":"y"},{"id":"mlqtsoefzv9ac","n":"Gabriel","g":"b","c":"Modern-strong","v":"y"},{"id":"mlqtsoefglpfo","n":"Liam","g":"b","c":"Modern-strong","v":"m"},{"id":"mlqtsoef31xpn","n":"Griffin","g":"b","c":"Modern-strong","v":"y"},{"id":"mlqtsoefnvkzv","n":"Felix","g":"b","c":"Modern-strong","v":"m"},{"id":"mlqtsoeftlxbc","n":"Jasper","g":"b","c":"Modern-strong","v":"y"},{"id":"mlqtsoefibbgu","n":"Cedric","g":"b","c":"Modern-strong","v":"y"},{"id":"mlqtsoefqctvj","n":"Quentin","g":"b","c":"Modern-strong","v":"m"},{"id":"mlqtsoefah9h9","n":"Piers","g":"b","c":"Modern-strong","v":"m"},{"id":"mlqtsoeffxkd0","n":"Rhett","g":"b","c":"Neo-modern","v":"y"},{"id":"mlqtsoef1cj9f","n":"Cassian","g":"b","c":"Neo-modern","v":"y"},{"id":"mlqtsoef3eyv3","n":"Calder","g":"b","c":"Neo-modern","v":"m"},{"id":"mlqtsoefrsz59","n":"Mercer","g":"b","c":"Neo-modern","v":"m"},{"id":"mlqx92zm6ywyo","n":"Atlas","g":"b","c":"Greek","v":"y"},{"id":"mlqx92zm343um","n":"Cassius","g":"b","c":"Greek","v":"y"},{"id":"mlqx92zmo2ai4","n":"Theron","g":"b","c":"Greek","v":"y"},{"id":"mlqx92zmsdy8m","n":"Orion","g":"b","c":"Greek","v":"y"},{"id":"mlqx92zm8po5r","n":"Evander","g":"b","c":"Greek","v":"y"},{"id":"mlqx92zmhzh2f","n":"Leander","g":"b","c":"Greek","v":"m"},{"id":"mlqx92zm0wzw2","n":"Zephyr","g":"b","c":"Greek","v":"m"},{"id":"mlqx92zm23yhn","n":"Emrys","g":"b","c":"Welsh","v":"y"},{"id":"mlqx92zmcpno5","n":"Idris","g":"b","c":"Welsh","v":"y"},{"id":"mlqx92zm3gcq4","n":"Ronan","g":"b","c":"Irish","v":"y"},{"id":"mlqx92zmu3jbp","n":"Hendrik","g":"b","c":"Dutch","v":"y"},{"id":"mlqx92zmjg5ov","n":"Sander","g":"b","c":"Dutch","v":"y"},{"id":"mlqx92zmq3oc7","n":"Bram","g":"b","c":"Dutch","v":"y"},{"id":"mlqx92zmibsh7","n":"Aksel","g":"b","c":"Scandinavian","v":"y"},{"id":"mlqx92zmpj0ad","n":"Ezra","g":"b","c":"Hebrew/Biblical","v":"y"},{"id":"mlqx92zm5jbuu","n":"Asher","g":"b","c":"Hebrew/Biblical","v":"y"},{"id":"mlqx92zmeafbt","n":"Levi","g":"b","c":"Hebrew/Biblical","v":"y"},{"id":"mlqx92zmrgcos","n":"Gideon","g":"b","c":"Hebrew/Biblical","v":"y"},{"id":"mlqxcau4gn9ll","n":"Cormac","g":"b","c":"Irish","v":"y"},{"id":"mlqxcau47ztoj","n":"Phineas","g":"b","c":"Hebrew/Biblical","v":"m"},{"id":"mlqxcau48nq1c","n":"Ivo","g":"b","c":"German/Nordic","v":"y"},{"id":"19c6e760ce2pavua","n":"Adam","g":"b","c":"Classic","v":"y"},{"id":"19c6e760ce4hqitr","n":"Aaron","g":"b","c":"Classic","v":"m"},{"id":"19c6e760ce59hlwj","n":"Alan","g":"b","c":"Classic","v":"y"},{"id":"19c6e760ce6z97bt","n":"Alexander","g":"b","c":"Classic","v":"y"},{"id":"19c6e760ce79gpjq","n":"Andrew","g":"b","c":"Classic","v":"y"},{"id":"19c6e760ce98gwxv","n":"Anthony","g":"b","c":"Classic","v":"y"},{"id":"19c6e760ceagjqxg","n":"Austin","g":"b","c":"Classic","v":"y"},{"id":"19c6e760ceb8hclq","n":"Brian","g":"b","c":"Classic","v":"y"},{"id":"19c6e760cec3f14h","n":"Bruce","g":"b","c":"Classic","v":"m"},{"id":"19c6e760ceelhu5c","n":"Carl","g":"b","c":"Classic","v":"y"},{"id":"19c6e760cf16rr68","n":"Craig","g":"b","c":"Classic","v":"m"},{"id":"19c6e760cf4c2a2i","n":"Daniel","g":"b","c":"Classic","v":"y"},{"id":"19c6e760cf6hw9nq","n":"Dean","g":"b","c":"Classic","v":"y"},{"id":"19c6e760cfav77zo","n":"Eric","g":"b","c":"Classic","v":"y"},{"id":"19c6e760cfbt5if2","n":"Frederick","g":"b","c":"Classic","v":"y"},{"id":"19c6e760cfelww78","n":"Harold","g":"b","c":"Classic","v":"y"},{"id":"19c6e760cffq9dmk","n":"Harvey","g":"b","c":"Classic","v":"m"},{"id":"19c6e760d01nwn9r","n":"Ivan","g":"b","c":"Classic","v":"m"},{"id":"19c6e760d04oeq62","n":"Jason","g":"b","c":"Classic","v":"m"},{"id":"19c6e760d05jpes6","n":"Jeffrey","g":"b","c":"Classic","v":"m"},{"id":"19c6e760d0aojlay","n":"Joseph","g":"b","c":"Classic","v":"m"},{"id":"19c6e760d0d44kyk","n":"Keith","g":"b","c":"Classic","v":"y"},{"id":"19c6e760d0eyr62f","n":"Kenneth","g":"b","c":"Classic","v":"m"},{"id":"19c6e760d0f24lv9","n":"Kevin","g":"b","c":"Classic","v":"y"},{"id":"19c6e760d10rqict","n":"Kyle","g":"b","c":"Classic","v":"y"},{"id":"19c6e760d11p22jr","n":"Lawrence","g":"b","c":"Classic","v":"y"},{"id":"19c6e760d1aghxz8","n":"Nathan","g":"b","c":"Classic","v":"m"},{"id":"19c6e760d1cd9s7t","n":"Nicholas","g":"b","c":"Classic","v":"y"},{"id":"19c6e760d216ik69","n":"Raymond","g":"b","c":"Classic","v":"y"},{"id":"19c6e760d226yddx","n":"Richard","g":"b","c":"Classic","v":"y"},{"id":"19c6e760d24dv6w5","n":"Scott","g":"b","c":"Classic","v":"y"},{"id":"19c6e760d27q5455","n":"Stephen","g":"b","c":"Classic","v":"m"},{"id":"19c6e760d29v40jl","n":"Timothy","g":"b","c":"Classic","v":"y"},{"id":"19c6e760d2c6r5wa","n":"Blake","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d30ri073","n":"Brett","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d314hnyr","n":"Caleb","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d32axjbt","n":"Cameron","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d36bwmkl","n":"Clay","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d3aqeftj","n":"Colin","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d3csgt9q","n":"Dakota","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d3euwvsg","n":"Dominic","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d42xxo49","n":"Dylan","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d43qplgs","n":"Eli","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d44mj7by","n":"Elliott","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d45mvztz","n":"Evan","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d46gopqn","n":"Finn","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d470sbqr","n":"Flynn","g":"b","c":"Modern-strong","v":"m"},{"id":"19c6e760d48vhd3h","n":"Garrett","g":"b","c":"Modern-strong","v":"m"},{"id":"19c6e760d49gd9u2","n":"Harrison","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d4ayjlui","n":"Heath","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d4d8pbxo","n":"Ian","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d4eos7ll","n":"Jared","g":"b","c":"Modern-strong","v":"m"},{"id":"19c6e760d50jk4nv","n":"Julian","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d52yj8e1","n":"Lance","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d535jbdd","n":"Landon","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d55o4php","n":"Logan","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d56c8e9r","n":"Luke","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d580d3se","n":"Marshall","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d59bj4gb","n":"Mason","g":"b","c":"Modern-strong","v":"m"},{"id":"19c6e760d5bqkwzs","n":"Miles","g":"b","c":"Modern-strong","v":"m"},{"id":"19c6e760d5ct9mob","n":"Mitchell","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d5d0fddp","n":"Nolan","g":"b","c":"Modern-strong","v":"m"},{"id":"19c6e760d5fcimkk","n":"Pierce","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d61y4oq2","n":"Preston","g":"b","c":"Modern-strong","v":"m"},{"id":"19c6e760d64pkv06","n":"Russell","g":"b","c":"Modern-strong","v":"m"},{"id":"19c6e760d65bbd52","n":"Ryan","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d66zcf5p","n":"Sebastian","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d6acfjc9","n":"Theodore","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d6cz3hbp","n":"Travis","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d6dncf98","n":"Trevor","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d6e7js7g","n":"Tristan","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d6f8hp2l","n":"Troy","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d70naujl","n":"Tucker","g":"b","c":"Modern-strong","v":"m"},{"id":"19c6e760d71lkh4s","n":"Tyler","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d73nmmtq","n":"Wesley","g":"b","c":"Modern-strong","v":"y"},{"id":"19c6e760d74nsitu","n":"Wyatt","g":"b","c":"Modern-strong","v":"y"},{"id":"mlqtsoefm2w1n","n":"Charlotte","g":"g","c":"Classic","v":"m"},{"id":"mlqtsoef6e8a5","n":"Catherine","g":"g","c":"Classic","v":"y"},{"id":"mlqtsoefnkktz","n":"Margaret","g":"g","c":"Classic","v":"m"},{"id":"mlqtsoefb3rmm","n":"Caroline","g":"g","c":"Classic","v":"y"},{"id":"mlqtsoefq55f4","n":"Victoria","g":"g","c":"Classic","v":"y"},{"id":"mlqtsoef7eex6","n":"Elizabeth","g":"g","c":"Classic","v":"y"},{"id":"mlqtsoefuzgs5","n":"Helena","g":"g","c":"Classic","v":"y"},{"id":"mlqtsoefcbdl4","n":"Margot","g":"g","c":"Classic","v":"y"},{"id":"mlqtsoefi304f","n":"Cecilia","g":"g","c":"Classic","v":"y"},{"id":"mlqtsoefsjz3x","n":"Eleanor","g":"g","c":"Classic","v":"y"},{"id":"mlqtsoefz1jd5","n":"Scarlett","g":"g","c":"Classic","v":"y"},{"id":"mlqtsoefivx9z","n":"Emma","g":"g","c":"Sweet & short","v":"m"},{"id":"mlqtsoefz853e","n":"Olivia","g":"g","c":"Sweet & short","v":"y"},{"id":"mlqtsoef8psdb","n":"Sophia","g":"g","c":"Sweet & short","v":"y"},{"id":"mlqtsoef09vv0","n":"Ava","g":"g","c":"Sweet & short","v":"y"},{"id":"mlqtsoefaj5gd","n":"Nora","g":"g","c":"Sweet & short","v":"m"},{"id":"mlqtsoeflck53","n":"Chloe","g":"g","c":"Sweet & short","v":"y"},{"id":"mlqtsoef8c6nr","n":"Amelia","g":"g","c":"Sweet & short","v":"y"},{"id":"mlqtsoefm22qb","n":"Lily","g":"g","c":"Nature","v":"y"},{"id":"mlqtsoefe2a1u","n":"Violet","g":"g","c":"Nature","v":"y"},{"id":"mlqtsoefx46ud","n":"Hazel","g":"g","c":"Nature","v":"y"},{"id":"mlqtsoeftzeir","n":"Ivy","g":"g","c":"Nature","v":"y"},{"id":"mlqtsoefjb1nx","n":"Ruby","g":"g","c":"Nature","v":"y"},{"id":"mlqtsoefkpnhy","n":"Wren","g":"g","c":"Nature","v":"m"},{"id":"mlqtsoefj0liu","n":"Maeve","g":"g","c":"Modern edge","v":"y"},{"id":"mlqtsoefmxcqv","n":"Sadie","g":"g","c":"Modern edge","v":"y"},{"id":"mlqtsoefh7rnr","n":"Quinn","g":"g","c":"Modern edge","v":"y"},{"id":"mlqtsoef5p8sr","n":"Harper","g":"g","c":"Modern edge","v":"y"},{"id":"mlqtsoef2zd39","n":"Luna","g":"g","c":"Modern edge","v":"y"},{"id":"mlqtsoef0zm0o","n":"Piper","g":"g","c":"Modern edge","v":"y"},{"id":"mlqtsoefghm6y","n":"Colette","g":"g","c":"French","v":"y"},{"id":"mlqtsoefqzqdj","n":"Vivienne","g":"g","c":"French","v":"y"},{"id":"mlqtsoef1gioi","n":"Eloise","g":"g","c":"French","v":"y"},{"id":"mlqtsoeflrqju","n":"Odette","g":"g","c":"French","v":"m"},{"id":"mlqtsoefvpmde","n":"Giselle","g":"g","c":"French","v":"y"},{"id":"mlqtsoefc8t7t","n":"Camille","g":"g","c":"French","v":"y"},{"id":"mlqtsoefngvjw","n":"Fleur","g":"g","c":"French","v":"m"},{"id":"mlqtsoef024tn","n":"Ingrid","g":"g","c":"German/Nordic","v":"m"},{"id":"mlqtsoef88vyz","n":"Astrid","g":"g","c":"Scandinavian","v":"y"},{"id":"mlqtsoefaghjp","n":"Freya","g":"g","c":"German/Nordic","v":"y"},{"id":"mlqtsoefqfric","n":"Petra","g":"g","c":"German/Nordic","v":"m"},{"id":"mlqtsoefudw0g","n":"Annika","g":"g","c":"German/Nordic","v":"m"},{"id":"mlqtsoefduuab","n":"Lucia","g":"g","c":"Italian","v":"y"},{"id":"mlqtsoef3kpc8","n":"Gianna","g":"g","c":"Italian","v":"y"},{"id":"mlqtsoeff9r0t","n":"Sienna","g":"g","c":"Italian","v":"y"},{"id":"mlqtsoefm4tvz","n":"Katya","g":"g","c":"Slavic/Eastern","v":"y"},{"id":"mlqtsoef7ezaf","n":"Mila","g":"g","c":"Slavic/Eastern","v":"y"},{"id":"mlqtsoefw74uh","n":"Zara","g":"g","c":"Slavic/Eastern","v":"y"},{"id":"mlqtsoefatq38","n":"Carmen","g":"g","c":"Iberian","v":"y"},{"id":"mlqtsoefo0iib","n":"Elena","g":"g","c":"Iberian","v":"y"},{"id":"mlqtsoefv6uw4","n":"Isla","g":"g","c":"Iberian","v":"y"},{"id":"mlqtsoef7u179","n":"Valentina","g":"g","c":"Iberian","v":"y"},{"id":"mlqtsoefnqg4t","n":"Celeste","g":"g","c":"Wildcard","v":"y"},{"id":"mlqtsoefim0vp","n":"Thea","g":"g","c":"Greek","v":"y"},{"id":"mlqtsoefqjhg3","n":"Sable","g":"g","c":"Wildcard","v":"y"},{"id":"mlqtsoefdfoos","n":"Elowen","g":"g","c":"Neo-modern","v":"y"},{"id":"mlqtsoef6g4r7","n":"Blythe","g":"g","c":"Neo-modern","v":"y"},{"id":"mlqtsoef2ouii","n":"Lyra","g":"g","c":"Neo-modern","v":"y"},{"id":"mlqtsoefsh4ko","n":"Marlowe","g":"g","c":"Neo-modern","v":"y"},{"id":"mlqtsoef51wlx","n":"Juniper","g":"g","c":"Neo-modern","v":"y"},{"id":"mlqtsoefbogp0","n":"Ophelia","g":"g","c":"Neo-modern","v":"y"},{"id":"mlqtsoefrcakh","n":"Clementine","g":"g","c":"Neo-modern","v":"y"},{"id":"mlqx92zmzi5xe","n":"Cleo","g":"g","c":"Greek","v":"y"},{"id":"mlqx92zmr8nz9","n":"Athena","g":"g","c":"Greek","v":"y"},{"id":"mlqx92zmd3hdl","n":"Selene","g":"g","c":"Greek","v":"y"},{"id":"mlqx92zm2resr","n":"Anwen","g":"g","c":"Welsh","v":"y"},{"id":"mlqx92zmm2010","n":"Brynn","g":"g","c":"Welsh","v":"y"},{"id":"mlqx92zmxur4m","n":"Eleri","g":"g","c":"Welsh","v":"m"},{"id":"mlqx92zm91qrr","n":"Lotte","g":"g","c":"Dutch","v":"m"},{"id":"mlqx92zmbtdat","n":"Saskia","g":"g","c":"Dutch","v":"y"},{"id":"mlqx92zm7eyxn","n":"Maren","g":"g","c":"Dutch","v":"y"},{"id":"mlqx92zmwy6s4","n":"Sigrid","g":"g","c":"Scandinavian","v":"y"},{"id":"mlqx92zm947ow","n":"Hartley","g":"g","c":"English","v":"y"},{"id":"mlqx92zm45vvp","n":"Jessamine","g":"g","c":"English","v":"y"},{"id":"mlqx92zm05m01","n":"Bellamy","g":"g","c":"English","v":"y"},{"id":"mlqx92zm0kfsd","n":"Naomi","g":"g","c":"Hebrew/Biblical","v":"y"},{"id":"mlqx92zmpb1u4","n":"Shiloh","g":"g","c":"Hebrew/Biblical","v":"y"},{"id":"mlqxcau4fxixy","n":"Vesper","g":"g","c":"English","v":"y"},{"id":"mlqxcau4otqtx","n":"Petra","g":"g","c":"Greek","v":"m"},{"id":"mlqxcau4mmf3o","n":"Romilly","g":"g","c":"French","v":"y"},{"id":"19c6e760d77in88e","n":"Abigail","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d78bu16q","n":"Adelaide","g":"g","c":"Classic","v":"m"},{"id":"19c6e760d7981jzr","n":"Alexandra","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d7a1jmfs","n":"Alice","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d7ck6k3u","n":"Andrea","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d7dpsq4p","n":"Anna","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d7esdz3r","n":"Audrey","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d7fjo0rx","n":"Beth","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d81cjs60","n":"Bridget","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d82vr2a4","n":"Clara","g":"g","c":"Classic","v":"m"},{"id":"19c6e760d830f9hn","n":"Cora","g":"g","c":"Classic","v":"m"},{"id":"19c6e760d84ifhhy","n":"Diana","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d851rc6k","n":"Edith","g":"g","c":"Classic","v":"m"},{"id":"19c6e760d86lrhvm","n":"Eliza","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d87ndn52","n":"Ella","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d88dxzvv","n":"Emily","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d89k6nls","n":"Eva","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d8agryba","n":"Eve","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d91wtmia","n":"Francesca","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d93mycsy","n":"Genevieve","g":"g","c":"Classic","v":"m"},{"id":"19c6e760d99mlnux","n":"Josephine","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d9agvqwf","n":"Julia","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d9bqig8q","n":"Kate","g":"g","c":"Classic","v":"m"},{"id":"19c6e760d9d7xy5j","n":"Laura","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d9etdmkk","n":"Lauren","g":"g","c":"Classic","v":"y"},{"id":"19c6e760d9fxhakb","n":"Leah","g":"g","c":"Classic","v":"y"},{"id":"19c6e760da0ouw83","n":"Lillian","g":"g","c":"Classic","v":"y"},{"id":"19c6e760da2o025g","n":"Louise","g":"g","c":"Classic","v":"y"},{"id":"19c6e760da3pvvp6","n":"Lucy","g":"g","c":"Classic","v":"y"},{"id":"19c6e760da448r7w","n":"Lydia","g":"g","c":"Classic","v":"y"},{"id":"19c6e760da5yru12","n":"Mabel","g":"g","c":"Classic","v":"y"},{"id":"19c6e760da6p2thb","n":"Madeline","g":"g","c":"Classic","v":"m"},{"id":"19c6e760da71fp07","n":"Maria","g":"g","c":"Classic","v":"m"},{"id":"19c6e760da9gbki4","n":"Mary","g":"g","c":"Classic","v":"m"},{"id":"19c6e760dabay46i","n":"Molly","g":"g","c":"Classic","v":"m"},{"id":"19c6e760dadm4sx9","n":"Natalie","g":"g","c":"Classic","v":"y"},{"id":"19c6e760daevuf15","n":"Nicole","g":"g","c":"Classic","v":"y"},{"id":"19c6e760dafulsca","n":"Olive","g":"g","c":"Classic","v":"y"},{"id":"19c6e760db090lvw","n":"Paige","g":"g","c":"Classic","v":"y"},{"id":"19c6e760db19tmzh","n":"Penelope","g":"g","c":"Classic","v":"y"},{"id":"19c6e760db5n9e00","n":"Rose","g":"g","c":"Classic","v":"m"},{"id":"19c6e760db6rak5l","n":"Rosemary","g":"g","c":"Classic","v":"m"},{"id":"19c6e760db770epz","n":"Ruth","g":"g","c":"Classic","v":"m"},{"id":"19c6e760db8ipagt","n":"Samantha","g":"g","c":"Classic","v":"y"},{"id":"19c6e760db9lfmuy","n":"Sarah","g":"g","c":"Classic","v":"y"},{"id":"19c6e760dba5xlao","n":"Stella","g":"g","c":"Classic","v":"m"},{"id":"19c6e760dbby5p2h","n":"Tessa","g":"g","c":"Classic","v":"m"},{"id":"19c6e760dbcs6m5h","n":"Vera","g":"g","c":"Classic","v":"m"},{"id":"19c6e760dbdfazse","n":"Virginia","g":"g","c":"Classic","v":"m"},{"id":"19c6e760dbfm0uck","n":"Willa","g":"g","c":"Classic","v":"m"},{"id":"19c6e760dc0jghdq","n":"Zoe","g":"g","c":"Classic","v":"y"},{"id":"19c6e760dc2vy5ih","n":"Bailey","g":"g","c":"Modern-strong","v":"m"},{"id":"19c6e760dc3nckf5","n":"Blair","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dc4i961s","n":"Brooke","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dc5mix7r","n":"Brooklyn","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dc6vxcv3","n":"Cassandra","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dc7zcq23","n":"Claire","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dc8aamyv","n":"Courtney","g":"g","c":"Modern-strong","v":"m"},{"id":"19c6e760dcaxcxhy","n":"Dana","g":"g","c":"Modern-strong","v":"m"},{"id":"19c6e760dcbfwkdi","n":"Eden","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dd0mybem","n":"Kiera","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dd2s4f6z","n":"Mackenzie","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dd4j3y30","n":"Maisie","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dd5pwjie","n":"Maya","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dd7v2m9q","n":"Melody","g":"g","c":"Modern-strong","v":"m"},{"id":"19c6e760dd9ejvof","n":"Natasha","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760ddar76ga","n":"Poppy","g":"g","c":"Modern-strong","v":"m"},{"id":"19c6e760ddcsx1eh","n":"Savannah","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e760dddrcs0t","n":"Summer","g":"g","c":"Modern-strong","v":"m"},{"id":"19c6e760ddfj42tx","n":"Sydney","g":"g","c":"Modern-strong","v":"y"},{"id":"19c6e784a773bvnb","n":"Io","g":"g","c":"Greek","v":"y"},{"id":"19c6e784a7a9gh8n","n":"Cerys","g":"g","c":"Welsh","v":"y"}];
+
+const STORE_KEY = "bt-ranker-v1";
+
+// ── Themes ──
+const THEMES = {
+  dark: {
+    bg: "#0c0c0f", fg: "#e8e8ec", card: "#16161d", border: "#26263a",
+    sub: "#8888a0", sub2: "#5e5e78",
+    btnBg: "#1e1e2e", btnFg: "#8888a0", btnHover: "#2a2a40",
+    nameColor: "#f4f4f8",
+    boyOn: "#1a3570", boyFg: "#7eb8ff", girlOn: "#6b1a4a", girlFg: "#f5a0d0",
+    off: "#16161d", offFg: "#5e5e78",
+    leftBtn: "#162850", leftFg: "#7eb8ff",
+    tieBtn: "#2a2a40", tieFg: "#a0a0b8",
+    rightBtn: "#501628", rightFg: "#f5a0d0",
+    skipBtn: "#1e1e2e", skipFg: "#6e6e88",
+    accentB: "#5b9cf5", accentG: "#e870b0",
+    up: "#7ddf64", down: "#f06060", mid: "#7878a0",
+    up2: "#4caf50", down2: "#e57373", line: "#26263a",
+    dangerBg: "#3d1010", dangerFg: "#f5a0a0",
+    inputBg: "#12121a", inputBorder: "#2e2e44",
+    green: "#3aaa70", gold: "#e8a830",
+    conf: { high: "#7ddf64", med: "#e8a830", low: "#f06060" },
+    shadow: "none",
+  },
+  light: {
+    bg: "#f5f5f0", fg: "#1a1a24", card: "#ffffff", border: "#ddd8d0",
+    sub: "#707078", sub2: "#9898a0",
+    btnBg: "#e8e4dc", btnFg: "#58585f", btnHover: "#ddd8d0",
+    nameColor: "#101018",
+    boyOn: "#2563eb", boyFg: "#ffffff", girlOn: "#d63384", girlFg: "#ffffff",
+    off: "#eeeae4", offFg: "#8080888",
+    leftBtn: "#dbeafe", leftFg: "#1d4ed8",
+    tieBtn: "#e8e4dc", tieFg: "#505060",
+    rightBtn: "#fce7f3", rightFg: "#b91c6c",
+    skipBtn: "#eeeae4", skipFg: "#808088",
+    accentB: "#2563eb", accentG: "#d63384",
+    up: "#16803c", down: "#d32f2f", mid: "#707078",
+    up2: "#388e3c", down2: "#e57373", line: "#ddd8d0",
+    dangerBg: "#fce8e8", dangerFg: "#c62828",
+    inputBg: "#ffffff", inputBorder: "#ddd8d0",
+    green: "#16803c", gold: "#d68000",
+    conf: { high: "#16803c", med: "#d68000", low: "#d32f2f" },
+    shadow: "0 1px 4px rgba(0,0,0,0.06)",
+  },
+};
+
+// ── Bradley-Terry MLE ──
+function solveBT(comparisons, ids) {
+  const pi = {};
+  ids.forEach(id => pi[id] = 1.0);
+  if (!comparisons.length) return pi;
+  const wins = {}, matchups = {};
+  ids.forEach(id => { wins[id] = 0; matchups[id] = {}; });
+  for (const c of comparisons) {
+    if (!matchups[c.a] || !matchups[c.b]) continue;
+    matchups[c.a][c.b] = (matchups[c.a][c.b] || 0) + 1;
+    matchups[c.b][c.a] = (matchups[c.b][c.a] || 0) + 1;
+    if (c.w === "a") wins[c.a] += 1;
+    else if (c.w === "b") wins[c.b] += 1;
+    else { wins[c.a] += 0.5; wins[c.b] += 0.5; }
+  }
+  for (let iter = 0; iter < 80; iter++) {
+    let maxD = 0;
+    const next = {};
+    for (const id of ids) {
+      let denom = 0;
+      for (const j in matchups[id]) denom += matchups[id][j] / (pi[id] + pi[j]);
+      next[id] = denom > 0 ? wins[id] / denom : pi[id];
+      maxD = Math.max(maxD, Math.abs(next[id] - pi[id]));
+    }
+    const vals = Object.values(next);
+    const avg = vals.reduce((s, v) => s + v, 0) / vals.length;
+    for (const k of ids) pi[k] = next[k] / avg;
+    if (maxD < 1e-7) break;
+  }
+  return pi;
+}
+
+function btToRating(pi) { return Math.round(1000 + 400 * Math.log10(Math.max(pi, 0.001))); }
+
+// ── Active learning pair picker ──
+function pickPair(gender, voter, comparisons, pi) {
+  const pool = NAMES.filter(n => n.g === gender);
+  const yes = pool.filter(n => n.v === "y");
+  const src = Math.random() < 0.7 && yes.length >= 2 ? yes : pool;
+  if (src.length < 2) return [pool[0], pool[1]];
+  const voterCmps = comparisons.filter(c => c.voter === voter);
+  const cmpCt = {};
+  pool.forEach(n => cmpCt[n.id] = 0);
+  const pairCt = {};
+  for (const c of voterCmps) {
+    cmpCt[c.a] = (cmpCt[c.a] || 0) + 1;
+    cmpCt[c.b] = (cmpCt[c.b] || 0) + 1;
+    const k = c.a < c.b ? c.a + "|" + c.b : c.b + "|" + c.a;
+    pairCt[k] = (pairCt[k] || 0) + 1;
+  }
+  const totalCmps = voterCmps.filter(c => pool.some(n => n.id === c.a || n.id === c.b)).length;
+  const avgCmp = totalCmps > 0 ? (totalCmps * 2) / pool.length : 0;
+  let best = null, bestScore = -1;
+  const tries = Math.min(800, src.length * (src.length - 1) / 2);
+  for (let t = 0; t < tries; t++) {
+    const i = Math.floor(Math.random() * src.length);
+    let j = Math.floor(Math.random() * (src.length - 1));
+    if (j >= i) j++;
+    const a = src[i], b = src[j];
+    const k = a.id < b.id ? a.id + "|" + b.id : b.id + "|" + a.id;
+    const played = pairCt[k] || 0;
+    const logA = Math.log(Math.max(pi[a.id] || 1, 0.01));
+    const logB = Math.log(Math.max(pi[b.id] || 1, 0.01));
+    const close = Math.exp(-Math.abs(logA - logB) * 2);
+    const need = Math.exp(-Math.min(cmpCt[a.id] || 0, cmpCt[b.id] || 0) * 0.25);
+    const novel = played === 0 ? 1.0 : 0.2 / played;
+    const w = avgCmp < 2 ? [0.2, 0.55, 0.25] : avgCmp < 5 ? [0.4, 0.35, 0.25] : [0.55, 0.2, 0.25];
+    const score = close * w[0] + need * w[1] + novel * w[2] + Math.random() * 0.05;
+    if (score > bestScore) { bestScore = score; best = [a, b]; }
+  }
+  return best || [src[0], src[1]];
+}
+
+function recomputeAll(cmps, v) {
+  const bPool = NAMES.filter(n => n.g === "b").map(n => n.id);
+  const gPool = NAMES.filter(n => n.g === "g").map(n => n.id);
+  const bCmps = cmps.filter(c => c.voter === v && bPool.includes(c.a));
+  const gCmps = cmps.filter(c => c.voter === v && gPool.includes(c.a));
+  const bPi = solveBT(bCmps, bPool);
+  const gPi = solveBT(gCmps, gPool);
+  const r = {}, allPi = {};
+  for (const id of bPool) { r[id] = btToRating(bPi[id]); allPi[id] = bPi[id]; }
+  for (const id of gPool) { r[id] = btToRating(gPi[id]); allPi[id] = gPi[id]; }
+  return { pi: allPi, ratings: r };
+}
+
+function App() {
+  const [data, setData] = useState(null);
+  const [gender, setGender] = useState("b");
+  const [voter, setVoter] = useState("benny");
+  const [pair, setPair] = useState(null);
+  const [flash, setFlash] = useState(null);
+  const [view, setView] = useState("battle");
+  const [loading, setLoading] = useState(true);
+  const [sesh, setSesh] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [undo, setUndo] = useState([]);
+  const [expTxt, setExpTxt] = useState("");
+  const [impTxt, setImpTxt] = useState("");
+  const [ratings, setRatings] = useState({});
+  const [theme, setTheme] = useState(() => localStorage.getItem("bt-theme") || "dark");
+
+  const t = THEMES[theme];
+  const accent = gender === "b" ? t.accentB : t.accentG;
+
+  const toggleTheme = useCallback(() => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("bt-theme", next);
+  }, [theme]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        setData(d); setGender(d.lastGender || "b"); setVoter(d.lastVoter || "benny");
+        const { pi, ratings: r } = recomputeAll(d.comparisons || [], d.lastVoter || "benny");
+        setRatings(r);
+        setPair(pickPair(d.lastGender || "b", d.lastVoter || "benny", d.comparisons || [], pi));
+      } else throw 0;
+    } catch {
+      const d = { comparisons: [], lastGender: "b", lastVoter: "benny" };
+      setData(d);
+      setRatings(Object.fromEntries(NAMES.map(n => [n.id, 1000])));
+      const pi = Object.fromEntries(NAMES.map(n => [n.id, 1.0]));
+      setPair(pickPair("b", "benny", [], pi));
+    }
+    setLoading(false);
+  }, []);
+
+  const save = useCallback((d) => {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch {}
+  }, []);
+
+  const vote = useCallback((w) => {
+    if (!data || !pair) return;
+    const [a, b] = pair;
+    const cmp = { voter, a: a.id, b: b.id, w: w === "left" ? "a" : w === "right" ? "b" : "tie", t: Date.now() };
+    const newCmps = [...data.comparisons, cmp];
+    const nd = { ...data, comparisons: newCmps, lastGender: gender, lastVoter: voter };
+    setUndo(p => [...p.slice(-29), { data, pair, gender }]);
+    setFlash({ side: w }); setTimeout(() => setFlash(null), 280);
+    const pool = NAMES.filter(n => n.g === gender).map(n => n.id);
+    const voterCmps = newCmps.filter(c => c.voter === voter && pool.includes(c.a) && pool.includes(c.b));
+    const pi = solveBT(voterCmps, pool);
+    const newR = { ...ratings };
+    for (const id of pool) newR[id] = btToRating(pi[id]);
+    setRatings(newR);
+    const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
+    setData(nd); setSesh(c => c + 1); setStreak(s => s + 1);
+    setPair(pickPair(gender, voter, newCmps, allPi));
+    save(nd);
+  }, [data, pair, gender, voter, ratings, save]);
+
+  const skip = useCallback(() => {
+    if (!data) return;
+    const pool = NAMES.filter(n => n.g === gender).map(n => n.id);
+    const voterCmps = data.comparisons.filter(c => c.voter === voter && pool.includes(c.a));
+    const pi = solveBT(voterCmps, pool);
+    const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
+    setPair(pickPair(gender, voter, data.comparisons, allPi)); setStreak(0);
+  }, [data, gender, voter]);
+
+  const doUndo = useCallback(() => {
+    if (!undo.length) return;
+    const p = undo[undo.length - 1];
+    setUndo(s => s.slice(0, -1));
+    setData(p.data); setPair(p.pair); setGender(p.gender);
+    setSesh(c => Math.max(0, c - 1));
+    const { ratings: r } = recomputeAll(p.data.comparisons, voter);
+    setRatings(r); save(p.data);
+  }, [undo, voter, save]);
+
+  const switchG = useCallback((ng) => {
+    setGender(ng);
+    if (data) {
+      const nd = { ...data, lastGender: ng }; setData(nd); save(nd);
+      const pool = NAMES.filter(n => n.g === ng).map(n => n.id);
+      const voterCmps = data.comparisons.filter(c => c.voter === voter && pool.includes(c.a));
+      const pi = solveBT(voterCmps, pool);
+      const allPi = Object.fromEntries(NAMES.map(n => [n.id, pi[n.id] || 1.0]));
+      setPair(pickPair(ng, voter, data.comparisons, allPi));
+    }
+  }, [data, voter, save]);
+
+  const switchVoter = useCallback((nv) => {
+    setVoter(nv);
+    if (data) {
+      const nd = { ...data, lastVoter: nv }; setData(nd); save(nd);
+      const { pi, ratings: r } = recomputeAll(nd.comparisons, nv);
+      setRatings(r);
+      setPair(pickPair(gender, nv, nd.comparisons, pi));
+    }
+  }, [data, gender, save]);
+
+  useEffect(() => {
+    if (view !== "battle") return;
+    const h = (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
+      switch (e.key) {
+        case "ArrowLeft": case "a": case "A": e.preventDefault(); vote("left"); break;
+        case "ArrowRight": case "d": case "D": e.preventDefault(); vote("right"); break;
+        case "ArrowDown": case "s": case "S": e.preventDefault(); vote("tie"); break;
+        case "ArrowUp": case "x": case "X": case " ": e.preventDefault(); skip(); break;
+        case "z": case "Z": if (e.metaKey || e.ctrlKey) { e.preventDefault(); doUndo(); } break;
+        case "1": e.preventDefault(); switchG("b"); break;
+        case "2": e.preventDefault(); switchG("g"); break;
+        case "t": case "T": if (!e.metaKey && !e.ctrlKey) { e.preventDefault(); toggleTheme(); } break;
+      }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [view, vote, skip, doUndo, switchG, toggleTheme]);
+
+  const getBoard = useCallback((g, lim) => {
+    const pool = NAMES.filter(n => n.g === g);
+    const voterCmps = data?.comparisons.filter(c => c.voter === voter) || [];
+    const cmpCt = {};
+    pool.forEach(n => cmpCt[n.id] = 0);
+    for (const c of voterCmps) { if (cmpCt[c.a] !== undefined) cmpCt[c.a]++; if (cmpCt[c.b] !== undefined) cmpCt[c.b]++; }
+    return pool.map(n => ({ ...n, rating: ratings[n.id] || 1000, cmp: cmpCt[n.id] || 0 })).sort((a, b) => b.rating - a.rating).slice(0, lim || 999);
+  }, [ratings, data, voter]);
+
+  const voterStats = useCallback((v, g) => {
+    if (!data) return { total: 0, names: 0, pool: 0 };
+    const pool = NAMES.filter(n => n.g === g);
+    const ids = new Set(pool.map(n => n.id));
+    const cmps = data.comparisons.filter(c => c.voter === v && ids.has(c.a) && ids.has(c.b));
+    const touched = new Set(); cmps.forEach(c => { touched.add(c.a); touched.add(c.b); });
+    return { total: cmps.length, names: touched.size, pool: pool.length };
+  }, [data]);
+
+  const doExport = useCallback(() => {
+    if (!data) return;
+    setExpTxt(JSON.stringify({ exported: new Date().toISOString(), comparisons: data.comparisons, lastGender: gender, lastVoter: voter }, null, 2));
+    setView("export");
+  }, [data, gender, voter]);
+
+  const doImport = useCallback(() => {
+    try {
+      const d = JSON.parse(impTxt);
+      let cmps = d.comparisons || [];
+      if (!cmps.length && d.history) cmps = d.history.map(h => ({ voter: "benny", a: h.a, b: h.b, w: h.w === "left" ? "a" : h.w === "right" ? "b" : "tie", t: h.t }));
+      const nd = { comparisons: cmps, lastGender: d.lastGender || "b", lastVoter: d.lastVoter || "benny" };
+      setData(nd); setGender(nd.lastGender); setVoter(nd.lastVoter);
+      const { pi, ratings: r } = recomputeAll(cmps, nd.lastVoter);
+      setRatings(r); setPair(pickPair(nd.lastGender, nd.lastVoter, cmps, pi));
+      save(nd); setImpTxt(""); setView("battle");
+    } catch (e) { alert("Bad JSON: " + e.message); }
+  }, [impTxt, save]);
+
+  const reset = useCallback(() => {
+    if (!confirm("Nuke all comparison data?")) return;
+    const nd = { comparisons: [], lastGender: "b", lastVoter: voter };
+    setData(nd); setGender("b"); setSesh(0); setStreak(0); setUndo([]);
+    setRatings(Object.fromEntries(NAMES.map(n => [n.id, 1000])));
+    setPair(pickPair("b", voter, [], Object.fromEntries(NAMES.map(n => [n.id, 1.0]))));
+    save(nd);
+  }, [voter, save]);
+
+  if (loading || !data) return React.createElement("div", { style: { background: "#0c0c0f", color: "#e8e8ec", height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "system-ui", fontSize: 18 } }, "Loading...");
+
+  const bp = NAMES.filter(n => n.g === "b"), gp = NAMES.filter(n => n.g === "g");
+  const bStats = voterStats(voter, "b"), gStats = voterStats(voter, "g");
+  const btn = (bg, fg, extra) => ({ padding: "6px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, fontFamily: "inherit", background: bg, color: fg, transition: "all 0.1s", ...extra });
+  const conf = (cmp) => cmp >= 6 ? { l: "solid", c: t.conf.high } : cmp >= 3 ? { l: "ok", c: t.conf.med } : { l: "thin", c: t.conf.low };
+
+  return (
+    React.createElement("div", { tabIndex: 0, className: "nosel", style: { background: t.bg, color: t.fg, minHeight: "100vh", fontFamily: "-apple-system, system-ui, 'Segoe UI', sans-serif", fontSize: 15, outline: "none", transition: "background 0.25s, color 0.25s", lineHeight: 1.5 } },
+      React.createElement("div", { style: { maxWidth: 740, margin: "0 auto", padding: "20px 16px" } },
+
+        // ─── Header ───
+        React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 } },
+          React.createElement("div", { style: { display: "flex", gap: 6 } },
+            [["battle", "Battle"], ["board", "Board"], ["stats", "Stats"], ["io", "I/O"]].map(([k, l]) =>
+              React.createElement("button", { key: k, onClick: () => { if (k === "io") { doExport(); } else setView(k); }, style: btn(view === k || (view === "export" && k === "io") || (view === "import" && k === "io") ? accent : t.btnBg, view === k || (view === "export" && k === "io") || (view === "import" && k === "io") ? "#fff" : t.btnFg) }, l)
+            )
+          ),
+          React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+            React.createElement("select", { value: voter, onChange: e => switchVoter(e.target.value), style: { background: t.inputBg, color: t.fg, border: "1px solid " + t.inputBorder, borderRadius: 8, padding: "5px 10px", fontSize: 13, fontFamily: "inherit", fontWeight: 700 } },
+              React.createElement("option", { value: "benny" }, "Benny"),
+              React.createElement("option", { value: "bekah" }, "Bekah")
+            ),
+            React.createElement("button", { onClick: toggleTheme, style: { ...btn(t.btnBg, t.btnFg), fontSize: 18, padding: "4px 10px", lineHeight: 1 }, title: "Toggle theme (T)" }, theme === "dark" ? "\u2600\uFE0F" : "\uD83C\uDF19"),
+            React.createElement("span", { style: { fontSize: 12, color: t.sub } }, "sesh:" + sesh + " x" + streak)
+          )
+        ),
+
+        // ─── Gender toggle ───
+        React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16 } },
+          React.createElement("button", { onClick: () => switchG("b"), style: { flex: 1, padding: "12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: 14, background: gender === "b" ? t.boyOn : t.off, color: gender === "b" ? t.boyFg : t.offFg, transition: "all 0.15s", boxShadow: t.shadow } },
+            "BOYS (" + bp.length + ") \u00B7 " + bStats.total + " cmp \u00B7 " + bStats.names + "/" + bStats.pool + " seen" + (gender === "b" ? " [1]" : "")
+          ),
+          React.createElement("button", { onClick: () => switchG("g"), style: { flex: 1, padding: "12px", borderRadius: 10, border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: 14, background: gender === "g" ? t.girlOn : t.off, color: gender === "g" ? t.girlFg : t.offFg, transition: "all 0.15s", boxShadow: t.shadow } },
+            "GIRLS (" + gp.length + ") \u00B7 " + gStats.total + " cmp \u00B7 " + gStats.names + "/" + gStats.pool + " seen" + (gender === "g" ? " [2]" : "")
+          )
+        ),
+
+        // ═══ BATTLE ═══
+        view === "battle" && pair && (() => {
+          const [a, b] = pair;
+          const aR = ratings[a.id] || 1000, bR = ratings[b.id] || 1000;
+          const voterCmps = data.comparisons.filter(c => c.voter === voter);
+          const aCmp = voterCmps.filter(c => c.a === a.id || c.b === a.id).length;
+          const bCmp = voterCmps.filter(c => c.a === b.id || c.b === b.id).length;
+          const aC = conf(aCmp), bC = conf(bCmp);
+          return React.createElement("div", null,
+            // Battle card
+            React.createElement("div", { style: { background: t.card, border: "2px solid " + t.border, borderRadius: 16, padding: "32px 24px", marginBottom: 16, position: "relative", overflow: "hidden", boxShadow: t.shadow, transition: "background 0.25s" } },
+              flash && React.createElement("div", { style: { position: "absolute", top: 0, bottom: 0, left: flash.side === "left" ? 0 : "50%", right: flash.side === "right" ? 0 : "50%", width: flash.side === "tie" ? "100%" : undefined, background: accent + "18", pointerEvents: "none" } }),
+              React.createElement("div", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: 28 } },
+                // Left name
+                React.createElement("div", { style: { flex: 1, textAlign: "center" } },
+                  React.createElement("div", { style: { fontSize: 13, color: t.sub, marginBottom: 6, fontWeight: 500, letterSpacing: "0.3px" } }, a.c + (a.v === "m" ? " (maybe)" : "")),
+                  React.createElement("div", { style: { fontSize: 38, fontWeight: 800, color: t.nameColor, lineHeight: 1.15, letterSpacing: "-0.5px" } }, a.n),
+                  React.createElement("div", { style: { fontSize: 16, color: accent, marginTop: 8, fontWeight: 700 } },
+                    aR + " ",
+                    React.createElement("span", { style: { fontSize: 12, color: aC.c, fontWeight: 600 } }, aC.l + " (" + aCmp + ")")
+                  )
+                ),
+                // VS
+                React.createElement("div", { style: { fontSize: 20, color: t.sub2, fontWeight: 800, letterSpacing: "1px" } }, "vs"),
+                // Right name
+                React.createElement("div", { style: { flex: 1, textAlign: "center" } },
+                  React.createElement("div", { style: { fontSize: 13, color: t.sub, marginBottom: 6, fontWeight: 500, letterSpacing: "0.3px" } }, b.c + (b.v === "m" ? " (maybe)" : "")),
+                  React.createElement("div", { style: { fontSize: 38, fontWeight: 800, color: t.nameColor, lineHeight: 1.15, letterSpacing: "-0.5px" } }, b.n),
+                  React.createElement("div", { style: { fontSize: 16, color: accent, marginTop: 8, fontWeight: 700 } },
+                    bR + " ",
+                    React.createElement("span", { style: { fontSize: 12, color: bC.c, fontWeight: 600 } }, bC.l + " (" + bCmp + ")")
+                  )
+                )
+              )
+            ),
+            // Hotkey buttons
+            React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 12 } },
+              [["left", "\u2190 LEFT", "A", t.leftBtn, t.leftFg], ["tie", "\u2193 TIE", "S", t.tieBtn, t.tieFg], ["right", "RIGHT \u2192", "D", t.rightBtn, t.rightFg], ["skip", "\u2191 SKIP", "X", t.skipBtn, t.skipFg]].map(([action, label, key, bg, fg]) =>
+                React.createElement("button", { key: action, onClick: () => action === "skip" ? skip() : vote(action), style: { padding: "18px 8px", borderRadius: 12, border: "none", cursor: "pointer", fontFamily: "inherit", background: bg, color: fg, fontWeight: 700, fontSize: 16, boxShadow: t.shadow, transition: "all 0.1s" } },
+                  React.createElement("div", null, label),
+                  React.createElement("div", { style: { fontSize: 12, color: t.sub2, marginTop: 4, fontWeight: 500 } }, key)
+                )
+              )
+            ),
+            // Undo + hints
+            React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 } },
+              React.createElement("button", { onClick: doUndo, disabled: !undo.length, style: btn(t.btnBg, undo.length ? t.btnFg : t.sub2, { cursor: undo.length ? "pointer" : "default", opacity: undo.length ? 1 : 0.5 }) }, "Undo (" + undo.length + ")"),
+              React.createElement("span", { style: { fontSize: 12, color: t.sub2 } }, "A/D pick \u00B7 S tie \u00B7 X skip \u00B7 \u2318Z undo \u00B7 1/2 gender \u00B7 T theme")
+            ),
+            // Mini leaderboards
+            React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 } },
+              ["b", "g"].map(gen => {
+                const lb = getBoard(gen, 10);
+                const c = gen === "b" ? t.accentB : t.accentG;
+                return React.createElement("div", { key: gen, style: { background: t.card, borderRadius: 12, padding: 14, border: "1px solid " + t.border, boxShadow: t.shadow } },
+                  React.createElement("div", { style: { fontSize: 12, fontWeight: 700, color: c, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.8px" } }, (gen === "b" ? "Boys" : "Girls") + " Top 10"),
+                  lb.map((n, i) =>
+                    React.createElement("div", { key: n.id, style: { display: "flex", justifyContent: "space-between", fontSize: 14, padding: "3px 0", color: n.rating > 1020 ? t.up : n.rating < 980 ? t.down : t.mid, lineHeight: 1.4 } },
+                      React.createElement("span", { style: { fontWeight: i < 3 ? 700 : 400 } }, (i + 1) + ". " + n.n + (n.v === "m" ? " ~" : "")),
+                      React.createElement("span", { style: { fontVariantNumeric: "tabular-nums", fontWeight: 600 } }, n.rating)
+                    )
+                  )
+                );
+              })
+            )
+          );
+        })(),
+
+        // ═══ BOARD ═══
+        view === "board" && React.createElement("div", { style: { background: t.card, borderRadius: 12, padding: 16, border: "1px solid " + t.border, boxShadow: t.shadow } },
+          React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 14 } },
+            React.createElement("button", { onClick: () => switchG("b"), style: btn(gender === "b" ? t.accentB : t.btnBg, gender === "b" ? "#fff" : t.btnFg) }, "Boys"),
+            React.createElement("button", { onClick: () => switchG("g"), style: btn(gender === "g" ? t.accentG : t.btnBg, gender === "g" ? "#fff" : t.btnFg) }, "Girls")
+          ),
+          getBoard(gender).map((n, i) => {
+            const c = conf(n.cmp);
+            return React.createElement("div", { key: n.id, style: { display: "flex", alignItems: "center", fontSize: 14, padding: "5px 6px", color: n.rating > 1050 ? t.up : n.rating > 1000 ? t.up2 : n.rating < 950 ? t.down : n.rating < 1000 ? t.down2 : t.mid, borderBottom: (i === 9 || i === 19) ? "1px solid " + t.line : "none", lineHeight: 1.4 } },
+              React.createElement("span", { style: { minWidth: 40, fontVariantNumeric: "tabular-nums", fontWeight: i < 10 ? 700 : 400 } }, (i + 1) + "."),
+              React.createElement("span", { style: { flex: 1, fontWeight: i < 10 ? 600 : 400 } }, n.n + (n.v === "m" ? " ~" : "")),
+              React.createElement("span", { style: { minWidth: 90, textAlign: "right", color: t.sub, fontSize: 12 } }, n.c),
+              React.createElement("span", { style: { minWidth: 52, textAlign: "right", fontVariantNumeric: "tabular-nums", fontWeight: 600 } }, n.rating),
+              React.createElement("span", { style: { minWidth: 64, textAlign: "right", fontSize: 12, color: c.c } }, "(" + n.cmp + ") " + c.l)
+            );
+          })
+        ),
+
+        // ═══ STATS ═══
+        view === "stats" && (() => {
+          const allVoters = [...new Set(data.comparisons.map(c => c.voter))];
+          if (!allVoters.length) allVoters.push("benny");
+          return React.createElement("div", { style: { background: t.card, borderRadius: 12, padding: 20, border: "1px solid " + t.border, boxShadow: t.shadow } },
+            React.createElement("div", { style: { fontSize: 18, fontWeight: 700, marginBottom: 16 } }, "Ranking Progress"),
+            allVoters.map(v =>
+              React.createElement("div", { key: v, style: { marginBottom: 20 } },
+                React.createElement("div", { style: { fontSize: 15, fontWeight: 700, color: accent, marginBottom: 10, textTransform: "capitalize" } }, v),
+                [["Boys", voterStats(v, "b"), bp.length, t.accentB], ["Girls", voterStats(v, "g"), gp.length, t.accentG]].map(([label, s, total, barColor]) => {
+                  const pct = total ? Math.round(s.names / total * 100) : 0;
+                  const avg = total ? (s.total * 2 / total).toFixed(1) : "0";
+                  return React.createElement("div", { key: label, style: { marginBottom: 14 } },
+                    React.createElement("div", { style: { display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 6 } },
+                      React.createElement("span", { style: { fontWeight: 600 } }, label),
+                      React.createElement("span", { style: { color: t.sub } }, s.total + " comparisons \u00B7 " + s.names + "/" + total + " names \u00B7 " + avg + " avg/name")
+                    ),
+                    React.createElement("div", { style: { height: 10, background: t.border, borderRadius: 5, overflow: "hidden" } },
+                      React.createElement("div", { style: { height: "100%", width: Math.min(100, pct) + "%", background: barColor, borderRadius: 5, transition: "width 0.3s" } })
+                    ),
+                    React.createElement("div", { style: { fontSize: 12, color: t.sub, marginTop: 4 } }, pct + "% coverage \u00B7 target: 3\u20135 avg/name for stable top 20 (" + Math.round(total * 2) + "\u2013" + Math.round(total * 2.5) + " total)")
+                  );
+                })
+              )
+            ),
+            React.createElement("div", { style: { fontSize: 13, color: t.sub, marginTop: 10, padding: 14, background: t.bg, borderRadius: 10, lineHeight: 1.6 } },
+              React.createElement("strong", { style: { color: t.fg } }, "How BT works: "),
+              "Every comparison updates a global model. Unlike ELO, order doesn't matter. The same set of picks always produces the same ranking. Ratings show relative strength on a 1000-centered scale (200pts \u2248 1 SD). \"thin\" = needs more data, \"solid\" = reliable placement."
+            )
+          );
+        })(),
+
+        // ═══ EXPORT ═══
+        view === "export" && React.createElement("div", null,
+          React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" } },
+            React.createElement("button", { onClick: doExport, style: btn(t.accentB, "#fff") }, "Generate Export"),
+            React.createElement("button", { onClick: () => navigator.clipboard.writeText(expTxt), style: btn(t.btnBg, t.btnFg) }, "Copy"),
+            React.createElement("button", { onClick: () => setView("import"), style: btn(t.gold, "#000") }, "Import"),
+            React.createElement("button", { onClick: reset, style: btn(t.dangerBg, t.dangerFg) }, "Reset All")
+          ),
+          React.createElement("div", { style: { fontSize: 13, color: t.sub, marginBottom: 8 } }, data.comparisons.length + " total comparisons across all voters"),
+          React.createElement("textarea", { value: expTxt, readOnly: true, rows: 16, style: { width: "100%", background: t.inputBg, color: t.fg, border: "1px solid " + t.inputBorder, borderRadius: 10, padding: 14, fontSize: 13, fontFamily: "monospace", resize: "vertical", boxSizing: "border-box", lineHeight: 1.5 } })
+        ),
+
+        // ═══ IMPORT ═══
+        view === "import" && React.createElement("div", null,
+          React.createElement("div", { style: { fontSize: 14, color: t.sub, marginBottom: 12 } }, "Paste export JSON (supports both new BT format and old ELO history format):"),
+          React.createElement("textarea", { value: impTxt, onChange: e => setImpTxt(e.target.value), rows: 12, style: { width: "100%", background: t.inputBg, color: t.fg, border: "1px solid " + t.inputBorder, borderRadius: 10, padding: 14, fontSize: 13, fontFamily: "monospace", resize: "vertical", boxSizing: "border-box", marginBottom: 12, lineHeight: 1.5 } }),
+          React.createElement("div", { style: { display: "flex", gap: 8 } },
+            React.createElement("button", { onClick: doImport, style: btn(t.green, "#fff") }, "Restore"),
+            React.createElement("button", { onClick: () => setView("battle"), style: btn(t.btnBg, t.btnFg) }, "Cancel")
+          )
+        )
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+</script>
+</body>
+</html>
