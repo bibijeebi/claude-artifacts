@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infrastructure Map</title>
+<meta property="og:title" content="Infrastructure Map">
+<meta property="og:description" content="Complete infrastructure reference: 19 Workers, 10 subdomains, 7 databases, 3 tunnels. Cloudflare edge stack.">
+<meta property="og:url" content="https://niggerfaggot.club/infra.html">
+<meta name="twitter:card" content="summary">
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+<style>
+html, body { overflow-x: hidden; }
+:root {
+  --bg: #0c0e11;
+  --bg-raised: #13161b;
+  --bg-card: #181c22;
+  --bg-card-hover: #1e2229;
+  --border: #2a2e36;
+  --border-bright: #3a3f4a;
+  --text: #c8cdd5;
+  --text-bright: #e8ecf2;
+  --text-dim: #6b7280;
+  --accent: #3b82f6;
+  --accent-dim: #1e3a5f;
+  --green: #22c55e;
+  --green-dim: #14532d;
+  --amber: #f59e0b;
+  --amber-dim: #78350f;
+  --red: #ef4444;
+  --red-dim: #7f1d1d;
+  --purple: #a78bfa;
+  --cyan: #22d3ee;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.grain {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+.shell { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+/* Header */
+.header { margin-bottom: 3rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+.header-top { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.header h1 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.6rem; font-weight: 600;
+  color: var(--text-bright);
+  letter-spacing: -0.02em;
+}
+.header h1 span { color: var(--accent); }
+.audit-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem; font-weight: 500;
+  color: var(--green); background: var(--green-dim);
+  padding: 0.2rem 0.6rem; border-radius: 3px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.header-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem; color: var(--text-dim);
+  display: flex; gap: 1.5rem; flex-wrap: wrap;
+}
+.header-meta code { color: var(--text); background: var(--bg-card); padding: 0.1rem 0.4rem; border-radius: 2px; font-size: 0.7rem; }
+
+/* Stats bar */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1px; background: var(--border); border-radius: 6px; overflow: hidden;
+  margin-bottom: 3rem;
+}
+.stat {
+  background: var(--bg-card); padding: 1rem 1.2rem; text-align: center;
+}
+.stat-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.8rem; font-weight: 700; color: var(--text-bright);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-top: 0.3rem;
+}
+
+/* Sections */
+.section { margin-bottom: 2.5rem; }
+.section-header {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 1rem; padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-icon {
+  width: 28px; height: 28px; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; flex-shrink: 0;
+}
+.section-icon.workers { background: var(--accent-dim); color: var(--accent); }
+.section-icon.utility { background: #312e81; color: #818cf8; }
+.section-icon.cqa { background: #713f12; color: var(--amber); }
+.section-icon.pages { background: #164e63; color: var(--cyan); }
+.section-icon.tunnels { background: var(--green-dim); color: var(--green); }
+.section-icon.storage { background: #4a1d96; color: var(--purple); }
+.section-icon.dns { background: #1e3a5f; color: #60a5fa; }
+.section-icon.access { background: #78350f; color: #fbbf24; }
+.section-icon.desktop { background: #374151; color: #9ca3af; }
+.section-icon.github { background: #1f2937; color: #e5e7eb; }
+.section-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--text-bright); text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.section-count {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; color: var(--text-dim);
+  background: var(--bg-card); padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+}
+
+/* App cards */
+.app-grid { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+.app-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 6px; padding: 1rem 1.2rem;
+  transition: border-color 0.15s, background 0.15s;
+  cursor: default;
+}
+.app-card:hover { border-color: var(--border-bright); background: var(--bg-card-hover); }
+.app-card-header { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
+.app-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85rem; font-weight: 600; color: var(--accent);
+  text-decoration: none;
+}
+a.app-name:hover { text-decoration: underline; }
+.app-label {
+  font-size: 0.7rem; font-weight: 600; color: var(--text-dim);
+  letter-spacing: 0.03em;
+}
+.app-desc { font-size: 0.82rem; color: var(--text); margin-bottom: 0.5rem; line-height: 1.5; }
+.app-meta {
+  display: flex; gap: 0.5rem; flex-wrap: wrap;
+}
+.tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; padding: 0.15rem 0.5rem;
+  border-radius: 3px; white-space: nowrap;
+}
+.tag-d1 { background: #1e3a5f; color: #60a5fa; }
+.tag-kv { background: #4a1d96; color: #c4b5fd; }
+.tag-r2 { background: #164e63; color: #67e8f9; }
+.tag-worker { background: var(--bg-raised); color: var(--text-dim); border: 1px solid var(--border); }
+.tag-public { background: var(--green-dim); color: var(--green); }
+.tag-oauth { background: var(--amber-dim); color: var(--amber); }
+.tag-healthy { background: var(--green-dim); color: var(--green); }
+.tag-down { background: var(--red-dim); color: var(--red); }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 6px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-dim);
+  background: var(--bg-raised); padding: 0.6rem 1rem;
+  text-align: left; border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem;
+  color: var(--text); vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg-card-hover); }
+td.mono { font-family: 'IBM Plex Mono', monospace; }
+td .dim { color: var(--text-dim); }
+
+/* Collapsible */
+details { margin-bottom: 0.5rem; }
+details summary {
+  cursor: pointer; list-style: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75rem; color: var(--text-dim);
+  padding: 0.4rem 0; user-select: none;
+}
+details summary::before { content: '▸ '; color: var(--border-bright); }
+details[open] summary::before { content: '▾ '; }
+details summary:hover { color: var(--text); }
+
+/* Footer */
+.footer {
+  margin-top: 3rem; padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; color: var(--text-dim);
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .shell { padding: 1rem 0.8rem 3rem; }
+  .header h1 { font-size: 1.2rem; }
+  .stats-bar { grid-template-columns: repeat(3, 1fr); }
+  .stat { padding: 0.7rem 0.5rem; }
+  .stat-num { font-size: 1.3rem; }
+  .app-card { padding: 0.8rem; }
+  td, th { padding: 0.4rem 0.6rem; font-size: 0.68rem; }
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="shell">
+
+<div class="header">
+  <div class="header-top">
+    <h1><span>//</span> Infrastructure Map</h1>
+    <span class="audit-badge">Audited Feb 19, 2026</span>
+  </div>
+  <div class="header-meta">
+    <span>Domain <code>niggerfaggot.club</code></span>
+    <span>Account <code>561fd070…</code></span>
+    <span>Zone <code>0d01c80a…</code></span>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num">19</div><div class="stat-label">Workers</div></div>
+  <div class="stat"><div class="stat-num">10</div><div class="stat-label">Subdomains</div></div>
+  <div class="stat"><div class="stat-num">7</div><div class="stat-label">D1 Databases</div></div>
+  <div class="stat"><div class="stat-num">6</div><div class="stat-label">KV Stores</div></div>
+  <div class="stat"><div class="stat-num">5</div><div class="stat-label">R2 Buckets</div></div>
+  <div class="stat"><div class="stat-num">3</div><div class="stat-label">Tunnels</div></div>
+</div>
+
+<!-- APPS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon workers">⚡</div>
+    <span class="section-title">Apps (Custom Subdomains)</span>
+    <span class="section-count">10 workers</span>
+  </div>
+  <div class="app-grid">
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://health.niggerfaggot.club" target="_blank">health.niggerfaggot.club</a>
+        <span class="app-label">Weight Tracker &mdash; "Operation 210"</span>
+      </div>
+      <div class="app-desc">Tracks weight, food intake (cal/P/C/F), exercise, vitals, body measurements. Full dashboard with charts, caloric interpolation, body composition, VO2 max estimation. Claude logs everything via API.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">weight-tracker</span>
+        <span class="tag tag-d1">D1 weight-tracker-db</span>
+        <span class="tag tag-oauth">OAuth + API bypass</span>
+      </div>
+      <details><summary>Deploy: push to bibijeebi/weight-tracker main branch &rarr; CF Pages auto-build</summary></details>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://drinks.niggerfaggot.club" target="_blank">drinks.niggerfaggot.club</a>
+        <span class="app-label">Drinks Bar</span>
+      </div>
+      <div class="app-desc">Cocktail menu with inventory tracking, recipes, Benny &amp; Bekah ratings, auto "what can I make" from stock. Claude updates inventory from receipts and adds recipes.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">drinks-bar</span>
+        <span class="tag tag-d1">D1 drinks-bar</span>
+        <span class="tag tag-public">Public</span>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://things.niggerfaggot.club" target="_blank">things.niggerfaggot.club</a>
+        <span class="app-label">Benny Things (Kanban)</span>
+      </div>
+      <div class="app-desc">Personal kanban board: backlog / todo / doing / done / archived. Mobile defaults to Doing tab. localStorage cache for offline resilience.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">benny-things</span>
+        <span class="tag tag-d1">D1 benny-things</span>
+        <span class="tag tag-oauth">OAuth + API bypass</span>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://scans.niggerfaggot.club" target="_blank">scans.niggerfaggot.club</a>
+        <span class="app-label">Receipt Scanner</span>
+      </div>
+      <div class="app-desc">OpenCV receipt scanning (perspective correction, scan filter) + GPT vision OCR. FTS5 full-text search, categorized spending. Claude scans photos from chat and uploads to R2.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">receipts-api</span>
+        <span class="tag tag-d1">D1 receipts-db</span>
+        <span class="tag tag-r2">R2 receipts-images</span>
+        <span class="tag tag-oauth">OAuth + API bypass</span>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://list.niggerfaggot.club" target="_blank">list.niggerfaggot.club</a>
+        <span class="app-label">Shopping List</span>
+      </div>
+      <div class="app-desc">Shared shopping list for Benny &amp; Bekah. Claude adds items from conversations.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">shopping-list</span>
+        <span class="tag tag-d1">D1 shopping-list</span>
+        <span class="tag tag-oauth">OAuth + API bypass</span>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://names.niggerfaggot.club" target="_blank">names.niggerfaggot.club</a>
+        <span class="app-label">Baby Names Lab</span>
+      </div>
+      <div class="app-desc">171+ names with voting, star ratings, notes, categories. Roulette spinner, bracket elimination. Spoiler toggle for partner votes. WebSocket live sync via Durable Objects.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">baby-names-lab</span>
+        <span class="tag tag-kv">KV baby-names-data</span>
+        <span class="tag tag-oauth">OAuth (JWT user ID)</span>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://spanky.niggerfaggot.club" target="_blank">spanky.niggerfaggot.club</a>
+        <span class="app-label">Spanky (SRS Learning)</span>
+      </div>
+      <div class="app-desc">AI-adaptive spaced repetition (SM-2). NC Piedmont nature deck (55+ cards). AI tutor (GPT-5.2 / Opus 4.6) with mnemonics, comparisons, field context. Custom deck generation.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">spanky + spanky-api</span>
+        <span class="tag tag-kv">KV spanky-data</span>
+        <span class="tag tag-public">Public</span>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://nature.niggerfaggot.club" target="_blank">nature.niggerfaggot.club</a>
+        <span class="app-label">NatureDex</span>
+      </div>
+      <div class="app-desc">Personal wildlife Pokedex. Track species sightings with dates, counts, images. Pokédex-themed UI. 8 categories: birds, trees, wildflowers, tracks, mammals, herps, fungi, insects.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">naturedex</span>
+        <span class="tag tag-d1">D1 naturedex</span>
+        <span class="tag tag-oauth">OAuth</span>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://bates-watch.niggerfaggot.club" target="_blank">bates-watch.niggerfaggot.club</a>
+        <span class="app-label">Bates County Property Watch</span>
+      </div>
+      <div class="app-desc">Automated property/land sale monitor for Bates County, MO. Scrapes 9 sources weekly for tax sales, sheriff sales, trustee sales, listings. AI relevance analysis. Cron every Monday 8am CT.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">butler-county-sales</span>
+        <span class="tag tag-kv">KV butler-eagle-scanner</span>
+        <span class="tag tag-public">Public</span>
+      </div>
+    </div>
+
+    <div class="app-card">
+      <div class="app-card-header">
+        <a class="app-name" href="https://cycle.niggerfaggot.club" target="_blank">cycle.niggerfaggot.club</a>
+        <span class="app-label">Cycle Tracker</span>
+      </div>
+      <div class="app-desc">Fertility/menstrual cycle tracking. Ovulation window estimates, fertile day predictions, period forecasting.</div>
+      <div class="app-meta">
+        <span class="tag tag-worker">cycle-tracker</span>
+        <span class="tag tag-kv">KV CYCLE_DATA</span>
+        <span class="tag tag-oauth">OAuth</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- UTILITY WORKERS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon utility">🔧</div>
+    <span class="section-title">Utility Workers</span>
+    <span class="section-count">5 workers</span>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Worker</th><th>URL</th><th>Storage</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>claude-deploy</td>
+        <td>claude-deploy.bennyforeman1.workers.dev</td>
+        <td><span class="tag tag-r2">R2 claude-assets</span></td>
+        <td>Central deploy infra. R2 upload/serve, async Gemini image gen. Used for OG images, assets, files.</td>
+      </tr>
+      <tr>
+        <td>smart-scraper</td>
+        <td>smart-scraper.bennyforeman1.workers.dev</td>
+        <td><span class="tag tag-kv">KV scraper-cookies</span></td>
+        <td>Browser scraping proxy: /screenshot, /content, /elements, /text, /links. FB cookies loaded.</td>
+      </tr>
+      <tr>
+        <td>bird-detect</td>
+        <td>bird-detect.bennyforeman1.workers.dev</td>
+        <td><span class="dim">&mdash;</span></td>
+        <td>Bird detection service for NatureDex workflows.</td>
+      </tr>
+      <tr>
+        <td>health-tracker-backup</td>
+        <td>health-tracker-backup.bennyforeman1.workers.dev</td>
+        <td><span class="dim">&mdash;</span></td>
+        <td>Backup/fallback for weight tracker.</td>
+      </tr>
+      <tr>
+        <td>personal-pastebin</td>
+        <td>personal-pastebin.bennyforeman1.workers.dev</td>
+        <td><span class="tag tag-kv">KV pastebin-storage</span></td>
+        <td>KV pastebin with API, list view, titles, expiration.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- CQA -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon cqa">🏢</div>
+    <span class="section-title">CQA Workers (Carolina Quality Air)</span>
+    <span class="section-count">3 workers</span>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Worker</th><th>Storage</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>cqa-admin</td>
+        <td><span class="tag tag-d1">D1 cqa-contacts</span></td>
+        <td>Admin panel: form submissions, testimonials CRUD, content management. OAuth-gated.</td>
+      </tr>
+      <tr>
+        <td>cqa-form-handler</td>
+        <td><span class="dim">&mdash;</span></td>
+        <td>Contact form handler with honeypot spam detection + rate limiting.</td>
+      </tr>
+      <tr>
+        <td>cqa-public-api</td>
+        <td><span class="dim">&mdash;</span></td>
+        <td>Public testimonials/content API for CQA website.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- TUNNELS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon tunnels">🔗</div>
+    <span class="section-title">Tunnels (Windows Desktop)</span>
+    <span class="section-count">3 tunnels</span>
+  </div>
+
+  <div class="app-card" style="margin-bottom: 0.5rem;">
+    <div class="app-card-header">
+      <span class="app-name">home-media</span>
+      <span class="tag tag-healthy">Healthy</span>
+      <span class="app-label">NSSM ToolsTunnel, SYSTEM user</span>
+    </div>
+    <div class="tbl-wrap" style="margin-top: 0.6rem;">
+    <table>
+      <thead><tr><th>Subdomain</th><th>Port</th><th>Service</th></tr></thead>
+      <tbody>
+        <tr><td>tv.niggerfaggot.club</td><td>5055</td><td>Jellyfin / Jellyseerr</td></tr>
+        <tr><td>radarr.niggerfaggot.club</td><td>7878</td><td>Radarr (movies)</td></tr>
+        <tr><td>sonarr.niggerfaggot.club</td><td>8989</td><td>Sonarr (TV)</td></tr>
+        <tr><td>prowlarr.niggerfaggot.club</td><td>9696</td><td>Prowlarr (indexers)</td></tr>
+        <tr><td>dl.niggerfaggot.club</td><td>8080</td><td>qBittorrent web UI</td></tr>
+        <tr><td>subs.niggerfaggot.club</td><td>6767</td><td>Bazarr (subtitles)</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="app-card" style="margin-bottom: 0.5rem;">
+    <div class="app-card-header">
+      <a class="app-name" href="https://tools.niggerfaggot.club" target="_blank">tools-api</a>
+      <span class="tag tag-healthy">Healthy</span>
+      <span class="tag tag-public">Public bypass</span>
+    </div>
+    <div class="app-desc">tools.niggerfaggot.club &rarr; localhost:7845. NSSM ToolsServer, bekah user. Python uv script at C:\tools-api\server.py. yt-dlp, Playwright browser, Google Lens, file management, shell, self-restart.</div>
+  </div>
+
+  <div class="app-card">
+    <div class="app-card-header">
+      <span class="app-name">mcp-server</span>
+      <span class="tag tag-down">Down</span>
+    </div>
+    <div class="app-desc">mcp.niggerfaggot.club. Not currently running.</div>
+  </div>
+</div>
+
+<!-- PAGES -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon pages">📄</div>
+    <span class="section-title">Pages Projects</span>
+    <span class="section-count">6 projects</span>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Project</th><th>Domain</th><th>Repo</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>claude-artifacts</td>
+        <td>niggerfaggot.club</td>
+        <td>bibijeebi/claude-artifacts</td>
+        <td>Landing page + ~100 HTML guides, tools, AF Newspapers</td>
+      </tr>
+      <tr>
+        <td>weight-tracker</td>
+        <td>health.niggerfaggot.club</td>
+        <td>bibijeebi/weight-tracker</td>
+        <td>Push _worker.js to main &rarr; auto-deploy</td>
+      </tr>
+      <tr>
+        <td>carolina-quality-air</td>
+        <td>carolina-quality-air.pages.dev</td>
+        <td>bibijeebi/carolina-quality-air</td>
+        <td>Astro marketing site for CQA. Portfolio piece.</td>
+      </tr>
+      <tr>
+        <td>naturedex</td>
+        <td>naturedex.pages.dev</td>
+        <td>bibijeebi/naturedex</td>
+        <td>Worker is primary now</td>
+      </tr>
+      <tr>
+        <td>police-dashboard</td>
+        <td>police-dashboard.pages.dev</td>
+        <td><span class="dim">&mdash;</span></td>
+        <td>Less active</td>
+      </tr>
+      <tr>
+        <td>self-realization</td>
+        <td>self-realization.pages.dev</td>
+        <td><span class="dim">&mdash;</span></td>
+        <td>Less active</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- STORAGE -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon storage">💾</div>
+    <span class="section-title">Storage</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+    <div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em;">D1 Databases (7)</div>
+      <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Database</th><th>Worker</th></tr></thead>
+        <tbody>
+          <tr><td>weight-tracker-db</td><td>weight-tracker</td></tr>
+          <tr><td>drinks-bar</td><td>drinks-bar</td></tr>
+          <tr><td>benny-things</td><td>benny-things</td></tr>
+          <tr><td>receipts-db</td><td>receipts-api</td></tr>
+          <tr><td>shopping-list</td><td>shopping-list</td></tr>
+          <tr><td>naturedex</td><td>naturedex</td></tr>
+          <tr><td>cqa-contacts</td><td>cqa-admin</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em;">KV Namespaces (6)</div>
+      <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Namespace</th><th>Worker</th></tr></thead>
+        <tbody>
+          <tr><td>baby-names-data</td><td>baby-names-lab</td></tr>
+          <tr><td>spanky-data</td><td>spanky</td></tr>
+          <tr><td>butler-eagle-scanner</td><td>butler-county-sales</td></tr>
+          <tr><td>CYCLE_DATA</td><td>cycle-tracker</td></tr>
+          <tr><td>pastebin-storage</td><td>personal-pastebin</td></tr>
+          <tr><td>scraper-cookies</td><td>smart-scraper</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em;">R2 Buckets (5)</div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Bucket</th><th>Used By</th></tr></thead>
+    <tbody>
+      <tr><td>claude-assets</td><td>claude-deploy (OG images, uploads, generated images)</td></tr>
+      <tr><td>receipts-images</td><td>receipts-api (scanned receipt photos)</td></tr>
+      <tr><td>guides-content</td><td>Article/guide assets</td></tr>
+      <tr><td>remote-ytdlp</td><td>yt-dlp related storage</td></tr>
+      <tr><td>stayingin-podcast-discord-assets</td><td>Older project, possibly orphaned</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ACCESS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon access">🔐</div>
+    <span class="section-title">Access Policies</span>
+    <span class="section-count">20 rules</span>
+  </div>
+  <div class="app-desc" style="margin-bottom: 0.8rem;">
+    <strong>Wildcard default:</strong> <code style="background:var(--bg-card);padding:0.1rem 0.4rem;border-radius:2px;font-size:0.75rem;">*.niggerfaggot.club</code> &mdash; Google OAuth for Benny &amp; Bekah. Catches everything not explicitly bypassed.
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+    <div>
+      <div style="font-size:0.75rem;color:var(--green);font-weight:600;margin-bottom:0.4rem;">Public (bypass)</div>
+      <div style="font-size:0.8rem;">drinks, spanky, bates-watch, tools API</div>
+    </div>
+    <div>
+      <div style="font-size:0.75rem;color:var(--amber);font-weight:600;margin-bottom:0.4rem;">OAuth-gated</div>
+      <div style="font-size:0.8rem;">things, names, cycle, scans, list, health (all UIs), tunnel subdomains, cqa-admin</div>
+    </div>
+  </div>
+  <div style="margin-top:0.8rem;">
+    <div style="font-size:0.75rem;color:var(--accent);font-weight:600;margin-bottom:0.4rem;">API Bypasses (for Claude)</div>
+    <div style="font-size:0.8rem;">things /api + /llms.txt, health /api + /llms.txt, scans /api + /llms.txt + /images + /health, list /api + /llms.txt + /health</div>
+  </div>
+</div>
+
+<!-- DESKTOP -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon desktop">🖥</div>
+    <span class="section-title">Windows Desktop Services</span>
+    <span class="section-count">8 services</span>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Service</th><th>Manager</th><th>User</th><th>Port</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>ToolsServer</td><td>NSSM</td><td>bekah</td><td>7845</td><td>Python tool server</td></tr>
+      <tr><td>ToolsTunnel</td><td>NSSM</td><td>SYSTEM</td><td>&mdash;</td><td>CF Tunnel for media stack</td></tr>
+      <tr><td>JellyfinServer</td><td>NSSM</td><td>bekah</td><td>&mdash;</td><td>Media server</td></tr>
+      <tr><td>Radarr</td><td>Win Svc</td><td>LocalService</td><td>7878</td><td>Movie automation</td></tr>
+      <tr><td>Sonarr</td><td>Win Svc</td><td>LocalService</td><td>8989</td><td>TV automation</td></tr>
+      <tr><td>Prowlarr</td><td>Win Svc</td><td>&mdash;</td><td>9696</td><td>Indexer management</td></tr>
+      <tr><td>Bazarr</td><td>Win Svc</td><td>&mdash;</td><td>6767</td><td>Subtitles</td></tr>
+      <tr><td>qBittorrent</td><td>Startup</td><td>bekah</td><td>8080</td><td>Torrent client</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- GITHUB -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon github">⚙</div>
+    <span class="section-title">GitHub Repos</span>
+    <span class="section-count">8 repos</span>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Repo</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>bibijeebi/claude-artifacts</td><td>Landing page + 100+ HTML pages &rarr; niggerfaggot.club</td></tr>
+      <tr><td>bibijeebi/weight-tracker</td><td>Weight tracker &rarr; health.niggerfaggot.club</td></tr>
+      <tr><td>bibijeebi/carolina-quality-air</td><td>CQA Astro website</td></tr>
+      <tr><td>bibijeebi/naturedex</td><td>NatureDex (Pages deploy, worker primary)</td></tr>
+      <tr><td>bibijeebi/duct-cleaning-simulator</td><td>CQA fun project</td></tr>
+      <tr><td>bibijeebi/reedline</td><td>Nushell line editor fork</td></tr>
+      <tr><td>bibijeebi/nufmt</td><td>Nushell formatter</td></tr>
+      <tr><td>bibijeebi/nu_plugin_progress</td><td>Nushell progress plugin</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- DNS -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-icon dns">🌐</div>
+    <span class="section-title">DNS Records</span>
+    <span class="section-count">28 records</span>
+  </div>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Subdomain</th><th>Type</th><th>Target</th><th>Proxied</th></tr></thead>
+    <tbody>
+      <tr><td>(root)</td><td>CNAME</td><td>claude-artifacts.pages.dev</td><td>Yes</td></tr>
+      <tr><td>www</td><td>A</td><td>157.230.232.225</td><td>Yes</td></tr>
+      <tr><td>health, drinks, things, scans, list, names, nature, spanky, bates-watch, cycle</td><td>AAAA</td><td>100:: (Workers)</td><td>Yes</td></tr>
+      <tr><td>tv, radarr, sonarr, prowlarr, dl, subs</td><td>CNAME</td><td>home-media tunnel</td><td>Yes</td></tr>
+      <tr><td>tools</td><td>CNAME</td><td>tools-api tunnel</td><td>Yes</td></tr>
+      <tr><td>mcp</td><td>CNAME</td><td>mcp-server tunnel (down)</td><td>Yes</td></tr>
+      <tr><td>watch</td><td>A</td><td>71.65.136.155</td><td>No</td></tr>
+      <tr><td>(root)</td><td>MX &times;5</td><td>eforward{1-5}.registrar-servers.com</td><td>No</td></tr>
+      <tr><td>(root)</td><td>TXT</td><td>SPF for email forwarding</td><td>No</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<div class="footer">
+  Infrastructure Map &middot; niggerfaggot.club &middot; Audited Feb 19, 2026<br>
+  Auto-generated by Claude. Update this page when infra changes.
+</div>
+
+</div>
+</body>
+</html>
