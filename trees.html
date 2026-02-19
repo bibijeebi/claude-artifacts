@@ -285,23 +285,27 @@ body {
 }
 
 .tree-images {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 0.75rem;
-  margin: 1.25rem 0;
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.25rem;
 }
 
 .tree-img-card {
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
   background: var(--sand);
   position: relative;
-  min-height: 140px;
+  flex: 0 0 auto;
+  width: 140px;
+  cursor: pointer;
 }
 
 .tree-img-card img {
   width: 100%;
-  height: 180px;
+  height: 120px;
   object-fit: cover;
   display: block;
   transition: opacity 0.3s;
@@ -318,10 +322,44 @@ body {
   right: 0;
   background: linear-gradient(transparent, rgba(0,0,0,0.75));
   color: white;
-  padding: 2rem 0.6rem 0.4rem;
-  font-size: 0.75rem;
+  padding: 1.5rem 0.4rem 0.3rem;
+  font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+.tree-img-card:hover img { opacity: 0.85; }
+
+/* Lightbox */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  cursor: zoom-out;
+}
+.lightbox.active { display: flex; }
+.lightbox img {
+  max-width: 92vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 4px;
+}
+.lightbox-label {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: rgba(0,0,0,0.6);
+  padding: 0.3rem 1rem;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .tree-img-card .img-placeholder {
@@ -515,6 +553,8 @@ tbody tr:last-child td { border-bottom: none; }
   .tree-card-header { flex-wrap: wrap; }
   .tree-status { margin-left: 0; margin-top: 0.5rem; }
   .id-grid { grid-template-columns: 1fr; }
+  .tree-img-card { width: 120px; }
+  .tree-img-card img { height: 100px; }
 }
 </style>
 </head>
@@ -1302,6 +1342,29 @@ tbody tr:last-child td { border-bottom: none; }
 </div>
 
 
+
+<div class="lightbox" id="lightbox">
+  <img src="" alt="">
+  <div class="lightbox-label"></div>
+</div>
+<script>
+const lb = document.getElementById('lightbox');
+const lbImg = lb.querySelector('img');
+const lbLabel = lb.querySelector('.lightbox-label');
+document.querySelectorAll('.tree-img-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const img = card.querySelector('img');
+    const label = card.querySelector('.img-label');
+    if (!img) return;
+    lbImg.src = img.src;
+    lbImg.alt = img.alt;
+    lbLabel.textContent = label ? label.textContent : img.alt;
+    lb.classList.add('active');
+  });
+});
+lb.addEventListener('click', () => lb.classList.remove('active'));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('active'); });
+</script>
 
 </body>
 </html>
