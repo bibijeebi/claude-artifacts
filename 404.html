@@ -3,169 +3,327 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>404 — Lost in the Void</title>
+<title>404 — oh no</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-html,body{overflow:hidden;height:100%;width:100%}
+html,body{overflow-x:hidden;height:100%;width:100%}
 body{
-  font-family:'IBM Plex Mono',monospace;
-  background:#0a0c10;
-  color:#c8cdd5;
+  font-family:'Gaegu',cursive;
+  background:#0e0e1a;
+  color:#fff;
   display:flex;align-items:center;justify-content:center;
   min-height:100vh;
-  position:relative;
+  overflow:hidden;
+  cursor:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><text y='24' font-size='24'>👻</text></svg>") 16 16,auto;
 }
-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
-.content{
-  position:relative;z-index:1;
-  text-align:center;
-  padding:2rem;
-  max-width:600px;
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+.star{
+  position:absolute;border-radius:50%;background:#fff;
+  animation:twinkle var(--d,3s) ease-in-out infinite alternate;
 }
+@keyframes twinkle{0%{opacity:0.1;transform:scale(0.8)}100%{opacity:1;transform:scale(1.2)}}
+.emoji-rain{position:fixed;top:-60px;z-index:0;font-size:1.5rem;animation:fall var(--speed,8s) linear infinite;opacity:0.5}
+@keyframes fall{
+  0%{transform:translateY(-60px) rotate(0deg);opacity:0.5}
+  100%{transform:translateY(calc(100vh + 60px)) rotate(720deg);opacity:0}
+}
+.content{position:relative;z-index:2;text-align:center;padding:2rem;max-width:550px}
+.code-wrap{position:relative;margin-bottom:1rem}
 .code{
-  font-size:clamp(6rem,20vw,10rem);
-  font-weight:700;
-  line-height:1;
-  color:transparent;
-  background:linear-gradient(135deg,#3b82f6 0%,#22d3ee 50%,#a78bfa 100%);
-  -webkit-background-clip:text;
-  background-clip:text;
-  margin-bottom:0.5rem;
-  animation:glitch 3s infinite;
-  position:relative;
+  font-size:clamp(7rem,25vw,12rem);font-weight:700;
+  font-family:'Gaegu',cursive;line-height:1;
+  background:linear-gradient(90deg,#ff6b9d,#ffa751,#ffe259,#7bed9f,#70a1ff,#a29bfe,#ff6b9d);
+  background-size:400% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:rainbow 4s linear infinite,wobble 2s ease-in-out infinite;
+  filter:drop-shadow(0 0 30px rgba(255,107,157,0.4));
+  user-select:none;
 }
-.code::before,.code::after{
-  content:'404';
-  position:absolute;left:0;top:0;width:100%;height:100%;
-  background:inherit;-webkit-background-clip:text;background-clip:text;
-  color:transparent;
+@keyframes rainbow{0%{background-position:0% 50%}100%{background-position:400% 50%}}
+@keyframes wobble{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+.face{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-55%);
+  font-size:clamp(3rem,8vw,5rem);
+  animation:bounce 1s ease-in-out infinite;
+  filter:drop-shadow(0 0 20px rgba(255,255,255,0.3));
+  pointer-events:none;
 }
-.code::before{
-  animation:glitch-1 2s infinite linear alternate-reverse;
-  clip-path:polygon(0 0,100% 0,100% 35%,0 35%);
+@keyframes bounce{0%,100%{transform:translate(-50%,-55%) scale(1)}50%{transform:translate(-50%,-65%) scale(1.1)}}
+.subtitle{
+  font-size:1.8rem;font-weight:700;margin-bottom:0.5rem;
+  animation:colorCycle 5s linear infinite;
 }
-.code::after{
-  animation:glitch-2 2s infinite linear alternate-reverse;
-  clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%);
-}
-@keyframes glitch-1{
-  0%,100%{transform:translate(0)}
-  20%{transform:translate(-3px,2px)}
-  40%{transform:translate(3px,-1px)}
-  60%{transform:translate(-1px,1px)}
-  80%{transform:translate(2px,-2px)}
-}
-@keyframes glitch-2{
-  0%,100%{transform:translate(0)}
-  20%{transform:translate(3px,1px)}
-  40%{transform:translate(-2px,-1px)}
-  60%{transform:translate(1px,2px)}
-  80%{transform:translate(-3px,-1px)}
-}
+@keyframes colorCycle{0%{color:#ff6b9d}25%{color:#ffa751}50%{color:#7bed9f}75%{color:#70a1ff}100%{color:#ff6b9d}}
 .msg{
-  font-size:1.1rem;
-  color:#6b7280;
-  margin-bottom:2rem;
-  line-height:1.6;
+  font-family:'IBM Plex Mono',monospace;font-size:0.85rem;
+  color:#888;margin-bottom:2rem;line-height:1.8;
 }
-.msg span{color:#e8ecf2}
-.prompt{
-  display:inline-flex;align-items:center;gap:0.5rem;
-  font-size:0.85rem;color:#3b82f6;
+.msg .typed{color:#aaa;border-right:2px solid #ff6b9d;padding-right:4px;animation:blink 0.7s step-end infinite}
+@keyframes blink{0%,100%{border-color:#ff6b9d}50%{border-color:transparent}}
+.ghost{
+  font-size:4rem;display:inline-block;
+  animation:float 3s ease-in-out infinite,spin-ghost 8s linear infinite;
   margin-bottom:1.5rem;
+  filter:drop-shadow(0 0 25px rgba(162,155,254,0.6));
 }
-.prompt .cursor{
-  display:inline-block;width:8px;height:1.1em;
-  background:#3b82f6;
-  animation:blink 1s step-end infinite;
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.links{
-  display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
-}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+@keyframes spin-ghost{0%{filter:hue-rotate(0deg) drop-shadow(0 0 25px rgba(162,155,254,0.6))}100%{filter:hue-rotate(360deg) drop-shadow(0 0 25px rgba(162,155,254,0.6))}}
+.links{display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap}
 .links a{
-  font-size:0.8rem;
-  color:#9ca3af;
-  text-decoration:none;
-  padding:0.5rem 1.2rem;
-  border:1px solid #2a2e36;
-  border-radius:4px;
-  transition:all 0.2s;
+  font-family:'Gaegu',cursive;font-size:1.1rem;font-weight:700;
+  color:#fff;text-decoration:none;
+  padding:0.6rem 1.5rem;border-radius:50px;
+  background:linear-gradient(135deg,#ff6b9d,#a29bfe);
+  transition:all 0.3s;position:relative;overflow:hidden;
 }
-.links a:hover{
-  color:#e8ecf2;
-  border-color:#3b82f6;
-  background:rgba(59,130,246,0.08);
+.links a:nth-child(2){background:linear-gradient(135deg,#70a1ff,#7bed9f)}
+.links a::before{
+  content:'';position:absolute;top:50%;left:50%;
+  width:0;height:0;background:rgba(255,255,255,0.2);
+  border-radius:50%;transform:translate(-50%,-50%);
+  transition:width 0.5s,height 0.5s;
 }
-.links a .arrow{
-  display:inline-block;
-  transition:transform 0.2s;
+.links a:hover::before{width:300px;height:300px}
+.links a:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 10px 30px rgba(255,107,157,0.4)}
+.links a:active{transform:translateY(0) scale(0.95)}
+.explosion{
+  position:fixed;pointer-events:none;z-index:999;font-size:1.5rem;
+  animation:explode 0.8s ease-out forwards;
 }
-.links a:hover .arrow{transform:translateX(3px)}
+@keyframes explode{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(0)}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(0.5) translateY(-60px)}
+}
+.shake{animation:shake 0.4s ease-in-out}
+@keyframes shake{
+  0%,100%{transform:translate(0)}
+  10%{transform:translate(-8px,4px)}20%{transform:translate(8px,-4px)}
+  30%{transform:translate(-6px,6px)}40%{transform:translate(6px,-2px)}
+  50%{transform:translate(-4px,4px)}60%{transform:translate(4px,-4px)}
+  70%{transform:translate(-2px,2px)}80%{transform:translate(2px,-2px)}
+  90%{transform:translate(-1px,1px)}
+}
+.disco body{animation:disco-bg 0.5s linear infinite}
+.disco .code{animation:rainbow 0.5s linear infinite,wobble 0.3s ease-in-out infinite}
+.disco .star{animation-duration:0.2s !important}
+@keyframes disco-bg{0%{background:#0e0e1a}25%{background:#1a0e1a}50%{background:#0e1a1a}75%{background:#1a1a0e}100%{background:#0e0e1a}}
+.dancers{
+  position:fixed;bottom:10px;left:0;right:0;
+  display:flex;justify-content:center;gap:0.3rem;
+  z-index:1;opacity:0.4;font-size:1.2rem;
+}
+.dancer{display:inline-block;animation:dance 0.6s ease-in-out infinite alternate;animation-delay:var(--d,0s)}
+@keyframes dance{0%{transform:translateY(0) scaleX(1)}100%{transform:translateY(-8px) scaleX(-1)}}
+.secret-hint{
+  position:fixed;bottom:50px;left:50%;transform:translateX(-50%);
+  font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:#333;z-index:1;
+  transition:color 0.3s;
+}
+.secret-hint:hover{color:#666}
+/* Trail */
+.trail{position:fixed;pointer-events:none;z-index:998;font-size:1rem;opacity:0.8;animation:trail-fade 0.6s ease-out forwards}
+@keyframes trail-fade{0%{opacity:0.8;transform:scale(1)}100%{opacity:0;transform:scale(0.3)}}
+@media(max-width:600px){
+  .links{flex-direction:column;align-items:center}
+  .links a{width:80%}
+}
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
+
+<div class="stars" id="stars"></div>
 <div class="content">
-  <div class="code">404</div>
-  <div class="prompt">$ curl this-page <span class="cursor"></span></div>
+  <div class="ghost" id="ghost">👻</div>
+  <div class="code-wrap">
+    <div class="code" id="the404" onclick="shakeScreen()">404</div>
+    <div class="face" id="face">🥺</div>
+  </div>
+  <div class="subtitle" id="subtitle">oopsie woopsie!!</div>
   <div class="msg">
-    <span>Nothing here.</span><br>
-    The page you're looking for doesn't exist,<br>
-    got moved, or never existed in the first place.
+    <span class="typed" id="typed"></span>
   </div>
   <div class="links">
-    <a href="/">Home <span class="arrow">&rarr;</span></a>
-    <a href="/infra.html">Infra Map <span class="arrow">&rarr;</span></a>
+    <a href="/">Take me home 🏠</a>
+    <a href="/infra.html">Infra Map 🗺️</a>
   </div>
 </div>
+
+<div class="dancers">
+  <span class="dancer" style="--d:0s">🕺</span>
+  <span class="dancer" style="--d:0.1s">💃</span>
+  <span class="dancer" style="--d:0.2s">🕺</span>
+  <span class="dancer" style="--d:0.3s">💃</span>
+  <span class="dancer" style="--d:0.4s">🕺</span>
+  <span class="dancer" style="--d:0.05s">💃</span>
+  <span class="dancer" style="--d:0.15s">🕺</span>
+  <span class="dancer" style="--d:0.25s">💃</span>
+  <span class="dancer" style="--d:0.35s">🕺</span>
+  <span class="dancer" style="--d:0.45s">🕺</span>
+  <span class="dancer" style="--d:0.12s">💃</span>
+</div>
+<div class="secret-hint">press 'd' for disco &middot; click 404 to shake &middot; try the konami code</div>
+
 <script>
-const c=document.getElementById('c'),x=c.getContext('2d');
-let w,h,particles=[];
-function resize(){w=c.width=innerWidth;h=c.height=innerHeight;init()}
-function init(){
-  particles=[];
-  const count=Math.floor((w*h)/8000);
-  for(let i=0;i<count;i++){
-    particles.push({
-      x:Math.random()*w,
-      y:Math.random()*h,
-      vx:(Math.random()-0.5)*0.3,
-      vy:(Math.random()-0.5)*0.3,
-      r:Math.random()*1.5+0.5,
-      o:Math.random()*0.4+0.1
-    });
+// Stars
+const starsEl=document.getElementById('stars');
+for(let i=0;i<150;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  const size=Math.random()*3+1;
+  Object.assign(s.style,{
+    width:size+'px',height:size+'px',
+    left:Math.random()*100+'%',top:Math.random()*100+'%',
+    '--d':(Math.random()*4+1)+'s',
+    animationDelay:Math.random()*3+'s',
+    background:`hsl(${Math.random()*60+220},80%,${Math.random()*30+60}%)`
+  });
+  starsEl.appendChild(s);
+}
+
+// Emoji rain
+const emojis=['✨','💫','🌟','⭐','🦋','🌸','💀','👽','🍕','🔥','💖','🌈','🎀','🍄','👾','🫠','🤡','🐛','🎃','🦄','🍩','🧸','💎','🪐','🌙','🐸','🎪','🧁'];
+function spawnEmoji(){
+  const e=document.createElement('div');
+  e.className='emoji-rain';
+  e.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+  e.style.left=Math.random()*100+'%';
+  e.style.setProperty('--speed',(Math.random()*6+4)+'s');
+  e.style.fontSize=(Math.random()*1.5+0.8)+'rem';
+  document.body.appendChild(e);
+  setTimeout(()=>e.remove(),12000);
+}
+setInterval(spawnEmoji,350);
+
+// Typed messages
+const messages=[
+  "this page went to get milk and never came back...",
+  "you've wandered into the shadow realm. it's cozy here tho.",
+  "the bits you're looking for have been vibing elsewhere.",
+  "404'd. certified bruh moment.",
+  "this URL is giving nothing",
+  "sir this is a wendy's",
+  "the page is in another castle",
+  "you've reached the edge of the internet. there be dragons.",
+  "this page left the chat.",
+  "error: page machine broke",
+  "have you tried turning the URL off and on again?",
+  "the page you seek exists only in your imagination.",
+  "plot twist: the 404 was inside you all along.",
+  "this page is on its villain arc. not coming back.",
+  "the server said nah fam.",
+];
+const msg=messages[Math.floor(Math.random()*messages.length)];
+const typedEl=document.getElementById('typed');
+let ti=0;
+function typeChar(){
+  if(ti<=msg.length){typedEl.textContent=msg.slice(0,ti);ti++;setTimeout(typeChar,40+Math.random()*40)}
+}
+setTimeout(typeChar,600);
+
+// Subtitle rotator
+const subtitles=["oopsie woopsie!!","uh oh spaghetti-o","bruh moment","not found bestie","where'd it go??","pain.","this ain't it chief","yikes forever","well this is awkward"];
+let si=0;
+const subtitleEl=document.getElementById('subtitle');
+setInterval(()=>{si=(si+1)%subtitles.length;subtitleEl.textContent=subtitles[si]},3000);
+
+// Face rotator
+const faces=['🥺','😭','🫠','😵‍💫','🙃','💀','👀','😳','🤯','🫣','😮‍💨'];
+let fi=0;
+const faceEl=document.getElementById('face');
+setInterval(()=>{fi=(fi+1)%faces.length;faceEl.textContent=faces[fi]},2000);
+
+// Click explosions
+const clickEmojis=['💥','✨','💫','🌟','💖','🔥','⚡','🎉','💀','🫠','🎊','💣','🌈'];
+document.addEventListener('click',e=>{
+  for(let i=0;i<7;i++){
+    const el=document.createElement('div');
+    el.className='explosion';
+    el.textContent=clickEmojis[Math.floor(Math.random()*clickEmojis.length)];
+    el.style.left=(e.clientX+(Math.random()-0.5)*100)+'px';
+    el.style.top=(e.clientY+(Math.random()-0.5)*100)+'px';
+    el.style.animationDuration=(0.4+Math.random()*0.5)+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1000);
+  }
+});
+
+// Screen shake
+let shakeCount=0;
+function shakeScreen(){
+  document.body.classList.remove('shake');
+  void document.body.offsetWidth;
+  document.body.classList.add('shake');
+  setTimeout(()=>document.body.classList.remove('shake'),400);
+  shakeCount++;
+  for(let i=0;i<10;i++) spawnEmoji();
+  // Easter egg: shake 10 times
+  if(shakeCount>=10){
+    document.body.style.transform='rotate(180deg)';
+    document.body.style.transition='transform 2s cubic-bezier(0.68,-0.55,0.265,1.55)';
+    setTimeout(()=>{document.body.style.transform='';shakeCount=0},4000);
   }
 }
-function draw(){
-  x.clearRect(0,0,w,h);
-  for(let i=0;i<particles.length;i++){
-    const p=particles[i];
-    p.x+=p.vx;p.y+=p.vy;
-    if(p.x<0)p.x=w;if(p.x>w)p.x=0;
-    if(p.y<0)p.y=h;if(p.y>h)p.y=0;
-    x.beginPath();
-    x.arc(p.x,p.y,p.r,0,Math.PI*2);
-    x.fillStyle=`rgba(59,130,246,${p.o})`;
-    x.fill();
-    for(let j=i+1;j<particles.length;j++){
-      const q=particles[j];
-      const dx=p.x-q.x,dy=p.y-q.y;
-      const dist=dx*dx+dy*dy;
-      if(dist<12000){
-        x.beginPath();
-        x.moveTo(p.x,p.y);
-        x.lineTo(q.x,q.y);
-        x.strokeStyle=`rgba(59,130,246,${0.06*(1-dist/12000)})`;
-        x.stroke();
-      }
+
+// Disco mode
+let disco=false;
+document.addEventListener('keydown',e=>{
+  if(e.key==='d'||e.key==='D'){
+    disco=!disco;
+    document.documentElement.classList.toggle('disco',disco);
+  }
+});
+
+// Konami code
+let ki=0;
+const konami=[38,38,40,40,37,39,37,39,66,65];
+document.addEventListener('keydown',e=>{
+  if(e.keyCode===konami[ki]){
+    ki++;
+    if(ki===konami.length){
+      ki=0;
+      // Nyan mode: rainbow trail on mouse
+      document.body.style.background='linear-gradient(180deg,#ff6b6b,#ffa751,#ffe259,#7bed9f,#70a1ff,#a29bfe)';
+      document.body.style.backgroundSize='100% 600%';
+      document.body.style.animation='nyan 2s linear infinite';
+      const style=document.createElement('style');
+      style.textContent='@keyframes nyan{0%{background-position:50% 0%}100%{background-position:50% 100%}}';
+      document.head.appendChild(style);
+      // Spawn a TON of emoji
+      for(let i=0;i<50;i++) setTimeout(()=>spawnEmoji(),i*50);
+      setTimeout(()=>{
+        document.body.style.background='#0e0e1a';
+        document.body.style.animation='';
+      },8000);
     }
-  }
-  requestAnimationFrame(draw);
-}
-addEventListener('resize',resize);
-resize();draw();
+  }else{ki=0}
+});
+
+// Mouse trail
+let lastTrail=0;
+const trailEmojis=['✨','💫','⭐','🌟','💖'];
+document.addEventListener('mousemove',e=>{
+  const now=Date.now();
+  if(now-lastTrail<60)return;
+  lastTrail=now;
+  const t=document.createElement('div');
+  t.className='trail';
+  t.textContent=trailEmojis[Math.floor(Math.random()*trailEmojis.length)];
+  t.style.left=e.clientX+'px';
+  t.style.top=e.clientY+'px';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),600);
+});
+
+// Ghost follows mouse
+const ghost=document.getElementById('ghost');
+document.addEventListener('mousemove',e=>{
+  const cx=innerWidth/2,cy=innerHeight/2;
+  const dx=(e.clientX-cx)/cx*20,dy=(e.clientY-cy)/cy*15;
+  ghost.style.transform=`translate(${dx}px,${dy+Math.sin(Date.now()/500)*10}px)`;
+});
 </script>
 </body>
 </html>
