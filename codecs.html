@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Complete Codec Bible — Audio, Image & Video</title>
+<meta property="og:title" content="The Complete Codec Bible">
+<meta property="og:description" content="Comprehensive reference guide to every audio, image, and video codec that matters. Past, present, and future.">
+<meta property="og:url" content="https://niggerfaggot.club/codecs.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a26;
+  --surface3: #222233;
+  --border: #2a2a3d;
+  --text: #e8e6f0;
+  --text-dim: #9895a8;
+  --text-muted: #6b6780;
+  --accent: #7c6aef;
+  --accent-glow: #9484ff;
+  --audio: #f59e0b;
+  --audio-dim: #78500e;
+  --image: #10b981;
+  --image-dim: #065f46;
+  --video: #ef4444;
+  --video-dim: #7f1d1d;
+  --neural: #a78bfa;
+  --neural-dim: #4c3a8a;
+  --dead: #6b7280;
+  --king: #fbbf24;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* HERO */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(124,106,239,0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(245,158,11,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 80%, rgba(239,68,68,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(3rem, 8vw, 7rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--text) 0%, var(--accent-glow) 50%, var(--text) 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 8s ease infinite;
+  margin-bottom: 1.5rem;
+}
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.hero-sub {
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  color: var(--text-dim);
+  max-width: 700px;
+  margin-bottom: 3rem;
+}
+.hero-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hero-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 99px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.3s;
+  border: 1px solid;
+}
+.hero-nav a.audio-link { color: var(--audio); border-color: var(--audio-dim); background: rgba(245,158,11,0.06); }
+.hero-nav a.audio-link:hover { background: rgba(245,158,11,0.15); box-shadow: 0 0 30px rgba(245,158,11,0.15); }
+.hero-nav a.image-link { color: var(--image); border-color: var(--image-dim); background: rgba(16,185,129,0.06); }
+.hero-nav a.image-link:hover { background: rgba(16,185,129,0.15); box-shadow: 0 0 30px rgba(16,185,129,0.15); }
+.hero-nav a.video-link { color: var(--video); border-color: var(--video-dim); background: rgba(239,68,68,0.06); }
+.hero-nav a.video-link:hover { background: rgba(239,68,68,0.15); box-shadow: 0 0 30px rgba(239,68,68,0.15); }
+
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  animation: bob 2s ease infinite;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+
+/* LAYOUT */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+section {
+  padding: 5rem 0;
+  border-top: 1px solid var(--border);
+}
+
+/* SECTION HEADERS */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 0.4rem 1rem;
+  border-radius: 99px;
+  margin-bottom: 1rem;
+}
+.section-label.audio { color: var(--audio); background: rgba(245,158,11,0.1); border: 1px solid var(--audio-dim); }
+.section-label.image { color: var(--image); background: rgba(16,185,129,0.1); border: 1px solid var(--image-dim); }
+.section-label.video { color: var(--video); background: rgba(239,68,68,0.1); border: 1px solid var(--video-dim); }
+.section-label.neural { color: var(--neural); background: rgba(167,139,250,0.1); border: 1px solid var(--neural-dim); }
+
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+}
+h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 2.5rem 0 0.75rem;
+  color: var(--text);
+}
+h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--text-dim);
+}
+
+p { margin-bottom: 1rem; color: var(--text-dim); }
+p strong { color: var(--text); font-weight: 600; }
+
+/* CODEC CARDS */
+.codec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+.codec-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.codec-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 40px rgba(124,106,239,0.08);
+}
+.codec-card.dead { opacity: 0.6; }
+.codec-card.dead:hover { opacity: 0.85; }
+.codec-card.king { border-color: var(--king); }
+.codec-card.king::after {
+  content: '👑';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.2rem;
+}
+
+.codec-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+.codec-aka {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+.codec-desc {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+.codec-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.tag.status-king { color: var(--king); border-color: var(--king); background: rgba(251,191,36,0.08); }
+.tag.status-rising { color: var(--image); border-color: var(--image-dim); background: rgba(16,185,129,0.08); }
+.tag.status-legacy { color: var(--dead); }
+.tag.status-dead { color: #ef4444; border-color: #7f1d1d; }
+.tag.status-future { color: var(--neural); border-color: var(--neural-dim); background: rgba(167,139,250,0.08); }
+.tag.royalty-free { color: var(--image); border-color: var(--image-dim); }
+.tag.patented { color: #f97316; border-color: #9a3412; }
+.tag.open-source { color: #38bdf8; border-color: #0369a1; }
+
+/* COMPARISON TABLES */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 2rem 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 600px;
+}
+thead {
+  background: var(--surface2);
+}
+th {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+td {
+  padding: 0.75rem 1rem;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:hover td { background: rgba(124,106,239,0.03); }
+td:first-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* HIERARCHY */
+.hierarchy {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  line-height: 2.2;
+}
+.hierarchy .op { color: var(--text-muted); margin: 0 0.5rem; }
+.hierarchy .best { color: var(--king); font-weight: 600; }
+.hierarchy .good { color: var(--image); }
+.hierarchy .ok { color: var(--text-dim); }
+.hierarchy .bad { color: var(--dead); }
+.hierarchy-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+/* TIMELINE */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+  margin: 2rem 0;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--border));
+}
+.timeline-item {
+  position: relative;
+  padding-bottom: 2rem;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -2rem;
+  top: 0.5rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg);
+  transform: translateX(-4px);
+}
+.timeline-year {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.timeline-text {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+}
+.timeline-text strong { color: var(--text); }
+
+/* CALLOUT */
+.callout {
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  padding: 1.25rem 1.5rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+.callout.warn { border-left-color: var(--audio); }
+.callout.info { border-left-color: var(--accent); }
+.callout p { margin-bottom: 0; }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+footer a { color: var(--accent); text-decoration: none; }
+
+/* BACK TO TOP */
+.back-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.3s;
+  font-size: 1.2rem;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+}
+.back-top.visible { opacity: 1; pointer-events: auto; }
+.back-top:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* TOC sidebar */
+.toc-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 200;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+}
+.toc-toggle:hover { background: var(--accent); color: white; }
+.toc-panel {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 300px;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 199;
+  overflow-y: auto;
+  padding: 4rem 1.5rem 2rem;
+  transition: right 0.3s ease;
+}
+.toc-panel.open { right: 0; }
+.toc-panel a {
+  display: block;
+  padding: 0.4rem 0;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+.toc-panel a:hover { color: var(--accent); }
+.toc-panel a.toc-h2 { font-weight: 600; color: var(--text); margin-top: 0.75rem; }
+.toc-panel a.toc-h3 { padding-left: 1rem; font-size: 0.8rem; }
+
+@media (max-width: 768px) {
+  .codec-grid { grid-template-columns: 1fr; }
+  .hero { min-height: auto; padding: 4rem 1.5rem; }
+  section { padding: 3rem 0; }
+  .toc-panel { width: 85vw; right: -85vw; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOC -->
+<button class="toc-toggle" onclick="document.querySelector('.toc-panel').classList.toggle('open')" aria-label="Table of Contents">☰</button>
+<nav class="toc-panel" id="toc"></nav>
+
+<!-- HERO -->
+<header class="hero" id="top">
+  <h1 class="hero-title">The Codec Bible</h1>
+  <p class="hero-sub">A comprehensive reference to every audio, image, and video codec that matters. How they work, how they compare, what's dead, what's king, and what's coming next.</p>
+  <div class="hero-nav">
+    <a href="#audio" class="audio-link">♫ Audio Codecs</a>
+    <a href="#image" class="image-link">◧ Image Codecs</a>
+    <a href="#video" class="video-link">▶ Video Codecs</a>
+  </div>
+  <div class="scroll-hint">↓ scroll to explore</div>
+</header>
+
+<main class="container">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- AUDIO CODECS -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="audio">
+  <div class="section-label audio">♫ Audio Codecs</div>
+  <h2>Audio Codecs</h2>
+  <p>The lossy audio codec landscape spans 30 years, from the MP3 revolution to Opus dominance. The critical insight: <strong>the encoder implementation matters as much as the codec spec itself.</strong> A great encoder on an old codec beats a bad encoder on a new one.</p>
+
+  <h3 id="audio-hierarchy">The Hierarchy</h3>
+  <div class="hierarchy">
+    <span class="hierarchy-label">Stereo music, equivalent bitrates</span>
+    <span class="best">Opus</span> <span class="op">></span>
+    <span class="best">xHE-AAC</span> <span class="op">≥</span>
+    <span class="good">AAC-LC (Apple/FDK)</span> <span class="op">></span>
+    <span class="ok">Vorbis</span> <span class="op">≈</span>
+    <span class="ok">WMA Pro</span> <span class="op">></span>
+    <span class="ok">MP3 (LAME)</span> <span class="op">></span>
+    <span class="bad">MP3 (other)</span> <span class="op">></span>
+    <span class="bad">WMA Std</span>
+    <br><br>
+    <span class="hierarchy-label">Very low bitrate (&lt;64 kbps)</span>
+    <span class="best">Opus</span> <span class="op">></span>
+    <span class="best">xHE-AAC</span> <span class="op">></span>
+    <span class="good">AAC-HE v2</span> <span class="op">></span>
+    <span class="ok">AAC-HE v1</span> <span class="op">></span>
+    <span class="bad">everything else falls apart</span>
+  </div>
+
+  <h3 id="audio-transparent">Transparent Bitrates</h3>
+  <p>"Transparent" means indistinguishable from CD in ABX testing. These numbers come from decades of Hydrogen Audio blind testing.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Codec</th><th>Transparent Bitrate</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Opus</td><td>~128 kbps</td><td>96k sufficient for most content</td></tr>
+        <tr><td>AAC-LC</td><td>~192 kbps</td><td>Apple/FDK encoder. Encoder quality critical</td></tr>
+        <tr><td>AAC-HE v1</td><td>~96 kbps</td><td>SBR for low bitrate. Worse than LC above 128k</td></tr>
+        <tr><td>AAC-HE v2</td><td>~48-64 kbps</td><td>Parametric stereo. Speech/simple music</td></tr>
+        <tr><td>Vorbis</td><td>~160-192 kbps</td><td>q5-q6 range</td></tr>
+        <tr><td>MP3 (LAME V0)</td><td>~245 kbps VBR</td><td>CBR 256 also safe</td></tr>
+        <tr><td>MP3 (LAME V2)</td><td>~190 kbps VBR</td><td>Most can't ABX, not universal</td></tr>
+        <tr><td>WMA Pro</td><td>~192 kbps</td><td>Nobody uses it</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="audio-mp3">MP3 (MPEG-1 Audio Layer III)</h3>
+  <p>Standardized 1993. The codec spec is just math. The <strong>encoder</strong> determines quality, and they vary wildly.</p>
+  <div class="codec-grid">
+    <div class="codec-card">
+      <div class="codec-name">LAME</div>
+      <div class="codec-aka">The only MP3 encoder anyone should use</div>
+      <div class="codec-desc">Refined for 20+ years, effectively "solved." V0 (~245 kbps) is transparent. V2 (~190 kbps) is the sweet spot. CBR 320 is wasteful compared to V0 but psychologically comforting since VBR can't redistribute bits like CBR allocates uniformly.</div>
+      <div class="codec-meta"><span class="tag open-source">open source</span><span class="tag status-legacy">legacy but gold</span></div>
+    </div>
+    <div class="codec-card dead">
+      <div class="codec-name">Fraunhofer / Xing / BladeEnc</div>
+      <div class="codec-aka">The bad old days</div>
+      <div class="codec-desc">Fraunhofer (patent holders) made decent encoders. Xing and BladeEnc were absolute garbage. A lot of "MP3 sounds bad" from the late 90s came from these terrible encoders ripping at 128k CBR. That combination sounds genuinely awful.</div>
+      <div class="codec-meta"><span class="tag status-dead">avoid</span></div>
+    </div>
+  </div>
+  <p>MP3 tops out at 320 kbps, stereo only, 48 kHz max. Dead format in terms of development. Still the most universally compatible audio format in existence.</p>
+
+  <h3 id="audio-aac">AAC Family</h3>
+  <p>Not one codec but a family under the MPEG-4 umbrella with multiple profiles.</p>
+  <div class="codec-grid">
+    <div class="codec-card">
+      <div class="codec-name">AAC-LC</div>
+      <div class="codec-aka">Low Complexity — the "normal" AAC</div>
+      <div class="codec-desc">Better spectral modeling than MP3, no 16 kHz low-pass at low bitrates. Transparent ~192 kbps with a good encoder. Used by iTunes Store, Apple Music lossy, YouTube audio.</div>
+      <div class="codec-meta"><span class="tag patented">patented</span><span class="tag status-king">dominant</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">AAC-HE v1</div>
+      <div class="codec-aka">High Efficiency — AAC-LC + SBR</div>
+      <div class="codec-desc">Spectral Band Replication: encodes lows normally, reconstructs highs from a small metadata side-channel. Designed for 48-96 kbps. Great for streaming radio, podcasts. Actually <em>worse</em> than AAC-LC above 128k because SBR overhead.</div>
+      <div class="codec-meta"><span class="tag patented">patented</span><span class="tag">48-96 kbps sweet spot</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">AAC-HE v2</div>
+      <div class="codec-aka">HE v1 + Parametric Stereo</div>
+      <div class="codec-desc">Encodes mono downmix + spatial parameters to reconstruct stereo image. Killer at 32-48 kbps. Used by many low-bitrate streaming services. Decent for speech, falls apart on complex stereo music.</div>
+      <div class="codec-meta"><span class="tag patented">patented</span><span class="tag">32-48 kbps</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">xHE-AAC</div>
+      <div class="codec-aka">Extended HE-AAC / USAC</div>
+      <div class="codec-desc">Newest AAC profile. Seamlessly switches between speech and music coding modes. Decent quality at absurdly low bitrates (12-32 kbps). Used by newer streaming services and digital radio.</div>
+      <div class="codec-meta"><span class="tag patented">patented</span><span class="tag status-rising">rising</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">AAC-LD / ELD</div>
+      <div class="codec-aka">Low Delay / Enhanced Low Delay</div>
+      <div class="codec-desc">Optimized for real-time communication. Used in FaceTime, some VoIP. Quality-per-bit isn't the goal, latency is.</div>
+      <div class="codec-meta"><span class="tag patented">patented</span><span class="tag">real-time</span></div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>AAC encoder quality matters enormously.</strong> Apple's CoreAudio is the best (or tied). FDK-AAC (Fraunhofer, open source, ffmpeg default) is very good. Nero AAC was great, now abandoned. FAAC is garbage. ffmpeg's native AAC encoder was terrible for years, now acceptable but still behind.</p>
+  </div>
+
+  <h3 id="audio-opus">Opus</h3>
+  <div class="codec-grid">
+    <div class="codec-card king">
+      <div class="codec-name">Opus</div>
+      <div class="codec-aka">RFC 6716 (2012) — IETF Standard</div>
+      <div class="codec-desc">Built from CELT (Xiph, music) and SILK (Skype, speech), seamlessly blends between them. Handles everything: music, speech, low latency (5ms), low bitrate, high bitrate, mono through surround. At any given bitrate it matches or beats every other lossy codec. Patent-free, mandatory in WebRTC. Only downside: hardware support on old devices.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag open-source">open source</span><span class="tag status-king">king</span></div>
+    </div>
+  </div>
+
+  <h3 id="audio-vorbis">Vorbis</h3>
+  <div class="codec-grid">
+    <div class="codec-card">
+      <div class="codec-name">Ogg Vorbis</div>
+      <div class="codec-aka">Xiph.org, 2000</div>
+      <div class="codec-desc">Xiph's patent-free answer to MP3. Quality between MP3 and AAC. q5 (~160 kbps) is good, q6 (~192 kbps) transparent for most. Won in gaming (Unreal Engine) and was Spotify's desktop codec for years. Opus obsoleted it. Xiph themselves created Opus as its successor.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag open-source">open source</span><span class="tag status-legacy">superseded by Opus</span></div>
+    </div>
+  </div>
+
+  <h3 id="audio-wma">WMA</h3>
+  <div class="codec-grid">
+    <div class="codec-card dead">
+      <div class="codec-name">WMA Standard / Pro / Lossless / Voice</div>
+      <div class="codec-aka">Microsoft — effectively dead</div>
+      <div class="codec-desc">WMA Standard was MP3-competitive. WMA Pro was multi-channel, roughly AAC-LC tier at ~192 kbps. WMA Lossless was Microsoft's FLAC competitor. Voice was speech-optimized. Entire family is dead outside legacy Windows ecosystems.</div>
+      <div class="codec-meta"><span class="tag patented">proprietary</span><span class="tag status-dead">dead</span></div>
+    </div>
+  </div>
+
+  <h3 id="audio-others">Others Worth Knowing</h3>
+  <div class="codec-grid">
+    <div class="codec-card dead">
+      <div class="codec-name">Musepack (MPC)</div>
+      <div class="codec-desc">Audiophile darling, mid-2000s. Optimized purely for high-quality transparency. At ~180 kbps it was arguably the most transparent codec of its era. Tiny community, historical curiosity.</div>
+      <div class="codec-meta"><span class="tag status-dead">abandoned</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">AC-3 / Dolby Digital</div>
+      <div class="codec-desc">Surround sound for film/TV/streaming. 384-640 kbps for 5.1. Found in DVDs, Blu-rays, streaming.</div>
+      <div class="codec-meta"><span class="tag patented">patented</span><span class="tag">surround</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">E-AC-3 / Dolby Digital Plus</div>
+      <div class="codec-desc">Improved AC-3 used by Netflix, Disney+, etc. Better quality at lower bitrates, supports Atmos metadata.</div>
+      <div class="codec-meta"><span class="tag patented">patented</span><span class="tag status-king">streaming standard</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">Dolby AC-4</div>
+      <div class="codec-desc">Newest Dolby codec for broadcast TV (ATSC 3.0). Supports Atmos natively.</div>
+      <div class="codec-meta"><span class="tag patented">patented</span><span class="tag status-future">emerging</span></div>
+    </div>
+  </div>
+
+  <h4>Bluetooth Audio Codecs</h4>
+  <p><strong>SBC</strong> is mandatory baseline (mediocre). <strong>aptX / aptX HD / aptX Adaptive</strong> (Qualcomm) try to improve quality. <strong>LDAC</strong> (Sony) pushes up to 990 kbps for near-CD quality. <strong>LC3</strong> is the new Bluetooth LE Audio standard and is genuinely good. <strong>AAC over Bluetooth</strong> works well on Apple devices, inconsistent on Android.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- IMAGE CODECS -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="image">
+  <div class="section-label image">◧ Image Codecs</div>
+  <h2>Image Codecs</h2>
+  <p>Image codecs split into two worlds: <strong>lossless</strong> (archival, editing, pixel-perfect) and <strong>lossy</strong> (web delivery, storage reduction). Most modern formats support both. The current battle is AVIF vs JPEG XL, with WebP as the safe incumbent.</p>
+
+  <h3 id="image-hierarchy">The Hierarchy</h3>
+  <div class="hierarchy">
+    <span class="hierarchy-label">Lossy web delivery, size vs quality</span>
+    <span class="best">AVIF</span> <span class="op">≥</span>
+    <span class="best">JPEG XL</span> <span class="op">></span>
+    <span class="good">HEIC</span> <span class="op">></span>
+    <span class="good">WebP</span> <span class="op">></span>
+    <span class="ok">JPEG (jpegli)</span> <span class="op">></span>
+    <span class="bad">JPEG (standard)</span>
+    <br><br>
+    <span class="hierarchy-label">Lossless compression</span>
+    <span class="best">JPEG XL</span> <span class="op">></span>
+    <span class="good">WebP lossless</span> <span class="op">≈</span>
+    <span class="good">AVIF lossless</span> <span class="op">></span>
+    <span class="ok">PNG (optimized)</span> <span class="op">></span>
+    <span class="bad">PNG (naive)</span> <span class="op">></span>
+    <span class="bad">BMP / TIFF uncompressed</span>
+    <br><br>
+    <span class="hierarchy-label">Browser support (Feb 2026)</span>
+    <span class="best">JPEG / PNG / WebP</span> <span class="op">→</span> 100%
+    <span class="op">|</span>
+    <span class="good">AVIF</span> <span class="op">→</span> ~95%
+    <span class="op">|</span>
+    <span class="ok">JPEG XL</span> <span class="op">→</span> Safari native, Chrome 145 behind flag, Firefox behind flag
+  </div>
+
+  <h3 id="image-legacy">The Classics</h3>
+  <div class="codec-grid">
+    <div class="codec-card">
+      <div class="codec-name">JPEG</div>
+      <div class="codec-aka">1992 — JPEG Committee</div>
+      <div class="codec-desc">The original lossy photo format. DCT-based, 8-bit, no alpha, no animation. Still the most universally compatible image format. Gradually losing ground to modern formats, but will be a fallback for a decade more. <strong>jpegli</strong> (from the JPEG XL team) borrows JXL techniques to squeeze better quality from the old JPEG format, especially at high quality.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag status-legacy">eternal legacy</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">PNG</div>
+      <div class="codec-aka">1996 — Lossless</div>
+      <div class="codec-desc">Lossless, supports alpha transparency. The standard for screenshots, UI elements, anything requiring pixel-perfect reproduction. Large files compared to modern lossless options. APNG adds animation support.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag">universal</span></div>
+    </div>
+    <div class="codec-card dead">
+      <div class="codec-name">GIF</div>
+      <div class="codec-aka">1987 — 256 colors max</div>
+      <div class="codec-desc">Limited to 256 colors per frame. Famous for animations. Objectively terrible by any modern metric. Use MP4/WebM for animations, WebP/AVIF for everything else. Culturally immortal, technically dead.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag status-dead">technically dead</span></div>
+    </div>
+    <div class="codec-card dead">
+      <div class="codec-name">BMP</div>
+      <div class="codec-aka">Uncompressed bitmap</div>
+      <div class="codec-desc">No compression (or minimal RLE). Huge files. Only encountered in legacy Windows apps and as an intermediate format. No reason to use in 2026.</div>
+      <div class="codec-meta"><span class="tag status-dead">dead</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">TIFF</div>
+      <div class="codec-aka">Tagged Image File Format</div>
+      <div class="codec-desc">Supports virtually everything: lossy, lossless, multi-page, 16/32-bit, CMYK. Standard in printing, publishing, scientific imaging, GIS. Not a web format. Huge files but extremely versatile for professional workflows.</div>
+      <div class="codec-meta"><span class="tag">professional</span><span class="tag">print/archival</span></div>
+    </div>
+  </div>
+
+  <h3 id="image-modern">The Modern Contenders</h3>
+  <div class="codec-grid">
+    <div class="codec-card">
+      <div class="codec-name">WebP</div>
+      <div class="codec-aka">Google, 2010 — VP8-derived</div>
+      <div class="codec-desc">Google's first attempt to replace JPEG/PNG. Supports lossy, lossless, alpha, and animation. 25-35% smaller than JPEG at equivalent quality. 100% browser support. The "safe bet" for web delivery. Starting to show its age: AVIF and JXL both outperform it, and lossy WebP can get blurry at low file sizes.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag open-source">open source</span><span class="tag status-king">safe incumbent</span></div>
+    </div>
+    <div class="codec-card king">
+      <div class="codec-name">AVIF</div>
+      <div class="codec-aka">AV1-based, AOMedia, 2019</div>
+      <div class="codec-desc">Derived from AV1 video codec. Excellent lossy compression, especially at low-to-medium quality where it beats everything. Supports 10/12-bit HDR, wide color gamut, alpha, animation. ~20% smaller than WebP at equivalent quality. Main drawbacks: slow encoding (CPU-intensive), no progressive loading, max dimensions limited. Currently the best format for web delivery.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag open-source">open source</span><span class="tag status-king">web king 2026</span></div>
+    </div>
+    <div class="codec-card king">
+      <div class="codec-name">JPEG XL</div>
+      <div class="codec-aka">JPEG Committee, 2022</div>
+      <div class="codec-desc">The true JPEG successor. Superior at high quality and lossless. Unique killer features: <strong>lossless JPEG transcoding</strong> (convert JPEG→JXL, save ~35%, convert back to pixel-perfect original), <strong>progressive loading</strong> (blurry-to-sharp like old JPEG), up to 32-bit HDR, huge dimensions, fast encode/decode. Uses XYB colorspace matching human cone response. Chrome 145 (Feb 2026) re-added support behind a flag after controversial 2022 removal. Safari supports natively. Firefox behind flag.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag open-source">open source</span><span class="tag status-rising">the comeback</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">HEIC / HEIF</div>
+      <div class="codec-aka">HEVC-based, Apple's default</div>
+      <div class="codec-desc">Based on HEVC (H.265) video codec. ~50% smaller than JPEG. Default capture format on iPhones since iOS 11. Supports HDR, depth maps, live photos. Patent-encumbered (HEVC licensing mess), minimal browser support, basically Apple-only in practice.</div>
+      <div class="codec-meta"><span class="tag patented">heavily patented</span><span class="tag">Apple ecosystem</span></div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <p><strong>AVIF vs JPEG XL: who wins?</strong> AVIF wins at low-to-medium quality web delivery and has far better browser support right now. JPEG XL wins at high quality, lossless, archival, progressive loading, and professional photography. The answer is "use both" with &lt;picture&gt; fallbacks. JPEG XL's Chrome comeback (Feb 2026) may change the calculus significantly.</p>
+  </div>
+
+  <h3 id="image-specialty">Specialty & Professional</h3>
+  <div class="codec-grid">
+    <div class="codec-card">
+      <div class="codec-name">RAW</div>
+      <div class="codec-aka">Camera-specific sensor data</div>
+      <div class="codec-desc">Not one format but hundreds (CR2, NEF, ARW, DNG, etc). Unprocessed sensor data preserving maximum dynamic range and editing flexibility. Large files. Essential for professional photography. DNG (Adobe) attempts to standardize.</div>
+      <div class="codec-meta"><span class="tag">professional</span><span class="tag">camera-specific</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">SVG</div>
+      <div class="codec-aka">Scalable Vector Graphics</div>
+      <div class="codec-desc">XML-based vector format, not a raster codec. Resolution-independent. Perfect for logos, icons, illustrations, data visualizations. Infinitely scalable. Can be styled with CSS and manipulated with JavaScript.</div>
+      <div class="codec-meta"><span class="tag royalty-free">open standard</span><span class="tag">vector</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">QOI</div>
+      <div class="codec-aka">Quite OK Image Format, 2021</div>
+      <div class="codec-desc">Intentionally simple lossless format. ~300 lines of code. Compresses worse than PNG but encodes/decodes 20-50x faster. Niche use: game engines and real-time applications where speed matters more than size.</div>
+      <div class="codec-meta"><span class="tag royalty-free">public domain</span><span class="tag open-source">open source</span></div>
+    </div>
+    <div class="codec-card dead">
+      <div class="codec-name">WebP 2</div>
+      <div class="codec-aka">Google's abandoned successor</div>
+      <div class="codec-desc">Google's attempt to leapfrog AVIF. VP9-derived. Development was abandoned. AVIF and JPEG XL made it redundant before it shipped.</div>
+      <div class="codec-meta"><span class="tag status-dead">cancelled</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- VIDEO CODECS -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="video">
+  <div class="section-label video">▶ Video Codecs</div>
+  <h2>Video Codecs</h2>
+  <p>Video compression is where the real money and politics live. Each generation roughly halves the bitrate of the previous one for equivalent quality. But codec adoption is driven as much by <strong>patent licensing, hardware support, and ecosystem momentum</strong> as by technical merit.</p>
+
+  <h3 id="video-hierarchy">The Hierarchy</h3>
+  <div class="hierarchy">
+    <span class="hierarchy-label">Compression efficiency at equivalent quality (2026)</span>
+    <span class="best">VVC (H.266)</span> <span class="op">></span>
+    <span class="good">AV1</span> <span class="op">≈</span>
+    <span class="good">HEVC (H.265)</span> <span class="op">></span>
+    <span class="ok">VP9</span> <span class="op">></span>
+    <span class="ok">AVC (H.264)</span> <span class="op">>></span>
+    <span class="bad">MPEG-2</span>
+    <br><br>
+    <span class="hierarchy-label">Real-world adoption (2026)</span>
+    <span class="best">AVC (H.264)</span> <span class="op">→</span> plays everywhere, still #1
+    <span class="op">|</span>
+    <span class="good">HEVC (H.265)</span> <span class="op">→</span> 4K/HDR standard
+    <span class="op">|</span>
+    <span class="good">AV1</span> <span class="op">→</span> YouTube, Netflix, growing fast
+    <span class="op">|</span>
+    <span class="ok">VP9</span> <span class="op">→</span> YouTube legacy
+    <span class="op">|</span>
+    <span class="bad">VVC (H.266)</span> <span class="op">→</span> near-zero deployment
+  </div>
+
+  <h3 id="video-timeline">The Generational Timeline</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">1995</div>
+      <div class="timeline-text"><strong>MPEG-2 / H.262</strong> — DVDs, digital TV, early satellite. Still used in broadcast. The codec that brought digital video to living rooms.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2003</div>
+      <div class="timeline-text"><strong>H.264 / AVC (MPEG-4 Part 10)</strong> — The king. Blu-ray, streaming, video calls, surveillance, everything. Single most important video codec ever created. ~50% better than MPEG-2. Patent pool exists but licensing is relatively clear.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2008</div>
+      <div class="timeline-text"><strong>VP8</strong> — Google (acquired On2). Open source. Basis for WebP images. Decent but couldn't unseat H.264.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2012</div>
+      <div class="timeline-text"><strong>VP9</strong> — Google's answer to HEVC. Royalty-free. YouTube adopted it massively. ~30-40% better than H.264. Hardware decode in most modern devices.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2013</div>
+      <div class="timeline-text"><strong>HEVC / H.265</strong> — ~50% better than H.264. 4K/HDR standard. <em>Disastrous</em> patent licensing: multiple competing pools, unclear costs, companies sued. This fragmentation directly caused the creation of AV1.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2018</div>
+      <div class="timeline-text"><strong>AV1</strong> — Alliance for Open Media (Amazon, Apple, Google, Meta, Microsoft, Netflix, Nvidia, Samsung). Royalty-free response to HEVC's licensing disaster. ~30% better than HEVC. Slow to encode but hardware support growing fast.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2020</div>
+      <div class="timeline-text"><strong>VVC / H.266</strong> — ~50% better than HEVC. Technically excellent but effectively dead on arrival: no killer use case (8K isn't mainstream), patent licensing fragmented again, and AV1 exists as the free alternative.</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">~2028</div>
+      <div class="timeline-text"><strong>AV2</strong> — AOMedia's next generation, expected late 2025/2026 spec, deployment years later. And <strong>H.267 / "Beyond VVC"</strong> — JVET's next standard with two tracks: ECM (evolutionary, 25%+ over VVC) and NNVC (neural network-based, revolutionary). Both years from deployment.</div>
+    </div>
+  </div>
+
+  <h3 id="video-detail">Detailed Breakdown</h3>
+  <div class="codec-grid">
+    <div class="codec-card king">
+      <div class="codec-name">H.264 / AVC</div>
+      <div class="codec-aka">MPEG-4 Part 10, 2003</div>
+      <div class="codec-desc">Plays literally everywhere. Every phone, every browser, every TV, every camera, every drone, every webcam. Still the default for compatibility. x264 is the gold-standard open-source encoder, one of the most optimized pieces of software ever written. Hardware encode/decode is universal.</div>
+      <div class="codec-meta"><span class="tag patented">patented (clear licensing)</span><span class="tag status-king">universal standard</span></div>
+    </div>
+    <div class="codec-card king">
+      <div class="codec-name">HEVC / H.265</div>
+      <div class="codec-aka">2013 — 4K/HDR era</div>
+      <div class="codec-desc">~50% bitrate savings over H.264 at equivalent quality. The codec behind 4K streaming, HDR, Apple's ecosystem (FaceTime, iPhones shoot HEVC by default). x265 is the main open-source encoder. Patent licensing is a fragmented mess with multiple competing pools (Access Advance, Via-LA) and many essential patent holders outside any pool. This mess directly caused AV1's creation.</div>
+      <div class="codec-meta"><span class="tag patented">fragmented patents</span><span class="tag status-king">4K/HDR standard</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">VP9</div>
+      <div class="codec-aka">Google, 2013</div>
+      <div class="codec-desc">Google's royalty-free HEVC competitor. YouTube's primary codec for years. ~30-40% better than H.264, roughly on par with HEVC. Hardware decode widespread. Being gradually replaced by AV1 on YouTube but still serving tons of traffic.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag open-source">open source</span><span class="tag status-legacy">being replaced by AV1</span></div>
+    </div>
+    <div class="codec-card king">
+      <div class="codec-name">AV1</div>
+      <div class="codec-aka">Alliance for Open Media, 2018</div>
+      <div class="codec-desc">The industry's collective middle finger to HEVC's patent mess. ~30% better than HEVC. Royalty-free. Backed by every major tech company. YouTube, Netflix, Meta all deploying. Hardware decode in newer chips (Intel 12th+, AMD RDNA 3, Nvidia RTX 40+, Apple M3+, MediaTek Dimensity). <strong>SVT-AV1</strong> (Intel/Netflix) is the dominant encoder. libaom is the reference. Encoding is CPU-intensive but improving rapidly. The clear next universal standard after H.264.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag open-source">open source</span><span class="tag status-rising">the next universal</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">VVC / H.266</div>
+      <div class="codec-aka">2020 — Technically superior, practically stuck</div>
+      <div class="codec-desc">~50% better compression than HEVC, ~10-20% better than AV1. Supports up to 16K, 360-degree video, HDR. But: encoding is 5-10x more complex than HEVC, patent licensing is fragmented again (Access Advance, Via-LA, plus many holdouts), no killer use case (8K isn't here yet), and AV1 is free. Near-zero streaming deployments. Brazil's TV 3.0 and ATSC 3.0 adopted it for broadcast. Hardware decode starting in Intel Lunar Lake, MediaTek Pentonic chips. May find a niche in broadcast but unlikely to become mainstream for streaming.</div>
+      <div class="codec-meta"><span class="tag patented">fragmented patents</span><span class="tag status-future">limbo</span></div>
+    </div>
+    <div class="codec-card dead">
+      <div class="codec-name">EVC (Essential Video Coding)</div>
+      <div class="codec-aka">MPEG-5 Part 1</div>
+      <div class="codec-desc">Designed with a royalty-free baseline profile and a patent-encumbered main profile. Trying to split the difference. Little progress, minimal adoption. Not on anyone's radar.</div>
+      <div class="codec-meta"><span class="tag status-dead">irrelevant</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">LCEVC</div>
+      <div class="codec-aka">MPEG-5 Part 2 — Enhancement layer</div>
+      <div class="codec-desc">Not a standalone codec. An enhancement layer that sits on top of any base codec (H.264, HEVC, AV1) to add quality. Encode at lower resolution, LCEVC upscales with residual correction. Used in Brazil's TV 3.0 alongside VVC. Niche but clever.</div>
+      <div class="codec-meta"><span class="tag patented">patented</span><span class="tag status-future">niche</span></div>
+    </div>
+  </div>
+
+  <h3 id="video-comparison">Compression Efficiency Comparison</h3>
+  <p>Approximate bitrate savings at equivalent visual quality (these vary by content, encoder settings, and who's measuring):</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Codec</th><th>vs H.264</th><th>vs HEVC</th><th>Key Encoders</th></tr></thead>
+      <tbody>
+        <tr><td>H.264 / AVC</td><td>baseline</td><td>—</td><td>x264, hardware everywhere</td></tr>
+        <tr><td>VP9</td><td>~30-40% smaller</td><td>~on par</td><td>libvpx</td></tr>
+        <tr><td>HEVC / H.265</td><td>~50% smaller</td><td>baseline</td><td>x265, hardware widespread</td></tr>
+        <tr><td>AV1</td><td>~55-65% smaller</td><td>~20-30% smaller</td><td>SVT-AV1, libaom, rav1e</td></tr>
+        <tr><td>VVC / H.266</td><td>~65-75% smaller</td><td>~40-50% smaller</td><td>VVenC (Fraunhofer), VTM</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 id="video-surround">Surround & Cinema Codecs</h3>
+  <div class="codec-grid">
+    <div class="codec-card dead">
+      <div class="codec-name">MPEG-2</div>
+      <div class="codec-aka">1995 — DVDs, broadcast TV</div>
+      <div class="codec-desc">Still used in over-the-air broadcast, DVDs, and some satellite. Extremely inefficient by modern standards. Hardware decode universal. Being phased out of broadcast as ATSC 3.0 rolls out.</div>
+      <div class="codec-meta"><span class="tag patented">patents expired</span><span class="tag status-legacy">broadcast holdover</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">ProRes</div>
+      <div class="codec-aka">Apple — Professional editing</div>
+      <div class="codec-desc">Visually lossless editing codec. Designed for fast decode during editing, not for delivery. Multiple profiles from Proxy to 4444 XQ. Standard in the Apple/Final Cut Pro ecosystem. iPhones can shoot ProRes.</div>
+      <div class="codec-meta"><span class="tag patented">Apple proprietary</span><span class="tag">editing codec</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">DNxHR / DNxHD</div>
+      <div class="codec-aka">Avid — Professional editing</div>
+      <div class="codec-desc">Avid's answer to ProRes. Visually lossless editing codec. Cross-platform (unlike ProRes which was Apple-only for encoding until recently). Standard in Avid Media Composer workflows.</div>
+      <div class="codec-meta"><span class="tag patented">Avid proprietary</span><span class="tag">editing codec</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">FFV1</div>
+      <div class="codec-aka">Lossless archival</div>
+      <div class="codec-desc">Mathematically lossless video codec from FFmpeg. Used by archives (Library of Congress, national film archives). Compresses ~50% vs uncompressed with zero quality loss. Not for delivery.</div>
+      <div class="codec-meta"><span class="tag royalty-free">royalty-free</span><span class="tag open-source">open source</span><span class="tag">archival</span></div>
+    </div>
+  </div>
+
+  <h3 id="video-containers">Containers vs Codecs</h3>
+  <div class="callout info">
+    <p><strong>A container is not a codec.</strong> MP4 is a container that can hold H.264, H.265, AV1, AAC, Opus, etc. MKV (Matroska) can hold virtually anything. WebM is a restricted MKV that holds VP8/VP9/AV1 + Vorbis/Opus. AVI is ancient. MOV is Apple's container. The container handles muxing, chapters, subtitles, metadata. The codec handles compression. When someone says "an MP4 file," you still don't know which video codec is inside.</p>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Container</th><th>Common Video Codecs</th><th>Common Audio Codecs</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>.mp4</td><td>H.264, H.265, AV1</td><td>AAC, Opus, AC-3</td><td>Universal. The default.</td></tr>
+        <tr><td>.mkv</td><td>Anything</td><td>Anything</td><td>Most flexible. Common for rips.</td></tr>
+        <tr><td>.webm</td><td>VP8, VP9, AV1</td><td>Vorbis, Opus</td><td>Google's web-focused container</td></tr>
+        <tr><td>.mov</td><td>H.264, H.265, ProRes</td><td>AAC, PCM</td><td>Apple's container</td></tr>
+        <tr><td>.avi</td><td>Anything (legacy)</td><td>Anything</td><td>Ancient. No streaming support.</td></tr>
+        <tr><td>.ts</td><td>H.264, H.265, MPEG-2</td><td>AAC, AC-3, MP2</td><td>MPEG Transport Stream. Broadcast, HLS.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- NEURAL / FUTURE CODECS -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="neural">
+  <div class="section-label neural">⚡ The Future</div>
+  <h2>Neural & Next-Gen Codecs</h2>
+  <p>The next frontier in compression replaces hand-crafted algorithms with learned neural networks. This is where things get genuinely exciting and genuinely uncertain.</p>
+
+  <h3 id="neural-video">Neural Video Codecs (NVCs)</h3>
+  <p>Neural video codecs use deep learning architectures (primarily Variational Autoencoders and Implicit Neural Representations) instead of traditional block-based DCT transforms. The state of the art in 2025/2026:</p>
+  <div class="codec-grid">
+    <div class="codec-card">
+      <div class="codec-name">DCVC Family</div>
+      <div class="codec-aka">Deep Contextual Video Compression</div>
+      <div class="codec-desc">The leading NVC research line. DCVC-FM and DCVC-RT achieve state-of-the-art compression. Latest research (CVPR 2025) shows ~22% bitrate reduction over H.266/VVC on standard benchmarks. DCVC-RT is the first NVC deployable for real-time coding on consumer GPUs. Still requires GPU hardware for practical speeds.</div>
+      <div class="codec-meta"><span class="tag status-future">research frontier</span><span class="tag">GPU required</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">NNVC Track (H.267)</div>
+      <div class="codec-aka">Neural Network Video Coding</div>
+      <div class="codec-desc">One of the two tracks for the H.267 "Beyond VVC" standard (~2028). Instead of evolving traditional block-based coding, NNVC aims to replace it entirely with learned models. Revolutionary potential but massive practical challenges: cross-device consistency, deterministic floating-point math, rate control, hardware deployment.</div>
+      <div class="codec-meta"><span class="tag status-future">~2028+ standard</span></div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <p><strong>Reality check on neural codecs:</strong> Despite beating VVC in academic benchmarks, full neural video compression hasn't beaten well-tuned conventional encoders in real-world conditions with human opinion scores. Traditional encoders enhanced with AI tools (like AI-assisted encoding decisions) currently outperform pure neural codecs. AI and conventional approaches will work in tandem for the foreseeable future. Pure neural codecs are "black boxes" that can't be debugged, which is a serious practical concern. The compute requirements are orders of magnitude higher than conventional encoders.</p>
+  </div>
+
+  <h3 id="neural-image">Neural Image Codecs</h3>
+  <p>Neural image compression is further along than video. Learned image codecs have achieved genuine state-of-the-art performance in both MSE-optimized and perceptual quality metrics. Google's work on combining autoencoders with diffusion models enables extreme compression (very low bitrates) while maintaining perceptual quality through generative reconstruction. However, these still require significant GPU compute for encoding and often for decoding too.</p>
+
+  <h3 id="ai-hybrid">AI-Enhanced Traditional Codecs</h3>
+  <p>The more practical near-term approach. Instead of replacing codecs, AI enhances them:</p>
+  <div class="codec-grid">
+    <div class="codec-card">
+      <div class="codec-name">AI-assisted encoding</div>
+      <div class="codec-desc">ML models optimize encoding decisions: per-scene bitrate allocation, content-aware quantization, optimal mode decisions. Companies like Beamr, Bitmovin, and the major streaming services use this today. 10-30% bitrate savings on top of conventional codecs.</div>
+      <div class="codec-meta"><span class="tag status-king">deployed today</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">Neural super-resolution</div>
+      <div class="codec-desc">Encode at lower resolution, use ML upscaling on decode. NVIDIA's DLSS concept applied to video. LCEVC is a standardized approach. Practical today with modern GPUs.</div>
+      <div class="codec-meta"><span class="tag status-rising">growing</span></div>
+    </div>
+    <div class="codec-card">
+      <div class="codec-name">Video Coding for Machines (VCM)</div>
+      <div class="codec-aka">MPEG-AI standard</div>
+      <div class="codec-desc">Compression optimized for machine analysis rather than human viewing. Designed for surveillance, autonomous vehicles, IoT. Different optimization targets: object detection accuracy rather than human perceptual quality.</div>
+      <div class="codec-meta"><span class="tag status-future">emerging standard</span></div>
+    </div>
+  </div>
+
+  <h3 id="future-roadmap">What's Coming</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Standard</th><th>Expected</th><th>Improvement over</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>AV2</td><td>Spec ~2025-26, deployment years later</td><td>~30% over AV1</td><td>AOMedia. Royalty-free. Direct VVC competitor.</td></tr>
+        <tr><td>H.267 (ECM track)</td><td>~2028</td><td>25-40% over VVC</td><td>Evolutionary: refined block-based coding</td></tr>
+        <tr><td>H.267 (NNVC track)</td><td>~2028+</td><td>Unknown ceiling</td><td>Revolutionary: neural network-based</td></tr>
+        <tr><td>Pure neural codecs</td><td>Ongoing research</td><td>Beyond VVC</td><td>Academic SOTAs, not deployed at scale</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The pattern is clear: HEVC and AV1 will remain dominant for several more years. Next-gen codecs (AV2, VVC, H.267) will ramp slowly because there's no killer use case driving adoption the way 4K/HDR drove HEVC. The real revolution may come from AI-enhanced encoding rather than new codec standards.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PATENT & LICENSING -->
+<!-- ═══════════════════════════════════════════ -->
+<section id="licensing">
+  <div class="section-label neural">⚖ Licensing</div>
+  <h2>The Patent Wars</h2>
+  <p>You can't understand codec adoption without understanding licensing. Patents have killed or delayed better technology repeatedly.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Codec</th><th>Licensing</th><th>Impact</th></tr></thead>
+      <tbody>
+        <tr><td>H.264</td><td>MPEG LA pool, relatively clear</td><td>Widely adopted, predictable costs</td></tr>
+        <tr><td>HEVC</td><td>3 competing pools + holdouts</td><td>Fragmentation directly caused AV1's creation</td></tr>
+        <tr><td>VP9 / AV1</td><td>Royalty-free (AOMedia)</td><td>Industry rallied behind free alternative</td></tr>
+        <tr><td>VVC</td><td>2 pools + major holdouts (Apple, Google, Microsoft...)</td><td>Unclear costs, slowing adoption further</td></tr>
+        <tr><td>Opus / Vorbis</td><td>Royalty-free</td><td>Universal adoption in web/VoIP</td></tr>
+        <tr><td>JPEG XL / AVIF</td><td>Royalty-free</td><td>No licensing friction</td></tr>
+        <tr><td>AAC</td><td>Patented but licensing established</td><td>Standard but costs factored in</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The lesson: <strong>royalty-free codecs with backing from major tech companies win the long game.</strong> HEVC's licensing disaster is the cautionary tale that reshaped the entire industry. Every codec decision since has been influenced by it. AV1 exists because HEVC got licensing wrong. JPEG XL and AVIF are both royalty-free specifically because the image world learned from video's mistakes.</p>
+</section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <p>The Codec Bible — built by <a href="https://niggerfaggot.club">Benny</a> with Claude — February 2026</p>
+    <p style="margin-top: 0.5rem;">Sources: Hydrogen Audio, Streaming Media, Xiph.org, AOMedia, IETF, JVET, Wikipedia, Phoronix, IEEE Spectrum</p>
+  </div>
+</footer>
+
+<a href="#top" class="back-top" id="backTop">↑</a>
+
+<script>
+// Back to top button
+const btn = document.getElementById('backTop');
+window.addEventListener('scroll', () => {
+  btn.classList.toggle('visible', window.scrollY > 600);
+});
+
+// Build TOC
+const toc = document.getElementById('toc');
+document.querySelectorAll('h2[id], h3[id]').forEach(h => {
+  const a = document.createElement('a');
+  a.href = '#' + h.id;
+  a.textContent = h.textContent;
+  a.className = h.tagName === 'H2' ? 'toc-h2' : 'toc-h3';
+  a.addEventListener('click', () => toc.classList.remove('open'));
+  toc.appendChild(a);
+});
+
+// Close TOC on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.toc-panel') && !e.target.closest('.toc-toggle')) {
+    toc.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>
