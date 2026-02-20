@@ -7,7 +7,9 @@
 <meta property="og:title" content="The Dog Moms - Season 1 Complete Guide">
 <meta property="og:description" content="Every tip, trick, and real-talk moment from Season 1 of The Dog Moms with Chrissy Joy and Amber Akar. Professional dog trainers, real dog moms.">
 <meta property="og:url" content="https://niggerfaggot.club/dogmoms.html">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/dogmoms-og.jpg">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/dogmoms-og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
@@ -108,24 +110,41 @@ h1, h2, h3, h4 { font-family: 'Fraunces', serif; font-weight: 600; line-height: 
 .topic-nav-inner {
   max-width: 1100px;
   margin: 0 auto;
+}
+.nav-top {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+  margin-bottom: 0.5rem;
 }
-.topic-nav-inner::-webkit-scrollbar { display: none; }
 .nav-label {
   font-family: 'Fraunces', serif;
   font-weight: 700;
   font-size: 0.8rem;
   color: var(--rust);
   white-space: nowrap;
-  padding-right: 0.5rem;
-  border-right: 2px solid var(--warm);
-  margin-right: 0.25rem;
-  flex-shrink: 0;
+}
+.nav-toggle {
+  display: none;
+  margin-left: auto;
+  background: var(--warm);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bark);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s;
+}
+.nav-toggle:hover { background: var(--gold-light); }
+.nav-toggle .arrow { display: inline-block; transition: transform 0.3s; margin-left: 0.25rem; font-size: 0.65rem; }
+.nav-toggle.open .arrow { transform: rotate(180deg); }
+.nav-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 .topic-nav a {
   white-space: nowrap;
@@ -135,14 +154,30 @@ h1, h2, h3, h4 { font-family: 'Fraunces', serif; font-weight: 600; line-height: 
   font-weight: 500;
   color: var(--text-mid);
   text-decoration: none;
-  border: 1px solid transparent;
+  border: 1px solid rgba(0,0,0,0.05);
+  background: var(--cream);
   transition: all 0.2s;
-  flex-shrink: 0;
 }
 .topic-nav a:hover {
   background: var(--warm);
   color: var(--bark);
-  border-color: rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.1);
+}
+@media (max-width: 700px) {
+  .nav-toggle { display: inline-flex; align-items: center; }
+  .nav-top { margin-bottom: 0; }
+  .nav-pills {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, margin 0.35s ease, opacity 0.25s ease;
+    opacity: 0;
+    margin-top: 0;
+  }
+  .nav-pills.open {
+    max-height: 500px;
+    opacity: 1;
+    margin-top: 0.6rem;
+  }
 }
 
 /* MAIN CONTENT */
@@ -328,29 +363,34 @@ h1, h2, h3, h4 { font-family: 'Fraunces', serif; font-weight: 600; line-height: 
 
 <nav class="topic-nav">
   <div class="topic-nav-inner">
-    <span class="nav-label">🐾 Topics</span>
-    <a href="#travel">Travel</a>
-    <a href="#food">Food &amp; Diet</a>
-    <a href="#exercise">Exercise</a>
-    <a href="#enrichment">Enrichment</a>
-    <a href="#grooming">Grooming</a>
-    <a href="#coat">Skin &amp; Coat</a>
-    <a href="#behavior">Behavior</a>
-    <a href="#socialization">Socialization</a>
-    <a href="#body-language">Body Language</a>
-    <a href="#kids">Kids &amp; Dogs</a>
-    <a href="#weight">Weight</a>
-    <a href="#joints">Joints</a>
-    <a href="#fireworks">Noise Phobia</a>
-    <a href="#sleep">Sleep</a>
-    <a href="#safety">Safety</a>
-    <a href="#vet">Vet Care</a>
-    <a href="#new-dog">New Dog</a>
-    <a href="#guilt">Dog Mom Guilt</a>
-    <a href="#toys">Toys</a>
-    <a href="#cats">Dogs &amp; Cats</a>
-    <a href="#sitters">Pet Sitters</a>
-    <a href="#qa">Fan Q&amp;A</a>
+    <div class="nav-top">
+      <span class="nav-label">🐾 Jump to Topic</span>
+      <button class="nav-toggle" onclick="this.classList.toggle('open');document.getElementById('navPills').classList.toggle('open')">Browse Topics <span class="arrow">▼</span></button>
+    </div>
+    <div class="nav-pills" id="navPills">
+      <a href="#travel">Travel</a>
+      <a href="#food">Food &amp; Diet</a>
+      <a href="#exercise">Exercise</a>
+      <a href="#enrichment">Enrichment</a>
+      <a href="#grooming">Grooming</a>
+      <a href="#coat">Skin &amp; Coat</a>
+      <a href="#behavior">Behavior</a>
+      <a href="#socialization">Socialization</a>
+      <a href="#body-language">Body Language</a>
+      <a href="#kids">Kids &amp; Dogs</a>
+      <a href="#weight">Weight</a>
+      <a href="#joints">Joints</a>
+      <a href="#fireworks">Noise Phobia</a>
+      <a href="#sleep">Sleep</a>
+      <a href="#safety">Safety</a>
+      <a href="#vet">Vet Care</a>
+      <a href="#new-dog">New Dog</a>
+      <a href="#guilt">Dog Mom Guilt</a>
+      <a href="#toys">Toys</a>
+      <a href="#cats">Dogs &amp; Cats</a>
+      <a href="#sitters">Pet Sitters</a>
+      <a href="#qa">Fan Q&amp;A</a>
+    </div>
   </div>
 </nav>
 
@@ -823,6 +863,13 @@ document.querySelectorAll('.topic-nav a').forEach(a => {
     e.preventDefault();
     const target = document.querySelector(a.getAttribute('href'));
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Close mobile nav
+    const pills = document.getElementById('navPills');
+    const toggle = document.querySelector('.nav-toggle');
+    if (window.innerWidth <= 700) {
+      pills.classList.remove('open');
+      toggle.classList.remove('open');
+    }
   });
 });
 </script>
