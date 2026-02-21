@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benny's Baby Name Rankings</title>
+<meta property="og:title" content="Benny's Baby Name Rankings">
+<meta property="og:description" content="Top 60 boys and girls names ranked through 917 head-to-head comparisons using a Bradley-Terry statistical model.">
+<meta property="og:url" content="https://niggerfaggot.club/baby-name-rankings.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+html, body { overflow-x: hidden; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #faf8f5;
+  --fg: #1a1714;
+  --muted: #7a7168;
+  --accent: #c4956a;
+  --accent2: #7b8f6e;
+  --card: #fff;
+  --card-border: #e8e2da;
+  --tier-s: #d4a853;
+  --tier-a: #c4956a;
+  --tier-b: #8fa4b8;
+  --tier-c: #a3a09c;
+  --tier-d: #bdb8b2;
+  --boys: #5b7fa6;
+  --girls: #b07095;
+  --tag-bg: #f0ebe4;
+}
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page { max-width: 820px; margin: 0 auto; padding: 0 20px 80px; }
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 60px 0 40px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 40px;
+}
+.hero-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.15;
+  color: var(--fg);
+  margin-bottom: 16px;
+}
+.hero-sub {
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+.hero-stat {
+  text-align: center;
+}
+.hero-stat-num {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.hero-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Nav */
+.nav {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  padding: 12px 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+.nav.scrolled { border-bottom-color: var(--card-border); }
+.nav button {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border: 1.5px solid var(--card-border);
+  border-radius: 100px;
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav button:hover { border-color: var(--accent); color: var(--fg); }
+.nav button.active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* Section */
+.section { margin-bottom: 48px; }
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+.section-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* Gender tabs */
+.gender-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.gender-tab {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 18px;
+  border: 1.5px solid var(--card-border);
+  border-radius: 100px;
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.gender-tab:hover { border-color: var(--boys); }
+.gender-tab.active-boys { background: var(--boys); color: #fff; border-color: var(--boys); }
+.gender-tab.active-girls { background: var(--girls); color: #fff; border-color: var(--girls); }
+.gender-panel { display: none; }
+.gender-panel.active { display: block; }
+
+/* Tier card */
+.tier {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.tier-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.tier-header:hover { background: #faf8f5; }
+.tier-badge {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 700;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.tier-badge.s { background: var(--tier-s); }
+.tier-badge.a { background: var(--tier-a); }
+.tier-badge.b { background: var(--tier-b); }
+.tier-badge.c { background: var(--tier-c); }
+.tier-badge.d { background: var(--tier-d); }
+.tier-info { flex: 1; }
+.tier-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+.tier-range {
+  font-size: 12px;
+  color: var(--muted);
+}
+.tier-chevron {
+  font-size: 14px;
+  color: var(--muted);
+  transition: transform 0.2s;
+}
+.tier.open .tier-chevron { transform: rotate(180deg); }
+.tier-body {
+  display: none;
+  padding: 0 20px 16px;
+}
+.tier.open .tier-body { display: block; }
+.tier-commentary {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 14px;
+  line-height: 1.55;
+  font-style: italic;
+}
+
+/* Name row */
+.name-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid #f0ebe4;
+  gap: 12px;
+}
+.name-row:first-of-type { border-top: none; }
+.name-rank {
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--muted);
+  width: 28px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.name-text {
+  font-size: 16px;
+  font-weight: 500;
+  flex: 1;
+}
+.name-maybe {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+  margin-left: 4px;
+}
+.name-cat {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  background: var(--tag-bg);
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.name-rating {
+  font-family: 'Fraunces', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+  width: 48px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Rating bar */
+.rating-bar-wrap {
+  width: 60px;
+  height: 6px;
+  background: #f0ebe4;
+  border-radius: 3px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.rating-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.rating-bar.boys { background: var(--boys); }
+.rating-bar.girls { background: var(--girls); }
+
+/* Insights */
+.insight-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .insight-grid { grid-template-columns: 1fr; }
+}
+.insight-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.insight-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+.insight-title {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.insight-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Process */
+.process-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+.process-step {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+}
+.process-dot-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 24px;
+  flex-shrink: 0;
+}
+.process-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.process-line {
+  width: 2px;
+  flex: 1;
+  background: var(--card-border);
+  margin-top: 6px;
+}
+.process-step:last-child .process-line { display: none; }
+.process-content h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.process-content p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.process-num {
+  font-family: 'Fraunces', serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Top 3 spotlight */
+.spotlight {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.spotlight-card {
+  flex: 1;
+  min-width: 140px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.spotlight-card.gold::before { background: var(--tier-s); }
+.spotlight-card.silver::before { background: var(--tier-a); }
+.spotlight-card.bronze::before { background: var(--tier-b); }
+.spotlight-medal { font-size: 28px; margin-bottom: 8px; }
+.spotlight-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  font-style: italic;
+  margin-bottom: 4px;
+}
+.spotlight-rating {
+  font-size: 13px;
+  color: var(--muted);
+}
+.spotlight-cat {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--tag-bg);
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 40px 0;
+  border-top: 1px solid var(--card-border);
+  margin-top: 40px;
+}
+.footer p {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tier { animation: fadeUp 0.3s ease both; }
+.tier:nth-child(2) { animation-delay: 0.05s; }
+.tier:nth-child(3) { animation-delay: 0.1s; }
+.tier:nth-child(4) { animation-delay: 0.15s; }
+.tier:nth-child(5) { animation-delay: 0.2s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="hero">
+  <div class="hero-label">February 2026</div>
+  <h1>Baby Name Rankings</h1>
+  <p class="hero-sub">Benny's top 60 boys and girls names, ranked through 917 head-to-head comparisons using a Bradley-Terry statistical model.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-num">458</div>
+      <div class="hero-stat-label">Started with</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">917</div>
+      <div class="hero-stat-label">Comparisons</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-num">120</div>
+      <div class="hero-stat-label">Final Names</div>
+    </div>
+  </div>
+</div>
+
+<nav class="nav" id="nav">
+  <button class="active" data-section="rankings">Rankings</button>
+  <button data-section="insights">Insights</button>
+  <button data-section="process">Process</button>
+</nav>
+
+<!-- RANKINGS SECTION -->
+<div class="section" id="sec-rankings">
+  <div class="gender-tabs">
+    <button class="gender-tab active-boys" data-gender="boys">Boys</button>
+    <button class="gender-tab" data-gender="girls">Girls</button>
+  </div>
+
+  <!-- BOYS -->
+  <div class="gender-panel active" id="panel-boys">
+
+    <div class="spotlight">
+      <div class="spotlight-card gold">
+        <div class="spotlight-medal">&#x1F947;</div>
+        <div class="spotlight-name">Dean</div>
+        <div class="spotlight-rating">1657</div>
+        <div class="spotlight-cat">Classic</div>
+      </div>
+      <div class="spotlight-card silver">
+        <div class="spotlight-medal">&#x1F948;</div>
+        <div class="spotlight-name">Henry</div>
+        <div class="spotlight-rating">1501</div>
+        <div class="spotlight-cat">Classic</div>
+      </div>
+      <div class="spotlight-card bronze">
+        <div class="spotlight-medal">&#x1F949;</div>
+        <div class="spotlight-name">Eli</div>
+        <div class="spotlight-rating">1463</div>
+        <div class="spotlight-cat">Modern-strong</div>
+      </div>
+    </div>
+
+    <div class="tier open" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge s">S</div>
+        <div class="tier-info"><div class="tier-name">The Clear Favorite</div><div class="tier-range">1657 &#183; 1 name</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">Dean is the runaway #1 with 156 points of daylight to the next name. Hasn't budged across multiple sessions. Locked.</div>
+        <div class="name-row"><div class="name-rank">1</div><div class="name-text">Dean</div><div class="name-cat">Classic</div><div class="name-rating">1657</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:100%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tier open" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge a">A</div>
+        <div class="tier-info"><div class="tier-name">The Contenders</div><div class="tier-range">1410 &ndash; 1501 &#183; 5 names</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">Henry is the clear #2. Positions 3&ndash;6 are a tight cluster: Eli, Sterling, Harrison, and Rhett are essentially interchangeable. Sterling is a surprise climber as a Scottish/Celtic pick.</div>
+        <div class="name-row"><div class="name-rank">2</div><div class="name-text">Henry</div><div class="name-cat">Classic</div><div class="name-rating">1501</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:89%"></div></div></div>
+        <div class="name-row"><div class="name-rank">3</div><div class="name-text">Eli</div><div class="name-cat">Modern-strong</div><div class="name-rating">1463</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:86%"></div></div></div>
+        <div class="name-row"><div class="name-rank">4</div><div class="name-text">Sterling</div><div class="name-cat">Scottish/Celtic</div><div class="name-rating">1419</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:83%"></div></div></div>
+        <div class="name-row"><div class="name-rank">5</div><div class="name-text">Harrison</div><div class="name-cat">Modern-strong</div><div class="name-rating">1412</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:82%"></div></div></div>
+        <div class="name-row"><div class="name-rank">6</div><div class="name-text">Rhett</div><div class="name-cat">Neo-modern</div><div class="name-rating">1410</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:82%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tier" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge b">B</div>
+        <div class="tier-info"><div class="tier-name">Strong Contenders</div><div class="tier-range">1286 &ndash; 1340 &#183; 3 names</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">Solid second tier. Wyatt and Ezra are nearly tied. Oliver anchors the bottom, still well above average but consistently loses to the names above.</div>
+        <div class="name-row"><div class="name-rank">7</div><div class="name-text">Wyatt</div><div class="name-cat">Modern-strong</div><div class="name-rating">1340</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:77%"></div></div></div>
+        <div class="name-row"><div class="name-rank">8</div><div class="name-text">Ezra</div><div class="name-cat">Hebrew/Biblical</div><div class="name-rating">1331</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:76%"></div></div></div>
+        <div class="name-row"><div class="name-rank">9</div><div class="name-text">Oliver</div><div class="name-cat">Classic</div><div class="name-rating">1286</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:73%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tier" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge c">C</div>
+        <div class="tier-info"><div class="tier-name">The Deep Bench</div><div class="tier-range">526 &ndash; 1176 &#183; 39 names</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">Large tier with internal stratification. Grant and Brett pull away at the top. Classic names mostly settle mid-pack. The Scottish cluster (Alistair, Callum, Graham) consistently lands in the 580&ndash;665 range.</div>
+        <div class="name-row"><div class="name-rank">10</div><div class="name-text">Grant</div><div class="name-cat">Scottish/Celtic</div><div class="name-rating">1176</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:65%"></div></div></div>
+        <div class="name-row"><div class="name-rank">11</div><div class="name-text">Brett</div><div class="name-cat">Modern-strong</div><div class="name-rating">1156</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:64%"></div></div></div>
+        <div class="name-row"><div class="name-rank">12</div><div class="name-text">Andrew</div><div class="name-cat">Classic</div><div class="name-rating">1099</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:60%"></div></div></div>
+        <div class="name-row"><div class="name-rank">13</div><div class="name-text">William</div><div class="name-cat">Classic</div><div class="name-rating">1067</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:58%"></div></div></div>
+        <div class="name-row"><div class="name-rank">14</div><div class="name-text">Lucas</div><div class="name-cat">Modern-strong</div><div class="name-rating">1042</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:57%"></div></div></div>
+        <div class="name-row"><div class="name-rank">15</div><div class="name-text">Mitchell</div><div class="name-cat">Modern-strong</div><div class="name-rating">1022</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:55%"></div></div></div>
+        <div class="name-row"><div class="name-rank">16</div><div class="name-text">Reid</div><div class="name-cat">Scottish/Celtic</div><div class="name-rating">1015</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:55%"></div></div></div>
+        <div class="name-row"><div class="name-rank">17</div><div class="name-text">Owen</div><div class="name-cat">Modern-strong</div><div class="name-rating">993</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:53%"></div></div></div>
+        <div class="name-row"><div class="name-rank">18</div><div class="name-text">Remy<span class="name-maybe">~</span></div><div class="name-cat">French</div><div class="name-rating">987</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:53%"></div></div></div>
+        <div class="name-row"><div class="name-rank">19</div><div class="name-text">George</div><div class="name-cat">Classic</div><div class="name-rating">974</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:52%"></div></div></div>
+        <div class="name-row"><div class="name-rank">20</div><div class="name-text">Cedric</div><div class="name-cat">Modern-strong</div><div class="name-rating">949</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:50%"></div></div></div>
+        <div class="name-row"><div class="name-rank">21</div><div class="name-text">Levi</div><div class="name-cat">Hebrew/Biblical</div><div class="name-rating">924</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:49%"></div></div></div>
+        <div class="name-row"><div class="name-rank">22</div><div class="name-text">Asher</div><div class="name-cat">Hebrew/Biblical</div><div class="name-rating">911</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:48%"></div></div></div>
+        <div class="name-row"><div class="name-rank">23</div><div class="name-text">Wesley</div><div class="name-cat">Modern-strong</div><div class="name-rating">892</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:46%"></div></div></div>
+        <div class="name-row"><div class="name-rank">24</div><div class="name-text">Everett</div><div class="name-cat">French</div><div class="name-rating">883</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:46%"></div></div></div>
+        <div class="name-row"><div class="name-rank">25</div><div class="name-text">Luca</div><div class="name-cat">Italian</div><div class="name-rating">870</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:45%"></div></div></div>
+        <div class="name-row"><div class="name-rank">26</div><div class="name-text">Henrik</div><div class="name-cat">German/Nordic</div><div class="name-rating">858</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:44%"></div></div></div>
+        <div class="name-row"><div class="name-rank">27</div><div class="name-text">Tristan</div><div class="name-cat">Modern-strong</div><div class="name-rating">815</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:41%"></div></div></div>
+        <div class="name-row"><div class="name-rank">28</div><div class="name-text">Hendrik</div><div class="name-cat">Dutch</div><div class="name-rating">768</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:38%"></div></div></div>
+        <div class="name-row"><div class="name-rank">29</div><div class="name-text">Enzo</div><div class="name-cat">Italian</div><div class="name-rating">767</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:38%"></div></div></div>
+        <div class="name-row"><div class="name-rank">30</div><div class="name-text">Alexander</div><div class="name-cat">Classic</div><div class="name-rating">754</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:37%"></div></div></div>
+        <div class="name-row"><div class="name-rank">31</div><div class="name-text">Jack</div><div class="name-cat">Classic</div><div class="name-rating">710</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:34%"></div></div></div>
+        <div class="name-row"><div class="name-rank">32</div><div class="name-text">Charles</div><div class="name-cat">Classic</div><div class="name-rating">679</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:31%"></div></div></div>
+        <div class="name-row"><div class="name-rank">33</div><div class="name-text">Alistair<span class="name-maybe">~</span></div><div class="name-cat">Scottish/Celtic</div><div class="name-rating">665</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:30%"></div></div></div>
+        <div class="name-row"><div class="name-rank">34</div><div class="name-text">Jasper</div><div class="name-cat">Modern-strong</div><div class="name-rating">664</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:30%"></div></div></div>
+        <div class="name-row"><div class="name-rank">35</div><div class="name-text">Callum</div><div class="name-cat">Scottish/Celtic</div><div class="name-rating">653</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:29%"></div></div></div>
+        <div class="name-row"><div class="name-rank">36</div><div class="name-text">Gabriel</div><div class="name-cat">Modern-strong</div><div class="name-rating">639</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:28%"></div></div></div>
+        <div class="name-row"><div class="name-rank">37</div><div class="name-text">Ivan<span class="name-maybe">~</span></div><div class="name-cat">Classic</div><div class="name-rating">633</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:28%"></div></div></div>
+        <div class="name-row"><div class="name-rank">38</div><div class="name-text">Marshall</div><div class="name-cat">Modern-strong</div><div class="name-rating">627</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:27%"></div></div></div>
+        <div class="name-row"><div class="name-rank">39</div><div class="name-text">Kyle</div><div class="name-cat">Classic</div><div class="name-rating">593</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:25%"></div></div></div>
+        <div class="name-row"><div class="name-rank">40</div><div class="name-text">Nolan<span class="name-maybe">~</span></div><div class="name-cat">Modern-strong</div><div class="name-rating">591</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:25%"></div></div></div>
+        <div class="name-row"><div class="name-rank">41</div><div class="name-text">Evan</div><div class="name-cat">Modern-strong</div><div class="name-rating">590</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:25%"></div></div></div>
+        <div class="name-row"><div class="name-rank">42</div><div class="name-text">Graham</div><div class="name-cat">Scottish/Celtic</div><div class="name-rating">587</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:24%"></div></div></div>
+        <div class="name-row"><div class="name-rank">43</div><div class="name-text">Dimitri</div><div class="name-cat">Slavic/Eastern</div><div class="name-rating">581</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:24%"></div></div></div>
+        <div class="name-row"><div class="name-rank">44</div><div class="name-text">Nicholas</div><div class="name-cat">Classic</div><div class="name-rating">576</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:24%"></div></div></div>
+        <div class="name-row"><div class="name-rank">45</div><div class="name-text">Vincent</div><div class="name-cat">Classic</div><div class="name-rating">565</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:23%"></div></div></div>
+        <div class="name-row"><div class="name-rank">46</div><div class="name-text">Logan</div><div class="name-cat">Modern-strong</div><div class="name-rating">563</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:23%"></div></div></div>
+        <div class="name-row"><div class="name-rank">47</div><div class="name-text">Conrad</div><div class="name-cat">German/Nordic</div><div class="name-rating">528</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:21%"></div></div></div>
+        <div class="name-row"><div class="name-rank">48</div><div class="name-text">Emilio</div><div class="name-cat">Italian</div><div class="name-rating">526</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:21%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tier" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge d">D</div>
+        <div class="tier-info"><div class="tier-name">Bubble Names</div><div class="tier-range">363 &ndash; 457 &#183; 11 names</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">These survived the initial cull but consistently lose to everything above them. Several maybes that never made a strong case.</div>
+        <div class="name-row"><div class="name-rank">49</div><div class="name-text">Luke</div><div class="name-cat">Modern-strong</div><div class="name-rating">457</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:16%"></div></div></div>
+        <div class="name-row"><div class="name-rank">50</div><div class="name-text">Felix<span class="name-maybe">~</span></div><div class="name-cat">Modern-strong</div><div class="name-rating">423</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:14%"></div></div></div>
+        <div class="name-row"><div class="name-rank">51</div><div class="name-text">Ian</div><div class="name-cat">Modern-strong</div><div class="name-rating">408</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:13%"></div></div></div>
+        <div class="name-row"><div class="name-rank">52</div><div class="name-text">Julian</div><div class="name-cat">Modern-strong</div><div class="name-rating">399</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:13%"></div></div></div>
+        <div class="name-row"><div class="name-rank">53</div><div class="name-text">Axel</div><div class="name-cat">German/Nordic</div><div class="name-rating">398</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:13%"></div></div></div>
+        <div class="name-row"><div class="name-rank">54</div><div class="name-text">Mercer<span class="name-maybe">~</span></div><div class="name-cat">Neo-modern</div><div class="name-rating">397</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:13%"></div></div></div>
+        <div class="name-row"><div class="name-rank">55</div><div class="name-text">Liam<span class="name-maybe">~</span></div><div class="name-cat">Modern-strong</div><div class="name-rating">382</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:12%"></div></div></div>
+        <div class="name-row"><div class="name-rank">56</div><div class="name-text">Arthur</div><div class="name-cat">Classic</div><div class="name-rating">379</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:12%"></div></div></div>
+        <div class="name-row"><div class="name-rank">57</div><div class="name-text">Cassius</div><div class="name-cat">Greek</div><div class="name-rating">377</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:11%"></div></div></div>
+        <div class="name-row"><div class="name-rank">58</div><div class="name-text">Carl</div><div class="name-cat">Classic</div><div class="name-rating">372</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:11%"></div></div></div>
+        <div class="name-row"><div class="name-rank">59</div><div class="name-text">Caleb</div><div class="name-cat">Modern-strong</div><div class="name-rating">363</div><div class="rating-bar-wrap"><div class="rating-bar boys" style="width:11%"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GIRLS -->
+  <div class="gender-panel" id="panel-girls">
+
+    <div class="spotlight">
+      <div class="spotlight-card gold">
+        <div class="spotlight-medal">&#x1F947;</div>
+        <div class="spotlight-name">Violet</div>
+        <div class="spotlight-rating">1710</div>
+        <div class="spotlight-cat">Nature</div>
+      </div>
+      <div class="spotlight-card silver">
+        <div class="spotlight-medal">&#x1F948;</div>
+        <div class="spotlight-name">Luna</div>
+        <div class="spotlight-rating">1575</div>
+        <div class="spotlight-cat">Modern edge</div>
+      </div>
+      <div class="spotlight-card bronze">
+        <div class="spotlight-medal">&#x1F949;</div>
+        <div class="spotlight-name">Mabel</div>
+        <div class="spotlight-rating">1453</div>
+        <div class="spotlight-cat">Classic</div>
+      </div>
+    </div>
+
+    <div class="tier open" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge s">S</div>
+        <div class="tier-info"><div class="tier-name">The Queen</div><div class="tier-range">1710 &#183; 1 name</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">Violet is the most dominant name across either gender. 135 points ahead of #2. Absolutely locked.</div>
+        <div class="name-row"><div class="name-rank">1</div><div class="name-text">Violet</div><div class="name-cat">Nature</div><div class="name-rating">1710</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:100%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tier open" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge a">A</div>
+        <div class="tier-info"><div class="tier-name">The Princesses</div><div class="tier-range">1453 &ndash; 1575 &#183; 2 names</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">Luna and Mabel each stand alone in their own sub-tier. These three are the clear top 3 and the order is stable.</div>
+        <div class="name-row"><div class="name-rank">2</div><div class="name-text">Luna</div><div class="name-cat">Modern edge</div><div class="name-rating">1575</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:90%"></div></div></div>
+        <div class="name-row"><div class="name-rank">3</div><div class="name-text">Mabel</div><div class="name-cat">Classic</div><div class="name-rating">1453</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:83%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tier" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge b">B</div>
+        <div class="tier-info"><div class="tier-name">Strong Favorites</div><div class="tier-range">1293 &ndash; 1344 &#183; 4 names</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">Io is a distinctive, bold pick at the top of this cluster. Olivia and Chloe are nearly tied. Hazel anchors the bottom. All clearly above the next group.</div>
+        <div class="name-row"><div class="name-rank">4</div><div class="name-text">Io</div><div class="name-cat">Greek</div><div class="name-rating">1344</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:76%"></div></div></div>
+        <div class="name-row"><div class="name-rank">5</div><div class="name-text">Olivia</div><div class="name-cat">Sweet & short</div><div class="name-rating">1326</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:75%"></div></div></div>
+        <div class="name-row"><div class="name-rank">6</div><div class="name-text">Chloe</div><div class="name-cat">Sweet & short</div><div class="name-rating">1318</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:74%"></div></div></div>
+        <div class="name-row"><div class="name-rank">7</div><div class="name-text">Hazel</div><div class="name-cat">Nature</div><div class="name-rating">1293</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:73%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tier" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge c">C</div>
+        <div class="tier-info"><div class="tier-name">The Deep Bench</div><div class="tier-range">367 &ndash; 1228 &#183; 48 names</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">Eva and Ruby are a dead tie at the top. The French names (Camille, Eloise, Margot) cluster together mid-pack. Classic names dominate the lower half with "fine but not special" energy.</div>
+        <div class="name-row"><div class="name-rank">8</div><div class="name-text">Eva</div><div class="name-cat">Classic</div><div class="name-rating">1228</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:69%"></div></div></div>
+        <div class="name-row"><div class="name-rank">9</div><div class="name-text">Ruby</div><div class="name-cat">Nature</div><div class="name-rating">1225</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:69%"></div></div></div>
+        <div class="name-row"><div class="name-rank">10</div><div class="name-text">Amelia</div><div class="name-cat">Sweet & short</div><div class="name-rating">1154</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:65%"></div></div></div>
+        <div class="name-row"><div class="name-rank">11</div><div class="name-text">Lily</div><div class="name-cat">Nature</div><div class="name-rating">1106</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:62%"></div></div></div>
+        <div class="name-row"><div class="name-rank">12</div><div class="name-text">Scarlett</div><div class="name-cat">Classic</div><div class="name-rating">1092</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:61%"></div></div></div>
+        <div class="name-row"><div class="name-rank">13</div><div class="name-text">Shiloh</div><div class="name-cat">Hebrew/Biblical</div><div class="name-rating">1036</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:58%"></div></div></div>
+        <div class="name-row"><div class="name-rank">14</div><div class="name-text">Astrid</div><div class="name-cat">Scandinavian</div><div class="name-rating">956</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:53%"></div></div></div>
+        <div class="name-row"><div class="name-rank">15</div><div class="name-text">Bellamy</div><div class="name-cat">English</div><div class="name-rating">950</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:52%"></div></div></div>
+        <div class="name-row"><div class="name-rank">16</div><div class="name-text">Camille</div><div class="name-cat">French</div><div class="name-rating">937</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:51%"></div></div></div>
+        <div class="name-row"><div class="name-rank">17</div><div class="name-text">Emma<span class="name-maybe">~</span></div><div class="name-cat">Sweet & short</div><div class="name-rating">925</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:51%"></div></div></div>
+        <div class="name-row"><div class="name-rank">18</div><div class="name-text">Naomi</div><div class="name-cat">Hebrew/Biblical</div><div class="name-rating">915</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:50%"></div></div></div>
+        <div class="name-row"><div class="name-rank">19</div><div class="name-text">Saskia</div><div class="name-cat">Dutch</div><div class="name-rating">899</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:49%"></div></div></div>
+        <div class="name-row"><div class="name-rank">20</div><div class="name-text">Margot</div><div class="name-cat">Classic</div><div class="name-rating">885</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:48%"></div></div></div>
+        <div class="name-row"><div class="name-rank">21</div><div class="name-text">Eloise</div><div class="name-cat">French</div><div class="name-rating">883</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:48%"></div></div></div>
+        <div class="name-row"><div class="name-rank">22</div><div class="name-text">Cleo</div><div class="name-cat">Greek</div><div class="name-rating">882</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:48%"></div></div></div>
+        <div class="name-row"><div class="name-rank">23</div><div class="name-text">Lucy</div><div class="name-cat">Classic</div><div class="name-rating">872</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:47%"></div></div></div>
+        <div class="name-row"><div class="name-rank">24</div><div class="name-text">Sophia</div><div class="name-cat">Sweet & short</div><div class="name-rating">861</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:47%"></div></div></div>
+        <div class="name-row"><div class="name-rank">25</div><div class="name-text">Victoria</div><div class="name-cat">Classic</div><div class="name-rating">855</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:46%"></div></div></div>
+        <div class="name-row"><div class="name-rank">26</div><div class="name-text">Charlotte<span class="name-maybe">~</span></div><div class="name-cat">Classic</div><div class="name-rating">846</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:46%"></div></div></div>
+        <div class="name-row"><div class="name-rank">27</div><div class="name-text">Clara<span class="name-maybe">~</span></div><div class="name-cat">Classic</div><div class="name-rating">822</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:44%"></div></div></div>
+        <div class="name-row"><div class="name-rank">28</div><div class="name-text">Eleri<span class="name-maybe">~</span></div><div class="name-cat">Welsh</div><div class="name-rating">806</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:43%"></div></div></div>
+        <div class="name-row"><div class="name-rank">29</div><div class="name-text">Athena</div><div class="name-cat">Greek</div><div class="name-rating">799</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:43%"></div></div></div>
+        <div class="name-row"><div class="name-rank">30</div><div class="name-text">Marlowe</div><div class="name-cat">Neo-modern</div><div class="name-rating">776</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:41%"></div></div></div>
+        <div class="name-row"><div class="name-rank">31</div><div class="name-text">Lydia</div><div class="name-cat">Classic</div><div class="name-rating">742</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:39%"></div></div></div>
+        <div class="name-row"><div class="name-rank">32</div><div class="name-text">Quinn</div><div class="name-cat">Modern edge</div><div class="name-rating">686</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:36%"></div></div></div>
+        <div class="name-row"><div class="name-rank">33</div><div class="name-text">Kiera</div><div class="name-cat">Modern-strong</div><div class="name-rating">681</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:35%"></div></div></div>
+        <div class="name-row"><div class="name-rank">34</div><div class="name-text">Maya</div><div class="name-cat">Modern-strong</div><div class="name-rating">676</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:35%"></div></div></div>
+        <div class="name-row"><div class="name-rank">35</div><div class="name-text">Caroline</div><div class="name-cat">Classic</div><div class="name-rating">661</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:34%"></div></div></div>
+        <div class="name-row"><div class="name-rank">36</div><div class="name-text">Lyra</div><div class="name-cat">Neo-modern</div><div class="name-rating">655</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:34%"></div></div></div>
+        <div class="name-row"><div class="name-rank">37</div><div class="name-text">Elowen</div><div class="name-cat">Neo-modern</div><div class="name-rating">648</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:33%"></div></div></div>
+        <div class="name-row"><div class="name-rank">38</div><div class="name-text">Natalie</div><div class="name-cat">Classic</div><div class="name-rating">634</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:33%"></div></div></div>
+        <div class="name-row"><div class="name-rank">39</div><div class="name-text">Zara</div><div class="name-cat">Slavic/Eastern</div><div class="name-rating">622</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:32%"></div></div></div>
+        <div class="name-row"><div class="name-rank">40</div><div class="name-text">Helena</div><div class="name-cat">Classic</div><div class="name-rating">614</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:31%"></div></div></div>
+        <div class="name-row"><div class="name-rank">41</div><div class="name-text">Alexandra</div><div class="name-cat">Classic</div><div class="name-rating">585</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:30%"></div></div></div>
+        <div class="name-row"><div class="name-rank">42</div><div class="name-text">Sable</div><div class="name-cat">Wildcard</div><div class="name-rating">573</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:29%"></div></div></div>
+        <div class="name-row"><div class="name-rank">43</div><div class="name-text">Ava</div><div class="name-cat">Sweet & short</div><div class="name-rating">561</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:28%"></div></div></div>
+        <div class="name-row"><div class="name-rank">44</div><div class="name-text">Freya</div><div class="name-cat">German/Nordic</div><div class="name-rating">556</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:28%"></div></div></div>
+        <div class="name-row"><div class="name-rank">45</div><div class="name-text">Laura</div><div class="name-cat">Classic</div><div class="name-rating">544</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:27%"></div></div></div>
+        <div class="name-row"><div class="name-rank">46</div><div class="name-text">Paige</div><div class="name-cat">Classic</div><div class="name-rating">542</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:27%"></div></div></div>
+        <div class="name-row"><div class="name-rank">47</div><div class="name-text">Audrey</div><div class="name-cat">Classic</div><div class="name-rating">535</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:27%"></div></div></div>
+        <div class="name-row"><div class="name-rank">48</div><div class="name-text">Emily</div><div class="name-cat">Classic</div><div class="name-rating">527</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:26%"></div></div></div>
+        <div class="name-row"><div class="name-rank">49</div><div class="name-text">Natasha</div><div class="name-cat">Modern-strong</div><div class="name-rating">521</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:26%"></div></div></div>
+        <div class="name-row"><div class="name-rank">50</div><div class="name-text">Katya</div><div class="name-cat">Slavic/Eastern</div><div class="name-rating">520</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:26%"></div></div></div>
+        <div class="name-row"><div class="name-rank">51</div><div class="name-text">Nicole</div><div class="name-cat">Classic</div><div class="name-rating">519</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:26%"></div></div></div>
+        <div class="name-row"><div class="name-rank">52</div><div class="name-text">Bailey<span class="name-maybe">~</span></div><div class="name-cat">Modern-strong</div><div class="name-rating">485</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:23%"></div></div></div>
+        <div class="name-row"><div class="name-rank">53</div><div class="name-text">Ingrid<span class="name-maybe">~</span></div><div class="name-cat">German/Nordic</div><div class="name-rating">445</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:21%"></div></div></div>
+        <div class="name-row"><div class="name-rank">54</div><div class="name-text">Catherine</div><div class="name-cat">Classic</div><div class="name-rating">414</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:19%"></div></div></div>
+        <div class="name-row"><div class="name-rank">55</div><div class="name-text">Anwen</div><div class="name-cat">Welsh</div><div class="name-rating">413</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:19%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="tier" data-tier>
+      <div class="tier-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="tier-badge d">D</div>
+        <div class="tier-info"><div class="tier-name">Bubble Names</div><div class="tier-range">367 &ndash; 402 &#183; 4 names</div></div>
+        <div class="tier-chevron">&#9662;</div>
+      </div>
+      <div class="tier-body">
+        <div class="tier-commentary">Consistently losing to everything above. Maybes that never made a strong case.</div>
+        <div class="name-row"><div class="name-rank">56</div><div class="name-text">Melody<span class="name-maybe">~</span></div><div class="name-cat">Modern-strong</div><div class="name-rating">402</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:18%"></div></div></div>
+        <div class="name-row"><div class="name-rank">57</div><div class="name-text">Ruth<span class="name-maybe">~</span></div><div class="name-cat">Classic</div><div class="name-rating">397</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:18%"></div></div></div>
+        <div class="name-row"><div class="name-rank">58</div><div class="name-text">Cassandra</div><div class="name-cat">Modern-strong</div><div class="name-rating">373</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:17%"></div></div></div>
+        <div class="name-row"><div class="name-rank">59</div><div class="name-text">Harper</div><div class="name-cat">Modern edge</div><div class="name-rating">367</div><div class="rating-bar-wrap"><div class="rating-bar girls" style="width:16%"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INSIGHTS SECTION -->
+<div class="section" id="sec-insights" style="display:none">
+  <h2 class="section-title">Patterns & Insights</h2>
+  <p class="section-sub">What the data reveals about naming preferences.</p>
+
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-icon">&#x26A1;</div>
+      <div class="insight-title">Short & Punchy Wins</div>
+      <div class="insight-text">Dean, Eli, Rhett, Io, Luna, Mabel, Ruby, Eva. The top names are mostly 1&ndash;2 syllables. Longer names that survive (Harrison, Sterling, Oliver) have strong consonant sounds.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">&#x1F33F;</div>
+      <div class="insight-title">Nature Names Dominate Girls</div>
+      <div class="insight-text">Violet, Hazel, Ruby, Lily. Four of the top 13 girls are nature names. This is a clear, strong aesthetic preference in the data.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">&#x1F3DB;</div>
+      <div class="insight-title">Classic &#8800; Favorite</div>
+      <div class="insight-text">Despite having tons of classic names in the pool, they mostly settle mid-pack. The names that excite are either punchy classics (Dean, Henry) or distinctive modern picks (Sterling, Io, Luna).</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">&#x1F3F4;</div>
+      <div class="insight-title">Scottish/Celtic Ceiling</div>
+      <div class="insight-text">Sterling broke through to Tier A, but Callum, Graham, and Alistair all land 580&ndash;665. The vibe is liked in theory more than in practice.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">&#x1F1EB;&#x1F1F7;</div>
+      <div class="insight-title">French Names Underwhelm</div>
+      <div class="insight-text">Remy (987), Camille (937), Eloise (883), Margot (885). All respectable, none cracked the top tier. The French aesthetic doesn't quite resonate at the gut level.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">&#x1F4D6;</div>
+      <div class="insight-title">Biblical Names Are Middlers</div>
+      <div class="insight-text">Ezra is the standout at #8 boys. Levi, Asher, Shiloh all land mid-pack. Consistently liked but never loved, except for Ezra.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROCESS SECTION -->
+<div class="section" id="sec-process" style="display:none">
+  <h2 class="section-title">How This Was Built</h2>
+  <p class="section-sub">A multi-stage pipeline from blank slate to ranked list.</p>
+
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="process-dot-col"><div class="process-dot"></div><div class="process-line"></div></div>
+      <div class="process-content">
+        <h4><span class="process-num">1.</span> Initial List Building</h4>
+        <p>Claude generated ~500 names across categories (Classic, Modern-strong, Scottish/Celtic, French, Italian, Hebrew/Biblical, Greek, Dutch, German/Nordic, etc.) filtered for zero negative cultural connotations. No Karens, Berthas, or Chads.</p>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="process-dot-col"><div class="process-dot"></div><div class="process-line"></div></div>
+      <div class="process-content">
+        <h4><span class="process-num">2.</span> Conversational Triage</h4>
+        <p>Names were workshopped live in conversation. Boring names got killed (BIAR), Scottish/Celtic picks got added based on Stewart clan heritage. Phonetically broken names were purged (Aoife, Caoimhe, Saoirse, etc.). Pool stabilized at ~458 names.</p>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="process-dot-col"><div class="process-dot"></div><div class="process-line"></div></div>
+      <div class="process-content">
+        <h4><span class="process-num">3.</span> Yes/No/Maybe Voting</h4>
+        <p>Using the Baby Names Lab app, names were triaged into yes/no/maybe. This filtered 458 down to 302 names (150 boys, 152 girls) that entered the ranker.</p>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="process-dot-col"><div class="process-dot"></div><div class="process-line"></div></div>
+      <div class="process-content">
+        <h4><span class="process-num">4.</span> Paired Comparisons</h4>
+        <p>917 head-to-head matchups using a Bradley-Terry model with active learning, collected through a custom keyboard-driven web app. The algorithm served the most informative pair each time, prioritizing close matchups and coverage.</p>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="process-dot-col"><div class="process-dot"></div><div class="process-line"></div></div>
+      <div class="process-content">
+        <h4><span class="process-num">5.</span> Progressive Elimination</h4>
+        <p>At 5+ avg comparisons per name, the bottom 60% was automatically eliminated, focusing all remaining effort on the top 60 per gender. Tier boundaries determined by natural gaps in the ratings (&gt;60 point gap = new tier).</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding:20px;margin-top:24px">
+    <div style="font-weight:700;font-size:14px;margin-bottom:8px">How to Read the Ratings</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.55">1000 is average. Every 100 points represents approximately a 65% expected win rate over a name 100 points lower. Within a tier, the exact ordering is soft. The tier boundaries are where the real signal is. Names marked with <span style="color:var(--accent);font-weight:600">~</span> were flagged as "maybe" during initial triage.</p>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Generated February 18, 2026 &bull; Bradley-Terry paired comparison model</p>
+  <p style="margin-top:4px">917 comparisons &bull; 302 candidate names &bull; Top 60 per gender</p>
+</div>
+
+</div>
+
+<script>
+// Navigation
+const nav = document.getElementById('nav');
+const sections = { rankings: 'sec-rankings', insights: 'sec-insights', process: 'sec-process' };
+
+nav.addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  const sec = e.target.dataset.section;
+  nav.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  Object.values(sections).forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById(sections[sec]).style.display = '';
+});
+
+// Sticky nav shadow
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 200);
+});
+
+// Gender tabs
+document.querySelectorAll('.gender-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const gender = tab.dataset.gender;
+    document.querySelectorAll('.gender-tab').forEach(t => {
+      t.classList.remove('active-boys', 'active-girls');
+    });
+    tab.classList.add(gender === 'boys' ? 'active-boys' : 'active-girls');
+    document.querySelectorAll('.gender-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + gender).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
