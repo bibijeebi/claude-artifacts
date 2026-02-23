@@ -358,7 +358,7 @@ function App() {
 
   const voterStats = useCallback((v, g) => {
     if (!data) return { total: 0, names: 0, pool: 0 };
-    const pool = NAMES.filter(n => n.g === g);
+    const pool = NF(v).filter(n => n.g === g);
     const ids = new Set(pool.map(n => n.id));
     const cmps = data.comparisons.filter(c => c.voter === v && ids.has(c.a) && ids.has(c.b));
     const touched = new Set(); cmps.forEach(c => { touched.add(c.a); touched.add(c.b); });
@@ -559,14 +559,17 @@ function App() {
 
         // ═══ STATS ═══
         view === "stats" && (() => {
-          const allVoters = [...new Set(data.comparisons.map(c => c.voter))];
-          if (!allVoters.length) allVoters.push("benny");
+          const allVoters = voter === "bekah" ? ["bekah", "benny"] : ["benny", "bekah"];
           return React.createElement("div", { style: { background: t.card, borderRadius: 12, padding: 20, border: "1px solid " + t.border, boxShadow: t.shadow } },
             React.createElement("div", { style: { fontSize: 18, fontWeight: 700, marginBottom: 16 } }, "Ranking Progress"),
-            allVoters.map(v =>
-              React.createElement("div", { key: v, style: { marginBottom: 20 } },
-                React.createElement("div", { style: { fontSize: 15, fontWeight: 700, color: accent, marginBottom: 10, textTransform: "capitalize" } }, v),
-                [["Boys", voterStats(v, "b"), bp.length, t.accentB], ["Girls", voterStats(v, "g"), gp.length, t.accentG]].map(([label, s, total, barColor]) => {
+            allVoters.map(v => {
+              const vPool = NF(v);
+              const vBoys = vPool.filter(n => n.g === "b").length;
+              const vGirls = vPool.filter(n => n.g === "g").length;
+              const isActive = v === voter;
+              return React.createElement("div", { key: v, style: { marginBottom: 20, opacity: isActive ? 1 : 0.8 } },
+                React.createElement("div", { style: { fontSize: 15, fontWeight: 700, color: isActive ? accent : t.sub, marginBottom: 10 } }, v === "bekah" ? "Bekah" : "Benny"),
+                [["Boys", voterStats(v, "b"), vBoys, t.accentB], ["Girls", voterStats(v, "g"), vGirls, t.accentG]].map(([label, s, total, barColor]) => {
                   const pct = total ? Math.round(s.names / total * 100) : 0;
                   const avg = total ? (s.total * 2 / total).toFixed(1) : "0";
                   return React.createElement("div", { key: label, style: { marginBottom: 14 } },
