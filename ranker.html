@@ -385,8 +385,10 @@ function App() {
   }, [impTxt, save]);
 
   const reset = useCallback(() => {
-    if (!confirm("Nuke all comparison data?")) return;
-    const nd = { comparisons: [], lastGender: "b", lastVoter: voter, eliminated: {} };
+    if (!confirm("Nuke " + (voter === "bekah" ? "Becca" : "Benny") + "'s comparison data? (Other voter's data is safe)")) return;
+    const kept = (data?.comparisons || []).filter(c => c.voter !== voter);
+    const newElim = { ...(data?.eliminated || {}) }; delete newElim[voter];
+    const nd = { comparisons: kept, lastGender: "b", lastVoter: voter, eliminated: newElim };
     setData(nd); setGender("b"); setUndo([]);
     setRatings(Object.fromEntries(NAMES.map(n => [n.id, 1000])));
     setPair(pickPair("b", voter, [], Object.fromEntries(NAMES.map(n => [n.id, 1.0])), []));
