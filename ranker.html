@@ -30,6 +30,8 @@ const NAMES_BEKAH = [{"id":"mlza3exiiwlzd","n":"Adam","g":"b","c":"Classic","v":
 function NF(v) { return v === "bekah" ? NAMES_BEKAH : NAMES_BENNY; }
 
 const STORE_KEY = "bt-ranker-v1";
+const SYNC_URL = "https://name-ranker-sync.bennyforeman1.workers.dev";
+const SYNC_AUTH = "benny_ranker_Qx7mNpK4rTvW9yJ3";
 
 // ── Themes ──
 const THEMES = {
@@ -214,27 +216,77 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    let local = null;
     try {
       const raw = localStorage.getItem(STORE_KEY);
-      if (raw) {
-        const d = JSON.parse(raw);
-        setData(d); setGender(d.lastGender || "b"); setVoter(d.lastVoter || "benny");
-        const { pi, ratings: r } = recomputeAll(d.comparisons || [], d.lastVoter || "benny");
+      if (raw) local = JSON.parse(raw);
+    } catch {}
+
+    // Fetch remote data, merge with local
+    fetch(SYNC_URL + "/sync").then(r => r.json()).then(remote => {
+      const remoteCmps = remote.comparisons || [];
+      const localCmps = local?.comparisons || [];
+      // Per-voter: keep whichever source has more comparisons
+      const merged = [];
+      const localElim = local?.eliminated || {};
+      const remoteElim = remote.eliminated || {};
+      const mergedElim = {};
+      for (const v of ["benny", "bekah"]) {
+        const rc = remoteCmps.filter(c => c.voter === v);
+        const lc = localCmps.filter(c => c.voter === v);
+        merged.push(...(rc.length >= lc.length ? rc : lc));
+        // Merge eliminations per voter
+        mergedElim[v] = { ...(localElim[v] || {}), ...(remoteElim[v] || {}) };
+      }
+      const d = { comparisons: merged, lastGender: local?.lastGender || "b", lastVoter: local?.lastVoter || "benny", eliminated: mergedElim };
+      setData(d); setGender(d.lastGender); setVoter(d.lastVoter);
+      const { pi, ratings: r } = recomputeAll(d.comparisons, d.lastVoter);
+      setRatings(r);
+      setPair(pickPair(d.lastGender, d.lastVoter, d.comparisons, pi, (d.eliminated?.[d.lastVoter]?.[d.lastGender]) || []));
+      try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch {}
+      // Seed KV if local had more data than remote
+      for (const v of ["benny", "bekah"]) {
+        const rc = remoteCmps.filter(c => c.voter === v).length;
+        const lc = localCmps.filter(c => c.voter === v).length;
+        if (lc > rc) {
+          fetch(SYNC_URL + "/sync/" + v, {
+            method: "PUT",
+            headers: { "Authorization": "Bearer " + SYNC_AUTH, "Content-Type": "application/json" },
+            body: JSON.stringify({ comparisons: merged.filter(c => c.voter === v), eliminated: mergedElim[v] ? { [v]: mergedElim[v] } : {} })
+          }).catch(() => {});
+        }
+      }
+      setLoading(false);
+    }).catch(() => {
+      // Offline fallback: use localStorage only
+      if (local) {
+        setData(local); setGender(local.lastGender || "b"); setVoter(local.lastVoter || "benny");
+        const { pi, ratings: r } = recomputeAll(local.comparisons || [], local.lastVoter || "benny");
         setRatings(r);
-        setPair(pickPair(d.lastGender || "b", d.lastVoter || "benny", d.comparisons || [], pi, (d.eliminated?.[d.lastVoter || "benny"]?.[d.lastGender || "b"]) || []));
-      } else throw 0;
-    } catch {
-      const d = { comparisons: [], lastGender: "b", lastVoter: "benny", eliminated: {} };
-      setData(d);
-      setRatings(Object.fromEntries(NAMES.map(n => [n.id, 1000])));
-      const pi = Object.fromEntries(NAMES.map(n => [n.id, 1.0]));
-      setPair(pickPair("b", "benny", [], pi, []));
-    }
-    setLoading(false);
+        setPair(pickPair(local.lastGender || "b", local.lastVoter || "benny", local.comparisons || [], pi, (local.eliminated?.[local.lastVoter || "benny"]?.[local.lastGender || "b"]) || []));
+      } else {
+        const d = { comparisons: [], lastGender: "b", lastVoter: "benny", eliminated: {} };
+        setData(d);
+        setRatings(Object.fromEntries(NAMES.map(n => [n.id, 1000])));
+        const pi = Object.fromEntries(NAMES.map(n => [n.id, 1.0]));
+        setPair(pickPair("b", "benny", [], pi, []));
+      }
+      setLoading(false);
+    });
   }, []);
 
   const save = useCallback((d) => {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch {}
+    // Async sync to KV - push current voter's data
+    const v = d.lastVoter || "benny";
+    const voterCmps = (d.comparisons || []).filter(c => c.voter === v);
+    const voterElim = {};
+    if (d.eliminated?.[v]) voterElim[v] = d.eliminated[v];
+    fetch(SYNC_URL + "/sync/" + v, {
+      method: "PUT",
+      headers: { "Authorization": "Bearer " + SYNC_AUTH, "Content-Type": "application/json" },
+      body: JSON.stringify({ comparisons: voterCmps, eliminated: voterElim })
+    }).catch(() => {});
   }, []);
 
   const vote = useCallback((w) => {
