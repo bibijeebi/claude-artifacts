@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nuclear Blast Radius Analysis</title>
+<meta property="og:title" content="☢ How Nuked Are We? Nuclear Blast Radius Analysis">
+<meta property="og:description" content="Interactive blast radius map for Whiteman AFB, Fort Bragg, and Milwaukee. See who's most cooked in a WW3 nuclear exchange.">
+<meta property="og:url" content="https://niggerfaggot.club/nuke-blast-radius.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { overflow-x: hidden; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
+body {
+  background: #0a0a0a;
+  font-family: 'IBM Plex Mono', monospace;
+  color: #ccc;
+}
+.header {
+  background: linear-gradient(135deg, #111 0%, #0d0808 100%);
+  border-bottom: 3px solid #ff4444;
+  padding: 20px 24px 16px;
+  text-align: center;
+}
+.header h1 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  margin: 0 0 4px;
+}
+.header .sub {
+  font-size: 11px;
+  color: #666;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.tabs {
+  display: flex;
+  background: #111;
+  border-bottom: 1px solid #222;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.tab {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 12px;
+  text-align: center;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab:hover { color: #aaa; }
+.tab.active { color: #fff; }
+.tab.active.tab-1 { border-bottom-color: #ff3333; }
+.tab.active.tab-2 { border-bottom-color: #ff8800; }
+.tab.active.tab-3 { border-bottom-color: #44bb44; }
+.tab.active.tab-4 { border-bottom-color: #8888ff; }
+
+.tab .threat-label {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  margin-top: 2px;
+  font-weight: 500;
+}
+.tab-1 .threat-label { color: #ff4444; }
+.tab-2 .threat-label { color: #ff8800; }
+.tab-3 .threat-label { color: #44bb44; }
+
+#map {
+  width: 100%;
+  height: 55vh;
+  min-height: 350px;
+}
+
+.info-panel {
+  background: #111;
+  padding: 20px 24px;
+  border-top: 1px solid #222;
+}
+.info-panel h2 {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0 0 4px;
+}
+.info-panel .target-type {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 16px;
+}
+.info-panel .scenario {
+  font-size: 11px;
+  color: #ff8866;
+  background: #1a1111;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border-left: 3px solid #ff4444;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.zone {
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-left: 3px solid;
+}
+.zone-fireball { background: #1a1111; border-color: #ff0000; }
+.zone-heavy { background: #1a1511; border-color: #ff6600; }
+.zone-moderate { background: #1a1811; border-color: #ffaa00; }
+.zone-light { background: #181a11; border-color: #ffdd44; }
+.zone-thermal { background: #1a1118; border-color: #ff44ff; }
+.zone-fallout { background: #11161a; border-color: #4488ff; }
+.zone .zone-name {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin-bottom: 2px;
+}
+.zone .zone-val {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.verdict-box {
+  background: #0d0d0d;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.verdict-box .you-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+.verdict-box .you-label .dist {
+  color: #aaa;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+}
+.verdict-box p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+  color: #aaa;
+}
+.verdict-box p strong { color: #ddd; }
+
+.legend {
+  padding: 16px 24px;
+  background: #0d0d0d;
+  border-top: 1px solid #1a1a1a;
+}
+.legend h3 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #666;
+  margin: 0 0 10px;
+}
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #888;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.footnote {
+  padding: 12px 24px;
+  font-size: 9px;
+  color: #444;
+  text-align: center;
+  line-height: 1.5;
+}
+
+@media (max-width: 500px) {
+  .zones { grid-template-columns: 1fr; }
+  .tab { font-size: 11px; padding: 12px 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>&#9762; Nuclear Blast Radius Analysis</h1>
+  <div class="sub">Modeled with Glasstone &amp; Dolan scaling &bull; Russian MIRV warheads &bull; Mar 2026</div>
+</div>
+
+<div class="tabs">
+  <div class="tab tab-1 active" onclick="showLocation(0)">
+    Duna &mdash; Hume, MO
+    <span class="threat-label">&#9632; Critical</span>
+  </div>
+  <div class="tab tab-2" onclick="showLocation(1)">
+    Benny &mdash; Willow Spring
+    <span class="threat-label">&#9632; Moderate</span>
+  </div>
+  <div class="tab tab-3" onclick="showLocation(2)">
+    Saukville, WI
+    <span class="threat-label">&#9632; Low Risk</span>
+  </div>
+  <div class="tab tab-4" onclick="showLocation(3)">
+    US Overview
+    <span class="threat-label">&#9632; Full Map</span>
+  </div>
+</div>
+
+<div id="map"></div>
+
+<div class="info-panel" id="infoPanel"></div>
+
+<div class="legend">
+  <h3>Blast Zone Legend (800kt surface burst)</h3>
+  <div class="legend-items">
+    <div class="legend-item"><div class="legend-dot" style="background:#ff0000"></div>Fireball (vaporized)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff6600"></div>Heavy blast, 20 psi (total destruction)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ffaa00"></div>Moderate blast, 5 psi (most buildings destroyed)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ffdd44"></div>Light damage, 1 psi (windows, light structures)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff44ff"></div>Thermal radiation (3rd degree burns)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:rgba(68,136,255,0.3); border: 1px solid #4488ff"></div>Fallout plume (lethal dose, 24hr unprotected)</div>
+  </div>
+</div>
+
+<div class="footnote">
+  Blast radii modeled using cube-root scaling from Glasstone &amp; Dolan, "The Effects of Nuclear Weapons" (1977).
+  800kt chosen as representative Russian MIRV warhead (SS-18/RS-28 Sarmat payload). Surface burst assumed for hardened military targets.
+  Fallout plumes are approximate and depend heavily on weather, wind speed/direction, and terrain.
+  This is an educational tool, not emergency planning guidance. NUKEMAP by Alex Wellerstein for interactive modeling.
+</div>
+
+<script>
+const map = L.map('map', { zoomControl: true, attributionControl: true }).setView([38.73, -93.56], 8);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO',
+  maxZoom: 18
+}).addTo(map);
+
+let currentLayers = [];
+
+function clearLayers() {
+  currentLayers.forEach(l => map.removeLayer(l));
+  currentLayers = [];
+}
+
+// Blast radii in miles for 800kt surface burst (Glasstone cube-root scaling)
+// R = R_ref * (Y / Y_ref)^(1/3)
+// Using 1MT reference: fireball 0.9mi, 20psi 2.5mi(1.55mi), 5psi 5.4mi(3.35mi), 1psi 17mi(10.6mi), thermal 11mi(6.8mi)
+// 800kt scaling factor: (800/1000)^(1/3) = 0.928
+// For 500kt: (500/1000)^(1/3) = 0.794
+
+const locations = [
+  {
+    name: "Duna — Hume, MO",
+    target: "Whiteman Air Force Base",
+    targetType: "B-2 Spirit stealth bomber base (all 19 operational aircraft) — Nuclear triad, bomber leg",
+    targetCoords: [38.7301, -93.5585],
+    personCoords: [37.8431, -94.5883],
+    personLabel: "Duna (Hume)",
+    distMi: 85,
+    zoom: 8,
+    yield: "800kt",
+    scenario: "Whiteman would receive MULTIPLE warheads in a first strike — likely 2-4 surface burst weapons to ensure destruction of all B-2s, hangars, and runway. Russia's RS-28 Sarmat carries 10-15 MIRVs of 500-800kt each. This base is a top-10 global nuclear target. It's actively launching strikes on Iran RIGHT NOW (Operation Epic Fury, Mar 1 2026).",
+    zones: [
+      { name: "Fireball", val: "~1.0 mi", color: "#ff0000", radiusMi: 1.0 },
+      { name: "Heavy Blast (20 psi)", val: "~2.3 mi", color: "#ff6600", radiusMi: 2.3 },
+      { name: "Moderate Blast (5 psi)", val: "~4.5 mi", color: "#ffaa00", radiusMi: 4.5 },
+      { name: "Light Damage (1 psi)", val: "~11 mi", color: "#ffdd44", radiusMi: 11 },
+      { name: "3rd Degree Burns", val: "~7.5 mi", color: "#ff44ff", radiusMi: 7.5 },
+      { name: "Lethal Fallout (24hr)", val: "100-200+ mi", color: "#4488ff", radiusMi: 0 }
+    ],
+    verdict: {
+      label: "DUNA IN HUME",
+      dist: "~85 mi SW of Whiteman AFB",
+      color: "#ff3333",
+      text: "<strong>Outside the blast radius</strong> by a comfortable margin — the worst blast effects end around 11 miles out. But she's squarely in the <strong>fallout danger zone</strong>. With prevailing winds blowing SW to NE, Hume (being SW) is actually on the upwind side, which is favorable. But wind isn't reliable. If the wind shifts, 85 miles is well within the lethal fallout range of 100-200+ miles. A surface burst on a hardened target like Whiteman throws up massive amounts of irradiated dirt and debris. She'd need a <strong>sealed shelter with 48+ hours of supplies</strong> and potassium iodide tablets. The real danger isn't the bang, it's the dust."
+    }
+  },
+  {
+    name: "Benny — Willow Spring, NC",
+    target: "Fort Bragg (Fayetteville, NC)",
+    targetType: "Largest US Army installation — 82nd Airborne, USASOC, USARC, 3rd SFG — Conventional forces (NOT nuclear delivery)",
+    targetCoords: [35.1390, -79.0064],
+    personCoords: [35.5504, -78.6792],
+    personLabel: "Benny (Willow Spring)",
+    distMi: 35,
+    zoom: 9,
+    yield: "500kt",
+    scenario: "Fort Bragg is a high-value conventional military target but NOT a nuclear delivery platform. It would likely get 1-2 warheads, probably air burst to maximize area destruction against soft targets (troops, vehicles, buildings). Air bursts produce LESS fallout than surface bursts. Second-tier priority behind ICBM fields, bomber bases, and SSBN ports. Note: Seymour Johnson AFB (F-15E Strike Eagles) is also in NC, ~80 mi east.",
+    zones: [
+      { name: "Fireball", val: "~0.7 mi", color: "#ff0000", radiusMi: 0.7 },
+      { name: "Heavy Blast (20 psi)", val: "~1.8 mi", color: "#ff6600", radiusMi: 1.8 },
+      { name: "Moderate Blast (5 psi)", val: "~3.7 mi", color: "#ffaa00", radiusMi: 3.7 },
+      { name: "Light Damage (1 psi)", val: "~9 mi", color: "#ffdd44", radiusMi: 9 },
+      { name: "3rd Degree Burns", val: "~6 mi", color: "#ff44ff", radiusMi: 6 },
+      { name: "Lethal Fallout (24hr)", val: "50-100 mi*", color: "#4488ff", radiusMi: 0 }
+    ],
+    verdict: {
+      label: "BENNY IN WILLOW SPRING",
+      dist: "~35 mi NE of Fort Bragg",
+      color: "#ff8800",
+      text: "At 35 miles, you're <strong>well outside the blast radius</strong> (worst effects end at ~9 mi for light damage). You wouldn't feel the shockwave, but you'd see the flash. The good news: Fort Bragg would likely get an <strong>air burst, not surface burst</strong>, because there's nothing hardened to dig out. Air bursts produce dramatically less fallout. The bad news: you're also within range of Raleigh-Durham being targeted as a population center. <strong>Your biggest risk is accumulated fallout</strong> from multiple strikes in the region, not a single blast. Stock KI tablets and have a 48-hour shelter plan."
+    }
+  },
+  {
+    name: "Saukville, WI",
+    target: "Milwaukee, WI (nearest target)",
+    targetType: "Population/industrial center — Manufacturing hub, port city — No strategic military installations",
+    targetCoords: [43.0389, -87.9065],
+    personCoords: [43.3817, -87.9395],
+    personLabel: "Saukville",
+    distMi: 24,
+    zoom: 9,
+    yield: "500kt",
+    scenario: "Milwaukee is an economic/population target, not a first-strike military priority. Would only be hit in a full 2,000-warhead exchange, not a limited 500-warhead scenario. Wisconsin has NO strategic bomber bases, NO ICBM fields, NO naval bases. Fort McCoy (only WI military base) is 180+ mi northwest and low priority. Chicago (~80 mi south) is a much higher priority target and fallout from there could reach SE Wisconsin.",
+    zones: [
+      { name: "Fireball", val: "~0.7 mi", color: "#ff0000", radiusMi: 0.7 },
+      { name: "Heavy Blast (20 psi)", val: "~1.8 mi", color: "#ff6600", radiusMi: 1.8 },
+      { name: "Moderate Blast (5 psi)", val: "~3.7 mi", color: "#ffaa00", radiusMi: 3.7 },
+      { name: "Light Damage (1 psi)", val: "~9 mi", color: "#ffdd44", radiusMi: 9 },
+      { name: "3rd Degree Burns", val: "~6 mi", color: "#ff44ff", radiusMi: 6 },
+      { name: "Lethal Fallout (24hr)", val: "50-100 mi*", color: "#4488ff", radiusMi: 0 }
+    ],
+    verdict: {
+      label: "SAUKVILLE",
+      dist: "~24 mi N of Milwaukee",
+      color: "#44bb44",
+      text: "At 24 miles north, you're <strong>outside the blast radius</strong> from a Milwaukee strike. But here's the thing: <strong>Milwaukee probably doesn't get hit at all</strong> in a limited exchange. It's only targeted in a full 2,000-warhead armageddon scenario. Even then, Wisconsin is noted as one of the <strong>safest states overall</strong>. The main concern is <strong>fallout drifting north from Chicago</strong> (~80 mi south), which would be a high-priority target. Prevailing winds typically blow W to E, which would push Chicago fallout over Lake Michigan, not toward Saukville. Relatively chill."
+    }
+  }
+];
+
+function mi2m(mi) { return mi * 1609.34; }
+
+function drawBlastZones(loc) {
+  clearLayers();
+
+  // Draw zones largest to smallest so smaller ones render on top
+  const sortedZones = [...loc.zones].filter(z => z.radiusMi > 0).sort((a, b) => b.radiusMi - a.radiusMi);
+
+  sortedZones.forEach(z => {
+    const circle = L.circle(loc.targetCoords, {
+      radius: mi2m(z.radiusMi),
+      color: z.color,
+      fillColor: z.color,
+      fillOpacity: 0.12,
+      weight: 1.5,
+      opacity: 0.7
+    }).addTo(map);
+    currentLayers.push(circle);
+  });
+
+  // Fallout plume (rough ellipse approximation pointing NE for prevailing winds)
+  if (loc.zones.find(z => z.name.includes("Fallout"))) {
+    const [lat, lng] = loc.targetCoords;
+    const falloutPoints = [];
+    const maxDownwind = loc.target.includes("Whiteman") ? 150 : 80; // miles
+    const maxCrosswind = 20; // miles
+    for (let angle = 0; angle <= 360; angle += 5) {
+      const rad = angle * Math.PI / 180;
+      // Ellipse stretched toward NE (45 degrees from N)
+      const rotAngle = 45 * Math.PI / 180;
+      const x = maxCrosswind * Math.cos(rad);
+      const y = maxDownwind * Math.cos(rad) > 0 ? maxDownwind * Math.cos(rad) : maxCrosswind * 0.3 * Math.cos(rad);
+      // Simple approach: elongated toward NE
+      const downwindDist = (angle >= 0 && angle <= 180) ?
+        maxDownwind * Math.sin(rad * 0.5 + 0.2) :
+        maxCrosswind * 0.2;
+      const crosswindDist = maxCrosswind * Math.sin(rad);
+
+      const distMi = Math.sqrt(downwindDist * downwindDist + crosswindDist * crosswindDist);
+      const bearing = angle + 20; // offset NE-ish
+      const dLat = (distMi / 69) * Math.cos(bearing * Math.PI / 180);
+      const dLng = (distMi / (69 * Math.cos(lat * Math.PI / 180))) * Math.sin(bearing * Math.PI / 180);
+      falloutPoints.push([lat + dLat, lng + dLng]);
+    }
+    const fallout = L.polygon(falloutPoints, {
+      color: '#4488ff',
+      fillColor: '#4488ff',
+      fillOpacity: 0.06,
+      weight: 1,
+      opacity: 0.4,
+      dashArray: '8,4'
+    }).addTo(map);
+    currentLayers.push(fallout);
+  }
+
+  // Target marker
+  const targetIcon = L.divIcon({
+    html: '<div style="background:#ff0000;width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 8px rgba(255,0,0,0.8)"></div>',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    className: ''
+  });
+  const targetMarker = L.marker(loc.targetCoords, { icon: targetIcon })
+    .bindPopup(`<b style="color:#ff0000">&#9762; TARGET:</b> ${loc.target}<br><small>${loc.yield} warhead</small>`)
+    .addTo(map);
+  currentLayers.push(targetMarker);
+
+  // Person marker
+  const personIcon = L.divIcon({
+    html: '<div style="background:#00cc44;width:10px;height:10px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 8px rgba(0,204,68,0.8)"></div>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+    className: ''
+  });
+  const personMarker = L.marker(loc.personCoords, { icon: personIcon })
+    .bindPopup(`<b style="color:#00cc44">&#127968; ${loc.personLabel}</b><br><small>${loc.distMi} mi from target</small>`)
+    .addTo(map);
+  currentLayers.push(personMarker);
+
+  // Distance line
+  const distLine = L.polyline([loc.targetCoords, loc.personCoords], {
+    color: '#ffffff',
+    weight: 1,
+    opacity: 0.4,
+    dashArray: '4,6'
+  }).addTo(map);
+  currentLayers.push(distLine);
+
+  map.setView(loc.targetCoords, loc.zoom);
+}
+
+function renderInfo(loc) {
+  const panel = document.getElementById('infoPanel');
+  const zonesHTML = loc.zones.map(z => {
+    const cls = z.name.includes('Fireball') ? 'fireball' :
+                z.name.includes('Heavy') ? 'heavy' :
+                z.name.includes('Moderate') ? 'moderate' :
+                z.name.includes('Light') ? 'light' :
+                z.name.includes('Thermal') || z.name.includes('Burns') ? 'thermal' : 'fallout';
+    return `<div class="zone zone-${cls}">
+      <div class="zone-name">${z.name}</div>
+      <div class="zone-val">${z.val}</div>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <h2>&#9762; ${loc.target} &mdash; ${loc.yield} Warhead</h2>
+    <div class="target-type">${loc.targetType}</div>
+    <div class="scenario">${loc.scenario}</div>
+    <div class="zones">${zonesHTML}</div>
+    <div class="verdict-box">
+      <div class="you-label" style="color:${loc.verdict.color}">
+        ${loc.verdict.label} <span class="dist">${loc.verdict.dist}</span>
+      </div>
+      <p>${loc.verdict.text}</p>
+    </div>
+  `;
+}
+
+function showOverview() {
+  clearLayers();
+
+  // Show all three targets and persons
+  const allPoints = [];
+
+  const targets = [
+    { coords: [38.7301, -93.5585], name: "Whiteman AFB (B-2s)", color: "#ff0000", priority: "TOP-10 GLOBAL" },
+    { coords: [35.1390, -79.0064], name: "Fort Bragg", color: "#ff8800", priority: "SECOND-TIER" },
+    { coords: [43.0389, -87.9065], name: "Milwaukee", color: "#ffdd44", priority: "FULL EXCHANGE ONLY" },
+    { coords: [41.8781, -87.6298], name: "Chicago (high priority)", color: "#ff4444", priority: "TOP-20" },
+    { coords: [35.7796, -78.6382], name: "Raleigh-Durham", color: "#ffaa00", priority: "POPULATION" },
+    { coords: [38.9072, -77.0369], name: "Washington DC", color: "#ff0000", priority: "#1 TARGET" },
+  ];
+
+  const persons = [
+    { coords: [37.8431, -94.5883], name: "Duna (Hume, MO)", color: "#ff3333" },
+    { coords: [35.5504, -78.6792], name: "Benny (Willow Spring, NC)", color: "#ff8800" },
+    { coords: [43.3817, -87.9395], name: "Saukville, WI", color: "#44bb44" },
+  ];
+
+  targets.forEach(t => {
+    const icon = L.divIcon({
+      html: `<div style="background:${t.color};width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,0.6);box-shadow:0 0 6px ${t.color}80"></div>`,
+      iconSize: [14, 14], iconAnchor: [7, 7], className: ''
+    });
+    const m = L.marker(t.coords, { icon }).bindPopup(`<b style="color:${t.color}">&#9762; ${t.name}</b><br><small>${t.priority}</small>`).addTo(map);
+    currentLayers.push(m);
+    allPoints.push(t.coords);
+  });
+
+  persons.forEach(p => {
+    const icon = L.divIcon({
+      html: `<div style="background:#00cc44;width:8px;height:8px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 6px rgba(0,204,68,0.6)"></div>`,
+      iconSize: [12, 12], iconAnchor: [6, 6], className: ''
+    });
+    const m = L.marker(p.coords, { icon }).bindPopup(`<b style="color:#00cc44">&#127968; ${p.name}</b>`).addTo(map);
+    currentLayers.push(m);
+    allPoints.push(p.coords);
+  });
+
+  map.fitBounds(allPoints, { padding: [30, 30] });
+
+  document.getElementById('infoPanel').innerHTML = `
+    <h2>US Overview &mdash; All Three Locations</h2>
+    <div class="target-type">Showing nearby nuclear targets and your positions relative to them</div>
+    <div class="scenario">
+      In a Russian first strike (500 warheads), priority goes to: (1) ICBM silos in MT/ND/WY/CO, (2) Bomber bases like Whiteman, Barksdale, Dyess, Minot, (3) SSBN ports like Bangor WA and Kings Bay GA, (4) Command &amp; control (DC, Cheyenne Mountain, Offutt AFB), (5) Major population centers. Fort Bragg falls in tier 2-3 for conventional military. Milwaukee only gets hit in a full 2,000-warhead exchange.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div class="verdict-box">
+        <div class="you-label" style="color:#ff3333;font-size:12px">DUNA</div>
+        <p style="font-size:11px">85 mi from a <strong>top-10 global target</strong>. Most danger. Fallout is the killer.</p>
+      </div>
+      <div class="verdict-box">
+        <div class="you-label" style="color:#ff8800;font-size:12px">BENNY</div>
+        <p style="font-size:11px">35 mi from a <strong>second-tier target</strong>. Moderate risk. Multiple NC bases compound it.</p>
+      </div>
+      <div class="verdict-box">
+        <div class="you-label" style="color:#44bb44;font-size:12px">SAUKVILLE</div>
+        <p style="font-size:11px"><strong>No nearby strategic targets</strong>. Chicago fallout is the main risk. Safest of the three.</p>
+      </div>
+    </div>
+  `;
+}
+
+function showLocation(idx) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+  });
+
+  if (idx === 3) {
+    showOverview();
+  } else {
+    drawBlastZones(locations[idx]);
+    renderInfo(locations[idx]);
+  }
+}
+
+// Init
+showLocation(0);
+</script>
+
+</body>
+</html>
