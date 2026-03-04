@@ -200,8 +200,8 @@ body::after {
   background: none !important; border: none !important;
   box-shadow: none !important;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; white-space: nowrap;
-  text-shadow: 0 0 4px #000, 0 0 8px #000, 0 1px 3px #000;
+  font-size: 11px; white-space: nowrap;
+  text-shadow: none;
   pointer-events: none;
 }
 .pl {
@@ -373,15 +373,21 @@ function buildMap(id,center,zoom,targetCoords,zones,targetName,personCoords,pers
 
   // Zones largest first
   const s=[...zones].filter(z=>z.r>0).sort((a,b)=>b.r-a.r);
-  s.forEach(z=>{
+  // Spread labels at different bearings (degrees clockwise from N): W, E, S, N, NW
+  const bearings=[270,90,200,350,315];
+  s.forEach((z,i)=>{
     L.circle(targetCoords,{
       radius:mi2m(z.r),color:z.color,fillColor:z.color,
       fillOpacity:z.fo||0.10,weight:1.5,opacity:0.6
     }).addTo(m);
-    // Label at north edge
-    const lLat=targetCoords[0]+(z.r/69);
-    L.marker([lLat,targetCoords[1]],{
-      icon:L.divIcon({className:'zl',html:`<span style="color:${z.color}">${z.label}</span>`,iconSize:[140,16],iconAnchor:[70,14]}),
+    const bRad=bearings[i%bearings.length]*Math.PI/180;
+    const lLat=targetCoords[0]+(z.r/69)*Math.cos(bRad);
+    const lLng=targetCoords[1]+(z.r/(69*Math.cos(targetCoords[0]*Math.PI/180)))*Math.sin(bRad);
+    // Anchor: if label is on the right half (E side), left-align; if left half (W side), right-align
+    const b=bearings[i%bearings.length];
+    const anchorX=(b>0&&b<180)?0:(b>180?150:75);
+    L.marker([lLat,lLng],{
+      icon:L.divIcon({className:'zl',html:`<span style="color:${z.color};background:rgba(6,8,10,0.8);padding:1px 5px;border-radius:2px;border:1px solid ${z.color}44">${z.label}</span>`,iconSize:[150,18],iconAnchor:[anchorX,9]}),
       interactive:false
     }).addTo(m);
   });
@@ -403,20 +409,21 @@ function buildMap(id,center,zoom,targetCoords,zones,targetName,personCoords,pers
       pts.push([lat+dLat,lng+dLng]);
     }
     L.polygon(pts,{color:'#4488ff',fillColor:'#4488ff',fillOpacity:0.05,weight:1,opacity:0.35,dashArray:'6,4'}).addTo(m);
-    // Fallout label
-    const fb=45*Math.PI/180,fd=dM*0.45;
-    const fLat=lat+(fd/69)*Math.cos(fb),fLng=lng+(fd/(69*Math.cos(lat*Math.PI/180)))*Math.sin(fb);
-    L.marker([fLat,fLng],{icon:L.divIcon({className:'zl',html:'<span style="color:#4488ff">LETHAL FALLOUT &#9658;</span>',iconSize:[140,16],iconAnchor:[0,8]}),interactive:false}).addTo(m);
+    // Fallout label - placed inside the plume body
+    const fb=40*Math.PI/180,fd=dM*0.35;
+    const fLat=lat+(fd/69)*Math.cos(fb);
+    const fLng=lng+(fd/(69*Math.cos(lat*Math.PI/180)))*Math.sin(fb);
+    L.marker([fLat,fLng],{icon:L.divIcon({className:'zl',html:'<span style="color:#4488ff;background:rgba(6,8,10,0.75);padding:2px 6px;border-radius:2px;border:1px solid #4488ff44;font-size:11px">LETHAL FALLOUT ZONE</span>',iconSize:[160,20],iconAnchor:[80,10]}),interactive:false}).addTo(m);
   }
 
   // Target
   L.marker(targetCoords,{icon:L.divIcon({html:'<div style="width:14px;height:14px;background:#ff0000;border-radius:50%;border:2px solid #fff;box-shadow:0 0 10px rgba(255,0,0,0.7),0 0 20px rgba(255,0,0,0.3)"></div>',iconSize:[18,18],iconAnchor:[9,9],className:''})}).addTo(m);
-  L.marker([targetCoords[0]+0.06,targetCoords[1]],{icon:L.divIcon({className:'tgl',html:'&#9762; '+targetName,iconSize:[200,16],iconAnchor:[100,16]}),interactive:false}).addTo(m);
+  L.marker([targetCoords[0]-0.04,targetCoords[1]],{icon:L.divIcon({className:'tgl',html:'<span style="background:rgba(6,8,10,0.8);padding:2px 7px;border-radius:2px;border:1px solid #ff444466">&#9762; '+targetName+'</span>',iconSize:[200,20],iconAnchor:[100,0]}),interactive:false}).addTo(m);
 
   // Person
   if(personCoords){
     L.marker(personCoords,{icon:L.divIcon({html:'<div style="width:12px;height:12px;background:#33ff88;border-radius:50%;border:2px solid #fff;box-shadow:0 0 10px rgba(51,255,136,0.6)"></div>',iconSize:[16,16],iconAnchor:[8,8],className:''})}).addTo(m);
-    L.marker([personCoords[0]+0.05,personCoords[1]],{icon:L.divIcon({className:'pl',html:'&#127968; '+personName+' ('+distMi+' mi)',iconSize:[220,16],iconAnchor:[110,16]}),interactive:false}).addTo(m);
+    L.marker([personCoords[0]+0.05,personCoords[1]],{icon:L.divIcon({className:'pl',html:'<span style="background:rgba(6,8,10,0.8);padding:2px 7px;border-radius:2px;border:1px solid #33ff8844">&#127968; '+personName+' ('+distMi+' mi)</span>',iconSize:[240,20],iconAnchor:[120,20]}),interactive:false}).addTo(m);
     L.polyline([targetCoords,personCoords],{color:'#fff',weight:1,opacity:0.25,dashArray:'4,6'}).addTo(m);
   }
   return m;
