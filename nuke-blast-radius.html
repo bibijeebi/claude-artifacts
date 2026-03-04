@@ -140,6 +140,16 @@ body::after {
 
 .panel-map { flex: 1; min-height: 280px; position: relative; }
 .panel-map .leaflet-container { width: 100%; height: 100%; background: #080b10; }
+.map-hint {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  z-index: 800; font-size: 9px; color: #667;
+  background: rgba(6,8,10,0.85); padding: 3px 10px;
+  border-radius: 3px; border: 1px solid #1a2030;
+  pointer-events: none; transition: opacity 0.3s;
+  text-transform: uppercase; letter-spacing: 1px;
+  font-family: 'Share Tech Mono', monospace;
+}
+.map-hint.hidden { opacity: 0; }
 
 .panel-info {
   padding: 10px 14px 12px;
@@ -249,7 +259,7 @@ body::after {
       </div>
       <div class="badge bc">Critical</div>
     </div>
-    <div class="panel-map" id="map1"></div>
+    <div class="panel-map" id="map1"><div class="map-hint" id="hint1">Click to interact with map</div></div>
     <div class="panel-info">
       <div class="tl"><strong>&#9762; Whiteman AFB</strong> &mdash; Home of ALL 19 B-2 Spirit nuclear stealth bombers. Bomber leg of the nuclear triad. Top-10 global target. Currently launching strikes on Iran (Op. Epic Fury, Mar&nbsp;2026).</div>
       <div class="tl"><strong>Warhead:</strong> 800kt surface burst &times;2-4 MIRVs to ensure total kill</div>
@@ -275,7 +285,7 @@ body::after {
       </div>
       <div class="badge bw">Moderate</div>
     </div>
-    <div class="panel-map" id="map2"></div>
+    <div class="panel-map" id="map2"><div class="map-hint" id="hint2">Click to interact with map</div></div>
     <div class="panel-info">
       <div class="tl"><strong>&#9762; Fort Bragg</strong> &mdash; Largest US Army base. 82nd Airborne, Special Ops Command, Army Reserve. Conventional forces, NOT a nuclear delivery platform. Second-tier priority.</div>
       <div class="tl"><strong>Warhead:</strong> 500kt air burst (soft target = less fallout than surface burst)</div>
@@ -301,7 +311,7 @@ body::after {
       </div>
       <div class="badge bo">Low Risk</div>
     </div>
-    <div class="panel-map" id="map3"></div>
+    <div class="panel-map" id="map3"><div class="map-hint" id="hint3">Click to interact with map</div></div>
     <div class="panel-info">
       <div class="tl"><strong>&#9762; Milwaukee</strong> &mdash; Population/industrial center. NO strategic military targets. Only hit in a full 2,000-warhead armageddon scenario, NOT a limited 500-warhead first strike.</div>
       <div class="tl"><strong>Warhead:</strong> 500kt air burst (if targeted at all)</div>
@@ -327,7 +337,7 @@ body::after {
       </div>
       <div class="badge bi">Reference</div>
     </div>
-    <div class="panel-map" id="map4"></div>
+    <div class="panel-map" id="map4"><div class="map-hint" id="hint4">Click to interact with map</div></div>
     <div class="panel-info">
       <div class="tl"><strong>Russian first-strike priority:</strong>
         (1) ICBM silos MT/ND/WY/CO &mdash;
@@ -354,9 +364,12 @@ function tile(){return L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{
 function mi2m(mi){return mi*1609.34}
 
 function buildMap(id,center,zoom,targetCoords,zones,targetName,personCoords,personName,distMi,falloutRange){
-  const m=L.map(id,{zoomControl:false,attributionControl:false}).setView(center,zoom);
+  const m=L.map(id,{zoomControl:false,attributionControl:false,scrollWheelZoom:false,dragging:!L.Browser.mobile}).setView(center,zoom);
   tile().addTo(m);
   L.control.zoom({position:'topright'}).addTo(m);
+  m.getContainer().addEventListener('click',function(){m.scrollWheelZoom.enable();m.dragging.enable();var h=m.getContainer().parentNode.querySelector('.map-hint');if(h)h.classList.add('hidden')});
+  m.getContainer().addEventListener('mouseleave',function(){m.scrollWheelZoom.disable();if(!L.Browser.mobile)m.dragging.enable()});
+  if(L.Browser.mobile){m.dragging.disable();m.getContainer().addEventListener('touchstart',function(e){if(e.touches.length===2){m.dragging.enable()}},{passive:true});m.getContainer().addEventListener('touchend',function(){m.dragging.disable()},{passive:true});}
 
   // Zones largest first
   const s=[...zones].filter(z=>z.r>0).sort((a,b)=>b.r-a.r);
@@ -434,9 +447,12 @@ buildMap('map3',[43.2,-87.92],9,
 );
 
 // MAP 4: Overview
-const m4=L.map('map4',{zoomControl:false,attributionControl:false}).setView([39.5,-87],5);
+const m4=L.map('map4',{zoomControl:false,attributionControl:false,scrollWheelZoom:false,dragging:!L.Browser.mobile}).setView([39.5,-87],5);
 tile().addTo(m4);
 L.control.zoom({position:'topright'}).addTo(m4);
+m4.getContainer().addEventListener('click',function(){m4.scrollWheelZoom.enable();m4.dragging.enable();var h=m4.getContainer().parentNode.querySelector('.map-hint');if(h)h.classList.add('hidden')});
+m4.getContainer().addEventListener('mouseleave',function(){m4.scrollWheelZoom.disable()});
+if(L.Browser.mobile){m4.dragging.disable();m4.getContainer().addEventListener('touchstart',function(e){if(e.touches.length===2){m4.dragging.enable()}},{passive:true});m4.getContainer().addEventListener('touchend',function(){m4.dragging.disable()},{passive:true});}
 
 [
   {c:[38.7301,-93.5585],n:'Whiteman AFB (B-2s)',cl:'#ff0000',p:'TIER 1 \u2014 TOP 10 GLOBAL'},
