@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rabbit Hutch Build Proposal</title>
+<meta property="og:title" content="Rabbit Hutch Build Proposal">
+<meta property="og:description" content="Indoor 2×5×2 meat rabbit hutch for Rabbi Yosef and Rabbi Thump. Materials, cut list, and build plan.">
+<meta property="og:url" content="https://niggerfaggot.club/rabbit-hutch.html">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+
+:root {
+  --bark: #3E2723;
+  --straw: #F5E6C8;
+  --cream: #FFF8F0;
+  --copper: #BF6A3A;
+  --wire: #7A8B8B;
+  --green: #4A6741;
+  --red: #8B3A3A;
+  --ink: #2C2416;
+  --paper: #FAF6F0;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+header {
+  background: var(--bark);
+  color: var(--straw);
+  padding: 3rem 2rem 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, var(--copper) 0, var(--copper) 20px, transparent 20px, transparent 24px);
+}
+
+header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  letter-spacing: 0.02em;
+  margin-bottom: 0.3rem;
+}
+
+header .subtitle {
+  font-size: 1rem;
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.rabbits {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1.2rem;
+}
+
+.rabbit-tag {
+  background: var(--copper);
+  color: var(--cream);
+  padding: 0.4rem 1.2rem;
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+section {
+  margin-bottom: 3rem;
+}
+
+h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem;
+  color: var(--bark);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--straw);
+}
+
+h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--copper);
+  margin: 1.2rem 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.85rem;
+}
+
+p { margin-bottom: 0.8rem; }
+
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.spec-card {
+  background: var(--cream);
+  border: 1px solid var(--straw);
+  border-radius: 8px;
+  padding: 1.2rem;
+  text-align: center;
+}
+
+.spec-card .value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  color: var(--copper);
+  display: block;
+}
+
+.spec-card .label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--wire);
+  font-weight: 600;
+  margin-top: 0.3rem;
+}
+
+.diagram-container {
+  background: white;
+  border: 1px solid var(--straw);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.diagram-container svg { display: block; margin: 0 auto; }
+
+.materials-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.materials-table thead { background: var(--bark); color: var(--straw); }
+.materials-table th {
+  padding: 0.7rem 1rem;
+  text-align: left;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.materials-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--straw);
+  font-size: 0.95rem;
+}
+
+.materials-table tbody tr:nth-child(even) { background: var(--cream); }
+
+.materials-table .price { font-weight: 700; color: var(--copper); text-align: right; white-space: nowrap; }
+.materials-table .qty { text-align: center; font-weight: 600; }
+.materials-table .status { text-align: center; }
+
+.owned { color: var(--green); font-weight: 700; }
+.needed { color: var(--red); font-weight: 600; }
+
+.cut-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+.cut-item {
+  background: var(--cream);
+  border-left: 4px solid var(--copper);
+  padding: 0.8rem 1rem;
+  border-radius: 0 6px 6px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cut-item .dim { font-weight: 700; font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--bark); }
+.cut-item .use { font-size: 0.85rem; color: var(--wire); }
+.cut-item .count { background: var(--copper); color: white; border-radius: 100px; padding: 0.15rem 0.6rem; font-weight: 700; font-size: 0.8rem; }
+
+.steps {
+  counter-reset: step;
+  list-style: none;
+}
+
+.steps li {
+  counter-increment: step;
+  padding: 1rem 1rem 1rem 3.5rem;
+  position: relative;
+  margin-bottom: 0.5rem;
+  background: var(--cream);
+  border-radius: 8px;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  background: var(--copper);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.total-box {
+  background: var(--bark);
+  color: var(--straw);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+.total-box .total-label { font-size: 1rem; font-weight: 500; }
+.total-box .total-value { font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: var(--copper); }
+
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin: 0.5rem 0 1rem;
+  font-size: 0.85rem;
+}
+
+.legend-item { display: flex; align-items: center; gap: 0.4rem; }
+.legend-swatch { width: 16px; height: 16px; border-radius: 3px; border: 1px solid #ccc; }
+
+.corner-note {
+  background: linear-gradient(135deg, var(--straw), var(--cream));
+  border: 1px dashed var(--copper);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--wire);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--straw);
+}
+
+@media (max-width: 600px) {
+  header { padding: 2rem 1rem 1.8rem; }
+  main { padding: 1.5rem 1rem 3rem; }
+  .total-box { flex-direction: column; gap: 0.5rem; text-align: center; }
+  .rabbits { gap: 1rem; }
+  .spec-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <h1>Rabbit Hutch Build Proposal</h1>
+  <p class="subtitle">Indoor Meat Rabbit Enclosure &bull; Foreman Homestead</p>
+  <div class="rabbits">
+    <span class="rabbit-tag">&#x1F407; Rabbi Yosef</span>
+    <span class="rabbit-tag">&#x1F407; Rabbi Thump</span>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <h2>Overview</h2>
+  <p>A simple, sturdy indoor hutch built from 2&times;2 lumber and hardware cloth, designed to sit in a living room corner. Two walls become plywood (against the walls), the rest is wire mesh for airflow and visibility. Divided into two equal cells with separate door access.</p>
+
+  <div class="spec-grid">
+    <div class="spec-card"><span class="value">5'</span><span class="label">Length</span></div>
+    <div class="spec-card"><span class="value">2'</span><span class="label">Width</span></div>
+    <div class="spec-card"><span class="value">2'</span><span class="label">Height</span></div>
+    <div class="spec-card"><span class="value">2</span><span class="label">Cells</span></div>
+    <div class="spec-card"><span class="value">5 ft&sup2;</span><span class="label">Per Rabbit</span></div>
+    <div class="spec-card"><span class="value">~$76</span><span class="label">Est. Cost</span></div>
+  </div>
+
+  <div class="corner-note">
+    <strong>Corner placement:</strong> Back (5') and one short end (2') sit against walls &rarr; plywood panels instead of wire. Saves money, blocks drafts, gives the rabbits a sense of enclosure on two sides.
+  </div>
+</section>
+
+<section>
+  <h2>Diagram</h2>
+  <p>Exploded 3D view showing the frame, panel materials, and door placement.</p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 740 480" width="100%" xmlns="http://www.w3.org/2000/svg" style="max-width:740px">
+      <!-- 3D isometric hutch -->
+      <defs>
+        <pattern id="wire" width="8" height="8" patternUnits="userSpaceOnUse">
+          <rect width="8" height="8" fill="#E8F0F0"/>
+          <line x1="0" y1="0" x2="8" y2="0" stroke="#9BB0B0" stroke-width="0.5"/>
+          <line x1="0" y1="0" x2="0" y2="8" stroke="#9BB0B0" stroke-width="0.5"/>
+        </pattern>
+        <pattern id="plywood" width="20" height="10" patternUnits="userSpaceOnUse">
+          <rect width="20" height="10" fill="#D4B896"/>
+          <line x1="0" y1="3" x2="20" y2="4" stroke="#C4A876" stroke-width="0.8"/>
+          <line x1="0" y1="7" x2="20" y2="8" stroke="#C4A876" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+
+      <!-- Floor (wire mesh) -->
+      <polygon points="120,340 480,340 540,300 180,300" fill="url(#wire)" stroke="#6B8080" stroke-width="1.5"/>
+
+      <!-- Back wall (plywood) - against wall -->
+      <polygon points="180,300 540,300 540,140 180,140" fill="url(#plywood)" stroke="#8B7355" stroke-width="1.5"/>
+      <text x="360" y="230" text-anchor="middle" font-size="13" font-weight="600" fill="#6B5030">BACK WALL (PLYWOOD)</text>
+      <text x="360" y="248" text-anchor="middle" font-size="11" fill="#8B7355">Against wall &mdash; 5' &times; 2'</text>
+
+      <!-- Right end wall (plywood) - against wall -->
+      <polygon points="540,300 600,260 600,100 540,140" fill="url(#plywood)" stroke="#8B7355" stroke-width="1.5" opacity="0.85"/>
+      <text x="570" y="210" text-anchor="middle" font-size="10" font-weight="600" fill="#6B5030" transform="rotate(-15,570,210)">PLYWOOD</text>
+
+      <!-- Left end wall (wire) - open side -->
+      <polygon points="120,340 180,300 180,140 120,180" fill="url(#wire)" stroke="#6B8080" stroke-width="1.5"/>
+      <text x="148" y="250" text-anchor="middle" font-size="10" font-weight="600" fill="#4A6B6B" transform="rotate(-15,148,250)">WIRE</text>
+
+      <!-- Top (plywood) - offset up to show exploded -->
+      <polygon points="160,110 520,110 580,70 160,70" fill="url(#plywood)" stroke="#8B7355" stroke-width="1.5" opacity="0.7"/>
+      <polygon points="160,110 160,70 120,90 120,130" fill="url(#plywood)" stroke="#8B7355" stroke-width="1.5" opacity="0.6"/>
+      <text x="360" y="95" text-anchor="middle" font-size="13" font-weight="600" fill="#6B5030">TOP (PLYWOOD) &mdash; 5' &times; 2'</text>
+      <!-- arrow showing it drops down -->
+      <line x1="360" y1="108" x2="360" y2="128" stroke="#8B7355" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrowDown)"/>
+      <defs><marker id="arrowDown" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M1,1 L3,5 L5,1" fill="#8B7355"/></marker></defs>
+
+      <!-- Front wall (wire) with two doors -->
+      <polygon points="120,340 480,340 480,180 120,180" fill="url(#wire)" stroke="#6B8080" stroke-width="2"/>
+
+      <!-- Center divider -->
+      <line x1="300" y1="340" x2="300" y2="180" stroke="#5A7A7A" stroke-width="3" stroke-dasharray="6,3"/>
+      <line x1="300" y1="300" x2="360" y2="260" stroke="#5A7A7A" stroke-width="2" stroke-dasharray="6,3"/>
+      <text x="302" y="172" font-size="10" font-weight="600" fill="#3A5A5A">DIVIDER (WIRE)</text>
+
+      <!-- Door outlines on front -->
+      <rect x="140" y="200" width="140" height="120" rx="3" fill="none" stroke="#BF6A3A" stroke-width="2.5"/>
+      <circle cx="270" cy="260" r="4" fill="#BF6A3A"/>
+      <text x="210" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#BF6A3A">DOOR 1</text>
+
+      <rect x="320" y="200" width="140" height="120" rx="3" fill="none" stroke="#BF6A3A" stroke-width="2.5"/>
+      <circle cx="330" cy="260" r="4" fill="#BF6A3A"/>
+      <text x="390" y="195" text-anchor="middle" font-size="11" font-weight="700" fill="#BF6A3A">DOOR 2</text>
+
+      <text x="300" y="365" text-anchor="middle" font-size="13" font-weight="600" fill="#4A6B6B">FRONT (WIRE MESH) &mdash; 5' &times; 2'</text>
+
+      <!-- Frame lines (2x2 lumber edges) -->
+      <!-- bottom front -->
+      <line x1="120" y1="340" x2="480" y2="340" stroke="#5D4037" stroke-width="4"/>
+      <!-- bottom back -->
+      <line x1="180" y1="300" x2="540" y2="300" stroke="#5D4037" stroke-width="3"/>
+      <!-- top front -->
+      <line x1="120" y1="180" x2="480" y2="180" stroke="#5D4037" stroke-width="4"/>
+      <!-- verticals front -->
+      <line x1="120" y1="180" x2="120" y2="340" stroke="#5D4037" stroke-width="4"/>
+      <line x1="480" y1="180" x2="480" y2="340" stroke="#5D4037" stroke-width="4"/>
+      <!-- verticals back -->
+      <line x1="540" y1="140" x2="540" y2="300" stroke="#5D4037" stroke-width="3"/>
+      <line x1="180" y1="140" x2="180" y2="300" stroke="#5D4037" stroke-width="3"/>
+
+      <!-- Dimension lines -->
+      <line x1="120" y1="400" x2="480" y2="400" stroke="#999" stroke-width="1"/>
+      <line x1="120" y1="390" x2="120" y2="410" stroke="#999" stroke-width="1"/>
+      <line x1="480" y1="390" x2="480" y2="410" stroke="#999" stroke-width="1"/>
+      <text x="300" y="418" text-anchor="middle" font-size="14" font-weight="700" fill="#666">5 ft</text>
+
+      <line x1="80" y1="180" x2="80" y2="340" stroke="#999" stroke-width="1"/>
+      <line x1="70" y1="180" x2="90" y2="180" stroke="#999" stroke-width="1"/>
+      <line x1="70" y1="340" x2="90" y2="340" stroke="#999" stroke-width="1"/>
+      <text x="68" y="265" text-anchor="middle" font-size="14" font-weight="700" fill="#666" transform="rotate(-90,68,265)">2 ft</text>
+
+      <line x1="500" y1="340" x2="560" y2="300" stroke="#999" stroke-width="1"/>
+      <text x="545" y="330" font-size="14" font-weight="700" fill="#666">2 ft</text>
+
+      <!-- Legend -->
+      <rect x="20" y="430" width="14" height="14" fill="url(#wire)" stroke="#6B8080" stroke-width="1"/>
+      <text x="40" y="442" font-size="12" fill="#555">Wire mesh (hardware cloth)</text>
+
+      <rect x="200" y="430" width="14" height="14" fill="url(#plywood)" stroke="#8B7355" stroke-width="1"/>
+      <text x="220" y="442" font-size="12" fill="#555">Plywood (against walls)</text>
+
+      <rect x="380" y="430" width="14" height="14" fill="none" stroke="#BF6A3A" stroke-width="2"/>
+      <text x="400" y="442" font-size="12" fill="#555">Hinged doors</text>
+
+      <line x1="540" y1="437" x2="570" y2="437" stroke="#5D4037" stroke-width="4"/>
+      <text x="578" y="442" font-size="12" fill="#555">2&times;2 frame</text>
+    </svg>
+  </div>
+</section>
+
+<section>
+  <h2>Cut List</h2>
+  <p>All cuts from 2&times;2&times;8 furring strips. Six 8-footers covers everything with scrap to spare.</p>
+
+  <div class="cut-list">
+    <div class="cut-item">
+      <div><span class="dim">60"</span> <span class="use">Long rails (top &amp; bottom, front &amp; back)</span></div>
+      <span class="count">&times;4</span>
+    </div>
+    <div class="cut-item">
+      <div><span class="dim">24"</span> <span class="use">Short end rails (top &amp; bottom)</span></div>
+      <span class="count">&times;4</span>
+    </div>
+    <div class="cut-item">
+      <div><span class="dim">24"</span> <span class="use">Vertical corner posts</span></div>
+      <span class="count">&times;4</span>
+    </div>
+    <div class="cut-item">
+      <div><span class="dim">24"</span> <span class="use">Center divider verticals</span></div>
+      <span class="count">&times;2</span>
+    </div>
+    <div class="cut-item">
+      <div><span class="dim">24"</span> <span class="use">Center divider top rail</span></div>
+      <span class="count">&times;1</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Materials</h2>
+  <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+  <table class="materials-table">
+    <thead>
+      <tr><th>Item</th><th style="text-align:center">Qty</th><th>Notes</th><th class="status">Status</th><th style="text-align:right">Est. Cost</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2&times;2&times;8 furring strips</td>
+        <td class="qty">6</td>
+        <td>All frame lumber</td>
+        <td class="status"><span class="needed">NEED</span></td>
+        <td class="price">$15</td>
+      </tr>
+      <tr>
+        <td>&#189;" hardware cloth, 2'&times;5' sheet</td>
+        <td class="qty">1</td>
+        <td>Floor panel</td>
+        <td class="status"><span class="owned">OWNED</span></td>
+        <td class="price">$0</td>
+      </tr>
+      <tr>
+        <td>&#189;" hardware cloth, 2'&times;5' sheet</td>
+        <td class="qty">2</td>
+        <td>Front face + doors, short end, divider</td>
+        <td class="status"><span class="needed">NEED</span></td>
+        <td class="price">$24</td>
+      </tr>
+      <tr>
+        <td>&frac14;" plywood sheet (4'&times;8')</td>
+        <td class="qty">1</td>
+        <td>Back wall, short end wall, top panel</td>
+        <td class="status"><span class="needed">NEED</span></td>
+        <td class="price">~$18</td>
+      </tr>
+      <tr>
+        <td>2&frac12;" deck screws (9 gauge)</td>
+        <td class="qty">&mdash;</td>
+        <td>Frame joints. Pre-drill every hole!</td>
+        <td class="status"><span class="owned">OWNED</span></td>
+        <td class="price">$0</td>
+      </tr>
+      <tr>
+        <td>&frac34;" poultry staples</td>
+        <td class="qty">1 box</td>
+        <td>Wire &amp; plywood attachment to frame</td>
+        <td class="status"><span class="needed">NEED</span></td>
+        <td class="price">~$5</td>
+      </tr>
+      <tr>
+        <td>Small T-hinges</td>
+        <td class="qty">4</td>
+        <td>2 per door</td>
+        <td class="status"><span class="needed">NEED</span></td>
+        <td class="price">~$8</td>
+      </tr>
+      <tr>
+        <td>Barrel bolt latches</td>
+        <td class="qty">2</td>
+        <td>1 per door</td>
+        <td class="status"><span class="needed">NEED</span></td>
+        <td class="price">~$6</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="total-box">
+    <span class="total-label">Estimated Total<br><small>(excluding already-owned items)</small></span>
+    <span class="total-value">~$76</span>
+  </div>
+</section>
+
+<section>
+  <h2>Plywood Cuts</h2>
+  <p>From your single 4'&times;8' sheet of &frac14;" plywood, you need three panels:</p>
+  <div class="cut-list">
+    <div class="cut-item">
+      <div><span class="dim">60" &times; 24"</span> <span class="use">Back wall (against wall)</span></div>
+      <span class="count">&times;1</span>
+    </div>
+    <div class="cut-item">
+      <div><span class="dim">60" &times; 24"</span> <span class="use">Top panel</span></div>
+      <span class="count">&times;1</span>
+    </div>
+    <div class="cut-item">
+      <div><span class="dim">24" &times; 24"</span> <span class="use">Short end wall (against wall)</span></div>
+      <span class="count">&times;1</span>
+    </div>
+  </div>
+  <p style="font-size:0.9rem; color:var(--wire);">Total plywood used: ~24 sq ft of 32 sq ft sheet. Leftover makes a great drip tray or shelf.</p>
+</section>
+
+<section>
+  <h2>Build Steps</h2>
+  <ol class="steps">
+    <li><strong>Cut all 2&times;2s to length.</strong> Four at 60", eleven at 24". Use a miter saw or circular saw.</li>
+    <li><strong>Assemble the bottom frame.</strong> Two 60" rails + two 24" end pieces form a 2'&times;5' rectangle. Pre-drill and screw at each corner.</li>
+    <li><strong>Assemble the top frame.</strong> Same thing: two 60" + two 24". Identical rectangle.</li>
+    <li><strong>Connect top and bottom with corner posts.</strong> Stand four 24" verticals at each corner, screw into both frames. Now you have a box skeleton.</li>
+    <li><strong>Add center divider.</strong> Two 24" verticals + one 24" top rail at the midpoint (30" from each end). This separates the cells.</li>
+    <li><strong>Attach plywood panels.</strong> Screw or staple the back wall, short end wall, and top panel to the frame from the inside face.</li>
+    <li><strong>Attach wire mesh.</strong> Staple hardware cloth to the floor, open short end, front face (leaving door openings), and center divider.</li>
+    <li><strong>Build doors.</strong> Cut two rectangular wire panels to fit the front openings (~29"&times;20" each). Frame edges with scrap 2&times;2 if desired, or just fold wire edges for rigidity.</li>
+    <li><strong>Hang doors.</strong> Attach T-hinges at top of each door opening. Add barrel bolt latches at the side.</li>
+    <li><strong>Add drip tray.</strong> Cut leftover plywood to 24"&times;60", slide under the wire floor to catch waste. Optional: line with plastic sheeting for easy cleanup.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Tools Needed</h2>
+  <div class="spec-grid">
+    <div class="spec-card"><span class="value" style="font-size:1.3rem;">&#x1F527;</span><span class="label">Drill + bits</span></div>
+    <div class="spec-card"><span class="value" style="font-size:1.3rem;">&#9986;</span><span class="label">Tin snips</span></div>
+    <div class="spec-card"><span class="value" style="font-size:1.3rem;">&#128296;</span><span class="label">Hammer</span></div>
+    <div class="spec-card"><span class="value" style="font-size:1.3rem;">&#128207;</span><span class="label">Tape measure</span></div>
+    <div class="spec-card"><span class="value" style="font-size:1.3rem;">&#x1FA9A;</span><span class="label">Saw (miter/circ)</span></div>
+    <div class="spec-card"><span class="value" style="font-size:1.3rem;">&#x270F;</span><span class="label">Pencil</span></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Foreman Homestead &bull; Willow Spring, NC &bull; March 2026
+</footer>
+</body>
+</html>
