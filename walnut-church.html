@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walnut Creek Church — Trustee Heir Map</title>
+<meta property="og:title" content="Walnut Creek Church — Trustee Heir Map">
+<meta property="og:description" content="Family trees, contact info, and acquisition strategy for the Walnut Creek Church property in Bates County, MO.">
+<meta property="og:url" content="https://niggerfaggot.club/walnut-church.html">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f0;
+  --bg-tertiary: #eeeee8;
+  --text-primary: #1a1a1a;
+  --text-secondary: #6b6b6b;
+  --border: rgba(0,0,0,0.12);
+  --border-info: #85B7EB;
+  --border-success: #97C459;
+  --border-warning: #EF9F27;
+  --bg-info: #E6F1FB;
+  --bg-success: #EAF3DE;
+  --bg-warning: #FAEEDA;
+  --text-info: #185FA5;
+  --text-success: #3B6D11;
+  --text-warning: #854F0B;
+  --font-mono: "SF Mono", "Fira Code", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2a2a2a;
+    --bg-tertiary: #333;
+    --text-primary: #e0e0e0;
+    --text-secondary: #999;
+    --border: rgba(255,255,255,0.12);
+    --border-info: #378ADD;
+    --border-success: #639922;
+    --border-warning: #BA7517;
+    --bg-info: #0C447C22;
+    --bg-success: #27500A22;
+    --bg-warning: #633806aa;
+    --text-info: #85B7EB;
+    --text-success: #97C459;
+    --text-warning: #EF9F27;
+  }
+}
+html, body { overflow-x: hidden }
+* { margin:0; padding:0; box-sizing:border-box }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.5;
+  background: var(--bg-primary);
+  padding: 16px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+.subtitle { font-size: 13px; color: var(--text-secondary); margin: 0 0 20px; }
+.section { margin: 0 0 28px }
+.section-title { font-size: 16px; font-weight: 500; margin: 0 0 12px; padding: 0 0 6px; border-bottom: 1px solid var(--border) }
+.tree { display: flex; flex-direction: column; gap: 6px; margin: 0 0 16px }
+.person { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: 8px; font-size: 13px; border: 0.5px solid transparent }
+.person.dead { opacity: .55 }
+.person.alive { border-color: var(--border-info); background: var(--bg-info) }
+.person.actionable { border-color: var(--border-success); background: var(--bg-success) }
+.person.unknown { border-color: var(--border-warning); background: var(--bg-warning) }
+.badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: .3px; flex-shrink: 0; margin-top: 2px }
+.badge.dead { background: var(--border); color: var(--text-secondary) }
+.badge.alive { background: var(--bg-info); color: var(--text-info) }
+.badge.target { background: var(--bg-success); color: var(--text-success) }
+.badge.unknown { background: var(--bg-warning); color: var(--text-warning) }
+.name { font-weight: 500 }
+.detail { color: var(--text-secondary); font-size: 12px }
+.detail b { color: var(--text-primary); font-weight: 500 }
+.phone { font-family: var(--font-mono); font-size: 12px; color: var(--text-info) }
+.indent-1 { margin-left: 20px }
+.indent-2 { margin-left: 40px }
+.indent-3 { margin-left: 60px }
+@media (max-width: 500px) {
+  .indent-1 { margin-left: 10px }
+  .indent-2 { margin-left: 20px }
+  .indent-3 { margin-left: 30px }
+}
+.connector { width: 12px; border-left: 1.5px solid var(--border); margin-left: 6px; min-height: 8px }
+.strategy-box { padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-info); background: var(--bg-info); font-size: 13px; margin: 12px 0 }
+.strategy-box b { color: var(--text-info) }
+.strategy-box.success { border-color: var(--border-success); background: var(--bg-success) }
+.strategy-box.success b { color: var(--text-success) }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; margin: 0 0 20px; font-size: 12px; color: var(--text-secondary) }
+.legend-item { display: flex; align-items: center; gap: 4px }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; border: 0.5px solid }
+.legend-dot.d-dead { background: var(--border); border-color: var(--border) }
+.legend-dot.d-alive { background: var(--bg-info); border-color: var(--border-info) }
+.legend-dot.d-target { background: var(--bg-success); border-color: var(--border-success) }
+.legend-dot.d-unknown { background: var(--bg-warning); border-color: var(--border-warning) }
+.trustee-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); margin: 0 0 8px }
+.prop-box { padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-secondary); font-size: 13px; margin: 0 0 24px }
+.prop-box .prop-title { font-weight: 500; margin-bottom: 6px }
+.prop-row { display: flex; gap: 8px; color: var(--text-secondary); font-size: 12px; margin: 2px 0; flex-wrap: wrap }
+.prop-row b { color: var(--text-primary); font-weight: 500 }
+.cost-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 8px 0 }
+.cost-table td { padding: 4px 8px; border-bottom: 1px solid var(--border) }
+.cost-table td:last-child { text-align: right; font-family: var(--font-mono); font-size: 12px }
+.cost-table tr:last-child td { border-bottom: none; font-weight: 500 }
+a { color: var(--text-info) }
+</style>
+</head>
+<body>
+
+<h1>Walnut Creek Church — Trustee Heir Map</h1>
+<div class="subtitle">Updated March 15, 2026 — Acquisition strategy &amp; family trees</div>
+
+<div class="prop-box">
+  <div class="prop-title">Property: Walnut Creek Church</div>
+  <div class="prop-row"><b>Address:</b> 11133 SW County Rd 4508, Hume/Foster, MO</div>
+  <div class="prop-row"><b>Parcel:</b> 1605021000000004010</div>
+  <div class="prop-row"><b>Lot:</b> ~1-2 acres, Bates County, Walnut Township</div>
+  <div class="prop-row"><b>Status:</b> Tax exempt, off market, no Zestimate</div>
+  <div class="prop-row"><b>Structures:</b> Church building (teardown) + beat-up trailer</div>
+  <div class="prop-row"><b>Est. value:</b> $3k-$8k for land, structures are a liability</div>
+  <div class="prop-row"><b>Facebook:</b> "Walnut Creek church" | (660) 464-0242 | walnutcreekministries@gmail.com</div>
+  <div class="prop-row"><b>Deed:</b> Book 821, Page 15 (Oct 1999, recorded Jul 2004 by Fred Bisby)</div>
+  <div class="prop-row"><b>Grantee:</b> Amanda &amp; Nathan Harding, 4614 SW County Rd 11037, Hume MO 64752</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot d-dead"></div> Deceased</div>
+  <div class="legend-item"><div class="legend-dot d-alive"></div> Alive</div>
+  <div class="legend-item"><div class="legend-dot d-target"></div> Actionable target</div>
+  <div class="legend-item"><div class="legend-dot d-unknown"></div> Unconfirmed</div>
+</div>
+
+<!-- HUTCHISON -->
+<div class="section">
+  <div class="section-title">1. Hutchison line (trustee 1/3) — PRIORITY TARGET</div>
+  <div class="trustee-label">Original trustee</div>
+  <div class="tree">
+    <div class="person dead">
+      <span class="badge dead">Dead</span>
+      <div>
+        <div class="name">Tom Dale Hutchison (original trustee)</div>
+        <div class="detail">b. Oct 2, 1905 Hume, MO. d. Dec 1, 2000 Ballwin, MO. Age 95.<br>Wife: Nola Rachel Sinn (d. 1966)</div>
+      </div>
+    </div>
+    <div class="connector"></div>
+    <div class="trustee-label" style="margin-left:20px">Son (or grandson — link assumed, not proven)</div>
+    <div class="person dead indent-1">
+      <span class="badge dead">Dead</span>
+      <div>
+        <div class="name">Thomas Edward Hutchison Jr.</div>
+        <div class="detail">b. Jul 22, 1939. d. Apr 27, 2024 Saint Joseph, MO. Age 84.<br>Occupation: Over-the-road truck driver<br>Father: Thomas Edward Hutchison Sr. &bull; Mother: Nellie Viola Hutchison (born Wheeler)<br>Funeral: May 6, 2024, Meierhoffer Funeral Home. Burial: Memorial Park Cemetery.</div>
+      </div>
+    </div>
+    <div class="connector" style="margin-left:20px"></div>
+    <div class="trustee-label" style="margin-left:40px">Widow (current interest holder)</div>
+    <div class="person actionable indent-2">
+      <span class="badge target">Target #1</span>
+      <div>
+        <div class="name">Patricia Hutchison (born Bravo)</div>
+        <div class="detail">Age 87. Resides: <b>2308 Cougar St, Saint Joseph, MO 64506</b> (Buchanan County, Sep 1995 - Jan 2026)<br>Related to: Kimberly Slatier, Kirsten Hutchison, Thomas Hutchison, Cody Hutchison<br>AKA: Patricia Hutchinson<br>Zillow: 3 bed / 2 bath / 1,500 sqft / Zestimate $236,500</div>
+        <div class="phone">(816) 364-2973 — landline, primary (Jan 2026)<br>(816) 752-1428 — wireless AT&T (Mar 2024)<br>(678) 508-5029 — wireless AT&T (Apr 2021)</div>
+      </div>
+    </div>
+    <div class="connector" style="margin-left:40px"></div>
+    <div class="trustee-label" style="margin-left:60px">Children of Thomas Jr. &amp; Patricia</div>
+    <div class="person alive indent-3">
+      <span class="badge alive">Alive</span>
+      <div>
+        <div class="name">Kimberly Slatier</div>
+        <div class="detail">Daughter. Husband: Phillip Slatier. Grandsons: Chris Slatier</div>
+      </div>
+    </div>
+    <div class="person alive indent-3">
+      <span class="badge alive">Alive</span>
+      <div>
+        <div class="name">Thomas E. Hutchison (III)</div>
+        <div class="detail">Son. Wife: Stacey Hutchison. Children: Cody Hutchison, Whitney Hutchison</div>
+      </div>
+    </div>
+    <div class="person alive indent-3">
+      <span class="badge alive">Alive</span>
+      <div>
+        <div class="name">Kirsten Hutchison</div>
+        <div class="detail">Daughter. Child: Alex Gray</div>
+      </div>
+    </div>
+  </div>
+  <div class="trustee-label">Other Hutchison relatives (Tom Sr.'s siblings)</div>
+  <div class="tree">
+    <div class="person dead">
+      <span class="badge dead">Dead</span>
+      <div>
+        <div class="name">Robert Hutchison (brother)</div>
+        <div class="detail">Nephews: Bobby Hutchison (d. Oct 24, 2018, age 46, Amoret MO), Shelby Lee Hutchison (d. Apr 4, 2015)</div>
+      </div>
+    </div>
+    <div class="person dead">
+      <span class="badge dead">Dead</span>
+      <div>
+        <div class="name">John Hutchison (brother of Thomas Jr.)</div>
+        <div class="detail">Per Thomas Jr.'s obituary</div>
+      </div>
+    </div>
+    <div class="person alive">
+      <span class="badge alive">Alive</span>
+      <div>
+        <div class="name">Beverly Schweder (born Hutchison) — sister of Thomas Jr.</div>
+        <div class="detail">Per Thomas Jr.'s obituary</div>
+      </div>
+    </div>
+    <div class="person alive">
+      <span class="badge alive">Alive</span>
+      <div>
+        <div class="name">Phyllis Hutchison — sister of Thomas Jr.</div>
+        <div class="detail">Per Thomas Jr.'s obituary</div>
+      </div>
+    </div>
+  </div>
+  <div class="strategy-box success">
+    <b>Play:</b> Duna + Nathan visit Patricia in Saint Joseph (~2.5 hrs from Hume) with a notary and $300 cash. Offer $300 "good faith" to sign the quitclaim. She's 87, lives 2.5 hours from property she's probably never seen. This is the #1 lead.<br><br>
+    <b>Note:</b> The Tom Dale → Thomas Edward link is assumed, not proven. Tom Sr.'s wife was Nola Rachel Sinn, but Thomas Jr.'s obit says his mother was Nellie Viola (born Wheeler). Could be a remarriage, or Thomas Edward Sr. could be Tom Dale's son making Jr. a grandson. Doesn't matter for the quitclaim, Patricia's family clearly has some Hutchison interest, a quiet title attorney would sort the exact lineage.
+  </div>
+</div>
+
+<!-- MONTGOMERY -->
+<div class="section">
+  <div class="section-title">2. Montgomery line (trustee 1/3)</div>
+  <div class="trustee-label">Original trustee</div>
+  <div class="tree">
+    <div class="person dead">
+      <span class="badge dead">Dead</span>
+      <div>
+        <div class="name">Dee "Delores" Hall Montgomery (original trustee)</div>
+        <div class="detail">d. Dec 7, 2008. Possibly "Darrell D Montgomery" from Fair Play, MO (Cedar County).<br>No obituary found. Identity never confirmed with John Bisby (Fred Bisby died Mar 2025 before we could ask).</div>
+      </div>
+    </div>
+    <div class="connector"></div>
+    <div class="trustee-label" style="margin-left:20px">Daughters</div>
+    <div class="person dead indent-1">
+      <span class="badge dead">Dead</span>
+      <div>
+        <div class="name">Neta (Montgomery) Leonard</div>
+        <div class="detail">d. Nov 19, 2021. Husband: Larry Leonard (d. Jan 25, 2020)</div>
+      </div>
+    </div>
+    <div class="connector" style="margin-left:20px"></div>
+    <div class="trustee-label" style="margin-left:40px">Neta's children (Dee's grandchildren)</div>
+    <div class="person actionable indent-2">
+      <span class="badge target">Target #2</span>
+      <div>
+        <div class="name">Franklin Leonard</div>
+        <div class="detail">Dee's grandson via Neta. Mound City, KS area. <b>Returned a call Dec 13</b> (got answering machine). Mom says "also the same for Franklin Leonard? That would make 2 out of 3!"</div>
+        <div class="phone">(913) 352-8766</div>
+      </div>
+    </div>
+    <div class="person alive indent-2">
+      <span class="badge alive">Alive</span>
+      <div>
+        <div class="name">Larry Leonard Jr.</div>
+        <div class="detail">30 Sunset Dr, Mound City KS 66056. Wife: Jennifer Call<br>Daughter: Hannah (~23). Great-grandson: Noah</div>
+        <div class="phone">(913) 354-0313 (landline) &bull; (913) 903-5047 (cell)</div>
+      </div>
+    </div>
+    <div class="person actionable indent-1">
+      <span class="badge target">Target #3</span>
+      <div>
+        <div class="name">Brenda Dennis</div>
+        <div class="detail">Dee's other daughter (Neta's sister). Age ~69.</div>
+        <div class="phone">(913) 795-2577</div>
+      </div>
+    </div>
+  </div>
+  <div class="strategy-box">
+    <b>Play:</b> Franklin Leonard is the backup if Patricia doesn't work out. He already returned a call in December. Brenda Dennis is another option. Mom can call either of these by phone instead of needing an in-person visit.
+  </div>
+</div>
+
+<!-- RITTENHOUSE -->
+<div class="section">
+  <div class="section-title">3. Rittenhouse line (trustee 1/3)</div>
+  <div class="trustee-label">Original trustee</div>
+  <div class="tree">
+    <div class="person dead">
+      <span class="badge dead">Dead</span>
+      <div>
+        <div class="name">Paul E. Rittenhouse (original trustee)</div>
+        <div class="detail">b. Oct 26, 1925 Lenapah, OK. d. Aug 14, 2001. Age 75.<br>PO Box 34, Amoret, MO 64722. Probate filed. Memorial held at Walnut Church.<br>Parents: Jesse &amp; Ethel Arizona Rittenhouse</div>
+      </div>
+    </div>
+    <div class="connector"></div>
+    <div class="trustee-label" style="margin-left:20px">Children</div>
+    <div class="person dead indent-1">
+      <span class="badge dead">Dead</span>
+      <div>
+        <div class="name">Allen Rittenhouse</div>
+        <div class="detail">Son. d. Jul 8, 2024. Age 78. Jeremiah, KY.</div>
+      </div>
+    </div>
+    <div class="connector" style="margin-left:20px"></div>
+    <div class="trustee-label" style="margin-left:40px">Allen's sons (Paul's grandsons) — per mom's latest</div>
+    <div class="person unknown indent-2">
+      <span class="badge unknown">Unconfirmed</span>
+      <div>
+        <div class="name">Paul A. Rittenhouse</div>
+        <div class="detail">Grandson. 50s. Jeremiah, KY.</div>
+      </div>
+    </div>
+    <div class="person unknown indent-2">
+      <span class="badge unknown">New lead</span>
+      <div>
+        <div class="name">Willie Patrick Rittenhouse</div>
+        <div class="detail">Grandson. Navarre, FL (Florida panhandle near Pensacola). Per mom's latest message.</div>
+      </div>
+    </div>
+    <div class="person alive indent-1">
+      <span class="badge alive">Alive</span>
+      <div>
+        <div class="name">Karen (Rittenhouse) Elvaker</div>
+        <div class="detail">Daughter. b. 1939. Zavalla, TX. Husband: Howard Elvaker.<br>Children: Johnnie, Lanny (w/ Grace), Kathy (d. 2014), Roxy Cooper, Lona Keller</div>
+        <div class="phone">(409) 892-3269 &bull; (936) 897-3269 (may be disconnected)</div>
+      </div>
+    </div>
+    <div class="trustee-label" style="margin-left:20px">Siblings of Paul</div>
+    <div class="person alive indent-1">
+      <span class="badge alive">Alive</span>
+      <div>
+        <div class="name">Harold Rittenhouse</div>
+        <div class="detail">Paul's brother. Age 85+. 702 E Ohio St #13, Clinton, MO 64735. Was Delores Montgomery's neighbor.</div>
+        <div class="phone">(660) 525-6377</div>
+      </div>
+    </div>
+    <div class="person unknown indent-1">
+      <span class="badge unknown">Unconfirmed</span>
+      <div>
+        <div class="name">Alice Marie Rittenhouse Miller</div>
+        <div class="detail">Unknown relation. 535 N 11 St, Hume, MO. Local to property.</div>
+      </div>
+    </div>
+  </div>
+  <div class="strategy-box">
+    <b>Play:</b> Messiest line. Allen died Jul 2024 so interest transferred again to his sons (Paul A. in KY, Willie Patrick in FL). Harold (brother) is alive but may not hold Paul's interest directly. This is the hardest quitclaim and the reason the quiet title fallback exists.
+  </div>
+</div>
+
+<!-- OTHER KEY CONTACTS -->
+<div class="section">
+  <div class="section-title">Other key contacts</div>
+  <div class="tree">
+    <div class="person dead">
+      <span class="badge dead">Dead</span>
+      <div>
+        <div class="name">Fred Bisby (deed handler)</div>
+        <div class="detail">d. Mar 25, 2025. Age 89. Minister. Recorded the 1999 deed in July 2004, 3 years after Paul died. Officiated Paul's memorial at Walnut Church. He knew the full story but died before we could ask.</div>
+      </div>
+    </div>
+    <div class="person alive indent-1">
+      <span class="badge alive">Alive</span>
+      <div>
+        <div class="name">Brenda Binger (Fred's daughter)</div>
+        <div class="detail">801 E Pine St, Butler, MO 64730. Local, may know church history.</div>
+        <div class="phone">(616) 804-9373</div>
+      </div>
+    </div>
+    <div class="person unknown">
+      <span class="badge unknown">Unknown</span>
+      <div>
+        <div class="name">Church key holder</div>
+        <div class="detail">Someone gave Nathan a key for Bible study. That person may know the trustees or be an heir. Phone on Facebook page: (660) 464-0242. Email: walnutcreekministries@gmail.com</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STRATEGY SUMMARY -->
+<div class="section">
+  <div class="section-title">Current strategy (as of Mar 15, 2026)</div>
+  <div class="strategy-box success">
+    <b>The play:</b> Get quitclaim deeds signed. $300 per signature ("good faith consideration"), can go up to $500 if anyone hesitates. Only need ONE to establish legal standing for a quiet title action, but if all three families cooperate it's cheaper to skip the attorney entirely.<br><br>
+    <b>Priority order:</b><br>
+    #1 Patricia Hutchison (Saint Joseph, MO) — in-person visit with notary<br>
+    #2 Franklin Leonard (Mound City, KS) — phone call, already returned a call in Dec<br>
+    #3 Brenda Dennis (KS) — phone call<br>
+    #4 Rittenhouse grandsons (KY/FL) — if needed<br><br>
+    <b>Cost comparison:</b>
+    <table class="cost-table">
+      <tr><td>Path A: One quitclaim + quiet title attorney</td><td>$3,300 - $8,300</td></tr>
+      <tr><td>Path B: All three quitclaims, no attorney</td><td>$900 - $1,500</td></tr>
+    </table>
+  </div>
+  <div class="strategy-box">
+    <b>Action items right now:</b><br><br>
+    <b>Mom:</b> Call Bates County Assessor (660) 679-3611 for assessed value on parcel 1605021000000004010. Prepare quitclaim deed(s) transferring interest to Amanda &amp; Nathan Harding.<br><br>
+    <b>Duna:</b> Approve $300/signature offer. Find a notary willing to travel (or book a mobile notary in Saint Joseph). Stand by for deed from mom, then drive to Saint Joseph.<br><br>
+    <b>Benny:</b> Relay between mom and Duna. Additional research as needed.
+  </div>
+</div>
+
+</body>
+</html>
