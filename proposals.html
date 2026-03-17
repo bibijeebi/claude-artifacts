@@ -232,6 +232,7 @@ body {
 .card-status.approved { background: #D4EDDA; color: #155724; }
 .card-status.in-progress { background: #CCE5FF; color: #004085; }
 .card-status.done { background: #E2E3E5; color: #383D41; }
+.card-status.draft { background: #FFF3CD; color: #856404; border: 1px dashed #FECF6D; }
 
 .empty-state {
   grid-column: 1 / -1;
@@ -293,23 +294,61 @@ const PROPOSALS = [
     time: "1 trip",
     status: "proposed",
     pitch: "Drill and tap Granddad's Remington 511 Scoremaster for two Weaver #43 bases at Tar River Arms. One-hour gunsmith job, $100 labor + $25-30 parts. Scope-ready heirloom."
+  },
+  {
+    number: "003",
+    title: "Finish the Garage Attic",
+    slug: "proposal-garage-attic",
+    category: "home",
+    cost_low: 500,
+    cost_high: 5000,
+    difficulty: 4,
+    time: "TBD",
+    status: "draft",
+    pitch: "Convert the unfinished second floor above the garage into usable space. Ranges from safe-storage ($500) to full bonus room ($5K+). Needs scoping."
+  },
+  {
+    number: "004",
+    title: "Whole-Home Dehumidifier",
+    slug: "proposal-dehumidifier",
+    category: "home",
+    cost_low: 2000,
+    cost_high: 3000,
+    difficulty: 2,
+    time: "Pro install",
+    status: "draft",
+    pitch: "Kill Kong's dust mite allergy at the source. 13ft ceilings + undersized AC = 80% humidity. Whole-home unit tied into HVAC ductwork."
+  },
+  {
+    number: "005",
+    title: "Deck Overhaul",
+    slug: "proposal-deck-overhaul",
+    category: "home",
+    cost_low: 500,
+    cost_high: 1500,
+    difficulty: 3,
+    time: "Multiple weekends",
+    status: "draft",
+    pitch: "Re-screen the porch, replace stairs with ramps, fix balusters. Three independent sub-projects that can be phased."
   }
 ];
 
 function renderStats(proposals) {
   const total = proposals.length;
   const proposed = proposals.filter(p => p.status === 'proposed').length;
+  const draft = proposals.filter(p => p.status === 'draft').length;
   const approved = proposals.filter(p => p.status === 'approved').length;
   const inProgress = proposals.filter(p => p.status === 'in-progress').length;
   const totalCostLow = proposals.reduce((s, p) => s + p.cost_low, 0);
   const totalCostHigh = proposals.reduce((s, p) => s + p.cost_high, 0);
 
   document.getElementById('stats').innerHTML = `
-    <div class="stat"><span class="stat-label">Total</span><span class="stat-value">${total}</span></div>
+    <div class="stat"><span class="stat-label">Showing</span><span class="stat-value">${total}</span></div>
     <div class="stat"><span class="stat-label">Proposed</span><span class="stat-value">${proposed}</span></div>
+    <div class="stat"><span class="stat-label">Drafts</span><span class="stat-value">${draft}</span></div>
     <div class="stat"><span class="stat-label">Approved</span><span class="stat-value">${approved}</span></div>
     <div class="stat"><span class="stat-label">In Progress</span><span class="stat-value">${inProgress}</span></div>
-    <div class="stat"><span class="stat-label">Total Cost Range</span><span class="stat-value">$${totalCostLow}–$${totalCostHigh}</span></div>
+    <div class="stat"><span class="stat-label">Cost Range</span><span class="stat-value">$${totalCostLow.toLocaleString()}–$${totalCostHigh.toLocaleString()}</span></div>
   `;
 }
 
