@@ -302,12 +302,84 @@ body {
 .catch-info .species { font-weight: 700; color: var(--bark); display: block; }
 .catch-info .details { color: var(--slate); }
 
-/* SPOT IMAGES */
+/* SPOT IMAGES & GALLERY */
 .spot-img {
   width: 100%;
-  height: 200px;
+  height: 240px;
   object-fit: cover;
   display: block;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.spot-img:hover { opacity: 0.9; }
+.spot-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px;
+  padding: 0 24px 16px;
+}
+.spot-gallery img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.spot-gallery img:hover { opacity: 0.85; transform: scale(1.03); }
+
+/* LIGHTBOX */
+.lightbox {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  cursor: pointer;
+}
+.lightbox.active { display: flex; }
+.lightbox img {
+  max-width: 95vw;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  cursor: default;
+}
+.lightbox-close {
+  position: absolute;
+  top: 16px; right: 24px;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  border-radius: 50%;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+}
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 2.5rem;
+  cursor: pointer;
+  background: rgba(0,0,0,0.4);
+  border: none;
+  border-radius: 50%;
+  width: 50px; height: 50px;
+  display: flex; align-items: center; justify-content: center;
+}
+.lightbox-prev { left: 16px; }
+.lightbox-next { right: 16px; }
+@media (max-width: 640px) {
+  .spot-gallery { grid-template-columns: repeat(3, 1fr); padding: 0 16px 12px; }
+  .spot-gallery img { height: 75px; }
+  .lightbox-nav { width: 36px; height: 36px; font-size: 1.5rem; }
 }
 
 /* MAP EMBEDS */
@@ -499,7 +571,7 @@ body {
 
   <!-- Panther Lake -->
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/panther-lake-sat.webp" alt="Panther Lake satellite map" loading="lazy">
+    <img class="spot-img" onclick="openLightbox(this.src)" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/panther-lake-sat.webp" alt="Panther Lake satellite map" loading="lazy">
     <div class="spot-header">
       <h3 class="spot-name">Panther Lake (Private)</h3>
       <span class="spot-distance">~5 mi</span>
@@ -541,7 +613,7 @@ body {
 
   <!-- Bass Lake -->
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/bass-lake-sat.webp" alt="Bass Lake satellite map Park, Holly Springs" loading="lazy">
+    <img class="spot-img" onclick="openLightbox(this.src)" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/bass-lake-sat.webp" alt="Bass Lake satellite map Park, Holly Springs" loading="lazy">
     <div class="spot-header">
       <h3 class="spot-name">Bass Lake Park, Holly Springs</h3>
       <span class="spot-distance">~8 mi</span>
@@ -558,7 +630,7 @@ body {
       </div>
       <div class="catch-gallery">
         <div class="catch-card">
-          <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/bass-lake-bluegill.webp" alt="Bluegill caught at Bass Lake" loading="lazy">
+          <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/bass-lake-bluegill.webp" onclick="openLightbox(this.src)" style="cursor:pointer" alt="Bluegill caught at Bass Lake" loading="lazy">
           <div class="catch-info">
             <span class="species">Bluegill (Bream)</span>
             <span class="details">6", 2.02 oz. Off the fishing pier.</span>
@@ -571,7 +643,7 @@ body {
 
   <!-- Lake Wheeler -->
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/lake-wheeler-sat.webp" alt="Lake Wheeler satellite map" loading="lazy">
+    <img class="spot-img" onclick="openLightbox(this.src)" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/lake-wheeler-sat.webp" alt="Lake Wheeler satellite map" loading="lazy">
     <div class="spot-header">
       <h3 class="spot-name">Lake Wheeler</h3>
       <span class="spot-distance">~10 mi</span>
@@ -613,7 +685,12 @@ body {
 
   <!-- Shearon Harris -->
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/shearon-harris-sat.webp" alt="Shearon Harris Reservoir satellite map Lake" loading="lazy">
+    <img class="spot-img" onclick="openLightbox(this.src)" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/shearon-harris-sat.webp" alt="Shearon Harris Reservoir satellite map Lake" loading="lazy">
+    <div class="spot-gallery">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/shearon-harris-park-sat.webp" alt="Harris Lake County Park" onclick="openLightbox(this.src)" loading="lazy">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/shearon-harris-launch-sat.webp" alt="Shearon Harris Boat Launch" onclick="openLightbox(this.src)" loading="lazy">
+    </div>
+
     <div class="spot-header">
       <h3 class="spot-name">Shearon Harris Lake</h3>
       <span class="spot-distance">~15 mi</span>
@@ -634,7 +711,13 @@ body {
 
   <!-- Falls Lake -->
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/falls-lake-sat.webp" alt="Falls Lake satellite overview" loading="lazy">
+    <img class="spot-img" onclick="openLightbox(this.src)" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/falls-lake-sat.webp" alt="Falls Lake satellite overview" loading="lazy">
+    <div class="spot-gallery">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/falls-holly-point-sat.webp" alt="Holly Point area" onclick="openLightbox(this.src)" loading="lazy">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/falls-sra-sat.webp" alt="Falls Lake SRA / Creedmoor Rd" onclick="openLightbox(this.src)" loading="lazy">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/falls-beaver-dam-sat.webp" alt="Beaver Dam Lake" onclick="openLightbox(this.src)" loading="lazy">
+    </div>
+
     <div class="spot-header">
       <h3 class="spot-name">Falls Lake</h3>
       <span class="spot-distance">~25 mi</span>
@@ -655,7 +738,16 @@ body {
 
   <!-- Jordan Lake -->
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-lake-sat.webp" alt="Jordan Lake satellite overview" loading="lazy">
+    <img class="spot-img" onclick="openLightbox(this.src)" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-lake-sat.webp" alt="Jordan Lake satellite overview" loading="lazy">
+    <div class="spot-gallery">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-beaver-creek-sat.webp" alt="Beaver Creek Pier" onclick="openLightbox(this.src)" loading="lazy">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-rock-quarry-sat.webp" alt="Rock Quarry / Farrington" onclick="openLightbox(this.src)" loading="lazy">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-ebenezer-sat.webp" alt="Ebenezer Boat Ramp" onclick="openLightbox(this.src)" loading="lazy">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-poplar-sat.webp" alt="Poplar Point" onclick="openLightbox(this.src)" loading="lazy">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-seaforth-wide-sat.webp" alt="US-64 / Seaforth" onclick="openLightbox(this.src)" loading="lazy">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-parkers-sat.webp" alt="Parkers Creek" onclick="openLightbox(this.src)" loading="lazy">
+    </div>
+
     <div class="spot-header">
       <h3 class="spot-name">Jordan Lake</h3>
       <span class="spot-distance">~30 mi</span>
@@ -737,7 +829,8 @@ body {
   <h2 class="section-title"><span class="icon">&#128506;</span> Jordan Lake Trip Planner</h2>
   <p class="section-desc">The full route from Willow Spring: bait stop, primary spot, backup spot.</p>
 
-  <img class="spot-img" style="border-radius:12px;margin-bottom:16px" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-beaver-creek-sat.webp" alt="Beaver Creek Fishing Pier satellite" loading="lazy">
+  <img class="spot-img" style="border-radius:12px;margin-bottom:16px" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-beaver-creek-sat.webp" alt="Beaver Creek Fishing Pier satellite" onclick="openLightbox(this.src)" loading="lazy">
+
 
   <div class="tip-box">
     <h3>The Route</h3>
@@ -955,7 +1048,6 @@ body {
   <p class="section-desc">Pitt County / Greenville area. Eastern NC coastal plain. Different fishery than the Triangle.</p>
 
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fishing-river-fishing.webp" alt="Grimesland Bridge Road Ponds (NCWRC)" loading="lazy">
     <div class="spot-header">
       <h3 class="spot-name">Grimesland Bridge Road Ponds (NCWRC)</h3>
       <span class="spot-distance">Near Grimesland</span>
@@ -994,7 +1086,6 @@ body {
   </div>
 
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fishing-river-fishing.webp" alt="Tar River Access (Hwy 222)" loading="lazy">
     <div class="spot-header">
       <h3 class="spot-name">Tar River Access (Hwy 222)</h3>
       <span class="spot-distance">Near Greenville</span>
@@ -1038,7 +1129,6 @@ body {
   <p class="section-desc">Kershaw County, South Carolina. Need a 14-day SC non-resident license (buy day-of when getting bait).</p>
 
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fishing-sc-lake.webp" alt="Lake Wateree" loading="lazy">
     <div class="spot-header">
       <h3 class="spot-name">Lake Wateree</h3>
       <span class="spot-distance">~20 mi from Elgin</span>
@@ -1105,7 +1195,6 @@ body {
   <p class="section-desc">Saltwater fishing near Topsail Island. Different gear, different species, different game entirely.</p>
 
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fishing-saltwater-fishing.webp" alt="New River Inlet" loading="lazy">
     <div class="spot-header">
       <h3 class="spot-name">New River Inlet</h3>
       <span class="spot-distance">Sneads Ferry</span>
@@ -1125,7 +1214,6 @@ body {
   </div>
 
   <div class="spot-card">
-    <img class="spot-img" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fishing-saltwater-fishing.webp" alt="Seaview Pier (North Topsail Beach)" loading="lazy">
     <div class="spot-header">
       <h3 class="spot-name">Seaview Pier (North Topsail Beach)</h3>
       <span class="spot-distance">Topsail Island</span>
@@ -1178,7 +1266,31 @@ body {
   <p style="margin-top:6px; opacity: 0.7;">Willow Spring, NC. Tight lines.</p>
 </div>
 
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <img id="lightbox-img" src="" alt="Full size">
+</div>
+
 <script>
+// Lightbox
+function openLightbox(src) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  img.src = src;
+  lb.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(e) {
+  if (e && e.target.tagName === 'IMG') return;
+  const lb = document.getElementById('lightbox');
+  lb.classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
 // Smooth scroll for nav pills
 document.querySelectorAll('.nav-pill').forEach(pill => {
   pill.addEventListener('click', e => {
