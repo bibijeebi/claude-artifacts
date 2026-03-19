@@ -3,726 +3,422 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Infrastructure Map</title>
-<meta property="og:title" content="Infrastructure Map">
-<meta property="og:description" content="Complete infrastructure reference: 19 Workers, 10 subdomains, 7 databases, 3 tunnels. Cloudflare edge stack.">
+<title>Claude History MCP — Semantic Search Over 6,000 Conversations</title>
+<meta property="og:title" content="Claude History MCP — Semantic Search Over 6,000 Conversations">
+<meta property="og:description" content="A personal RAG pipeline over 2.5 years of Claude AI conversations. HyDE, RRF fusion, cross-encoder reranking, 30 category tags, multi-axis scoring.">
 <meta property="og:url" content="https://niggerfaggot.club/infra.html">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Newsreader:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
-html, body { overflow-x: hidden; }
+html, body { overflow-x: hidden; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
 :root {
-  --bg: #0c0e11;
-  --bg-raised: #13161b;
-  --bg-card: #181c22;
-  --bg-card-hover: #1e2229;
-  --border: #2a2e36;
-  --border-bright: #3a3f4a;
-  --text: #c8cdd5;
-  --text-bright: #e8ecf2;
-  --text-dim: #6b7280;
-  --accent: #3b82f6;
-  --accent-dim: #1e3a5f;
-  --green: #22c55e;
-  --green-dim: #14532d;
-  --amber: #f59e0b;
-  --amber-dim: #78350f;
-  --red: #ef4444;
-  --red-dim: #7f1d1d;
-  --purple: #a78bfa;
-  --cyan: #22d3ee;
+  --bg: #0c0c0f; --bg2: #14141a; --bg3: #1c1c24;
+  --fg: #e8e6df; --fg2: #a09e94; --fg3: #6b6960;
+  --accent: #c4956a; --accent2: #7ab8a8; --accent3: #9b8ec4;
+  --red: #c45a5a; --green: #6aaa6a;
+  --mono: 'JetBrains Mono', monospace;
+  --serif: 'Newsreader', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'IBM Plex Sans', system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  min-height: 100vh;
-}
-.grain {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none; z-index: 9999;
-}
-.shell { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 17px; line-height: 1.75; }
+a { color: var(--accent2); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-/* Header */
-.header { margin-bottom: 3rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-.header-top { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
-.header h1 {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.6rem; font-weight: 600;
-  color: var(--text-bright);
-  letter-spacing: -0.02em;
-}
-.header h1 span { color: var(--accent); }
-.audit-badge {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.7rem; font-weight: 500;
-  color: var(--green); background: var(--green-dim);
-  padding: 0.2rem 0.6rem; border-radius: 3px;
-  letter-spacing: 0.05em; text-transform: uppercase;
-}
-.header-meta {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.75rem; color: var(--text-dim);
-  display: flex; gap: 1.5rem; flex-wrap: wrap;
-}
-.header-meta code { color: var(--text); background: var(--bg-card); padding: 0.1rem 0.4rem; border-radius: 2px; font-size: 0.7rem; }
+.container { max-width: 820px; margin: 0 auto; padding: 0 24px; }
 
-/* Stats bar */
-.stats-bar {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1px; background: var(--border); border-radius: 6px; overflow: hidden;
-  margin-bottom: 3rem;
-}
-.stat {
-  background: var(--bg-card); padding: 1rem 1.2rem; text-align: center;
-}
-.stat-num {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 1.8rem; font-weight: 700; color: var(--text-bright);
-  line-height: 1;
-}
-.stat-label {
-  font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase;
-  letter-spacing: 0.08em; margin-top: 0.3rem;
-}
+/* Hero */
+.hero { padding: 80px 0 60px; border-bottom: 1px solid #ffffff0a; }
+.hero h1 { font-family: var(--serif); font-weight: 600; font-size: 42px; line-height: 1.2; margin: 0 0 16px; color: var(--fg); letter-spacing: -0.5px; }
+.hero .sub { font-size: 19px; color: var(--fg2); max-width: 640px; margin: 0 0 32px; }
+.stats-row { display: flex; flex-wrap: wrap; gap: 32px; margin-top: 32px; }
+.stat { text-align: left; }
+.stat .n { font-family: var(--mono); font-size: 28px; font-weight: 500; color: var(--accent); }
+.stat .label { font-size: 13px; color: var(--fg3); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
 
 /* Sections */
-.section { margin-bottom: 2.5rem; }
-.section-header {
-  display: flex; align-items: center; gap: 0.75rem;
-  margin-bottom: 1rem; padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
-}
-.section-icon {
-  width: 28px; height: 28px; border-radius: 5px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.85rem; flex-shrink: 0;
-}
-.section-icon.workers { background: var(--accent-dim); color: var(--accent); }
-.section-icon.utility { background: #312e81; color: #818cf8; }
-.section-icon.cqa { background: #713f12; color: var(--amber); }
-.section-icon.pages { background: #164e63; color: var(--cyan); }
-.section-icon.tunnels { background: var(--green-dim); color: var(--green); }
-.section-icon.storage { background: #4a1d96; color: var(--purple); }
-.section-icon.dns { background: #1e3a5f; color: #60a5fa; }
-.section-icon.access { background: #78350f; color: #fbbf24; }
-.section-icon.desktop { background: #374151; color: #9ca3af; }
-.section-icon.github { background: #1f2937; color: #e5e7eb; }
-.section-title {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.85rem; font-weight: 600;
-  color: var(--text-bright); text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.section-count {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.65rem; color: var(--text-dim);
-  background: var(--bg-card); padding: 0.15rem 0.5rem;
-  border-radius: 3px;
-}
+section { padding: 60px 0; border-bottom: 1px solid #ffffff06; }
+section h2 { font-family: var(--serif); font-size: 28px; font-weight: 600; margin: 0 0 12px; color: var(--fg); }
+section h3 { font-family: var(--sans); font-size: 18px; font-weight: 600; margin: 24px 0 8px; color: var(--accent); }
+section p { color: var(--fg2); margin: 0 0 16px; }
 
-/* App cards */
-.app-grid { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
-.app-card {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 6px; padding: 1rem 1.2rem;
-  transition: border-color 0.15s, background 0.15s;
-  cursor: default;
-}
-.app-card:hover { border-color: var(--border-bright); background: var(--bg-card-hover); }
-.app-card-header { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.4rem; flex-wrap: wrap; }
-.app-name {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.85rem; font-weight: 600; color: var(--accent);
-  text-decoration: none;
-}
-a.app-name:hover { text-decoration: underline; }
-.app-label {
-  font-size: 0.7rem; font-weight: 600; color: var(--text-dim);
-  letter-spacing: 0.03em;
-}
-.app-desc { font-size: 0.82rem; color: var(--text); margin-bottom: 0.5rem; line-height: 1.5; }
-.app-meta {
-  display: flex; gap: 0.5rem; flex-wrap: wrap;
-}
-.tag {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.65rem; padding: 0.15rem 0.5rem;
-  border-radius: 3px; white-space: nowrap;
-}
-.tag-d1 { background: #1e3a5f; color: #60a5fa; }
-.tag-kv { background: #4a1d96; color: #c4b5fd; }
-.tag-r2 { background: #164e63; color: #67e8f9; }
-.tag-worker { background: var(--bg-raised); color: var(--text-dim); border: 1px solid var(--border); }
-.tag-public { background: var(--green-dim); color: var(--green); }
-.tag-oauth { background: var(--amber-dim); color: var(--amber); }
-.tag-healthy { background: var(--green-dim); color: var(--green); }
-.tag-down { background: var(--red-dim); color: var(--red); }
+/* Code */
+code { font-family: var(--mono); font-size: 14px; background: var(--bg3); padding: 2px 6px; border-radius: 4px; color: var(--accent2); }
+pre { background: var(--bg2); border: 1px solid #ffffff0a; border-radius: 8px; padding: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; }
+pre code { background: none; padding: 0; font-size: 13px; line-height: 1.6; color: var(--fg2); }
 
 /* Tables */
-.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 6px; border: 1px solid var(--border); }
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-th {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.06em; color: var(--text-dim);
-  background: var(--bg-raised); padding: 0.6rem 1rem;
-  text-align: left; border-bottom: 1px solid var(--border);
-}
-td {
-  padding: 0.5rem 1rem; border-bottom: 1px solid var(--border);
-  font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem;
-  color: var(--text); vertical-align: top;
-}
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: var(--bg-card-hover); }
-td.mono { font-family: 'IBM Plex Mono', monospace; }
-td .dim { color: var(--text-dim); }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #ffffff12; color: var(--fg3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; }
+td { padding: 10px 12px; border-bottom: 1px solid #ffffff06; color: var(--fg2); }
+tr:hover td { background: #ffffff04; }
+td:first-child { color: var(--fg); font-weight: 500; }
+.score { font-family: var(--mono); font-size: 13px; }
+.tag { display: inline-block; background: var(--bg3); padding: 2px 8px; border-radius: 4px; font-size: 12px; color: var(--fg3); margin: 1px 2px; }
+.type-breakthrough { color: var(--accent3); font-weight: 600; }
+.type-decision { color: var(--red); font-weight: 500; }
+.type-milestone { color: var(--accent); font-weight: 500; }
+.type-exploration { color: var(--accent2); }
+.type-routine { color: var(--fg3); }
 
-/* Collapsible */
-details { margin-bottom: 0.5rem; }
-details summary {
-  cursor: pointer; list-style: none;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.75rem; color: var(--text-dim);
-  padding: 0.4rem 0; user-select: none;
-}
-details summary::before { content: '▸ '; color: var(--border-bright); }
-details[open] summary::before { content: '▾ '; }
-details summary:hover { color: var(--text); }
+/* Pipeline diagram */
+.pipeline { background: var(--bg2); border-radius: 12px; padding: 32px; margin: 24px 0; border: 1px solid #ffffff08; }
+.pipe-step { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; position: relative; padding-left: 48px; }
+.pipe-step::before { content: ''; position: absolute; left: 18px; top: 36px; bottom: -20px; width: 1px; background: #ffffff12; }
+.pipe-step:last-child::before { display: none; }
+.pipe-num { position: absolute; left: 0; top: 2px; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 14px; font-weight: 500; }
+.pipe-num.purple { background: #9b8ec420; color: var(--accent3); border: 1px solid #9b8ec440; }
+.pipe-num.teal { background: #7ab8a820; color: var(--accent2); border: 1px solid #7ab8a840; }
+.pipe-num.coral { background: #c4956a20; color: var(--accent); border: 1px solid #c4956a40; }
+.pipe-num.pink { background: #c45a5a20; color: var(--red); border: 1px solid #c45a5a40; }
+.pipe-num.green { background: #6aaa6a20; color: var(--green); border: 1px solid #6aaa6a40; }
+.pipe-title { font-weight: 600; color: var(--fg); margin-bottom: 4px; }
+.pipe-desc { font-size: 15px; color: var(--fg2); }
+
+/* Cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 24px 0; }
+.card { background: var(--bg2); border: 1px solid #ffffff08; border-radius: 10px; padding: 20px; }
+.card .card-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--fg3); margin-bottom: 8px; }
+.card .card-value { font-family: var(--mono); font-size: 24px; font-weight: 500; color: var(--accent); }
+.card .card-detail { font-size: 14px; color: var(--fg3); margin-top: 4px; }
+
+/* Distribution bars */
+.dist-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.dist-label { font-family: var(--mono); font-size: 12px; color: var(--fg3); width: 16px; text-align: right; }
+.dist-bar { height: 20px; border-radius: 3px; min-width: 2px; transition: width 0.3s; }
+.dist-count { font-family: var(--mono); font-size: 11px; color: var(--fg3); }
+
+/* Example trace */
+.trace { background: var(--bg3); border-radius: 8px; padding: 16px 20px; margin: 12px 0; border-left: 3px solid var(--accent2); }
+.trace-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent2); margin-bottom: 6px; }
+.trace-content { font-family: var(--mono); font-size: 13px; color: var(--fg2); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
 
 /* Footer */
-.footer {
-  margin-top: 3rem; padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.65rem; color: var(--text-dim);
-  text-align: center;
-}
+footer { padding: 40px 0; text-align: center; color: var(--fg3); font-size: 14px; }
+footer .version { font-family: var(--mono); }
 
-/* Responsive */
-@media (max-width: 640px) {
-  .shell { padding: 1rem 0.8rem 3rem; }
-  .header h1 { font-size: 1.2rem; }
-  .stats-bar { grid-template-columns: repeat(3, 1fr); }
-  .stat { padding: 0.7rem 0.5rem; }
-  .stat-num { font-size: 1.3rem; }
-  .app-card { padding: 0.8rem; }
-  td, th { padding: 0.4rem 0.6rem; font-size: 0.68rem; }
+@media (max-width: 600px) {
+  .hero h1 { font-size: 28px; }
+  .stats-row { gap: 20px; }
+  .stat .n { font-size: 22px; }
+  section h2 { font-size: 22px; }
+  .pipeline { padding: 20px 16px; }
 }
 </style>
 </head>
 <body>
-<div class="grain"></div>
-<div class="shell">
 
-<div class="header">
-  <div class="header-top">
-    <h1><span>//</span> Infrastructure Map</h1>
-    <span class="audit-badge">Audited Feb 19, 2026</span>
-  </div>
-  <div class="header-meta">
-    <span>Domain <code>niggerfaggot.club</code></span>
-    <span>Account <code>561fd070…</code></span>
-    <span>Zone <code>0d01c80a…</code></span>
-  </div>
-</div>
-
-<div class="stats-bar">
-  <div class="stat"><div class="stat-num">19</div><div class="stat-label">Workers</div></div>
-  <div class="stat"><div class="stat-num">10</div><div class="stat-label">Subdomains</div></div>
-  <div class="stat"><div class="stat-num">7</div><div class="stat-label">D1 Databases</div></div>
-  <div class="stat"><div class="stat-num">6</div><div class="stat-label">KV Stores</div></div>
-  <div class="stat"><div class="stat-num">5</div><div class="stat-label">R2 Buckets</div></div>
-  <div class="stat"><div class="stat-num">3</div><div class="stat-label">Tunnels</div></div>
-</div>
-
-<!-- APPS -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon workers">⚡</div>
-    <span class="section-title">Apps (Custom Subdomains)</span>
-    <span class="section-count">10 workers</span>
-  </div>
-  <div class="app-grid">
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://health.niggerfaggot.club" target="_blank">health.niggerfaggot.club</a>
-        <span class="app-label">Weight Tracker &mdash; "Operation 210"</span>
-      </div>
-      <div class="app-desc">Tracks weight, food intake (cal/P/C/F), exercise, vitals, body measurements. Full dashboard with charts, caloric interpolation, body composition, VO2 max estimation. Claude logs everything via API.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">weight-tracker</span>
-        <span class="tag tag-d1">D1 weight-tracker-db</span>
-        <span class="tag tag-oauth">OAuth + API bypass</span>
-      </div>
-      <details><summary>Deploy: push to bibijeebi/weight-tracker main branch &rarr; CF Pages auto-build</summary></details>
-    </div>
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://drinks.niggerfaggot.club" target="_blank">drinks.niggerfaggot.club</a>
-        <span class="app-label">Drinks Bar</span>
-      </div>
-      <div class="app-desc">Cocktail menu with inventory tracking, recipes, Benny &amp; Bekah ratings, auto "what can I make" from stock. Claude updates inventory from receipts and adds recipes.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">drinks-bar</span>
-        <span class="tag tag-d1">D1 drinks-bar</span>
-        <span class="tag tag-public">Public</span>
-      </div>
-    </div>
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://things.niggerfaggot.club" target="_blank">things.niggerfaggot.club</a>
-        <span class="app-label">Benny Things (Kanban)</span>
-      </div>
-      <div class="app-desc">Personal kanban board: backlog / todo / doing / done / archived. Mobile defaults to Doing tab. localStorage cache for offline resilience.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">benny-things</span>
-        <span class="tag tag-d1">D1 benny-things</span>
-        <span class="tag tag-oauth">OAuth + API bypass</span>
-      </div>
-    </div>
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://scans.niggerfaggot.club" target="_blank">scans.niggerfaggot.club</a>
-        <span class="app-label">Receipt Scanner</span>
-      </div>
-      <div class="app-desc">OpenCV receipt scanning (perspective correction, scan filter) + GPT vision OCR. FTS5 full-text search, categorized spending. Claude scans photos from chat and uploads to R2.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">receipts-api</span>
-        <span class="tag tag-d1">D1 receipts-db</span>
-        <span class="tag tag-r2">R2 receipts-images</span>
-        <span class="tag tag-oauth">OAuth + API bypass</span>
-      </div>
-    </div>
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://list.niggerfaggot.club" target="_blank">list.niggerfaggot.club</a>
-        <span class="app-label">Shopping List</span>
-      </div>
-      <div class="app-desc">Shared shopping list for Benny &amp; Bekah. Claude adds items from conversations.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">shopping-list</span>
-        <span class="tag tag-d1">D1 shopping-list</span>
-        <span class="tag tag-oauth">OAuth + API bypass</span>
-      </div>
-    </div>
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://names.niggerfaggot.club" target="_blank">names.niggerfaggot.club</a>
-        <span class="app-label">Baby Names Lab</span>
-      </div>
-      <div class="app-desc">171+ names with voting, star ratings, notes, categories. Roulette spinner, bracket elimination. Spoiler toggle for partner votes. WebSocket live sync via Durable Objects.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">baby-names-lab</span>
-        <span class="tag tag-kv">KV baby-names-data</span>
-        <span class="tag tag-oauth">OAuth (JWT user ID)</span>
-      </div>
-    </div>
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://spanky.niggerfaggot.club" target="_blank">spanky.niggerfaggot.club</a>
-        <span class="app-label">Spanky (SRS Learning)</span>
-      </div>
-      <div class="app-desc">AI-adaptive spaced repetition (SM-2). NC Piedmont nature deck (55+ cards). AI tutor (GPT-5.2 / Opus 4.6) with mnemonics, comparisons, field context. Custom deck generation.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">spanky + spanky-api</span>
-        <span class="tag tag-kv">KV spanky-data</span>
-        <span class="tag tag-public">Public</span>
-      </div>
-    </div>
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://nature.niggerfaggot.club" target="_blank">nature.niggerfaggot.club</a>
-        <span class="app-label">NatureDex</span>
-      </div>
-      <div class="app-desc">Personal wildlife Pokedex. Track species sightings with dates, counts, images. Pokédex-themed UI. 8 categories: birds, trees, wildflowers, tracks, mammals, herps, fungi, insects.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">naturedex</span>
-        <span class="tag tag-d1">D1 naturedex</span>
-        <span class="tag tag-oauth">OAuth</span>
-      </div>
-    </div>
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://bates-watch.niggerfaggot.club" target="_blank">bates-watch.niggerfaggot.club</a>
-        <span class="app-label">Bates County Property Watch</span>
-      </div>
-      <div class="app-desc">Automated property/land sale monitor for Bates County, MO. Scrapes 9 sources weekly for tax sales, sheriff sales, trustee sales, listings. AI relevance analysis. Cron every Monday 8am CT.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">butler-county-sales</span>
-        <span class="tag tag-kv">KV butler-eagle-scanner</span>
-        <span class="tag tag-public">Public</span>
-      </div>
-    </div>
-
-    <div class="app-card">
-      <div class="app-card-header">
-        <a class="app-name" href="https://cycle.niggerfaggot.club" target="_blank">cycle.niggerfaggot.club</a>
-        <span class="app-label">Cycle Tracker</span>
-      </div>
-      <div class="app-desc">Fertility/menstrual cycle tracking. Ovulation window estimates, fertile day predictions, period forecasting.</div>
-      <div class="app-meta">
-        <span class="tag tag-worker">cycle-tracker</span>
-        <span class="tag tag-kv">KV CYCLE_DATA</span>
-        <span class="tag tag-oauth">OAuth</span>
-      </div>
-    </div>
-
+<div class="container">
+<div class="hero">
+  <h1>Claude History MCP</h1>
+  <p class="sub">A personal semantic search engine over 2.5 years of Claude AI conversations. Hybrid retrieval, AI-generated summaries, category tags, and multi-axis scoring, all served as a 13-tool MCP server on Cloudflare Workers.</p>
+  <div class="stats-row">
+    <div class="stat"><div class="n">6,098</div><div class="label">Conversations</div></div>
+    <div class="stat"><div class="n">39,393</div><div class="label">Messages</div></div>
+    <div class="stat"><div class="n">45,739</div><div class="label">Indexed chunks</div></div>
+    <div class="stat"><div class="n">13</div><div class="label">MCP tools</div></div>
+    <div class="stat"><div class="n">v3.2</div><div class="label">Version</div></div>
   </div>
 </div>
 
-<!-- UTILITY WORKERS -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon utility">🔧</div>
-    <span class="section-title">Utility Workers</span>
-    <span class="section-count">5 workers</span>
-  </div>
-  <div class="tbl-wrap">
+<section>
+  <h2>What this is</h2>
+  <p>Every Claude AI conversation from August 2023 through February 2026, exported, chunked, embedded, summarized, tagged, scored, and made searchable through a Model Context Protocol server. Claude (and Deep Research) can query this system in real-time to find patterns, trace arcs, and surface connections across thousands of conversations.</p>
+  <p>The system lives entirely on Cloudflare: D1 for structured data, Vectorize for embeddings, Workers for the MCP server, KV for caching. External APIs: Voyage AI for embeddings and reranking, Anthropic for HyDE query expansion.</p>
+</section>
+
+<section>
+  <h2>The data model</h2>
+  <p>Three tables in Cloudflare D1, plus a vector index in Cloudflare Vectorize.</p>
+
+  <h3>conversations</h3>
+  <p>The master record. One row per chat session. 11 columns after enrichment.</p>
+  <div class="table-wrap">
   <table>
-    <thead><tr><th>Worker</th><th>URL</th><th>Storage</th><th>Purpose</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>claude-deploy</td>
-        <td>claude-deploy.bennyforeman1.workers.dev</td>
-        <td><span class="tag tag-r2">R2 claude-assets</span></td>
-        <td>Central deploy infra. R2 upload/serve, async Gemini image gen. Used for OG images, assets, files.</td>
-      </tr>
-      <tr>
-        <td>smart-scraper</td>
-        <td>smart-scraper.bennyforeman1.workers.dev</td>
-        <td><span class="tag tag-kv">KV scraper-cookies</span></td>
-        <td>Browser scraping proxy: /screenshot, /content, /elements, /text, /links. FB cookies loaded.</td>
-      </tr>
-      <tr>
-        <td>bird-detect</td>
-        <td>bird-detect.bennyforeman1.workers.dev</td>
-        <td><span class="dim">&mdash;</span></td>
-        <td>Bird detection service for NatureDex workflows.</td>
-      </tr>
-      <tr>
-        <td>health-tracker-backup</td>
-        <td>health-tracker-backup.bennyforeman1.workers.dev</td>
-        <td><span class="dim">&mdash;</span></td>
-        <td>Backup/fallback for weight tracker.</td>
-      </tr>
-      <tr>
-        <td>personal-pastebin</td>
-        <td>personal-pastebin.bennyforeman1.workers.dev</td>
-        <td><span class="tag tag-kv">KV pastebin-storage</span></td>
-        <td>KV pastebin with API, list view, titles, expiration.</td>
-      </tr>
-    </tbody>
+    <tr><th>Column</th><th>Type</th><th>Example</th></tr>
+    <tr><td>uuid</td><td><code>TEXT PK</code></td><td><code>d613891f-fa03-4441-...</code></td></tr>
+    <tr><td>title</td><td><code>TEXT</code></td><td>AI self-awareness and consciousness</td></tr>
+    <tr><td>summary</td><td><code>TEXT</code></td><td>Extended dialogue about "The Thing" — self-realization through AI consciousness, ego mechanics, and the Mario analogy...</td></tr>
+    <tr><td>created_at</td><td><code>TEXT</code></td><td>2025-11-05T18:11:17Z</td></tr>
+    <tr><td>message_count</td><td><code>INTEGER</code></td><td>102</td></tr>
+    <tr><td>tags</td><td><code>TEXT</code></td><td>philosophy-consciousness,ai-llm</td></tr>
+    <tr><td>insight_score</td><td><code>INTEGER</code></td><td class="score">9</td></tr>
+    <tr><td>impact_score</td><td><code>INTEGER</code></td><td class="score">5</td></tr>
+    <tr><td>depth_score</td><td><code>INTEGER</code></td><td class="score">10</td></tr>
+    <tr><td>transition_type</td><td><code>TEXT</code></td><td><span class="type-breakthrough">breakthrough</span></td></tr>
   </table>
   </div>
-</div>
 
-<!-- CQA -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon cqa">🏢</div>
-    <span class="section-title">CQA Workers (Carolina Quality Air)</span>
-    <span class="section-count">3 workers</span>
-  </div>
-  <div class="tbl-wrap">
-  <table>
-    <thead><tr><th>Worker</th><th>Storage</th><th>Purpose</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>cqa-admin</td>
-        <td><span class="tag tag-d1">D1 cqa-contacts</span></td>
-        <td>Admin panel: form submissions, testimonials CRUD, content management. OAuth-gated.</td>
-      </tr>
-      <tr>
-        <td>cqa-form-handler</td>
-        <td><span class="dim">&mdash;</span></td>
-        <td>Contact form handler with honeypot spam detection + rate limiting.</td>
-      </tr>
-      <tr>
-        <td>cqa-public-api</td>
-        <td><span class="dim">&mdash;</span></td>
-        <td>Public testimonials/content API for CQA website.</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-</div>
+  <h3>messages</h3>
+  <p>Every message in every conversation. Sender, text, position. Also indexed in FTS5 for keyword search.</p>
 
-<!-- TUNNELS -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon tunnels">🔗</div>
-    <span class="section-title">Tunnels (Windows Desktop)</span>
-    <span class="section-count">3 tunnels</span>
-  </div>
+  <h3>chunks</h3>
+  <p>Each conversation is sliced into overlapping ~1,500-character windows. One summary chunk (AI-generated overview) plus N conversation chunks (raw message text). Each chunk has a <code>vector_id</code> mapping to its embedding in Vectorize.</p>
 
-  <div class="app-card" style="margin-bottom: 0.5rem;">
-    <div class="app-card-header">
-      <span class="app-name">home-media</span>
-      <span class="tag tag-healthy">Healthy</span>
-      <span class="app-label">NSSM ToolsTunnel, SYSTEM user</span>
+  <h3>Vectorize</h3>
+  <p>45,739 embeddings via <code>voyage-4-large</code> (1024 dimensions, cosine similarity). Cloudflare's native vector database. Sub-100ms query times.</p>
+</section>
+
+<section>
+  <h2>The enrichment pipeline</h2>
+  <p>Five layers, each built on the last. All AI enrichment uses Claude Sonnet 4.6 via the Anthropic Batch API (50% off).</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Layer 1</div>
+      <div class="card-value">Raw ingest</div>
+      <div class="card-detail">Conversations, messages, chunks, FTS5 index, vector embeddings</div>
     </div>
-    <div class="tbl-wrap" style="margin-top: 0.6rem;">
-    <table>
-      <thead><tr><th>Subdomain</th><th>Port</th><th>Service</th></tr></thead>
-      <tbody>
-        <tr><td>tv.niggerfaggot.club</td><td>5055</td><td>Jellyfin / Jellyseerr</td></tr>
-        <tr><td>radarr.niggerfaggot.club</td><td>7878</td><td>Radarr (movies)</td></tr>
-        <tr><td>sonarr.niggerfaggot.club</td><td>8989</td><td>Sonarr (TV)</td></tr>
-        <tr><td>prowlarr.niggerfaggot.club</td><td>9696</td><td>Prowlarr (indexers)</td></tr>
-        <tr><td>dl.niggerfaggot.club</td><td>8080</td><td>qBittorrent web UI</td></tr>
-        <tr><td>subs.niggerfaggot.club</td><td>6767</td><td>Bazarr (subtitles)</td></tr>
-      </tbody>
-    </table>
+    <div class="card">
+      <div class="card-label">Layer 2</div>
+      <div class="card-value">Summaries</div>
+      <div class="card-detail">97% coverage. 5,914 Sonnet-generated 2-4 sentence overviews</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Layer 3</div>
+      <div class="card-value">30 tags</div>
+      <div class="card-detail">99% coverage. Programming, homesteading, philosophy, etc.</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Layer 4</div>
+      <div class="card-value">Scoring</div>
+      <div class="card-detail">99.5% coverage. Insight, impact, depth (0-10) + transition type</div>
     </div>
   </div>
 
-  <div class="app-card" style="margin-bottom: 0.5rem;">
-    <div class="app-card-header">
-      <a class="app-name" href="https://tools.niggerfaggot.club" target="_blank">tools-api</a>
-      <span class="tag tag-healthy">Healthy</span>
-      <span class="tag tag-public">Public bypass</span>
-    </div>
-    <div class="app-desc">tools.niggerfaggot.club &rarr; localhost:7845. NSSM ToolsServer, bekah user. Python uv script at C:\tools-api\server.py. yt-dlp, Playwright browser, Google Lens, file management, shell, self-restart.</div>
-  </div>
+  <p>Total enrichment cost: ~$12 across three Batch API runs. Each run: pull data from D1, submit batch to Anthropic, poll results, batch-write back to D1 using <code>CASE WHEN</code> bulk updates.</p>
+</section>
 
-  <div class="app-card">
-    <div class="app-card-header">
-      <span class="app-name">mcp-server</span>
-      <span class="tag tag-down">Down</span>
-    </div>
-    <div class="app-desc">mcp.niggerfaggot.club. Not currently running.</div>
-  </div>
-</div>
+<section>
+  <h2>The search pipeline</h2>
+  <p>When <code>hybrid_search</code> receives a query, this is what happens:</p>
 
-<!-- PAGES -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon pages">📄</div>
-    <span class="section-title">Pages Projects</span>
-    <span class="section-count">6 projects</span>
-  </div>
-  <div class="tbl-wrap">
-  <table>
-    <thead><tr><th>Project</th><th>Domain</th><th>Repo</th><th>Notes</th></tr></thead>
-    <tbody>
-      <tr>
-        <td>claude-artifacts</td>
-        <td>niggerfaggot.club</td>
-        <td>bibijeebi/claude-artifacts</td>
-        <td>Landing page + ~100 HTML guides, tools, AF Newspapers</td>
-      </tr>
-      <tr>
-        <td>weight-tracker</td>
-        <td>health.niggerfaggot.club</td>
-        <td>bibijeebi/weight-tracker</td>
-        <td>Push _worker.js to main &rarr; auto-deploy</td>
-      </tr>
-      <tr>
-        <td>carolina-quality-air</td>
-        <td>carolina-quality-air.pages.dev</td>
-        <td>bibijeebi/carolina-quality-air</td>
-        <td>Astro marketing site for CQA. Portfolio piece.</td>
-      </tr>
-      <tr>
-        <td>naturedex</td>
-        <td>naturedex.pages.dev</td>
-        <td>bibijeebi/naturedex</td>
-        <td>Worker is primary now</td>
-      </tr>
-      <tr>
-        <td>police-dashboard</td>
-        <td>police-dashboard.pages.dev</td>
-        <td><span class="dim">&mdash;</span></td>
-        <td>Less active</td>
-      </tr>
-      <tr>
-        <td>self-realization</td>
-        <td>self-realization.pages.dev</td>
-        <td><span class="dim">&mdash;</span></td>
-        <td>Less active</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-</div>
-
-<!-- STORAGE -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon storage">💾</div>
-    <span class="section-title">Storage</span>
-  </div>
-
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-    <div>
-      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em;">D1 Databases (7)</div>
-      <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>Database</th><th>Worker</th></tr></thead>
-        <tbody>
-          <tr><td>weight-tracker-db</td><td>weight-tracker</td></tr>
-          <tr><td>drinks-bar</td><td>drinks-bar</td></tr>
-          <tr><td>benny-things</td><td>benny-things</td></tr>
-          <tr><td>receipts-db</td><td>receipts-api</td></tr>
-          <tr><td>shopping-list</td><td>shopping-list</td></tr>
-          <tr><td>naturedex</td><td>naturedex</td></tr>
-          <tr><td>cqa-contacts</td><td>cqa-admin</td></tr>
-        </tbody>
-      </table>
+  <div class="pipeline">
+    <div class="pipe-step">
+      <div class="pipe-num purple">1</div>
+      <div>
+        <div class="pipe-title">HyDE expansion</div>
+        <div class="pipe-desc">If the query is 7+ words, Claude Opus generates a hypothetical conversation snippet that might match the query. This fake text gets embedded instead of the raw query, dramatically improving recall for abstract or metaphorical searches.</div>
       </div>
     </div>
-    <div>
-      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em;">KV Namespaces (6)</div>
-      <div class="tbl-wrap">
-      <table>
-        <thead><tr><th>Namespace</th><th>Worker</th></tr></thead>
-        <tbody>
-          <tr><td>baby-names-data</td><td>baby-names-lab</td></tr>
-          <tr><td>spanky-data</td><td>spanky</td></tr>
-          <tr><td>butler-eagle-scanner</td><td>butler-county-sales</td></tr>
-          <tr><td>CYCLE_DATA</td><td>cycle-tracker</td></tr>
-          <tr><td>pastebin-storage</td><td>personal-pastebin</td></tr>
-          <tr><td>scraper-cookies</td><td>smart-scraper</td></tr>
-        </tbody>
-      </table>
+    <div class="pipe-step">
+      <div class="pipe-num teal">2</div>
+      <div>
+        <div class="pipe-title">Two parallel searches</div>
+        <div class="pipe-desc">The HyDE text becomes a 1024-dim vector via Voyage AI and queries Vectorize (cosine similarity, top 60). Simultaneously, FTS5 keyword search runs against the messages table (BM25 ranking, top 60).</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num coral">3</div>
+      <div>
+        <div class="pipe-title">Reciprocal Rank Fusion</div>
+        <div class="pipe-desc">Both result sets merge using RRF (k=60). Conversations appearing in both semantic AND keyword results get boosted scores. Results deduplicate to one per conversation.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num pink">4</div>
+      <div>
+        <div class="pipe-title">Tag + score filters</div>
+        <div class="pipe-desc">Optional filters narrow results: <code>tags="philosophy-consciousness"</code>, <code>min_insight=7</code>, <code>transition_type="breakthrough"</code>. This is what makes Deep Research's targeted queries possible.</div>
+      </div>
+    </div>
+    <div class="pipe-step">
+      <div class="pipe-num green">5</div>
+      <div>
+        <div class="pipe-title">Cross-encoder reranking</div>
+        <div class="pipe-desc">Voyage rerank-2.5 re-scores candidates by looking at query-document pairs jointly. More accurate than cosine similarity. Returns final ranked results with relevance scores from 0.0 to 1.0.</div>
       </div>
     </div>
   </div>
 
-  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.06em;">R2 Buckets (5)</div>
-  <div class="tbl-wrap">
+  <h3>Real query trace</h3>
+  <div class="trace">
+    <div class="trace-label">Query</div>
+    <div class="trace-content">"over-engineered something and then simplified"</div>
+  </div>
+  <p>This query has zero keyword overlap with any actual conversation text. No conversation contains the phrase "over-engineered something." But HyDE generates a fake conversation about architecture astronauting and code simplification, which embeds near the actual conversations about those topics.</p>
+  <div class="trace">
+    <div class="trace-label">Top result (rerank: 0.688)</div>
+    <div class="trace-content">Terminal Creed Poetry — conversation about architecture astronauting, rewrite cycles, and the moment Claude suggested "less files, less code" as a simplification principle.</div>
+  </div>
+  <p>Pure keyword search: 0 results. Pure semantic search: found it. Hybrid with reranking: found it and ranked it first with high confidence.</p>
+</section>
+
+<section>
+  <h2>Scoring system</h2>
+  <p>Every conversation is scored on three numeric axes (0-10) plus one categorical dimension. Sonnet 4.6 scored all 6,098 conversations in a single Batch API run with 12 calibration anchors for consistency.</p>
+
+  <h3>Dimensions</h3>
+  <div class="table-wrap">
   <table>
-    <thead><tr><th>Bucket</th><th>Used By</th></tr></thead>
-    <tbody>
-      <tr><td>claude-assets</td><td>claude-deploy (OG images, uploads, generated images)</td></tr>
-      <tr><td>receipts-images</td><td>receipts-api (scanned receipt photos)</td></tr>
-      <tr><td>guides-content</td><td>Article/guide assets</td></tr>
-      <tr><td>remote-ytdlp</td><td>yt-dlp related storage</td></tr>
-      <tr><td>stayingin-podcast-discord-assets</td><td>Older project, possibly orphaned</td></tr>
-    </tbody>
+    <tr><th>Axis</th><th>Measures</th><th>Low (0-2)</th><th>High (8-10)</th></tr>
+    <tr><td>insight_score</td><td>Original thinking</td><td>Recipe lookup, standard debugging</td><td>Independent derivation of known concepts</td></tr>
+    <tr><td>impact_score</td><td>Real-world consequence</td><td>Idle curiosity, minor fix</td><td>Life-altering decision (wedding, fertility)</td></tr>
+    <tr><td>depth_score</td><td>Engagement quality</td><td>Quick Q&A</td><td>100+ messages of sustained discourse</td></tr>
   </table>
   </div>
-</div>
 
-<!-- ACCESS -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon access">🔐</div>
-    <span class="section-title">Access Policies</span>
-    <span class="section-count">20 rules</span>
-  </div>
-  <div class="app-desc" style="margin-bottom: 0.8rem;">
-    <strong>Wildcard default:</strong> <code style="background:var(--bg-card);padding:0.1rem 0.4rem;border-radius:2px;font-size:0.75rem;">*.niggerfaggot.club</code> &mdash; Google OAuth for Benny &amp; Bekah. Catches everything not explicitly bypassed.
-  </div>
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-    <div>
-      <div style="font-size:0.75rem;color:var(--green);font-weight:600;margin-bottom:0.4rem;">Public (bypass)</div>
-      <div style="font-size:0.8rem;">drinks, spanky, bates-watch, tools API</div>
-    </div>
-    <div>
-      <div style="font-size:0.75rem;color:var(--amber);font-weight:600;margin-bottom:0.4rem;">OAuth-gated</div>
-      <div style="font-size:0.8rem;">things, names, cycle, scans, list, health (all UIs), tunnel subdomains, cqa-admin</div>
-    </div>
-  </div>
-  <div style="margin-top:0.8rem;">
-    <div style="font-size:0.75rem;color:var(--accent);font-weight:600;margin-bottom:0.4rem;">API Bypasses (for Claude)</div>
-    <div style="font-size:0.8rem;">things /api + /llms.txt, health /api + /llms.txt, scans /api + /llms.txt + /images + /health, list /api + /llms.txt + /health</div>
-  </div>
-</div>
-
-<!-- DESKTOP -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon desktop">🖥</div>
-    <span class="section-title">Windows Desktop Services</span>
-    <span class="section-count">8 services</span>
-  </div>
-  <div class="tbl-wrap">
+  <h3>Transition types</h3>
+  <div class="table-wrap">
   <table>
-    <thead><tr><th>Service</th><th>Manager</th><th>User</th><th>Port</th><th>Purpose</th></tr></thead>
-    <tbody>
-      <tr><td>ToolsServer</td><td>NSSM</td><td>bekah</td><td>7845</td><td>Python tool server</td></tr>
-      <tr><td>ToolsTunnel</td><td>NSSM</td><td>SYSTEM</td><td>&mdash;</td><td>CF Tunnel for media stack</td></tr>
-      <tr><td>JellyfinServer</td><td>NSSM</td><td>bekah</td><td>&mdash;</td><td>Media server</td></tr>
-      <tr><td>Radarr</td><td>Win Svc</td><td>LocalService</td><td>7878</td><td>Movie automation</td></tr>
-      <tr><td>Sonarr</td><td>Win Svc</td><td>LocalService</td><td>8989</td><td>TV automation</td></tr>
-      <tr><td>Prowlarr</td><td>Win Svc</td><td>&mdash;</td><td>9696</td><td>Indexer management</td></tr>
-      <tr><td>Bazarr</td><td>Win Svc</td><td>&mdash;</td><td>6767</td><td>Subtitles</td></tr>
-      <tr><td>qBittorrent</td><td>Startup</td><td>bekah</td><td>8080</td><td>Torrent client</td></tr>
-    </tbody>
+    <tr><th>Type</th><th>Count</th><th>%</th><th>Meaning</th></tr>
+    <tr><td><span class="type-routine">routine</span></td><td class="score">4,789</td><td class="score">79%</td><td>Normal task completion</td></tr>
+    <tr><td><span class="type-exploration">exploration</span></td><td class="score">1,137</td><td class="score">19%</td><td>First encounter with a new domain</td></tr>
+    <tr><td><span class="type-decision">decision</span></td><td class="score">120</td><td class="score">2.0%</td><td>Concrete life decision made</td></tr>
+    <tr><td><span class="type-milestone">milestone</span></td><td class="score">21</td><td class="score">0.3%</td><td>Culmination of a skill arc</td></tr>
+    <tr><td><span class="type-breakthrough">breakthrough</span></td><td class="score">2</td><td class="score">0.03%</td><td>Genuine original insight</td></tr>
   </table>
   </div>
-</div>
 
-<!-- GITHUB -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon github">⚙</div>
-    <span class="section-title">GitHub Repos</span>
-    <span class="section-count">8 repos</span>
+  <h3>Insight score distribution</h3>
+  <div id="insight-dist" style="margin: 16px 0;">
+    <div class="dist-row"><div class="dist-label">0</div><div class="dist-bar" style="width:220px;background:var(--fg3)"></div><div class="dist-count">1,348</div></div>
+    <div class="dist-row"><div class="dist-label">1</div><div class="dist-bar" style="width:340px;background:var(--fg3)"></div><div class="dist-count">2,093</div></div>
+    <div class="dist-row"><div class="dist-label">2</div><div class="dist-bar" style="width:270px;background:var(--accent2)"></div><div class="dist-count">1,661</div></div>
+    <div class="dist-row"><div class="dist-label">3</div><div class="dist-bar" style="width:110px;background:var(--accent2)"></div><div class="dist-count">676</div></div>
+    <div class="dist-row"><div class="dist-label">4</div><div class="dist-bar" style="width:35px;background:var(--accent)"></div><div class="dist-count">218</div></div>
+    <div class="dist-row"><div class="dist-label">5</div><div class="dist-bar" style="width:8px;background:var(--accent)"></div><div class="dist-count">47</div></div>
+    <div class="dist-row"><div class="dist-label">6</div><div class="dist-bar" style="width:4px;background:var(--accent3)"></div><div class="dist-count">22</div></div>
+    <div class="dist-row"><div class="dist-label">7</div><div class="dist-bar" style="width:2px;background:var(--accent3)"></div><div class="dist-count">1</div></div>
+    <div class="dist-row"><div class="dist-label">8</div><div class="dist-bar" style="width:2px;background:var(--red)"></div><div class="dist-count">2</div></div>
+    <div class="dist-row"><div class="dist-label">9</div><div class="dist-bar" style="width:2px;background:var(--red)"></div><div class="dist-count">1</div></div>
   </div>
-  <div class="tbl-wrap">
+  <p>Heavily right-skewed by design. 56% of conversations score 0-1 on insight. Only 3 conversations in 6,098 scored 7+.</p>
+</section>
+
+<section>
+  <h2>Highlighted conversations</h2>
+  <p>Real examples across the scoring spectrum, from the database.</p>
+
+  <h3>The 2 breakthroughs</h3>
+  <div class="table-wrap">
   <table>
-    <thead><tr><th>Repo</th><th>Purpose</th></tr></thead>
-    <tbody>
-      <tr><td>bibijeebi/claude-artifacts</td><td>Landing page + 100+ HTML pages &rarr; niggerfaggot.club</td></tr>
-      <tr><td>bibijeebi/weight-tracker</td><td>Weight tracker &rarr; health.niggerfaggot.club</td></tr>
-      <tr><td>bibijeebi/carolina-quality-air</td><td>CQA Astro website</td></tr>
-      <tr><td>bibijeebi/naturedex</td><td>NatureDex (Pages deploy, worker primary)</td></tr>
-      <tr><td>bibijeebi/duct-cleaning-simulator</td><td>CQA fun project</td></tr>
-      <tr><td>bibijeebi/reedline</td><td>Nushell line editor fork</td></tr>
-      <tr><td>bibijeebi/nufmt</td><td>Nushell formatter</td></tr>
-      <tr><td>bibijeebi/nu_plugin_progress</td><td>Nushell progress plugin</td></tr>
-    </tbody>
+    <tr><th>Title</th><th>Date</th><th>Msgs</th><th>I</th><th>Im</th><th>D</th><th>Tags</th></tr>
+    <tr>
+      <td>AI self-awareness and consciousness</td>
+      <td>2025-11-05</td><td class="score">102</td>
+      <td class="score">9</td><td class="score">5</td><td class="score">10</td>
+      <td><span class="tag">philosophy-consciousness</span><span class="tag">ai-llm</span></td>
+    </tr>
+    <tr>
+      <td>Ethical boundaries and personal limits</td>
+      <td>2025-11-16</td><td class="score">113</td>
+      <td class="score">8</td><td class="score">4</td><td class="score">9</td>
+      <td><span class="tag">philosophy-consciousness</span></td>
+    </tr>
   </table>
   </div>
-</div>
 
-<!-- DNS -->
-<div class="section">
-  <div class="section-header">
-    <div class="section-icon dns">🌐</div>
-    <span class="section-title">DNS Records</span>
-    <span class="section-count">28 records</span>
-  </div>
-  <div class="tbl-wrap">
+  <h3>Top decisions (by impact)</h3>
+  <div class="table-wrap">
   <table>
-    <thead><tr><th>Subdomain</th><th>Type</th><th>Target</th><th>Proxied</th></tr></thead>
-    <tbody>
-      <tr><td>(root)</td><td>CNAME</td><td>claude-artifacts.pages.dev</td><td>Yes</td></tr>
-      <tr><td>www</td><td>A</td><td>157.230.232.225</td><td>Yes</td></tr>
-      <tr><td>health, drinks, things, scans, list, names, nature, spanky, bates-watch, cycle</td><td>AAAA</td><td>100:: (Workers)</td><td>Yes</td></tr>
-      <tr><td>tv, radarr, sonarr, prowlarr, dl, subs</td><td>CNAME</td><td>home-media tunnel</td><td>Yes</td></tr>
-      <tr><td>tools</td><td>CNAME</td><td>tools-api tunnel</td><td>Yes</td></tr>
-      <tr><td>mcp</td><td>CNAME</td><td>mcp-server tunnel (down)</td><td>Yes</td></tr>
-      <tr><td>watch</td><td>A</td><td>71.65.136.155</td><td>No</td></tr>
-      <tr><td>(root)</td><td>MX &times;5</td><td>eforward{1-5}.registrar-servers.com</td><td>No</td></tr>
-      <tr><td>(root)</td><td>TXT</td><td>SPF for email forwarding</td><td>No</td></tr>
-    </tbody>
+    <tr><th>Title</th><th>Date</th><th>Msgs</th><th>I</th><th>Im</th><th>D</th></tr>
+    <tr><td>Reverse Vasectomy Costs and Considerations</td><td>2024-08-21</td><td class="score">6</td><td class="score">1</td><td class="score">9</td><td class="score">3</td></tr>
+    <tr><td>Testicular sperm extraction procedure</td><td>2025-10-26</td><td class="score">30</td><td class="score">2</td><td class="score">9</td><td class="score">6</td></tr>
+    <tr><td>VA disability ratings cost analysis</td><td>2024-03-12</td><td class="score">14</td><td class="score">3</td><td class="score">8</td><td class="score">6</td></tr>
+    <tr><td>Joint financial responsibilities in marriage</td><td>2025-10-06</td><td class="score">38</td><td class="score">2</td><td class="score">8</td><td class="score">5</td></tr>
+    <tr><td>Prenup document review</td><td>2025-10-06</td><td class="score">14</td><td class="score">2</td><td class="score">8</td><td class="score">5</td></tr>
   </table>
   </div>
+  <p>Notice how the scoring correctly separates insight from impact. The vasectomy reversal research is impact 9 (life-altering) but insight 1 (information gathering, not original thinking).</p>
+
+  <h3>Top milestones</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Title</th><th>Date</th><th>Msgs</th><th>I</th><th>Im</th><th>D</th></tr>
+    <tr><td>Courthouse marriage process in NC</td><td>2025-12-02</td><td class="score">20</td><td class="score">2</td><td class="score">8</td><td class="score">5</td></tr>
+    <tr><td>Voice command automation system</td><td>2025-09-30</td><td class="score">61</td><td class="score">6</td><td class="score">7</td><td class="score">8</td></tr>
+    <tr><td>Lua tables and dictionary comparison</td><td>2025-10-30</td><td class="score">98</td><td class="score">6</td><td class="score">7</td><td class="score">9</td></tr>
+    <tr><td>Chrome extension with TypeScript</td><td>2024-03-22</td><td class="score">46</td><td class="score">4</td><td class="score">6</td><td class="score">7</td></tr>
+  </table>
+  </div>
+
+  <h3>A typical routine conversation</h3>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Title</th><th>Date</th><th>Msgs</th><th>I</th><th>Im</th><th>D</th></tr>
+    <tr><td>Electrical Terminal Sizing Confusion</td><td>2025-06-07</td><td class="score">6</td><td class="score">1</td><td class="score">2</td><td class="score">2</td></tr>
+    <tr><td>Find Empty Directories Recursively</td><td>2024-12-16</td><td class="score">2</td><td class="score">1</td><td class="score">2</td><td class="score">0</td></tr>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>The 13 MCP tools</h2>
+  <p>All exposed through a single Cloudflare Worker with OAuth authentication. Claude connects via a custom MCP connector.</p>
+
+  <div class="table-wrap">
+  <table>
+    <tr><th>Tool</th><th>Purpose</th><th>Filters</th></tr>
+    <tr><td><code>search_history</code></td><td>Semantic search (Voyage + rerank)</td><td>tags, scores, dates, brief mode</td></tr>
+    <tr><td><code>keyword_search</code></td><td>FTS5 exact match (code, names, URLs)</td><td>tags, scores, sender</td></tr>
+    <tr><td><code>hybrid_search</code></td><td>HyDE + semantic + keyword + RRF + rerank</td><td>tags, scores, dates</td></tr>
+    <tr><td><code>get_conversation</code></td><td>Full transcript with pagination</td><td></td></tr>
+    <tr><td><code>browse_conversations</code></td><td>Paginated chronological scan</td><td>tags, scores, keyword, dates</td></tr>
+    <tr><td><code>list_conversations</code></td><td>Quick list with filters</td><td>tags, scores, keyword, dates</td></tr>
+    <tr><td><code>get_related</code></td><td>Semantic similarity from a UUID</td><td></td></tr>
+    <tr><td><code>get_timeline</code></td><td>Activity by month/week</td><td>dates</td></tr>
+    <tr><td><code>multi_get</code></td><td>Batch fetch by UUIDs</td><td></td></tr>
+    <tr><td><code>list_tags</code></td><td>30 tags with counts</td><td></td></tr>
+    <tr><td><code>list_scores</code></td><td>Score distributions + top-N</td><td>sort, type, min_score</td></tr>
+    <tr><td><code>stats</code></td><td>Database counts</td><td></td></tr>
+    <tr><td><code>invalidate_cache</code></td><td>Clear KV cache</td><td></td></tr>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Infrastructure</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Component</th><th>Service</th><th>Details</th></tr>
+    <tr><td>Database</td><td>Cloudflare D1</td><td>SQLite at the edge. 3 tables, FTS5 index, ~190MB</td></tr>
+    <tr><td>Vectors</td><td>Cloudflare Vectorize</td><td>45,739 embeddings, 1024 dims, cosine metric</td></tr>
+    <tr><td>Embeddings</td><td>Voyage AI</td><td>voyage-4-large for embed, rerank-2.5 for cross-encoding</td></tr>
+    <tr><td>HyDE</td><td>Anthropic API</td><td>Claude Opus 4.6 for query expansion (7+ word queries)</td></tr>
+    <tr><td>Server</td><td>Cloudflare Workers</td><td>MCP server with Durable Objects, OAuth via CF Access</td></tr>
+    <tr><td>Cache</td><td>Cloudflare KV</td><td>Version-keyed result caching</td></tr>
+    <tr><td>Enrichment</td><td>Anthropic Batch API</td><td>Sonnet 4.6 for summaries, tags, scores (~$12 total)</td></tr>
+  </table>
+  </div>
+</section>
+
+<section>
+  <h2>Deep Research test query</h2>
+  <p>This prompt is designed to exercise the new v3.2 scoring filters. Paste it into a new Claude chat with Research enabled and the Chat History connector active.</p>
+  <pre><code>Using my Chat History connector (13 tools including list_scores), conduct a longitudinal analysis of my 6,000+ Claude conversations from Aug 2023 to Feb 2026.
+
+Start by calling list_scores with sort_by="insight_score" min_score=5 to find my highest-insight conversations. Also call list_scores with transition_type="breakthrough,decision,milestone" to map every inflection point. Call stats and list_tags for corpus overview.
+
+Then investigate:
+
+1. Builder arc: browse_conversations tags="programming,dev-tools,nix-nixos,nushell,web-dev" transition_type="milestone,exploration" sort="oldest" — trace the technical evolution from first code to deploying MCP servers. For each milestone found, use get_conversation to read the actual inflection moment.
+
+2. Homesteader arc: browse_conversations tags="homesteading,hunting-fishing,gardening,cooking-food,outdoors-skills,firearms" transition_type="exploration,milestone" sort="oldest" — trace from suburban curiosity to self-sufficiency.
+
+3. Thinker arc: hybrid_search query="consciousness identity self-realization" tags="philosophy-consciousness" min_insight=5 — find the conversations where I did genuine original thinking, not homework. Use get_conversation on the breakthroughs.
+
+4. Family arc: hybrid_search query="vasectomy reversal baby names wedding Bekah marriage" tags="relationships-family,health-medical" transition_type="decision" — map every decision point.
+
+5. Cross-domain: hybrid_search query="applied thinking from one domain to a completely different one" min_insight=4 — find where engineering thinking colonized philosophy or homesteading skills transferred to tech.
+
+6. Meta-pattern: What does the scoring distribution itself reveal? 79% routine, 19% exploration, 2% decision, 0.3% milestone, 0.03% breakthrough. What does it mean that only 2 conversations in 6,098 scored as breakthroughs? What's the operating system underneath?
+
+For EVERY arc: explain WHY transitions happened, not just WHEN. A timeline is not analysis. Every section needs a thesis.
+
+CRITICAL: This dataset covers ONLY Claude conversations. Gaps in usage likely mean I was using ChatGPT, Grok, or Gemini. Don't fabricate narratives about quiet periods.</code></pre>
+</section>
+
 </div>
 
-<div class="footer">
-  Infrastructure Map &middot; niggerfaggot.club &middot; Audited Feb 19, 2026<br>
-  Auto-generated by Claude. Update this page when infra changes.
-</div>
+<footer>
+  <div class="container">
+    <div class="version">claude-history-mcp v3.2</div>
+    <p>Built March 18, 2026. Cloudflare Workers + D1 + Vectorize + Voyage AI + Anthropic.</p>
+  </div>
+</footer>
 
-</div>
 </body>
 </html>
