@@ -305,18 +305,37 @@ body {
 /* SPOT IMAGES & GALLERY */
 .spot-img {
   width: 100%;
-  height: 240px;
-  object-fit: cover;
+  max-height: 300px;
+  object-fit: contain;
+  background: #111;
   display: block;
   cursor: pointer;
   transition: opacity 0.2s;
 }
 .spot-img:hover { opacity: 0.9; }
+
+/* Portrait layout: image left, content right */
+.spot-card.portrait-layout {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+.spot-card.portrait-layout > .spot-img {
+  width: 240px;
+  max-height: none;
+  flex-shrink: 0;
+  border-radius: 16px 0 0 16px;
+}
+.spot-card.portrait-layout > .spot-right {
+  flex: 1;
+  min-width: 0;
+}
+
 .spot-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 6px;
-  padding: 0 24px 16px;
+  padding: 8px 24px 16px;
 }
 .spot-gallery img {
   width: 100%;
@@ -327,6 +346,18 @@ body {
   transition: opacity 0.2s, transform 0.2s;
 }
 .spot-gallery img:hover { opacity: 0.85; transform: scale(1.03); }
+
+@media (max-width: 640px) {
+  .spot-card.portrait-layout { flex-wrap: wrap; }
+  .spot-card.portrait-layout > .spot-img {
+    width: 100%;
+    max-height: 300px;
+    border-radius: 16px 16px 0 0;
+  }
+  .spot-gallery { grid-template-columns: repeat(3, 1fr); padding: 4px 16px 12px; }
+  .spot-gallery img { height: 75px; }
+  .lightbox-nav { width: 36px; height: 36px; font-size: 1.5rem; }
+}
 
 /* LIGHTBOX */
 .lightbox {
@@ -376,10 +407,6 @@ body {
 }
 .lightbox-prev { left: 16px; }
 .lightbox-next { right: 16px; }
-@media (max-width: 640px) {
-  .spot-gallery { grid-template-columns: repeat(3, 1fr); padding: 0 16px 12px; }
-  .spot-gallery img { height: 75px; }
-  .lightbox-nav { width: 36px; height: 36px; font-size: 1.5rem; }
 }
 
 /* MAP EMBEDS */
@@ -612,8 +639,9 @@ body {
   </div>
 
   <!-- Bass Lake -->
-  <div class="spot-card">
-    <img class="spot-img" onclick="openLightbox(this.src)" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/bass-lake-sat.webp" alt="Bass Lake satellite map Park, Holly Springs" loading="lazy">
+  <div class="spot-card portrait-layout">
+    <img class="spot-img" onclick="openLightbox(this.src)" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/bass-lake-sat.webp" alt="Bass Lake satellite map" loading="lazy">
+    <div class="spot-right">
     <div class="spot-header">
       <h3 class="spot-name">Bass Lake Park, Holly Springs</h3>
       <span class="spot-distance">~8 mi</span>
@@ -638,6 +666,7 @@ body {
         </div>
       </div>
           <a class="map-link" href="https://www.google.com/maps/search/Bass+Lake+Park+Holly+Springs+NC/@35.643,-78.805,13z" target="_blank" rel="noopener">&#128205; View on Google Maps</a>
+    </div>
     </div>
   </div>
 
@@ -737,8 +766,9 @@ body {
   </div>
 
   <!-- Jordan Lake -->
-  <div class="spot-card">
+  <div class="spot-card portrait-layout">
     <img class="spot-img" onclick="openLightbox(this.src)" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-lake-sat.webp" alt="Jordan Lake satellite overview" loading="lazy">
+    <div class="spot-right">
     <div class="spot-gallery">
       <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-beaver-creek-sat.webp" alt="Beaver Creek Pier" onclick="openLightbox(this.src)" loading="lazy">
       <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/jordan-rock-quarry-sat.webp" alt="Rock Quarry / Farrington" onclick="openLightbox(this.src)" loading="lazy">
@@ -801,6 +831,7 @@ body {
         </div>
       </div>
           <a class="map-link" href="https://www.google.com/maps/search/Jordan+Lake+NC/@35.70,-79.0,13z" target="_blank" rel="noopener">&#128205; View on Google Maps</a>
+    </div>
     </div>
   </div>
 
