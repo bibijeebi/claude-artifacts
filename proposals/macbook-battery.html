@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: MacBook Air M1 Battery Service</title>
+<meta property="og:title" content="Proposal: MacBook Air M1 Battery Service">
+<meta property="og:description" content="Project proposal for servicing the dying battery on Benny's 2020 MacBook Air M1 through Apple. Cost analysis vs. replacement.">
+<meta property="og:url" content="https://niggerfaggot.club/proposals/macbook-battery.html">
+<meta name="twitter:card" content="summary">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { overflow-x: hidden; }
+
+  :root {
+    --bg: #0c0c0e;
+    --surface: #151518;
+    --surface-2: #1c1c20;
+    --border: #2a2a30;
+    --text: #e8e6e1;
+    --text-dim: #8a8880;
+    --accent: #4a9eff;
+    --accent-dim: #2a5a99;
+    --green: #3ecf71;
+    --red: #e85454;
+    --amber: #f0a830;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    border-radius: 100px;
+    padding: 0.3em 1em;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+    font-size: 0.85rem;
+  }
+
+  .meta-item { display: flex; flex-direction: column; gap: 0.2rem; }
+  .meta-label { color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .meta-value { font-weight: 500; }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: 600;
+    color: var(--amber);
+  }
+  .status-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+  }
+
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+    margin: 2.5rem 0 0.8rem;
+    letter-spacing: -0.01em;
+  }
+
+  p { margin-bottom: 1rem; color: var(--text); font-size: 0.95rem; }
+  p.dim { color: var(--text-dim); }
+
+  .tldr-box {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 2rem;
+  }
+  .tldr-box strong { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.4rem; }
+
+  .cost-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .cost-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cost-card.recommended {
+    border-color: var(--green);
+  }
+  .cost-card.recommended::after {
+    content: 'RECOMMENDED';
+    position: absolute;
+    top: 10px;
+    right: -28px;
+    background: var(--green);
+    color: var(--bg);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 0.2em 2em;
+    transform: rotate(45deg);
+  }
+
+  .cost-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+  .cost-price {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .cost-price .currency { font-size: 1.2rem; vertical-align: top; color: var(--text-dim); }
+  .cost-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.4; }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.85rem;
+  }
+  .compare-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-dim);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .compare-table td {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .compare-table td:not(:first-child) { text-align: center; }
+  .compare-table th:not(:first-child) { text-align: center; }
+
+  .check { color: var(--green); }
+  .cross { color: var(--red); opacity: 0.7; }
+  .neutral { color: var(--text-dim); }
+
+  .steps {
+    counter-reset: step;
+    margin: 1.5rem 0;
+  }
+  .step {
+    counter-increment: step;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .step::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.2rem; }
+  .step-desc { font-size: 0.85rem; color: var(--text-dim); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  .footer-note {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .savings-callout {
+    background: linear-gradient(135deg, rgba(62,207,113,0.08), rgba(74,158,255,0.05));
+    border: 1px solid rgba(62,207,113,0.2);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+    margin: 1.5rem 0;
+  }
+  .savings-callout .big-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.5rem;
+    color: var(--green);
+    line-height: 1;
+  }
+  .savings-callout .label { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.3rem; }
+
+  @media (max-width: 500px) {
+    .cost-grid { grid-template-columns: 1fr; }
+    .meta-row { gap: 1rem; }
+  }
+
+  .overflow-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="badge">Project Proposal</div>
+
+  <h1>MacBook Air M1 Battery Service</h1>
+  <p class="subtitle">Get the laptop off life support for $159 instead of replacing it.</p>
+
+  <div class="meta-row">
+    <div class="meta-item">
+      <span class="meta-label">Device</span>
+      <span class="meta-value">MacBook Air (M1, 2020)</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Status</span>
+      <span class="meta-value status-badge">Pending</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Est. Cost</span>
+      <span class="meta-value">~$170 w/ tax</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Proposed</span>
+      <span class="meta-value">March 20, 2026</span>
+    </div>
+  </div>
+
+  <div class="tldr-box">
+    <strong>TL;DR</strong>
+    The M1 chip is still plenty capable. macOS says "Service Recommended," the battery dies in ~2 minutes unplugged, and Safari alone is flagged as using significant energy. Apple will replace the battery for $159 + tax at the Crabtree Valley Mall store in Raleigh. This is 70% cheaper than the cheapest new Mac (MacBook Neo at $539 with military discount) and buys years more life out of a machine that does everything it needs to.
+  </div>
+
+  <h2>The Problem</h2>
+  <p>The MacBook Air M1 battery has degraded to the point where macOS is showing "Service Recommended" with a warning triangle. The laptop cannot survive more than approximately 2 minutes unplugged from power, effectively turning it into a desktop. Safari alone is flagged as using significant energy. Low Power Mode is permanently enabled as a cope mechanism.</p>
+  <p>The machine is otherwise fully functional. The M1 chip handles daily workloads (Claude, browser tabs, terminal, code editing) without breaking a sweat. There's no performance reason to replace it.</p>
+
+  <h2>Cost Comparison</h2>
+
+  <div class="cost-grid">
+    <div class="cost-card recommended">
+      <div class="cost-label">Battery Service</div>
+      <div class="cost-price"><span class="currency">$</span>159</div>
+      <div class="cost-desc">Apple out-of-warranty battery replacement for 13" MacBook Air. Includes parts, labor, and 90-day warranty. Add ~$12 tax.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">MacBook Neo (new)</div>
+      <div class="cost-price"><span class="currency">$</span>539</div>
+      <div class="cost-desc">$599 retail, 10% military discount via ID.me. A18 Pro chip, 8GB RAM, 256GB SSD. Budget Mac, less powerful than M1.</div>
+    </div>
+  </div>
+
+  <div class="savings-callout">
+    <div class="big-num">$380</div>
+    <div class="label">saved by servicing vs. cheapest replacement</div>
+  </div>
+
+  <h2>Battery Service vs. New Machine</h2>
+
+  <div class="overflow-wrap">
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Battery Service</th>
+        <th>MacBook Neo</th>
+        <th>MacBook Air M5</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Cost</td>
+        <td class="check">~$170</td>
+        <td class="neutral">~$539</td>
+        <td class="cross">~$1,000+</td>
+      </tr>
+      <tr>
+        <td>Chip</td>
+        <td>M1 (keeps current)</td>
+        <td>A18 Pro (weaker)</td>
+        <td>M5 (upgrade)</td>
+      </tr>
+      <tr>
+        <td>RAM</td>
+        <td>8GB (keeps current)</td>
+        <td>8GB (same)</td>
+        <td>16GB+ (upgrade)</td>
+      </tr>
+      <tr>
+        <td>Ports</td>
+        <td>2x TB/USB4 + MagSafe</td>
+        <td>2x USB-C (USB 3/2)</td>
+        <td>2x TB + MagSafe</td>
+      </tr>
+      <tr>
+        <td>Keyboard Backlight</td>
+        <td class="check">Yes</td>
+        <td class="cross">No</td>
+        <td class="check">Yes</td>
+      </tr>
+      <tr>
+        <td>Data Migration</td>
+        <td class="check">None needed</td>
+        <td class="cross">Full setup</td>
+        <td class="cross">Full setup</td>
+      </tr>
+      <tr>
+        <td>Downtime</td>
+        <td>~2 hours (in-store)</td>
+        <td>Shipping wait</td>
+        <td>Shipping wait</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p class="dim">The MacBook Neo is an interesting machine but it's actually a downgrade from the M1 Air in several ways: no backlit keyboard, weaker USB-C ports (one is USB 2.0), and the A18 Pro is an iPhone-class chip less powerful than the M1 for sustained workloads. The M1 Air with a fresh battery is the better machine.</p>
+
+  <hr class="divider">
+
+  <h2>Action Plan</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-content">
+        <div class="step-title">Book a Genius Bar appointment</div>
+        <div class="step-desc">Apple Store at Crabtree Valley Mall, Raleigh (~35 min drive). Schedule at <a href="https://getsupport.apple.com" style="color:var(--accent)">getsupport.apple.com</a> or the Apple Support app. Alternatively, mail it in for 5+ business day turnaround.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <div class="step-title">Back up the Mac</div>
+        <div class="step-desc">Time Machine to external drive or iCloud. Apple may wipe the machine during service. Takes 30 min with a USB drive while plugged in.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <div class="step-title">Drop off and wait</div>
+        <div class="step-desc">In-store battery replacement takes about 2 hours. Crabtree Valley Mall has plenty to kill time with. Bring a book or take Bekah.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <div class="step-title">Pick up and verify</div>
+        <div class="step-desc">Confirm battery health reads "Normal" in System Settings > Battery > Battery Health. Comes with a 90-day service warranty.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <h2>Why Not Just Replace It?</h2>
+  <p>The M1 MacBook Air was a generational leap when it launched and it remains genuinely capable in 2026. It runs the latest macOS, handles all daily tasks, and the 8-core GPU is still relevant. The only thing wrong with this machine is the battery, a wear item with a known lifespan of ~1,000 charge cycles.</p>
+  <p>Spending $170 to restore full functionality and portability to a machine that otherwise works perfectly is the obvious play. This laptop can realistically last another 3-4 years after a battery swap, at which point a proper upgrade (not a sidegrade to a Neo) would make more sense.</p>
+
+  <hr class="divider">
+
+  <h2>Budget Impact</h2>
+  <p>$159 + tax (~$170 total) is a one-time expense. No recurring cost. No financing needed. This is a maintenance item, not a capital purchase. For context, one month of HVAC travel work covers this several times over.</p>
+
+  <div class="footer-note">
+    Foreman Household &middot; Project Proposals &middot; March 2026
+  </div>
+
+</div>
+
+</body>
+</html>
