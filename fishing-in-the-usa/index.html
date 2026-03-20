@@ -174,7 +174,7 @@ async function selState(id){
   renderFilterBar();plotPoints();
   map.off('moveend',onVP);map.off('zoomend',onVP);
   map.on('moveend',onVP);map.on('zoomend',onVP);
-  setTimeout(onVP,1800);
+  onVP();setTimeout(onVP,2000);
 }
 
 function renderFilterBar(){
@@ -200,10 +200,11 @@ function plotPoints(){
       feats.push({type:'Feature',id:fid++,geometry:{type:'Point',coordinates:[r.lng,r.lat]},properties:{...r,_t:type,_c:C[type],_n:r.name||r.waterbody||'Unknown',_id:fid}});
     }
   }
-  map.addSource('pts',{type:'geojson',data:{type:'FeatureCollection',features:feats},cluster:true,clusterMaxZoom:13,clusterRadius:45});
+  try{map.addSource('pts',{type:'geojson',data:{type:'FeatureCollection',features:feats},cluster:true,clusterMaxZoom:13,clusterRadius:45});
   map.addLayer({id:'cl',type:'circle',source:'pts',filter:['has','point_count'],paint:{'circle-color':'rgba(15,15,15,0.8)','circle-radius':['step',['get','point_count'],16,30,21,100,27,300,33,800,40],'circle-stroke-width':2,'circle-stroke-color':'rgba(255,255,255,0.3)'}});
   map.addLayer({id:'cc',type:'symbol',source:'pts',filter:['has','point_count'],layout:{'text-field':'{point_count_abbreviated}','text-size':11,'text-font':['Open Sans Bold']},paint:{'text-color':'#fff'}});
   map.addLayer({id:'up',type:'circle',source:'pts',filter:['!',['has','point_count']],paint:{'circle-color':['get','_c'],'circle-radius':['interpolate',['linear'],['zoom'],5,4,9,6,13,9],'circle-stroke-width':2,'circle-stroke-color':'rgba(0,0,0,0.6)'}});
+  }catch(e){console.error('plotPoints error:',e)}
   map.on('click','cl',async e=>{const f=map.queryRenderedFeatures(e.point,{layers:['cl']});if(!f.length)return;const z=await map.getSource('pts').getClusterExpansionZoom(f[0].properties.cluster_id);map.flyTo({center:f[0].geometry.coordinates,zoom:z,duration:700})});
   map.on('click','up',e=>{if(!e.features.length)return;selectPoint(e.features[0].properties._id,e.features[0].geometry.coordinates)});
   map.on('mouseenter','cl',()=>map.getCanvas().style.cursor='pointer');map.on('mouseleave','cl',()=>map.getCanvas().style.cursor='');
@@ -211,7 +212,7 @@ function plotPoints(){
 }
 
 function onVP(){
-  if(!curD)return;
+  if(!curD){document.getElementById('vp-count').textContent='No data';document.getElementById('point-scroll').innerHTML='';return;}
   const b=map.getBounds(),sw=b.getSouthWest(),ne=b.getNorthEast();
   vpFeats=[];
   for(const[type,recs]of Object.entries(curD)){
