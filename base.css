@@ -1,0 +1,803 @@
+/*
+ * base.css — Design system for niggerfaggot.club
+ * Hosted: niggerfaggot.club/base.css
+ * Usage:  <link rel="stylesheet" href="/base.css">
+ *
+ * Dark theme by default. Add class="light" to <html> for light theme.
+ * Override any --var in your page's <style> to customize.
+ * All component classes are opt-in (prefixed with .), nothing styles
+ * raw elements aggressively except the reset and typography base.
+ *
+ * Last updated: March 20, 2026
+ */
+
+/* ============================================================
+   FONTS
+   JetBrains Mono: code, labels, data
+   DM Sans: body text, UI
+   Pages needing display/serif fonts should import their own.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+/* ============================================================
+   CSS RESET
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; -moz-tab-size: 4; tab-size: 4; }
+html, body { overflow-x: hidden; }
+body { min-height: 100vh; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+img, picture, video, canvas, svg { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; }
+p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; }
+table { border-collapse: collapse; border-spacing: 0; }
+
+/* ============================================================
+   THEME: DARK (default)
+   Override any of these in your page's <style> block.
+   ============================================================ */
+:root {
+  /* Background layers (darkest to lightest) */
+  --bg:             #0a0e17;
+  --surface:        #111827;
+  --surface2:       #1a2235;
+  --surface3:       #1f2937;
+
+  /* Borders */
+  --border:         #1e293b;
+  --border-bright:  #334155;
+  --border-focus:   #475569;
+
+  /* Text hierarchy */
+  --text:           #e2e8f0;
+  --text-dim:       #94a3b8;
+  --text-muted:     #64748b;
+  --text-bright:    #f8fafc;
+
+  /* Primary accent (blue) */
+  --accent:         #38bdf8;
+  --accent-dim:     rgba(56, 189, 248, 0.12);
+  --accent-hover:   #7dd3fc;
+
+  /* Secondary accent (indigo) */
+  --accent2:        #818cf8;
+  --accent2-dim:    rgba(129, 140, 248, 0.12);
+
+  /* Semantic colors */
+  --green:          #34d399;
+  --green-dim:      rgba(52, 211, 153, 0.12);
+  --red:            #f87171;
+  --red-dim:        rgba(248, 113, 113, 0.12);
+  --orange:         #fb923c;
+  --orange-dim:     rgba(251, 146, 60, 0.12);
+  --yellow:         #fbbf24;
+  --yellow-dim:     rgba(251, 191, 36, 0.12);
+  --pink:           #f472b6;
+  --pink-dim:       rgba(244, 114, 182, 0.12);
+  --cyan:           #22d3ee;
+  --cyan-dim:       rgba(34, 211, 238, 0.12);
+
+  /* Typography */
+  --sans:           'DM Sans', system-ui, -apple-system, sans-serif;
+  --mono:           'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Fira Code', monospace;
+
+  /* Spacing scale (4px base) */
+  --sp-1: 0.25rem;   /*  4px */
+  --sp-2: 0.5rem;    /*  8px */
+  --sp-3: 0.75rem;   /* 12px */
+  --sp-4: 1rem;      /* 16px */
+  --sp-5: 1.25rem;   /* 20px */
+  --sp-6: 1.5rem;    /* 24px */
+  --sp-8: 2rem;      /* 32px */
+  --sp-10: 2.5rem;   /* 40px */
+  --sp-12: 3rem;     /* 48px */
+  --sp-16: 4rem;     /* 64px */
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius:    8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.3);
+  --shadow:     0 2px 8px rgba(0,0,0,0.3);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,0.4);
+
+  /* Transitions */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 200ms;
+}
+
+/* ============================================================
+   THEME: LIGHT
+   Add class="light" to <html> for newspaper/print-style pages.
+   ============================================================ */
+.light {
+  --bg:             #f5f0e8;
+  --surface:        #fffcf5;
+  --surface2:       #f0ebe0;
+  --surface3:       #e8e2d6;
+  --border:         #d4cec0;
+  --border-bright:  #b8b0a0;
+  --border-focus:   #94897a;
+  --text:           #1a1a1a;
+  --text-dim:       #4a4a4a;
+  --text-muted:     #7a7a7a;
+  --text-bright:    #000000;
+  --accent:         #1a6fb5;
+  --accent-dim:     rgba(26, 111, 181, 0.1);
+  --accent-hover:   #1e88c7;
+  --accent2:        #7c3aed;
+  --accent2-dim:    rgba(124, 58, 237, 0.1);
+  --green:          #16a34a;
+  --green-dim:      rgba(22, 163, 74, 0.1);
+  --red:            #dc2626;
+  --red-dim:        rgba(220, 38, 38, 0.1);
+  --orange:         #ea580c;
+  --orange-dim:     rgba(234, 88, 12, 0.1);
+  --yellow:         #ca8a04;
+  --yellow-dim:     rgba(202, 138, 4, 0.1);
+  --pink:           #db2777;
+  --pink-dim:       rgba(219, 39, 119, 0.1);
+  --cyan:           #0891b2;
+  --cyan-dim:       rgba(8, 145, 178, 0.1);
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.06);
+  --shadow:     0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* ============================================================
+   BODY & TYPOGRAPHY BASE
+   ============================================================ */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--text-bright, var(--text));
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.1rem; }
+h5 { font-size: 1rem; }
+h6 { font-size: 0.875rem; }
+
+/* Mono headings (common pattern in your pages) */
+h1.mono, h2.mono, h3.mono, h4.mono, h5.mono, h6.mono,
+.section-title {
+  font-family: var(--mono);
+  letter-spacing: -0.02em;
+}
+
+p + p { margin-top: var(--sp-4); }
+
+small, .small { font-size: 0.8rem; }
+
+a:not([class]) {
+  color: var(--accent);
+  transition: color var(--duration) var(--ease);
+}
+a:not([class]):hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+strong { font-weight: 600; color: var(--text-bright, var(--text)); }
+em { font-style: italic; }
+
+/* Selection */
+::selection {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+
+/* Container: centered content column */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--sp-6);
+}
+.container.narrow { max-width: 820px; }
+.container.wide   { max-width: 1400px; }
+
+/* Sections with consistent vertical rhythm */
+.section {
+  padding: var(--sp-12) 0;
+}
+.section + .section {
+  border-top: 1px solid var(--border);
+}
+
+/* Page header pattern */
+.page-header {
+  border-bottom: 1px solid var(--border);
+  padding: var(--sp-8) 0 var(--sp-8);
+  margin-bottom: var(--sp-8);
+}
+.page-header h1 {
+  font-family: var(--mono);
+  color: var(--accent);
+  font-weight: 600;
+}
+.page-header .meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  margin-top: var(--sp-2);
+}
+
+/* Page footer */
+.page-footer {
+  border-top: 1px solid var(--border);
+  padding: var(--sp-6) 0;
+  margin-top: var(--sp-12);
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   GRID SYSTEMS
+   ============================================================ */
+
+/* Auto-fill card grid */
+.grid {
+  display: grid;
+  gap: var(--sp-4);
+}
+.grid-2   { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.grid-3   { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.grid-4   { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.grid-fixed-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-fixed-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-fixed-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 768px) {
+  .grid-fixed-2, .grid-fixed-3, .grid-fixed-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Stats row (common pattern) */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--sp-4);
+}
+
+/* Flex utilities */
+.flex       { display: flex; }
+.flex-wrap  { flex-wrap: wrap; }
+.flex-col   { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: var(--sp-1); }
+.gap-2 { gap: var(--sp-2); }
+.gap-3 { gap: var(--sp-3); }
+.gap-4 { gap: var(--sp-4); }
+.gap-6 { gap: var(--sp-6); }
+.gap-8 { gap: var(--sp-8); }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4) var(--sp-5);
+  transition: border-color var(--duration) var(--ease);
+}
+.card:hover {
+  border-color: var(--border-bright);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-3);
+}
+.card-header h3 {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.card .desc {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+/* Clickable card variant */
+a.card {
+  display: block;
+  transition: border-color var(--duration) var(--ease), box-shadow var(--duration) var(--ease);
+}
+a.card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+  text-decoration: none;
+}
+
+/* Stat card (number + label) */
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+  text-align: center;
+}
+.stat .num, .stat-num {
+  font-family: var(--mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat .label, .stat-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: var(--sp-1);
+}
+
+/* ============================================================
+   TABLES
+   Always wrapped in .table-wrap for mobile safety.
+   ============================================================ */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.table-wrap table {
+  width: 100%;
+  min-width: 500px;
+}
+
+table th {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+table td {
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  vertical-align: top;
+}
+table tr:last-child td {
+  border-bottom: none;
+}
+table tr:hover td {
+  background: var(--surface2);
+}
+
+/* Compact table variant */
+table.compact th,
+table.compact td {
+  padding: var(--sp-1) var(--sp-2);
+  font-size: 0.75rem;
+}
+
+/* ============================================================
+   BADGES & CHIPS
+   ============================================================ */
+.badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.badge-accent  { background: var(--accent-dim);  color: var(--accent); }
+.badge-accent2 { background: var(--accent2-dim); color: var(--accent2); }
+.badge-green   { background: var(--green-dim);   color: var(--green); }
+.badge-red     { background: var(--red-dim);     color: var(--red); }
+.badge-orange  { background: var(--orange-dim);  color: var(--orange); }
+.badge-yellow  { background: var(--yellow-dim);  color: var(--yellow); }
+.badge-pink    { background: var(--pink-dim);    color: var(--pink); }
+.badge-cyan    { background: var(--cyan-dim);    color: var(--cyan); }
+
+.chip {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.chip-accent  { border-color: var(--accent-dim);  color: var(--accent); }
+.chip-accent2 { border-color: var(--accent2-dim); color: var(--accent2); }
+.chip-green   { border-color: var(--green-dim);   color: var(--green); }
+.chip-red     { border-color: var(--red-dim);     color: var(--red); }
+.chip-orange  { border-color: var(--orange-dim);  color: var(--orange); }
+.chip-pink    { border-color: var(--pink-dim);    color: var(--pink); }
+
+/* Chip/badge group */
+.chips, .badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+/* ============================================================
+   STATUS INDICATORS
+   ============================================================ */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--sp-1);
+  vertical-align: middle;
+}
+.status-healthy, .status-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.status-down, .status-red     { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+.status-warning, .status-orange { background: var(--orange); box-shadow: 0 0 6px var(--orange); }
+
+/* ============================================================
+   CODE BLOCKS
+   ============================================================ */
+code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--surface2);
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+}
+
+pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4) var(--sp-5);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  line-height: 1.55;
+}
+pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  border-radius: 0;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  white-space: nowrap;
+  text-decoration: none;
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+.btn-primary:hover { opacity: 0.9; }
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border-bright);
+  color: var(--text-dim);
+}
+.btn-secondary:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--accent);
+  padding: var(--sp-1) var(--sp-2);
+}
+.btn-ghost:hover { background: var(--accent-dim); }
+
+.btn-sm {
+  font-size: 0.75rem;
+  padding: var(--sp-1) var(--sp-3);
+}
+
+/* ============================================================
+   FORMS & INPUTS
+   ============================================================ */
+.input, input[type="text"], input[type="email"],
+input[type="search"], input[type="number"],
+input[type="url"], input[type="password"],
+textarea, select {
+  width: 100%;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  transition: border-color var(--duration) var(--ease);
+}
+.input:focus, input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dim);
+}
+.input::placeholder, input::placeholder, textarea::placeholder {
+  color: var(--text-muted);
+}
+
+label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-bottom: var(--sp-1);
+}
+
+/* ============================================================
+   ALERTS & CALLOUT BOXES
+   ============================================================ */
+.alert {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent2);
+  border-radius: var(--radius);
+  padding: var(--sp-3) var(--sp-4);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.alert-info    { border-left-color: var(--accent); }
+.alert-success { border-left-color: var(--green); }
+.alert-warning { border-left-color: var(--orange); }
+.alert-danger  { border-left-color: var(--red); }
+
+.alert strong {
+  color: var(--text);
+}
+
+/* ============================================================
+   SECTION HEADINGS (common pattern in your pages)
+   ============================================================ */
+.section-heading {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--sp-4);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.subsection-heading {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--sp-3);
+}
+
+/* Section note (italic intro text) */
+.section-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-bottom: var(--sp-4);
+}
+
+/* ============================================================
+   MONOSPACE DATA (URLs, paths, IDs)
+   ============================================================ */
+.mono    { font-family: var(--mono); }
+.url     { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); word-break: break-all; }
+.path    { font-family: var(--mono); font-size: 0.8rem; color: var(--cyan); }
+.dim     { color: var(--text-dim); }
+.muted   { color: var(--text-muted); }
+.bright  { color: var(--text-bright, var(--text)); }
+
+/* ============================================================
+   TEXT COLORS
+   ============================================================ */
+.text-accent  { color: var(--accent); }
+.text-accent2 { color: var(--accent2); }
+.text-green   { color: var(--green); }
+.text-red     { color: var(--red); }
+.text-orange  { color: var(--orange); }
+.text-yellow  { color: var(--yellow); }
+.text-pink    { color: var(--pink); }
+.text-cyan    { color: var(--cyan); }
+
+/* ============================================================
+   SPACING UTILITIES
+   ============================================================ */
+.mt-1 { margin-top: var(--sp-1); }
+.mt-2 { margin-top: var(--sp-2); }
+.mt-3 { margin-top: var(--sp-3); }
+.mt-4 { margin-top: var(--sp-4); }
+.mt-6 { margin-top: var(--sp-6); }
+.mt-8 { margin-top: var(--sp-8); }
+.mb-1 { margin-bottom: var(--sp-1); }
+.mb-2 { margin-bottom: var(--sp-2); }
+.mb-3 { margin-bottom: var(--sp-3); }
+.mb-4 { margin-bottom: var(--sp-4); }
+.mb-6 { margin-bottom: var(--sp-6); }
+.mb-8 { margin-bottom: var(--sp-8); }
+.my-4 { margin-top: var(--sp-4); margin-bottom: var(--sp-4); }
+.my-8 { margin-top: var(--sp-8); margin-bottom: var(--sp-8); }
+.p-2  { padding: var(--sp-2); }
+.p-3  { padding: var(--sp-3); }
+.p-4  { padding: var(--sp-4); }
+.p-6  { padding: var(--sp-6); }
+.px-4 { padding-left: var(--sp-4); padding-right: var(--sp-4); }
+.py-4 { padding-top: var(--sp-4); padding-bottom: var(--sp-4); }
+
+/* ============================================================
+   DISPLAY & ALIGNMENT UTILITIES
+   ============================================================ */
+.hidden     { display: none; }
+.block      { display: block; }
+.inline     { display: inline; }
+.text-center { text-align: center; }
+.text-right  { text-align: right; }
+.text-left   { text-align: left; }
+.w-full     { width: 100%; }
+.mx-auto    { margin-left: auto; margin-right: auto; }
+.truncate   { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ============================================================
+   DIVIDERS
+   ============================================================ */
+hr, .divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--sp-8) 0;
+}
+.divider-light {
+  border-top-color: var(--surface2);
+}
+
+/* ============================================================
+   SCROLLBAR STYLING (webkit)
+   ============================================================ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+
+.animate-fade    { animation: fade-in 0.4s var(--ease) both; }
+.animate-slide   { animation: slide-up 0.5s var(--ease) both; }
+.animate-pulse   { animation: pulse-glow 2s ease-in-out infinite; }
+
+/* Stagger children: add .stagger to parent, children animate sequentially */
+.stagger > * { animation: slide-up 0.4s var(--ease) both; }
+.stagger > *:nth-child(1)  { animation-delay: 0.05s; }
+.stagger > *:nth-child(2)  { animation-delay: 0.10s; }
+.stagger > *:nth-child(3)  { animation-delay: 0.15s; }
+.stagger > *:nth-child(4)  { animation-delay: 0.20s; }
+.stagger > *:nth-child(5)  { animation-delay: 0.25s; }
+.stagger > *:nth-child(6)  { animation-delay: 0.30s; }
+.stagger > *:nth-child(7)  { animation-delay: 0.35s; }
+.stagger > *:nth-child(8)  { animation-delay: 0.40s; }
+.stagger > *:nth-child(9)  { animation-delay: 0.45s; }
+.stagger > *:nth-child(10) { animation-delay: 0.50s; }
+
+/* ============================================================
+   OG META TEMPLATE (comment reference)
+
+   <meta property="og:title" content="...">
+   <meta property="og:description" content="...">
+   <meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/...">
+   <meta property="og:url" content="https://niggerfaggot.club/...">
+   <meta name="twitter:card" content="summary_large_image">
+   <meta name="twitter:image" content="...">
+
+   ============================================================ */
+
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================ */
+@media (max-width: 1024px) {
+  .container { padding: 0 var(--sp-4); }
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.35rem; }
+}
+
+@media (max-width: 768px) {
+  .container { padding: 0 var(--sp-4); }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.2rem; }
+  .page-header { padding: var(--sp-6) 0; margin-bottom: var(--sp-6); }
+  .section { padding: var(--sp-8) 0; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+
+  /* Stack side-by-side layouts */
+  .md-stack { flex-direction: column; }
+  .md-full  { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 15px; }
+  .container { padding: 0 var(--sp-3); }
+  h1 { font-size: 1.3rem; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .card { padding: var(--sp-3) var(--sp-4); }
+
+  /* Hide non-essential columns on tiny screens */
+  .sm-hide { display: none; }
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print {
+  body { background: white; color: black; font-size: 12pt; }
+  .card { border: 1px solid #ccc; box-shadow: none; }
+  .page-footer, .btn, .status-dot { display: none; }
+  a { color: black; text-decoration: underline; }
+  pre { border: 1px solid #ccc; background: #f5f5f5; }
+}
