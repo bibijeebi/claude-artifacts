@@ -116,7 +116,7 @@ function initMap(){
   map.on('load',async()=>{
     // Add satellite source (hidden initially)
     map.addSource('satellite',{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Esri, Maxar, Earthstar'});
-    map.addLayer({id:'sat-layer',type:'raster',source:'satellite',paint:{'raster-opacity':0},layout:{visibility:'none'}},'background');
+    map.addLayer({id:'sat-layer',type:'raster',source:'satellite',paint:{'raster-opacity':0},layout:{visibility:'none'}});
     // Load states
     try{
       const us=await(await fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')).json();
@@ -129,12 +129,12 @@ function initMap(){
 }
 
 function addStates(){
-  map.addSource('states',{type:'geojson',data:stGeo});
+  map.addSource('states',{type:'geojson',data:stGeo});try{map.moveLayer('sat-layer','sf')}catch(e){}
   map.addLayer({id:'sf',type:'fill',source:'states',paint:{'fill-color':['case',['==',['get','hasData'],1],['interpolate',['linear'],['get','total'],0,'#1a3626',500,'#1e4d32',2000,'#22713f',5000,'#2d9a50',10000,'#4ade80',20000,'#86efac'],'rgba(255,255,255,0.03)'],'fill-opacity':0.6}});
   map.addLayer({id:'sb',type:'line',source:'states',paint:{'line-color':'rgba(255,255,255,0.12)','line-width':1}});
   map.addLayer({id:'sh',type:'fill',source:'states',paint:{'fill-color':'#4ade80','fill-opacity':0.25},filter:['==','abbr','']});
-  map.on('mousemove','sf',e=>{map.getCanvas().style.cursor='pointer';if(e.features.length)map.setFilter('sh',['==','abbr',e.features[0].properties.abbr])});
-  map.on('mouseleave','sf',()=>{map.getCanvas().style.cursor='';map.setFilter('sh',['==','abbr',''])});
+  map.on('mousemove','sf',e=>{map.getCanvas().style.cursor='pointer';if(e.features.length&&map.getLayer('sh'))map.setFilter('sh',['==','abbr',e.features[0].properties.abbr])});
+  map.on('mouseleave','sf',()=>{map.getCanvas().style.cursor='';if(map.getLayer('sh'))map.setFilter('sh',['==','abbr',''])});
   map.on('click','sf',e=>{if(e.features.length){const a=e.features[0].properties.abbr;if(a&&idx.find(x=>x.id===a))selState(a)}});
 }
 
@@ -148,9 +148,9 @@ function showSat(on){
   if(on)map.setLayoutProperty('sat-layer','visibility','visible');
   requestAnimationFrame(anim);
   // Hide/show state choropleth
-  if(map.getLayer('sf'))map.setLayoutProperty('sf','visibility',on?'none':'visible');
-  if(map.getLayer('sb'))map.setLayoutProperty('sb','visibility',on?'none':'visible');
-  if(map.getLayer('sh'))map.setLayoutProperty('sh','visibility',on?'none':'visible');
+  try{map.setLayoutProperty('sf','visibility',on?'none':'visible')}catch(e){}
+  try{map.setLayoutProperty('sb','visibility',on?'none':'visible')}catch(e){}
+  try{map.setLayoutProperty('sh','visibility',on?'none':'visible')}catch(e){}
 }
 
 async function selState(id){
