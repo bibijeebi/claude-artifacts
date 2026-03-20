@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>From Vibes to Numbers: Preference Elicitation and Multi-Objective Optimization</title>
+<link rel="stylesheet" href="https://niggerfaggot.club/base.css">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+<style>
+:root {
+  --serif: 'Newsreader', Georgia, serif;
+  --accent: #c4956a;
+  --accent-dim: rgba(196, 149, 106, 0.12);
+  --accent-hover: #d4a87a;
+  --accent2: #7ab8a8;
+  --accent2-dim: rgba(122, 184, 168, 0.12);
+}
+body { font-size: 17px; line-height: 1.8; }
+.container { max-width: 780px; }
+
+h1 { font-family: var(--serif); font-size: 2.2rem; font-weight: 600; line-height: 1.15; letter-spacing: -0.5px; color: var(--text); }
+h2 { font-family: var(--serif); font-size: 1.5rem; font-weight: 600; color: var(--text); margin-top: 3rem; }
+h3 { font-family: var(--serif); font-size: 1.15rem; font-weight: 500; color: var(--accent); margin-top: 2rem; }
+
+p { color: var(--text-dim); margin-bottom: 1rem; }
+p + p { margin-top: 0; }
+
+.lead { font-size: 1.1rem; color: var(--text); line-height: 1.7; }
+
+.concept {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.concept .term {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+.concept p { margin-bottom: 0.5rem; }
+.concept p:last-child { margin-bottom: 0; }
+
+.example {
+  background: var(--accent2-dim);
+  border: 1px solid rgba(122, 184, 168, 0.2);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+}
+.example .ex-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.3rem;
+}
+
+.timeline {
+  border-left: 2px solid var(--border);
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
+}
+.timeline-item { margin-bottom: 1.25rem; position: relative; }
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -1.75rem;
+  top: 0.5rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.timeline-item .year {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.timeline-item .desc { font-size: 0.85rem; color: var(--text-dim); }
+
+.math-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin: 1.25rem 0;
+  text-align: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.field-map {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+.field-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+.field-card .fname {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent2);
+  margin-bottom: 0.2rem;
+}
+.field-card .fdesc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.45; }
+
+@media (max-width: 768px) {
+  h1 { font-size: 1.6rem; }
+  .field-map { grid-template-columns: 1fr; }
+}
+
+.separator {
+  text-align: center;
+  margin: 2.5rem 0;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  letter-spacing: 0.5em;
+}
+
+.analogy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  margin: 1.25rem 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.analogy-grid .ag-header {
+  background: var(--surface2);
+  padding: 0.5rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+.analogy-grid .ag-header:first-child { border-right: 1px solid var(--border); }
+.analogy-grid .ag-cell {
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+}
+.analogy-grid .ag-cell:nth-child(odd) { border-right: 1px solid var(--border); }
+.analogy-grid .ag-cell:nth-last-child(-n+2) { border-bottom: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div style="padding: 4rem 0 2rem;">
+  <h1>From Vibes to Numbers</h1>
+  <p class="lead" style="margin-top: 1rem;">How to extract the preferences trapped in someone's head, turn them into math, and use them to optimize anything. A practical walkthrough using image collage packing as the running example.</p>
+  <p style="font-family:var(--mono); font-size:0.75rem; color:var(--text-muted); margin-top:1rem;">March 2026 &middot; Derived from a Claude + Benny working session</p>
+</div>
+
+<div class="separator">&middot; &middot; &middot;</div>
+
+<h2>1. The Core Problem: You Know What You Like But Can't Say Why</h2>
+
+<p>You're staring at five photos. You want them arranged into a wallpaper. You could minimize blank space, but then the images get cropped. You could avoid cropping, but then there's dead space. You could keep images at their native resolution, but then the small one looks blurry next to the big one.</p>
+
+<p>There are four things you care about, and they fight each other. Somewhere in your head is a function that weighs these tradeoffs, but if I asked you "on a scale of 0 to 1, how much do you care about blank space relative to cropping," the answer would be meaningless. You don't have calibrated introspective access to your own utility function.</p>
+
+<p>But you CAN look at two collages and say "I like that one better." That's enough. That single bit of information, repeated about 12 times, is enough to reconstruct your entire preference structure.</p>
+
+<div class="concept">
+  <div class="term">Utility Function</div>
+  <p>A mathematical function that assigns a number to every possible outcome, such that higher numbers mean you prefer that outcome more. Von Neumann and Morgenstern proved in 1944 that if your preferences satisfy a few axioms (you can always compare two options, your comparisons are consistent, etc.), then a utility function representing your preferences must exist. The problem isn't existence. The problem is measurement.</p>
+</div>
+
+<h2>2. Multi-Objective Optimization</h2>
+
+<p>Before we can learn your preferences, we need to define what we're optimizing over. Our collage problem has four objectives, each measurable:</p>
+
+<div class="math-block">
+  $$C_{blank}: \text{fraction of canvas not covered (0 to 1)}$$
+  $$C_{crop}: \text{fraction of each image center-cropped (0 to 0.2)}$$
+  $$C_{scale}: \text{penalty for displaying images far from native resolution}$$
+  $$C_{mismatch}: \text{penalty for mixing high-res and low-res images in the same row}$$
+</div>
+
+<p>Any system where you're trying to minimize (or maximize) multiple things simultaneously is a <strong>multi-objective optimization</strong> (MOO) problem. The fundamental tension is that objectives conflict: reducing blank space requires either cropping or including fewer images, reducing cropping increases blank space, and so on.</p>
+
+<div class="concept">
+  <div class="term">Pareto Optimality</div>
+  <p>A solution is <strong>Pareto-optimal</strong> (or Pareto-efficient) if you cannot improve any one objective without making at least one other objective worse. The set of all Pareto-optimal solutions is the <strong>Pareto frontier</strong>. Every point on this frontier represents a different, equally "valid" tradeoff. No math can tell you which point is "best." That's a human judgment.</p>
+</div>
+
+<div class="example">
+  <div class="ex-label">Your collage example</div>
+  <p style="font-size:0.85rem; color:var(--text-dim);">Configuration A: 3 images, 20% crop, 81.6% coverage. Configuration B: 5 images, 0% crop, 60% coverage. Both are Pareto-optimal. A has better coverage but more cropping. B has zero cropping but more blank space. Neither dominates the other. Your preference between them is what determines the "right" answer.</p>
+</div>
+
+<h3>Scalarization: Collapsing Many Objectives Into One Number</h3>
+
+<p>To actually optimize, we need a single number to minimize. The simplest approach is <strong>linear scalarization</strong>: multiply each objective by a weight and add them up.</p>
+
+<div class="math-block">
+  $$\text{Cost}(\mathbf{x}) = w_1 \cdot C_{blank}(\mathbf{x}) + w_2 \cdot C_{crop}(\mathbf{x}) + w_3 \cdot C_{scale}(\mathbf{x}) + w_4 \cdot C_{mismatch}(\mathbf{x})$$
+</div>
+
+<p>The weights $\mathbf{w} = (w_1, w_2, w_3, w_4)$ define which point on the Pareto frontier you pick. Different weights, different "best" collage. The entire problem reduces to: <strong>find the right weights.</strong></p>
+
+<p>This is the framework of <strong>Multi-Attribute Utility Theory</strong> (MAUT), formalized by Keeney and Raiffa in their landmark 1976 book "Decisions with Multiple Objectives." The linear form assumes objectives are "preferentially independent," meaning your feelings about blank space don't change depending on how much cropping there is. This is approximately true for our problem and most practical ones.</p>
+
+<div class="concept">
+  <div class="term">Other Scalarization Methods</div>
+  <p><strong>Chebyshev (minimax)</strong>: minimize the worst-performing objective. Good when you want balance, can't tolerate any one thing being terrible. <strong>Weighted product</strong>: multiply objectives raised to weight powers. Useful when objectives have very different scales. <strong>Epsilon-constraint</strong>: optimize one objective while constraining others to minimum thresholds. These all select different points on the Pareto frontier. Linear is the most common because it's simple and interpretable.</p>
+</div>
+
+<h2>3. Preference Elicitation: Getting the Weights Out of Your Head</h2>
+
+<p>You can't tell me your weights directly. But every time you compare two options and pick one, you're revealing information about your weights. This is the field of <strong>preference elicitation</strong>, sitting at the intersection of decision theory, psychology, and machine learning.</p>
+
+<p>The key insight, going back to Louis Thurstone in 1927, is that pairwise comparison is the most reliable way to extract human preferences. The cognitive load is minimal (just "which is better?"), the signal is clear (binary choice, no ambiguous rating scales), and people are remarkably consistent at it even when they can't articulate why.</p>
+
+<h3>The Family of Pairwise Models</h3>
+
+<p>When you prefer A over B, what's happening mathematically? Several models, developed over decades, formalize this:</p>
+
+<div class="timeline">
+  <div class="timeline-item">
+    <div class="year">1927 &mdash; Thurstone's Law of Comparative Judgment</div>
+    <div class="desc">Each stimulus has a latent "quality" that's perceived with Gaussian noise. You prefer whichever has higher perceived quality on a given trial. The probability of preferring A over B is $\Phi\left(\frac{\mu_A - \mu_B}{\sqrt{\sigma_A^2 + \sigma_B^2}}\right)$ where $\Phi$ is the normal CDF. This is the probit model. It started in psychophysics (which tone sounds louder?) but the math applies to any comparison.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">1952 &mdash; Bradley-Terry Model</div>
+    <div class="desc">The logistic version of Thurstone. Each item has a "strength" $s_i$. The probability of preferring $i$ over $j$ is $P(i \succ j) = \frac{e^{s_i}}{e^{s_i} + e^{s_j}}$. Mathematically equivalent to Thurstone (logistic vs. Gaussian noise) but easier to compute. This is the foundation of most ranking systems.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">1960 &mdash; Elo Rating System</div>
+    <div class="desc">Arpad Elo's chess rating is a sequential online approximation of Bradley-Terry. After each game, update both players' ratings by a fixed step size proportional to the surprise of the outcome. Simple, fast, no Bayesian machinery needed. Weakness: the step size (K-factor) is a tuning parameter, and there's no uncertainty estimate. Used in chess, video games, and your baby names app.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">2007 &mdash; TrueSkill (Microsoft)</div>
+    <div class="desc">Full Bayesian version. Each player has a Gaussian posterior: mean $\mu$ (estimated skill) and standard deviation $\sigma$ (uncertainty). After each match, both get updated via Bayesian inference. New players have high $\sigma$ (uncertain), which shrinks as they play more games. Supports teams, draws, and multi-player matches. Powers Xbox matchmaking.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">2023&ndash;present &mdash; RLHF in LLMs</div>
+    <div class="desc">Reinforcement Learning from Human Feedback. Humans compare pairs of model outputs. A reward model is trained on those preferences using Bradley-Terry. Then the language model is fine-tuned to maximize the learned reward via PPO (proximal policy optimization). This is literally how Claude, GPT, and every major LLM is trained to be helpful. The calibrator you built is a miniature version of the same pipeline.</div>
+  </div>
+</div>
+
+<div class="analogy-grid">
+  <div class="ag-header">What We Built</div>
+  <div class="ag-header">RLHF for LLMs</div>
+  <div class="ag-cell">Show two collage layouts</div>
+  <div class="ag-cell">Show two model responses</div>
+  <div class="ag-cell">User picks preferred collage</div>
+  <div class="ag-cell">Human rater picks preferred response</div>
+  <div class="ag-cell">Update weight posterior via particle filter</div>
+  <div class="ag-cell">Train reward model via Bradley-Terry</div>
+  <div class="ag-cell">Optimize collage solver against learned weights</div>
+  <div class="ag-cell">Optimize LLM against learned reward model (PPO)</div>
+  <div class="ag-cell">Result: personalized collage weights</div>
+  <div class="ag-cell">Result: model that produces preferred outputs</div>
+</div>
+
+<h2>4. Bayesian Inference: Turning Choices Into Knowledge</h2>
+
+<p>Every time you pick A over B, you're providing evidence about your weights. Bayesian inference is the mathematically optimal way to accumulate that evidence.</p>
+
+<div class="concept">
+  <div class="term">Bayes' Theorem</div>
+  <p>$$P(\mathbf{w} \mid \text{data}) = \frac{P(\text{data} \mid \mathbf{w}) \cdot P(\mathbf{w})}{P(\text{data})}$$</p>
+  <p><strong>Posterior</strong> (what we believe after seeing data) equals <strong>likelihood</strong> (how probable the data is given a hypothesis) times <strong>prior</strong> (what we believed before), normalized. This is the engine of all Bayesian methods. You start with uncertainty, observe evidence, and get less uncertain.</p>
+</div>
+
+<p>In our case:</p>
+
+<p>The <strong>hypothesis</strong> is a specific weight vector $\mathbf{w} = (w_1, w_2, w_3, w_4)$.</p>
+
+<p>The <strong>prior</strong> is uniform over the 4D simplex (all weight combos where $\sum w_i = 1$ are equally likely before we see any data).</p>
+
+<p>The <strong>likelihood</strong> of you preferring A over B, given weights $\mathbf{w}$, is:</p>
+
+<div class="math-block">
+  $$P(A \succ B \mid \mathbf{w}) = \sigma\Big(\tau \cdot \big[\text{Cost}(B, \mathbf{w}) - \text{Cost}(A, \mathbf{w})\big]\Big)$$
+</div>
+
+<p>where $\sigma(x) = \frac{1}{1 + e^{-x}}$ is the sigmoid function and $\tau$ is a temperature parameter. If the weights make A much cheaper than B, the sigmoid is close to 1 (we'd strongly predict you prefer A). If they're close, it's near 0.5 (coin flip). This is the Bradley-Terry model applied to continuous weight space instead of discrete items.</p>
+
+<h3>The Temperature Parameter $\tau$</h3>
+
+<p>Temperature controls how "decisive" we assume your choices are. We used $\tau = 12$.</p>
+
+<p>At $\tau \to 0$: we assume your choices are random noise. Each comparison barely moves the posterior. You'd need hundreds of comparisons to converge.</p>
+
+<p>At $\tau \to \infty$: we assume your choices are perfectly deterministic. A single comparison eliminates half the weight space instantly. But if you ever make an "inconsistent" choice (different from what the current best weights predict), the model breaks.</p>
+
+<p>$\tau = 12$ is a sweet spot: confident enough to converge in 12 rounds, tolerant enough to handle an occasional noisy pick.</p>
+
+<h3>Particle Filters: Practical Bayesian Inference</h3>
+
+<p>For simple problems (Gaussian posteriors, linear models), you can do Bayesian updates analytically. Our posterior over a 4D simplex with nonlinear likelihood isn't analytically tractable. So we use a <strong>particle filter</strong>, also called Sequential Monte Carlo (SMC).</p>
+
+<div class="concept">
+  <div class="term">Particle Filter</div>
+  <p>Represent the posterior distribution as a cloud of weighted samples ("particles"). Each particle is a specific hypothesis (a weight vector). Its importance weight represents how consistent it is with all observed data. The cloud collectively approximates the true posterior. More particles = better approximation. We used 2,000.</p>
+</div>
+
+<p>The algorithm, step by step:</p>
+
+<p><strong>Initialize:</strong> Sample 2,000 random weight vectors from the simplex. Give each equal weight ($1/N$). This is our uniform prior, visualized as a diffuse cloud filling the entire weight space.</p>
+
+<p><strong>Observe:</strong> You prefer collage A over collage B.</p>
+
+<p><strong>Update:</strong> For each particle $\mathbf{w}_i$, compute the likelihood $P(A \succ B \mid \mathbf{w}_i)$ using the sigmoid formula. Multiply the particle's current weight by this likelihood. Particles whose weights correctly predict your choice get boosted. Particles that predict wrong get suppressed.</p>
+
+<p><strong>Normalize:</strong> Divide all particle weights by their sum so they add to 1.</p>
+
+<p><strong>Check degeneracy:</strong> Compute the Effective Sample Size: $\text{ESS} = \frac{1}{\sum w_i^2}$. If ESS is high (near $N$), particles are roughly equally weighted and the cloud is healthy. If ESS is low (a few particles dominate), the cloud has degenerated and most particles are wasting computation.</p>
+
+<p><strong>Resample if needed:</strong> When $\text{ESS} < N/3$, resample: draw $N$ new particles from the current cloud with probability proportional to their weights, then add small random jitter. This is <strong>Sampling Importance Resampling</strong> (SIR). It kills low-weight particles and duplicates high-weight ones, reinvigorating the cloud. The jitter prevents all particles from collapsing to one point.</p>
+
+<p><strong>Repeat</strong> for each comparison. After 12 rounds, the particle cloud has contracted from a diffuse fog filling all of weight space to a tight cluster around your true preferences. The expected value of the cloud is your calibrated weight vector.</p>
+
+<div class="example">
+  <div class="ex-label">Your result after 12 rounds</div>
+  <p style="font-size:0.85rem; color:var(--text-dim);">$\mathbf{w} = (0.34, 0.23, 0.24, 0.18)$ meaning: blank space matters most (34%), scale distortion and cropping are roughly tied (24% and 23%), resolution mismatch matters least (18%). The particle cloud's standard deviation was small (converged), meaning 12 rounds was sufficient.</p>
+</div>
+
+<h2>5. Active Learning: Asking the Right Questions</h2>
+
+<p>Showing random pairs is wasteful. If both collages look almost identical, your choice tells us nothing. If both are obviously bad in different ways, the comparison is too easy. The sweet spot is showing pairs where our current model is maximally uncertain about your preference.</p>
+
+<div class="concept">
+  <div class="term">Active Learning</div>
+  <p>A machine learning paradigm where the algorithm chooses which data points to query, rather than passively receiving data. The goal is to reach target accuracy with minimum queries (human effort). Active learning is valuable whenever labeling is expensive, and human comparison is the most expensive label there is.</p>
+</div>
+
+<p>We used <strong>uncertainty sampling</strong>, the simplest active learning strategy. For each candidate pair $(A, B)$, compute what fraction of particles predict you'd prefer A:</p>
+
+<div class="math-block">
+  $$p_{A} = \sum_{i} w_i \cdot \mathbb{1}\left[\text{Cost}(A, \mathbf{w}_i) < \text{Cost}(B, \mathbf{w}_i)\right]$$
+</div>
+
+<p>Then compute the entropy of this Bernoulli distribution:</p>
+
+<div class="math-block">
+  $$H = -p_A \log p_A - (1 - p_A) \log(1 - p_A)$$
+</div>
+
+<p>Entropy is maximized when $p_A = 0.5$ (particles are split 50/50 on which you'd prefer). Pick the pair with highest entropy. That's the pair where your answer will eliminate the most uncertainty.</p>
+
+<p>Without active learning, you'd need ~25-30 random comparisons. With it, 10-12 is enough for 4 dimensions. The savings scale with dimensionality: for a 10-weight problem, active learning might save you from 100 comparisons down to 30.</p>
+
+<div class="concept">
+  <div class="term">Bayesian Optimal Experimental Design</div>
+  <p>The fancier version of what we did. Instead of maximizing entropy of the predicted preference, maximize the expected KL divergence between the prior and posterior. This accounts for how much each possible answer would move the posterior, not just how uncertain we are. More powerful but computationally heavier. For 4D problems, uncertainty sampling is nearly as good and much cheaper.</p>
+</div>
+
+<h2>6. Rectangle Packing: The Geometry Underneath</h2>
+
+<p>Underneath all the preference learning machinery is an actual geometric optimization problem: how do you arrange rectangles inside a bigger rectangle?</p>
+
+<div class="concept">
+  <div class="term">2D Bin Packing</div>
+  <p>Given a set of rectangles and a container, arrange them to minimize wasted space. No overlaps. This is NP-hard in the general case (Garey & Johnson, 1979), meaning there's no known algorithm that solves it efficiently for all inputs. For small $n$ (under ~15), you can brute-force or use branch-and-bound. For large $n$, you use heuristics.</p>
+</div>
+
+<p>Our version has special structure that makes it tractable:</p>
+
+<p><strong>Row-based packing</strong> restricts images to horizontal rows. Within each row, images are the same height and placed side-by-side with no gaps. This reduces the 2D problem to a 1D partition problem: which images go in which row?</p>
+
+<p>For $n$ images split into 2 rows, there are $2^{n-1} - 1$ partitions. For $n = 5$, that's 15. For $n = 8$, that's 127. Totally brute-forceable.</p>
+
+<p>Given a partition, the row heights are determined by a system of equations. If row 1 has images with aspect ratios $r_1, r_2, r_3$ at height $H_1$, the row's total width is $H_1(r_1 + r_2 + r_3)$. For two rows to fill the canvas:</p>
+
+<div class="math-block">
+  $$H_1 \sum_{i \in R_1} r_i = H_2 \sum_{i \in R_2} r_i = W$$
+  $$H_1 + H_2 = H_{canvas}$$
+</div>
+
+<p>This is a linear system with a closed-form solution. No iterative optimization needed.</p>
+
+<p>The solver evaluates all subsets of size $\geq 3$, all partitions into 1 or 2 rows, and all crop levels. Total configurations for 5 images: ~576. For 8 images: ~5,000. All evaluated in under a second.</p>
+
+<h3>Algorithms for Larger Problems</h3>
+
+<p>If you had 50 or 100 images, brute force dies. The standard approaches:</p>
+
+<p><strong>Knuth-Plass line breaking</strong> (1981, from TeX). Treat images as "words" with width proportional to aspect ratio, and "line-break" into rows to minimize total badness. $O(n^2)$, globally optimal for row-based layouts. This is what Google Photos and Flickr use for their justified image grids.</p>
+
+<p><strong>Guillotine cutting</strong>. Recursively split the canvas with horizontal or vertical cuts. Each sub-region gets one or more images. Dynamic programming gives optimal solutions. Used in industrial sheet-cutting optimization (cutting glass, metal, fabric).</p>
+
+<p><strong>Squarified treemaps</strong> (Bruls et al., 2000). Recursively subdivide the canvas so each image gets area proportional to some weight, minimizing the aspect ratio distortion. Used in data visualization (filesystem viewers, stock market maps).</p>
+
+<h2>7. The Scale Penalty: Why Upscaling Is Worse Than Downscaling</h2>
+
+<p>Our scale penalty is asymmetric:</p>
+
+<div class="math-block">
+  $$C_{scale}(s) = \begin{cases} (s - 1)^2 & \text{if } s > 1 \text{ (upscale)} \\ 0.1 \cdot (1 - s)^2 & \text{if } s \leq 1 \text{ (downscale)} \end{cases}$$
+</div>
+
+<p>where $s = \text{display height} / \text{native height}$.</p>
+
+<p>This reflects a real perceptual asymmetry. Downscaling is information-preserving: a 2000px image displayed at 1000px looks perfectly sharp (you're discarding pixels, but the ones remaining are real). Upscaling is information-inventing: a 640px image displayed at 1200px requires the renderer to hallucinate 72% of the pixels. The result is visible blur, especially next to a natively sharp image. The 10x asymmetry (0.1 weight for downscale vs. 1.0 for upscale) captures this.</p>
+
+<h2>8. The Resolution Mismatch Penalty: Log-Ratio Variance</h2>
+
+<p>When two images of very different native resolutions appear side by side at the same display size, one looks sharp and the other looks muddy. The penalty measures this:</p>
+
+<div class="math-block">
+  $$C_{mismatch} = \frac{1}{|P|} \sum_{(i,j) \in P} \left(\log \frac{h_i}{h_j}\right)^2$$
+</div>
+
+<p>where $P$ is all pairs of images in the same row, and $h_i$ is native pixel height.</p>
+
+<p>The log makes this scale-invariant. Going from 500px to 1000px (2x ratio) is the same mismatch as 1000px to 2000px (also 2x). Without the log, the absolute difference 500 vs. 1000 would be penalized less than 1000 vs. 2000, which doesn't match perception.</p>
+
+<h2>9. Where Else This Pattern Applies</h2>
+
+<p>The "define objectives, parameterize tradeoffs as weights, elicit preferences via pairwise comparison, optimize" pattern is universal. Any domain with competing objectives and a human decision-maker.</p>
+
+<div class="field-map">
+  <div class="field-card">
+    <div class="fname">Conjoint Analysis</div>
+    <div class="fdesc">Marketing. How do consumers trade off price vs. quality vs. brand? Show product pairs, learn feature weights. Used to price everything from cars to insurance plans.</div>
+  </div>
+  <div class="field-card">
+    <div class="fname">Healthcare MCDA</div>
+    <div class="fdesc">How do patients weigh treatment efficacy vs. side effects vs. cost vs. convenience? Pairwise comparison of treatment profiles to personalize recommendations.</div>
+  </div>
+  <div class="field-card">
+    <div class="fname">Recommender Systems</div>
+    <div class="fdesc">Netflix, Spotify. Learn latent preference vectors from implicit pairwise signals (watched A not B, skipped this song). Collaborative filtering is the multi-user version.</div>
+  </div>
+  <div class="field-card">
+    <div class="fname">Portfolio Optimization</div>
+    <div class="fdesc">Finance. Risk vs. return vs. liquidity vs. ESG compliance. The efficient frontier IS a Pareto frontier. Investor risk tolerance = the weights.</div>
+  </div>
+  <div class="field-card">
+    <div class="fname">UI/UX A/B Testing</div>
+    <div class="fdesc">Which design converts better? Pairwise comparison at scale. Multi-armed bandits are the active learning version (show the pair where you're most uncertain).</div>
+  </div>
+  <div class="field-card">
+    <div class="fname">Exercise Programming</div>
+    <div class="fdesc">Volume vs. intensity vs. frequency vs. recovery. The "right" program depends on personal tradeoff preferences. Could be calibrated the same way.</div>
+  </div>
+  <div class="field-card">
+    <div class="fname">LLM Alignment (RLHF)</div>
+    <div class="fdesc">Helpfulness vs. harmlessness vs. honesty. Human raters compare pairs of model outputs. Reward model learns the implicit weights. The most consequential application of preference elicitation today.</div>
+  </div>
+  <div class="field-card">
+    <div class="fname">Baby Name Ranking</div>
+    <div class="fdesc">Your existing system. ELO applied to discrete items. Could be extended: instead of one score, learn weights over attributes (sound, meaning, cultural origin, uniqueness, family significance).</div>
+  </div>
+</div>
+
+<h2>10. The Full Stack of What We Built</h2>
+
+<p>From bottom to top:</p>
+
+<div class="concept">
+  <div class="term">Layer 1 &mdash; Computational Geometry</div>
+  <p>Rectangle packing. Row-based partitioning. Closed-form row height solver. Brute-force enumeration for small $n$, Knuth-Plass for large $n$.</p>
+</div>
+
+<div class="concept">
+  <div class="term">Layer 2 &mdash; Multi-Objective Cost Function</div>
+  <p>Four measurable objectives. Linear scalarization into a single cost. Weight vector parameterizes the tradeoff. The math of MCDA and Pareto optimality.</p>
+</div>
+
+<div class="concept">
+  <div class="term">Layer 3 &mdash; Preference Elicitation</div>
+  <p>Pairwise comparison as the data collection method. Thurstone/Bradley-Terry as the probabilistic model linking choices to latent preferences.</p>
+</div>
+
+<div class="concept">
+  <div class="term">Layer 4 &mdash; Bayesian Inference</div>
+  <p>Particle filter with SIR resampling. Posterior over weight space. Sigmoid likelihood. Temperature-controlled noise model. 2,000 particles, converges in 12 rounds.</p>
+</div>
+
+<div class="concept">
+  <div class="term">Layer 5 &mdash; Active Learning</div>
+  <p>Uncertainty sampling. Maximum entropy pair selection. Halves the number of comparisons needed. Bayesian optimal experimental design for the principled version.</p>
+</div>
+
+<div class="concept">
+  <div class="term">Layer 6 &mdash; Persistent Preference Profile</div>
+  <p>The output: four numbers $(0.34, 0.23, 0.24, 0.18)$ that encode your aesthetic judgment. Reusable across any future set of images. Stored in a skill definition. Recalibratable.</p>
+</div>
+
+<div class="separator">&middot; &middot; &middot;</div>
+
+<h2>Key References</h2>
+
+<div class="timeline">
+  <div class="timeline-item">
+    <div class="year">Thurstone, 1927</div>
+    <div class="desc">"A law of comparative judgment." The foundation of all pairwise preference models.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">Von Neumann & Morgenstern, 1944</div>
+    <div class="desc">"Theory of Games and Economic Behavior." Axiomatic foundation of utility theory.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">Bradley & Terry, 1952</div>
+    <div class="desc">"Rank analysis of incomplete block designs." The logistic pairwise comparison model.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">Elo, 1960</div>
+    <div class="desc">The Elo rating system for chess. Online approximation of Bradley-Terry.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">Keeney & Raiffa, 1976</div>
+    <div class="desc">"Decisions with Multiple Objectives." Multi-attribute utility theory.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">Knuth & Plass, 1981</div>
+    <div class="desc">"Breaking paragraphs into lines." Optimal line-breaking, applicable to image row packing.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">Korf, 2003</div>
+    <div class="desc">"Optimal rectangle packing." Exact branch-and-bound for small $n$.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">Chu & Ghahramani, 2005</div>
+    <div class="desc">"Preference learning with Gaussian processes." The GP version of what we did with particles.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">Herbrich et al., 2007</div>
+    <div class="desc">"TrueSkill: A Bayesian skill rating system." Full Bayesian pairwise ranking with uncertainty.</div>
+  </div>
+  <div class="timeline-item">
+    <div class="year">Christiano et al., 2017</div>
+    <div class="desc">"Deep reinforcement learning from human preferences." The paper that launched RLHF.</div>
+  </div>
+</div>
+
+<div class="page-footer">
+  Derived from a working session, March 20, 2026. Uses <a href="/base.css" style="color:var(--accent)">base.css</a>.
+</div>
+
+</div>
+</body>
+</html>
