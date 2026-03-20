@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collage Weight Calibrator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+body { background: #0a0e17; color: #e2e8f0; font-family: 'DM Sans', system-ui, sans-serif; min-height: 100vh; padding: 24px; }
+.container { max-width: 1060px; margin: 0 auto; }
+h1 { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: #38bdf8; margin-bottom: 4px; }
+.subtitle { font-size: 0.8rem; color: #64748b; margin-bottom: 24px; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+.drop-zone {
+  border: 2px dashed #334155; border-radius: 12px; padding: 48px 24px;
+  text-align: center; cursor: pointer; margin-bottom: 24px; transition: border-color 0.2s;
+}
+.drop-zone:hover { border-color: #38bdf8; }
+.drop-zone .label { font-size: 1.1rem; margin-bottom: 8px; }
+.drop-zone .hint { font-size: 0.75rem; color: #64748b; }
+
+.image-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.image-chip {
+  background: #111827; border: 1px solid #1e293b; border-radius: 8px;
+  padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+}
+.image-chip .name { color: #e2e8f0; }
+.image-chip .dims { color: #64748b; }
+
+.btn-primary {
+  background: #38bdf8; color: #0a0e17; border: none; border-radius: 8px;
+  padding: 10px 24px; font-weight: 600; cursor: pointer; font-size: 0.9rem;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-secondary {
+  background: transparent; border: 1px solid #334155; color: #94a3b8;
+  border-radius: 8px; padding: 8px 16px; cursor: pointer; font-size: 0.8rem;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.compare-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.compare-header .prompt { font-size: 0.9rem; font-weight: 600; }
+.compare-header .round { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #64748b; }
+
+.compare-row { display: flex; gap: 12px; margin-bottom: 20px; }
+.compare-card {
+  flex: 1; cursor: pointer; border: 2px solid #1e293b; border-radius: 12px;
+  overflow: hidden; transition: border-color 0.2s, transform 0.15s;
+}
+.compare-card:hover { border-color: #38bdf8; transform: scale(1.01); }
+.compare-card canvas { width: 100%; display: block; }
+.compare-card .info {
+  background: #111827; padding: 8px 12px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #64748b;
+}
+.compare-card .info .names { color: #475569; margin-top: 2px; }
+
+.convergence-panel { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; }
+.convergence-label { font-size: 0.75rem; color: #64748b; margin-bottom: 12px; }
+.weights-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.weight-item .wlabel { font-size: 0.65rem; color: #64748b; margin-bottom: 4px; }
+.weight-bar { background: #0a0e17; border-radius: 6px; height: 32px; position: relative; overflow: hidden; }
+.weight-fill { position: absolute; bottom: 0; left: 0; right: 0; border-radius: 6px; opacity: 0.7; transition: height 0.4s ease; }
+.weight-val {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600; color: #e2e8f0;
+}
+.weight-std { font-size: 0.55rem; color: #475569; text-align: center; margin-top: 2px; }
+.progress-track { margin-top: 12px; height: 4px; background: #1e293b; border-radius: 2px; }
+.progress-fill { height: 100%; background: #38bdf8; border-radius: 2px; transition: width 0.4s ease; }
+
+.result-panel { background: #111827; border: 1px solid #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.result-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; }
+.result-weights { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center; }
+.result-num { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; }
+.result-label { font-size: 0.65rem; color: #64748b; margin-top: 2px; }
+.result-cmd {
+  margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: #94a3b8;
+  background: #0a0e17; border-radius: 8px; padding: 10px 14px;
+}
+.result-canvas { border: 1px solid #1e293b; border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+.result-canvas canvas { width: 100%; display: block; }
+.result-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #64748b; }
+.result-actions { margin-top: 20px; display: flex; gap: 8px; }
+
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Collage Weight Calibrator</h1>
+  <p class="subtitle">Bayesian preference learning via pairwise comparison. Pick which layout looks better. ~12 rounds.</p>
+
+  <div id="phase-upload">
+    <div class="drop-zone" id="dropZone">
+      <div class="label">Drop images here or click to select</div>
+      <div class="hint">3-8 images recommended. JPG, PNG, WebP.</div>
+    </div>
+    <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
+    <div class="image-chips" id="imageChips"></div>
+    <button class="btn-primary hidden" id="startBtn">Start calibration</button>
+  </div>
+
+  <div id="phase-compare" class="hidden">
+    <div class="compare-header">
+      <div class="prompt">Which looks better?</div>
+      <div class="round mono" id="roundLabel">Round 1/12</div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-card" id="cardA">
+        <canvas id="canvasA"></canvas>
+        <div class="info" id="infoA"></div>
+      </div>
+      <div class="compare-card" id="cardB">
+        <canvas id="canvasB"></canvas>
+        <div class="info" id="infoB"></div>
+      </div>
+    </div>
+    <div class="convergence-panel">
+      <div class="convergence-label">Weight convergence</div>
+      <div class="weights-grid" id="weightsGrid"></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </div>
+
+  <div id="phase-done" class="hidden">
+    <div class="result-panel">
+      <div class="result-title">Your calibrated weights</div>
+      <div class="result-weights" id="resultWeights"></div>
+      <div class="result-cmd" id="resultCmd"></div>
+    </div>
+    <div style="margin-bottom:12px;font-size:0.85rem;font-weight:600">Optimal layout</div>
+    <div class="result-canvas"><canvas id="resultCanvas"></canvas></div>
+    <div class="result-meta" id="resultMeta"></div>
+    <div class="result-actions">
+      <button class="btn-secondary" id="resetBtn">Start over</button>
+      <button class="btn-secondary" id="recalBtn">Re-calibrate (keep images)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CANVAS_W = 2560, CANVAS_H = 1600, PREVIEW_W = 500, PREVIEW_H = 312;
+const SCALE = PREVIEW_W / CANVAS_W;
+const NUM_PARTICLES = 2000, MAX_ROUNDS = 12, TEMP = 12;
+const MAX_CROP = 0.20, CROP_STEPS = 5, MIN_IMAGES = 3;
+const BG = "#0a0e17";
+const LABELS = ["Blank Space", "Cropping", "Scale Distortion", "Res. Mismatch"];
+const COLORS = ["#38bdf8", "#f87171", "#fb923c", "#818cf8"];
+
+let images = [], imgElements = [], layouts = [], repIndices = [];
+let particles = null, round = 0, currentPair = null, weights = [.25,.25,.25,.25], stds = [0,0,0,0];
+
+function effectiveRatio(r, crop) { return r * (1 - crop); }
+function scalePenalty(nH, dH) { const s = dH / nH; return s > 1 ? (s-1)**2 : 0.1*(1-s)**2; }
+function mismatch(hs) {
+  if (hs.length < 2) return 0;
+  let t = 0, p = 0;
+  for (let i = 0; i < hs.length; i++) for (let j = i+1; j < hs.length; j++) { t += Math.log(hs[i]/hs[j])**2; p++; }
+  return t / p;
+}
+function sigmoid(x) { return 1 / (1 + Math.exp(-x)); }
+
+function combinations(arr, k) {
+  if (k === 0) return [[]];
+  if (arr.length < k) return [];
+  const [f, ...r] = arr;
+  return [...combinations(r, k-1).map(c => [f, ...c]), ...combinations(r, k)];
+}
+
+function partitions2(indices) {
+  const res = [], n = indices.length;
+  for (let m = 1; m < (1 << n) - 1; m++) {
+    const r1 = [], r2 = [];
+    for (let i = 0; i < n; i++) (m & (1 << i)) ? r1.push(indices[i]) : r2.push(indices[i]);
+    if (r1.length && r2.length && r1[0] < r2[0]) res.push([r1, r2]);
+  }
+  return res;
+}
+
+function evalRow(imgs, idx, crop) {
+  const rats = idx.map(i => effectiveRatio(imgs[i].ratio, crop));
+  const sr = rats.reduce((a,b) => a+b, 0);
+  if (!sr) return null;
+  let h = CANVAS_W / sr; if (h > CANVAS_H) h = CANVAS_H;
+  const tw = h * sr, cov = (Math.min(tw, CANVAS_W) * h) / (CANVAS_W * CANVAS_H);
+  return { rows: [idx], rowHeights: [h], crop, components: { blank: 1-cov, crop, scale: idx.reduce((a,i) => a+scalePenalty(imgs[i].h, h), 0)/idx.length, mismatch: mismatch(idx.map(i => imgs[i].h)) }, coverage: cov };
+}
+
+function eval2Row(imgs, r1, r2, crop) {
+  const sr1 = r1.map(i => effectiveRatio(imgs[i].ratio, crop)).reduce((a,b) => a+b, 0);
+  const sr2 = r2.map(i => effectiveRatio(imgs[i].ratio, crop)).reduce((a,b) => a+b, 0);
+  if (!sr1 || !sr2) return null;
+  let h1 = CANVAS_H * sr2 / (sr1+sr2), h2 = CANVAS_H - h1;
+  let w1 = h1*sr1, w2 = h2*sr2;
+  if (w1 > CANVAS_W) { h1 *= CANVAS_W/w1; w1 = CANVAS_W; }
+  if (w2 > CANVAS_W) { h2 *= CANVAS_W/w2; w2 = CANVAS_W; }
+  const all = [...r1,...r2], cov = (w1*h1 + w2*h2) / (CANVAS_W*CANVAS_H);
+  const s1 = r1.reduce((a,i) => a+scalePenalty(imgs[i].h, h1), 0);
+  const s2 = r2.reduce((a,i) => a+scalePenalty(imgs[i].h, h2), 0);
+  return { rows: [r1,r2], rowHeights: [h1,h2], crop, components: { blank: 1-cov, crop, scale: (s1+s2)/all.length, mismatch: (mismatch(r1.map(i=>imgs[i].h)) + mismatch(r2.map(i=>imgs[i].h))) / 2 }, coverage: cov };
+}
+
+function computeAll(imgs) {
+  const out = [], idx = imgs.map((_,i) => i);
+  const crops = Array.from({length: CROP_STEPS+1}, (_,i) => MAX_CROP*i/CROP_STEPS);
+  for (let sz = MIN_IMAGES; sz <= imgs.length; sz++)
+    for (const sub of combinations(idx, sz))
+      for (const c of crops) {
+        const sr = evalRow(imgs, sub, c); if (sr) out.push(sr);
+        if (sub.length >= 3) for (const [a,b] of partitions2(sub)) { const tr = eval2Row(imgs, a, b, c); if (tr) out.push(tr); }
+      }
+  return out;
+}
+
+function selectReps(layouts, n=30) {
+  if (layouts.length <= n) return layouts.map((_,i) => i);
+  const sel = new Set(), keys = ["blank","crop","scale","mismatch"];
+  for (const k of keys) {
+    const sorted = layouts.map((l,i) => [i, l.components[k]]).sort((a,b) => a[1]-b[1]);
+    for (let j = 0; j < Math.ceil(n/4); j++) sel.add(sorted[Math.floor(j*(sorted.length-1)/(Math.ceil(n/4)-1))][0]);
+  }
+  while (sel.size < n && sel.size < layouts.length) sel.add(Math.floor(Math.random()*layouts.length));
+  return [...sel];
+}
+
+function initParticles() {
+  return Array.from({length: NUM_PARTICLES}, () => {
+    const r = [Math.random(), Math.random(), Math.random(), Math.random()];
+    const s = r.reduce((a,b)=>a+b,0);
+    return { w: r.map(v=>v/s), weight: 1/NUM_PARTICLES };
+  });
+}
+
+function cost(layout, w) {
+  const c = layout.components;
+  return w[0]*c.blank + w[1]*c.crop + w[2]*c.scale + w[3]*c.mismatch;
+}
+
+function updateParticles(parts, la, lb, prefA) {
+  const upd = parts.map(p => {
+    const ca = cost(la, p.w), cb = cost(lb, p.w);
+    const diff = prefA ? TEMP*(cb-ca) : TEMP*(ca-cb);
+    return { ...p, weight: p.weight * sigmoid(diff) };
+  });
+  const tw = upd.reduce((a,p) => a+p.weight, 0);
+  if (tw === 0) return initParticles();
+  upd.forEach(p => p.weight /= tw);
+  const ess = 1 / upd.reduce((a,p) => a+p.weight**2, 0);
+  if (ess < NUM_PARTICLES/3) {
+    const cdf = []; let cum = 0;
+    for (const p of upd) { cum += p.weight; cdf.push(cum); }
+    return Array.from({length: NUM_PARTICLES}, () => {
+      const idx = cdf.findIndex(v => v >= Math.random());
+      const base = upd[Math.max(0,idx)].w;
+      const noise = base.map(v => Math.max(0.01, v + (Math.random()-0.5)*0.04));
+      const s = noise.reduce((a,b)=>a+b,0);
+      return { w: noise.map(v=>v/s), weight: 1/NUM_PARTICLES };
+    });
+  }
+  return upd;
+}
+
+function expectedWeights(parts) {
+  const w = [0,0,0,0];
+  for (const p of parts) for (let i=0;i<4;i++) w[i] += p.w[i]*p.weight;
+  const s = w.reduce((a,b)=>a+b,0);
+  return w.map(v=>v/s);
+}
+
+function weightStd(parts, ew) {
+  const v = [0,0,0,0];
+  for (const p of parts) for (let i=0;i<4;i++) v[i] += p.weight*(p.w[i]-ew[i])**2;
+  return v.map(x=>Math.sqrt(x));
+}
+
+function selectPair(layouts, reps, parts) {
+  let best = null, bestE = -1;
+  for (let a=0; a<reps.length; a++) for (let b=a+1; b<reps.length; b++) {
+    let pA = 0;
+    for (const p of parts) if (cost(layouts[reps[a]], p.w) < cost(layouts[reps[b]], p.w)) pA += p.weight;
+    const e = -(pA*Math.log(pA+1e-10) + (1-pA)*Math.log(1-pA+1e-10));
+    if (e > bestE) { bestE = e; best = [reps[a], reps[b]]; }
+  }
+  return best;
+}
+
+function renderLayout(canvas, imgs, elems, layout, scaleMul=1) {
+  const pw = PREVIEW_W * scaleMul, ph = PREVIEW_H * scaleMul;
+  const s = pw / CANVAS_W;
+  canvas.width = pw; canvas.height = ph;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = BG; ctx.fillRect(0, 0, pw, ph);
+  const l = layout;
+
+  if (l.rows.length === 1) {
+    const row = l.rows[0], h = l.rowHeights[0];
+    const rats = row.map(i => effectiveRatio(imgs[i].ratio, l.crop));
+    const ws = rats.map(r => h * r);
+    const tw = ws.reduce((a,b)=>a+b,0);
+    let x = (CANVAS_W - tw)/2, y = (CANVAS_H - h)/2;
+    row.forEach((idx, k) => {
+      const img = elems[idx]; if (!img) return;
+      const cp = imgs[idx].w * l.crop;
+      ctx.drawImage(img, cp/2, 0, imgs[idx].w-cp, imgs[idx].h, x*s, y*s, ws[k]*s, h*s);
+      x += ws[k];
+    });
+  } else if (l.rows.length === 2) {
+    const d = l.rows.map((row, ri) => {
+      const h = l.rowHeights[ri];
+      const ws = row.map(i => effectiveRatio(imgs[i].ratio, l.crop) * h);
+      return { row, h, ws, tw: ws.reduce((a,b)=>a+b,0) };
+    });
+    const sf = d[0].tw / d[1].tw, r2h = d[1].h * sf;
+    let yS = (CANVAS_H - d[0].h - r2h) / 2;
+    d.forEach((rd, ri) => {
+      const dh = ri === 0 ? rd.h : r2h;
+      const dw = ri === 0 ? rd.ws : rd.ws.map(w => w * sf);
+      let x = (CANVAS_W - dw.reduce((a,b)=>a+b,0)) / 2;
+      rd.row.forEach((idx, k) => {
+        const img = elems[idx]; if (!img) return;
+        const cp = imgs[idx].w * l.crop;
+        ctx.drawImage(img, cp/2, 0, imgs[idx].w-cp, imgs[idx].h, x*s, yS*s, dw[k]*s, dh*s);
+        x += dw[k];
+      });
+      yS += dh;
+    });
+  }
+}
+
+// DOM
+const $upload = document.getElementById("phase-upload");
+const $compare = document.getElementById("phase-compare");
+const $done = document.getElementById("phase-done");
+const $dropZone = document.getElementById("dropZone");
+const $fileInput = document.getElementById("fileInput");
+const $chips = document.getElementById("imageChips");
+const $startBtn = document.getElementById("startBtn");
+const $roundLabel = document.getElementById("roundLabel");
+const $canvasA = document.getElementById("canvasA");
+const $canvasB = document.getElementById("canvasB");
+const $cardA = document.getElementById("cardA");
+const $cardB = document.getElementById("cardB");
+const $infoA = document.getElementById("infoA");
+const $infoB = document.getElementById("infoB");
+const $weightsGrid = document.getElementById("weightsGrid");
+const $progress = document.getElementById("progressFill");
+const $resultWeights = document.getElementById("resultWeights");
+const $resultCmd = document.getElementById("resultCmd");
+const $resultCanvas = document.getElementById("resultCanvas");
+const $resultMeta = document.getElementById("resultMeta");
+
+function showPhase(name) {
+  $upload.classList.toggle("hidden", name !== "upload");
+  $compare.classList.toggle("hidden", name !== "compare");
+  $done.classList.toggle("hidden", name !== "done");
+}
+
+// Build weight grid HTML once
+$weightsGrid.innerHTML = LABELS.map((label, i) => `
+  <div class="weight-item">
+    <div class="wlabel">${label}</div>
+    <div class="weight-bar">
+      <div class="weight-fill" id="wfill${i}" style="background:${COLORS[i]};height:25%"></div>
+      <div class="weight-val" id="wval${i}">25%</div>
+    </div>
+    <div class="weight-std" id="wstd${i}">±0.0</div>
+  </div>
+`).join("");
+
+function updateWeightsUI() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById(`wfill${i}`).style.height = `${weights[i]*100*2.5}%`;
+    document.getElementById(`wval${i}`).textContent = `${(weights[i]*100).toFixed(0)}%`;
+    document.getElementById(`wstd${i}`).textContent = `±${(stds[i]*100).toFixed(1)}`;
+  }
+  $progress.style.width = `${(round/MAX_ROUNDS)*100}%`;
+}
+
+function layoutInfo(l) {
+  const names = l.rows.flat().map(i => images[i].name.replace(/\.[^.]+$/, "")).join(", ");
+  return `${l.rows.length} row${l.rows.length>1?"s":""} · ${l.rows.flat().length} imgs · ${(l.coverage*100).toFixed(0)}% coverage · ${(l.crop*100).toFixed(0)}% crop<div class="names">${names}</div>`;
+}
+
+function showPair() {
+  $roundLabel.textContent = `Round ${round}/${MAX_ROUNDS}`;
+  renderLayout($canvasA, images, imgElements, layouts[currentPair[0]]);
+  renderLayout($canvasB, images, imgElements, layouts[currentPair[1]]);
+  $infoA.innerHTML = layoutInfo(layouts[currentPair[0]]);
+  $infoB.innerHTML = layoutInfo(layouts[currentPair[1]]);
+  updateWeightsUI();
+}
+
+function handlePref(prefA) {
+  const la = layouts[currentPair[0]], lb = layouts[currentPair[1]];
+  particles = updateParticles(particles, la, lb, prefA);
+  weights = expectedWeights(particles);
+  stds = weightStd(particles, weights);
+
+  if (round >= MAX_ROUNDS) {
+    let best = null, bc = Infinity;
+    for (const l of layouts) { const c = cost(l, weights); if (c < bc) { bc = c; best = l; } }
+    showDone(best);
+    return;
+  }
+  currentPair = selectPair(layouts, repIndices, particles);
+  round++;
+  showPair();
+}
+
+function showDone(best) {
+  showPhase("done");
+  $resultWeights.innerHTML = LABELS.map((label, i) =>
+    `<div><div class="result-num" style="color:${COLORS[i]}">${weights[i].toFixed(2)}</div><div class="result-label">${label}</div></div>`
+  ).join("");
+  $resultCmd.textContent = `--weights ${weights.map(w=>w.toFixed(2)).join(" ")}`;
+  renderLayout($resultCanvas, images, imgElements, best, 2);
+  const names = best.rows.flat().map(i => images[i].name).join(", ");
+  $resultMeta.textContent = `${best.rows.length} row${best.rows.length>1?"s":""} · ${names} · ${(best.coverage*100).toFixed(1)}% coverage · ${(best.crop*100).toFixed(0)}% crop · heights: ${best.rowHeights.map(h=>`${Math.round(h)}px`).join(" + ")}`;
+}
+
+async function handleFiles(files) {
+  images = []; imgElements = [];
+  for (const file of files) {
+    if (!file.type.startsWith("image/")) continue;
+    const url = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(file); });
+    const img = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = url; });
+    images.push({ name: file.name, w: img.naturalWidth, h: img.naturalHeight, ratio: img.naturalWidth/img.naturalHeight });
+    imgElements.push(img);
+  }
+  $chips.innerHTML = images.map(im =>
+    `<div class="image-chip"><div class="name">${im.name}</div><div class="dims">${im.w}×${im.h} (r=${im.ratio.toFixed(3)})</div></div>`
+  ).join("");
+  $startBtn.classList.toggle("hidden", images.length < 3);
+  $startBtn.textContent = `Start calibration (${images.length} images)`;
+}
+
+$dropZone.addEventListener("click", () => $fileInput.click());
+$dropZone.addEventListener("dragover", e => e.preventDefault());
+$dropZone.addEventListener("drop", e => { e.preventDefault(); handleFiles([...e.dataTransfer.files]); });
+$fileInput.addEventListener("change", e => handleFiles([...e.target.files]));
+
+$startBtn.addEventListener("click", () => {
+  if (images.length < 3) return;
+  layouts = computeAll(images);
+  repIndices = selectReps(layouts);
+  particles = initParticles();
+  currentPair = selectPair(layouts, repIndices, particles);
+  round = 1;
+  weights = [.25,.25,.25,.25]; stds = [0,0,0,0];
+  showPhase("compare");
+  showPair();
+});
+
+$cardA.addEventListener("click", () => handlePref(true));
+$cardB.addEventListener("click", () => handlePref(false));
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  images = []; imgElements = []; layouts = []; round = 0;
+  $chips.innerHTML = ""; $startBtn.classList.add("hidden");
+  showPhase("upload");
+});
+document.getElementById("recalBtn").addEventListener("click", () => {
+  particles = initParticles(); round = 1;
+  weights = [.25,.25,.25,.25]; stds = [0,0,0,0];
+  currentPair = selectPair(layouts, repIndices, particles);
+  showPhase("compare");
+  showPair();
+});
+</script>
+</body>
+</html>
