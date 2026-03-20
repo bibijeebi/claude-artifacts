@@ -129,6 +129,8 @@ function initMap(){
     // Satellite raster source (hidden, under everything)
     map.addSource('satellite',{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Esri, Maxar, Earthstar'});
     map.addLayer({id:'sat-layer',type:'raster',source:'satellite',layout:{visibility:'none'},paint:{'raster-opacity':0}});
+    map.addSource('carto-labels',{type:'raster',tiles:['https://basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png'],tileSize:256});
+    map.addLayer({id:'label-layer',type:'raster',source:'carto-labels',layout:{visibility:'none'},paint:{'raster-opacity':0.9}});
 
     // Load US states topojson
     try{
@@ -164,7 +166,7 @@ function addStateLayers(geo){
   map.addLayer({id:'sf',type:'fill',source:'states',paint:{'fill-color':['case',['==',['get','hasData'],1],['interpolate',['linear'],['get','total'],0,'#1a3626',500,'#1e4d32',2000,'#22713f',5000,'#2d9a50',10000,'#4ade80',20000,'#86efac'],'rgba(255,255,255,0.03)'],'fill-opacity':0.6}});
   map.addLayer({id:'sb',type:'line',source:'states',paint:{'line-color':'rgba(255,255,255,0.12)','line-width':1}});
   map.addLayer({id:'sh',type:'fill',source:'states',paint:{'fill-color':'#4ade80','fill-opacity':0.25},filter:['==','abbr','']});
-  try{map.moveLayer('sat-layer','sf')}catch(e){}
+  try{map.moveLayer('sat-layer','sf');map.moveLayer('label-layer')}catch(e){}
   statesReady=true;
 
   map.on('mousemove','sf',e=>{
@@ -188,6 +190,7 @@ function showSatellite(on){
   satVisible=on;
   if(on){
     safeSetLayout('sat-layer','visibility','visible');
+    safeSetLayout('label-layer','visibility','visible');
     safeSetLayout('sf','visibility','none');
     safeSetLayout('sb','visibility','none');
     safeSetLayout('sh','visibility','none');
@@ -195,6 +198,7 @@ function showSatellite(on){
   }else{
     map.setPaintProperty('sat-layer','raster-opacity',0);
     safeSetLayout('sat-layer','visibility','none');
+    safeSetLayout('label-layer','visibility','none');
     safeSetLayout('sf','visibility','visible');
     safeSetLayout('sb','visibility','visible');
     safeSetLayout('sh','visibility','visible');
@@ -332,8 +336,26 @@ function plotPoints(){
 async function onClusterClick(e){
   const f=map.queryRenderedFeatures(e.point,{layers:['cl']});
   if(!f.length)return;
-  const z=await map.getSource('pts').getClusterExpansionZoom(f[0].properties.cluster_id);
-  map.flyTo({center:f[0].geometry.coordinates,zoom:z,duration:700});
+  const clusterId=f[0].properties.cluster_id;
+  const center=f[0].geometry.coordinates;
+  try{
+    const leaves=await new Promise((resolve,reject)=>{
+      map.getSource('pts').getClusterLeaves(clusterId,200,0,(err,features)=>{
+        if(err)reject(err);else resolve(features);
+      });
+    });
+    // Put cluster contents into sidebar
+    vpFeats=leaves.map(l=>({...l.properties,_t:l.properties._t,lat:l.geometry.coordinates[1],lng:l.geometry.coordinates[0]}));
+    listLim=80;selId=null;
+    document.getElementById('vp-count').textContent=vpFeats.length+' in cluster';
+    renderVPList();
+    // Also zoom in a bit
+    map.easeTo({center,zoom:Math.min(map.getZoom()+2,15),duration:600});
+  }catch(err){
+    // Fallback: just zoom
+    const z=await map.getSource('pts').getClusterExpansionZoom(clusterId);
+    map.flyTo({center,zoom:z,duration:700});
+  }
 }
 function onPointClick(e){
   if(!e.features.length)return;
