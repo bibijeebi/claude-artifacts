@@ -125,6 +125,45 @@ function initMap(){
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
   map.addControl(new maplibregl.GeolocateControl({positionOptions:{enableHighAccuracy:true},trackUserLocation:false}),'top-right');
 
+  // Global click handler - queries rendered features at click point
+  map.on('click',async(e)=>{
+    if(!curSt)return; // only in state view
+    // Check clusters first
+    const clusters=map.queryRenderedFeatures(e.point,{layers:hasLayer('cl')?['cl']:[]});
+    if(clusters.length){
+      const clusterId=clusters[0].properties.cluster_id;
+      const center=clusters[0].geometry.coordinates;
+      try{
+        const leaves=await new Promise((res,rej)=>{
+          map.getSource('pts').getClusterLeaves(clusterId,200,0,(err,f)=>err?rej(err):res(f));
+        });
+        vpFeats=leaves.map(l=>({...l.properties,_t:l.properties._t,lat:l.geometry.coordinates[1],lng:l.geometry.coordinates[0]}));
+        listLim=80;selId=null;
+        document.getElementById('vp-count').textContent=vpFeats.length+' in cluster';
+        renderVPList();
+        suppressVP=true;map.easeTo({center,zoom:Math.min(map.getZoom()+2,15),duration:600});setTimeout(()=>{suppressVP=false},700);
+      }catch(err){
+        const z=await map.getSource('pts').getClusterExpansionZoom(clusterId);
+        map.flyTo({center,zoom:z,duration:700});
+      }
+      return;
+    }
+    // Check unclustered points
+    const points=map.queryRenderedFeatures(e.point,{layers:hasLayer('up')?['up']:[]});
+    if(points.length){
+      const coords=points[0].geometry.coordinates;
+      selectPointByCoords(coords[0],coords[1]);
+      return;
+    }
+  });
+
+  // Cursor changes
+  map.on('mousemove',(e)=>{
+    if(!curSt)return;
+    const f=map.queryRenderedFeatures(e.point,{layers:[...(hasLayer('cl')?['cl']:[]),...(hasLayer('up')?['up']:[])]});
+    map.getCanvas().style.cursor=f.length?'pointer':'';
+  });
+
   map.on('load',async()=>{
     // Satellite raster source (hidden, under everything)
     map.addSource('satellite',{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Esri, Maxar, Earthstar'});
@@ -324,48 +363,10 @@ function plotPoints(){
   }catch(e){console.error('plotPoints layer error:',e)}
 
   // Click handlers (using once-bound approach to prevent duplicates)
-  // Remove old handlers to prevent stacking
-  if(window._clHandler)map.off('click','cl',window._clHandler);
-  if(window._upHandler)map.off('click','up',window._upHandler);
-  window._clHandler=onClusterClick;
-  window._upHandler=onPointClick;
-  map.on('click','cl',window._clHandler);
-  map.on('click','up',window._upHandler);
-  map.on('mouseenter','cl',()=>map.getCanvas().style.cursor='pointer');
-  map.on('mouseleave','cl',()=>map.getCanvas().style.cursor='');
-  map.on('mouseenter','up',()=>map.getCanvas().style.cursor='pointer');
-  map.on('mouseleave','up',()=>map.getCanvas().style.cursor='');
+
 }
 
-async function onClusterClick(e){
-  const f=map.queryRenderedFeatures(e.point,{layers:['cl']});
-  if(!f.length)return;
-  const clusterId=f[0].properties.cluster_id;
-  const center=f[0].geometry.coordinates;
-  try{
-    const leaves=await new Promise((resolve,reject)=>{
-      map.getSource('pts').getClusterLeaves(clusterId,200,0,(err,features)=>{
-        if(err)reject(err);else resolve(features);
-      });
-    });
-    // Put cluster contents into sidebar
-    vpFeats=leaves.map(l=>({...l.properties,_t:l.properties._t,lat:l.geometry.coordinates[1],lng:l.geometry.coordinates[0]}));
-    listLim=80;selId=null;
-    document.getElementById('vp-count').textContent=vpFeats.length+' in cluster';
-    renderVPList();
-    // Also zoom in a bit
-    suppressVP=true;map.easeTo({center,zoom:Math.min(map.getZoom()+2,15),duration:600});setTimeout(()=>{suppressVP=false},700);
-  }catch(err){
-    // Fallback: just zoom
-    const z=await map.getSource('pts').getClusterExpansionZoom(clusterId);
-    map.flyTo({center,zoom:z,duration:700});
-  }
-}
-function onPointClick(e){
-  if(!e.features.length)return;
-  const coords=e.features[0].geometry.coordinates;
-  selectPointByCoords(coords[0],coords[1]);
-}
+// Click handling moved to global handler in initMap
 
 function renderAllPoints(){
   // Show all points from curD (not viewport filtered) - used on initial load
