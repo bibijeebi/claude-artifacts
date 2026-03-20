@@ -94,7 +94,7 @@ const FP={1:'AL',2:'AK',4:'AZ',5:'AR',6:'CA',8:'CO',9:'CT',10:'DE',12:'FL',13:'G
 const CTR={AL:[-86.8,32.8],AK:[-153,64],AR:[-92.4,34.8],CA:[-119.4,37.2],CO:[-105.5,39],CT:[-72.7,41.6],DE:[-75.5,39],FL:[-81.7,28.7],GA:[-83.4,32.6],HI:[-155.5,20],ID:[-114.7,44.4],IN:[-86.3,40],IA:[-93.5,42],KY:[-85.3,37.8],LA:[-91.8,31],ME:[-69.2,45.4],MD:[-76.6,39.05],MA:[-71.8,42.3],MI:[-84.5,44.3],MN:[-94.3,46.3],MS:[-89.7,32.7],MO:[-92.5,38.4],MT:[-109.6,47],NE:[-99.8,41.5],NH:[-71.6,43.7],NJ:[-74.7,40.1],NM:[-106,34.5],NY:[-75.5,43],NC:[-79.4,35.5],ND:[-100.5,47.5],OH:[-82.7,40.4],OR:[-120.5,44],PA:[-77.6,41],RI:[-71.5,41.7],SC:[-80.9,34],TN:[-86.3,35.8],TX:[-99.3,31.5],UT:[-111.7,39.3],VT:[-72.6,44],VA:[-79.4,37.5],WA:[-120.7,47.5],WV:[-80.6,38.6],WI:[-89.8,44.6]};
 const SZM={AK:3.5,HI:6,TX:5.2,CA:5.2,MT:5.5,FL:5.8,RI:9,DE:8,CT:8,NJ:7,MA:7.5,NH:7.5,VT:7.5,MD:7,WV:7};
 
-let idx=[],map,curSt=null,curD=null,aTypes=new Set(),aFilt={ramp:0,dock:0,pier:0,ada:0,camping:0};
+let idx=[],map,curSt=null,curD=null,aTypes=new Set(),aFilt={ramp:0,dock:0,pier:0,ada:0,camping:0},suppressVP=false;
 let selId=null,listLim=80,vpFeats=[],statesReady=false,satVisible=false;
 
 // Safe layer helpers
@@ -324,9 +324,13 @@ function plotPoints(){
   }catch(e){console.error('plotPoints layer error:',e)}
 
   // Click handlers (using once-bound approach to prevent duplicates)
-  map.off('click',onClusterClick);map.off('click',onPointClick);
-  map.on('click','cl',onClusterClick);
-  map.on('click','up',onPointClick);
+  // Remove old handlers to prevent stacking
+  if(window._clHandler)map.off('click','cl',window._clHandler);
+  if(window._upHandler)map.off('click','up',window._upHandler);
+  window._clHandler=onClusterClick;
+  window._upHandler=onPointClick;
+  map.on('click','cl',window._clHandler);
+  map.on('click','up',window._upHandler);
   map.on('mouseenter','cl',()=>map.getCanvas().style.cursor='pointer');
   map.on('mouseleave','cl',()=>map.getCanvas().style.cursor='');
   map.on('mouseenter','up',()=>map.getCanvas().style.cursor='pointer');
@@ -350,7 +354,7 @@ async function onClusterClick(e){
     document.getElementById('vp-count').textContent=vpFeats.length+' in cluster';
     renderVPList();
     // Also zoom in a bit
-    map.easeTo({center,zoom:Math.min(map.getZoom()+2,15),duration:600});
+    suppressVP=true;map.easeTo({center,zoom:Math.min(map.getZoom()+2,15),duration:600});setTimeout(()=>{suppressVP=false},700);
   }catch(err){
     // Fallback: just zoom
     const z=await map.getSource('pts').getClusterExpansionZoom(clusterId);
@@ -379,7 +383,7 @@ function renderAllPoints(){
 }
 
 function onVP(){
-  if(!curD)return;
+  if(!curD||suppressVP)return;
   try{
     const b=map.getBounds(),sw=b.getSouthWest(),ne=b.getNorthEast();
     vpFeats=[];
@@ -392,7 +396,7 @@ function onVP(){
       }
     }
   }catch(e){return}
-  listLim=80;selId=null;
+  listLim=80;
   document.getElementById('vp-count').textContent=`${vpFeats.length.toLocaleString()} in view`;
   renderVPList();
 }
