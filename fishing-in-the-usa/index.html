@@ -79,6 +79,17 @@ a{color:var(--accent);text-decoration:none}
 .load-more{display:block;width:100%;padding:.45rem;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.75rem;text-align:center;margin-top:2px}.load-more:hover{border-color:var(--accent);color:var(--accent)}
 #mtoggle{display:none;position:fixed;top:10px;left:10px;z-index:2000;width:40px;height:40px;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:18px;cursor:pointer;text-align:center;line-height:40px}
 @media(max-width:768px){#sidebar{position:fixed;left:0;top:0;width:88vw;max-width:380px;z-index:1500;transform:translateX(-100%)}#sidebar.open{transform:translateX(0)}#mtoggle{display:block}}
+.leaflet-tooltip{background:rgba(10,20,14,.92)!important;border:1px solid rgba(255,255,255,.12)!important;color:#e8efe9!important;font-family:'DM Sans',sans-serif!important;font-size:12px!important;padding:6px 10px!important;border-radius:8px!important;box-shadow:0 4px 12px rgba(0,0,0,.4)!important;max-width:260px!important}
+.leaflet-tooltip::before{border-top-color:rgba(10,20,14,.92)!important}
+.leaflet-tooltip .tt-title{font-weight:600;margin-bottom:3px;font-size:13px}
+.leaflet-tooltip .tt-sub{color:#9ab5a2;font-size:11px;line-height:1.4}
+.leaflet-tooltip .tt-hint{color:#6a8a72;font-size:10px;margin-top:4px;font-style:italic}
+.ctx-menu{position:fixed;z-index:3000;background:rgba(10,20,14,.95);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:4px 0;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,.5);font-size:13px;display:none}
+.ctx-menu.show{display:block}
+.ctx-item{padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;color:#e8efe9;transition:background .1s}
+.ctx-item:hover{background:rgba(74,222,128,.1)}
+.ctx-item .ci-icon{font-size:14px;width:18px;text-align:center}
+.ctx-sep{height:1px;background:rgba(255,255,255,.08);margin:3px 0}
 .spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:2rem auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -101,6 +112,7 @@ a{color:var(--accent);text-decoration:none}
 </div>
 <div id="map"></div>
 </div>
+<div class="ctx-menu" id="ctx-menu"></div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
@@ -146,6 +158,7 @@ function initMap(){
 
   // Viewport change -> update sidebar
   map.on('moveend',onVP);
+  map.on('contextmenu',function(){});
 
   if(location.hash){const st=location.hash.slice(1).toUpperCase();if(idx.find(x=>x.id===st))setTimeout(()=>selState(st),500)}
 }
@@ -251,9 +264,11 @@ function plotPoints(){
       const icon=L.divIcon({className:'',html:`<div class="fish-marker" style="width:14px;height:14px;background:${color}"></div>`,iconSize:[14,14],iconAnchor:[7,7]});
       const m=L.marker([r.lat,r.lng],{icon});
       m._fdata={...r,_t:type};
+      const nm=r.name||r.waterbody||'Unknown';
+      const sub=r.county?r.county+(r.waterbody&&r.waterbody!==nm?' · '+r.waterbody:''):(r.waterbody&&r.waterbody!==nm?r.waterbody:'');
+      m.bindTooltip(`<div class="tt-title">${esc(nm)}</div>${sub?'<div class="tt-sub">'+esc(sub)+'</div>':''}`,{direction:'top',offset:[0,-10]});
       m.on('click',function(){
         const d=this._fdata;
-        // Find in vpFeats and select
         for(let i=0;i<vpFeats.length&&i<listLim;i++){
           if(vpFeats[i].lat===d.lat&&vpFeats[i].lng===d.lng){
             selId=`vp-${i}`;renderVPList();
@@ -261,13 +276,50 @@ function plotPoints(){
             return;
           }
         }
-        // Not in current viewport list, add it
         vpFeats.unshift(d);selId='vp-0';renderVPList();
         const el=document.getElementById('vp-0');if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+      });
+      m.on('contextmenu',function(e){
+        L.DomEvent.preventDefault(e);
+        const d=this._fdata;
+        showCtx(e.originalEvent,[
+          {icon:'📍',label:'Open in Google Maps',action:()=>window.open(`https://www.google.com/maps?q=${d.lat},${d.lng}`,'_blank')},
+          {icon:'📋',label:`Copy coords (${d.lat.toFixed(4)}, ${d.lng.toFixed(4)})`,action:()=>navigator.clipboard.writeText(`${d.lat},${d.lng}`)},
+          {icon:'🔍',label:'Show details in sidebar',action:()=>{
+            for(let i=0;i<vpFeats.length&&i<listLim;i++){if(vpFeats[i].lat===d.lat&&vpFeats[i].lng===d.lng){selId=`vp-${i}`;renderVPList();document.getElementById(selId)?.scrollIntoView({behavior:'smooth',block:'nearest'});return}}
+            vpFeats.unshift(d);selId='vp-0';renderVPList();document.getElementById('vp-0')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+          }}
+        ]);
       });
       clusterGroup.addLayer(m);
     }
   }
+  // Cluster tooltips + right-click
+  clusterGroup.on('clustermouseover',function(e){
+    const children=e.layer.getAllChildMarkers();
+    const counts={};let names=[];
+    for(const c of children){
+      const d=c._fdata;if(!d)continue;
+      const t=d._t;counts[t]=(counts[t]||0)+1;
+      if(names.length<5)names.push(d.name||d.waterbody||'Unknown');
+    }
+    let tip='<div class="tt-title">'+children.length+' spots</div><div class="tt-sub">';
+    for(const[t,n]of Object.entries(counts))tip+='<span style="color:'+COL[t]+'">●</span> '+n+' '+TL[t]+'<br>';
+    if(names.length)tip+=names.map(n=>esc(n)).join(', ')+(children.length>5?'...':'');
+    tip+='</div><div class="tt-hint">Click to zoom · Right-click to list all</div>';
+    e.layer.bindTooltip(tip,{direction:'top',offset:[0,-20],sticky:false}).openTooltip();
+  });
+  clusterGroup.on('clustermouseout',function(e){e.layer.closeTooltip();e.layer.unbindTooltip()});
+  clusterGroup.on('clustercontextmenu',function(e){
+    L.DomEvent.preventDefault(e);
+    const children=e.layer.getAllChildMarkers();
+    const items=children.map(c=>c._fdata).filter(Boolean);
+    vpFeats=items;listLim=80;selId=null;
+    document.getElementById('vp-count').textContent=items.length+' in cluster';
+    renderVPList();
+    document.getElementById('point-scroll').scrollTop=0;
+  });
+
   map.addLayer(clusterGroup);
 }
 
@@ -350,6 +402,17 @@ function backToList(){
   document.getElementById('panel-states').classList.add('active');
   map.flyTo([39,-98],4,{duration:1});
 }
+
+function showCtx(e,items){
+  const menu=document.getElementById('ctx-menu');
+  menu.innerHTML=items.map(it=>it.sep?'<div class="ctx-sep"></div>':`<div class="ctx-item" onclick="this._action()"><span class="ci-icon">${it.icon}</span>${it.label}</div>`).join('');
+  menu.querySelectorAll('.ctx-item').forEach((el,i)=>{const item=items.filter(x=>!x.sep)[i];if(item)el._action=()=>{hideCtx();item.action()}});
+  menu.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';
+  menu.style.top=Math.min(e.clientY,window.innerHeight-menu.children.length*35-10)+'px';
+  menu.classList.add('show');
+  setTimeout(()=>document.addEventListener('click',hideCtx,{once:true}),10);
+}
+function hideCtx(){document.getElementById('ctx-menu').classList.remove('show')}
 
 function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
 window.addEventListener('hashchange',()=>{if(!location.hash&&curSt)backToList();else if(location.hash){const s=location.hash.slice(1).toUpperCase();if(s!==(curSt&&curSt.id)&&idx.find(x=>x.id===s))selState(s)}});
