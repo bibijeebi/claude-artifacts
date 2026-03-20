@@ -125,11 +125,14 @@ function initMap(){
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
   map.addControl(new maplibregl.GeolocateControl({positionOptions:{enableHighAccuracy:true},trackUserLocation:false}),'top-right');
 
-  // Global click handler - queries rendered features at click point
+  // Global click handler - bbox query for fat click targets
   map.on('click',async(e)=>{
-    if(!curSt)return; // only in state view
+    if(!curSt)return;
+    const px=e.point;
+    const bbox=[[px.x-15,px.y-15],[px.x+15,px.y+15]];
     // Check clusters first
-    const clusters=map.queryRenderedFeatures(e.point,{layers:hasLayer('cl')?['cl']:[]});
+    const clLayers=hasLayer('cl')?['cl']:[];
+    const clusters=clLayers.length?map.queryRenderedFeatures(bbox,{layers:clLayers}):[];
     if(clusters.length){
       const clusterId=clusters[0].properties.cluster_id;
       const center=clusters[0].geometry.coordinates;
@@ -149,7 +152,8 @@ function initMap(){
       return;
     }
     // Check unclustered points
-    const points=map.queryRenderedFeatures(e.point,{layers:hasLayer('up')?['up']:[]});
+    const upLayers=hasLayer('up')?['up']:[];
+    const points=upLayers.length?map.queryRenderedFeatures(bbox,{layers:upLayers}):[];
     if(points.length){
       const coords=points[0].geometry.coordinates;
       selectPointByCoords(coords[0],coords[1]);
