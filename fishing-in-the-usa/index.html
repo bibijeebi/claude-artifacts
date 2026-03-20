@@ -2,601 +2,278 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Fishing in the USA — 90,000+ Spots Across 43 States</title>
 <meta property="og:title" content="Fishing in the USA">
-<meta property="og:description" content="The most comprehensive fishing database in America. 90,000+ access sites, boat ramps, fish attractors, trout waters, and reefs across 43 states. Searchable, filterable, free.">
+<meta property="og:description" content="The most comprehensive fishing database in America. 90,000+ access sites, boat ramps, fish attractors, trout waters, and reefs across 43 states.">
 <meta property="og:url" content="https://niggerfaggot.club/fishing-in-the-usa/">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
---bg:#f7f5f0;--bg2:#edeae3;--text:#2c2c2c;--text2:#5a5a5a;--accent:#1b4332;
---accent2:#2d6a4f;--accent3:#40916c;--gold:#b68d40;--white:#fff;
---border:#d4d0c8;--hover:#f0ece4;--ramp:#2d6a4f;--dock:#1a73e8;
---pier:#6b21a8;--ada:#0369a1;--camp:#b45309;
-}
-html,body{overflow-x:hidden;font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text)}
-h1,h2,h3{font-family:'Libre Baskerville',serif}
-a{color:var(--accent2);text-decoration:none}
-a:hover{text-decoration:underline}
-
-/* HEADER */
-.header{background:var(--accent);color:var(--white);padding:2rem 0;text-align:center;position:relative;overflow:hidden}
-.header::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 20px,rgba(255,255,255,.02) 20px,rgba(255,255,255,.02) 40px)}
-.header h1{font-size:clamp(1.8rem,4vw,3rem);letter-spacing:.02em;position:relative}
-.header p{font-size:1.1rem;opacity:.85;margin-top:.4rem;font-weight:300;position:relative}
-.header .stats{display:flex;gap:2rem;justify-content:center;margin-top:1.2rem;flex-wrap:wrap;position:relative}
-.header .stat{text-align:center}
-.header .stat b{display:block;font-size:1.5rem;font-family:'Libre Baskerville',serif;color:var(--gold)}
-.header .stat span{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;opacity:.7}
-
-/* LAYOUT */
-.container{max-width:1400px;margin:0 auto;padding:0 1rem}
-.back-btn{display:none;padding:.6rem 1.2rem;background:var(--accent);color:var(--white);border:none;border-radius:4px;cursor:pointer;font-size:.9rem;font-family:'Source Sans 3',sans-serif;margin:1.5rem 0 .5rem}
-.back-btn:hover{background:var(--accent2)}
-
-/* MAP VIEW */
-#map-view{padding:2rem 0}
-#map-view h2{text-align:center;font-size:1.6rem;margin-bottom:.3rem;color:var(--accent)}
-#map-view .subtitle{text-align:center;color:var(--text2);margin-bottom:1.5rem;font-size:.95rem}
-.map-container{max-width:960px;margin:0 auto}
-.map-container svg{width:100%;height:auto}
-.map-container svg path{fill:var(--bg2);stroke:var(--white);stroke-width:1.5;cursor:pointer;transition:fill .15s}
-.map-container svg path:hover{fill:var(--accent3)}
-.map-container svg path.has-data{fill:#b7e4c7}
-.map-container svg path.has-data:hover{fill:var(--accent3)}
-.map-container svg path.active{fill:var(--accent)!important}
-
-/* STATE LIST (below map) */
-.state-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.5rem;margin:2rem 0}
-.state-card{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:.7rem .9rem;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:center}
-.state-card:hover{border-color:var(--accent);background:var(--hover);transform:translateY(-1px)}
-.state-card .name{font-weight:600;font-size:.9rem}
-.state-card .count{font-size:.8rem;color:var(--text2);background:var(--bg2);padding:2px 8px;border-radius:10px}
-
-/* STATE VIEW */
-#state-view{display:none;padding:1.5rem 0 3rem}
-.state-header{margin-bottom:1rem}
-.state-header h2{font-size:1.8rem;color:var(--accent)}
-.state-header .state-stats{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:.5rem}
-.state-header .state-stats span{font-size:.85rem;color:var(--text2)}
-.state-header .state-stats b{color:var(--text)}
-
-/* TABS */
-.tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.tab{padding:.6rem 1.2rem;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s;font-family:'Source Sans 3',sans-serif}
-.tab:hover{color:var(--accent);background:var(--hover)}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tab .badge{background:var(--bg2);padding:1px 6px;border-radius:8px;font-size:.75rem;margin-left:4px;font-weight:400}
-.tab.active .badge{background:var(--accent);color:var(--white)}
-
-/* FILTERS */
-.filters{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
-.search-box{flex:1;min-width:200px;padding:.5rem .8rem;border:1px solid var(--border);border-radius:4px;font-size:.9rem;font-family:'Source Sans 3',sans-serif;background:var(--white)}
-.search-box:focus{outline:none;border-color:var(--accent)}
-.filter-btn{padding:.4rem .8rem;border:1px solid var(--border);border-radius:4px;font-size:.8rem;cursor:pointer;background:var(--white);font-family:'Source Sans 3',sans-serif;transition:all .12s}
-.filter-btn:hover{border-color:var(--accent);background:var(--hover)}
-.filter-btn.on{background:var(--accent);color:var(--white);border-color:var(--accent)}
-select.county-filter{padding:.45rem .6rem;border:1px solid var(--border);border-radius:4px;font-size:.85rem;background:var(--white);font-family:'Source Sans 3',sans-serif;max-width:180px}
-
-/* TABLE */
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:6px;background:var(--white)}
-table{width:100%;border-collapse:collapse;font-size:.82rem}
-thead{position:sticky;top:0;z-index:2}
-th{background:var(--accent);color:var(--white);padding:.55rem .6rem;text-align:left;font-weight:600;cursor:pointer;white-space:nowrap;font-size:.78rem;letter-spacing:.02em;user-select:none}
-th:hover{background:var(--accent2)}
-th .sort-arrow{margin-left:3px;opacity:.5;font-size:.7rem}
-th.sorted .sort-arrow{opacity:1}
-td{padding:.45rem .6rem;border-bottom:1px solid #eee;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-tr:hover td{background:var(--hover)}
-tr:nth-child(even) td{background:#fafaf7}
-tr:nth-child(even):hover td{background:var(--hover)}
-td.yes{color:var(--ramp);font-weight:600}
-td.no{color:#aaa}
-td a.map-link{color:var(--accent2);font-size:.75rem;white-space:nowrap}
-.result-count{font-size:.8rem;color:var(--text2);margin-bottom:.4rem}
-.pagination{display:flex;gap:.3rem;justify-content:center;margin-top:1rem;align-items:center}
-.pagination button{padding:.3rem .7rem;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-size:.8rem;background:var(--white);font-family:'Source Sans 3',sans-serif}
-.pagination button:hover{background:var(--hover)}
-.pagination button.active{background:var(--accent);color:var(--white);border-color:var(--accent)}
-.pagination span{font-size:.8rem;color:var(--text2)}
-
-/* FOOTER */
-.footer{background:var(--accent);color:var(--white);padding:1.5rem;text-align:center;font-size:.8rem;opacity:.9;margin-top:2rem}
-
-/* DL LINK */
-.dl-bar{text-align:center;margin:1.5rem 0;padding:1rem;background:var(--white);border:1px solid var(--border);border-radius:6px}
-.dl-bar a{font-weight:600;color:var(--accent);font-size:.95rem}
-
+:root{--bg:#0a1a12;--sidebar:#0d1f15;--card:#142b1e;--card2:#1a3626;--text:#e8efe9;--text2:#9ab5a2;--text3:#6a8a72;--accent:#4ade80;--accent2:#22c55e;--gold:#d4a843;--border:rgba(255,255,255,.08);--glass:rgba(13,31,21,.88);--shadow:0 8px 32px rgba(0,0,0,.4);--radius:12px}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+h1,h2,h3{font-family:'DM Serif Display',serif;font-weight:400}
+a{color:var(--accent);text-decoration:none}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#app{display:flex;height:100vh;width:100vw;position:relative}
+#map{flex:1;height:100%}
+.maplibregl-popup-content{background:var(--card)!important;color:var(--text)!important;border-radius:var(--radius)!important;padding:0!important;box-shadow:var(--shadow)!important;border:1px solid var(--border)!important;max-width:320px!important;font-family:'DM Sans',sans-serif!important}
+.maplibregl-popup-tip{border-top-color:var(--card)!important}
+.maplibregl-popup-close-button{color:var(--text2)!important;font-size:18px!important;right:8px!important;top:6px!important}
+.maplibregl-ctrl-attrib{background:rgba(0,0,0,.5)!important;color:#888!important;font-size:10px!important}
+.maplibregl-ctrl-attrib a{color:#aaa!important}
+#sidebar{width:380px;height:100vh;background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-right:1px solid var(--border);display:flex;flex-direction:column;position:relative;z-index:10;overflow:hidden;transition:transform .3s ease}
+.brand{padding:1.2rem 1.4rem;border-bottom:1px solid var(--border);flex-shrink:0}
+.brand h1{font-size:1.35rem;color:var(--text);line-height:1.2}.brand h1 span{color:var(--gold)}
+.brand .tagline{font-size:.75rem;color:var(--text3);margin-top:2px;letter-spacing:.03em}
+.brand .stat-row{display:flex;gap:.8rem;margin-top:.7rem;flex-wrap:wrap}
+.brand .stat-row .s{text-align:center}.brand .stat-row .s b{display:block;font-size:1.05rem;color:var(--gold);font-family:'DM Serif Display',serif}.brand .stat-row .s span{font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3)}
+.search-wrap{padding:.8rem 1.2rem;flex-shrink:0}
+.search-wrap input{width:100%;padding:.55rem .8rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--accent)}.search-wrap input::placeholder{color:var(--text3)}
+#sidebar-content{flex:1;overflow-y:auto;padding:0 1.2rem 1rem}
+.state-list{display:flex;flex-direction:column;gap:4px}
+.state-item{display:flex;justify-content:space-between;align-items:center;padding:.55rem .8rem;background:var(--card);border:1px solid transparent;border-radius:8px;cursor:pointer;transition:all .15s}
+.state-item:hover{border-color:var(--accent);background:var(--card2);transform:translateX(3px)}
+.state-item .name{font-weight:500;font-size:.85rem}.state-item .cnt{font-size:.75rem;color:var(--text3);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:6px}
+.state-detail{display:none}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:.4rem .9rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text2);cursor:pointer;font-size:.8rem;font-family:'DM Sans',sans-serif;transition:all .15s;margin-bottom:.8rem}
+.back-btn:hover{border-color:var(--accent);color:var(--accent)}
+.state-detail h2{font-size:1.5rem;margin-bottom:.4rem}
+.state-detail .detail-stats{display:flex;flex-wrap:wrap;gap:.4rem .8rem;margin-bottom:1rem}
+.state-detail .detail-stats span{font-size:.8rem;color:var(--text2)}.state-detail .detail-stats b{color:var(--text)}
+.type-toggles{display:flex;flex-direction:column;gap:4px;margin-bottom:1rem}
+.type-toggle{display:flex;align-items:center;gap:8px;padding:.45rem .7rem;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;font-size:.82rem}
+.type-toggle:hover{border-color:var(--accent)}.type-toggle.active{border-color:var(--accent);background:rgba(74,222,128,.08)}
+.type-toggle .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.type-toggle .label{flex:1;font-weight:500}.type-toggle .count{color:var(--text3);font-size:.75rem}
+.amenity-filters{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:1rem}
+.amenity-btn{padding:.3rem .6rem;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text2);cursor:pointer;font-size:.72rem;font-family:'DM Sans',sans-serif;transition:all .12s;font-weight:500}
+.amenity-btn:hover{border-color:var(--accent)}.amenity-btn.on{background:rgba(74,222,128,.15);color:var(--accent);border-color:var(--accent)}
+.point-list{display:flex;flex-direction:column;gap:3px;margin-top:.6rem}
+.point-item{padding:.5rem .7rem;background:var(--card);border-radius:6px;cursor:pointer;transition:all .12s;border:1px solid transparent}
+.point-item:hover{border-color:var(--accent);background:var(--card2)}
+.point-item .pname{font-weight:500;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.point-item .pmeta{font-size:.7rem;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.point-item .badges{display:flex;gap:3px;margin-top:3px}
+.point-item .badge{font-size:.6rem;padding:1px 5px;border-radius:3px;font-weight:600}
+.point-item .badge.ramp{background:rgba(74,222,128,.15);color:#4ade80}
+.point-item .badge.ada{background:rgba(56,189,248,.15);color:#38bdf8}
+.point-item .badge.camp{background:rgba(251,146,60,.15);color:#fb923c}
+.result-info{font-size:.75rem;color:var(--text3);padding:.3rem 0;border-bottom:1px solid var(--border);margin-bottom:.5rem}
+.load-more{display:block;width:100%;padding:.5rem;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.8rem;text-align:center;margin-top:.5rem}
+.load-more:hover{border-color:var(--accent);color:var(--accent)}
+.popup-inner{padding:1rem 1.2rem}
+.popup-inner h3{font-size:1rem;margin-bottom:.3rem;padding-right:20px;color:var(--text)}
+.popup-inner .p-wb{font-size:.8rem;color:var(--accent);margin-bottom:.5rem}
+.popup-inner .p-meta{font-size:.78rem;color:var(--text2);line-height:1.5}
+.popup-inner .p-badges{display:flex;flex-wrap:wrap;gap:4px;margin:.5rem 0}
+.popup-inner .p-badge{font-size:.68rem;padding:2px 7px;border-radius:4px;font-weight:600;background:rgba(255,255,255,.08);color:var(--text2)}
+.popup-inner .p-badge.yes{background:rgba(74,222,128,.15);color:#4ade80}
+.popup-inner .p-link{display:inline-block;margin-top:.5rem;padding:.35rem .8rem;background:var(--accent);color:var(--bg);border-radius:6px;font-size:.78rem;font-weight:600;transition:opacity .15s}
+.popup-inner .p-link:hover{opacity:.85;text-decoration:none}
+#sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:20;width:42px;height:42px;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:20px;cursor:pointer;line-height:42px;text-align:center}
 @media(max-width:768px){
-  .header .stats{gap:1rem}
-  .state-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
-  .filters{flex-direction:column}
-  .search-box{min-width:100%}
-  td{font-size:.75rem;padding:.35rem .4rem}
-  th{font-size:.72rem;padding:.45rem .4rem}
+  #sidebar{position:fixed;left:0;top:0;width:85vw;max-width:360px;z-index:15;transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #sidebar-toggle{display:block}
+  .maplibregl-ctrl-top-left{top:60px!important}
 }
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:2rem auto}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="container">
-    <h1>Fishing in the USA</h1>
-    <p>The most comprehensive public fishing database in America</p>
-    <div class="stats" id="header-stats"></div>
+<button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776;</button>
+<div id="app">
+<div id="sidebar">
+  <div class="brand">
+    <h1>Fishing in <span>the USA</span></h1>
+    <div class="tagline">The most comprehensive public fishing database in America</div>
+    <div class="stat-row" id="global-stats"></div>
+  </div>
+  <div class="search-wrap"><input type="text" id="search" placeholder="Search states or fishing spots..." oninput="handleSearch(this.value)"></div>
+  <div id="sidebar-content">
+    <div id="state-list-view" class="state-list"></div>
+    <div id="state-detail-view" class="state-detail"></div>
   </div>
 </div>
-
-<div class="container">
-  <div id="map-view">
-    <h2>Select a State</h2>
-    <p class="subtitle">Click a state on the map or the list below to explore fishing data</p>
-    <div class="map-container" id="us-map"></div>
-    <div class="dl-bar">
-      <a href="data/index.json" onclick="return false">90,000+ records across 43 states</a> — Data scraped from state wildlife agency GIS services, March 2026
-    </div>
-    <div class="state-grid" id="state-grid"></div>
-  </div>
-
-  <div id="state-view">
-    <button class="back-btn" onclick="showMap()">← All States</button>
-    <div class="state-header">
-      <h2 id="state-title"></h2>
-      <div class="state-stats" id="state-stats"></div>
-    </div>
-    <div class="tabs" id="tabs"></div>
-    <div class="filters" id="filters"></div>
-    <div class="result-count" id="result-count"></div>
-    <div class="table-wrap"><table id="data-table"><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
-    <div class="pagination" id="pagination"></div>
-  </div>
+<div id="map"></div>
 </div>
-
-<div class="footer">
-  Fishing in the USA — Data sourced from state wildlife agency ArcGIS services. Not affiliated with any government agency.<br>
-  Built March 2026. 43 states, 90,000+ records.
-</div>
-
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
-const DATA_BASE = 'data/';
-const PER_PAGE = 100;
-let stateIndex = [];
-let currentState = null;
-let currentData = null;
-let currentTab = null;
-let filteredRows = [];
-let sortCol = -1;
-let sortDir = 1;
-let page = 0;
-let filters = { search: '', county: '', ramp: false, dock: false, pier: false, ada: false, camping: false };
+const DATA_BASE='data/',COLORS={access:'#4ade80',attractors:'#f59e0b',trout:'#38bdf8',reefs:'#fb923c',waterbodies:'#2dd4bf',stocking:'#a78bfa'},TYPE_LABELS={access:'Access Sites',attractors:'Fish Attractors',trout:'Trout Waters',reefs:'Reefs',waterbodies:'Waterbodies',stocking:'Fish Stocking'};
+const STATE_NAMES={AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
+const FIPS={1:'AL',2:'AK',4:'AZ',5:'AR',6:'CA',8:'CO',9:'CT',10:'DE',12:'FL',13:'GA',15:'HI',16:'ID',17:'IL',18:'IN',19:'IA',20:'KS',21:'KY',22:'LA',23:'ME',24:'MD',25:'MA',26:'MI',27:'MN',28:'MS',29:'MO',30:'MT',31:'NE',32:'NV',33:'NH',34:'NJ',35:'NM',36:'NY',37:'NC',38:'ND',39:'OH',40:'OK',41:'OR',42:'PA',44:'RI',45:'SC',46:'SD',47:'TN',48:'TX',49:'UT',50:'VT',51:'VA',53:'WA',54:'WV',55:'WI',56:'WY'};
+const SC={AL:[-86.8,32.8],AK:[-153,64],AR:[-92.4,34.8],AZ:[-111.9,34.3],CA:[-119.4,37.2],CO:[-105.5,39],CT:[-72.7,41.6],DE:[-75.5,39],FL:[-81.7,28.7],GA:[-83.4,32.6],HI:[-155.5,20],ID:[-114.7,44.4],IL:[-89.4,40],IN:[-86.3,40],IA:[-93.5,42],KS:[-98.3,38.5],KY:[-85.3,37.8],LA:[-91.8,31],ME:[-69.2,45.4],MD:[-76.6,39.05],MA:[-71.8,42.3],MI:[-84.5,44.3],MN:[-94.3,46.3],MS:[-89.7,32.7],MO:[-92.5,38.4],MT:[-109.6,47],NE:[-99.8,41.5],NV:[-116.6,39.3],NH:[-71.6,43.7],NJ:[-74.7,40.1],NM:[-106,34.5],NY:[-75.5,43],NC:[-79.4,35.5],ND:[-100.5,47.5],OH:[-82.7,40.4],OK:[-97.5,35.5],OR:[-120.5,44],PA:[-77.6,41],RI:[-71.5,41.7],SC2:[-80.9,34],SD:[-100,44.4],TN:[-86.3,35.8],TX:[-99.3,31.5],UT:[-111.7,39.3],VT:[-72.6,44],VA:[-79.4,37.5],WA:[-120.7,47.5],WV:[-80.6,38.6],WI:[-89.8,44.6],WY:[-107.5,43]};
+SC['SC']=SC.SC2;delete SC.SC2;
+const SZ={AK:3.5,HI:6,TX:5.2,CA:5.2,MT:5.5,FL:5.8,RI:9,DE:8,CT:8,NJ:7,MA:7.5,NH:7.5,VT:7.5,MD:7,WV:7};
 
-const TAB_CONFIG = {
-  access: {
-    label: 'Access Sites',
-    cols: [
-      {key:'name',label:'Site Name',w:180},
-      {key:'waterbody',label:'Waterbody',w:140},
-      {key:'county',label:'County',w:100},
-      {key:'city',label:'City',w:90},
-      {key:'type',label:'Type',w:90},
-      {key:'ramp',label:'Ramp',w:50,bool:true},
-      {key:'ramp_type',label:'Ramp Type',w:80},
-      {key:'dock',label:'Dock',w:50,bool:true},
-      {key:'pier',label:'Pier',w:50,bool:true},
-      {key:'restroom',label:'Restroom',w:65,bool:true},
-      {key:'ada',label:'ADA',w:45,bool:true},
-      {key:'camping',label:'Camp',w:50,bool:true},
-      {key:'fee',label:'Fee',w:60},
-      {key:'owner',label:'Owner',w:100},
-      {key:'species',label:'Species',w:160},
-      {key:'lat',label:'Lat',w:70,num:true},
-      {key:'lng',label:'Lng',w:75,num:true},
-      {key:'_map',label:'Map',w:45,map:true}
-    ],
-    filters: ['search','county','ramp','dock','pier','ada','camping']
-  },
-  waterbodies: {
-    label: 'Waterbodies',
-    cols: [
-      {key:'name',label:'Name',w:180},
-      {key:'type',label:'Type',w:90},
-      {key:'county',label:'County',w:100},
-      {key:'acres',label:'Acres',w:70,num:true},
-      {key:'depth',label:'Max Depth',w:75,num:true},
-      {key:'species',label:'Species',w:180},
-      {key:'regs',label:'Regulations',w:160},
-      {key:'hp_limit',label:'HP Limit',w:70},
-      {key:'manager',label:'Manager',w:120},
-      {key:'lat',label:'Lat',w:70,num:true},
-      {key:'lng',label:'Lng',w:75,num:true},
-      {key:'_map',label:'Map',w:45,map:true}
-    ],
-    filters: ['search','county']
-  },
-  attractors: {
-    label: 'Fish Attractors',
-    cols: [
-      {key:'waterbody',label:'Waterbody',w:180},
-      {key:'material',label:'Material',w:120},
-      {key:'year',label:'Year Placed',w:85},
-      {key:'lat',label:'Lat',w:80,num:true},
-      {key:'lng',label:'Lng',w:85,num:true},
-      {key:'_map',label:'Map',w:45,map:true}
-    ],
-    filters: ['search']
-  },
-  trout: {
-    label: 'Trout Waters',
-    cols: [
-      {key:'name',label:'Name',w:200},
-      {key:'type',label:'Type',w:90},
-      {key:'designation',label:'Designation',w:140},
-      {key:'miles',label:'Miles',w:60,num:true},
-      {key:'species',label:'Species',w:140},
-      {key:'regs',label:'Regulations',w:180},
-      {key:'stocked',label:'Stocked',w:65,bool:true}
-    ],
-    filters: ['search']
-  },
-  stocking: {
-    label: 'Fish Stocking',
-    cols: [
-      {key:'waterbody',label:'Waterbody',w:160},
-      {key:'species',label:'Species',w:120},
-      {key:'strain',label:'Strain',w:100},
-      {key:'date',label:'Date',w:90},
-      {key:'total',label:'Total Stocked',w:95,num:true},
-      {key:'pounds',label:'Pounds',w:75,num:true},
-      {key:'county',label:'County',w:100}
-    ],
-    filters: ['search']
-  },
-  reefs: {
-    label: 'Reefs',
-    cols: [
-      {key:'name',label:'Name',w:200},
-      {key:'type',label:'Type',w:120},
-      {key:'material',label:'Material',w:140},
-      {key:'lat',label:'Lat',w:80,num:true},
-      {key:'lng',label:'Lng',w:85,num:true},
-      {key:'_map',label:'Map',w:45,map:true}
-    ],
-    filters: ['search']
-  }
-};
+let stateIndex=[],map,statesGeo,currentState=null,currentData=null,activeTypes=new Set(),amenityFilters={ramp:false,dock:false,pier:false,ada:false,camping:false},searchQuery='',listLimit=50;
 
-const STATE_NAMES = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
-
-async function init() {
-  const resp = await fetch(DATA_BASE + 'index.json');
-  stateIndex = await resp.json();
-  
-  const totalRec = stateIndex.reduce((s,st) => s + st.total, 0);
-  const totalAccess = stateIndex.reduce((s,st) => s + st.access, 0);
-  document.getElementById('header-stats').innerHTML = `
-    <div class="stat"><b>${stateIndex.length}</b><span>States</span></div>
-    <div class="stat"><b>${totalRec.toLocaleString()}</b><span>Total Records</span></div>
-    <div class="stat"><b>${totalAccess.toLocaleString()}</b><span>Access Sites</span></div>
-    <div class="stat"><b>${stateIndex.reduce((s,st)=>s+st.attractors,0).toLocaleString()}</b><span>Fish Attractors</span></div>
-    <div class="stat"><b>${stateIndex.reduce((s,st)=>s+st.reefs,0).toLocaleString()}</b><span>Reefs</span></div>`;
-  
-  renderStateGrid();
-  loadUSMap();
-  
-  if (location.hash) {
-    const st = location.hash.slice(1).toUpperCase();
-    if (stateIndex.find(s => s.id === st)) loadState(st);
-  }
+async function init(){
+  stateIndex=await(await fetch(DATA_BASE+'index.json')).json();
+  const t=k=>stateIndex.reduce((s,st)=>s+(st[k]||0),0);
+  document.getElementById('global-stats').innerHTML=`<div class="s"><b>${stateIndex.length}</b><span>States</span></div><div class="s"><b>${t('total').toLocaleString()}</b><span>Records</span></div><div class="s"><b>${t('access').toLocaleString()}</b><span>Access</span></div><div class="s"><b>${t('attractors').toLocaleString()}</b><span>Attractors</span></div><div class="s"><b>${t('reefs').toLocaleString()}</b><span>Reefs</span></div>`;
+  renderStateList();initMap();
 }
 
-function renderStateGrid() {
-  const grid = document.getElementById('state-grid');
-  const sorted = [...stateIndex].sort((a,b) => b.total - a.total);
-  grid.innerHTML = sorted.map(st => 
-    `<div class="state-card" onclick="loadState('${st.id}')">
-      <span class="name">${st.name}</span>
-      <span class="count">${st.total.toLocaleString()}</span>
-    </div>`
-  ).join('');
+function renderStateList(filter=''){
+  const el=document.getElementById('state-list-view');
+  const sorted=[...stateIndex].sort((a,b)=>b.total-a.total);
+  const f=filter?sorted.filter(s=>s.name.toLowerCase().includes(filter)||s.id.toLowerCase().includes(filter)):sorted;
+  el.innerHTML=f.map(s=>`<div class="state-item" onclick="selectState('${s.id}')"><span class="name">${s.name}</span><span class="cnt">${s.total.toLocaleString()}</span></div>`).join('');
 }
 
-async function loadUSMap() {
-  try {
-    const resp = await fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
-    const us = await resp.json();
-    // Use topojson-client from CDN
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/topojson-client@3';
-    script.onload = () => renderMap(us);
-    document.head.appendChild(script);
-  } catch(e) {
-    document.getElementById('us-map').innerHTML = '<p style="text-align:center;color:#999;padding:2rem">Map loading... use the list below</p>';
-  }
-}
-
-function renderMap(us) {
-  const states = topojson.feature(us, us.objects.states).features;
-  const FIPS = {1:'AL',2:'AK',4:'AZ',5:'AR',6:'CA',8:'CO',9:'CT',10:'DE',11:'DC',12:'FL',13:'GA',15:'HI',16:'ID',17:'IL',18:'IN',19:'IA',20:'KS',21:'KY',22:'LA',23:'ME',24:'MD',25:'MA',26:'MI',27:'MN',28:'MS',29:'MO',30:'MT',31:'NE',32:'NV',33:'NH',34:'NJ',35:'NM',36:'NY',37:'NC',38:'ND',39:'OH',40:'OK',41:'OR',42:'PA',44:'RI',45:'SC',46:'SD',47:'TN',48:'TX',49:'UT',50:'VT',51:'VA',53:'WA',54:'WV',55:'WI',56:'WY'};
-  const dataStates = new Set(stateIndex.map(s => s.id));
-  
-  const w = 960, h = 600;
-  const projection = d3Projection();
-  const pathGen = svgPath(projection);
-  
-  let svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
-  for (const feat of states) {
-    const id = FIPS[feat.id] || '';
-    const hasData = dataStates.has(id);
-    const d = pathGen(feat);
-    if (d) {
-      svg += `<path d="${d}" data-state="${id}" class="${hasData?'has-data':''}" 
-        onclick="if('${id}')loadState('${id}')"
-        onmouseenter="this.setAttribute('title','${STATE_NAMES[id]||''}')" />`;
-    }
-  }
-  svg += '</svg>';
-  document.getElementById('us-map').innerHTML = svg;
-}
-
-// Minimal geo projection (Albers USA simplified)
-function d3Projection() {
-  return function(coords) {
-    let [lng, lat] = coords;
-    // Alaska
-    if (lat > 50) { lng = (lng + 180) * 0.35 - 150; lat = lat * 0.35 + 15; }
-    // Hawaii
-    else if (lat < 25 && lng < -150) { lng += 55; lat += 6; }
-    const x = (lng + 130) * 8.5;
-    const y = (55 - lat) * 10.5;
-    return [x, y];
-  };
-}
-
-function svgPath(proj) {
-  return function(feature) {
-    const geom = feature.geometry;
-    if (!geom) return '';
-    const coords = geom.type === 'Polygon' ? [geom.coordinates] : 
-                   geom.type === 'MultiPolygon' ? geom.coordinates : [];
-    let d = '';
-    for (const polygon of coords) {
-      for (const ring of polygon) {
-        for (let i = 0; i < ring.length; i++) {
-          const [x, y] = proj(ring[i]);
-          d += (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
-        }
-        d += 'Z';
-      }
-    }
-    return d;
-  };
-}
-
-async function loadState(stateId) {
-  currentState = stateIndex.find(s => s.id === stateId);
-  if (!currentState) return;
-  
-  location.hash = stateId;
-  document.getElementById('map-view').style.display = 'none';
-  document.getElementById('state-view').style.display = 'block';
-  document.querySelector('.back-btn').style.display = 'inline-block';
-  document.getElementById('state-title').textContent = currentState.name;
-  
-  // Load data
-  try {
-    const resp = await fetch(DATA_BASE + stateId.toLowerCase() + '.json');
-    currentData = await resp.json();
-  } catch(e) {
-    currentData = {};
-  }
-  
-  // Stats
-  const stats = [];
-  for (const [key, cfg] of Object.entries(TAB_CONFIG)) {
-    if (currentData[key] && currentData[key].length > 0) {
-      stats.push(`<span><b>${currentData[key].length.toLocaleString()}</b> ${cfg.label}</span>`);
-    }
-  }
-  document.getElementById('state-stats').innerHTML = stats.join('');
-  
-  // Tabs
-  const tabs = [];
-  let firstTab = null;
-  for (const [key, cfg] of Object.entries(TAB_CONFIG)) {
-    if (currentData[key] && currentData[key].length > 0) {
-      if (!firstTab) firstTab = key;
-      tabs.push(`<div class="tab" data-tab="${key}" onclick="switchTab('${key}')">${cfg.label}<span class="badge">${currentData[key].length.toLocaleString()}</span></div>`);
-    }
-  }
-  document.getElementById('tabs').innerHTML = tabs.join('');
-  
-  if (firstTab) switchTab(firstTab);
-  window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-function switchTab(tabKey) {
-  currentTab = tabKey;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabKey));
-  
-  filters = { search: '', county: '', ramp: false, dock: false, pier: false, ada: false, camping: false };
-  sortCol = -1;
-  page = 0;
-  
-  renderFilters();
-  applyFilters();
-}
-
-function renderFilters() {
-  const cfg = TAB_CONFIG[currentTab];
-  const filt = cfg.filters || [];
-  let html = '';
-  
-  if (filt.includes('search')) {
-    html += `<input type="text" class="search-box" placeholder="Search all fields..." oninput="filters.search=this.value.toLowerCase();page=0;applyFilters()">`;
-  }
-  if (filt.includes('county')) {
-    const counties = [...new Set(currentData[currentTab].map(r => r.county).filter(Boolean))].sort();
-    if (counties.length > 1) {
-      html += `<select class="county-filter" onchange="filters.county=this.value;page=0;applyFilters()">
-        <option value="">All Counties (${counties.length})</option>
-        ${counties.map(c => `<option value="${c}">${c}</option>`).join('')}
-      </select>`;
-    }
-  }
-  for (const f of ['ramp','dock','pier','ada','camping']) {
-    if (filt.includes(f)) {
-      const labels = {ramp:'🚤 Ramp',dock:'🛥️ Dock',pier:'🎣 Pier',ada:'♿ ADA',camping:'⛺ Camp'};
-      html += `<button class="filter-btn" data-f="${f}" onclick="toggleFilter('${f}',this)">${labels[f]}</button>`;
-    }
-  }
-  document.getElementById('filters').innerHTML = html;
-}
-
-function toggleFilter(key, btn) {
-  filters[key] = !filters[key];
-  btn.classList.toggle('on');
-  page = 0;
-  applyFilters();
-}
-
-function applyFilters() {
-  const data = currentData[currentTab] || [];
-  const cfg = TAB_CONFIG[currentTab];
-  
-  filteredRows = data.filter(row => {
-    if (filters.search) {
-      const haystack = Object.values(row).join(' ').toLowerCase();
-      if (!haystack.includes(filters.search)) return false;
-    }
-    if (filters.county && row.county !== filters.county) return false;
-    if (filters.ramp && !row.ramp) return false;
-    if (filters.dock && !row.dock) return false;
-    if (filters.pier && !row.pier) return false;
-    if (filters.ada && !row.ada) return false;
-    if (filters.camping && !row.camping) return false;
-    return true;
+function initMap(){
+  map=new maplibregl.Map({container:'map',style:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',center:[-98,39],zoom:3.8,pitch:0,maxZoom:16,attributionControl:false});
+  map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
+  map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+  map.on('load',async()=>{
+    try{
+      const us=await(await fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')).json();
+      const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/topojson-client@3';
+      s.onload=()=>{statesGeo=topojson.feature(us,us.objects.states);for(const f of statesGeo.features){f.properties.abbr=FIPS[f.id]||'';f.properties.name=STATE_NAMES[f.properties.abbr]||'';const idx=stateIndex.find(s=>s.id===f.properties.abbr);f.properties.total=idx?idx.total:0;f.properties.hasData=idx?1:0}addStateLayers()};
+      document.head.appendChild(s);
+    }catch(e){console.error(e)}
+    if(location.hash){const st=location.hash.slice(1).toUpperCase();if(stateIndex.find(s=>s.id===st))setTimeout(()=>selectState(st),800)}
   });
-  
-  if (sortCol >= 0) {
-    const col = cfg.cols[sortCol];
-    filteredRows.sort((a, b) => {
-      let va = a[col.key], vb = b[col.key];
-      if (va == null) va = '';
-      if (vb == null) vb = '';
-      if (col.num) return (Number(va) - Number(vb)) * sortDir;
-      return String(va).localeCompare(String(vb)) * sortDir;
-    });
-  }
-  
-  renderTable();
 }
 
-function renderTable() {
-  const cfg = TAB_CONFIG[currentTab];
-  const cols = cfg.cols;
-  const start = page * PER_PAGE;
-  const pageRows = filteredRows.slice(start, start + PER_PAGE);
-  
-  document.getElementById('result-count').textContent = 
-    `${filteredRows.length.toLocaleString()} results${filteredRows.length !== (currentData[currentTab]||[]).length ? ' (filtered)' : ''}`;
-  
-  // Header
-  let thead = '<tr>';
-  for (let i = 0; i < cols.length; i++) {
-    const col = cols[i];
-    const sorted = sortCol === i;
-    const arrow = sorted ? (sortDir === 1 ? '▲' : '▼') : '▲';
-    if (col.map) {
-      thead += `<th style="width:${col.w}px">📍</th>`;
-    } else {
-      thead += `<th class="${sorted?'sorted':''}" onclick="doSort(${i})" style="min-width:${col.w}px">${col.label}<span class="sort-arrow">${arrow}</span></th>`;
+function addStateLayers(){
+  map.addSource('states',{type:'geojson',data:statesGeo});
+  map.addLayer({id:'state-fills',type:'fill',source:'states',paint:{'fill-color':['case',['==',['get','hasData'],1],['interpolate',['linear'],['get','total'],0,'#1a3626',500,'#1e4d32',2000,'#22713f',5000,'#2d9a50',10000,'#4ade80',20000,'#86efac'],'rgba(255,255,255,0.03)'],'fill-opacity':0.7}});
+  map.addLayer({id:'state-borders',type:'line',source:'states',paint:{'line-color':'rgba(255,255,255,0.15)','line-width':1}});
+  map.addLayer({id:'state-hover',type:'fill',source:'states',paint:{'fill-color':'#4ade80','fill-opacity':0.3},filter:['==','abbr','']});
+  map.on('mousemove','state-fills',e=>{map.getCanvas().style.cursor='pointer';if(e.features.length>0)map.setFilter('state-hover',['==','abbr',e.features[0].properties.abbr])});
+  map.on('mouseleave','state-fills',()=>{map.getCanvas().style.cursor='';map.setFilter('state-hover',['==','abbr',''])});
+  map.on('click','state-fills',e=>{if(e.features.length>0){const a=e.features[0].properties.abbr;if(a&&stateIndex.find(s=>s.id===a))selectState(a)}});
+  const tip=new maplibregl.Popup({closeButton:false,closeOnClick:false,offset:10});
+  map.on('mousemove','state-fills',e=>{if(e.features.length>0&&e.features[0].properties.name){const f=e.features[0],idx=stateIndex.find(s=>s.id===f.properties.abbr),ct=idx?idx.total.toLocaleString()+' records':'No data';tip.setLngLat(e.lngLat).setHTML(`<div style="padding:6px 10px;font-family:DM Sans,sans-serif;font-size:13px"><b>${f.properties.name}</b><br><span style="color:#9ab5a2;font-size:11px">${ct}</span></div>`).addTo(map)}});
+  map.on('mouseleave','state-fills',()=>tip.remove());
+}
+
+async function selectState(id){
+  currentState=stateIndex.find(s=>s.id===id);if(!currentState)return;
+  location.hash=id;listLimit=50;
+  document.getElementById('sidebar').classList.remove('open');
+  map.flyTo({center:SC[id]||[-98,39],zoom:SZ[id]||6.2,duration:1800,essential:true});
+  showStateDetail(true);
+  try{currentData=await(await fetch(DATA_BASE+id.toLowerCase()+'.json')).json()}catch(e){currentData={}}
+  activeTypes=new Set(Object.keys(TYPE_LABELS).filter(k=>currentData[k]&&currentData[k].length>0));
+  amenityFilters={ramp:false,dock:false,pier:false,ada:false,camping:false};
+  plotPoints();showStateDetail(false);renderDetail();
+}
+
+function plotPoints(){
+  for(const l of['clusters','cluster-count','unclustered-point']){if(map.getLayer(l))map.removeLayer(l)}
+  if(map.getSource('points'))map.removeSource('points');
+  if(!currentData)return;
+  const features=[];
+  for(const[type,records]of Object.entries(currentData)){
+    if(!activeTypes.has(type))continue;
+    for(const r of records){
+      if(!r.lat||!r.lng||r.lat===0||r.lng===0)continue;
+      if(type==='access'){if(amenityFilters.ramp&&!r.ramp)continue;if(amenityFilters.dock&&!r.dock)continue;if(amenityFilters.pier&&!r.pier)continue;if(amenityFilters.ada&&!r.ada)continue;if(amenityFilters.camping&&!r.camping)continue}
+      features.push({type:'Feature',geometry:{type:'Point',coordinates:[r.lng,r.lat]},properties:{...r,_type:type,_color:COLORS[type],_name:r.name||r.waterbody||'Unknown'}});
     }
   }
-  thead += '</tr>';
-  document.getElementById('thead').innerHTML = thead;
-  
-  // Body
-  let tbody = '';
-  for (const row of pageRows) {
-    tbody += '<tr>';
-    for (const col of cols) {
-      if (col.map) {
-        const lat = row.lat, lng = row.lng;
-        if (lat && lng) {
-          tbody += `<td><a class="map-link" href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener">Map</a></td>`;
-        } else {
-          tbody += '<td></td>';
-        }
-      } else if (col.bool) {
-        const v = row[col.key];
-        if (v === 1 || v === true) tbody += '<td class="yes">✓</td>';
-        else if (v === 0 || v === false) tbody += '<td class="no">—</td>';
-        else tbody += '<td></td>';
-      } else {
-        const v = row[col.key];
-        const display = v != null ? String(v) : '';
-        tbody += `<td title="${display.replace(/"/g,'&quot;')}">${display}</td>`;
-      }
+  map.addSource('points',{type:'geojson',data:{type:'FeatureCollection',features},cluster:true,clusterMaxZoom:12,clusterRadius:50});
+  map.addLayer({id:'clusters',type:'circle',source:'points',filter:['has','point_count'],paint:{'circle-color':['step',['get','point_count'],'#1a5c32',50,'#22713f',200,'#2d9a50',500,'#4ade80'],'circle-radius':['step',['get','point_count'],18,50,24,200,30,500,36],'circle-stroke-width':2,'circle-stroke-color':'rgba(74,222,128,0.3)'}});
+  map.addLayer({id:'cluster-count',type:'symbol',source:'points',filter:['has','point_count'],layout:{'text-field':'{point_count_abbreviated}','text-size':12,'text-font':['Open Sans Bold']},paint:{'text-color':'#ffffff'}});
+  map.addLayer({id:'unclustered-point',type:'circle',source:'points',filter:['!',['has','point_count']],paint:{'circle-color':['get','_color'],'circle-radius':6,'circle-stroke-width':2,'circle-stroke-color':'rgba(0,0,0,0.4)'}});
+  map.on('click','clusters',async e=>{const f=map.queryRenderedFeatures(e.point,{layers:['clusters']});const z=await map.getSource('points').getClusterExpansionZoom(f[0].properties.cluster_id);map.flyTo({center:f[0].geometry.coordinates,zoom:z,duration:800})});
+  map.on('click','unclustered-point',e=>{const f=e.features[0],c=f.geometry.coordinates.slice();showPopup(c,f.properties)});
+  map.on('mouseenter','clusters',()=>map.getCanvas().style.cursor='pointer');
+  map.on('mouseleave','clusters',()=>map.getCanvas().style.cursor='');
+  map.on('mouseenter','unclustered-point',()=>map.getCanvas().style.cursor='pointer');
+  map.on('mouseleave','unclustered-point',()=>map.getCanvas().style.cursor='');
+}
+
+function showPopup(coords,p){
+  let h='<div class="popup-inner">';
+  h+=`<h3>${esc(p._name||p.name||'Unknown')}</h3>`;
+  if(p._type==='access'){
+    if(p.waterbody)h+=`<div class="p-wb">${esc(p.waterbody)}</div>`;
+    let m=[];if(p.county)m.push(p.county+' County');if(p.city)m.push(p.city);if(p.type)m.push(p.type);if(p.owner)m.push('Owner: '+p.owner);if(p.species)m.push('Species: '+p.species);
+    if(m.length)h+=`<div class="p-meta">${m.map(esc).join('<br>')}</div>`;
+    h+='<div class="p-badges">';
+    if(p.ramp==1)h+='<span class="p-badge yes">Ramp</span>';if(p.dock==1)h+='<span class="p-badge yes">Dock</span>';if(p.pier==1)h+='<span class="p-badge yes">Pier</span>';if(p.restroom==1)h+='<span class="p-badge yes">Restroom</span>';if(p.ada==1)h+='<span class="p-badge yes">ADA</span>';if(p.camping==1)h+='<span class="p-badge yes">Camping</span>';if(p.fee)h+=`<span class="p-badge">${esc(p.fee)}</span>`;
+    h+='</div>';
+  }else if(p._type==='attractors'){
+    if(p.waterbody)h+=`<div class="p-wb">${esc(p.waterbody)}</div>`;
+    h+='<div class="p-meta">';if(p.material)h+=`Material: ${esc(p.material)}<br>`;if(p.year)h+=`Year: ${esc(p.year)}`;h+='</div>';
+  }else if(p._type==='reefs'){
+    h+='<div class="p-meta">';if(p.type)h+=`Type: ${esc(p.type)}<br>`;if(p.material)h+=`Material: ${esc(p.material)}`;h+='</div>';
+  }else{
+    h+='<div class="p-meta">';for(const[k,v]of Object.entries(p)){if(!k.startsWith('_')&&v&&k!=='lat'&&k!=='lng')h+=`${k}: ${esc(String(v))}<br>`}h+='</div>';
+  }
+  h+=`<a class="p-link" href="https://www.google.com/maps?q=${coords[1]},${coords[0]}" target="_blank" rel="noopener">Open in Google Maps &rarr;</a></div>`;
+  new maplibregl.Popup({maxWidth:'320px',offset:15}).setLngLat(coords).setHTML(h).addTo(map);
+}
+
+function showStateDetail(loading){
+  document.getElementById('state-list-view').style.display='none';
+  const d=document.getElementById('state-detail-view');d.style.display='block';
+  if(loading)d.innerHTML=`<button class="back-btn" onclick="backToList()">&larr; All States</button><h2>${currentState.name}</h2><div class="spinner"></div>`;
+}
+
+function renderDetail(){
+  const d=document.getElementById('state-detail-view'),st=currentState,data=currentData;
+  let stats='',types='',hasAccess=data.access&&data.access.length;
+  for(const[k,label]of Object.entries(TYPE_LABELS)){
+    if(data[k]&&data[k].length>0){
+      const gc=data[k].filter(r=>r.lat&&r.lng).length;
+      stats+=`<span><b>${data[k].length.toLocaleString()}</b> ${label}</span>`;
+      types+=`<div class="type-toggle ${activeTypes.has(k)?'active':''}" onclick="toggleType('${k}')"><span class="dot" style="background:${COLORS[k]}"></span><span class="label">${label}</span><span class="count">${gc.toLocaleString()} mapped</span></div>`;
     }
-    tbody += '</tr>';
   }
-  if (!pageRows.length) {
-    tbody = `<tr><td colspan="${cols.length}" style="text-align:center;padding:2rem;color:#999">No results found</td></tr>`;
-  }
-  document.getElementById('tbody').innerHTML = tbody;
-  
-  // Pagination
-  const totalPages = Math.ceil(filteredRows.length / PER_PAGE);
-  if (totalPages > 1) {
-    let pag = '';
-    pag += `<button onclick="goPage(0)" ${page===0?'disabled':''}>«</button>`;
-    pag += `<button onclick="goPage(${Math.max(0,page-1)})" ${page===0?'disabled':''}>‹</button>`;
-    const startP = Math.max(0, page - 3);
-    const endP = Math.min(totalPages - 1, page + 3);
-    for (let i = startP; i <= endP; i++) {
-      pag += `<button class="${i===page?'active':''}" onclick="goPage(${i})">${i+1}</button>`;
+  let am='';
+  if(hasAccess){am='<div class="amenity-filters">';for(const[k,l]of[['ramp','🚤 Ramp'],['dock','🛥️ Dock'],['pier','🎣 Pier'],['ada','♿ ADA'],['camping','⛺ Camp']])am+=`<button class="amenity-btn ${amenityFilters[k]?'on':''}" onclick="toggleAmenity('${k}',this)">${l}</button>`;am+='</div>'}
+  d.innerHTML=`<button class="back-btn" onclick="backToList()">&larr; All States</button><h2>${st.name}</h2><div class="detail-stats">${stats}</div><div class="type-toggles">${types}</div>${am}<div class="result-info" id="result-info"></div><div class="point-list" id="point-list"></div>`;
+  renderPointList();
+}
+
+function renderPointList(){
+  if(!currentData)return;const all=[];
+  for(const[type,records]of Object.entries(currentData)){
+    if(!activeTypes.has(type))continue;
+    for(const r of records){
+      if(type==='access'){if(amenityFilters.ramp&&!r.ramp)continue;if(amenityFilters.dock&&!r.dock)continue;if(amenityFilters.pier&&!r.pier)continue;if(amenityFilters.ada&&!r.ada)continue;if(amenityFilters.camping&&!r.camping)continue}
+      if(searchQuery&&!JSON.stringify(r).toLowerCase().includes(searchQuery))continue;
+      all.push({...r,_type:type});
     }
-    pag += `<button onclick="goPage(${Math.min(totalPages-1,page+1)})" ${page>=totalPages-1?'disabled':''}>›</button>`;
-    pag += `<button onclick="goPage(${totalPages-1})" ${page>=totalPages-1?'disabled':''}>»</button>`;
-    pag += `<span>Page ${page+1} of ${totalPages}</span>`;
-    document.getElementById('pagination').innerHTML = pag;
-  } else {
-    document.getElementById('pagination').innerHTML = '';
   }
+  document.getElementById('result-info').textContent=`${all.length.toLocaleString()} results`;
+  const shown=all.slice(0,listLimit),list=document.getElementById('point-list');
+  list.innerHTML=shown.map(r=>{
+    const nm=r.name||r.waterbody||'Unknown',sub=r.waterbody||r.county||r.material||r.type||'';
+    let badges='';if(r._type==='access'){if(r.ramp==1)badges+='<span class="badge ramp">Ramp</span>';if(r.ada==1)badges+='<span class="badge ada">ADA</span>';if(r.camping==1)badges+='<span class="badge camp">Camp</span>'}
+    const hasGeo=r.lat&&r.lng;
+    return`<div class="point-item" ${hasGeo?`onclick="flyTo(${r.lng},${r.lat},'${r._type}')"`:''} title="${esc(nm)}"><div class="pname" style="border-left:3px solid ${COLORS[r._type]};padding-left:8px">${esc(nm)}</div><div class="pmeta">${esc(sub)}</div>${badges?'<div class="badges">'+badges+'</div>':''}</div>`;
+  }).join('');
+  if(all.length>listLimit)list.innerHTML+=`<button class="load-more" onclick="listLimit+=50;renderPointList()">Show more (${(all.length-listLimit).toLocaleString()} remaining)</button>`;
 }
 
-function doSort(colIdx) {
-  if (sortCol === colIdx) { sortDir *= -1; }
-  else { sortCol = colIdx; sortDir = 1; }
-  applyFilters();
+function flyTo(lng,lat,type){map.flyTo({center:[lng,lat],zoom:14,duration:1000})}
+
+function toggleType(t){if(activeTypes.has(t))activeTypes.delete(t);else activeTypes.add(t);plotPoints();renderDetail()}
+function toggleAmenity(k,btn){amenityFilters[k]=!amenityFilters[k];if(btn)btn.classList.toggle('on');plotPoints();renderPointList()}
+function handleSearch(v){searchQuery=v.toLowerCase();if(!currentState)renderStateList(searchQuery);else{listLimit=50;renderPointList()}}
+
+function backToList(){
+  currentState=null;currentData=null;location.hash='';searchQuery='';document.getElementById('search').value='';
+  for(const l of['clusters','cluster-count','unclustered-point']){if(map.getLayer(l))map.removeLayer(l)}
+  if(map.getSource('points'))map.removeSource('points');
+  document.getElementById('state-list-view').style.display='';document.getElementById('state-detail-view').style.display='none';
+  renderStateList();map.flyTo({center:[-98,39],zoom:3.8,duration:1500});
 }
 
-function goPage(p) {
-  page = p;
-  renderTable();
-  document.querySelector('.table-wrap').scrollTop = 0;
-}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
-function showMap() {
-  document.getElementById('map-view').style.display = 'block';
-  document.getElementById('state-view').style.display = 'none';
-  document.querySelector('.back-btn').style.display = 'none';
-  location.hash = '';
-  window.scrollTo({top: 0});
-}
-
-window.addEventListener('hashchange', () => {
-  if (!location.hash) showMap();
-  else {
-    const st = location.hash.slice(1).toUpperCase();
-    if (stateIndex.find(s => s.id === st)) loadState(st);
-  }
-});
-
+window.addEventListener('hashchange',()=>{if(!location.hash&&currentState)backToList();else if(location.hash){const s=location.hash.slice(1).toUpperCase();if(s!==(currentState&&currentState.id)&&stateIndex.find(x=>x.id===s))selectState(s)}});
 init();
 </script>
 </body>
