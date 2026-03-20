@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a1a12;--card:#142b1e;--card2:#1a3626;--text:#e8efe9;--text2:#9ab5a2;--text3:#6a8a72;--accent:#4ade80;--gold:#f59e0b;--border:rgba(255,255,255,.08)}
+html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
+#app{display:flex;flex-direction:column;height:100vh}
+.hdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.hdr h1{font-size:16px;font-weight:700}.hdr .sub{font-size:11px;color:var(--text3)}
+.info-btn{padding:5px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text2);cursor:pointer;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif}
+.info-btn.on{background:rgba(74,222,128,.1);color:var(--accent);border-color:var(--accent)}
+.info-panel{padding:12px 14px;background:var(--card);border-bottom:1px solid var(--border);font-size:12px;line-height:1.6;color:var(--text2);display:none;flex-shrink:0}
+.info-panel.show{display:block}
+.info-panel b{color:var(--text)}.info-panel .stk{color:var(--gold);font-weight:600}.info-panel .wld{color:var(--accent);font-weight:600}
+.info-panel p{margin:0 0 8px}
+.body{flex:1;display:flex;overflow:hidden}
+.sidebar{width:260px;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sidebar .sh{padding:6px 10px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.sidebar .sl{flex:1;overflow-y:auto}
+.sp-item{padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:7px;border-left:3px solid transparent;border-bottom:1px solid rgba(255,255,255,.03);transition:all .1s}
+.sp-item:hover{background:rgba(255,255,255,.03)}.sp-item.on{background:rgba(74,222,128,.08);border-left-color:var(--accent)}
+.sp-item .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sp-item .nm{flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-item .nm.bold{font-weight:600}
+.sp-item .meta{font-size:9px;color:var(--text3)}
+.sp-item .ct{font-size:10px;color:var(--text3);flex-shrink:0}
+.map-area{flex:1;position:relative}
+#map{width:100%;height:100%}
+.leaflet-container{background:var(--bg)!important}
+.detail-card{position:absolute;top:10px;left:10px;z-index:1000;background:rgba(10,26,18,.95);border:1px solid var(--border);border-radius:10px;padding:12px 14px;max-width:320px;font-size:12px;pointer-events:auto}
+.detail-card h3{font-size:15px;font-weight:700;margin-bottom:2px}
+.detail-card .dc-desc{color:var(--text2);line-height:1.5;margin:6px 0}
+.detail-card .dc-stats{display:flex;gap:12px;font-size:12px}
+.detail-card .dc-stats b{color:var(--text)}
+.fish-dot{border-radius:50%;border:2px solid rgba(0,0,0,.5);cursor:pointer;transition:transform .1s}
+.fish-dot:hover{transform:scale(1.4)!important;z-index:9999!important}
+.fish-dot.stocked-ring{border-color:var(--gold)!important;border-width:2px!important}
+.leaflet-tooltip{background:rgba(10,26,18,.95)!important;border:1px solid rgba(255,255,255,.12)!important;color:var(--text)!important;font-family:'DM Sans',sans-serif!important;border-radius:8px!important;padding:8px 11px!important;font-size:12px!important;max-width:280px!important;box-shadow:0 4px 16px rgba(0,0,0,.5)!important}
+.leaflet-tooltip::before{border-top-color:rgba(10,26,18,.95)!important}
+.tt-name{font-weight:700;margin-bottom:2px}.tt-wb{color:#4ade80;font-size:11px}.tt-co{color:#6a8a72;font-size:11px;margin-bottom:4px}
+.tt-sp{display:flex;flex-wrap:wrap;gap:3px}
+.tt-badge{font-size:10px;padding:1px 5px;border-radius:3px}
+.tt-badge.w{background:rgba(74,222,128,.1);color:#4ade80}.tt-badge.s{background:rgba(245,158,11,.15);color:#f59e0b}
+@media(max-width:700px){.sidebar{width:200px}}
+</style></head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <div><h1>🎣 North Carolina Fishing Species Map</h1><div class="sub" id="subtitle">Loading...</div></div>
+    <button class="info-btn" id="info-toggle" onclick="toggleInfo()">ℹ️ Stocked vs Wild</button>
+  </div>
+  <div class="info-panel" id="info-panel">
+    <p><span class="stk">Stocked</span> means NCWRC raised fish in a hatchery and released them into the waterbody. This maintains fishable populations where natural reproduction can't keep up, like mountain trout streams or urban ponds. Trout streams get restocked weekly during season. Catfish ponds might get one annual drop.</p>
+    <p><span class="wld">Wild</span> means the fish reproduce naturally. These populations are self-sustaining. Wild fish are generally warier and harder to catch than recently stocked fish, but often better eating.</p>
+    <p style="color:var(--text3);font-size:11px;margin:0"><b style="color:var(--text)">Practical takeaway:</b> Want guaranteed action? Hit a recently stocked site. Want a challenge? Target wild populations. NC's trout are ~90% stocked. Largemouth bass are 99% wild.</p>
+  </div>
+  <div class="body">
+    <div class="sidebar"><div class="sh">Species (<span id="sp-count">0</span>)</div><div class="sl" id="sp-list"></div></div>
+    <div class="map-area">
+      <div id="map"></div>
+      <div class="detail-card" id="detail-card" style="display:none"></div>
+    </div>
+  </div>
+</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const COL={"Largemouth Bass":"#22c55e","Smallmouth Bass":"#16a34a","Spotted Bass":"#15803d","Striped Bass":"#0ea5e9","Sunfish":"#eab308","Bluegill":"#facc15","Redbreast Sunfish":"#fbbf24","Redear Sunfish":"#f59e0b","Crappie (Unspecified)":"#a78bfa","Black Crappie":"#8b5cf6","Channel Catfish":"#f97316","Blue Catfish":"#3b82f6","Flathead Catfish":"#ea580c","North American Freshwater Catfishes":"#d97706","Brown Trout":"#92400e","Rainbow Trout":"#ec4899","Brook Trout":"#06b6d4","Walleye":"#6366f1","Muskellunge":"#dc2626","White Perch":"#94a3b8","White Bass":"#cbd5e1","Yellow Perch":"#fde047","American Shad":"#2dd4bf","Hickory Shad":"#14b8a6","Southern Flounder":"#84cc16","Red Drum":"#ef4444","Spotted Seatrout":"#10b981","Chain Pickerel":"#78716c","Rock Bass":"#a8a29e","Roanoke Bass":"#059669","Bodie Bass (Striped Bass Hybrid)":"#7dd3fc"};
+const DESC={"Largemouth Bass":"The king of NC freshwater. Found in nearly every lake and pond. Aggressive feeders, hit topwater lures hard.","Smallmouth Bass":"Cooler mountain streams and piedmont rivers. Fight harder pound-for-pound than largemouth.","Striped Bass":"Landlocked stripers exceed 40 lbs in NC reservoirs. Mainly stocked in large piedmont lakes.","Brown Trout":"Stocked heavily in mountain streams. Wariest trout species, often requires finesse.","Rainbow Trout":"Most commonly stocked trout in NC mountains. Easier to catch, great for beginners.","Brook Trout":"NC's only native trout. High-elevation streams above 3,000 ft. Many populations are wild.","Channel Catfish":"Heavily stocked in urban ponds. Great eating, active at night, eats almost anything.","Walleye":"Limited to a few piedmont reservoirs. Nocturnal feeders, best caught trolling or jigging.","Muskellunge":"The 'fish of 10,000 casts.' Almost entirely stocked. Select mountain and piedmont lakes.","Crappie (Unspecified)":"Excellent panfish in schools around submerged structure. Best in spring spawn.","Red Drum":"Coastal gamefish in sounds and inlets. Catch-and-release on larger bull reds.","Spotted Seatrout":"Coastal, sounds and estuaries. Great on light tackle with live shrimp or soft plastics.","Southern Flounder":"Coastal flatfish, ambush predators. Gigging is popular at night.","American Shad":"Anadromous, run up NC rivers in spring. Incredible fighters on ultralight tackle.","Sunfish":"Panfish found statewide. Great for kids and beginners. Will bite almost anything small.","North American Freshwater Catfishes":"Various catfish species in rivers and ponds statewide. Night fishing with cut bait."};
+const DEF='#64748b';
+
+let map,sites=[],stats=[],sel=null,markers=[];
+
+async function init(){
+  map=L.map('map',{center:[35.3,-79.5],zoom:7,zoomControl:false,attributionControl:false});
+  L.control.zoom({position:'topright'}).addTo(map);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri',maxZoom:19}).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd'}).addTo(map);
+
+  const resp=await fetch('https://niggerfaggot.club/fishing-in-the-usa/data/nc.json');
+  const data=await resp.json();
+  const access=(data.access||[]).filter(r=>r.lat&&r.lng&&r.species);
+  
+  sites=access.map(r=>{
+    const spList=r.species.split(', ').map(s=>{
+      const stk=s.includes('(stocked)');
+      const nm=s.replace(' (stocked)','').replace(' (wild)','').trim();
+      return{name:nm,stocked:stk};
+    });
+    return{...r,spList};
+  });
+
+  // Stats
+  const counts={};
+  sites.forEach(s=>s.spList.forEach(sp=>{
+    if(!counts[sp.name])counts[sp.name]={total:0,stocked:0,wild:0};
+    counts[sp.name].total++;
+    if(sp.stocked)counts[sp.name].stocked++;else counts[sp.name].wild++;
+  }));
+  stats=Object.entries(counts).map(([n,c])=>({name:n,...c})).sort((a,b)=>b.total-a.total);
+
+  document.getElementById('subtitle').textContent=`${sites.length} sites · ${stats.length} species · Click a species to filter`;
+  document.getElementById('sp-count').textContent=stats.length;
+  renderSpeciesList();
+  plotMarkers();
+}
+
+function renderSpeciesList(){
+  const el=document.getElementById('sp-list');
+  let html=`<div class="sp-item ${!sel?'on':''}" onclick="selectSpecies(null)"><span class="dot" style="background:#4ade80"></span><span class="nm ${!sel?'bold':''}">All Species</span><span class="ct">${sites.length}</span></div>`;
+  for(const sp of stats){
+    const on=sel===sp.name;
+    const c=COL[sp.name]||DEF;
+    const pct=sp.stocked?Math.round(sp.stocked/sp.total*100):0;
+    let meta='';
+    if(sp.stocked>0)meta+=`<span style="color:#f59e0b">${pct}% stk</span>`;
+    if(sp.stocked>0&&sp.wild>0)meta+=' · ';
+    if(sp.wild>0)meta+=`<span style="color:#4ade80">${sp.wild}w</span>`;
+    html+=`<div class="sp-item ${on?'on':''}" onclick="selectSpecies('${sp.name.replace(/'/g,"\\'")}')"><span class="dot" style="background:${c}"></span><div style="flex:1;min-width:0"><div class="nm ${on?'bold':''}">${sp.name}</div><div class="meta">${meta}</div></div><span class="ct">${sp.total}</span></div>`;
+  }
+  el.innerHTML=html;
+}
+
+function selectSpecies(name){
+  sel=name;
+  renderSpeciesList();
+  plotMarkers();
+  const card=document.getElementById('detail-card');
+  if(name){
+    const st=stats.find(s=>s.name===name);
+    const desc=DESC[name]||'';
+    const c=COL[name]||DEF;
+    card.style.display='block';
+    card.innerHTML=`<h3><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${c};margin-right:6px;vertical-align:middle"></span>${name}</h3>${desc?'<div class="dc-desc">'+desc+'</div>':''}<div class="dc-stats"><span><b>${st.total}</b> <span style="color:var(--text3)">sites</span></span>${st.stocked?'<span><b style="color:#f59e0b">'+st.stocked+'</b> <span style="color:var(--text3)">stocked</span></span>':''}${st.wild?'<span><b style="color:#4ade80">'+st.wild+'</b> <span style="color:var(--text3)">wild</span></span>':''}</div>`;
+  }else{
+    card.style.display='none';
+  }
+}
+
+function plotMarkers(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  const filtered=sel?sites.filter(s=>s.spList.some(sp=>sp.name===sel)):sites;
+  
+  for(const site of filtered){
+    const color=sel?(COL[sel]||DEF):(COL[site.spList[0]?.name]||DEF);
+    const isStocked=sel&&site.spList.find(s=>s.name===sel)?.stocked;
+    const icon=L.divIcon({
+      className:'',
+      html:`<div class="fish-dot ${isStocked?'stocked-ring':''}" style="width:12px;height:12px;background:${color}"></div>`,
+      iconSize:[12,12],iconAnchor:[6,6]
+    });
+    const m=L.marker([site.lat,site.lng],{icon});
+    
+    // Tooltip
+    let tt=`<div class="tt-name">${esc(site.name)}</div>`;
+    if(site.wb)tt+=`<div class="tt-wb">${esc(site.wb)}</div>`;
+    if(site.co)tt+=`<div class="tt-co">${esc(site.co)} County</div>`;
+    tt+='<div class="tt-sp">';
+    site.spList.slice(0,8).forEach(sp=>{
+      tt+=`<span class="tt-badge ${sp.stocked?'s':'w'}">${esc(sp.name)}${sp.stocked?' ★':''}</span>`;
+    });
+    if(site.spList.length>8)tt+=`<span style="font-size:10px;color:#6a8a72">+${site.spList.length-8}</span>`;
+    tt+='</div>';
+    m.bindTooltip(tt,{direction:'top',offset:[0,-8]});
+    m.addTo(map);
+    markers.push(m);
+  }
+}
+
+function toggleInfo(){
+  const p=document.getElementById('info-panel');
+  const b=document.getElementById('info-toggle');
+  p.classList.toggle('show');
+  b.classList.toggle('on');
+  b.textContent=p.classList.contains('show')?'✕ Close':'ℹ️ Stocked vs Wild';
+}
+
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
+init();
+</script>
+</body></html>
