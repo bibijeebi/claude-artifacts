@@ -83,7 +83,7 @@ a{color:var(--accent);text-decoration:none}
 .pi .pm{font-size:.7rem;color:var(--text3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:14px}
 .pi .pb{display:flex;gap:3px;margin-top:3px;padding-left:14px;flex-wrap:wrap}
 .pi .b{font-size:.58rem;padding:1px 5px;border-radius:3px;font-weight:600;background:rgba(255,255,255,.06);color:var(--text3)}
-.pi .b.y{background:rgba(74,222,128,.12);color:#4ade80}
+.pi .b.y{background:rgba(0,229,255,.12);color:#00e5ff}
 
 /* Expanded detail */
 .pi .detail{display:none;margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border);padding-left:14px;font-size:.78rem;color:var(--text2);line-height:1.6}
@@ -149,7 +149,7 @@ a{color:var(--accent);text-decoration:none}
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
-const DB='data/',C={access:'#4ade80',attractors:'#f59e0b',trout:'#38bdf8',reefs:'#fb923c',waterbodies:'#2dd4bf',stocking:'#a78bfa'};
+const DB='data/',C={access:'#00e5ff',attractors:'#ffab00',trout:'#ff4081',reefs:'#ff6e40',waterbodies:'#69f0ae',stocking:'#b388ff'};
 const TL={access:'Access Sites',attractors:'Fish Attractors',trout:'Trout Waters',reefs:'Reefs',waterbodies:'Waterbodies',stocking:'Stocking'};
 const SN={AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming'};
 const FP={1:'AL',2:'AK',4:'AZ',5:'AR',6:'CA',8:'CO',9:'CT',10:'DE',12:'FL',13:'GA',15:'HI',16:'ID',17:'IL',18:'IN',19:'IA',20:'KS',21:'KY',22:'LA',23:'ME',24:'MD',25:'MA',26:'MI',27:'MN',28:'MS',29:'MO',30:'MT',31:'NE',32:'NV',33:'NH',34:'NJ',35:'NM',36:'NY',37:'NC',38:'ND',39:'OH',40:'OK',41:'OR',42:'PA',44:'RI',45:'SC',46:'SD',47:'TN',48:'TX',49:'UT',50:'VT',51:'VA',53:'WA',54:'WV',55:'WI',56:'WY'};
@@ -265,9 +265,9 @@ function plotPoints(){
     }
   }
   map.addSource('pts',{type:'geojson',data:{type:'FeatureCollection',features:feats},cluster:true,clusterMaxZoom:13,clusterRadius:45});
-  map.addLayer({id:'cl',type:'circle',source:'pts',filter:['has','point_count'],paint:{'circle-color':['step',['get','point_count'],'#1a5c32',30,'#1e6b3a',100,'#22813f',300,'#2d9a50',800,'#4ade80'],'circle-radius':['step',['get','point_count'],15,30,20,100,26,300,32,800,38],'circle-stroke-width':2,'circle-stroke-color':'rgba(74,222,128,0.2)'}});
+  map.addLayer({id:'cl',type:'circle',source:'pts',filter:['has','point_count'],paint:{'circle-color':['step',['get','point_count'],'#37474f',30,'#455a64',100,'#546e7a',300,'#78909c',800,'#b0bec5'],'circle-radius':['step',['get','point_count'],15,30,20,100,26,300,32,800,38],'circle-stroke-width':2,'circle-stroke-color':'rgba(255,255,255,0.15)'}});
   map.addLayer({id:'cc',type:'symbol',source:'pts',filter:['has','point_count'],layout:{'text-field':'{point_count_abbreviated}','text-size':11,'text-font':['Open Sans Bold']},paint:{'text-color':'#fff'}});
-  map.addLayer({id:'up',type:'circle',source:'pts',filter:['!',['has','point_count']],paint:{'circle-color':['get','_c'],'circle-radius':['interpolate',['linear'],['zoom'],6,3,10,5,14,8],'circle-stroke-width':1.5,'circle-stroke-color':'rgba(0,0,0,0.5)'}});
+  map.addLayer({id:'up',type:'circle',source:'pts',filter:['!',['has','point_count']],paint:{'circle-color':['get','_c'],'circle-radius':['interpolate',['linear'],['zoom'],6,4,10,7,14,10],'circle-stroke-width':2,'circle-stroke-color':'rgba(0,0,0,0.6)'}});
 
   map.on('click','cl',async e=>{const f=map.queryRenderedFeatures(e.point,{layers:['cl']});if(!f.length)return;const z=await map.getSource('pts').getClusterExpansionZoom(f[0].properties.cluster_id);map.flyTo({center:f[0].geometry.coordinates,zoom:z,duration:700})});
   map.on('click','up',e=>{if(!e.features.length)return;const f=e.features[0];selectPoint(f.properties._id,f.geometry.coordinates)});
