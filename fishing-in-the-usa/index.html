@@ -13,34 +13,23 @@
 <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0a1a12;--card:#142b1e;--card2:#1a3626;--card3:#1f4030;--text:#e8efe9;--text2:#9ab5a2;--text3:#6a8a72;--accent:#4ade80;--accent2:#22c55e;--gold:#d4a843;--border:rgba(255,255,255,.08);--glass:rgba(10,26,18,.92);--radius:10px}
+:root{--bg:#0a1a12;--card:#142b1e;--card2:#1a3626;--card3:#1f4030;--text:#e8efe9;--text2:#9ab5a2;--text3:#6a8a72;--accent:#4ade80;--border:rgba(255,255,255,.08);--glass:rgba(10,26,18,.92);--gold:#d4a843;--radius:10px}
 html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text)}
 h1,h2,h3{font-family:'DM Serif Display',serif;font-weight:400}
 a{color:var(--accent);text-decoration:none}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
 #app{display:flex;height:100vh;width:100vw}
 #map{flex:1;height:100%}
-
-/* Minimal map UI */
 .maplibregl-popup{display:none!important}
 .maplibregl-ctrl-attrib{background:rgba(0,0,0,.5)!important;color:#666!important;font-size:10px!important}
 .maplibregl-ctrl-attrib a{color:#888!important}
-
-/* SIDEBAR */
 #sidebar{width:400px;height:100vh;background:var(--glass);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:10;overflow:hidden;transition:transform .3s}
-
-/* Brand */
 .brand{padding:1rem 1.2rem .8rem;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
 .brand-left h1{font-size:1.2rem;line-height:1.1}.brand-left h1 span{color:var(--gold)}
 .brand-left .tagline{font-size:.65rem;color:var(--text3);letter-spacing:.04em;margin-top:1px}
 .brand-right{text-align:right;font-size:.65rem;color:var(--text3);line-height:1.6}
 .brand-right b{color:var(--gold);font-size:.9rem;font-family:'DM Serif Display',serif}
-
-/* Panels */
-.panel{display:none;flex-direction:column;flex:1;overflow:hidden}
-.panel.active{display:flex}
-
-/* PANEL: State picker */
+.panel{display:none;flex-direction:column;flex:1;overflow:hidden}.panel.active{display:flex}
 .search-wrap{padding:.6rem 1rem;flex-shrink:0}
 .search-wrap input{width:100%;padding:.5rem .75rem;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;font-family:'DM Sans',sans-serif;outline:none}
 .search-wrap input:focus{border-color:var(--accent)}.search-wrap input::placeholder{color:var(--text3)}
@@ -49,17 +38,13 @@ a{color:var(--accent);text-decoration:none}
 .si{display:flex;justify-content:space-between;align-items:center;padding:.5rem .75rem;background:var(--card);border:1px solid transparent;border-radius:8px;cursor:pointer;transition:all .12s}
 .si:hover{border-color:var(--accent);background:var(--card2)}
 .si .nm{font-weight:500;font-size:.85rem}.si .ct{font-size:.72rem;color:var(--text3);background:rgba(255,255,255,.05);padding:1px 7px;border-radius:5px}
-
-/* PANEL: State view */
+.state-detail{display:none}
 .state-bar{padding:.7rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0}
 .state-bar-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
 .back{background:none;border:none;color:var(--text2);cursor:pointer;font-size:1.1rem;padding:2px;transition:color .12s;font-family:'DM Sans',sans-serif}
 .back:hover{color:var(--accent)}
 .state-bar h2{font-size:1.3rem;flex:1}
-.state-bar .ss{display:flex;flex-wrap:wrap;gap:.3rem .7rem;font-size:.75rem;color:var(--text3)}
-.state-bar .ss b{color:var(--text)}
-
-/* Type + amenity bar */
+.state-bar .ss{display:flex;flex-wrap:wrap;gap:.3rem .7rem;font-size:.75rem;color:var(--text3)}.state-bar .ss b{color:var(--text)}
 .filter-bar{padding:.5rem 1rem;border-bottom:1px solid var(--border);flex-shrink:0}
 .type-row{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:4px}
 .tbtn{padding:3px 8px;border-radius:5px;font-size:.7rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text3);font-family:'DM Sans',sans-serif;transition:all .1s;display:flex;align-items:center;gap:4px}
@@ -68,12 +53,8 @@ a{color:var(--accent);text-decoration:none}
 .amenity-row{display:flex;gap:3px;flex-wrap:wrap}
 .abtn{padding:2px 7px;border-radius:4px;font-size:.65rem;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text3);font-family:'DM Sans',sans-serif;transition:all .1s}
 .abtn:hover{border-color:var(--accent)}.abtn.on{border-color:var(--accent);color:var(--accent);background:rgba(74,222,128,.1)}
-
-/* Viewport results */
 .vp-info{padding:.4rem 1rem;font-size:.72rem;color:var(--text3);border-bottom:1px solid var(--border);flex-shrink:0;display:flex;justify-content:space-between;align-items:center}
 .vp-info span{font-size:.65rem}
-
-/* Point list */
 .point-scroll{flex:1;overflow-y:auto;padding:.3rem .6rem .6rem}
 .pi{padding:.55rem .7rem;background:var(--card);border-radius:7px;cursor:pointer;border:1px solid transparent;transition:all .1s;margin-bottom:3px}
 .pi:hover{border-color:rgba(74,222,128,.3);background:var(--card2)}
@@ -84,31 +65,22 @@ a{color:var(--accent);text-decoration:none}
 .pi .pb{display:flex;gap:3px;margin-top:3px;padding-left:14px;flex-wrap:wrap}
 .pi .b{font-size:.58rem;padding:1px 5px;border-radius:3px;font-weight:600;background:rgba(255,255,255,.06);color:var(--text3)}
 .pi .b.y{background:rgba(0,229,255,.12);color:#00e5ff}
-
-/* Expanded detail */
 .pi .detail{display:none;margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border);padding-left:14px;font-size:.78rem;color:var(--text2);line-height:1.6}
 .pi.selected .detail{display:block}
 .pi .detail .row{display:flex;gap:.4rem}.pi .detail .lbl{color:var(--text3);min-width:65px;flex-shrink:0}
 .pi .detail .gm{display:inline-block;margin-top:.4rem;padding:.3rem .7rem;background:var(--accent);color:var(--bg);border-radius:5px;font-size:.72rem;font-weight:600}
 .pi .detail .gm:hover{opacity:.85;text-decoration:none}
-
 .load-more{display:block;width:100%;padding:.45rem;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.75rem;text-align:center;margin-top:2px}
 .load-more:hover{border-color:var(--accent);color:var(--accent)}
-
-/* Mobile */
 #mtoggle{display:none;position:fixed;top:10px;left:10px;z-index:20;width:40px;height:40px;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:18px;cursor:pointer;text-align:center;line-height:40px}
 @media(max-width:768px){
   #sidebar{position:fixed;left:0;top:0;width:88vw;max-width:380px;z-index:15;transform:translateX(-100%)}
-  #sidebar.open{transform:translateX(0)}
-  #mtoggle{display:block}
+  #sidebar.open{transform:translateX(0)}#mtoggle{display:block}
 }
-
-/* Map legend overlay */
-.legend{position:absolute;bottom:30px;left:10px;z-index:5;background:var(--glass);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:.65rem;color:var(--text3);display:none}
+.legend{position:absolute;bottom:30px;left:10px;z-index:5;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;font-size:.65rem;color:#ccc;display:none}
 .legend.show{display:block}
 .legend-item{display:flex;align-items:center;gap:5px;padding:1px 0}
 .legend-item .ld{width:8px;height:8px;border-radius:50%}
-
 .spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:2rem auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
@@ -121,14 +93,10 @@ a{color:var(--accent);text-decoration:none}
     <div class="brand-left"><h1>Fishing in <span>the USA</span></h1><div class="tagline">90,000+ spots &middot; 43 states</div></div>
     <div class="brand-right" id="brand-stats"></div>
   </div>
-
-  <!-- PANEL: State Picker -->
   <div class="panel active" id="panel-states">
     <div class="search-wrap"><input type="text" id="state-search" placeholder="Search states..." oninput="filterStates(this.value)"></div>
     <div class="state-list"><div class="state-list-inner" id="state-list"></div></div>
   </div>
-
-  <!-- PANEL: State View -->
   <div class="panel" id="panel-state">
     <div class="state-bar">
       <div class="state-bar-top"><button class="back" onclick="backToList()" title="All states">&larr;</button><h2 id="st-name"></h2></div>
@@ -142,9 +110,7 @@ a{color:var(--accent);text-decoration:none}
     <div class="point-scroll" id="point-scroll"></div>
   </div>
 </div>
-<div id="map">
-  <div class="legend" id="legend"></div>
-</div>
+<div id="map"><div class="legend" id="legend"></div></div>
 </div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
@@ -156,7 +122,10 @@ const FP={1:'AL',2:'AK',4:'AZ',5:'AR',6:'CA',8:'CO',9:'CT',10:'DE',12:'FL',13:'G
 const CTR={AL:[-86.8,32.8],AK:[-153,64],AR:[-92.4,34.8],CA:[-119.4,37.2],CO:[-105.5,39],CT:[-72.7,41.6],DE:[-75.5,39],FL:[-81.7,28.7],GA:[-83.4,32.6],HI:[-155.5,20],ID:[-114.7,44.4],IN:[-86.3,40],IA:[-93.5,42],KY:[-85.3,37.8],LA:[-91.8,31],ME:[-69.2,45.4],MD:[-76.6,39.05],MA:[-71.8,42.3],MI:[-84.5,44.3],MN:[-94.3,46.3],MS:[-89.7,32.7],MO:[-92.5,38.4],MT:[-109.6,47],NE:[-99.8,41.5],NH:[-71.6,43.7],NJ:[-74.7,40.1],NM:[-106,34.5],NY:[-75.5,43],NC:[-79.4,35.5],ND:[-100.5,47.5],OH:[-82.7,40.4],OR:[-120.5,44],PA:[-77.6,41],RI:[-71.5,41.7],SC:[-80.9,34],TN:[-86.3,35.8],TX:[-99.3,31.5],UT:[-111.7,39.3],VT:[-72.6,44],VA:[-79.4,37.5],WA:[-120.7,47.5],WV:[-80.6,38.6],WI:[-89.8,44.6]};
 const SZM={AK:3.5,HI:6,TX:5.2,CA:5.2,MT:5.5,FL:5.8,RI:9,DE:8,CT:8,NJ:7,MA:7.5,NH:7.5,VT:7.5,MD:7,WV:7};
 
-let idx=[],map,curSt=null,curD=null,aTypes=new Set(),aFilt={ramp:0,dock:0,pier:0,ada:0,camping:0},selId=null,listLim=80,vpFeats=[],updateTimer=null;
+const STYLE_DARK='https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
+const STYLE_SAT={version:8,sources:{satellite:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Esri, Maxar, Earthstar'},'carto-labels':{type:'raster',tiles:['https://basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}@2x.png'],tileSize:256}},layers:[{id:'satellite',type:'raster',source:'satellite',paint:{'raster-brightness-max':0.85}},{id:'labels',type:'raster',source:'carto-labels',paint:{'raster-opacity':0.85}}]};
+
+let idx=[],map,stGeo,curSt=null,curD=null,aTypes=new Set(),aFilt={ramp:0,dock:0,pier:0,ada:0,camping:0},selId=null,listLim=80,vpFeats=[],updateTimer=null,isSatellite=false;
 
 async function init(){
   idx=await(await fetch(DB+'index.json')).json();
@@ -164,7 +133,6 @@ async function init(){
   document.getElementById('brand-stats').innerHTML=`<b>${t('total').toLocaleString()}</b> records`;
   renderStates();initMap();
 }
-
 function renderStates(f=''){
   const s=[...idx].sort((a,b)=>b.total-a.total);
   const fl=f?s.filter(x=>x.name.toLowerCase().includes(f)||x.id.toLowerCase().includes(f)):s;
@@ -173,7 +141,7 @@ function renderStates(f=''){
 function filterStates(v){renderStates(v.toLowerCase())}
 
 function initMap(){
-  map=new maplibregl.Map({container:'map',style:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',center:[-98,39],zoom:3.8,maxZoom:17,attributionControl:false});
+  map=new maplibregl.Map({container:'map',style:STYLE_DARK,center:[-98,39],zoom:3.8,maxZoom:17,attributionControl:false});
   map.addControl(new maplibregl.AttributionControl({compact:true}),'bottom-right');
   map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
   map.addControl(new maplibregl.GeolocateControl({positionOptions:{enableHighAccuracy:true},trackUserLocation:false}),'top-right');
@@ -181,21 +149,29 @@ function initMap(){
     try{
       const us=await(await fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json')).json();
       const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/topojson-client@3';
-      s.onload=()=>{const geo=topojson.feature(us,us.objects.states);for(const f of geo.features){f.properties.abbr=FP[f.id]||'';f.properties.name=SN[f.properties.abbr]||'';const i=idx.find(x=>x.id===f.properties.abbr);f.properties.total=i?i.total:0;f.properties.hasData=i?1:0}addStates(geo)};
+      s.onload=()=>{stGeo=topojson.feature(us,us.objects.states);for(const f of stGeo.features){f.properties.abbr=FP[f.id]||'';f.properties.name=SN[f.properties.abbr]||'';const i=idx.find(x=>x.id===f.properties.abbr);f.properties.total=i?i.total:0;f.properties.hasData=i?1:0}addStates()};
       document.head.appendChild(s);
     }catch(e){}
     if(location.hash){const st=location.hash.slice(1).toUpperCase();if(idx.find(x=>x.id===st))setTimeout(()=>selState(st),600)}
   });
 }
 
-function addStates(geo){
-  map.addSource('states',{type:'geojson',data:geo});
+function addStates(){
+  if(!stGeo||!map.isStyleLoaded())return;
+  map.addSource('states',{type:'geojson',data:stGeo});
   map.addLayer({id:'sf',type:'fill',source:'states',paint:{'fill-color':['case',['==',['get','hasData'],1],['interpolate',['linear'],['get','total'],0,'#1a3626',500,'#1e4d32',2000,'#22713f',5000,'#2d9a50',10000,'#4ade80',20000,'#86efac'],'rgba(255,255,255,0.03)'],'fill-opacity':0.6}});
   map.addLayer({id:'sb',type:'line',source:'states',paint:{'line-color':'rgba(255,255,255,0.12)','line-width':1}});
   map.addLayer({id:'sh',type:'fill',source:'states',paint:{'fill-color':'#4ade80','fill-opacity':0.25},filter:['==','abbr','']});
   map.on('mousemove','sf',e=>{map.getCanvas().style.cursor='pointer';if(e.features.length)map.setFilter('sh',['==','abbr',e.features[0].properties.abbr])});
   map.on('mouseleave','sf',()=>{map.getCanvas().style.cursor='';map.setFilter('sh',['==','abbr',''])});
   map.on('click','sf',e=>{if(e.features.length){const a=e.features[0].properties.abbr;if(a&&idx.find(x=>x.id===a))selState(a)}});
+}
+
+function switchStyle(toSatellite, callback){
+  if(toSatellite===isSatellite){if(callback)callback();return}
+  isSatellite=toSatellite;
+  map.once('style.load',()=>{if(callback)callback()});
+  map.setStyle(toSatellite?STYLE_SAT:STYLE_DARK);
 }
 
 async function selState(id){
@@ -210,46 +186,42 @@ async function selState(id){
   document.getElementById('type-row').innerHTML='';
   document.getElementById('amenity-row').innerHTML='';
 
+  // Switch to satellite and fly
+  switchStyle(true, ()=>{
+    map.flyTo({center:CTR[id]||[-98,39],zoom:SZM[id]||6.2,duration:1600,essential:true});
+    loadAndPlot(id);
+  });
+  // Also start flying immediately for responsiveness
   map.flyTo({center:CTR[id]||[-98,39],zoom:SZM[id]||6.2,duration:1600,essential:true});
+}
 
+async function loadAndPlot(id){
   try{curD=await(await fetch(DB+id.toLowerCase()+'.json')).json()}catch(e){curD={}}
   aTypes=new Set(Object.keys(TL).filter(k=>curD[k]&&curD[k].length));
   aFilt={ramp:0,dock:0,pier:0,ada:0,camping:0};
-
   let sh='';for(const[k,l]of Object.entries(TL)){if(curD[k]&&curD[k].length)sh+=`<span><b>${curD[k].length.toLocaleString()}</b> ${l}</span>`}
   document.getElementById('st-stats').innerHTML=sh;
   renderFilterBar();
   plotPoints();
-  // Bind viewport updates
-  map.off('moveend',onViewportChange);map.off('zoomend',onViewportChange);
-  map.on('moveend',onViewportChange);map.on('zoomend',onViewportChange);
-  setTimeout(onViewportChange,1800);
+  map.off('moveend',onVP);map.off('zoomend',onVP);
+  map.on('moveend',onVP);map.on('zoomend',onVP);
+  setTimeout(onVP,1800);
 }
 
 function renderFilterBar(){
-  let tr='';
-  for(const[k,l]of Object.entries(TL)){
-    if(!curD[k]||!curD[k].length)continue;
-    tr+=`<button class="tbtn ${aTypes.has(k)?'on':''}" onclick="togType('${k}',this)"><span class="d" style="background:${C[k]}"></span>${l}</button>`;
-  }
+  let tr='';for(const[k,l]of Object.entries(TL)){if(!curD[k]||!curD[k].length)continue;tr+=`<button class="tbtn ${aTypes.has(k)?'on':''}" onclick="togType('${k}',this)"><span class="d" style="background:${C[k]}"></span>${l}</button>`}
   document.getElementById('type-row').innerHTML=tr;
-  let ar='';
-  if(curD.access&&curD.access.length){
-    for(const[k,l]of[['ramp','Ramp'],['dock','Dock'],['pier','Pier'],['ada','ADA'],['camping','Camp']])
-      ar+=`<button class="abtn" onclick="togAmen('${k}',this)">${l}</button>`;
-  }
+  let ar='';if(curD.access&&curD.access.length){for(const[k,l]of[['ramp','Ramp'],['dock','Dock'],['pier','Pier'],['ada','ADA'],['camping','Camp']])ar+=`<button class="abtn" onclick="togAmen('${k}',this)">${l}</button>`}
   document.getElementById('amenity-row').innerHTML=ar;
   renderLegend();
 }
-
 function renderLegend(){
-  const lg=document.getElementById('legend');
-  let h='';for(const[k,l]of Object.entries(TL)){if(aTypes.has(k)&&curD[k]&&curD[k].length)h+=`<div class="legend-item"><span class="ld" style="background:${C[k]}"></span>${l}</div>`}
+  const lg=document.getElementById('legend');let h='';
+  for(const[k,l]of Object.entries(TL)){if(aTypes.has(k)&&curD[k]&&curD[k].length)h+=`<div class="legend-item"><span class="ld" style="background:${C[k]}"></span>${l}</div>`}
   lg.innerHTML=h;lg.classList.toggle('show',!!h);
 }
-
-function togType(k,btn){if(aTypes.has(k))aTypes.delete(k);else aTypes.add(k);btn.classList.toggle('on');plotPoints();renderLegend();debouncedVP()}
-function togAmen(k,btn){aFilt[k]=aFilt[k]?0:1;btn.classList.toggle('on');plotPoints();debouncedVP()}
+function togType(k,btn){if(aTypes.has(k))aTypes.delete(k);else aTypes.add(k);btn.classList.toggle('on');plotPoints();renderLegend();dVP()}
+function togAmen(k,btn){aFilt[k]=aFilt[k]?0:1;btn.classList.toggle('on');plotPoints();dVP()}
 
 function plotPoints(){
   for(const l of['cl','cc','up']){if(map.getLayer(l))map.removeLayer(l)}
@@ -265,22 +237,20 @@ function plotPoints(){
     }
   }
   map.addSource('pts',{type:'geojson',data:{type:'FeatureCollection',features:feats},cluster:true,clusterMaxZoom:13,clusterRadius:45});
-  map.addLayer({id:'cl',type:'circle',source:'pts',filter:['has','point_count'],paint:{'circle-color':['step',['get','point_count'],'#37474f',30,'#455a64',100,'#546e7a',300,'#78909c',800,'#b0bec5'],'circle-radius':['step',['get','point_count'],15,30,20,100,26,300,32,800,38],'circle-stroke-width':2,'circle-stroke-color':'rgba(255,255,255,0.15)'}});
+  map.addLayer({id:'cl',type:'circle',source:'pts',filter:['has','point_count'],paint:{'circle-color':['step',['get','point_count'],'rgba(20,20,20,0.75)',30,'rgba(30,30,30,0.8)',100,'rgba(40,40,40,0.85)',500,'rgba(60,60,60,0.9)'],'circle-radius':['step',['get','point_count'],16,30,21,100,27,300,33,800,40],'circle-stroke-width':2,'circle-stroke-color':'rgba(255,255,255,0.25)'}});
   map.addLayer({id:'cc',type:'symbol',source:'pts',filter:['has','point_count'],layout:{'text-field':'{point_count_abbreviated}','text-size':11,'text-font':['Open Sans Bold']},paint:{'text-color':'#fff'}});
   map.addLayer({id:'up',type:'circle',source:'pts',filter:['!',['has','point_count']],paint:{'circle-color':['get','_c'],'circle-radius':['interpolate',['linear'],['zoom'],6,4,10,7,14,10],'circle-stroke-width':2,'circle-stroke-color':'rgba(0,0,0,0.6)'}});
-
   map.on('click','cl',async e=>{const f=map.queryRenderedFeatures(e.point,{layers:['cl']});if(!f.length)return;const z=await map.getSource('pts').getClusterExpansionZoom(f[0].properties.cluster_id);map.flyTo({center:f[0].geometry.coordinates,zoom:z,duration:700})});
-  map.on('click','up',e=>{if(!e.features.length)return;const f=e.features[0];selectPoint(f.properties._id,f.geometry.coordinates)});
+  map.on('click','up',e=>{if(!e.features.length)return;selectPoint(e.features[0].properties._id,e.features[0].geometry.coordinates)});
   map.on('mouseenter','cl',()=>map.getCanvas().style.cursor='pointer');
   map.on('mouseleave','cl',()=>map.getCanvas().style.cursor='');
   map.on('mouseenter','up',()=>map.getCanvas().style.cursor='pointer');
   map.on('mouseleave','up',()=>map.getCanvas().style.cursor='');
 }
 
-function onViewportChange(){
+function onVP(){
   if(!curD||!map.getSource('pts'))return;
-  const bounds=map.getBounds();
-  const sw=bounds.getSouthWest(),ne=bounds.getNorthEast();
+  const b=map.getBounds(),sw=b.getSouthWest(),ne=b.getNorthEast();
   vpFeats=[];
   for(const[type,recs]of Object.entries(curD)){
     if(!aTypes.has(type))continue;
@@ -291,35 +261,22 @@ function onViewportChange(){
       vpFeats.push({...r,_t:type});
     }
   }
-  listLim=80;selId=null;
-  renderVPList();
+  listLim=80;selId=null;renderVPList();
 }
-function debouncedVP(){clearTimeout(updateTimer);updateTimer=setTimeout(onViewportChange,100)}
+function dVP(){clearTimeout(updateTimer);updateTimer=setTimeout(onVP,100)}
 
 function renderVPList(){
-  const total=vpFeats.length;
-  document.getElementById('vp-count').textContent=`${total.toLocaleString()} in view`;
+  document.getElementById('vp-count').textContent=`${vpFeats.length.toLocaleString()} in view`;
   const scroll=document.getElementById('point-scroll');
   const shown=vpFeats.slice(0,listLim);
   scroll.innerHTML=shown.map((r,i)=>{
     const nm=r.name||r.waterbody||'Unknown',sub=[];
     if(r.county)sub.push(r.county);if(r.city)sub.push(r.city);if(r.waterbody&&r.waterbody!==nm)sub.push(r.waterbody);if(r.material)sub.push(r.material);if(r.type)sub.push(r.type);
     let badges='';
-    if(r._t==='access'){
-      if(r.ramp==1)badges+='<span class="b y">Ramp</span>';
-      if(r.dock==1)badges+='<span class="b y">Dock</span>';
-      if(r.pier==1)badges+='<span class="b y">Pier</span>';
-      if(r.ada==1)badges+='<span class="b y">ADA</span>';
-      if(r.camping==1)badges+='<span class="b y">Camp</span>';
-      if(r.restroom==1)badges+='<span class="b y">WC</span>';
-    }
-    const sid=`vp-${i}`;
-    const isSel=selId===sid;
-    // Detail
+    if(r._t==='access'){if(r.ramp==1)badges+='<span class="b y">Ramp</span>';if(r.dock==1)badges+='<span class="b y">Dock</span>';if(r.pier==1)badges+='<span class="b y">Pier</span>';if(r.ada==1)badges+='<span class="b y">ADA</span>';if(r.camping==1)badges+='<span class="b y">Camp</span>';if(r.restroom==1)badges+='<span class="b y">WC</span>'}
+    const sid=`vp-${i}`,isSel=selId===sid;
     let det='';
-    if(r.lat&&r.lng){
-      det+=`<div class="row"><span class="lbl">Coords</span>${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}</div>`;
-    }
+    if(r.lat&&r.lng)det+=`<div class="row"><span class="lbl">Coords</span>${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}</div>`;
     if(r.owner)det+=`<div class="row"><span class="lbl">Owner</span>${esc(r.owner)}</div>`;
     if(r.manager)det+=`<div class="row"><span class="lbl">Manager</span>${esc(r.manager)}</div>`;
     if(r.ramp_type)det+=`<div class="row"><span class="lbl">Ramp</span>${esc(r.ramp_type)}</div>`;
@@ -329,54 +286,41 @@ function renderVPList(){
     if(r.designation)det+=`<div class="row"><span class="lbl">Desig.</span>${esc(r.designation)}</div>`;
     if(r.material)det+=`<div class="row"><span class="lbl">Material</span>${esc(r.material)}</div>`;
     if(r.year)det+=`<div class="row"><span class="lbl">Year</span>${esc(r.year)}</div>`;
+    if(r.acres)det+=`<div class="row"><span class="lbl">Acres</span>${r.acres}</div>`;
+    if(r.depth)det+=`<div class="row"><span class="lbl">Depth</span>${r.depth}</div>`;
     if(r.lat&&r.lng)det+=`<a class="gm" href="https://www.google.com/maps?q=${r.lat},${r.lng}" target="_blank" rel="noopener">Open in Google Maps &rarr;</a>`;
-
-    return`<div class="pi ${isSel?'selected':''}" id="${sid}" onclick="clickItem('${sid}',${r.lng||0},${r.lat||0})">
-      <div class="pn"><span class="td" style="background:${C[r._t]}"></span>${esc(nm)}</div>
-      ${sub.length?`<div class="pm">${esc(sub.join(' · '))}</div>`:''}
-      ${badges?`<div class="pb">${badges}</div>`:''}
-      <div class="detail">${det}</div>
-    </div>`;
+    return`<div class="pi ${isSel?'selected':''}" id="${sid}" onclick="clickItem('${sid}',${r.lng||0},${r.lat||0})"><div class="pn"><span class="td" style="background:${C[r._t]}"></span>${esc(nm)}</div>${sub.length?`<div class="pm">${esc(sub.join(' · '))}</div>`:''}${badges?`<div class="pb">${badges}</div>`:''}<div class="detail">${det}</div></div>`;
   }).join('');
-  if(total>listLim)scroll.innerHTML+=`<button class="load-more" onclick="listLim+=80;renderVPList()">Show more (${(total-listLim).toLocaleString()} remaining)</button>`;
+  if(vpFeats.length>listLim)scroll.innerHTML+=`<button class="load-more" onclick="listLim+=80;renderVPList()">Show more (${(vpFeats.length-listLim).toLocaleString()} remaining)</button>`;
 }
 
 function clickItem(sid,lng,lat){
   if(selId===sid){selId=null}else{selId=sid}
   renderVPList();
-  if(selId&&lat&&lng){map.easeTo({center:[lng,lat],duration:500})}
+  if(selId&&lat&&lng)map.easeTo({center:[lng,lat],duration:500});
   if(selId){const el=document.getElementById(sid);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'})}
 }
-
 function selectPoint(pid,coords){
-  // Find in vpFeats by proximity
-  const[lng,lat]=coords;
-  let best=-1,bestD=999;
-  for(let i=0;i<vpFeats.length&&i<listLim;i++){
-    const r=vpFeats[i];if(!r.lat||!r.lng)continue;
-    const d=Math.abs(r.lat-lat)+Math.abs(r.lng-lng);
-    if(d<bestD){bestD=d;best=i}
-  }
-  if(best>=0){
-    const sid=`vp-${best}`;
-    selId=sid;renderVPList();
-    const el=document.getElementById(sid);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
-  }
+  const[lng,lat]=coords;let best=-1,bestD=999;
+  for(let i=0;i<vpFeats.length&&i<listLim;i++){const r=vpFeats[i];if(!r.lat||!r.lng)continue;const d=Math.abs(r.lat-lat)+Math.abs(r.lng-lng);if(d<bestD){bestD=d;best=i}}
+  if(best>=0){selId=`vp-${best}`;renderVPList();const el=document.getElementById(selId);if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'})}
 }
 
 function backToList(){
   curSt=null;curD=null;selId=null;location.hash='';
-  map.off('moveend',onViewportChange);map.off('zoomend',onViewportChange);
-  for(const l of['cl','cc','up']){if(map.getLayer(l))map.removeLayer(l)}
-  if(map.getSource('pts'))map.removeSource('pts');
+  map.off('moveend',onVP);map.off('zoomend',onVP);
   document.getElementById('legend').classList.remove('show');
   document.getElementById('panel-state').classList.remove('active');
   document.getElementById('panel-states').classList.add('active');
+  // Switch back to dark matter and re-add states
+  switchStyle(false,()=>{
+    if(stGeo)addStates();
+    map.flyTo({center:[-98,39],zoom:3.8,duration:1400});
+  });
   map.flyTo({center:[-98,39],zoom:3.8,duration:1400});
 }
 
 function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'):''}
-
 window.addEventListener('hashchange',()=>{if(!location.hash&&curSt)backToList();else if(location.hash){const s=location.hash.slice(1).toUpperCase();if(s!==(curSt&&curSt.id)&&idx.find(x=>x.id===s))selState(s)}});
 init();
 </script>
