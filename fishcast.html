@@ -310,9 +310,8 @@ function renderPlanner(){
 
   const dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   // Day filter options
-  const dayOptions=['all'];
-  const seen=new Set();
-  plannerOpps.forEach(o=>{if(!seen.has(o.dayIdx)){seen.add(o.dayIdx);dayOptions.push(o.dayIdx)}});
+  // Chronological day filters: Today, Tmrw, Wed, Thu...
+  const dayOptions=[0,1,2,3,4,5,6];
 
   let filtered=plannerFilter==='all'?plannerOpps:plannerOpps.filter(o=>o.dayIdx===plannerFilter);
   const top=filtered.slice(0,15);
@@ -341,8 +340,8 @@ function renderPlanner(){
 
   // Day filter
   h+=`<div class="day-filter">`;
-  h+=`<div class="df-pill${plannerFilter==='all'?' active':''}" onclick="setPlannerFilter('all')">All days</div>`;
-  dayOptions.slice(1).forEach(di=>{
+  h+=`<div class="df-pill${plannerFilter==='all'?' active':''}" onclick="setPlannerFilter('all')">All</div>`;
+  dayOptions.forEach(di=>{
     const name=di===0?'Today':(di===1?'Tmrw':dn[allLakeData[0][di].date.getDay()]);
     h+=`<div class="df-pill${plannerFilter===di?' active':''}" onclick="setPlannerFilter(${di})">${name}</div>`;
   });
