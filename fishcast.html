@@ -12,394 +12,128 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap');
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:hidden}
 
-:root {
-  --bg: #0f1a12;
-  --bg2: #162016;
-  --bg3: #1c2a1e;
-  --card: #1a2b1d;
-  --card-hover: #213524;
-  --border: #2a3f2d;
-  --text: #d4ddd6;
-  --text-dim: #7a917e;
-  --text-bright: #e8f0ea;
-  --accent: #5cb870;
-  --accent-dim: #3a7a48;
-  --hot: #e8a838;
-  --warm: #5cb870;
-  --cool: #4a90b8;
-  --cold: #6872b0;
-  --terrible: #b85c5c;
-  --great: #4abd6a;
-  --good: #7ac06a;
-  --fair: #c0b84a;
-  --poor: #c07a4a;
-  --bad: #b85c5c;
+:root{
+  --bg:#0f1a12;--bg2:#162016;--bg3:#1c2a1e;
+  --card:#1a2b1d;--card-hover:#213524;--border:#2a3f2d;
+  --text:#d4ddd6;--text-dim:#7a917e;--text-bright:#e8f0ea;
+  --accent:#5cb870;--accent-dim:#3a7a48;
 }
 
-html, body { overflow-x: hidden; }
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{max-width:520px;margin:0 auto;padding:16px;padding-bottom:40px}
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.header h1{font-family:'Instrument Serif',serif;font-size:28px;font-weight:400;color:var(--text-bright);letter-spacing:-0.5px}
+.header h1 span{color:var(--accent)}
 
-.app {
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 16px;
-  padding-bottom: 40px;
-}
+.lake-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.lake-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);padding:6px 12px;border-radius:20px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
+.lake-btn:hover{background:var(--card-hover);color:var(--text)}
+.lake-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--text-bright)}
 
-/* Header */
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-.header h1 {
-  font-family: 'Instrument Serif', serif;
-  font-size: 28px;
-  font-weight: 400;
-  color: var(--text-bright);
-  letter-spacing: -0.5px;
-}
-.header h1 span { color: var(--accent); }
+.score-hero{background:linear-gradient(135deg,var(--bg3),var(--card));border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.score-hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(92,184,112,.06) 0%,transparent 60%);pointer-events:none}
+.score-hero .lake-name{font-family:'Instrument Serif',serif;font-size:20px;color:var(--text-bright);margin-bottom:4px}
+.score-hero .score-subtitle{font-size:12px;color:var(--text-dim);margin-bottom:16px;text-transform:uppercase;letter-spacing:1.5px}
+.score-ring{width:130px;height:130px;margin:0 auto 12px;position:relative}
+.score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.score-ring .bg-ring{stroke:var(--bg);stroke-width:8;fill:none}
+.score-ring .fg-ring{stroke-width:8;fill:none;stroke-linecap:round;transition:stroke-dashoffset .8s ease,stroke .4s}
+.score-ring .score-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.score-ring .score-num{font-family:'Instrument Serif',serif;font-size:42px;color:var(--text-bright);line-height:1}
+.score-ring .score-label{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
 
-/* Lake Selector */
-.lake-selector {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-.lake-btn {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.lake-btn:hover { background: var(--card-hover); color: var(--text); }
-.lake-btn.active {
-  background: var(--accent-dim);
-  border-color: var(--accent);
-  color: var(--text-bright);
-}
+.conditions-row{display:flex;justify-content:center;gap:16px;margin-top:16px;flex-wrap:wrap}
+.cond-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.cond-item .cond-icon{font-size:18px}
+.cond-item .cond-val{font-size:14px;font-weight:600;color:var(--text-bright)}
+.cond-item .cond-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
 
-/* Score Display */
-.score-hero {
-  background: linear-gradient(135deg, var(--bg3), var(--card));
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 20px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.score-hero::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(ellipse at 30% 20%, rgba(92,184,112,0.06) 0%, transparent 60%);
-  pointer-events: none;
-}
-.score-hero .lake-name {
-  font-family: 'Instrument Serif', serif;
-  font-size: 20px;
-  color: var(--text-bright);
-  margin-bottom: 4px;
-}
-.score-hero .score-subtitle {
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-.score-ring {
-  width: 130px;
-  height: 130px;
-  margin: 0 auto 12px;
-  position: relative;
-}
-.score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.score-ring .bg-ring { stroke: var(--bg); stroke-width: 8; fill: none; }
-.score-ring .fg-ring { stroke-width: 8; fill: none; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease, stroke 0.4s; }
-.score-ring .score-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-}
-.score-ring .score-num {
-  font-family: 'Instrument Serif', serif;
-  font-size: 42px;
-  color: var(--text-bright);
-  line-height: 1;
-}
-.score-ring .score-label {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-.score-conditions {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-}
-.cond-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-.cond-item .cond-icon { font-size: 18px; }
-.cond-item .cond-val { font-size: 14px; font-weight: 600; color: var(--text-bright); }
-.cond-item .cond-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.moon-bar{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(42,63,45,.4)}
+.moon-bar .moon-icon{font-size:20px}
+.moon-bar .moon-text{font-size:12px;color:var(--text-dim)}
+.moon-bar .moon-phase{color:var(--text);font-weight:600}
 
-/* Day Tabs */
-.day-tabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.day-tabs::-webkit-scrollbar { display: none; }
-.day-tab {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 12px;
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-align: center;
-  min-width: 62px;
-  flex-shrink: 0;
-}
-.day-tab:hover { background: var(--card-hover); }
-.day-tab.active {
-  background: var(--card);
-  border-color: var(--accent-dim);
-  color: var(--text-bright);
-}
-.day-tab .day-name { font-weight: 600; }
-.day-tab .day-score {
-  font-family: 'Instrument Serif', serif;
-  font-size: 18px;
-  line-height: 1.2;
-}
+.day-tabs{display:flex;gap:4px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.day-tabs::-webkit-scrollbar{display:none}
+.day-tab{background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);padding:8px 12px;border-radius:10px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;text-align:center;min-width:62px;flex-shrink:0}
+.day-tab:hover{background:var(--card-hover)}
+.day-tab.active{background:var(--card);border-color:var(--accent-dim);color:var(--text-bright)}
+.day-tab .day-name{font-weight:600}
+.day-tab .day-score{font-family:'Instrument Serif',serif;font-size:18px;line-height:1.2}
+.day-tab .day-peak{font-size:9px;color:var(--text-dim)}
 
-/* Hourly Grid */
-.section-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: var(--text-dim);
-  margin-bottom: 10px;
-  font-weight: 600;
-}
-.hourly-scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  margin-bottom: 20px;
-  scrollbar-width: none;
-}
-.hourly-scroll::-webkit-scrollbar { display: none; }
-.hourly-row {
-  display: flex;
-  gap: 4px;
-  width: max-content;
-}
-.hour-cell {
-  width: 52px;
-  flex-shrink: 0;
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 4px;
-  text-align: center;
-  transition: all 0.2s;
-}
-.hour-cell.prime {
-  border-color: var(--accent-dim);
-  background: linear-gradient(180deg, rgba(92,184,112,0.08), var(--bg3));
-}
-.hour-cell .h-time { font-size: 10px; color: var(--text-dim); font-weight: 600; }
-.hour-cell .h-icon { font-size: 16px; margin: 4px 0; }
-.hour-cell .h-score {
-  font-family: 'Instrument Serif', serif;
-  font-size: 20px;
-  line-height: 1;
-  margin-bottom: 2px;
-}
-.hour-cell .h-bar {
-  width: 100%;
-  height: 4px;
-  background: var(--bg);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-top: 4px;
-}
-.hour-cell .h-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.4s;
-}
+.tip-box{background:linear-gradient(135deg,rgba(92,184,112,.06),rgba(74,144,184,.04));border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px}
+.tip-box .tip-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.tip-box .tip-text{font-size:13px;color:var(--text);line-height:1.4}
 
-/* Factors Breakdown */
-.factors {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-.factors h3 {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-bright);
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-.factor-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(42,63,45,0.5);
-}
-.factor-row:last-child { border-bottom: none; }
-.factor-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.factor-icon { font-size: 16px; width: 24px; text-align: center; }
-.factor-name { font-size: 13px; color: var(--text); }
-.factor-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.factor-val { font-size: 13px; color: var(--text-dim); }
-.factor-badge {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.badge-great { background: rgba(74,189,106,0.15); color: var(--great); }
-.badge-good { background: rgba(122,192,106,0.15); color: var(--good); }
-.badge-fair { background: rgba(192,184,74,0.15); color: var(--fair); }
-.badge-poor { background: rgba(192,122,74,0.15); color: var(--poor); }
-.badge-bad { background: rgba(184,92,92,0.15); color: var(--bad); }
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:10px;font-weight:600}
 
-/* Best Windows */
-.best-windows {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-.best-windows h3 {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-bright);
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-.window-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(42,63,45,0.5);
-}
-.window-item:last-child { border-bottom: none; }
-.window-rank {
-  font-family: 'Instrument Serif', serif;
-  font-size: 22px;
-  color: var(--accent);
-  width: 28px;
-  text-align: center;
-}
-.window-info { flex: 1; }
-.window-time { font-size: 14px; font-weight: 600; color: var(--text-bright); }
-.window-why { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
-.window-score {
-  font-family: 'Instrument Serif', serif;
-  font-size: 24px;
-}
+.best-windows{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px}
+.best-windows h3{font-size:13px;font-weight:600;color:var(--text-bright);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.window-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(42,63,45,.5)}
+.window-item:last-child{border-bottom:none}
+.window-rank{font-family:'Instrument Serif',serif;font-size:22px;color:var(--accent);width:28px;text-align:center}
+.window-info{flex:1}
+.window-time{font-size:14px;font-weight:600;color:var(--text-bright)}
+.window-why{font-size:11px;color:var(--text-dim);margin-top:1px}
+.window-score{font-family:'Instrument Serif',serif;font-size:24px}
 
-/* Loading */
-.loading {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-dim);
-}
-.loading .spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+.hourly-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:20px;scrollbar-width:none}
+.hourly-scroll::-webkit-scrollbar{display:none}
+.hourly-row{display:flex;gap:4px;width:max-content}
+.hour-cell{width:52px;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;transition:all .2s}
+.hour-cell.prime{border-color:var(--accent-dim);background:linear-gradient(180deg,rgba(92,184,112,.08),var(--bg3))}
+.hour-cell.now{border-color:var(--accent);box-shadow:0 0 8px rgba(92,184,112,.25)}
+.hour-cell .h-time{font-size:10px;color:var(--text-dim);font-weight:600}
+.hour-cell .h-icon{font-size:16px;margin:4px 0}
+.hour-cell .h-score{font-family:'Instrument Serif',serif;font-size:20px;line-height:1;margin-bottom:2px}
+.hour-cell .h-bar{width:100%;height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:4px}
+.hour-cell .h-bar-fill{height:100%;border-radius:2px;transition:width .4s}
 
-/* Tips */
-.tip-box {
-  background: linear-gradient(135deg, rgba(92,184,112,0.06), rgba(74,144,184,0.04));
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 16px;
-}
-.tip-box .tip-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
-}
-.tip-box .tip-text { font-size: 13px; color: var(--text); line-height: 1.4; }
+.sun-marker{width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px;font-size:10px;color:#e8a838;font-weight:700;gap:2px;border-radius:10px;background:linear-gradient(180deg,rgba(232,168,56,.06),transparent);border:1px dashed rgba(232,168,56,.3)}
+.sun-marker .sun-icon{font-size:18px}
+
+.factors{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px}
+.factors h3{font-size:13px;font-weight:600;color:var(--text-bright);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.factor-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(42,63,45,.5)}
+.factor-row:last-child{border-bottom:none}
+.factor-left{display:flex;align-items:center;gap:8px}
+.factor-icon{font-size:16px;width:24px;text-align:center}
+.factor-name{font-size:13px;color:var(--text)}
+.factor-right{display:flex;align-items:center;gap:6px}
+.factor-pts{font-family:'Instrument Serif',serif;font-size:16px;min-width:32px;text-align:right}
+.factor-pts.pos{color:#5cb870}
+.factor-pts.neg{color:#b85c5c}
+.factor-pts.neu{color:var(--text-dim)}
+.factor-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.5px;max-width:180px;text-align:right}
+.badge-great{background:rgba(74,189,106,.15);color:#4abd6a}
+.badge-good{background:rgba(122,192,106,.15);color:#7ac06a}
+.badge-fair{background:rgba(192,184,74,.15);color:#c0b84a}
+.badge-poor{background:rgba(192,122,74,.15);color:#c07a4a}
+.badge-bad{background:rgba(184,92,92,.15);color:#b85c5c}
+
+.species-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px}
+.species-box h3{font-size:13px;font-weight:600;color:var(--text-bright);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
+.species-row{display:flex;align-items:center;gap:10px;padding:6px 0}
+.species-icon{font-size:18px;width:26px;text-align:center}
+.species-info{flex:1}
+.species-name{font-size:13px;font-weight:600;color:var(--text-bright)}
+.species-tip{font-size:11px;color:var(--text-dim);margin-top:1px}
+
+.loading{text-align:center;padding:60px 20px;color:var(--text-dim)}
+.loading .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
-    <h1><span>&#x1F3A3;</span> Fish<span>Cast</span></h1>
+    <h1><span>🎣</span> Fish<span>Cast</span></h1>
   </div>
-
   <div class="lake-selector" id="lakeSel"></div>
   <div id="content"><div class="loading"><div class="spinner"></div>Fetching forecast...</div></div>
 </div>
@@ -415,32 +149,47 @@ const LAKES = [
   { name: "Bass Lake", lat: 35.64, lon: -78.83, acres: 50, type: "pond", stain: "moderate", tier: 3 },
 ];
 
-let selectedLake = 0;
-let selectedDay = 0;
-let weatherData = null;
+let selectedLake = 0, selectedDay = 0, weatherData = null;
 
-function getScoreColor(s) {
-  if (s >= 80) return 'var(--great)';
-  if (s >= 65) return 'var(--good)';
-  if (s >= 45) return 'var(--fair)';
-  if (s >= 30) return 'var(--poor)';
-  return 'var(--bad)';
+function getMoonPhase(date) {
+  const y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate();
+  let r = y % 100; r %= 19;
+  if (r > 9) r -= 19;
+  r = ((r * 11) % 30) + m + d;
+  if (m < 3) r += 2;
+  r -= ((y < 2000) ? 4 : 8.3);
+  r = Math.floor(r + 0.5) % 30;
+  if (r < 0) r += 30;
+  return r;
 }
 
+function getMoonInfo(date) {
+  const phase = getMoonPhase(date);
+  let name, icon, fishScore;
+  if (phase <= 1 || phase >= 29) { name = "New Moon"; icon = "🌑"; fishScore = 8; }
+  else if (phase <= 6) { name = "Waxing Crescent"; icon = "🌒"; fishScore = 3; }
+  else if (phase <= 8) { name = "First Quarter"; icon = "🌓"; fishScore = 5; }
+  else if (phase <= 13) { name = "Waxing Gibbous"; icon = "🌔"; fishScore = 4; }
+  else if (phase <= 16) { name = "Full Moon"; icon = "🌕"; fishScore = 8; }
+  else if (phase <= 21) { name = "Waning Gibbous"; icon = "🌖"; fishScore = 4; }
+  else if (phase <= 23) { name = "Last Quarter"; icon = "🌗"; fishScore = 5; }
+  else { name = "Waning Crescent"; icon = "🌘"; fishScore = 3; }
+  return { phase, name, icon, fishScore };
+}
+
+function getScoreColor(s) {
+  if (s >= 75) return '#4abd6a';
+  if (s >= 60) return '#7ac06a';
+  if (s >= 45) return '#c0b84a';
+  if (s >= 30) return '#c07a4a';
+  return '#b85c5c';
+}
 function getScoreLabel(s) {
-  if (s >= 80) return 'Excellent';
-  if (s >= 65) return 'Good';
+  if (s >= 75) return 'Excellent';
+  if (s >= 60) return 'Good';
   if (s >= 45) return 'Fair';
   if (s >= 30) return 'Poor';
   return 'Bad';
-}
-
-function getScoreBadge(s) {
-  if (s >= 80) return 'great';
-  if (s >= 65) return 'good';
-  if (s >= 45) return 'fair';
-  if (s >= 30) return 'poor';
-  return 'bad';
 }
 
 function getWeatherIcon(cloud, precip, hour, sunrise, sunset) {
@@ -453,357 +202,294 @@ function getWeatherIcon(cloud, precip, hour, sunrise, sunset) {
   return isNight ? '🌙' : '☀️';
 }
 
-function computeHourlyScore(hour, temp, pressure, pressurePrev, cloud, wind, precip, sunrise, sunset, lake, month) {
-  let score = 50;
-  const factors = {};
+function fmtHour(h) {
+  if (h === 0 || h === 24) return '12a';
+  if (h < 12) return h + 'a';
+  if (h === 12) return '12p';
+  return (h - 12) + 'p';
+}
 
-  // 1. Time of day (biggest factor, ±25 pts)
+function computeHourlyScore(hour, temp, pressure, pressureDelta, cloud, wind, precip, sunrise, sunset, lake, month, moonScore) {
+  let score = 45;
+  const factors = {}, pts = {};
   const isWinter = month <= 2 || month === 12;
   const isSummer = month >= 6 && month <= 8;
-  const sunriseH = sunrise;
-  const sunsetH = sunset;
-  const golden1Start = sunriseH - 0.5;
-  const golden1End = sunriseH + 2;
-  const golden2Start = sunsetH - 2;
-  const golden2End = sunsetH + 0.5;
 
+  // 1. TIME OF DAY (±30) - DOMINANT
   let timeMod = 0;
   if (isWinter) {
-    // Winter: midday is best
-    if (hour >= 11 && hour <= 15) { timeMod = 15; factors.time = "Prime winter midday"; }
-    else if (hour >= 9 && hour < 11 || hour > 15 && hour <= 17) { timeMod = 5; factors.time = "Decent winter hours"; }
-    else if (hour >= 6 && hour < 9) { timeMod = -10; factors.time = "Cold morning"; }
-    else { timeMod = -15; factors.time = "Off hours"; }
+    if (hour >= 11 && hour <= 15) { timeMod = 18; factors.time = "Prime winter midday"; }
+    else if ((hour >= 9 && hour < 11) || (hour > 15 && hour <= 17)) { timeMod = 8; factors.time = "Decent winter hours"; }
+    else if (hour >= 7 && hour < 9) { timeMod = -5; factors.time = "Cold morning"; }
+    else if (hour >= 17 && hour < 19) { timeMod = -2; factors.time = "Cooling evening"; }
+    else { timeMod = -25; factors.time = "Off hours"; }
   } else {
-    if (hour >= golden1Start && hour <= golden1End) { timeMod = 22; factors.time = "Dawn golden hour"; }
-    else if (hour >= golden2Start && hour <= golden2End) { timeMod = 22; factors.time = "Dusk golden hour"; }
-    else if (hour >= golden1End && hour < 10) { timeMod = 8; factors.time = "Morning taper"; }
-    else if (hour > 15 && hour < golden2Start) { timeMod = 8; factors.time = "Afternoon build"; }
-    else if (hour >= 10 && hour <= 15) { timeMod = isSummer ? -20 : -8; factors.time = isSummer ? "Dead midday" : "Midday slump"; }
-    else if (hour >= 20 && hour <= 23) { timeMod = 3; factors.time = "Night fishing window"; }
-    else { timeMod = -12; factors.time = "Off hours"; }
+    const srH = Math.floor(sunrise), ssH = Math.floor(sunset);
+    if (hour >= srH - 1 && hour <= srH + 2) { timeMod = 28; factors.time = "Dawn golden hour"; }
+    else if (hour >= ssH - 2 && hour <= ssH + 1) { timeMod = 28; factors.time = "Dusk golden hour"; }
+    else if (hour > srH + 2 && hour < 10) { timeMod = 10; factors.time = "Morning (tapering)"; }
+    else if (hour > 15 && hour < ssH - 2) { timeMod = 10; factors.time = "Afternoon (building)"; }
+    else if (hour >= 10 && hour <= 15) { timeMod = isSummer ? -22 : -10; factors.time = isSummer ? "Midday dead zone" : "Midday slump"; }
+    else if (hour >= 20 && hour <= 22) { timeMod = -8; factors.time = "Late evening"; }
+    else { timeMod = -28; factors.time = "Off hours"; }
   }
-  score += timeMod;
+  score += timeMod; pts.time = timeMod;
 
-  // 2. Barometric pressure trend (±18 pts)
-  const pressureDiff = pressure - pressurePrev;
+  // 2. PRESSURE TREND (±15)
   let pressureMod = 0;
-  if (pressureDiff < -1.5) { pressureMod = 18; factors.pressure = "Falling fast (storm coming)"; }
-  else if (pressureDiff < -0.5) { pressureMod = 12; factors.pressure = "Falling (front approaching)"; }
-  else if (pressureDiff > 1.5) { pressureMod = -15; factors.pressure = "Rising fast (post-front)"; }
-  else if (pressureDiff > 0.5) { pressureMod = -8; factors.pressure = "Rising (clearing)"; }
-  else if (pressure > 1025) { pressureMod = -10; factors.pressure = "High & steady (bluebird)"; }
-  else if (pressure < 1005) { pressureMod = 5; factors.pressure = "Low pressure system"; }
-  else { pressureMod = 2; factors.pressure = "Stable"; }
-  score += pressureMod;
+  if (pressureDelta < -2) { pressureMod = 15; factors.pressure = "Dropping fast ↓↓"; }
+  else if (pressureDelta < -0.8) { pressureMod = 10; factors.pressure = "Falling ↓"; }
+  else if (pressureDelta > 2) { pressureMod = -14; factors.pressure = "Rising fast ↑↑"; }
+  else if (pressureDelta > 0.8) { pressureMod = -6; factors.pressure = "Rising ↑"; }
+  else if (pressure > 1025) { pressureMod = -8; factors.pressure = "High & steady"; }
+  else if (pressure < 1008) { pressureMod = 4; factors.pressure = "Low system"; }
+  else { pressureMod = 1; factors.pressure = "Stable →"; }
+  score += pressureMod; pts.pressure = pressureMod;
 
-  // 3. Cloud cover (±12 pts)
+  // 3. CLOUD COVER (±10)
   let cloudMod = 0;
-  if (cloud >= 80) { cloudMod = 12; factors.cloud = "Overcast (ideal)"; }
-  else if (cloud >= 60) { cloudMod = 8; factors.cloud = "Mostly cloudy (good)"; }
-  else if (cloud >= 40) { cloudMod = 3; factors.cloud = "Partly cloudy"; }
+  if (cloud >= 80) { cloudMod = 10; factors.cloud = "Overcast (ideal)"; }
+  else if (cloud >= 60) { cloudMod = 6; factors.cloud = "Mostly cloudy"; }
+  else if (cloud >= 40) { cloudMod = 2; factors.cloud = "Partly cloudy"; }
   else if (cloud >= 20) { cloudMod = -3; factors.cloud = "Mostly clear"; }
-  else { cloudMod = -8; factors.cloud = "Clear skies (fish go deep)"; }
-  score += cloudMod;
+  else { cloudMod = -7; factors.cloud = "Clear skies"; }
+  score += cloudMod; pts.cloud = cloudMod;
 
-  // 4. Wind (±10 pts)
+  // 4. WIND (±10)
   let windMod = 0;
   if (wind >= 5 && wind <= 15) { windMod = 10; factors.wind = "Perfect chop"; }
-  else if (wind > 15 && wind <= 20) { windMod = 3; factors.wind = "Windy but fishable"; }
+  else if (wind > 15 && wind <= 20) { windMod = 2; factors.wind = "Windy but fishable"; }
   else if (wind > 20) { windMod = -8; factors.wind = "Too windy"; }
   else if (wind >= 3) { windMod = 4; factors.wind = "Light breeze"; }
-  else { windMod = -6; factors.wind = "Dead calm (spooky)"; }
-  // Small lakes affected more by wind
-  if (lake.acres < 100 && wind > 15) { windMod -= 5; }
-  score += windMod;
+  else { windMod = -6; factors.wind = "Dead calm"; }
+  if (lake.acres < 100 && wind > 15) windMod -= 4;
+  score += windMod; pts.wind = windMod;
 
-  // 5. Precipitation (±12 pts)
+  // 5. PRECIPITATION (±10)
   let precipMod = 0;
-  if (precip > 0.1 && precip <= 2) { precipMod = 12; factors.precip = "Light rain (excellent)"; }
-  else if (precip > 2 && precip <= 5) { precipMod = 5; factors.precip = "Moderate rain"; }
-  else if (precip > 5) { precipMod = -8; factors.precip = "Heavy rain (muddy runoff)"; }
+  if (precip > 0.05 && precip <= 0.3) { precipMod = 10; factors.precip = "Light rain"; }
+  else if (precip > 0.3 && precip <= 1) { precipMod = 5; factors.precip = "Moderate rain"; }
+  else if (precip > 1) { precipMod = -6; factors.precip = "Heavy rain"; }
   else { precipMod = 0; factors.precip = "Dry"; }
-  score += precipMod;
+  score += precipMod; pts.precip = precipMod;
 
-  // 6. Temperature comfort (±8 pts)
+  // 6. TEMPERATURE (±6)
   let tempMod = 0;
-  if (temp >= 55 && temp <= 80) { tempMod = 5; factors.temp = "Comfortable range"; }
-  else if (temp >= 45 && temp < 55) { tempMod = 0; factors.temp = "Cool"; }
-  else if (temp > 80 && temp <= 90) { tempMod = -3; factors.temp = "Hot (fish go deep)"; }
-  else if (temp > 90) { tempMod = -8; factors.temp = "Scorching"; }
-  else if (temp < 45) { tempMod = -5; factors.temp = "Cold"; }
-  else if (temp < 35) { tempMod = -8; factors.temp = "Frigid"; }
-  score += tempMod;
+  if (temp >= 55 && temp <= 80) { tempMod = 4; factors.temp = Math.round(temp) + "° (comfortable)"; }
+  else if (temp >= 45 && temp < 55) { tempMod = 0; factors.temp = Math.round(temp) + "° (cool)"; }
+  else if (temp > 80 && temp <= 90) { tempMod = -2; factors.temp = Math.round(temp) + "° (hot)"; }
+  else if (temp > 90) { tempMod = -6; factors.temp = Math.round(temp) + "° (scorching)"; }
+  else if (temp >= 35 && temp < 45) { tempMod = -3; factors.temp = Math.round(temp) + "° (cold)"; }
+  else { tempMod = -6; factors.temp = Math.round(temp) + "° (frigid)"; }
+  score += tempMod; pts.temp = tempMod;
 
-  // 7. Lake-specific bonuses
-  if (lake.thermal && isWinter) { score += 8; factors.lake = "Thermal discharge bonus"; }
-  if (lake.stain === "stained" && cloud < 40) { score += 3; } // stained water less affected by sun
-  if (lake.acres < 50 && isSummer && hour >= 10 && hour <= 15) { score -= 5; } // small ponds cook in summer
+  // 7. MOON (±5)
+  let moonMod = Math.round((moonScore - 5) * 1.5);
+  factors.moon = getMoonInfo(new Date()).name;
+  score += moonMod; pts.moon = moonMod;
 
-  score = Math.max(5, Math.min(98, Math.round(score)));
-  return { score, factors };
+  // 8. LAKE BONUS
+  let lakeMod = 0;
+  if (lake.thermal && isWinter) { lakeMod = 8; factors.lake = "Thermal discharge"; }
+  else if (lake.stain === "stained" && cloud < 40) { lakeMod = 3; factors.lake = "Stained water helps"; }
+  else if (lake.acres < 50 && isSummer && hour >= 10 && hour <= 15) { lakeMod = -4; factors.lake = "Small pond cooks"; }
+  else factors.lake = null;
+  if (lakeMod) { score += lakeMod; pts.lake = lakeMod; }
+
+  return { score: Math.max(5, Math.min(98, Math.round(score))), factors, pts };
 }
+
+function parseSunHour(s) { const d = new Date(s); return d.getHours() + d.getMinutes() / 60; }
 
 async function fetchWeather(lake) {
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lake.lat}&longitude=${lake.lon}&hourly=temperature_2m,relativehumidity_2m,precipitation,cloudcover,windspeed_10m,pressure_msl&daily=sunrise,sunset&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America/New_York&forecast_days=7`;
-  const res = await fetch(url);
-  return await res.json();
-}
-
-function parseSunHour(isoStr) {
-  const d = new Date(isoStr);
-  return d.getHours() + d.getMinutes() / 60;
+  const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lake.lat}&longitude=${lake.lon}&hourly=temperature_2m,relativehumidity_2m,precipitation,cloudcover,windspeed_10m,pressure_msl&daily=sunrise,sunset&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America/New_York&forecast_days=7`);
+  return r.json();
 }
 
 function processData(data, lake) {
-  const hours = data.hourly.time;
-  const days = [];
+  const hours = data.hourly.time, allP = data.hourly.pressure_msl, days = [];
   let currentDay = null;
-
   for (let i = 0; i < hours.length; i++) {
-    const dt = new Date(hours[i]);
-    const dayIdx = Math.floor(i / 24);
-    const hour = dt.getHours();
-    const month = dt.getMonth() + 1;
-
-    const sunriseH = parseSunHour(data.daily.sunrise[dayIdx]);
-    const sunsetH = parseSunHour(data.daily.sunset[dayIdx]);
-
-    const pressurePrev = i >= 3 ? data.hourly.pressure_msl[i - 3] : data.hourly.pressure_msl[i];
-
-    const { score, factors } = computeHourlyScore(
-      hour,
-      data.hourly.temperature_2m[i],
-      data.hourly.pressure_msl[i],
-      pressurePrev,
-      data.hourly.cloudcover[i],
-      data.hourly.windspeed_10m[i],
-      data.hourly.precipitation[i],
-      sunriseH, sunsetH, lake, month
-    );
-
-    const hData = {
-      hour, score, factors,
-      temp: Math.round(data.hourly.temperature_2m[i]),
-      pressure: data.hourly.pressure_msl[i],
-      cloud: data.hourly.cloudcover[i],
-      wind: Math.round(data.hourly.windspeed_10m[i]),
-      precip: data.hourly.precipitation[i],
-      icon: getWeatherIcon(data.hourly.cloudcover[i], data.hourly.precipitation[i], hour, sunriseH, sunsetH),
-      sunriseH, sunsetH,
-      dt
-    };
-
-    if (i % 24 === 0) {
-      currentDay = { date: dt, hours: [], sunriseH, sunsetH };
-      days.push(currentDay);
-    }
+    const dt = new Date(hours[i]), dayIdx = Math.floor(i / 24), hour = dt.getHours(), month = dt.getMonth() + 1;
+    const srH = parseSunHour(data.daily.sunrise[dayIdx]), ssH = parseSunHour(data.daily.sunset[dayIdx]);
+    const pDelta = allP[i] - allP[Math.max(0, i - 6)];
+    const moon = getMoonInfo(dt);
+    const { score, factors, pts } = computeHourlyScore(hour, data.hourly.temperature_2m[i], allP[i], pDelta, data.hourly.cloudcover[i], data.hourly.windspeed_10m[i], data.hourly.precipitation[i], srH, ssH, lake, month, moon.fishScore);
+    const hData = { hour, score, factors, pts, dt, temp: Math.round(data.hourly.temperature_2m[i]), pressure: allP[i], pressureDelta: pDelta, cloud: data.hourly.cloudcover[i], wind: Math.round(data.hourly.windspeed_10m[i]), precip: data.hourly.precipitation[i], icon: getWeatherIcon(data.hourly.cloudcover[i], data.hourly.precipitation[i], hour, srH, ssH), sunriseH: srH, sunsetH: ssH, moonInfo: moon };
+    if (i % 24 === 0) { currentDay = { date: dt, hours: [], sunriseH: srH, sunsetH: ssH, moonInfo: moon }; days.push(currentDay); }
     currentDay.hours.push(hData);
   }
-
-  // Day avg scores (fishing hours only: 5am - 9pm)
   days.forEach(d => {
-    const fishHours = d.hours.filter(h => h.hour >= 5 && h.hour <= 21);
-    d.avgScore = Math.round(fishHours.reduce((a, h) => a + h.score, 0) / fishHours.length);
-    d.peakScore = Math.max(...d.hours.map(h => h.score));
-    d.peakHour = d.hours.find(h => h.score === d.peakScore);
+    const fh = d.hours.filter(h => h.hour >= 5 && h.hour <= 21);
+    d.avgScore = Math.round(fh.reduce((a, h) => a + h.score, 0) / fh.length);
+    d.peakScore = Math.max(...fh.map(h => h.score));
+    d.peakHour = fh.find(h => h.score === d.peakScore);
   });
-
   return days;
 }
 
+function findBestWindows(hours) {
+  const fh = hours.filter(h => h.hour >= 5 && h.hour <= 21);
+  if (!fh.length) return [];
+  const peaks = [];
+  for (let i = 0; i < fh.length; i++) {
+    const prev = i > 0 ? fh[i-1].score : 0, next = i < fh.length - 1 ? fh[i+1].score : 0;
+    if (fh[i].score >= prev && fh[i].score >= next && fh[i].score >= 45) peaks.push(fh[i]);
+  }
+  if (!peaks.length) { const s = [...fh].sort((a,b) => b.score - a.score); peaks.push(...s.slice(0, 3)); }
+  const used = new Set(), windows = [];
+  for (const peak of [...peaks].sort((a,b) => b.score - a.score)) {
+    if (used.has(peak.hour) || windows.length >= 3) continue;
+    const min = peak.score - 15;
+    let start = peak.hour, end = peak.hour;
+    for (let h = peak.hour - 1; h >= Math.max(5, peak.hour - 2); h--) { const f = fh.find(x => x.hour === h); if (f && f.score >= min && !used.has(h)) start = h; else break; }
+    for (let h = peak.hour + 1; h <= Math.min(21, peak.hour + 2); h++) { const f = fh.find(x => x.hour === h); if (f && f.score >= min && !used.has(h)) end = h; else break; }
+    for (let h = start; h <= end; h++) used.add(h);
+    const wh = fh.filter(x => x.hour >= start && x.hour <= end);
+    const avg = Math.round(wh.reduce((a, x) => a + x.score, 0) / wh.length);
+    const reasons = [];
+    const p = peak.pts;
+    if (p.time >= 10) reasons.push(peak.factors.time);
+    if (p.pressure >= 8) reasons.push(peak.factors.pressure);
+    if (p.cloud >= 6) reasons.push("Overcast");
+    if (p.precip >= 5) reasons.push("Rain");
+    if (p.wind >= 8) reasons.push("Good chop");
+    if (!reasons.length) reasons.push(peak.factors.time || "Best available");
+    windows.push({ start, end, score: avg, peakScore: peak.score, reason: reasons.slice(0, 2).join(' + ') });
+  }
+  return windows.sort((a, b) => b.score - a.score);
+}
+
+function getSpeciesTips(day, lake) {
+  const pk = day.peakHour, t = pk.temp, m = day.date.getMonth() + 1, tips = [];
+  if (m >= 3 && m <= 5 && t >= 50) tips.push({ icon: "🐟", name: "Largemouth Bass", tip: "Pre-spawn/spawn. Shallow flats, spinnerbaits, jigs near laydowns." });
+  else if (m >= 6 && m <= 8) tips.push({ icon: "🐟", name: "Largemouth Bass", tip: "Deep structure, morning topwater. Texas rig worms on ledges." });
+  else if (m >= 9 && m <= 11) tips.push({ icon: "🐟", name: "Largemouth Bass", tip: "Fall feed-up. Follow the shad, crankbaits on points." });
+  else tips.push({ icon: "🐟", name: "Largemouth Bass", tip: "Slow and deep. Jigs, blade baits on channel swings." + (lake.thermal ? " Fish near warm discharge." : "") });
+  if (t >= 55 && t <= 70 && m >= 3 && m <= 5) tips.push({ icon: "🐠", name: "Crappie", tip: "Moving to banks. Minnows under cork in 5-8 ft around brush." });
+  else if (m >= 6 && m <= 8) tips.push({ icon: "🐠", name: "Crappie", tip: "Bridge pilings, deep brush. Small jigs trolled 12-18 ft." });
+  else tips.push({ icon: "🐠", name: "Crappie", tip: "Vertical jig around standing timber and bridge pilings." });
+  if (pk.hour >= 17 || pk.hour <= 6 || pk.cloud >= 70) tips.push({ icon: "🐱", name: "Catfish", tip: "Prime conditions. Cut bait or stink bait on bottom near channel drops." });
+  return tips;
+}
+
 function renderLakeSelector() {
-  const el = document.getElementById('lakeSel');
-  el.innerHTML = LAKES.map((l, i) =>
-    `<button class="lake-btn${i === selectedLake ? ' active' : ''}" onclick="selectLake(${i})">${l.name.replace('Lake ', '').replace('Lake', '')}</button>`
-  ).join('');
+  document.getElementById('lakeSel').innerHTML = LAKES.map((l, i) => `<button class="lake-btn${i === selectedLake ? ' active' : ''}" onclick="selectLake(${i})">${l.name.replace('Lake ', '').replace('Lake', '')}</button>`).join('');
 }
-
-function selectLake(i) {
-  selectedLake = i;
-  selectedDay = 0;
-  renderLakeSelector();
-  loadForecast();
-}
-
-function selectDay(i) {
-  selectedDay = i;
-  renderContent();
-}
+function selectLake(i) { selectedLake = i; selectedDay = 0; renderLakeSelector(); loadForecast(); }
+function selectDay(i) { selectedDay = i; renderContent(); }
 
 async function loadForecast() {
-  const el = document.getElementById('content');
-  el.innerHTML = '<div class="loading"><div class="spinner"></div>Fetching forecast...</div>';
-  try {
-    const data = await fetchWeather(LAKES[selectedLake]);
-    weatherData = processData(data, LAKES[selectedLake]);
-    renderContent();
-  } catch(e) {
-    el.innerHTML = `<div class="loading">Error loading forecast. ${e.message}</div>`;
-  }
+  document.getElementById('content').innerHTML = '<div class="loading"><div class="spinner"></div>Fetching forecast...</div>';
+  try { weatherData = processData(await fetchWeather(LAKES[selectedLake]), LAKES[selectedLake]); renderContent(); }
+  catch(e) { document.getElementById('content').innerHTML = `<div class="loading">Error: ${e.message}</div>`; }
 }
 
 function renderContent() {
   if (!weatherData) return;
-  const lake = LAKES[selectedLake];
-  const day = weatherData[selectedDay];
-  const now = new Date();
-  const currentHour = now.getHours();
-  const isToday = selectedDay === 0;
+  const lake = LAKES[selectedLake], day = weatherData[selectedDay], now = new Date(), curHr = now.getHours(), isToday = selectedDay === 0;
+  const dispHour = isToday ? (day.hours[curHr] || day.peakHour) : day.peakHour;
+  const dispScore = isToday ? dispHour.score : day.avgScore;
+  const wins = findBestWindows(day.hours);
 
-  // Find current/next best hour
-  const relevantHours = isToday ? day.hours.filter(h => h.hour >= currentHour) : day.hours.filter(h => h.hour >= 5 && h.hour <= 21);
-  const currentScore = isToday && day.hours[currentHour] ? day.hours[currentHour] : day.peakHour;
-  const displayScore = isToday ? currentScore.score : day.avgScore;
-
-  // Best windows for the day
-  const fishableHours = day.hours.filter(h => h.hour >= 5 && h.hour <= 21);
-  const sorted = [...fishableHours].sort((a, b) => b.score - a.score);
-  const bestWindows = [];
-  const usedHours = new Set();
-  for (const h of sorted) {
-    if (usedHours.has(h.hour)) continue;
-    if (bestWindows.length >= 3) break;
-    // Find contiguous window
-    let start = h.hour, end = h.hour;
-    while (start > 5 && fishableHours.find(x => x.hour === start - 1 && x.score >= h.score - 12)) start--;
-    while (end < 21 && fishableHours.find(x => x.hour === end + 1 && x.score >= h.score - 12)) end++;
-    for (let x = start; x <= end; x++) usedHours.add(x);
-    const windowHours = fishableHours.filter(x => x.hour >= start && x.hour <= end);
-    const avgScore = Math.round(windowHours.reduce((a, x) => a + x.score, 0) / windowHours.length);
-    const reasons = new Set();
-    windowHours.forEach(x => { if(x.factors.time) reasons.add(x.factors.time); });
-    if (h.factors.pressure && !h.factors.pressure.includes('Stable')) reasons.add(h.factors.pressure);
-    if (h.factors.cloud && h.factors.cloud.includes('ideal')) reasons.add('Overcast');
-    if (h.factors.precip && h.factors.precip.includes('excellent')) reasons.add('Light rain');
-    bestWindows.push({
-      start, end, score: avgScore, peakScore: h.score,
-      reason: [...reasons].slice(0, 2).join(' + ') || 'Best available'
-    });
-  }
-
-  // Factor breakdown for current/peak hour
-  const fHour = isToday ? currentScore : day.peakHour;
-
-  // Tip generation
   let tip = '';
-  if (displayScore >= 75) tip = `Stack the deck: ${lake.stain === 'stained' ? 'Stained water means reaction baits. Throw spinnerbaits and chatterbaits.' : 'Moving baits and topwater during prime windows.'}`;
-  else if (displayScore >= 55) tip = 'Decent day. Focus your effort during the prime windows below and fish structure/shade between them.';
-  else if (displayScore >= 35) tip = `Tough conditions. Slow down, downsize baits, and target deep structure or shaded cover. ${lake.thermal ? 'Focus near the warm water discharge.' : ''}`;
-  else tip = 'Rough day to fish. If you go, commit to one spot with good structure and grind it slow. Night catfishing might be the move.';
+  if (dispScore >= 70) tip = lake.stain === 'stained' ? 'Great conditions. Stained water = reaction baits: spinnerbaits, chatterbaits, lipless cranks.' : 'Great conditions. Moving baits during golden hours, slow presentations between.';
+  else if (dispScore >= 50) tip = 'Decent day. Focus effort during the prime windows below. Structure and shade between them.';
+  else if (dispScore >= 35) tip = 'Tough conditions. Downsize, slow down, target deep structure or shade.' + (lake.thermal ? ' Focus near warm discharge.' : '');
+  else tip = 'Rough day. Pick one spot with good structure and grind it slow. Night catfishing might be the move.';
 
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const dn = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], mn = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const circ = 2 * Math.PI * 54, off = circ - (dispScore / 100) * circ;
+  const pA = dispHour.pressureDelta < -0.8 ? '↓' : dispHour.pressureDelta > 0.8 ? '↑' : '→';
+  const pD = (dispHour.pressureDelta >= 0 ? '+' : '') + dispHour.pressureDelta.toFixed(1);
 
-  const circumference = 2 * Math.PI * 54;
-  const offset = circumference - (displayScore / 100) * circumference;
+  let h = '';
 
-  let html = '';
-
-  // Hero score
-  html += `
-  <div class="score-hero">
+  // HERO
+  h += `<div class="score-hero">
     <div class="lake-name">${lake.name}</div>
-    <div class="score-subtitle">${isToday ? 'Right now' : dayNames[day.date.getDay()] + ' ' + monthNames[day.date.getMonth()] + ' ' + day.date.getDate()}</div>
-    <div class="score-ring">
-      <svg viewBox="0 0 120 120">
-        <circle class="bg-ring" cx="60" cy="60" r="54"/>
-        <circle class="fg-ring" cx="60" cy="60" r="54"
-          stroke="${getScoreColor(displayScore)}"
-          stroke-dasharray="${circumference}"
-          stroke-dashoffset="${offset}"/>
-      </svg>
-      <div class="score-text">
-        <div class="score-num">${displayScore}</div>
-        <div class="score-label" style="color:${getScoreColor(displayScore)}">${getScoreLabel(displayScore)}</div>
-      </div>
+    <div class="score-subtitle">${isToday ? 'Right now' : dn[day.date.getDay()] + ' ' + mn[day.date.getMonth()] + ' ' + day.date.getDate()}</div>
+    <div class="score-ring"><svg viewBox="0 0 120 120"><circle class="bg-ring" cx="60" cy="60" r="54"/><circle class="fg-ring" cx="60" cy="60" r="54" stroke="${getScoreColor(dispScore)}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/></svg><div class="score-text"><div class="score-num">${dispScore}</div><div class="score-label" style="color:${getScoreColor(dispScore)}">${getScoreLabel(dispScore)}</div></div></div>
+    <div class="conditions-row">
+      <div class="cond-item"><div class="cond-icon">${dispHour.icon}</div><div class="cond-val">${dispHour.temp}°</div><div class="cond-label">Temp</div></div>
+      <div class="cond-item"><div class="cond-icon">💨</div><div class="cond-val">${dispHour.wind} mph</div><div class="cond-label">Wind</div></div>
+      <div class="cond-item"><div class="cond-icon">☁️</div><div class="cond-val">${dispHour.cloud}%</div><div class="cond-label">Cloud</div></div>
+      <div class="cond-item"><div class="cond-icon">📉</div><div class="cond-val">${pA} ${pD}</div><div class="cond-label">6hr hPa</div></div>
+      <div class="cond-item"><div class="cond-icon">🌧️</div><div class="cond-val">${dispHour.precip.toFixed(2)}"</div><div class="cond-label">Rain</div></div>
     </div>
-    <div class="score-conditions">
-      <div class="cond-item"><div class="cond-icon">${fHour.icon}</div><div class="cond-val">${fHour.temp}°</div><div class="cond-label">Temp</div></div>
-      <div class="cond-item"><div class="cond-icon">💨</div><div class="cond-val">${fHour.wind}</div><div class="cond-label">Wind mph</div></div>
-      <div class="cond-item"><div class="cond-icon">☁️</div><div class="cond-val">${fHour.cloud}%</div><div class="cond-label">Cloud</div></div>
-      <div class="cond-item"><div class="cond-icon">📊</div><div class="cond-val">${fHour.pressure.toFixed(0)}</div><div class="cond-label">hPa</div></div>
-      <div class="cond-item"><div class="cond-icon">🌧️</div><div class="cond-val">${fHour.precip.toFixed(1)}"</div><div class="cond-label">Rain</div></div>
-    </div>
+    <div class="moon-bar"><span class="moon-icon">${day.moonInfo.icon}</span><span class="moon-text"><span class="moon-phase">${day.moonInfo.name}</span> · ${day.moonInfo.fishScore >= 7 ? 'Strong solunar' : day.moonInfo.fishScore >= 5 ? 'Moderate solunar' : 'Weak solunar'}</span></div>
   </div>`;
 
-  // Tip
-  html += `<div class="tip-box"><div class="tip-title">Strategy</div><div class="tip-text">${tip}</div></div>`;
+  h += `<div class="tip-box"><div class="tip-title">Strategy</div><div class="tip-text">${tip}</div></div>`;
 
-  // Day tabs
-  html += `<div class="day-tabs">`;
+  // DAY TABS
+  h += `<div class="day-tabs">`;
   weatherData.forEach((d, i) => {
-    const dn = i === 0 ? 'Today' : (i === 1 ? 'Tmrw' : dayNames[d.date.getDay()]);
-    html += `<div class="day-tab${i === selectedDay ? ' active' : ''}" onclick="selectDay(${i})">
-      <div class="day-name">${dn}</div>
-      <div class="day-score" style="color:${getScoreColor(d.avgScore)}">${d.avgScore}</div>
-    </div>`;
+    const name = i === 0 ? 'Today' : (i === 1 ? 'Tmrw' : dn[d.date.getDay()]);
+    h += `<div class="day-tab${i === selectedDay ? ' active' : ''}" onclick="selectDay(${i})"><div class="day-name">${name}</div><div class="day-score" style="color:${getScoreColor(d.avgScore)}">${d.avgScore}</div><div class="day-peak">pk ${d.peakScore}</div></div>`;
   });
-  html += `</div>`;
+  h += `</div>`;
 
-  // Best windows
-  if (bestWindows.length) {
-    html += `<div class="best-windows"><h3>Best Windows</h3>`;
-    bestWindows.forEach((w, i) => {
-      const startStr = w.start === 0 ? '12a' : w.start < 12 ? w.start + 'a' : w.start === 12 ? '12p' : (w.start - 12) + 'p';
-      const endStr = (w.end + 1) === 0 ? '12a' : (w.end + 1) < 12 ? (w.end + 1) + 'a' : (w.end + 1) === 12 ? '12p' : (w.end + 1 - 12) + 'p';
-      html += `<div class="window-item">
-        <div class="window-rank">${i + 1}</div>
-        <div class="window-info">
-          <div class="window-time">${startStr} – ${endStr}</div>
-          <div class="window-why">${w.reason}</div>
-        </div>
-        <div class="window-score" style="color:${getScoreColor(w.score)}">${w.score}</div>
-      </div>`;
+  // BEST WINDOWS
+  if (wins.length) {
+    h += `<div class="best-windows"><h3>Best Windows</h3>`;
+    wins.forEach((w, i) => {
+      h += `<div class="window-item"><div class="window-rank">${i + 1}</div><div class="window-info"><div class="window-time">${fmtHour(w.start)} – ${fmtHour(w.end + 1)}</div><div class="window-why">${w.reason}</div></div><div class="window-score" style="color:${getScoreColor(w.score)}">${w.score}</div></div>`;
     });
-    html += `</div>`;
+    h += `</div>`;
   }
 
-  // Hourly scroll
-  html += `<div class="section-label">Hourly Forecast</div>`;
-  html += `<div class="hourly-scroll"><div class="hourly-row">`;
-  day.hours.forEach(h => {
-    const tStr = h.hour === 0 ? '12a' : h.hour < 12 ? h.hour + 'a' : h.hour === 12 ? '12p' : (h.hour - 12) + 'p';
-    const isPrime = h.score >= 65;
-    html += `<div class="hour-cell${isPrime ? ' prime' : ''}">
-      <div class="h-time">${tStr}</div>
-      <div class="h-icon">${h.icon}</div>
-      <div class="h-score" style="color:${getScoreColor(h.score)}">${h.score}</div>
-      <div style="font-size:10px;color:var(--text-dim)">${h.temp}°</div>
-      <div class="h-bar"><div class="h-bar-fill" style="width:${h.score}%;background:${getScoreColor(h.score)}"></div></div>
-    </div>`;
+  // HOURLY
+  const srHr = Math.round(day.sunriseH), ssHr = Math.round(day.sunsetH);
+  h += `<div class="section-label">Hourly Forecast</div><div class="hourly-scroll" id="hourlyScroll"><div class="hourly-row">`;
+  day.hours.forEach(hr => {
+    if (hr.hour === srHr) { const m = Math.round((day.sunriseH % 1) * 60); h += `<div class="sun-marker"><div class="sun-icon">🌅</div>${srHr > 12 ? srHr - 12 : srHr}:${String(m).padStart(2,'0')}</div>`; }
+    const prime = hr.score >= 60, isNow = isToday && hr.hour === curHr;
+    h += `<div class="hour-cell${prime ? ' prime' : ''}${isNow ? ' now' : ''}" data-hour="${hr.hour}"><div class="h-time">${fmtHour(hr.hour)}</div><div class="h-icon">${hr.icon}</div><div class="h-score" style="color:${getScoreColor(hr.score)}">${hr.score}</div><div style="font-size:10px;color:var(--text-dim)">${hr.temp}°</div><div class="h-bar"><div class="h-bar-fill" style="width:${hr.score}%;background:${getScoreColor(hr.score)}"></div></div></div>`;
+    if (hr.hour === ssHr) { const m = Math.round((day.sunsetH % 1) * 60); h += `<div class="sun-marker" style="background:linear-gradient(180deg,rgba(184,92,92,.06),transparent);border-color:rgba(184,92,92,.3)"><div class="sun-icon">🌇</div>${ssHr > 12 ? ssHr - 12 : ssHr}:${String(m).padStart(2,'0')}</div>`; }
   });
-  html += `</div></div>`;
+  h += `</div></div>`;
 
-  // Factor breakdown
-  const factorList = [
+  // FACTORS
+  const fH = isToday ? dispHour : day.peakHour;
+  const fList = [
     { icon: '🕐', name: 'Time of Day', key: 'time' },
     { icon: '📉', name: 'Pressure Trend', key: 'pressure' },
     { icon: '☁️', name: 'Cloud Cover', key: 'cloud' },
     { icon: '💨', name: 'Wind', key: 'wind' },
     { icon: '🌧️', name: 'Precipitation', key: 'precip' },
     { icon: '🌡️', name: 'Temperature', key: 'temp' },
+    { icon: fH.moonInfo.icon, name: 'Moon Phase', key: 'moon' },
   ];
-  if (lake.thermal) factorList.push({ icon: '♨️', name: 'Thermal Discharge', key: 'lake' });
+  if (fH.factors.lake) fList.push({ icon: '♨️', name: 'Lake Bonus', key: 'lake' });
 
-  html += `<div class="factors"><h3>Factor Breakdown (${isToday ? 'Now' : 'Peak Hour'})</h3>`;
-  factorList.forEach(f => {
-    const val = fHour.factors[f.key] || 'Neutral';
-    let badge = 'fair';
-    const v = val.toLowerCase();
-    if (v.includes('ideal') || v.includes('excellent') || v.includes('perfect') || v.includes('golden') || v.includes('dawn') || v.includes('dusk') || v.includes('falling fast') || v.includes('prime') || v.includes('bonus')) badge = 'great';
-    else if (v.includes('good') || v.includes('mostly cloudy') || v.includes('light') || v.includes('falling') || v.includes('comfortable')) badge = 'good';
-    else if (v.includes('neutral') || v.includes('stable') || v.includes('dry') || v.includes('partly') || v.includes('cool') || v.includes('taper') || v.includes('build') || v.includes('decent') || v.includes('moderate')) badge = 'fair';
-    else if (v.includes('clear') || v.includes('calm') || v.includes('rising') || v.includes('hot') || v.includes('cold') || v.includes('mostly clear') || v.includes('slump')) badge = 'poor';
-    else if (v.includes('dead') || v.includes('scorching') || v.includes('frigid') || v.includes('too windy') || v.includes('heavy') || v.includes('bluebird') || v.includes('post-front') || v.includes('off hours')) badge = 'bad';
-    html += `<div class="factor-row">
-      <div class="factor-left"><div class="factor-icon">${f.icon}</div><div class="factor-name">${f.name}</div></div>
-      <div class="factor-right"><span class="factor-badge badge-${badge}">${val}</span></div>
-    </div>`;
+  h += `<div class="factors"><h3>Factor Breakdown (${isToday ? 'Now' : 'Peak ' + fmtHour(fH.hour)})</h3>`;
+  fList.forEach(f => {
+    const val = fH.factors[f.key] || 'Neutral', p = fH.pts[f.key] || 0;
+    const pc = p > 0 ? 'pos' : (p < 0 ? 'neg' : 'neu'), ps = p > 0 ? '+' + p : String(p);
+    let b = 'fair';
+    if (p >= 10) b = 'great'; else if (p >= 5) b = 'good'; else if (p >= 0) b = 'fair'; else if (p >= -5) b = 'poor'; else b = 'bad';
+    h += `<div class="factor-row"><div class="factor-left"><div class="factor-icon">${f.icon}</div><div class="factor-name">${f.name}</div></div><div class="factor-right"><span class="factor-badge badge-${b}">${val}</span><span class="factor-pts ${pc}">${ps}</span></div></div>`;
   });
-  html += `</div>`;
+  h += `</div>`;
 
-  document.getElementById('content').innerHTML = html;
+  // SPECIES
+  const sp = getSpeciesTips(day, lake);
+  if (sp.length) {
+    h += `<div class="species-box"><h3>Species Intel</h3>`;
+    sp.forEach(s => { h += `<div class="species-row"><div class="species-icon">${s.icon}</div><div class="species-info"><div class="species-name">${s.name}</div><div class="species-tip">${s.tip}</div></div></div>`; });
+    h += `</div>`;
+  }
+
+  document.getElementById('content').innerHTML = h;
+
+  // Auto-scroll to current hour or first fishable
+  requestAnimationFrame(() => {
+    const sc = document.getElementById('hourlyScroll');
+    if (!sc) return;
+    const tgt = sc.querySelector(`[data-hour="${isToday ? curHr : Math.max(5, srHr - 1)}"]`);
+    if (tgt) sc.scrollLeft = tgt.offsetLeft - 16;
+  });
 }
 
 renderLakeSelector();
