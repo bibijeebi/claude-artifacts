@@ -16,9 +16,63 @@ html,body{overflow-x:hidden}
 :root{--bg:#0f1a12;--bg2:#162016;--bg3:#1c2a1e;--card:#1a2b1d;--card-hover:#213524;--border:#2a3f2d;--text:#d4ddd6;--text-dim:#7a917e;--text-bright:#e8f0ea;--accent:#5cb870;--accent-dim:#3a7a48}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .app{max-width:520px;margin:0 auto;padding:16px;padding-bottom:40px}
-.header{display:flex;align-items:center;margin-bottom:20px}
+.header{display:flex;align-items:center;margin-bottom:16px}
 .header h1{font-family:'Instrument Serif',serif;font-size:28px;font-weight:400;color:var(--text-bright);letter-spacing:-0.5px}
 .header h1 span{color:var(--accent)}
+
+/* View Tabs */
+.view-tabs{display:flex;gap:0;margin-bottom:20px;background:var(--bg3);border-radius:12px;padding:3px;border:1px solid var(--border)}
+.view-tab{flex:1;text-align:center;padding:10px 16px;font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;color:var(--text-dim);cursor:pointer;border-radius:10px;transition:all .2s;border:none;background:none}
+.view-tab.active{background:var(--card);color:var(--text-bright);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.view-tab:hover:not(.active){color:var(--text)}
+
+/* Planner */
+.planner-loading{text-align:center;padding:40px 20px;color:var(--text-dim)}
+.planner-loading .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+.planner-loading .prog{font-size:12px;margin-top:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.planner-hero{background:linear-gradient(135deg,var(--bg3),var(--card));border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.planner-hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(92,184,112,.06) 0%,transparent 60%);pointer-events:none}
+.planner-hero .ph-title{font-family:'Instrument Serif',serif;font-size:22px;color:var(--text-bright);margin-bottom:4px}
+.planner-hero .ph-sub{font-size:12px;color:var(--text-dim);margin-bottom:14px}
+.planner-hero .ph-pick{display:flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;padding:12px;background:rgba(92,184,112,.06);border-radius:12px;border:1px solid var(--accent-dim)}
+.planner-hero .ph-score{font-family:'Instrument Serif',serif;font-size:44px;line-height:1}
+.planner-hero .ph-info{text-align:left}
+.planner-hero .ph-lake{font-size:16px;font-weight:700;color:var(--text-bright)}
+.planner-hero .ph-when{font-size:14px;color:var(--accent);font-weight:600}
+.planner-hero .ph-why{font-size:11px;color:var(--text-dim);margin-top:2px}
+.planner-hero .ph-arrow{color:var(--text-dim);font-size:20px;margin-left:auto}
+
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:10px;font-weight:600}
+
+/* Opportunity Cards */
+.opp-list{display:flex;flex-direction:column;gap:6px;margin-bottom:20px}
+.opp-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:all .15s}
+.opp-card:hover{background:var(--card-hover);border-color:var(--accent-dim)}
+.opp-card:active{transform:scale(.98)}
+.opp-rank{font-family:'Instrument Serif',serif;font-size:20px;color:var(--accent);width:24px;text-align:center;flex-shrink:0}
+.opp-score-ring{width:44px;height:44px;flex-shrink:0;position:relative}
+.opp-score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.opp-score-ring .osr-bg{stroke:var(--bg);stroke-width:4;fill:none}
+.opp-score-ring .osr-fg{stroke-width:4;fill:none;stroke-linecap:round}
+.opp-score-ring .osr-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Instrument Serif',serif;font-size:16px;color:var(--text-bright)}
+.opp-body{flex:1;min-width:0}
+.opp-top{display:flex;align-items:baseline;gap:6px}
+.opp-lake{font-size:14px;font-weight:700;color:var(--text-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.opp-when{font-size:12px;color:var(--accent);font-weight:600}
+.opp-details{font-size:11px;color:var(--text-dim);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+.opp-detail{display:flex;align-items:center;gap:2px}
+.opp-arrow{color:var(--text-dim);font-size:16px;flex-shrink:0}
+
+/* Day filter pills */
+.day-filter{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.day-filter::-webkit-scrollbar{display:none}
+.df-pill{background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);padding:6px 10px;border-radius:16px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s}
+.df-pill:hover{background:var(--card-hover)}
+.df-pill.active{background:var(--accent-dim);border-color:var(--accent);color:var(--text-bright)}
+
+/* Detail View (from v4, mostly same) */
 .lake-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
 .lake-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);padding:6px 12px;border-radius:20px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
 .lake-btn:hover{background:var(--card-hover);color:var(--text)}
@@ -43,28 +97,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .moon-bar .moon-icon{font-size:20px}
 .moon-bar .moon-text{font-size:12px;color:var(--text-dim)}
 .moon-bar .moon-phase{color:var(--text);font-weight:600}
-.next-window{background:linear-gradient(135deg,rgba(92,184,112,.1),rgba(74,144,184,.06));border:1px solid var(--accent-dim);border-radius:12px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
-.next-window .nw-icon{font-size:28px}
-.next-window .nw-info{flex:1}
-.next-window .nw-label{font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;font-weight:700}
-.next-window .nw-time{font-size:16px;font-weight:600;color:var(--text-bright);margin-top:2px}
-.next-window .nw-detail{font-size:12px;color:var(--text-dim);margin-top:1px}
-.next-window .nw-score{font-family:'Instrument Serif',serif;font-size:28px}
-.best-day{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;cursor:pointer}
-.best-day .bd-badge{background:var(--accent-dim);color:var(--text-bright);font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.best-day .bd-text{font-size:13px;color:var(--text);flex:1;line-height:1.3}
-.best-day .bd-text strong{color:var(--text-bright)}
-.best-day .bd-score{font-family:'Instrument Serif',serif;font-size:22px}
 .tip-box{background:linear-gradient(135deg,rgba(92,184,112,.06),rgba(74,144,184,.04));border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px}
 .tip-box .tip-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
 .tip-box .tip-text{font-size:13px;color:var(--text);line-height:1.4}
-.section-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:10px;font-weight:600}
 .day-tabs{display:flex;gap:4px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .day-tabs::-webkit-scrollbar{display:none}
 .day-tab{background:var(--bg3);border:1px solid var(--border);color:var(--text-dim);padding:8px 12px;border-radius:10px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;text-align:center;min-width:62px;flex-shrink:0}
 .day-tab:hover{background:var(--card-hover)}
 .day-tab.active{background:var(--card);border-color:var(--accent-dim);color:var(--text-bright)}
-.day-tab.best-tab{border-color:var(--accent);background:linear-gradient(180deg,rgba(92,184,112,.1),var(--bg3))}
 .day-tab .day-name{font-weight:600}
 .day-tab .day-score{font-family:'Instrument Serif',serif;font-size:18px;line-height:1.2}
 .day-tab .day-peak{font-size:9px;color:var(--text-dim)}
@@ -80,14 +120,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .hourly-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:20px;scrollbar-width:none}
 .hourly-scroll::-webkit-scrollbar{display:none}
 .hourly-row{display:flex;gap:4px;width:max-content}
-.hour-cell{width:52px;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center;transition:all .2s}
+.hour-cell{width:52px;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:8px 4px;text-align:center}
 .hour-cell.prime{border-color:var(--accent-dim);background:linear-gradient(180deg,rgba(92,184,112,.08),var(--bg3))}
 .hour-cell.now{border-color:var(--accent);box-shadow:0 0 8px rgba(92,184,112,.25)}
 .hour-cell .h-time{font-size:10px;color:var(--text-dim);font-weight:600}
 .hour-cell .h-icon{font-size:16px;margin:4px 0}
 .hour-cell .h-score{font-family:'Instrument Serif',serif;font-size:20px;line-height:1;margin-bottom:2px}
 .hour-cell .h-bar{width:100%;height:24px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:4px;display:flex;align-items:flex-end}
-.hour-cell .h-bar-fill{width:100%;border-radius:3px;transition:height .4s}
+.hour-cell .h-bar-fill{width:100%;border-radius:3px}
 .sun-marker{width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px;font-size:10px;color:#e8a838;font-weight:700;gap:2px;border-radius:10px;background:linear-gradient(180deg,rgba(232,168,56,.06),transparent);border:1px dashed rgba(232,168,56,.3)}
 .sun-marker .sun-icon{font-size:18px}
 .factors{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px}
@@ -113,159 +153,66 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .species-info{flex:1}
 .species-name{font-size:13px;font-weight:600;color:var(--text-bright)}
 .species-tip{font-size:11px;color:var(--text-dim);margin-top:1px}
-.loading{text-align:center;padding:60px 20px;color:var(--text-dim)}
-.loading .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
-@keyframes spin{to{transform:rotate(360deg)}}
+
+.back-btn{background:none;border:1px solid var(--border);color:var(--text-dim);padding:6px 14px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:16px;display:inline-flex;align-items:center;gap:4px;transition:all .2s}
+.back-btn:hover{background:var(--bg3);color:var(--text)}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header"><h1><span>🎣</span> Fish<span>Cast</span></h1></div>
-  <div class="lake-selector" id="lakeSel"></div>
-  <div id="content"><div class="loading"><div class="spinner"></div>Fetching forecast...</div></div>
+  <div class="view-tabs">
+    <div class="view-tab active" id="vtPlanner" onclick="showView('planner')">Planner</div>
+    <div class="view-tab" id="vtDetail" onclick="showView('detail')">Detail</div>
+  </div>
+  <div id="content"></div>
 </div>
 <script>
 const LAKES=[
-  {name:"Jordan Lake",lat:35.725,lon:-79.025,acres:14000,stain:"stained",thermal:false},
-  {name:"Falls Lake",lat:36.02,lon:-78.68,acres:12400,stain:"moderate",thermal:false},
-  {name:"Harris Lake",lat:35.605,lon:-78.945,acres:4100,stain:"moderate",thermal:true},
-  {name:"Lake Wheeler",lat:35.705,lon:-78.695,acres:650,stain:"stained",thermal:false},
-  {name:"Lake Benson",lat:35.67,lon:-78.60,acres:200,stain:"stained",thermal:false},
-  {name:"Panther Lake",lat:35.55,lon:-78.67,acres:11,stain:"murky",thermal:false},
-  {name:"Bass Lake",lat:35.64,lon:-78.83,acres:50,stain:"moderate",thermal:false},
+  {id:0,name:"Jordan Lake",short:"Jordan",lat:35.725,lon:-79.025,acres:14000,stain:"stained",thermal:false},
+  {id:1,name:"Falls Lake",short:"Falls",lat:36.02,lon:-78.68,acres:12400,stain:"moderate",thermal:false},
+  {id:2,name:"Harris Lake",short:"Harris",lat:35.605,lon:-78.945,acres:4100,stain:"moderate",thermal:true},
+  {id:3,name:"Lake Wheeler",short:"Wheeler",lat:35.705,lon:-78.695,acres:650,stain:"stained",thermal:false},
+  {id:4,name:"Lake Benson",short:"Benson",lat:35.67,lon:-78.60,acres:200,stain:"stained",thermal:false},
+  {id:5,name:"Panther Lake",short:"Panther",lat:35.55,lon:-78.67,acres:11,stain:"murky",thermal:false},
+  {id:6,name:"Bass Lake",short:"Bass",lat:35.64,lon:-78.83,acres:50,stain:"moderate",thermal:false},
 ];
-let selectedLake=0,selectedDay=0,weatherData=null;
 
+let currentView='planner';
+let allLakeData={};// lakeId -> {days,raw}
+let detailLake=0,detailDay=0;
+let plannerFilter='all';
+
+// --- Scoring ---
 function getMoonPhase(d){let y=d.getFullYear(),m=d.getMonth()+1,day=d.getDate(),r=y%100;r%=19;if(r>9)r-=19;r=((r*11)%30)+m+day;if(m<3)r+=2;r-=((y<2000)?4:8.3);r=Math.floor(r+.5)%30;return r<0?r+30:r}
 function getMoonInfo(d){const p=getMoonPhase(d);if(p<=1||p>=29)return{name:"New Moon",icon:"🌑",score:8};if(p<=6)return{name:"Waxing Crescent",icon:"🌒",score:3};if(p<=8)return{name:"First Quarter",icon:"🌓",score:5};if(p<=13)return{name:"Waxing Gibbous",icon:"🌔",score:4};if(p<=16)return{name:"Full Moon",icon:"🌕",score:8};if(p<=21)return{name:"Waning Gibbous",icon:"🌖",score:4};if(p<=23)return{name:"Last Quarter",icon:"🌗",score:5};return{name:"Waning Crescent",icon:"🌘",score:3}}
 function scColor(s){return s>=75?'#4abd6a':s>=60?'#7ac06a':s>=45?'#c0b84a':s>=30?'#c07a4a':'#b85c5c'}
 function scLabel(s){return s>=75?'Excellent':s>=60?'Good':s>=45?'Fair':s>=30?'Poor':'Bad'}
 function wIcon(cloud,precip,h,sr,ss){const n=h<sr||h>=ss;if(precip>2)return'🌧️';if(precip>.5)return'🌦️';if(cloud>80)return'☁️';if(cloud>50)return n?'☁️':'⛅';if(cloud>20)return n?'🌙':'🌤️';return n?'🌙':'☀️'}
 function fh(h){return h===0||h===24?'12a':h<12?h+'a':h===12?'12p':(h-12)+'p'}
-
-// Sigmoid compression: maps raw (-50..+80) to display (5..92)
-// Ensures natural curve with peak differentiation
-function sigmoid(raw){
-  // Shift so 0 raw = ~45 display
-  // Positive raw compresses harder as it goes up
-  // Negative raw compresses harder as it goes down
-  const k = 0.04; // steepness
-  const midpoint = 0; // raw score center
-  const maxOut = 92;
-  const minOut = 5;
-  const range = maxOut - minOut;
-  return Math.round(minOut + range / (1 + Math.exp(-k * (raw - midpoint))));
-}
+function sigmoid(raw){return Math.round(5+87/(1+Math.exp(-0.04*raw)))}
 
 function computeScore(hour,temp,pressure,pDelta,cloud,wind,precip,sr,ss,lake,month,moonSc){
   const factors={},pts={};
-  const isW=month<=2||month===12, isS=month>=6&&month<=8;
-
-  // 1. TIME (±30) - dominant
+  const isW=month<=2||month===12,isS=month>=6&&month<=8;
   let t=0;
-  if(isW){
-    if(hour>=11&&hour<=14){t=20;factors.time="Prime winter midday"}
-    else if(hour===10||hour===15){t=12;factors.time="Near-prime winter"}
-    else if((hour>=8&&hour<10)||(hour>15&&hour<=17)){t=5;factors.time="Decent winter hours"}
-    else if(hour>=7&&hour<8){t=-5;factors.time="Cold morning"}
-    else if(hour>=17&&hour<19){t=-3;factors.time="Cooling evening"}
-    else{t=-35;factors.time="Off hours"}
-  }else{
-    const srH=Math.floor(sr),ssH=Math.floor(ss);
-    // Golden hours: gradual bell curve, not flat top
-    if(hour===srH||hour===srH+1){t=30;factors.time="Dawn golden hour"}
-    else if(hour===srH-1||hour===srH+2){t=20;factors.time="Near dawn"}
-    else if(hour===ssH-1||hour===ssH){t=30;factors.time="Dusk golden hour"}
-    else if(hour===ssH-2||hour===ssH+1){t=20;factors.time="Near dusk"}
-    else if(hour>srH+2&&hour<10){t=8;factors.time="Morning (tapering)"}
-    else if(hour>15&&hour<ssH-2){t=8;factors.time="Afternoon (building)"}
-    else if(hour>=10&&hour<=15){
-      // Bell-shaped midday penalty: worst at noon, less bad at edges
-      const distFromNoon=Math.abs(hour-12.5);
-      const midPenalty=isS?-25+distFromNoon*4:-12+distFromNoon*2;
-      t=Math.round(midPenalty);
-      factors.time=isS?(hour>=11&&hour<=14?"Midday dead zone":"Midday slump"):"Midday slump";
-    }
-    else if(hour>=20&&hour<=22){t=-12;factors.time="Late evening"}
-    else{t=-35;factors.time="Off hours"}
-  }
+  if(isW){if(hour>=11&&hour<=14){t=20;factors.time="Prime winter midday"}else if(hour===10||hour===15){t=12;factors.time="Near-prime winter"}else if((hour>=8&&hour<10)||(hour>15&&hour<=17)){t=5;factors.time="Decent winter hours"}else if(hour>=7&&hour<8){t=-5;factors.time="Cold morning"}else if(hour>=17&&hour<19){t=-3;factors.time="Cooling evening"}else{t=-35;factors.time="Off hours"}}
+  else{const srH=Math.floor(sr),ssH=Math.floor(ss);if(hour===srH||hour===srH+1){t=30;factors.time="Dawn golden hour"}else if(hour===srH-1||hour===srH+2){t=20;factors.time="Near dawn"}else if(hour===ssH-1||hour===ssH){t=30;factors.time="Dusk golden hour"}else if(hour===ssH-2||hour===ssH+1){t=20;factors.time="Near dusk"}else if(hour>srH+2&&hour<10){t=8;factors.time="Morning"}else if(hour>15&&hour<ssH-2){t=8;factors.time="Afternoon"}else if(hour>=10&&hour<=15){const d=Math.abs(hour-12.5);t=Math.round(isS?-25+d*4:-12+d*2);factors.time=isS?"Midday dead zone":"Midday slump"}else if(hour>=20&&hour<=22){t=-12;factors.time="Late evening"}else{t=-35;factors.time="Off hours"}}
   pts.time=t;
-
-  // 2. PRESSURE (±16)
-  let p=0;
-  if(pDelta<-2.5){p=16;factors.pressure="Crashing ↓↓↓"}
-  else if(pDelta<-1.5){p=12;factors.pressure="Dropping fast ↓↓"}
-  else if(pDelta<-0.6){p=7;factors.pressure="Falling ↓"}
-  else if(pDelta>2.5){p=-16;factors.pressure="Spiking ↑↑↑"}
-  else if(pDelta>1.5){p=-12;factors.pressure="Rising fast ↑↑"}
-  else if(pDelta>0.6){p=-5;factors.pressure="Rising ↑"}
-  else if(pressure>1028){p=-10;factors.pressure="Very high (bluebird)"}
-  else if(pressure>1022){p=-5;factors.pressure="High & steady"}
-  else if(pressure<1005){p=5;factors.pressure="Low system"}
-  else{p=0;factors.pressure="Stable →"}
+  let p=0;if(pDelta<-2.5){p=16;factors.pressure="Crashing ↓↓↓"}else if(pDelta<-1.5){p=12;factors.pressure="Dropping fast ↓↓"}else if(pDelta<-0.6){p=7;factors.pressure="Falling ↓"}else if(pDelta>2.5){p=-16;factors.pressure="Spiking ↑↑↑"}else if(pDelta>1.5){p=-12;factors.pressure="Rising fast ↑↑"}else if(pDelta>0.6){p=-5;factors.pressure="Rising ↑"}else if(pressure>1028){p=-10;factors.pressure="Very high"}else if(pressure>1022){p=-5;factors.pressure="High & steady"}else if(pressure<1005){p=5;factors.pressure="Low system"}else{p=0;factors.pressure="Stable →"}
   pts.pressure=p;
-
-  // 3. CLOUD (±10)
-  let c=0;
-  if(cloud>=85){c=10;factors.cloud="Overcast (ideal)"}
-  else if(cloud>=70){c=7;factors.cloud="Heavy clouds"}
-  else if(cloud>=50){c=4;factors.cloud="Mostly cloudy"}
-  else if(cloud>=30){c=0;factors.cloud="Partly cloudy"}
-  else if(cloud>=15){c=-3;factors.cloud="Mostly clear"}
-  else{c=-7;factors.cloud="Clear skies"}
+  let c=0;if(cloud>=85){c=10;factors.cloud="Overcast"}else if(cloud>=70){c=7;factors.cloud="Heavy clouds"}else if(cloud>=50){c=4;factors.cloud="Mostly cloudy"}else if(cloud>=30){c=0;factors.cloud="Partly cloudy"}else if(cloud>=15){c=-3;factors.cloud="Mostly clear"}else{c=-7;factors.cloud="Clear skies"}
   pts.cloud=c;
-
-  // 4. WIND (±10)
-  let w=0;
-  if(wind>=7&&wind<=12){w=10;factors.wind="Perfect chop"}
-  else if(wind>=5&&wind<7||wind>12&&wind<=15){w=6;factors.wind="Good breeze"}
-  else if(wind>15&&wind<=20){w=1;factors.wind="Windy but fishable"}
-  else if(wind>20){w=-8;factors.wind="Too windy"}
-  else if(wind>=3){w=2;factors.wind="Light breeze"}
-  else{w=-5;factors.wind="Dead calm"}
-  if(lake.acres<100&&wind>15)w-=4;
-  pts.wind=w;
-
-  // 5. PRECIP (±10)
-  let pr=0;
-  if(precip>.02&&precip<=.15){pr=10;factors.precip="Drizzle (perfect)"}
-  else if(precip>.15&&precip<=.4){pr=7;factors.precip="Light rain"}
-  else if(precip>.4&&precip<=1){pr=3;factors.precip="Moderate rain"}
-  else if(precip>1){pr=-7;factors.precip="Heavy rain"}
-  else{pr=0;factors.precip="Dry"}
+  let w=0;if(wind>=7&&wind<=12){w=10;factors.wind="Perfect chop"}else if(wind>=5&&wind<7||wind>12&&wind<=15){w=6;factors.wind="Good breeze"}else if(wind>15&&wind<=20){w=1;factors.wind="Windy"}else if(wind>20){w=-8;factors.wind="Too windy"}else if(wind>=3){w=2;factors.wind="Light breeze"}else{w=-5;factors.wind="Dead calm"}
+  if(lake.acres<100&&wind>15)w-=4;pts.wind=w;
+  let pr=0;if(precip>.02&&precip<=.15){pr=10;factors.precip="Drizzle"}else if(precip>.15&&precip<=.4){pr=7;factors.precip="Light rain"}else if(precip>.4&&precip<=1){pr=3;factors.precip="Moderate rain"}else if(precip>1){pr=-7;factors.precip="Heavy rain"}else{pr=0;factors.precip="Dry"}
   pts.precip=pr;
-
-  // 6. TEMP (±6)
-  let tp=0;
-  if(temp>=60&&temp<=75){tp=6;factors.temp=Math.round(temp)+"° (ideal)"}
-  else if(temp>=55&&temp<60||temp>75&&temp<=80){tp=3;factors.temp=Math.round(temp)+"° (comfortable)"}
-  else if(temp>=45&&temp<55){tp=0;factors.temp=Math.round(temp)+"° (cool)"}
-  else if(temp>80&&temp<=88){tp=-2;factors.temp=Math.round(temp)+"° (hot)"}
-  else if(temp>88){tp=-6;factors.temp=Math.round(temp)+"° (scorching)"}
-  else if(temp>=35&&temp<45){tp=-3;factors.temp=Math.round(temp)+"° (cold)"}
-  else{tp=-6;factors.temp=Math.round(temp)+"° (frigid)"}
+  let tp=0;if(temp>=60&&temp<=75){tp=6;factors.temp=Math.round(temp)+"°"}else if(temp>=55&&temp<60||temp>75&&temp<=80){tp=3;factors.temp=Math.round(temp)+"°"}else if(temp>=45&&temp<55){tp=0;factors.temp=Math.round(temp)+"°"}else if(temp>80&&temp<=88){tp=-2;factors.temp=Math.round(temp)+"°"}else if(temp>88){tp=-6;factors.temp=Math.round(temp)+"°"}else if(temp>=35&&temp<45){tp=-3;factors.temp=Math.round(temp)+"°"}else{tp=-6;factors.temp=Math.round(temp)+"°"}
   pts.temp=tp;
-
-  // 7. MOON (±5)
-  let mn=Math.round((moonSc-5)*1.5);
-  factors.moon=getMoonInfo(new Date()).name;
-  pts.moon=mn;
-
-  // 8. LAKE
-  let lk=0;
-  if(lake.thermal&&isW){lk=8;factors.lake="Thermal discharge"}
-  else if(lake.stain==="stained"&&cloud<30){lk=3;factors.lake="Stained water helps"}
-  else if(lake.acres<50&&isS&&hour>=10&&hour<=15){lk=-5;factors.lake="Small pond cooks"}
-  else factors.lake=null;
+  let mn=Math.round((moonSc-5)*1.5);factors.moon=getMoonInfo(new Date()).name;pts.moon=mn;
+  let lk=0;if(lake.thermal&&isW){lk=8;factors.lake="Thermal"}else if(lake.stain==="stained"&&cloud<30){lk=3;factors.lake="Stained water"}else if(lake.acres<50&&isS&&hour>=10&&hour<=15){lk=-5;factors.lake="Small pond"}else factors.lake=null;
   if(lk)pts.lake=lk;
-
-  // Sum raw score
-  const raw=Object.values(pts).reduce((a,v)=>a+v,0);
-
-  // Apply sigmoid compression
-  const score=sigmoid(raw);
-
-  return{score,factors,pts,raw}
+  return{score:sigmoid(Object.values(pts).reduce((a,v)=>a+v,0)),factors,pts}
 }
 
 function parseSunHour(s){const d=new Date(s);return d.getHours()+d.getMinutes()/60}
@@ -275,157 +222,178 @@ async function fetchWeather(lake){
 }
 
 function processData(data,lake){
-  const hrs=data.hourly.time,allP=data.hourly.pressure_msl,days=[];
-  let cur=null;
+  const hrs=data.hourly.time,allP=data.hourly.pressure_msl,days=[];let cur=null;
   for(let i=0;i<hrs.length;i++){
     const dt=new Date(hrs[i]),di=Math.floor(i/24),hr=dt.getHours(),mo=dt.getMonth()+1;
     const srH=parseSunHour(data.daily.sunrise[di]),ssH=parseSunHour(data.daily.sunset[di]);
-    const pD=allP[i]-allP[Math.max(0,i-6)];
-    const moon=getMoonInfo(dt);
-    const{score,factors,pts,raw}=computeScore(hr,data.hourly.temperature_2m[i],allP[i],pD,data.hourly.cloudcover[i],data.hourly.windspeed_10m[i],data.hourly.precipitation[i],srH,ssH,lake,mo,moon.score);
-    const hd={hour:hr,score,raw,factors,pts,dt,temp:Math.round(data.hourly.temperature_2m[i]),pressure:allP[i],pressureDelta:pD,cloud:data.hourly.cloudcover[i],wind:Math.round(data.hourly.windspeed_10m[i]),precip:data.hourly.precipitation[i],icon:wIcon(data.hourly.cloudcover[i],data.hourly.precipitation[i],hr,srH,ssH),sunriseH:srH,sunsetH:ssH,moonInfo:moon};
+    const pD=allP[i]-allP[Math.max(0,i-6)];const moon=getMoonInfo(dt);
+    const{score,factors,pts}=computeScore(hr,data.hourly.temperature_2m[i],allP[i],pD,data.hourly.cloudcover[i],data.hourly.windspeed_10m[i],data.hourly.precipitation[i],srH,ssH,lake,mo,moon.score);
+    const hd={hour:hr,score,factors,pts,dt,temp:Math.round(data.hourly.temperature_2m[i]),pressure:allP[i],pressureDelta:pD,cloud:data.hourly.cloudcover[i],wind:Math.round(data.hourly.windspeed_10m[i]),precip:data.hourly.precipitation[i],icon:wIcon(data.hourly.cloudcover[i],data.hourly.precipitation[i],hr,srH,ssH),sunriseH:srH,sunsetH:ssH,moonInfo:moon};
     if(i%24===0){cur={date:dt,hours:[],sunriseH:srH,sunsetH:ssH,moonInfo:moon};days.push(cur)}
     cur.hours.push(hd)
   }
-  days.forEach(d=>{
-    const f=d.hours.filter(h=>h.hour>=5&&h.hour<=21);
-    d.avgScore=Math.round(f.reduce((a,h)=>a+h.score,0)/f.length);
-    d.peakScore=Math.max(...f.map(h=>h.score));
-    d.peakHour=f.find(h=>h.score===d.peakScore);
-  });
+  days.forEach(d=>{const f=d.hours.filter(h=>h.hour>=5&&h.hour<=21);d.avgScore=Math.round(f.reduce((a,h)=>a+h.score,0)/f.length);d.peakScore=Math.max(...f.map(h=>h.score));d.peakHour=f.find(h=>h.score===d.peakScore)});
   return days
 }
 
 function findWindows(hours){
-  const fh=hours.filter(h=>h.hour>=5&&h.hour<=21);
-  if(!fh.length)return[];
-  const runs=[]; let run=null;
-  for(const h of fh){
-    if(h.score>=50){
-      if(!run)run={start:h.hour,end:h.hour,hours:[h]};
-      else{run.end=h.hour;run.hours.push(h)}
-    }else{if(run){runs.push(run);run=null}}
-  }
+  const fh=hours.filter(h=>h.hour>=5&&h.hour<=21);if(!fh.length)return[];
+  const runs=[];let run=null;
+  for(const h of fh){if(h.score>=50){if(!run)run={start:h.hour,end:h.hour,hours:[h]};else{run.end=h.hour;run.hours.push(h)}}else{if(run){runs.push(run);run=null}}}
   if(run)runs.push(run);
-  if(!runs.length){
-    const sorted=[...fh].sort((a,b)=>b.score-a.score).slice(0,3);
-    return sorted.map(h=>({start:h.hour,end:h.hour,score:h.score,peakScore:h.score,reason:h.factors.time||'Best available'}))
-  }
+  if(!runs.length)return[...fh].sort((a,b)=>b.score-a.score).slice(0,2).map(h=>({start:h.hour,end:h.hour,score:h.score,peakScore:h.score,reason:h.factors.time}));
   return runs.map(r=>{
     const peak=r.hours.reduce((a,b)=>b.score>a.score?b:a);
-    // Keep full run, max 6h
-    let start=r.start,end=r.end;
-    if(end-start>5){start=Math.max(r.start,peak.hour-3);end=Math.min(r.end,peak.hour+3)}
+    let start=r.start,end=r.end;if(end-start>5){start=Math.max(r.start,peak.hour-3);end=Math.min(r.end,peak.hour+3)}
     const wh=r.hours.filter(h=>h.hour>=start&&h.hour<=end);
     const avg=Math.round(wh.reduce((a,h)=>a+h.score,0)/wh.length);
-    const reasons=[];
-    const p=peak.pts;
-    if(p.time>=15)reasons.push(peak.factors.time);
-    else if(p.time>=5)reasons.push(peak.factors.time);
-    if(p.pressure>=7)reasons.push(peak.factors.pressure);
-    if(p.cloud>=7)reasons.push("Overcast");
-    if(p.precip>=5)reasons.push("Rain");
-    if(p.wind>=8)reasons.push("Perfect chop");
+    const reasons=[];const p=peak.pts;
+    if(p.time>=15)reasons.push(peak.factors.time);else if(p.time>=5)reasons.push(peak.factors.time);
+    if(p.pressure>=7)reasons.push(peak.factors.pressure);if(p.cloud>=7)reasons.push("Overcast");if(p.precip>=5)reasons.push("Rain");if(p.wind>=8)reasons.push("Perfect chop");
     if(!reasons.length)reasons.push(peak.factors.time||'Best available');
     return{start,end,score:avg,peakScore:peak.score,reason:reasons.slice(0,2).join(' + ')}
   }).sort((a,b)=>b.score-a.score).slice(0,3)
 }
 
-// Find the chronologically next window from now
-function findNextWindow(todayHours,tomorrowHours,curHr){
-  // Look for remaining windows today
-  const todayFh=todayHours.filter(h=>h.hour>curHr&&h.hour<=21&&h.score>=55);
-  if(todayFh.length){
-    // Find first contiguous run
-    let start=todayFh[0].hour;
-    let end=start;
-    for(let i=1;i<todayFh.length;i++){
-      if(todayFh[i].hour===end+1)end=todayFh[i].hour;
-      else break;
-    }
-    const wh=todayFh.filter(h=>h.hour>=start&&h.hour<=end);
-    const avg=Math.round(wh.reduce((a,h)=>a+h.score,0)/wh.length);
-    const peak=wh.reduce((a,b)=>b.score>a.score?b:a);
-    return{start,end,score:avg,hoursUntil:start-curHr,tomorrow:false,reason:peak.factors.time}
+// --- Views ---
+function showView(v){
+  currentView=v;
+  document.getElementById('vtPlanner').className='view-tab'+(v==='planner'?' active':'');
+  document.getElementById('vtDetail').className='view-tab'+(v==='detail'?' active':'');
+  if(v==='planner')renderPlanner();
+  else renderDetail();
+}
+
+// --- PLANNER ---
+let plannerOpps=[];
+async function loadPlanner(){
+  const el=document.getElementById('content');
+  el.innerHTML='<div class="planner-loading"><div class="spinner"></div>Scanning all lakes...<div class="prog" id="prog">0 / 7</div></div>';
+  let loaded=0;
+  const promises=LAKES.map(async lake=>{
+    const data=await fetchWeather(lake);
+    allLakeData[lake.id]=processData(data,lake);
+    loaded++;
+    const p=document.getElementById('prog');if(p)p.textContent=loaded+' / 7';
+  });
+  await Promise.all(promises);
+  buildOpportunities();
+  renderPlanner();
+}
+
+function buildOpportunities(){
+  plannerOpps=[];
+  const dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const now=new Date(),curHr=now.getHours();
+  LAKES.forEach(lake=>{
+    const days=allLakeData[lake.id];if(!days)return;
+    days.forEach((day,di)=>{
+      const wins=findWindows(day.hours);
+      wins.forEach(w=>{
+        // Skip windows that have already passed today
+        if(di===0&&w.end<curHr)return;
+        const peak=day.hours.filter(h=>h.hour>=w.start&&h.hour<=w.end).reduce((a,b)=>b.score>a.score?b:a);
+        plannerOpps.push({
+          lake,dayIdx:di,day,window:w,peak,
+          dayName:di===0?'Today':(di===1?'Tomorrow':dn[day.date.getDay()]),
+          dayShort:di===0?'Today':(di===1?'Tmrw':dn[day.date.getDay()]),
+          dateFull:day.date
+        });
+      });
+    });
+  });
+  plannerOpps.sort((a,b)=>b.window.score-a.window.score);
+}
+
+function renderPlanner(){
+  if(!plannerOpps.length){loadPlanner();return}
+
+  const dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  // Day filter options
+  const dayOptions=['all'];
+  const seen=new Set();
+  plannerOpps.forEach(o=>{if(!seen.has(o.dayIdx)){seen.add(o.dayIdx);dayOptions.push(o.dayIdx)}});
+
+  let filtered=plannerFilter==='all'?plannerOpps:plannerOpps.filter(o=>o.dayIdx===plannerFilter);
+  const top=filtered.slice(0,15);
+
+  let h='';
+
+  // Hero: #1 pick
+  if(top.length){
+    const best=top[0];
+    const dur=best.window.end-best.window.start+1;
+    const circ=2*Math.PI*18;
+    h+=`<div class="planner-hero">
+      <div class="ph-title">Best Opportunity</div>
+      <div class="ph-sub">Across all ${LAKES.length} lakes, 7 days</div>
+      <div class="ph-pick" onclick="drillDown(${best.lake.id},${best.dayIdx})">
+        <div class="ph-score" style="color:${scColor(best.window.score)}">${best.window.score}</div>
+        <div class="ph-info">
+          <div class="ph-lake">${best.lake.name}</div>
+          <div class="ph-when">${best.dayName} · ${fh(best.window.start)} – ${fh(best.window.end+1)} (${dur}h)</div>
+          <div class="ph-why">${best.window.reason} · ${best.peak.temp}° · ${best.peak.icon} · 💨${best.peak.wind}mph</div>
+        </div>
+        <div class="ph-arrow">›</div>
+      </div>
+    </div>`;
   }
-  // Look for tomorrow's first window
-  if(tomorrowHours){
-    const tmFh=tomorrowHours.filter(h=>h.hour>=5&&h.hour<=21&&h.score>=55);
-    if(tmFh.length){
-      let start=tmFh[0].hour;
-      let end=start;
-      for(let i=1;i<tmFh.length;i++){
-        if(tmFh[i].hour===end+1)end=tmFh[i].hour;
-        else break;
-      }
-      const wh=tmFh.filter(h=>h.hour>=start&&h.hour<=end);
-      const avg=Math.round(wh.reduce((a,h)=>a+h.score,0)/wh.length);
-      const peak=wh.reduce((a,b)=>b.score>a.score?b:a);
-      const hoursUntil=(24-curHr)+start;
-      return{start,end,score:avg,hoursUntil,tomorrow:true,reason:peak.factors.time}
-    }
+
+  // Day filter
+  h+=`<div class="day-filter">`;
+  h+=`<div class="df-pill${plannerFilter==='all'?' active':''}" onclick="setPlannerFilter('all')">All days</div>`;
+  dayOptions.slice(1).forEach(di=>{
+    const name=di===0?'Today':(di===1?'Tmrw':dn[allLakeData[0][di].date.getDay()]);
+    h+=`<div class="df-pill${plannerFilter===di?' active':''}" onclick="setPlannerFilter(${di})">${name}</div>`;
+  });
+  h+=`</div>`;
+
+  // Opportunity list
+  h+=`<div class="section-label">Top opportunities${plannerFilter!=='all'?' (filtered)':''}</div>`;
+  h+=`<div class="opp-list">`;
+  top.forEach((o,i)=>{
+    const dur=o.window.end-o.window.start+1;
+    const circ=2*Math.PI*18;
+    const off=circ-(o.window.score/100)*circ;
+    h+=`<div class="opp-card" onclick="drillDown(${o.lake.id},${o.dayIdx})">
+      <div class="opp-rank">${i+1}</div>
+      <div class="opp-score-ring">
+        <svg viewBox="0 0 44 44"><circle class="osr-bg" cx="22" cy="22" r="18"/><circle class="osr-fg" cx="22" cy="22" r="18" stroke="${scColor(o.window.score)}" stroke-dasharray="${circ}" stroke-dashoffset="${off}" fill="none" stroke-width="4" stroke-linecap="round" transform="rotate(-90 22 22)"/></svg>
+        <div class="osr-text">${o.window.score}</div>
+      </div>
+      <div class="opp-body">
+        <div class="opp-top"><span class="opp-lake">${o.lake.short}</span><span class="opp-when">${o.dayShort} ${fh(o.window.start)}–${fh(o.window.end+1)}</span></div>
+        <div class="opp-details">
+          <span class="opp-detail">${o.peak.icon} ${o.peak.temp}°</span>
+          <span class="opp-detail">💨 ${o.peak.wind}mph</span>
+          <span class="opp-detail">☁️ ${o.peak.cloud}%</span>
+          <span class="opp-detail">${dur}h window</span>
+        </div>
+        <div class="opp-details" style="margin-top:1px"><span style="color:var(--text)">${o.window.reason}</span></div>
+      </div>
+      <div class="opp-arrow">›</div>
+    </div>`;
+  });
+  h+=`</div>`;
+
+  document.getElementById('content').innerHTML=h;
+}
+
+function setPlannerFilter(f){plannerFilter=f;renderPlanner()}
+function drillDown(lakeId,dayIdx){detailLake=lakeId;detailDay=dayIdx;showView('detail')}
+
+// --- DETAIL ---
+function renderDetail(){
+  if(!allLakeData[detailLake]){
+    // Load just this lake
+    document.getElementById('content').innerHTML='<div class="planner-loading"><div class="spinner"></div>Loading...</div>';
+    fetchWeather(LAKES[detailLake]).then(data=>{allLakeData[detailLake]=processData(data,LAKES[detailLake]);renderDetail()});
+    return;
   }
-  return null
-}
-
-function getSpeciesTips(day,lake){
-  const pk=day.peakHour,t=pk.temp,m=day.date.getMonth()+1,tips=[];
-  if(m>=3&&m<=5&&t>=50)tips.push({icon:"🐟",name:"Largemouth Bass",tip:"Pre-spawn/spawn. Shallow flats, spinnerbaits, jigs near laydowns."});
-  else if(m>=6&&m<=8)tips.push({icon:"🐟",name:"Largemouth Bass",tip:"Deep structure, morning topwater. Texas rig worms on ledges."});
-  else if(m>=9&&m<=11)tips.push({icon:"🐟",name:"Largemouth Bass",tip:"Fall feed-up. Follow the shad, crankbaits on points."});
-  else tips.push({icon:"🐟",name:"Largemouth Bass",tip:"Slow and deep. Jigs, blade baits on channel swings."+(lake.thermal?" Fish near warm discharge.":"")});
-  if(t>=55&&t<=70&&m>=3&&m<=5)tips.push({icon:"🐠",name:"Crappie",tip:"Moving to banks. Minnows under cork in 5-8 ft around brush."});
-  else if(m>=6&&m<=8)tips.push({icon:"🐠",name:"Crappie",tip:"Bridge pilings, deep brush. Small jigs trolled 12-18 ft."});
-  else tips.push({icon:"🐠",name:"Crappie",tip:"Vertical jig around standing timber and bridge pilings."});
-  if(pk.hour>=17||pk.hour<=6||pk.cloud>=70)tips.push({icon:"🐱",name:"Catfish",tip:"Prime conditions. Cut bait or stink bait near channel drops."});
-  return tips
-}
-
-function getStrategy(dispScore,dispHour,day,lake,isToday,curHr,nextWin){
-  const timePts=dispHour.pts.time;
-  const condPts=Object.entries(dispHour.pts).filter(([k])=>k!=='time'&&k!=='lake'&&k!=='moon').reduce((a,[,v])=>a+Math.max(0,v),0);
-  if(isToday&&timePts<=-10){
-    if(nextWin&&condPts>=10){
-      const when=nextWin.tomorrow?'tomorrow':'later today';
-      return `Off-hours now, but weather conditions are lined up. The ${nextWin.reason||'next window'} ${when} should produce. ${condPts>=20?'Pressure and cloud cover are both in your favor.':'Get out early.'}`
-    }
-    return 'Off-hours. Rest up for the next fishable window.'
-  }
-  if(dispScore>=70)return lake.stain==='stained'
-    ?'Conditions stacked. Stained water = reaction baits: spinnerbaits, chatterbaits, lipless cranks. Cover water.'
-    :'Conditions stacked. Moving baits during golden hours, slow down between windows.';
-  if(dispScore>=55)return 'Decent day. Focus effort during prime windows. Structure and shade between them.';
-  if(dispScore>=40)return `Mediocre. Downsize baits, slow down, fish tight to cover.${lake.thermal?' Warm discharge area is your best bet.':''}`;
-  return 'Rough day. Pick one spot with good structure and commit. Night catfishing might be the move.'
-}
-
-function renderLakeSelector(){
-  document.getElementById('lakeSel').innerHTML=LAKES.map((l,i)=>`<button class="lake-btn${i===selectedLake?' active':''}" onclick="selectLake(${i})">${l.name.replace('Lake ','').replace('Lake','')}</button>`).join('')
-}
-function selectLake(i){selectedLake=i;selectedDay=0;renderLakeSelector();loadForecast()}
-function selectDay(i){selectedDay=i;renderContent()}
-
-async function loadForecast(){
-  document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div>Fetching forecast...</div>';
-  try{weatherData=processData(await fetchWeather(LAKES[selectedLake]),LAKES[selectedLake]);renderContent()}
-  catch(e){document.getElementById('content').innerHTML=`<div class="loading">Error: ${e.message}</div>`}
-}
-
-function renderContent(){
-  if(!weatherData)return;
-  const lake=LAKES[selectedLake],day=weatherData[selectedDay],now=new Date(),curHr=now.getHours(),isToday=selectedDay===0;
+  const lake=LAKES[detailLake],days=allLakeData[detailLake],day=days[detailDay],now=new Date(),curHr=now.getHours(),isToday=detailDay===0;
   const dispHour=isToday?(day.hours[curHr]||day.peakHour):day.peakHour;
   const dispScore=isToday?dispHour.score:day.avgScore;
   const wins=findWindows(day.hours);
-
-  // Next window (chronological)
-  const nextWin=isToday?findNextWindow(day.hours,weatherData[1]?.hours,curHr):null;
-
-  // Best & runner-up day
-  const ranked=[...weatherData.map((d,i)=>({i,avg:d.avgScore,pk:d.peakScore}))].sort((a,b)=>b.avg-a.avg);
-  const bestDayIdx=ranked[0].i;
-  const runnerIdx=ranked.length>1?ranked[1].i:null;
-
   const dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const circ=2*Math.PI*54,off=circ-(dispScore/100)*circ;
   const pA=dispHour.pressureDelta<-0.6?'↓':dispHour.pressureDelta>0.6?'↑':'→';
@@ -433,7 +401,17 @@ function renderContent(){
 
   let h='';
 
-  // HERO
+  // Back to planner
+  if(plannerOpps.length){
+    h+=`<button class="back-btn" onclick="showView('planner')">← Back to planner</button>`;
+  }
+
+  // Lake selector
+  h+=`<div class="lake-selector">`;
+  LAKES.forEach((l,i)=>{h+=`<button class="lake-btn${i===detailLake?' active':''}" onclick="detailLake=${i};detailDay=0;renderDetail()">${l.short}</button>`});
+  h+=`</div>`;
+
+  // Hero
   h+=`<div class="score-hero">
     <div class="lake-name">${lake.name}</div>
     <div class="score-subtitle">${isToday?'Right now':dn[day.date.getDay()]+' '+mn[day.date.getMonth()]+' '+day.date.getDate()}</div>
@@ -448,116 +426,66 @@ function renderContent(){
     <div class="moon-bar"><span class="moon-icon">${day.moonInfo.icon}</span><span class="moon-text"><span class="moon-phase">${day.moonInfo.name}</span> · ${day.moonInfo.score>=7?'Strong solunar':day.moonInfo.score>=5?'Moderate solunar':'Weak solunar'}</span></div>
   </div>`;
 
-  // NEXT WINDOW
-  if(nextWin&&isToday&&dispHour.pts.time<=-8){
-    h+=`<div class="next-window">
-      <div class="nw-icon">⏰</div>
-      <div class="nw-info">
-        <div class="nw-label">Next window${nextWin.tomorrow?' (tomorrow)':''}</div>
-        <div class="nw-time">${fh(nextWin.start)} – ${fh(nextWin.end+1)}</div>
-        <div class="nw-detail">${nextWin.hoursUntil}h from now · ${nextWin.reason}</div>
-      </div>
-      <div class="nw-score" style="color:${scColor(nextWin.score)}">${nextWin.score}</div>
-    </div>`;
-  }
-
-  // STRATEGY
-  const tip=getStrategy(dispScore,dispHour,day,lake,isToday,curHr,nextWin);
+  // Strategy
+  const timePts=dispHour.pts.time;
+  let tip='';
+  if(dispScore>=70)tip=lake.stain==='stained'?'Conditions stacked. Reaction baits: spinnerbaits, chatterbaits, lipless cranks.':'Conditions stacked. Moving baits during golden hours, slow down between.';
+  else if(dispScore>=55)tip='Decent day. Focus effort during prime windows. Structure and shade between.';
+  else if(timePts<=-10)tip='Off-hours right now. Check the windows below for when to get out.';
+  else if(dispScore>=40)tip='Mediocre. Downsize baits, slow down, fish tight to cover.';
+  else tip='Rough day. One spot, good structure, commit. Night catfishing might work.';
   h+=`<div class="tip-box"><div class="tip-title">Strategy</div><div class="tip-text">${tip}</div></div>`;
 
-  // BEST DAY (+ runner up)
-  if(selectedDay===0){
-    const bd=weatherData[bestDayIdx];
-    const bdName=bestDayIdx===0?'Today':(bestDayIdx===1?'Tomorrow':dn[bd.date.getDay()]);
-    let runnerText='';
-    if(runnerIdx!==null&&ranked[1].avg>=50){
-      const rd=weatherData[runnerIdx];
-      const rdName=runnerIdx===0?'today':(runnerIdx===1?'tomorrow':dn[rd.date.getDay()]);
-      runnerText=` · Runner-up: <strong>${rdName}</strong> (${rd.avgScore})`;
-    }
-    h+=`<div class="best-day" onclick="selectDay(${bestDayIdx})">
-      <div class="bd-badge">Go fish</div>
-      <div class="bd-text"><strong>${bdName}</strong> avg ${bd.avgScore}, peaks ${bd.peakScore} at ${bd.peakHour?fh(bd.peakHour.hour):''}${runnerText}</div>
-      <div class="bd-score" style="color:${scColor(bd.avgScore)}">${bd.avgScore}</div>
-    </div>`;
-  }
-
-  // DAY TABS
+  // Day tabs
   h+=`<div class="day-tabs">`;
-  weatherData.forEach((d,i)=>{
-    const name=i===0?'Today':(i===1?'Tmrw':dn[d.date.getDay()]);
-    const isBest=i===bestDayIdx;
-    h+=`<div class="day-tab${i===selectedDay?' active':''}${isBest&&i!==selectedDay?' best-tab':''}" onclick="selectDay(${i})"><div class="day-name">${name}</div><div class="day-score" style="color:${scColor(d.avgScore)}">${d.avgScore}</div><div class="day-peak">pk ${d.peakScore}</div></div>`;
-  });
+  days.forEach((d,i)=>{const name=i===0?'Today':(i===1?'Tmrw':dn[d.date.getDay()]);h+=`<div class="day-tab${i===detailDay?' active':''}" onclick="detailDay=${i};renderDetail()"><div class="day-name">${name}</div><div class="day-score" style="color:${scColor(d.avgScore)}">${d.avgScore}</div><div class="day-peak">pk ${d.peakScore}</div></div>`});
   h+=`</div>`;
 
-  // WINDOWS
+  // Windows
   if(wins.length){
     h+=`<div class="best-windows"><h3>Best Windows</h3>`;
-    wins.forEach((w,i)=>{
-      const dur=w.end-w.start+1;
-      h+=`<div class="window-item"><div class="window-rank">${i+1}</div><div class="window-info"><div class="window-time">${fh(w.start)} – ${fh(w.end+1)} <span style="font-size:11px;color:var(--text-dim);font-weight:400">${dur}h</span></div><div class="window-why">${w.reason}</div></div><div class="window-score" style="color:${scColor(w.score)}">${w.score}</div></div>`;
-    });
+    wins.forEach((w,i)=>{const dur=w.end-w.start+1;h+=`<div class="window-item"><div class="window-rank">${i+1}</div><div class="window-info"><div class="window-time">${fh(w.start)} – ${fh(w.end+1)} <span style="font-size:11px;color:var(--text-dim);font-weight:400">${dur}h</span></div><div class="window-why">${w.reason}</div></div><div class="window-score" style="color:${scColor(w.score)}">${w.score}</div></div>`});
     h+=`</div>`;
   }
 
-  // HOURLY - vertical bars proportional to score range for this day
+  // Hourly
   const srHr=Math.round(day.sunriseH),ssHr=Math.round(day.sunsetH);
-  const dayMin=Math.min(...day.hours.map(h=>h.score));
-  const dayMax=Math.max(...day.hours.map(h=>h.score));
-  const dayRange=Math.max(dayMax-dayMin,10);
-
+  const dayMin=Math.min(...day.hours.map(x=>x.score)),dayMax=Math.max(...day.hours.map(x=>x.score)),dayRange=Math.max(dayMax-dayMin,10);
   h+=`<div class="section-label">Hourly Forecast</div><div class="hourly-scroll" id="hourlyScroll"><div class="hourly-row">`;
   day.hours.forEach(hr=>{
     if(hr.hour===srHr){const m=Math.round((day.sunriseH%1)*60);h+=`<div class="sun-marker"><div class="sun-icon">🌅</div>${srHr>12?srHr-12:srHr}:${String(m).padStart(2,'0')}</div>`}
     const prime=hr.score>=60,isNow=isToday&&hr.hour===curHr;
-    // Relative bar height: scale score into 15%-100% of bar based on day's range
-    const relHeight=15+85*((hr.score-dayMin)/dayRange);
-    h+=`<div class="hour-cell${prime?' prime':''}${isNow?' now':''}" data-hour="${hr.hour}"><div class="h-time">${fh(hr.hour)}</div><div class="h-icon">${hr.icon}</div><div class="h-score" style="color:${scColor(hr.score)}">${hr.score}</div><div style="font-size:10px;color:var(--text-dim)">${hr.temp}°</div><div class="h-bar"><div class="h-bar-fill" style="height:${relHeight}%;background:${scColor(hr.score)}"></div></div></div>`;
+    const relH=15+85*((hr.score-dayMin)/dayRange);
+    h+=`<div class="hour-cell${prime?' prime':''}${isNow?' now':''}" data-hour="${hr.hour}"><div class="h-time">${fh(hr.hour)}</div><div class="h-icon">${hr.icon}</div><div class="h-score" style="color:${scColor(hr.score)}">${hr.score}</div><div style="font-size:10px;color:var(--text-dim)">${hr.temp}°</div><div class="h-bar"><div class="h-bar-fill" style="height:${relH}%;background:${scColor(hr.score)}"></div></div></div>`;
     if(hr.hour===ssHr){const m=Math.round((day.sunsetH%1)*60);h+=`<div class="sun-marker" style="background:linear-gradient(180deg,rgba(184,92,92,.06),transparent);border-color:rgba(184,92,92,.3)"><div class="sun-icon">🌇</div>${ssHr>12?ssHr-12:ssHr}:${String(m).padStart(2,'0')}</div>`}
   });
   h+=`</div></div>`;
 
-  // FACTORS
+  // Factors
   const fH=isToday?dispHour:day.peakHour;
-  const fList=[
-    {icon:'🕐',name:'Time of Day',key:'time'},
-    {icon:'📉',name:'Pressure Trend',key:'pressure'},
-    {icon:'☁️',name:'Cloud Cover',key:'cloud'},
-    {icon:'💨',name:'Wind',key:'wind'},
-    {icon:'🌧️',name:'Precipitation',key:'precip'},
-    {icon:'🌡️',name:'Temperature',key:'temp'},
-    {icon:fH.moonInfo.icon,name:'Moon Phase',key:'moon'},
-  ];
+  const fList=[{icon:'🕐',name:'Time of Day',key:'time'},{icon:'📉',name:'Pressure Trend',key:'pressure'},{icon:'☁️',name:'Cloud Cover',key:'cloud'},{icon:'💨',name:'Wind',key:'wind'},{icon:'🌧️',name:'Precipitation',key:'precip'},{icon:'🌡️',name:'Temperature',key:'temp'},{icon:fH.moonInfo.icon,name:'Moon Phase',key:'moon'}];
   if(fH.factors.lake)fList.push({icon:'♨️',name:'Lake Bonus',key:'lake'});
-
   h+=`<div class="factors"><h3>Factor Breakdown (${isToday?'Now':'Peak '+fh(fH.hour)})</h3>`;
-  fList.forEach(f=>{
-    const val=fH.factors[f.key]||'Neutral',p=fH.pts[f.key]||0;
-    const pc=p>0?'pos':(p<0?'neg':'neu'),ps=p>0?'+'+p:String(p);
-    let b='fair';if(p>=8)b='great';else if(p>=4)b='good';else if(p>=0)b='fair';else if(p>=-5)b='poor';else b='bad';
-    h+=`<div class="factor-row"><div class="factor-left"><div class="factor-icon">${f.icon}</div><div class="factor-name">${f.name}</div></div><div class="factor-right"><span class="factor-badge badge-${b}">${val}</span><span class="factor-pts ${pc}">${ps}</span></div></div>`;
-  });
+  fList.forEach(f=>{const val=fH.factors[f.key]||'Neutral',p=fH.pts[f.key]||0;const pc=p>0?'pos':(p<0?'neg':'neu'),ps=p>0?'+'+p:String(p);let b='fair';if(p>=8)b='great';else if(p>=4)b='good';else if(p>=0)b='fair';else if(p>=-5)b='poor';else b='bad';h+=`<div class="factor-row"><div class="factor-left"><div class="factor-icon">${f.icon}</div><div class="factor-name">${f.name}</div></div><div class="factor-right"><span class="factor-badge badge-${b}">${val}</span><span class="factor-pts ${pc}">${ps}</span></div></div>`});
   h+=`</div>`;
 
-  // SPECIES
-  const sp=getSpeciesTips(day,lake);
-  if(sp.length){
-    h+=`<div class="species-box"><h3>Species Intel</h3>`;
-    sp.forEach(s=>{h+=`<div class="species-row"><div class="species-icon">${s.icon}</div><div class="species-info"><div class="species-name">${s.name}</div><div class="species-tip">${s.tip}</div></div></div>`});
-    h+=`</div>`;
-  }
+  // Species
+  const pk=day.peakHour,t=pk.temp,m=day.date.getMonth()+1,sp=[];
+  if(m>=3&&m<=5&&t>=50)sp.push({icon:"🐟",name:"Largemouth Bass",tip:"Pre-spawn. Spinnerbaits, jigs near laydowns on shallow flats."});
+  else if(m>=6&&m<=8)sp.push({icon:"🐟",name:"Largemouth Bass",tip:"Deep structure, morning topwater. Texas rig on ledges."});
+  else if(m>=9&&m<=11)sp.push({icon:"🐟",name:"Largemouth Bass",tip:"Fall feed-up. Follow shad, crankbaits on points."});
+  else sp.push({icon:"🐟",name:"Largemouth Bass",tip:"Slow and deep. Jigs, blade baits."+(lake.thermal?" Near warm discharge.":"")});
+  if(t>=55&&t<=70&&m>=3&&m<=5)sp.push({icon:"🐠",name:"Crappie",tip:"Moving shallow. Minnows under cork, 5-8 ft, around brush."});
+  else sp.push({icon:"🐠",name:"Crappie",tip:"Vertical jig around timber and bridge pilings."});
+  if(pk.hour>=17||pk.hour<=6||pk.cloud>=70)sp.push({icon:"🐱",name:"Catfish",tip:"Cut bait or stink bait near channel drops."});
+  if(sp.length){h+=`<div class="species-box"><h3>Species Intel</h3>`;sp.forEach(s=>{h+=`<div class="species-row"><div class="species-icon">${s.icon}</div><div class="species-info"><div class="species-name">${s.name}</div><div class="species-tip">${s.tip}</div></div></div>`});h+=`</div>`}
 
   document.getElementById('content').innerHTML=h;
-  requestAnimationFrame(()=>{
-    const s=document.getElementById('hourlyScroll');
-    if(!s)return;
-    const tgt=s.querySelector(`[data-hour="${isToday?curHr:Math.max(5,srHr-1)}"]`);
-    if(tgt)s.scrollLeft=tgt.offsetLeft-16;
-  })
+  requestAnimationFrame(()=>{const s=document.getElementById('hourlyScroll');if(!s)return;const tgt=s.querySelector(`[data-hour="${isToday?curHr:Math.max(5,srHr-1)}"]`);if(tgt)s.scrollLeft=tgt.offsetLeft-16})
 }
 
-renderLakeSelector();loadForecast()
+// --- Init ---
+loadPlanner();
 </script>
 </body>
 </html>
