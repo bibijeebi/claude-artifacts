@@ -16,7 +16,7 @@ html,body{overflow-x:hidden}
 :root{--bg:#0f1a12;--bg2:#162016;--bg3:#1c2a1e;--card:#1a2b1d;--card-hover:#213524;--border:#2a3f2d;--text:#d4ddd6;--text-dim:#7a917e;--text-bright:#e8f0ea;--accent:#5cb870;--accent-dim:#3a7a48}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .app{max-width:520px;margin:0 auto;padding:16px;padding-bottom:40px}
-.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.header{display:flex;align-items:center;margin-bottom:20px}
 .header h1{font-family:'Instrument Serif',serif;font-size:28px;font-weight:400;color:var(--text-bright);letter-spacing:-0.5px}
 .header h1 span{color:var(--accent)}
 .lake-selector{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
@@ -43,8 +43,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .moon-bar .moon-icon{font-size:20px}
 .moon-bar .moon-text{font-size:12px;color:var(--text-dim)}
 .moon-bar .moon-phase{color:var(--text);font-weight:600}
-
-/* Next window callout */
 .next-window{background:linear-gradient(135deg,rgba(92,184,112,.1),rgba(74,144,184,.06));border:1px solid var(--accent-dim);border-radius:12px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
 .next-window .nw-icon{font-size:28px}
 .next-window .nw-info{flex:1}
@@ -52,14 +50,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .next-window .nw-time{font-size:16px;font-weight:600;color:var(--text-bright);margin-top:2px}
 .next-window .nw-detail{font-size:12px;color:var(--text-dim);margin-top:1px}
 .next-window .nw-score{font-family:'Instrument Serif',serif;font-size:28px}
-
-/* Best day banner */
-.best-day{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.best-day{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;cursor:pointer}
 .best-day .bd-badge{background:var(--accent-dim);color:var(--text-bright);font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.best-day .bd-text{font-size:13px;color:var(--text);flex:1}
+.best-day .bd-text{font-size:13px;color:var(--text);flex:1;line-height:1.3}
 .best-day .bd-text strong{color:var(--text-bright)}
 .best-day .bd-score{font-family:'Instrument Serif',serif;font-size:22px}
-
 .tip-box{background:linear-gradient(135deg,rgba(92,184,112,.06),rgba(74,144,184,.04));border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px}
 .tip-box .tip-title{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
 .tip-box .tip-text{font-size:13px;color:var(--text);line-height:1.4}
@@ -91,8 +86,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .hour-cell .h-time{font-size:10px;color:var(--text-dim);font-weight:600}
 .hour-cell .h-icon{font-size:16px;margin:4px 0}
 .hour-cell .h-score{font-family:'Instrument Serif',serif;font-size:20px;line-height:1;margin-bottom:2px}
-.hour-cell .h-bar{width:100%;height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:4px}
-.hour-cell .h-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+.hour-cell .h-bar{width:100%;height:24px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:4px;display:flex;align-items:flex-end}
+.hour-cell .h-bar-fill{width:100%;border-radius:3px;transition:height .4s}
 .sun-marker{width:52px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 2px;font-size:10px;color:#e8a838;font-weight:700;gap:2px;border-radius:10px;background:linear-gradient(180deg,rgba(232,168,56,.06),transparent);border:1px dashed rgba(232,168,56,.3)}
 .sun-marker .sun-icon{font-size:18px}
 .factors{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px}
@@ -143,116 +138,140 @@ let selectedLake=0,selectedDay=0,weatherData=null;
 
 function getMoonPhase(d){let y=d.getFullYear(),m=d.getMonth()+1,day=d.getDate(),r=y%100;r%=19;if(r>9)r-=19;r=((r*11)%30)+m+day;if(m<3)r+=2;r-=((y<2000)?4:8.3);r=Math.floor(r+.5)%30;return r<0?r+30:r}
 function getMoonInfo(d){const p=getMoonPhase(d);if(p<=1||p>=29)return{name:"New Moon",icon:"🌑",score:8};if(p<=6)return{name:"Waxing Crescent",icon:"🌒",score:3};if(p<=8)return{name:"First Quarter",icon:"🌓",score:5};if(p<=13)return{name:"Waxing Gibbous",icon:"🌔",score:4};if(p<=16)return{name:"Full Moon",icon:"🌕",score:8};if(p<=21)return{name:"Waning Gibbous",icon:"🌖",score:4};if(p<=23)return{name:"Last Quarter",icon:"🌗",score:5};return{name:"Waning Crescent",icon:"🌘",score:3}}
-
-function sc(s){return s>=75?'#4abd6a':s>=60?'#7ac06a':s>=45?'#c0b84a':s>=30?'#c07a4a':'#b85c5c'}
-function sl(s){return s>=75?'Excellent':s>=60?'Good':s>=45?'Fair':s>=30?'Poor':'Bad'}
-function wi(cloud,precip,h,sr,ss){const n=h<sr||h>=ss;if(precip>2)return'🌧️';if(precip>.5)return'🌦️';if(cloud>80)return'☁️';if(cloud>50)return n?'☁️':'⛅';if(cloud>20)return n?'🌙':'🌤️';return n?'🌙':'☀️'}
+function scColor(s){return s>=75?'#4abd6a':s>=60?'#7ac06a':s>=45?'#c0b84a':s>=30?'#c07a4a':'#b85c5c'}
+function scLabel(s){return s>=75?'Excellent':s>=60?'Good':s>=45?'Fair':s>=30?'Poor':'Bad'}
+function wIcon(cloud,precip,h,sr,ss){const n=h<sr||h>=ss;if(precip>2)return'🌧️';if(precip>.5)return'🌦️';if(cloud>80)return'☁️';if(cloud>50)return n?'☁️':'⛅';if(cloud>20)return n?'🌙':'🌤️';return n?'🌙':'☀️'}
 function fh(h){return h===0||h===24?'12a':h<12?h+'a':h===12?'12p':(h-12)+'p'}
+
+// Sigmoid compression: maps raw (-50..+80) to display (5..92)
+// Ensures natural curve with peak differentiation
+function sigmoid(raw){
+  // Shift so 0 raw = ~45 display
+  // Positive raw compresses harder as it goes up
+  // Negative raw compresses harder as it goes down
+  const k = 0.04; // steepness
+  const midpoint = 0; // raw score center
+  const maxOut = 92;
+  const minOut = 5;
+  const range = maxOut - minOut;
+  return Math.round(minOut + range / (1 + Math.exp(-k * (raw - midpoint))));
+}
 
 function computeScore(hour,temp,pressure,pDelta,cloud,wind,precip,sr,ss,lake,month,moonSc){
   const factors={},pts={};
   const isW=month<=2||month===12, isS=month>=6&&month<=8;
-  let rawSum=0; // track raw bonus sum for diminishing returns
 
-  // 1. TIME (±28)
+  // 1. TIME (±30) - dominant
   let t=0;
   if(isW){
-    if(hour>=11&&hour<=15){t=18;factors.time="Prime winter midday"}
-    else if((hour>=9&&hour<11)||(hour>15&&hour<=17)){t=8;factors.time="Decent winter hours"}
-    else if(hour>=7&&hour<9){t=-5;factors.time="Cold morning"}
-    else if(hour>=17&&hour<19){t=-2;factors.time="Cooling evening"}
-    else{t=-28;factors.time="Off hours"}
+    if(hour>=11&&hour<=14){t=20;factors.time="Prime winter midday"}
+    else if(hour===10||hour===15){t=12;factors.time="Near-prime winter"}
+    else if((hour>=8&&hour<10)||(hour>15&&hour<=17)){t=5;factors.time="Decent winter hours"}
+    else if(hour>=7&&hour<8){t=-5;factors.time="Cold morning"}
+    else if(hour>=17&&hour<19){t=-3;factors.time="Cooling evening"}
+    else{t=-35;factors.time="Off hours"}
   }else{
     const srH=Math.floor(sr),ssH=Math.floor(ss);
-    if(hour>=srH-1&&hour<=srH+2){t=25;factors.time="Dawn golden hour"}
-    else if(hour>=ssH-2&&hour<=ssH+1){t=25;factors.time="Dusk golden hour"}
-    else if(hour>srH+2&&hour<10){t=10;factors.time="Morning (tapering)"}
-    else if(hour>15&&hour<ssH-2){t=10;factors.time="Afternoon (building)"}
-    else if(hour>=10&&hour<=15){t=isS?-20:-8;factors.time=isS?"Midday dead zone":"Midday slump"}
-    else if(hour>=20&&hour<=22){t=-10;factors.time="Late evening"}
-    else{t=-28;factors.time="Off hours"}
+    // Golden hours: gradual bell curve, not flat top
+    if(hour===srH||hour===srH+1){t=30;factors.time="Dawn golden hour"}
+    else if(hour===srH-1||hour===srH+2){t=20;factors.time="Near dawn"}
+    else if(hour===ssH-1||hour===ssH){t=30;factors.time="Dusk golden hour"}
+    else if(hour===ssH-2||hour===ssH+1){t=20;factors.time="Near dusk"}
+    else if(hour>srH+2&&hour<10){t=8;factors.time="Morning (tapering)"}
+    else if(hour>15&&hour<ssH-2){t=8;factors.time="Afternoon (building)"}
+    else if(hour>=10&&hour<=15){
+      // Bell-shaped midday penalty: worst at noon, less bad at edges
+      const distFromNoon=Math.abs(hour-12.5);
+      const midPenalty=isS?-25+distFromNoon*4:-12+distFromNoon*2;
+      t=Math.round(midPenalty);
+      factors.time=isS?(hour>=11&&hour<=14?"Midday dead zone":"Midday slump"):"Midday slump";
+    }
+    else if(hour>=20&&hour<=22){t=-12;factors.time="Late evening"}
+    else{t=-35;factors.time="Off hours"}
   }
   pts.time=t;
 
-  // 2. PRESSURE (±14)
+  // 2. PRESSURE (±16)
   let p=0;
-  if(pDelta<-2){p=14;factors.pressure="Dropping fast ↓↓"}
-  else if(pDelta<-0.8){p=9;factors.pressure="Falling ↓"}
-  else if(pDelta>2){p=-14;factors.pressure="Rising fast ↑↑"}
-  else if(pDelta>0.8){p=-6;factors.pressure="Rising ↑"}
-  else if(pressure>1025){p=-8;factors.pressure="High & steady"}
-  else if(pressure<1008){p=4;factors.pressure="Low system"}
+  if(pDelta<-2.5){p=16;factors.pressure="Crashing ↓↓↓"}
+  else if(pDelta<-1.5){p=12;factors.pressure="Dropping fast ↓↓"}
+  else if(pDelta<-0.6){p=7;factors.pressure="Falling ↓"}
+  else if(pDelta>2.5){p=-16;factors.pressure="Spiking ↑↑↑"}
+  else if(pDelta>1.5){p=-12;factors.pressure="Rising fast ↑↑"}
+  else if(pDelta>0.6){p=-5;factors.pressure="Rising ↑"}
+  else if(pressure>1028){p=-10;factors.pressure="Very high (bluebird)"}
+  else if(pressure>1022){p=-5;factors.pressure="High & steady"}
+  else if(pressure<1005){p=5;factors.pressure="Low system"}
   else{p=0;factors.pressure="Stable →"}
   pts.pressure=p;
 
-  // 3. CLOUD (±9)
+  // 3. CLOUD (±10)
   let c=0;
-  if(cloud>=80){c=9;factors.cloud="Overcast (ideal)"}
-  else if(cloud>=60){c=5;factors.cloud="Mostly cloudy"}
-  else if(cloud>=40){c=1;factors.cloud="Partly cloudy"}
-  else if(cloud>=20){c=-3;factors.cloud="Mostly clear"}
-  else{c=-6;factors.cloud="Clear skies"}
+  if(cloud>=85){c=10;factors.cloud="Overcast (ideal)"}
+  else if(cloud>=70){c=7;factors.cloud="Heavy clouds"}
+  else if(cloud>=50){c=4;factors.cloud="Mostly cloudy"}
+  else if(cloud>=30){c=0;factors.cloud="Partly cloudy"}
+  else if(cloud>=15){c=-3;factors.cloud="Mostly clear"}
+  else{c=-7;factors.cloud="Clear skies"}
   pts.cloud=c;
 
-  // 4. WIND (±9)
+  // 4. WIND (±10)
   let w=0;
-  if(wind>=5&&wind<=15){w=9;factors.wind="Perfect chop"}
-  else if(wind>15&&wind<=20){w=2;factors.wind="Windy but fishable"}
+  if(wind>=7&&wind<=12){w=10;factors.wind="Perfect chop"}
+  else if(wind>=5&&wind<7||wind>12&&wind<=15){w=6;factors.wind="Good breeze"}
+  else if(wind>15&&wind<=20){w=1;factors.wind="Windy but fishable"}
   else if(wind>20){w=-8;factors.wind="Too windy"}
-  else if(wind>=3){w=3;factors.wind="Light breeze"}
+  else if(wind>=3){w=2;factors.wind="Light breeze"}
   else{w=-5;factors.wind="Dead calm"}
   if(lake.acres<100&&wind>15)w-=4;
   pts.wind=w;
 
-  // 5. PRECIP (±9)
+  // 5. PRECIP (±10)
   let pr=0;
-  if(precip>.05&&precip<=.3){pr=9;factors.precip="Light rain"}
-  else if(precip>.3&&precip<=1){pr=4;factors.precip="Moderate rain"}
-  else if(precip>1){pr=-6;factors.precip="Heavy rain"}
+  if(precip>.02&&precip<=.15){pr=10;factors.precip="Drizzle (perfect)"}
+  else if(precip>.15&&precip<=.4){pr=7;factors.precip="Light rain"}
+  else if(precip>.4&&precip<=1){pr=3;factors.precip="Moderate rain"}
+  else if(precip>1){pr=-7;factors.precip="Heavy rain"}
   else{pr=0;factors.precip="Dry"}
   pts.precip=pr;
 
-  // 6. TEMP (±5)
+  // 6. TEMP (±6)
   let tp=0;
-  if(temp>=55&&temp<=80){tp=4;factors.temp=Math.round(temp)+"° (comfortable)"}
+  if(temp>=60&&temp<=75){tp=6;factors.temp=Math.round(temp)+"° (ideal)"}
+  else if(temp>=55&&temp<60||temp>75&&temp<=80){tp=3;factors.temp=Math.round(temp)+"° (comfortable)"}
   else if(temp>=45&&temp<55){tp=0;factors.temp=Math.round(temp)+"° (cool)"}
-  else if(temp>80&&temp<=90){tp=-2;factors.temp=Math.round(temp)+"° (hot)"}
-  else if(temp>90){tp=-5;factors.temp=Math.round(temp)+"° (scorching)"}
+  else if(temp>80&&temp<=88){tp=-2;factors.temp=Math.round(temp)+"° (hot)"}
+  else if(temp>88){tp=-6;factors.temp=Math.round(temp)+"° (scorching)"}
   else if(temp>=35&&temp<45){tp=-3;factors.temp=Math.round(temp)+"° (cold)"}
-  else{tp=-5;factors.temp=Math.round(temp)+"° (frigid)"}
+  else{tp=-6;factors.temp=Math.round(temp)+"° (frigid)"}
   pts.temp=tp;
 
-  // 7. MOON (±4)
-  let mn=Math.round((moonSc-5)*1.2);
+  // 7. MOON (±5)
+  let mn=Math.round((moonSc-5)*1.5);
   factors.moon=getMoonInfo(new Date()).name;
   pts.moon=mn;
 
   // 8. LAKE
   let lk=0;
-  if(lake.thermal&&isW){lk=7;factors.lake="Thermal discharge"}
-  else if(lake.stain==="stained"&&cloud<40){lk=2;factors.lake="Stained water helps"}
-  else if(lake.acres<50&&isS&&hour>=10&&hour<=15){lk=-4;factors.lake="Small pond cooks"}
+  if(lake.thermal&&isW){lk=8;factors.lake="Thermal discharge"}
+  else if(lake.stain==="stained"&&cloud<30){lk=3;factors.lake="Stained water helps"}
+  else if(lake.acres<50&&isS&&hour>=10&&hour<=15){lk=-5;factors.lake="Small pond cooks"}
   else factors.lake=null;
   if(lk)pts.lake=lk;
 
-  // DIMINISHING RETURNS: sum positive bonuses, apply soft cap
-  // This prevents perfect conditions from all stacking to 98
-  const posSum=Object.values(pts).filter(v=>v>0).reduce((a,v)=>a+v,0);
-  const negSum=Object.values(pts).filter(v=>v<0).reduce((a,v)=>a+v,0);
+  // Sum raw score
+  const raw=Object.values(pts).reduce((a,v)=>a+v,0);
 
-  // Positive bonuses get compressed above 35 total
-  let effectivePos=posSum<=35?posSum:35+Math.sqrt(posSum-35)*4;
-  let score=45+effectivePos+negSum;
+  // Apply sigmoid compression
+  const score=sigmoid(raw);
 
-  score=Math.max(5,Math.min(95,Math.round(score)));
-  return{score,factors,pts}
+  return{score,factors,pts,raw}
 }
 
 function parseSunHour(s){const d=new Date(s);return d.getHours()+d.getMinutes()/60}
 
 async function fetchWeather(lake){
-  const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lake.lat}&longitude=${lake.lon}&hourly=temperature_2m,precipitation,cloudcover,windspeed_10m,pressure_msl&daily=sunrise,sunset&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America/New_York&forecast_days=7`);
-  return r.json()
+  return(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lake.lat}&longitude=${lake.lon}&hourly=temperature_2m,precipitation,cloudcover,windspeed_10m,pressure_msl&daily=sunrise,sunset&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America/New_York&forecast_days=7`)).json()
 }
 
 function processData(data,lake){
@@ -263,8 +282,8 @@ function processData(data,lake){
     const srH=parseSunHour(data.daily.sunrise[di]),ssH=parseSunHour(data.daily.sunset[di]);
     const pD=allP[i]-allP[Math.max(0,i-6)];
     const moon=getMoonInfo(dt);
-    const{score,factors,pts}=computeScore(hr,data.hourly.temperature_2m[i],allP[i],pD,data.hourly.cloudcover[i],data.hourly.windspeed_10m[i],data.hourly.precipitation[i],srH,ssH,lake,mo,moon.score);
-    const hd={hour:hr,score,factors,pts,dt,temp:Math.round(data.hourly.temperature_2m[i]),pressure:allP[i],pressureDelta:pD,cloud:data.hourly.cloudcover[i],wind:Math.round(data.hourly.windspeed_10m[i]),precip:data.hourly.precipitation[i],icon:wi(data.hourly.cloudcover[i],data.hourly.precipitation[i],hr,srH,ssH),sunriseH:srH,sunsetH:ssH,moonInfo:moon};
+    const{score,factors,pts,raw}=computeScore(hr,data.hourly.temperature_2m[i],allP[i],pD,data.hourly.cloudcover[i],data.hourly.windspeed_10m[i],data.hourly.precipitation[i],srH,ssH,lake,mo,moon.score);
+    const hd={hour:hr,score,raw,factors,pts,dt,temp:Math.round(data.hourly.temperature_2m[i]),pressure:allP[i],pressureDelta:pD,cloud:data.hourly.cloudcover[i],wind:Math.round(data.hourly.windspeed_10m[i]),precip:data.hourly.precipitation[i],icon:wIcon(data.hourly.cloudcover[i],data.hourly.precipitation[i],hr,srH,ssH),sunriseH:srH,sunsetH:ssH,moonInfo:moon};
     if(i%24===0){cur={date:dt,hours:[],sunriseH:srH,sunsetH:ssH,moonInfo:moon};days.push(cur)}
     cur.hours.push(hd)
   }
@@ -280,52 +299,73 @@ function processData(data,lake){
 function findWindows(hours){
   const fh=hours.filter(h=>h.hour>=5&&h.hour<=21);
   if(!fh.length)return[];
-
-  // Build contiguous runs of score >= 50
-  const runs=[];
-  let run=null;
+  const runs=[]; let run=null;
   for(const h of fh){
     if(h.score>=50){
       if(!run)run={start:h.hour,end:h.hour,hours:[h]};
       else{run.end=h.hour;run.hours.push(h)}
-    }else{
-      if(run){runs.push(run);run=null}
-    }
+    }else{if(run){runs.push(run);run=null}}
   }
   if(run)runs.push(run);
-
-  // If no runs >= 50, take top 3 individual hours
   if(!runs.length){
     const sorted=[...fh].sort((a,b)=>b.score-a.score).slice(0,3);
-    return sorted.map(h=>{
-      const reasons=[h.factors.time||'Best available'];
-      return{start:h.hour,end:h.hour,score:h.score,peakScore:h.score,reason:reasons.join(' + ')}
-    })
+    return sorted.map(h=>({start:h.hour,end:h.hour,score:h.score,peakScore:h.score,reason:h.factors.time||'Best available'}))
   }
-
-  // For each run, find peak and trim to max 5h window centered on peak
-  const windows=runs.map(r=>{
+  return runs.map(r=>{
     const peak=r.hours.reduce((a,b)=>b.score>a.score?b:a);
-    let start=Math.max(r.start,peak.hour-2);
-    let end=Math.min(r.end,peak.hour+2);
-    // But allow full run if it's <= 5 hours
-    if(r.end-r.start<=4){start=r.start;end=r.end}
+    // Keep full run, max 6h
+    let start=r.start,end=r.end;
+    if(end-start>5){start=Math.max(r.start,peak.hour-3);end=Math.min(r.end,peak.hour+3)}
     const wh=r.hours.filter(h=>h.hour>=start&&h.hour<=end);
     const avg=Math.round(wh.reduce((a,h)=>a+h.score,0)/wh.length);
-
     const reasons=[];
     const p=peak.pts;
-    if(p.time>=10)reasons.push(peak.factors.time);
-    if(p.pressure>=6)reasons.push(peak.factors.pressure);
-    if(p.cloud>=5)reasons.push("Overcast");
-    if(p.precip>=4)reasons.push("Rain");
-    if(p.wind>=6)reasons.push("Good chop");
+    if(p.time>=15)reasons.push(peak.factors.time);
+    else if(p.time>=5)reasons.push(peak.factors.time);
+    if(p.pressure>=7)reasons.push(peak.factors.pressure);
+    if(p.cloud>=7)reasons.push("Overcast");
+    if(p.precip>=5)reasons.push("Rain");
+    if(p.wind>=8)reasons.push("Perfect chop");
     if(!reasons.length)reasons.push(peak.factors.time||'Best available');
-
     return{start,end,score:avg,peakScore:peak.score,reason:reasons.slice(0,2).join(' + ')}
-  });
+  }).sort((a,b)=>b.score-a.score).slice(0,3)
+}
 
-  return windows.sort((a,b)=>b.score-a.score).slice(0,3)
+// Find the chronologically next window from now
+function findNextWindow(todayHours,tomorrowHours,curHr){
+  // Look for remaining windows today
+  const todayFh=todayHours.filter(h=>h.hour>curHr&&h.hour<=21&&h.score>=55);
+  if(todayFh.length){
+    // Find first contiguous run
+    let start=todayFh[0].hour;
+    let end=start;
+    for(let i=1;i<todayFh.length;i++){
+      if(todayFh[i].hour===end+1)end=todayFh[i].hour;
+      else break;
+    }
+    const wh=todayFh.filter(h=>h.hour>=start&&h.hour<=end);
+    const avg=Math.round(wh.reduce((a,h)=>a+h.score,0)/wh.length);
+    const peak=wh.reduce((a,b)=>b.score>a.score?b:a);
+    return{start,end,score:avg,hoursUntil:start-curHr,tomorrow:false,reason:peak.factors.time}
+  }
+  // Look for tomorrow's first window
+  if(tomorrowHours){
+    const tmFh=tomorrowHours.filter(h=>h.hour>=5&&h.hour<=21&&h.score>=55);
+    if(tmFh.length){
+      let start=tmFh[0].hour;
+      let end=start;
+      for(let i=1;i<tmFh.length;i++){
+        if(tmFh[i].hour===end+1)end=tmFh[i].hour;
+        else break;
+      }
+      const wh=tmFh.filter(h=>h.hour>=start&&h.hour<=end);
+      const avg=Math.round(wh.reduce((a,h)=>a+h.score,0)/wh.length);
+      const peak=wh.reduce((a,b)=>b.score>a.score?b:a);
+      const hoursUntil=(24-curHr)+start;
+      return{start,end,score:avg,hoursUntil,tomorrow:true,reason:peak.factors.time}
+    }
+  }
+  return null
 }
 
 function getSpeciesTips(day,lake){
@@ -341,32 +381,22 @@ function getSpeciesTips(day,lake){
   return tips
 }
 
-// Smart strategy based on time vs conditions
-function getStrategy(dispScore,dispHour,day,lake,isToday,curHr){
+function getStrategy(dispScore,dispHour,day,lake,isToday,curHr,nextWin){
   const timePts=dispHour.pts.time;
-  const condPts=Object.entries(dispHour.pts).filter(([k])=>k!=='time'&&k!=='lake').reduce((a,[,v])=>a+Math.max(0,v),0);
-
-  // Currently off hours but conditions are good
-  if(isToday&&timePts<=-10&&condPts>=15){
-    const nextWin=findWindows(day.hours)[0];
-    if(nextWin&&nextWin.start>curHr){
-      return `It's off-hours, but the weather is stacked. ${lake.stain==='stained'?'Stained water + overcast = fish will be aggressive.':'Conditions favor active feeding.'} Get out at the ${nextWin.start<12?'dawn':'evening'} window.`
+  const condPts=Object.entries(dispHour.pts).filter(([k])=>k!=='time'&&k!=='lake'&&k!=='moon').reduce((a,[,v])=>a+Math.max(0,v),0);
+  if(isToday&&timePts<=-10){
+    if(nextWin&&condPts>=10){
+      const when=nextWin.tomorrow?'tomorrow':'later today';
+      return `Off-hours now, but weather conditions are lined up. The ${nextWin.reason||'next window'} ${when} should produce. ${condPts>=20?'Pressure and cloud cover are both in your favor.':'Get out early.'}`
     }
-    if(nextWin&&nextWin.start<curHr){
-      return `Past prime time for today, but conditions are strong. Tomorrow's dawn window should fire. ${condPts>=25?'Pressure trend and cloud cover are ideal.':''}`
-    }
+    return 'Off-hours. Rest up for the next fishable window.'
   }
-
-  // Good score
   if(dispScore>=70)return lake.stain==='stained'
-    ?'Conditions stacked. Stained water = reaction baits: spinnerbaits, chatterbaits, lipless cranks. Cover water fast.'
-    :'Conditions stacked. Moving baits during golden hours, slow presentations between windows.';
+    ?'Conditions stacked. Stained water = reaction baits: spinnerbaits, chatterbaits, lipless cranks. Cover water.'
+    :'Conditions stacked. Moving baits during golden hours, slow down between windows.';
   if(dispScore>=55)return 'Decent day. Focus effort during prime windows. Structure and shade between them.';
-  if(dispScore>=40){
-    if(timePts>=-5)return `Mediocre conditions. Downsize baits, slow down, fish tight to cover.${lake.thermal?' Warm discharge area is your best bet.':''}`;
-    return 'Bad timing but fishable conditions. If you can hit a prime window today, do it.'
-  }
-  return 'Rough day. Pick one spot with good structure and commit. Night catfishing might be the better play.'
+  if(dispScore>=40)return `Mediocre. Downsize baits, slow down, fish tight to cover.${lake.thermal?' Warm discharge area is your best bet.':''}`;
+  return 'Rough day. Pick one spot with good structure and commit. Night catfishing might be the move.'
 }
 
 function renderLakeSelector(){
@@ -388,12 +418,17 @@ function renderContent(){
   const dispScore=isToday?dispHour.score:day.avgScore;
   const wins=findWindows(day.hours);
 
-  // Find best day
-  const bestDayIdx=weatherData.reduce((best,d,i)=>d.avgScore>weatherData[best].avgScore?i:best,0);
+  // Next window (chronological)
+  const nextWin=isToday?findNextWindow(day.hours,weatherData[1]?.hours,curHr):null;
+
+  // Best & runner-up day
+  const ranked=[...weatherData.map((d,i)=>({i,avg:d.avgScore,pk:d.peakScore}))].sort((a,b)=>b.avg-a.avg);
+  const bestDayIdx=ranked[0].i;
+  const runnerIdx=ranked.length>1?ranked[1].i:null;
 
   const dn=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const circ=2*Math.PI*54,off=circ-(dispScore/100)*circ;
-  const pA=dispHour.pressureDelta<-0.8?'↓':dispHour.pressureDelta>0.8?'↑':'→';
+  const pA=dispHour.pressureDelta<-0.6?'↓':dispHour.pressureDelta>0.6?'↑':'→';
   const pD=(dispHour.pressureDelta>=0?'+':'')+dispHour.pressureDelta.toFixed(1);
 
   let h='';
@@ -402,7 +437,7 @@ function renderContent(){
   h+=`<div class="score-hero">
     <div class="lake-name">${lake.name}</div>
     <div class="score-subtitle">${isToday?'Right now':dn[day.date.getDay()]+' '+mn[day.date.getMonth()]+' '+day.date.getDate()}</div>
-    <div class="score-ring"><svg viewBox="0 0 120 120"><circle class="bg-ring" cx="60" cy="60" r="54"/><circle class="fg-ring" cx="60" cy="60" r="54" stroke="${sc(dispScore)}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/></svg><div class="score-text"><div class="score-num">${dispScore}</div><div class="score-label" style="color:${sc(dispScore)}">${sl(dispScore)}</div></div></div>
+    <div class="score-ring"><svg viewBox="0 0 120 120"><circle class="bg-ring" cx="60" cy="60" r="54"/><circle class="fg-ring" cx="60" cy="60" r="54" stroke="${scColor(dispScore)}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/></svg><div class="score-text"><div class="score-num">${dispScore}</div><div class="score-label" style="color:${scColor(dispScore)}">${scLabel(dispScore)}</div></div></div>
     <div class="conditions-row">
       <div class="cond-item"><div class="cond-icon">${dispHour.icon}</div><div class="cond-val">${dispHour.temp}°</div><div class="cond-label">Temp</div></div>
       <div class="cond-item"><div class="cond-icon">💨</div><div class="cond-val">${dispHour.wind} mph</div><div class="cond-label">Wind</div></div>
@@ -413,35 +448,37 @@ function renderContent(){
     <div class="moon-bar"><span class="moon-icon">${day.moonInfo.icon}</span><span class="moon-text"><span class="moon-phase">${day.moonInfo.name}</span> · ${day.moonInfo.score>=7?'Strong solunar':day.moonInfo.score>=5?'Moderate solunar':'Weak solunar'}</span></div>
   </div>`;
 
-  // NEXT WINDOW (only if today and currently in off-hours/poor time)
-  if(isToday&&dispHour.pts.time<=-8&&wins.length){
-    // Find next window that hasn't ended
-    const nw=wins.find(w=>w.end>=curHr)||wins[0];
-    const hoursUntil=nw.start>curHr?nw.start-curHr:nw.start+24-curHr;
-    const isTmrw=nw.start<=curHr;
+  // NEXT WINDOW
+  if(nextWin&&isToday&&dispHour.pts.time<=-8){
     h+=`<div class="next-window">
       <div class="nw-icon">⏰</div>
       <div class="nw-info">
-        <div class="nw-label">Next prime window${isTmrw?' (tomorrow)':''}</div>
-        <div class="nw-time">${fh(nw.start)} – ${fh(nw.end+1)}</div>
-        <div class="nw-detail">${hoursUntil}h from now · ${nw.reason}</div>
+        <div class="nw-label">Next window${nextWin.tomorrow?' (tomorrow)':''}</div>
+        <div class="nw-time">${fh(nextWin.start)} – ${fh(nextWin.end+1)}</div>
+        <div class="nw-detail">${nextWin.hoursUntil}h from now · ${nextWin.reason}</div>
       </div>
-      <div class="nw-score" style="color:${sc(nw.score)}">${nw.score}</div>
+      <div class="nw-score" style="color:${scColor(nextWin.score)}">${nextWin.score}</div>
     </div>`;
   }
 
   // STRATEGY
-  const tip=getStrategy(dispScore,dispHour,day,lake,isToday,curHr);
+  const tip=getStrategy(dispScore,dispHour,day,lake,isToday,curHr,nextWin);
   h+=`<div class="tip-box"><div class="tip-title">Strategy</div><div class="tip-text">${tip}</div></div>`;
 
-  // BEST DAY
+  // BEST DAY (+ runner up)
   if(selectedDay===0){
     const bd=weatherData[bestDayIdx];
     const bdName=bestDayIdx===0?'Today':(bestDayIdx===1?'Tomorrow':dn[bd.date.getDay()]);
-    h+=`<div class="best-day" onclick="selectDay(${bestDayIdx})" style="cursor:pointer">
-      <div class="bd-badge">Best day</div>
-      <div class="bd-text"><strong>${bdName}</strong> · avg ${bd.avgScore}, peaks at ${bd.peakScore} during ${bd.peakHour?fh(bd.peakHour.hour):''}</div>
-      <div class="bd-score" style="color:${sc(bd.avgScore)}">${bd.avgScore}</div>
+    let runnerText='';
+    if(runnerIdx!==null&&ranked[1].avg>=50){
+      const rd=weatherData[runnerIdx];
+      const rdName=runnerIdx===0?'today':(runnerIdx===1?'tomorrow':dn[rd.date.getDay()]);
+      runnerText=` · Runner-up: <strong>${rdName}</strong> (${rd.avgScore})`;
+    }
+    h+=`<div class="best-day" onclick="selectDay(${bestDayIdx})">
+      <div class="bd-badge">Go fish</div>
+      <div class="bd-text"><strong>${bdName}</strong> avg ${bd.avgScore}, peaks ${bd.peakScore} at ${bd.peakHour?fh(bd.peakHour.hour):''}${runnerText}</div>
+      <div class="bd-score" style="color:${scColor(bd.avgScore)}">${bd.avgScore}</div>
     </div>`;
   }
 
@@ -450,7 +487,7 @@ function renderContent(){
   weatherData.forEach((d,i)=>{
     const name=i===0?'Today':(i===1?'Tmrw':dn[d.date.getDay()]);
     const isBest=i===bestDayIdx;
-    h+=`<div class="day-tab${i===selectedDay?' active':''}${isBest&&i!==selectedDay?' best-tab':''}" onclick="selectDay(${i})"><div class="day-name">${name}</div><div class="day-score" style="color:${sc(d.avgScore)}">${d.avgScore}</div><div class="day-peak">pk ${d.peakScore}</div></div>`;
+    h+=`<div class="day-tab${i===selectedDay?' active':''}${isBest&&i!==selectedDay?' best-tab':''}" onclick="selectDay(${i})"><div class="day-name">${name}</div><div class="day-score" style="color:${scColor(d.avgScore)}">${d.avgScore}</div><div class="day-peak">pk ${d.peakScore}</div></div>`;
   });
   h+=`</div>`;
 
@@ -459,18 +496,24 @@ function renderContent(){
     h+=`<div class="best-windows"><h3>Best Windows</h3>`;
     wins.forEach((w,i)=>{
       const dur=w.end-w.start+1;
-      h+=`<div class="window-item"><div class="window-rank">${i+1}</div><div class="window-info"><div class="window-time">${fh(w.start)} – ${fh(w.end+1)} <span style="font-size:11px;color:var(--text-dim);font-weight:400">${dur}h</span></div><div class="window-why">${w.reason}</div></div><div class="window-score" style="color:${sc(w.score)}">${w.score}</div></div>`;
+      h+=`<div class="window-item"><div class="window-rank">${i+1}</div><div class="window-info"><div class="window-time">${fh(w.start)} – ${fh(w.end+1)} <span style="font-size:11px;color:var(--text-dim);font-weight:400">${dur}h</span></div><div class="window-why">${w.reason}</div></div><div class="window-score" style="color:${scColor(w.score)}">${w.score}</div></div>`;
     });
     h+=`</div>`;
   }
 
-  // HOURLY
+  // HOURLY - vertical bars proportional to score range for this day
   const srHr=Math.round(day.sunriseH),ssHr=Math.round(day.sunsetH);
+  const dayMin=Math.min(...day.hours.map(h=>h.score));
+  const dayMax=Math.max(...day.hours.map(h=>h.score));
+  const dayRange=Math.max(dayMax-dayMin,10);
+
   h+=`<div class="section-label">Hourly Forecast</div><div class="hourly-scroll" id="hourlyScroll"><div class="hourly-row">`;
   day.hours.forEach(hr=>{
     if(hr.hour===srHr){const m=Math.round((day.sunriseH%1)*60);h+=`<div class="sun-marker"><div class="sun-icon">🌅</div>${srHr>12?srHr-12:srHr}:${String(m).padStart(2,'0')}</div>`}
     const prime=hr.score>=60,isNow=isToday&&hr.hour===curHr;
-    h+=`<div class="hour-cell${prime?' prime':''}${isNow?' now':''}" data-hour="${hr.hour}"><div class="h-time">${fh(hr.hour)}</div><div class="h-icon">${hr.icon}</div><div class="h-score" style="color:${sc(hr.score)}">${hr.score}</div><div style="font-size:10px;color:var(--text-dim)">${hr.temp}°</div><div class="h-bar"><div class="h-bar-fill" style="width:${hr.score}%;background:${sc(hr.score)}"></div></div></div>`;
+    // Relative bar height: scale score into 15%-100% of bar based on day's range
+    const relHeight=15+85*((hr.score-dayMin)/dayRange);
+    h+=`<div class="hour-cell${prime?' prime':''}${isNow?' now':''}" data-hour="${hr.hour}"><div class="h-time">${fh(hr.hour)}</div><div class="h-icon">${hr.icon}</div><div class="h-score" style="color:${scColor(hr.score)}">${hr.score}</div><div style="font-size:10px;color:var(--text-dim)">${hr.temp}°</div><div class="h-bar"><div class="h-bar-fill" style="height:${relHeight}%;background:${scColor(hr.score)}"></div></div></div>`;
     if(hr.hour===ssHr){const m=Math.round((day.sunsetH%1)*60);h+=`<div class="sun-marker" style="background:linear-gradient(180deg,rgba(184,92,92,.06),transparent);border-color:rgba(184,92,92,.3)"><div class="sun-icon">🌇</div>${ssHr>12?ssHr-12:ssHr}:${String(m).padStart(2,'0')}</div>`}
   });
   h+=`</div></div>`;
