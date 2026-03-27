@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retatrutide PK Simulator — Blood Concentration Over Time</title>
+<meta property="og:title" content="Retatrutide PK Simulator">
+<meta property="og:description" content="Interactive pharmacokinetic simulator showing blood concentration accumulation across different retatrutide dosing schedules. Based on Phase 1/2 clinical trial data.">
+<meta property="og:url" content="https://niggerfaggot.club/retatrutide-pk.html">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #0a0a0f;
+  color: #c8c8d0;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 20px 16px 40px; }
+h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e8e8f0;
+  margin-bottom: 2px;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  font-size: 0.78rem;
+  color: #5a5a70;
+  margin-bottom: 24px;
+}
+.subtitle a { color: #6366f1; text-decoration: none; }
+
+/* Tabs */
+.tabs { display: flex; gap: 6px; margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tab {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid #1e1e2e;
+  background: #12121c;
+  color: #6a6a80;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.tab:hover { border-color: #2a2a40; color: #9a9ab0; }
+.tab.active { background: #6366f1; border-color: #6366f1; color: #fff; }
+
+/* Canvas */
+.chart-wrap {
+  background: #0e0e18;
+  border: 1px solid #1a1a2a;
+  border-radius: 14px;
+  padding: 16px 12px 12px;
+  margin-bottom: 16px;
+  position: relative;
+}
+canvas { width: 100%; height: auto; display: block; }
+
+/* Scenarios */
+.scenarios { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 16px; }
+.scenario {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #1a1a2a;
+  background: #0e0e18;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.scenario:hover { border-color: #2a2a40; }
+.scenario.on { border-color: var(--sc-color); background: #12121f; }
+.scenario .dot {
+  width: 14px; height: 14px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  background: #222;
+  transition: background 0.2s;
+}
+.scenario.on .dot { background: var(--sc-color); }
+.scenario .info { flex: 1; min-width: 0; }
+.scenario .name { font-size: 0.82rem; font-weight: 600; color: #888; transition: color 0.2s; }
+.scenario.on .name { color: var(--sc-color); }
+.scenario .desc { font-size: 0.72rem; color: #4a4a60; margin-top: 2px; }
+
+/* Stats cards */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.stat {
+  background: #0e0e18;
+  border: 1px solid #1a1a2a;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.stat .label { font-size: 0.7rem; color: #4a4a60; margin-bottom: 3px; }
+.stat .value { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600; }
+.stat .sub { font-size: 0.68rem; color: #3a3a50; margin-top: 2px; }
+
+/* Explainer */
+.explainer {
+  background: #0e0e18;
+  border: 1px solid #1a1a2a;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.explainer h3 { font-size: 0.82rem; font-weight: 600; color: #a0a0b0; margin-bottom: 6px; }
+.explainer p { font-size: 0.75rem; color: #5a5a70; margin-bottom: 8px; }
+.explainer p:last-child { margin-bottom: 0; }
+.explainer em { color: #8888a0; font-style: normal; font-weight: 500; }
+
+/* Controls */
+.controls { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.controls span { font-size: 0.72rem; color: #4a4a60; }
+.btn-group { display: flex; gap: 4px; }
+.btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid #1e1e2e;
+  background: #12121c;
+  color: #6a6a80;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.btn:hover { border-color: #3a3a50; color: #9a9ab0; }
+.btn.active { background: #6366f1; border-color: #6366f1; color: #fff; }
+
+.footer {
+  font-size: 0.68rem;
+  color: #3a3a50;
+  border-top: 1px solid #1a1a2a;
+  padding-top: 12px;
+  line-height: 1.6;
+}
+
+/* Tooltip */
+#tooltip {
+  display: none;
+  position: fixed;
+  background: #16162a;
+  border: 1px solid #2a2a40;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.72rem;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  min-width: 140px;
+}
+#tooltip .tt-day { color: #6a6a80; margin-bottom: 4px; font-weight: 500; }
+#tooltip .tt-row { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+#tooltip .tt-dot { width: 8px; height: 8px; border-radius: 2px; }
+#tooltip .tt-val { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #c8c8d0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Retatrutide PK Simulator</h1>
+  <p class="subtitle">Pharmacokinetic blood concentration model &middot; t½ ≈ 6 days &middot; Based on <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2301972" target="_blank">NEJM Phase 2</a> &amp; Phase 1 data</p>
+
+  <div class="tabs" id="viewTabs"></div>
+
+  <div class="controls">
+    <span>Duration:</span>
+    <div class="btn-group" id="durationBtns"></div>
+    <span style="margin-left:8px">Start dose:</span>
+    <div class="btn-group" id="startDoseBtns"></div>
+  </div>
+
+  <div class="scenarios" id="scenarioList"></div>
+
+  <div class="chart-wrap">
+    <canvas id="chart" height="300"></canvas>
+  </div>
+  <div id="tooltip"><div class="tt-day"></div></div>
+
+  <div class="stats" id="statsGrid"></div>
+
+  <div class="explainer" id="explainerBox">
+    <h3>How to read this chart</h3>
+    <p>Each curve shows <em>relative drug concentration in the blood</em> over time. Retatrutide has a half-life of about 6 days, meaning half the drug is still in your body when the next weekly dose arrives. This causes <em>accumulation</em>: each dose stacks on top of what remains from previous doses.</p>
+    <p>Over 4–5 weeks of consistent dosing, blood levels reach a <em>steady state</em> where each new injection replaces exactly what was eliminated since the last one. The peak-to-trough swing shows how much concentration fluctuates within each dosing interval.</p>
+    <p>Shorter dosing intervals (e.g. every 5 days instead of 7) produce higher accumulation because less drug has cleared before the next dose. Higher starting doses produce proportionally higher concentrations since retatrutide has <em>dose-proportional pharmacokinetics</em>.</p>
+  </div>
+
+  <div class="explainer">
+    <h3>Why accumulation matters</h3>
+    <p>Gastrointestinal side effects (nausea, diarrhea) are <em>concentration-dependent</em>. In clinical trials, groups that started at 4mg had significantly more GI events than groups starting at 2mg, even when both reached the same target dose. The Phase 3 TRIUMPH protocol starts at 2mg and steps up every 4 weeks (2 → 4 → 6 → 9 → 12mg) specifically to let the body adapt at each plateau.</p>
+    <p>Dosing more frequently than every 7 days or jumping dose levels too quickly produces higher peak concentrations before the body has adapted, increasing the likelihood and severity of side effects without meaningfully improving long-term efficacy.</p>
+  </div>
+
+  <p class="footer">
+    PK model: 1-compartment, subcutaneous absorption (ka ≈ 0.8/day, Tmax 24–48h), first-order elimination (ke = ln2/6 ≈ 0.116/day). Concentration units are relative (normalized to 1mg single-dose reference). Actual plasma levels require clinical assay. Half-life from Coskun et al. Phase 1 (t½ ≈ 6 days, Tmax 12–72h) and Jastreboff et al. NEJM 2023. This is an educational tool, not medical advice. Retatrutide is investigational and not FDA-approved.
+  </p>
+</div>
+
+<script>
+const HALF_LIFE = 6;
+const KE = Math.LN2 / HALF_LIFE;
+const KA = 0.8;
+const SPD = 8; // steps per day
+const DAYS_OF_WEEK = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function simulate(doses, totalDays) {
+  const pts = [];
+  const steps = totalDays * SPD;
+  for (let s = 0; s <= steps; s++) {
+    const t = s / SPD;
+    let c = 0;
+    for (const {day, mg} of doses) {
+      const dt = t - day;
+      if (dt > 0) c += (mg * KA / (KA - KE)) * (Math.exp(-KE * dt) - Math.exp(-KA * dt));
+    }
+    pts.push({t, c: Math.max(0, c)});
+  }
+  return pts;
+}
+
+let startDose = 1;
+
+function getScenarios() {
+  const sd = startDose;
+  return [
+    {
+      id: 'weekly7', label: `${sd}mg Every 7 Days`, color: '#60a5fa',
+      desc: `Standard weekly dosing. Inject ${sd}mg on the same day each week.`,
+      doses: w => { const d=[]; for(let i=0;i<=w;i++) d.push({day:i*7,mg:sd}); return d; }
+    },
+    {
+      id: 'weekly6', label: `${sd}mg Every 6 Days`, color: '#f87171',
+      desc: `Slightly compressed interval. ~17% more accumulation vs 7-day.`,
+      doses: w => { const d=[]; for(let i=0;i<=Math.ceil(w*7/6);i++) d.push({day:i*6,mg:sd}); return d; }
+    },
+    {
+      id: 'midweek', label: `${sd}mg + Extra Mid-Week Dose`, color: '#fbbf24',
+      desc: `${sd}mg on day 0, extra ${sd}mg on day 3, then weekly. Front-loads concentration.`,
+      doses: w => { const d=[{day:0,mg:sd},{day:3,mg:sd}]; for(let i=1;i<=w;i++) d.push({day:i*7,mg:sd}); return d; }
+    },
+    {
+      id: 'trial2mg', label: '2mg Weekly (Phase 3 Protocol)', color: '#a78bfa',
+      desc: 'TRIUMPH Phase 3 starting dose. Clinical reference baseline.',
+      doses: w => { const d=[]; for(let i=0;i<=w;i++) d.push({day:i*7,mg:2}); return d; }
+    },
+    {
+      id: 'trial4mg', label: '4mg Weekly (Phase 2 Fast Start)', color: '#34d399',
+      desc: 'Phase 2 tested 4mg initial dose. More GI events than 2mg start.',
+      doses: w => { const d=[]; for(let i=0;i<=w;i++) d.push({day:i*7,mg:4}); return d; }
+    },
+  ];
+}
+
+let state = {
+  view: 'accumulation',
+  duration: 14,
+  selected: new Set(['weekly7','midweek','trial2mg']),
+};
+
+const canvas = document.getElementById('chart');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+
+function buildUI() {
+  // View tabs
+  const views = [
+    {id:'accumulation', label:'Accumulation'},
+    {id:'comparison', label:'Dose Comparison'},
+    {id:'intervals', label:'Interval Effects'},
+  ];
+  const tabsEl = document.getElementById('viewTabs');
+  tabsEl.innerHTML = '';
+  views.forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'tab' + (state.view===v.id?' active':'');
+    b.textContent = v.label;
+    b.onclick = () => { state.view = v.id; applyPreset(); buildUI(); draw(); };
+    tabsEl.appendChild(b);
+  });
+
+  // Duration buttons
+  const durEl = document.getElementById('durationBtns');
+  durEl.innerHTML = '';
+  [7,14,21,35].forEach(d => {
+    const b = document.createElement('button');
+    b.className = 'btn' + (state.duration===d?' active':'');
+    b.textContent = d <= 21 ? `${d} days` : `${Math.round(d/7)} weeks`;
+    b.onclick = () => { state.duration = d; buildUI(); draw(); };
+    durEl.appendChild(b);
+  });
+
+  // Start dose buttons
+  const sdEl = document.getElementById('startDoseBtns');
+  sdEl.innerHTML = '';
+  [1,2].forEach(d => {
+    const b = document.createElement('button');
+    b.className = 'btn' + (startDose===d?' active':'');
+    b.textContent = `${d}mg`;
+    b.onclick = () => { startDose = d; buildUI(); draw(); };
+    sdEl.appendChild(b);
+  });
+
+  // Scenarios
+  const listEl = document.getElementById('scenarioList');
+  listEl.innerHTML = '';
+  getScenarios().forEach(sc => {
+    const div = document.createElement('div');
+    div.className = 'scenario' + (state.selected.has(sc.id)?' on':'');
+    div.style.setProperty('--sc-color', sc.color);
+    div.innerHTML = `<div class="dot"></div><div class="info"><div class="name">${sc.label}</div><div class="desc">${sc.desc}</div></div>`;
+    div.onclick = () => {
+      if (state.selected.has(sc.id)) state.selected.delete(sc.id);
+      else state.selected.add(sc.id);
+      buildUI(); draw();
+    };
+    listEl.appendChild(div);
+  });
+}
+
+function applyPreset() {
+  if (state.view === 'accumulation') {
+    state.selected = new Set(['weekly7','midweek','trial2mg']);
+    state.duration = 14;
+  } else if (state.view === 'comparison') {
+    state.selected = new Set(['weekly7','trial2mg','trial4mg']);
+    state.duration = 35;
+  } else if (state.view === 'intervals') {
+    state.selected = new Set(['weekly7','weekly6','midweek']);
+    state.duration = 21;
+  }
+}
+
+function draw() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W = rect.width - 24;
+  const H = Math.min(320, W * 0.55);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const pad = {t:20, r:16, b:40, l:48};
+  const pw = W - pad.l - pad.r;
+  const ph = H - pad.t - pad.b;
+
+  const scenarios = getScenarios().filter(s => state.selected.has(s.id));
+  const weeks = Math.ceil(state.duration / 7);
+  const days = state.duration;
+  const allData = scenarios.map(sc => ({sc, pts: simulate(sc.doses(weeks), days)}));
+
+  let maxC = 0;
+  allData.forEach(({pts}) => pts.forEach(p => { if(p.c>maxC) maxC=p.c; }));
+  maxC = maxC * 1.12 || 1;
+
+  const xScale = t => pad.l + (t / days) * pw;
+  const yScale = c => pad.t + ph - (c / maxC) * ph;
+
+  // Background
+  ctx.fillStyle = '#0e0e18';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = '#1a1a28';
+  ctx.lineWidth = 1;
+  const yTicks = 5;
+  for (let i = 0; i <= yTicks; i++) {
+    const y = pad.t + (ph / yTicks) * i;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+    const val = (maxC * (1 - i/yTicks));
+    ctx.fillStyle = '#3a3a50';
+    ctx.font = '10px "JetBrains Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(val.toFixed(2), pad.l - 6, y + 3);
+  }
+
+  // X axis labels
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#3a3a50';
+  ctx.font = '10px "DM Sans", sans-serif';
+  for (let d = 0; d <= days; d++) {
+    const x = xScale(d);
+    if (d % 7 === 0) {
+      ctx.strokeStyle = '#1e1e30';
+      ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ph); ctx.stroke();
+      ctx.fillStyle = '#5a5a70';
+      ctx.fillText(`Week ${d/7}`, x, H - pad.b + 16);
+    }
+    if (days <= 21) {
+      ctx.fillStyle = '#2a2a40';
+      ctx.font = '9px "DM Sans", sans-serif';
+      ctx.fillText(DAYS_OF_WEEK[d % 7], x, H - pad.b + 28);
+      ctx.font = '10px "DM Sans", sans-serif';
+    }
+  }
+
+  // Injection markers
+  ctx.strokeStyle = '#2a2a3a';
+  ctx.setLineDash([3, 3]);
+  const injDays = new Set();
+  allData.forEach(({sc}) => {
+    sc.doses(weeks).forEach(d => { if(d.day <= days) injDays.add(d.day); });
+  });
+  injDays.forEach(d => {
+    const x = xScale(d);
+    ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + ph); ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  // Y-axis label
+  ctx.save();
+  ctx.translate(12, pad.t + ph/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillStyle = '#4a4a60';
+  ctx.font = '10px "DM Sans", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Relative Concentration', 0, 0);
+  ctx.restore();
+
+  // Draw curves
+  allData.forEach(({sc, pts}) => {
+    ctx.strokeStyle = sc.color;
+    ctx.lineWidth = 2.2;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const x = xScale(p.t);
+      const y = yScale(p.c);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Fill under curve
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = sc.color;
+    ctx.lineTo(xScale(pts[pts.length-1].t), pad.t + ph);
+    ctx.lineTo(xScale(pts[0].t), pad.t + ph);
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  });
+
+  // Stats
+  const statsEl = document.getElementById('statsGrid');
+  statsEl.innerHTML = '';
+  allData.forEach(({sc, pts}) => {
+    const lastWeekPts = pts.filter(p => p.t >= days - 7 && p.t <= days);
+    const peak = Math.max(...lastWeekPts.map(p => p.c));
+    const trough = Math.min(...lastWeekPts.map(p => p.c));
+    const swing = peak > 0 ? ((1 - trough/peak) * 100).toFixed(0) : 0;
+    const div = document.createElement('div');
+    div.className = 'stat';
+    div.innerHTML = `
+      <div class="label" style="color:${sc.color}">${sc.label}</div>
+      <div class="value" style="color:${sc.color}">${peak.toFixed(3)}</div>
+      <div class="sub">Peak (last week) · Trough: ${trough.toFixed(3)} · Swing: ${swing}%</div>
+    `;
+    statsEl.appendChild(div);
+  });
+
+  // Mouse tracking
+  canvas.onmousemove = canvas.ontouchmove = (e) => {
+    e.preventDefault();
+    const r = canvas.getBoundingClientRect();
+    const cx = (e.touches ? e.touches[0].clientX : e.clientX);
+    const cy = (e.touches ? e.touches[0].clientY : e.clientY);
+    const mx = cx - r.left;
+    const t = ((mx - pad.l * (r.width/W)) / (pw * (r.width/W))) * days;
+    if (t < 0 || t > days) { tooltip.style.display = 'none'; return; }
+    const dayNum = Math.round(t * 2) / 2;
+    const dow = DAYS_OF_WEEK[Math.floor(dayNum) % 7];
+    let html = `<div class="tt-day">Day ${dayNum.toFixed(1)} (${dow})</div>`;
+    allData.forEach(({sc, pts}) => {
+      const closest = pts.reduce((best, p) => Math.abs(p.t - dayNum) < Math.abs(best.t - dayNum) ? p : best);
+      html += `<div class="tt-row"><div class="tt-dot" style="background:${sc.color}"></div><div class="tt-val">${closest.c.toFixed(4)}</div></div>`;
+    });
+    tooltip.innerHTML = html;
+    tooltip.style.display = 'block';
+    let tx = cx + 14;
+    let ty = cy - 30;
+    if (tx + 160 > window.innerWidth) tx = cx - 160;
+    if (ty < 0) ty = cy + 14;
+    tooltip.style.left = tx + 'px';
+    tooltip.style.top = ty + 'px';
+  };
+  canvas.onmouseleave = () => { tooltip.style.display = 'none'; };
+}
+
+applyPreset();
+buildUI();
+draw();
+window.addEventListener('resize', draw);
+</script>
+</body>
+</html>
