@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Bored-at-Work Learning Lab</title>
+<meta property="og:title" content="The Bored-at-Work Learning Lab">
+<meta property="og:description" content="Turn a Windows box with PowerShell into a full computer science education. Bootstrap scripts, project tracks, math from the terminal, and portfolio-building strategies.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-og-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/learning-lab.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-og-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+
+:root {
+  --bg-deep: #07080a;
+  --bg-surface: #0e1014;
+  --bg-card: #151820;
+  --bg-code: #1a1e28;
+  --green: #00e87b;
+  --green-dim: #00e87b33;
+  --amber: #f5a623;
+  --amber-dim: #f5a62333;
+  --cyan: #5ce0d8;
+  --purple: #a78bfa;
+  --red: #f87171;
+  --text: #e8e6e3;
+  --text-dim: #8a8f98;
+  --text-muted: #555a64;
+  --border: #1e2230;
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Hero */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 60px 40px;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0;
+  background: url('https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-hero.png') center/cover no-repeat;
+  filter: brightness(0.35) saturate(0.8);
+  z-index: 0;
+}
+.hero-gradient {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, var(--bg-deep) 0%, var(--bg-deep) 8%, transparent 50%);
+  z-index: 1;
+}
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 900px;
+}
+.hero-tag {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 20px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.3s;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  line-height: 1.05;
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.5s;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--green);
+}
+.hero-sub {
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  max-width: 600px;
+  line-height: 1.7;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.7s;
+}
+.hero-scroll {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+/* Layout */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* Phase sections */
+.phase {
+  padding: 120px 0 80px;
+  border-top: 1px solid var(--border);
+}
+.phase-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 48px;
+}
+.phase-number {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green);
+  background: var(--green-dim);
+  padding: 6px 14px;
+  border-radius: 4px;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  margin-top: 6px;
+}
+.phase-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  line-height: 1.15;
+  color: #fff;
+}
+.phase-title em { font-style: italic; color: var(--amber); }
+.phase-intro {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  max-width: 700px;
+  margin-bottom: 48px;
+  line-height: 1.75;
+}
+
+/* Image sections */
+.section-image {
+  width: 100%;
+  border-radius: 12px;
+  margin: 40px 0;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+/* Code blocks */
+.code-block {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 28px 0;
+  overflow: hidden;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: #12151d;
+  border-bottom: 1px solid var(--border);
+}
+.code-dots {
+  display: flex;
+  gap: 7px;
+}
+.code-dots span {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+}
+.code-dots span:nth-child(1) { background: #ff5f57; }
+.code-dots span:nth-child(2) { background: #febc2e; }
+.code-dots span:nth-child(3) { background: #28c840; }
+.code-lang {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.code-body {
+  padding: 20px 22px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.code-body pre {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--text);
+  white-space: pre;
+  margin: 0;
+}
+.code-body .comment { color: var(--text-muted); }
+.code-body .cmd { color: var(--green); }
+.code-body .flag { color: var(--cyan); }
+.code-body .string { color: var(--amber); }
+.code-body .keyword { color: var(--purple); }
+.code-body .fn { color: var(--cyan); }
+
+/* Cards grid */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin: 32px 0;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.card:hover {
+  border-color: var(--green-dim);
+  transform: translateY(-3px);
+}
+.card-icon {
+  font-size: 28px;
+  margin-bottom: 14px;
+  display: block;
+}
+.card h3 {
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
+}
+.card p {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* Language path cards */
+.path-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  margin: 32px 0;
+}
+.path-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.path-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.path-card.python::before { background: var(--amber); }
+.path-card.rust::before { background: var(--red); }
+.path-card.go::before { background: var(--cyan); }
+.path-card.js::before { background: var(--purple); }
+.path-card:hover { border-color: var(--text-muted); }
+.path-card h3 {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 6px;
+  color: #fff;
+}
+.path-card .subtitle {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+.path-card p {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+/* Subsections */
+.subsection {
+  margin: 48px 0;
+}
+.subsection h3 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.subsection h4 {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  margin-top: 32px;
+}
+.subsection p {
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  max-width: 750px;
+}
+
+/* Table */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 28px 0;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+thead {
+  background: #12151d;
+}
+th {
+  text-align: left;
+  padding: 14px 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--bg-card); }
+td:first-child {
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Inline code */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--bg-code);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--green);
+  border: 1px solid var(--border);
+}
+
+/* Callout */
+.callout {
+  background: var(--bg-card);
+  border-left: 3px solid var(--green);
+  border-radius: 0 10px 10px 0;
+  padding: 24px 28px;
+  margin: 32px 0;
+}
+.callout.amber { border-left-color: var(--amber); }
+.callout.purple { border-left-color: var(--purple); }
+.callout h4 {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.callout.amber h4 { color: var(--amber); }
+.callout.purple h4 { color: var(--purple); }
+.callout p {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+/* Two-column layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin: 32px 0;
+}
+
+/* Resources list */
+.resource-list {
+  list-style: none;
+  margin: 24px 0;
+}
+.resource-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 14px;
+  align-items: start;
+}
+.resource-list li:last-child { border-bottom: none; }
+.resource-bullet {
+  width: 8px; height: 8px;
+  background: var(--green);
+  border-radius: 2px;
+  margin-top: 8px;
+  flex-shrink: 0;
+}
+.resource-text strong {
+  color: #fff;
+  font-weight: 600;
+}
+.resource-text span {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+/* Daily routine */
+.routine {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 36px;
+  margin: 32px 0;
+}
+.routine-item {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.routine-item:last-child { border-bottom: none; }
+.routine-time {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--amber);
+  font-weight: 600;
+}
+.routine-task {
+  color: var(--text-dim);
+}
+
+/* Skill stack visualization */
+.skill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0;
+}
+.skill-tag {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  transition: all 0.3s;
+}
+.skill-tag:hover {
+  border-color: var(--green);
+  color: var(--green);
+  background: var(--green-dim);
+}
+
+/* Footer */
+.footer {
+  padding: 60px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.footer p {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+/* Copy button */
+.copy-btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.copy-btn:hover {
+  color: var(--green);
+  border-color: var(--green);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero { padding: 40px 24px; }
+  .container { padding: 0 20px; }
+  .phase { padding: 80px 0 60px; }
+  .phase-header { grid-template-columns: 1fr; gap: 12px; }
+  .two-col { grid-template-columns: 1fr; }
+  .cards { grid-template-columns: 1fr; }
+  .path-cards { grid-template-columns: 1fr; }
+  .routine-item { grid-template-columns: 60px 1fr; }
+  .code-body pre { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-gradient"></div>
+  <div class="hero-content">
+    <div class="hero-tag">/// A field guide for the terminally bored</div>
+    <h1>The Bored-at-Work <em>Learning Lab</em></h1>
+    <p class="hero-sub">Turn a Windows box with nothing but PowerShell and winget into a full computer science education. No admin approval. No budget. Just a terminal and dead time.</p>
+  </div>
+  <div class="hero-scroll">scroll</div>
+</section>
+
+<!-- PHASE 0: BOOTSTRAP -->
+<section class="phase" id="bootstrap">
+<div class="container">
+  <div class="phase-header">
+    <span class="phase-number">PHASE 0</span>
+    <h2 class="phase-title">The <em>Bootstrap</em></h2>
+  </div>
+  <p class="phase-intro">One elevated PowerShell session. Ten minutes. This transforms a stock Windows machine into a polyglot development environment with six languages, a Unix toolkit, media processing, and a modern terminal.</p>
+
+  <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-tools.png" alt="Tools laid out on workbench" class="section-image" loading="lazy">
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">PowerShell (elevated)</span>
+    </div>
+    <div class="code-body"><pre><span class="comment"># Core shell & runtime</span>
+<span class="cmd">winget install</span> <span class="string">nushell Starship.Starship</span>
+
+<span class="comment"># Languages & runtimes</span>
+<span class="cmd">winget install</span> <span class="string">astral-sh.uv Python.Python.3.12 OpenJS.NodeJS.LTS</span>
+<span class="cmd">winget install</span> <span class="string">DenoLand.Deno Oven.Bun Rustlang.Rustup GoLang.Go zig.zig</span>
+
+<span class="comment"># Unix toolkit</span>
+<span class="cmd">winget install</span> <span class="string">Git.Git BurntSushi.ripgrep.MSVC sharkdp.fd sharkdp.bat</span>
+<span class="cmd">winget install</span> <span class="string">jqlang.jq junegunn.fzf dandavison.delta 7zip.7zip gerardog.gsudo</span>
+
+<span class="comment"># Media & image processing</span>
+<span class="cmd">winget install</span> <span class="string">Gyan.FFmpeg ImageMagick.ImageMagick</span>
+
+<span class="comment"># Editors, database, networking</span>
+<span class="cmd">winget install</span> <span class="string">Neovim.Neovim Microsoft.VisualStudioCode SQLite.SQLite</span>
+<span class="cmd">winget install</span> <span class="string">Insecure.Nmap WiresharkFoundation.Wireshark</span></pre></div>
+  </div>
+
+  <div class="callout">
+    <h4>Post-install essentials</h4>
+    <p>After winget, run <code>rustup default stable</code> then <code>cargo install rustlings zoxide eza procs bottom gitui</code>. For Python global tools: <code>uv tool install ruff httpie litecli ipython</code>. These turn your terminal from a shell into a cockpit.</p>
+  </div>
+
+  <div class="subsection">
+    <h4>Optional but excellent</h4>
+    <div class="skill-stack">
+      <span class="skill-tag">hyperfine (benchmarks)</span>
+      <span class="skill-tag">tokei (line counter)</span>
+      <span class="skill-tag">dust (disk usage)</span>
+      <span class="skill-tag">xh (HTTP client)</span>
+      <span class="skill-tag">just (command runner)</span>
+      <span class="skill-tag">glow (markdown viewer)</span>
+      <span class="skill-tag">fnm (node manager)</span>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- PHASE 1: TERMINAL MASTERY -->
+<section class="phase" id="terminal">
+<div class="container">
+  <div class="phase-header">
+    <span class="phase-number">PHASE 1</span>
+    <h2 class="phase-title">Make the Terminal <em>Your Home</em></h2>
+  </div>
+  <p class="phase-intro">Set Nushell as your default shell in Windows Terminal. Add a Nerd Font. Configure Starship. Now you live here. Everything else is a distraction.</p>
+
+  <div class="subsection">
+    <h3>Nushell: Data Pipelines as a Shell</h3>
+    <p>Nu isn't "text in, text out" like bash or PS. Everything is a table. This fundamentally changes how you think about data, and it transfers directly to SQL, pandas, and functional programming.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">Nushell</span>
+      </div>
+      <div class="code-body"><pre><span class="comment"># Every process is queryable structured data</span>
+<span class="cmd">ps</span> | <span class="fn">where</span> cpu > 5 | <span class="fn">sort-by</span> cpu <span class="flag">-r</span> | <span class="fn">first</span> 10
+
+<span class="comment"># Filesystem as a database</span>
+<span class="cmd">ls</span> **/*.py | <span class="fn">where</span> size > 10kb | <span class="fn">sort-by</span> modified <span class="flag">-r</span>
+
+<span class="comment"># HTTP APIs return native tables</span>
+<span class="cmd">http get</span> <span class="string">https://api.github.com/users/torvalds/repos</span>
+  | <span class="fn">select</span> name stargazers_count
+  | <span class="fn">sort-by</span> stargazers_count <span class="flag">-r</span>
+
+<span class="comment"># Group, pivot, aggregate — pandas in your shell</span>
+<span class="cmd">ls</span> | <span class="fn">group-by</span> type | <span class="fn">transpose</span> key value
+  | <span class="fn">each</span> { |row| { type: $row.key, count: ($row.value | <span class="fn">length</span>) } }</pre></div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h3>PowerShell: Objects Under the Hood</h3>
+    <p>PowerShell pipes .NET objects, not text. This is actually teaching you OOP whether you realize it or not. Everything has methods, properties, and types. Learning PS deeply gives you a mental model for Python, C#, Java, and every OOP language.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">PowerShell</span>
+      </div>
+      <div class="code-body"><pre><span class="comment"># Everything is a .NET object</span>
+(<span class="fn">Get-Date</span>).<span class="fn">AddDays</span>(<span class="flag">-7</span>)
+[<span class="keyword">math</span>]::<span class="string">PI</span>
+[<span class="keyword">System.IO.File</span>]::<span class="fn">ReadAllLines</span>(<span class="string">"file.txt"</span>)
+
+<span class="comment"># Deep system introspection via WMI/CIM</span>
+<span class="fn">Get-CimInstance</span> Win32_Processor | <span class="fn">Select</span> Name, NumberOfCores, MaxClockSpeed
+
+<span class="comment"># COM objects: script any Windows app</span>
+$excel = <span class="fn">New-Object</span> <span class="flag">-ComObject</span> <span class="string">Excel.Application</span></pre></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- PHASE 2: PROGRAMMING PATHS -->
+<section class="phase" id="paths">
+<div class="container">
+  <div class="phase-header">
+    <span class="phase-number">PHASE 2</span>
+    <h2 class="phase-title">Four <em>Diverging</em> Paths</h2>
+  </div>
+  <p class="phase-intro">Each language teaches you something fundamentally different about computing. Pick one to start, but you'll eventually want exposure to all four. They compound.</p>
+
+  <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-paths.png" alt="Four diverging paths" class="section-image" loading="lazy">
+
+  <div class="path-cards">
+    <div class="path-card python">
+      <h3>Python</h3>
+      <div class="subtitle">Broadest utility</div>
+      <p>The Swiss army knife. Start here if you want to build real tools fast. Week 1-2: one-shot <code>uvx</code> scripts. Week 3-4: CLI tools with SQLite backends. Week 5+: APIs, bots, scrapers, data pipelines.</p>
+    </div>
+    <div class="path-card rust">
+      <h3>Rust</h3>
+      <div class="subtitle">Deepest understanding</div>
+      <p>Forces you to understand what computers are actually doing. Ownership, borrowing, lifetimes. It's hard, but you'll understand every other language better afterward. Start with Rustlings.</p>
+    </div>
+    <div class="path-card go">
+      <h3>Go</h3>
+      <div class="subtitle">Fastest to networked tools</div>
+      <p>Stupidly simple, by design. Produces single binaries. Goroutines + channels teach you concurrency elegantly. Build a port scanner in 30 lines. A chat server in 100.</p>
+    </div>
+    <div class="path-card js">
+      <h3>TypeScript</h3>
+      <div class="subtitle">Web platform access</div>
+      <p>Deno for the cleanest learning REPL. Bun for speed. Build a markdown converter, WebSocket chat, browser extension, Cloudflare Worker. The web is your deployment target.</p>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h4>Python progression: uvx one-shots to real tools</h4>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">Nushell</span>
+      </div>
+      <div class="code-body"><pre><span class="comment"># Fetch + parse + display — no files, no venvs</span>
+<span class="cmd">uvx</span> <span class="flag">--with</span> httpx,rich python <span class="flag">-c</span> <span class="string">r#'
+import httpx, rich
+data = httpx.get("https://api.open-meteo.com/v1/forecast?latitude=35.66&longitude=-78.68&current_weather=true").json()
+rich.print(data["current_weather"])
+'#</span>
+
+<span class="comment"># Image processing pipeline</span>
+<span class="cmd">uvx</span> <span class="flag">--with</span> pillow python <span class="flag">-c</span> <span class="string">r#'
+from PIL import Image, ImageFilter
+im = Image.open("photo.jpg")
+im.thumbnail((800, 800))
+im.filter(ImageFilter.SHARPEN).save("thumb.jpg")
+'#</span>
+
+<span class="comment"># Quick math visualization</span>
+<span class="cmd">uvx</span> <span class="flag">--with</span> matplotlib,numpy python <span class="flag">-c</span> <span class="string">r#'
+import numpy as np, matplotlib.pyplot as plt
+x = np.linspace(0, 4*np.pi, 1000)
+plt.plot(x, np.sin(x) * np.exp(-x/10))
+plt.savefig("wave.png", dpi=150)
+'#</span></pre></div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h4>Intermediate project map</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Project</th><th>Concepts Learned</th><th>Lines</th></tr></thead>
+        <tbody>
+          <tr><td>Web scraper → SQLite pipeline</td><td>HTTP, HTML parsing, SQL, ETL</td><td>~150</td></tr>
+          <tr><td>REST API with FastAPI</td><td>HTTP servers, routing, validation, async</td><td>~200</td></tr>
+          <tr><td>CLI tool with Typer + Rich</td><td>Argument parsing, TUI, UX design</td><td>~120</td></tr>
+          <tr><td>File sync tool</td><td>Hashing, diffing, filesystem events</td><td>~250</td></tr>
+          <tr><td>Telegram/Discord bot</td><td>WebSockets, event loops, state machines</td><td>~300</td></tr>
+          <tr><td>Static site generator</td><td>Templates, file I/O, markdown parsing</td><td>~200</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- PHASE 3: MATH -->
+<section class="phase" id="math">
+<div class="container">
+  <div class="phase-header">
+    <span class="phase-number">PHASE 3</span>
+    <h2 class="phase-title">Math from the <em>Terminal</em></h2>
+  </div>
+  <p class="phase-intro">The most underrated section. SymPy is a complete computer algebra system. NumPy/SciPy handle everything else. You can learn calculus, linear algebra, and statistics interactively without ever opening a textbook.</p>
+
+  <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-math.png" alt="Mathematical equations on chalkboard" class="section-image" loading="lazy">
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">Python (SymPy)</span>
+    </div>
+    <div class="code-body"><pre><span class="keyword">from</span> sympy <span class="keyword">import</span> *
+x, y = <span class="fn">symbols</span>(<span class="string">'x y'</span>)
+
+<span class="fn">solve</span>(x**2 - 5*x + 6, x)             <span class="comment"># → [2, 3]</span>
+<span class="fn">factor</span>(x**3 - 1)                      <span class="comment"># → (x-1)(x²+x+1)</span>
+<span class="fn">diff</span>(<span class="fn">sin</span>(x)*<span class="fn">exp</span>(x), x)               <span class="comment"># Derivative</span>
+<span class="fn">integrate</span>(1/(1+x**2), x)             <span class="comment"># → atan(x)</span>
+<span class="fn">integrate</span>(<span class="fn">exp</span>(-x**2), (x, -oo, oo))  <span class="comment"># → √π</span>
+<span class="fn">limit</span>(<span class="fn">sin</span>(x)/x, x, 0)                <span class="comment"># → 1</span>
+<span class="fn">series</span>(<span class="fn">cos</span>(x), x, 0, 10)             <span class="comment"># Taylor series</span>
+
+<span class="comment"># Linear algebra</span>
+M = <span class="fn">Matrix</span>([[1, 2], [3, 4]])
+M.<span class="fn">eigenvals</span>()                         <span class="comment"># Eigenvalues</span>
+M.<span class="fn">inv</span>()                               <span class="comment"># Inverse</span>
+
+<span class="comment"># Differential equations</span>
+f = <span class="fn">Function</span>(<span class="string">'f'</span>)
+<span class="fn">dsolve</span>(f(x).<span class="fn">diff</span>(x, 2) + f(x), f(x)) <span class="comment"># → C₁sin(x) + C₂cos(x)</span></pre></div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <span class="card-icon">🔢</span>
+      <h3>Discrete Math → CS Foundations</h3>
+      <p>Logic, sets, combinatorics, graph theory. Directly maps to programming. Practice via Project Euler problems 1-50. Resource: MIT 6.042 (free on OCW).</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">📐</span>
+      <h3>Linear Algebra → Everything</h3>
+      <p>PageRank, 3D games, neural networks. Use NumPy to build intuition visually. Resource: 3Blue1Brown "Essence of Linear Algebra."</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">∫</span>
+      <h3>Calculus → Optimization</h3>
+      <p>How things change. SymPy makes it interactive: differentiate, integrate, plot, watch Taylor series converge. Resource: 3Blue1Brown "Essence of Calculus."</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🎲</span>
+      <h3>Probability → Decision Making</h3>
+      <p>Simulate problems instead of solving analytically. Monte Carlo the Monty Hall problem. Resource: "Bayesian Methods for Hackers" (free, Python).</p>
+    </div>
+  </div>
+
+  <div class="callout amber">
+    <h4>The simulation trick</h4>
+    <p>Can't solve a probability problem analytically? Simulate it 100,000 times and count. The Monty Hall problem, birthday paradox, gambler's ruin — you can verify any result by brute force in 5 lines of Python. Simulation builds intuition faster than proofs.</p>
+  </div>
+</div>
+</section>
+
+<!-- PHASE 4: SYSTEMS -->
+<section class="phase" id="systems">
+<div class="container">
+  <div class="phase-header">
+    <span class="phase-number">PHASE 4</span>
+    <h2 class="phase-title">Systems <em>Understanding</em></h2>
+  </div>
+  <p class="phase-intro">Build things from scratch to understand how they work under the hood. A hex viewer teaches you more about files than any documentation. A TCP server teaches you more about the internet than any networking course.</p>
+
+  <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-circuits.png" alt="Circuit board macro" class="section-image" loading="lazy">
+
+  <div class="cards">
+    <div class="card">
+      <span class="card-icon">🔍</span>
+      <h3>Hex Viewer</h3>
+      <p>Read binary files byte by byte. Display hex + ASCII. Every file is just bytes; formats are conventions. ~20 lines of Python.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🌐</span>
+      <h3>TCP Chat Server</h3>
+      <p>Sockets, ports, protocols, multiplexing. 40 lines of Python. Connect with telnet and watch packets fly.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">📡</span>
+      <h3>HTTP Server from Scratch</h3>
+      <p>Raw sockets, parse HTTP requests yourself, send headers and body. This is what Flask/FastAPI do under the hood.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">💾</span>
+      <h3>Key-Value Database</h3>
+      <p>A dict with append-only disk logging. Add a query language. Congratulations, you built Redis (conceptually).</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🔤</span>
+      <h3>Regex Engine</h3>
+      <p>Thompson's construction in ~200 lines. Teaches finite automata, which is the theoretical foundation of computer science.</p>
+    </div>
+    <div class="card">
+      <span class="card-icon">📦</span>
+      <h3>Simple Assembler</h3>
+      <p>Even a toy one for a made-up instruction set teaches you more about CPUs than any textbook chapter.</p>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <h4>Network forensics with Wireshark</h4>
+    <div class="code-block">
+      <div class="code-header">
+        <div class="code-dots"><span></span><span></span><span></span></div>
+        <span class="code-lang">Shell</span>
+      </div>
+      <div class="code-body"><pre><span class="comment"># Terminal Wireshark (tshark)</span>
+<span class="cmd">tshark</span> <span class="flag">-i</span> Ethernet <span class="flag">-f</span> <span class="string">"tcp port 80"</span> <span class="flag">-Y</span> <span class="string">"http.request"</span> \
+  <span class="flag">-T</span> fields <span class="flag">-e</span> http.host <span class="flag">-e</span> http.request.uri
+
+<span class="comment"># Port scan your own machine</span>
+<span class="cmd">nmap</span> <span class="flag">-sV</span> localhost
+
+<span class="comment"># Trace every hop to a destination</span>
+<span class="cmd">tracert</span> google.com</pre></div>
+    </div>
+    <p class="phase-intro" style="margin-top:16px">Set up Wireshark, browse a website, then read the capture. You'll see DNS lookups, TCP handshakes, TLS negotiation, HTTP requests. The entire internet suddenly makes sense.</p>
+  </div>
+</div>
+</section>
+
+<!-- PHASE 5: DATA ENGINEERING -->
+<section class="phase" id="data">
+<div class="container">
+  <div class="phase-header">
+    <span class="phase-number">PHASE 5</span>
+    <h2 class="phase-title">Data Engineering <em>from Nothing</em></h2>
+  </div>
+  <p class="phase-intro">SQLite handles terabytes. It's the most deployed database engine in the world. Combined with Nushell's native data pipelines, you have a complete ETL stack in your terminal.</p>
+
+  <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-data.png" alt="Investigation board with connected data points" class="section-image" loading="lazy">
+
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><span></span><span></span><span></span></div>
+      <span class="code-lang">SQL (SQLite)</span>
+    </div>
+    <div class="code-body"><pre><span class="comment">-- Import any CSV instantly</span>
+<span class="keyword">.mode</span> csv
+<span class="keyword">.import</span> <span class="string">data.csv</span> my_table
+
+<span class="comment">-- Window functions: the advanced stuff that makes you dangerous</span>
+<span class="keyword">SELECT</span> name, department, salary,
+    <span class="fn">RANK</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION BY</span> department <span class="keyword">ORDER BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">as</span> dept_rank,
+    salary - <span class="fn">AVG</span>(salary) <span class="keyword">OVER</span> (<span class="keyword">PARTITION BY</span> department) <span class="keyword">as</span> vs_dept_avg
+<span class="keyword">FROM</span> employees;
+
+<span class="comment">-- CTEs for complex multi-step queries</span>
+<span class="keyword">WITH</span> monthly <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> <span class="fn">strftime</span>(<span class="string">'%Y-%m'</span>, date) <span class="keyword">as</span> month, <span class="fn">SUM</span>(amount) <span class="keyword">as</span> total
+    <span class="keyword">FROM</span> transactions <span class="keyword">GROUP BY</span> 1
+)
+<span class="keyword">SELECT</span> month, total,
+    total - <span class="fn">LAG</span>(total) <span class="keyword">OVER</span> (<span class="keyword">ORDER BY</span> month) <span class="keyword">as</span> month_over_month
+<span class="keyword">FROM</span> monthly;</pre></div>
+  </div>
+
+  <div class="callout purple">
+    <h4>The Nushell + API pipeline</h4>
+    <p>Nushell is actually incredible for ETL. <code>http get</code> an API, pipe through <code>select</code>, <code>where</code>, <code>sort-by</code>, then <code>to csv | save</code>. You just built a data pipeline that would take 50 lines of Python. Chain these together and you have a real data engineering workflow.</p>
+  </div>
+</div>
+</section>
+
+<!-- PHASE 6: INVISIBLE SKILLS -->
+<section class="phase" id="invisible">
+<div class="container">
+  <div class="phase-header">
+    <span class="phase-number">PHASE 6</span>
+    <h2 class="phase-title">The <em>Invisible</em> Skills</h2>
+  </div>
+  <p class="phase-intro">Not glamorous. Compound harder than anything else on this page. These are the multipliers that make everything else faster.</p>
+
+  <div class="two-col">
+    <div>
+      <div class="subsection">
+        <h3>Regex Mastery</h3>
+        <p>The difference between "I need to manually edit 500 files" and "done in 3 seconds." Practice with <code>ripgrep</code> on real codebases. regex101.com for testing.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">ripgrep</span>
+          </div>
+          <div class="code-body"><pre><span class="comment"># Find IP addresses</span>
+<span class="cmd">rg</span> <span class="string">'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'</span> .
+
+<span class="comment"># Find hardcoded secrets</span>
+<span class="cmd">rg</span> <span class="string">'(?:password|secret|key)\s*[:=]\s*\S+'</span> .
+
+<span class="comment"># Code smell audit</span>
+<span class="cmd">rg</span> <span class="string">'TODO|FIXME|HACK|XXX'</span> .</pre></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="subsection">
+        <h3>Git as a Time Machine</h3>
+        <p>Most people use 5% of Git. The other 95% includes bisect (binary search for bugs), reflog (undo anything), worktrees (multiple branches at once), and log archaeology.</p>
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots"><span></span><span></span><span></span></div>
+            <span class="code-lang">Git</span>
+          </div>
+          <div class="code-body"><pre><span class="comment"># Binary search for the commit that broke it</span>
+<span class="cmd">git bisect</span> start
+<span class="cmd">git bisect</span> bad
+<span class="cmd">git bisect</span> good <span class="string">abc123</span>
+
+<span class="comment"># Your safety net: everything you ever did</span>
+<span class="cmd">git reflog</span>
+
+<span class="comment"># Visual history</span>
+<span class="cmd">git log</span> <span class="flag">--all --oneline --graph --decorate</span></pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <h4>Typing speed — seriously</h4>
+    <p>Going from 60 WPM to 100 WPM doubles your throughput for everything else on this page. 15 minutes a day on keybr.com or monkeytype.com for a month gets you there. It's the highest-ROI skill investment you can make.</p>
+  </div>
+</div>
+</section>
+
+<!-- PHASE 7: PORTFOLIO PROJECTS -->
+<section class="phase" id="projects">
+<div class="container">
+  <div class="phase-header">
+    <span class="phase-number">PHASE 7</span>
+    <h2 class="phase-title">Portfolio-Scale <em>Projects</em></h2>
+  </div>
+  <p class="phase-intro">Bigger builds that tie multiple skills together. Each one is a real portfolio piece, completable in 1-3 days of focused work.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Project</th><th>Skills</th><th>Time</th></tr></thead>
+      <tbody>
+        <tr><td>Personal finance tracker</td><td>Python, SQLite, CLI, data viz</td><td>2-3 days</td></tr>
+        <tr><td>Static blog generator</td><td>Templates, Markdown, file I/O, HTML/CSS</td><td>2 days</td></tr>
+        <tr><td>Network monitor</td><td>Sockets, threading, TUI, alerts</td><td>2-3 days</td></tr>
+        <tr><td>File deduplication tool</td><td>Hashing, filesystem, progress bars</td><td>1 day</td></tr>
+        <tr><td>URL shortener API</td><td>FastAPI, SQLite, HTTP, deployment</td><td>1 day</td></tr>
+        <tr><td>Terminal dashboard</td><td>APIs, TUI (Rich/Textual), async, caching</td><td>2-3 days</td></tr>
+        <tr><td>Git stats analyzer</td><td>Git internals, data analysis, visualization</td><td>1-2 days</td></tr>
+        <tr><td>Podcast downloader</td><td>RSS parsing, HTTP, concurrent downloads</td><td>1 day</td></tr>
+        <tr><td>Mini search engine</td><td>Inverted index, TF-IDF, ranking</td><td>3-4 days</td></tr>
+        <tr><td>Password manager (local)</td><td>Encryption, secure storage, clipboard</td><td>2 days</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</section>
+
+<!-- PHASE 8: LEARNING RESOURCES -->
+<section class="phase" id="resources">
+<div class="container">
+  <div class="phase-header">
+    <span class="phase-number">PHASE 8</span>
+    <h2 class="phase-title">The <em>Meta-Game</em></h2>
+  </div>
+  <p class="phase-intro">Structure your learning. Track your progress. Make boredom a documented growth trajectory.</p>
+
+  <div class="subsection">
+    <h3>Structured Learning Tracks</h3>
+    <ul class="resource-list">
+      <li>
+        <div class="resource-bullet"></div>
+        <div class="resource-text"><strong>Advent of Code</strong> — <span>25 days of puzzles, any language, perfect difficulty curve. adventofcode.com</span></div>
+      </li>
+      <li>
+        <div class="resource-bullet"></div>
+        <div class="resource-text"><strong>Project Euler</strong> — <span>Math + code, hundreds of problems, dangerously addictive. projecteuler.net</span></div>
+      </li>
+      <li>
+        <div class="resource-bullet"></div>
+        <div class="resource-text"><strong>Exercism</strong> — <span>Guided exercises in 50+ languages with mentorship. exercism.org</span></div>
+      </li>
+      <li>
+        <div class="resource-bullet"></div>
+        <div class="resource-text"><strong>Build Your Own X</strong> — <span>Build a Redis, Git, Docker, HTTP server from scratch. github.com/codecrafters-io/build-your-own-x</span></div>
+      </li>
+      <li>
+        <div class="resource-bullet"></div>
+        <div class="resource-text"><strong>Crafting Interpreters</strong> — <span>Free book. Build a programming language. craftinginterpreters.com</span></div>
+      </li>
+      <li>
+        <div class="resource-bullet"></div>
+        <div class="resource-text"><strong>The Missing Semester (MIT)</strong> — <span>All the shell/CLI/tooling stuff CS programs skip. missing.csail.mit.edu</span></div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="subsection">
+    <h3>The Daily Routine</h3>
+    <div class="routine">
+      <div class="routine-item">
+        <span class="routine-time">10 min</span>
+        <span class="routine-task">Typing practice or regex drills (keybr.com / regex101.com)</span>
+      </div>
+      <div class="routine-item">
+        <span class="routine-time">20 min</span>
+        <span class="routine-task">One Project Euler / Advent of Code / Exercism problem</span>
+      </div>
+      <div class="routine-item">
+        <span class="routine-time">30 min</span>
+        <span class="routine-task">Work on current project (from the projects table)</span>
+      </div>
+      <div class="routine-item">
+        <span class="routine-time">5 min</span>
+        <span class="routine-task">Commit, write TIL entry, update learning log</span>
+      </div>
+    </div>
+    <p class="phase-intro" style="margin-top:16px">That's just over an hour, scattered across a boring 8-hour day. After 6 months: 100+ problems solved, 10+ tools built, 500+ commits. Invisible at work. Undeniable on a resume.</p>
+  </div>
+
+  <div class="subsection">
+    <h3>The Compound Effect</h3>
+    <p>Skills stack multiplicatively, not additively:</p>
+    <div class="skill-stack" style="margin-top:20px">
+      <span class="skill-tag">Nu + regex + SQL = answer any data question in seconds</span>
+      <span class="skill-tag">Python + HTTP + SQLite = build any tool</span>
+      <span class="skill-tag">Git + markdown + automation = document everything</span>
+      <span class="skill-tag">Rust + systems = understand performance</span>
+      <span class="skill-tag">Math + programming = model anything</span>
+    </div>
+  </div>
+</div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p>BUILT WITH DEAD TIME AND A TERMINAL PROMPT</p>
+  </div>
+</footer>
+
+<script>
+// Copy code blocks
+document.querySelectorAll('.code-block').forEach(block => {
+  const btn = block.querySelector('.copy-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const code = block.querySelector('pre').textContent;
+    navigator.clipboard.writeText(code).then(() => {
+      btn.textContent = 'copied';
+      setTimeout(() => btn.textContent = 'copy', 2000);
+    });
+  });
+});
+
+// Intersection observer for fade-in
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.phase').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(40px)';
+  el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+  observer.observe(el);
+});
+</script>
+
+</body>
+</html>
