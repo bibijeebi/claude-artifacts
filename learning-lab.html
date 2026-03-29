@@ -5,840 +5,443 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Bored-at-Work Windows Learning Lab</title>
 <meta property="og:title" content="The Bored-at-Work Windows Learning Lab">
-<meta property="og:description" content="Turn a Windows box with PowerShell into a full CS education. Python, AI tools, Nushell, and real projects — all from the terminal while looking busy.">
+<meta property="og:description" content="Turn a Windows box with PowerShell into a full CS education. Python, Nushell, AI tools, math, and systems knowledge from nothing but a terminal prompt.">
 <meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-og.jpg">
 <meta property="og:url" content="https://niggerfaggot.club/learning-lab.html">
+<meta property="og:type" content="article">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-og.jpg">
-<meta name="description" content="Turn a Windows box with PowerShell into a full CS education. Python, AI tools, Nushell, and real projects — all from the terminal while looking busy.">
-
+<meta name="description" content="Turn a Windows box with PowerShell into a full CS education. Python, Nushell, AI tools, math, and systems knowledge from nothing but a terminal prompt.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { overflow-x: hidden; }
-
-:root {
-  --bg: #0a0e14;
-  --bg-raised: #0f1419;
-  --bg-card: #131920;
-  --green: #39ff14;
-  --green-dim: #1a7a0a;
-  --green-glow: rgba(57, 255, 20, 0.12);
-  --amber: #ffb300;
-  --cyan: #00e5ff;
-  --text: #c5cdd9;
-  --text-dim: #6b7d8f;
-  --text-bright: #e8edf3;
-  --border: #1e2a36;
-  --mono: 'JetBrains Mono', monospace;
-  --display: 'Outfit', sans-serif;
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:hidden}
+:root{
+  --bg:#0c0e12;--bg2:#13161c;--bg3:#181c24;--bdr:#242a36;
+  --t:#b8c4d4;--td:#5e6e82;--tb:#e4eaf2;
+  --g:#73dea0;--gg:rgba(115,222,160,.15);
+  --b:#6ac2e7;--bg2b:rgba(106,194,231,.12);
+  --o:#f0a860;--og:rgba(240,168,96,.12);
+  --p:#c8b4f0;--pg:rgba(200,180,240,.12);
+  --r:#f06868;--y:#e8d07c;--c:#7cd4c0;
+  --m:'JetBrains Mono','Cascadia Code',monospace;
+  --s:'IBM Plex Sans',system-ui,sans-serif
 }
+body{background:var(--bg);color:var(--t);font-family:var(--m);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);pointer-events:none;z-index:9999}
+.c{max-width:860px;margin:0 auto;padding:0 24px}
 
-body {
-  font-family: var(--mono);
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  line-height: 1.75;
-}
+.hero{position:relative;min-height:90vh;display:flex;flex-direction:column;justify-content:center;padding:80px 0 60px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0}
+.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.2;filter:blur(1px) saturate(.6)}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,14,18,.4) 0%,var(--bg) 95%)}
+.hero-ct{position:relative;z-index:1}
+.hero-pr{font-size:13px;color:var(--td);margin-bottom:20px;opacity:0;animation:ti .5s ease forwards .3s}
+.hero-pr span{color:var(--g)}
+.hero h1{font-family:var(--s);font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:700;color:var(--tb);line-height:1.08;margin-bottom:24px;opacity:0;animation:su .7s ease forwards .5s}
+.hero h1 em{font-style:normal;color:var(--g);text-shadow:0 0 40px rgba(115,222,160,.25)}
+.hero-sub{font-size:17px;color:var(--td);max-width:540px;line-height:1.65;opacity:0;animation:su .7s ease forwards .7s;font-family:var(--s)}
+.hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px;opacity:0;animation:su .7s ease forwards .9s}
+.hero-tags span{font-size:11px;padding:4px 12px;border:1px solid var(--bdr);border-radius:3px;color:var(--td);background:rgba(19,22,28,.7);backdrop-filter:blur(8px);letter-spacing:.3px}
 
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
-  pointer-events: none;
-  z-index: 9999;
-}
+.bluf{background:var(--gg);border-left:3px solid var(--g);padding:20px 24px;margin:0 0 48px;font-family:var(--s);font-size:15.5px;color:var(--tb);line-height:1.65}
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--green-dim); border-radius: 3px; }
+.toc{background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:24px 28px;margin:0 0 64px}
+.toc-l{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--td);margin-bottom:16px}
+.toc a{display:flex;align-items:center;gap:12px;padding:8px 0;color:var(--t);text-decoration:none;font-family:var(--s);font-size:14px;border-bottom:1px solid rgba(36,42,54,.5);transition:color .2s}
+.toc a:last-child{border-bottom:none}
+.toc a:hover{color:var(--g)}
+.toc a .n{color:var(--td);font-family:var(--m);font-size:12px;width:24px;flex-shrink:0}
 
-a { color: var(--cyan); text-decoration: none; }
-a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.ph{margin-bottom:80px;opacity:0;transform:translateY(16px);transition:all .5s ease}
+.ph.v{opacity:1;transform:translateY(0)}
+.ph-h{display:flex;align-items:baseline;gap:14px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--bdr)}
+.ph-n{font-size:11px;font-weight:700;color:var(--bg);background:var(--g);padding:3px 10px;border-radius:3px;letter-spacing:.8px;flex-shrink:0}
+.ph-t{font-family:var(--s);font-size:clamp(1.3rem,3vw,1.7rem);font-weight:700;color:var(--tb)}
 
-.hero {
-  position: relative;
-  min-height: 85vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  overflow: hidden;
-}
+.ct h3{font-family:var(--s);font-size:1.1rem;font-weight:600;color:var(--tb);margin:36px 0 10px}
+.ct p{margin:10px 0;color:var(--t);font-family:var(--s);font-size:15px;line-height:1.7}
+.ct p strong{color:var(--tb);font-weight:600}
 
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  filter: brightness(0.25) saturate(0.5);
-}
+pre{background:var(--bg2);border:1px solid var(--bdr);border-radius:6px;padding:16px 20px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:14px 0;font-size:13px;line-height:1.65;position:relative}
+pre::before{content:attr(data-lang);position:absolute;top:8px;right:12px;font-size:10px;color:var(--td);text-transform:uppercase;letter-spacing:1px;opacity:.5}
+code{font-family:var(--m)}
+.ic{background:var(--bg2);border:1px solid var(--bdr);padding:2px 7px;border-radius:3px;font-size:.88em;color:var(--o);font-family:var(--m)}
 
-.hero-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(10,14,20,0.2) 0%, rgba(10,14,20,0.97) 100%);
-}
+.kw{color:var(--p)}.str{color:var(--g)}.cmt{color:var(--td);font-style:italic}.fn{color:var(--b)}.num{color:var(--o)}.op{color:var(--r)}.flag{color:var(--y)}.cmd{color:var(--c)}
 
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
-  padding: 2rem;
-}
+.co{padding:16px 20px;border-radius:6px;margin:18px 0;font-family:var(--s);font-size:14px;line-height:1.6}
+.co-g{background:var(--gg);border-left:3px solid var(--g)}
+.co-b{background:var(--bg2b);border-left:3px solid var(--b)}
+.co-o{background:var(--og);border-left:3px solid var(--o)}
+.co-p{background:var(--pg);border-left:3px solid var(--p)}
+.co strong{color:var(--tb)}
 
-.hero-prompt {
-  font-size: 0.85rem;
-  color: var(--green-dim);
-  margin-bottom: 1.5rem;
-  letter-spacing: 0.05em;
-}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:18px 0;border:1px solid var(--bdr);border-radius:6px}
+table{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--s)}
+th{background:var(--bg2);color:var(--tb);font-weight:600;text-align:left;padding:10px 16px;border-bottom:1px solid var(--bdr);white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td{padding:10px 16px;border-bottom:1px solid var(--bdr)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
 
-.hero-prompt span { color: var(--green); }
+.steps{counter-reset:step;list-style:none;margin:16px 0}
+.steps li{counter-increment:step;position:relative;padding-left:40px;margin-bottom:14px;font-family:var(--s);font-size:15px}
+.steps li::before{content:counter(step);position:absolute;left:0;width:24px;height:24px;background:var(--gg);color:var(--g);border-radius:4px;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;font-family:var(--m)}
 
-.hero h1 {
-  font-family: var(--display);
-  font-size: clamp(2.4rem, 6vw, 4.2rem);
-  font-weight: 800;
-  color: var(--text-bright);
-  line-height: 1.1;
-  margin-bottom: 1.25rem;
-}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:20px 0}
+.sc{background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;padding:16px 18px;transition:border-color .2s}
+.sc:hover{border-color:var(--g)}
+.sc .f{font-size:13px;color:var(--g);margin-bottom:5px;font-weight:500}
+.sc .r{font-family:var(--s);font-size:13px;color:var(--td)}
 
-.hero h1 em {
-  font-style: normal;
-  color: var(--green);
-  text-shadow: 0 0 40px var(--green-glow), 0 0 80px var(--green-glow);
-}
+.rt{display:grid;grid-template-columns:56px 1fr;margin:20px 0;border:1px solid var(--bdr);border-radius:6px;overflow:hidden}
+.rt-t{background:var(--bg2);padding:12px;font-size:12px;color:var(--g);font-weight:600;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:center}
+.rt-k{padding:12px 16px;font-family:var(--s);font-size:14px;border-bottom:1px solid var(--bdr)}
+.rt>:nth-last-child(-n+2){border-bottom:none}
 
-.hero-sub {
-  font-size: 1rem;
-  color: var(--text-dim);
-  max-width: 580px;
-  margin: 0 auto 2rem;
-  font-weight: 300;
-  line-height: 1.8;
-}
+.rs{display:grid;gap:8px;margin:16px 0}
+.re{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;transition:border-color .2s}
+.re:hover{border-color:var(--b)}
+.re-r{font-size:18px;font-weight:700;color:var(--td);width:28px;text-align:center;flex-shrink:0}
+.re-n{font-family:var(--s);font-weight:600;color:var(--tb);font-size:14px}
+.re-d{font-family:var(--s);font-size:12px;color:var(--td);margin-top:2px}
 
-.hero-tags {
-  display: flex;
-  gap: 0.6rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
+footer{border-top:1px solid var(--bdr);padding:40px 0;text-align:center;color:var(--td);font-size:13px;margin-top:60px}
+footer .cur{display:inline-block;width:8px;height:16px;background:var(--g);margin-left:4px;vertical-align:text-bottom;animation:bl 1s step-end infinite}
 
-.hero-tags span {
-  background: var(--green-glow);
-  border: 1px solid var(--green-dim);
-  color: var(--green);
-  padding: 0.25rem 0.7rem;
-  border-radius: 2px;
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-}
+@keyframes ti{from{opacity:0}to{opacity:1}}
+@keyframes su{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bl{50%{opacity:0}}
 
-.content {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 1.5rem 6rem;
-}
-
-.tldr {
-  background: linear-gradient(135deg, rgba(57,255,20,0.04), rgba(0,229,255,0.04));
-  border: 1px solid var(--green-dim);
-  border-radius: 4px;
-  padding: 1.5rem 2rem;
-  margin: 3rem 0 4rem;
-}
-
-.tldr h3 { margin-top: 0; }
-.tldr h3::before { content: '$'; }
-
-.phase-header {
-  margin: 5rem 0 2rem;
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--border);
-  position: relative;
-}
-
-.phase-header::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: 0;
-  width: 60px;
-  height: 2px;
-  background: var(--green);
-  box-shadow: 0 0 10px var(--green);
-}
-
-.phase-number {
-  font-family: var(--display);
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--green);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-bottom: 0.5rem;
-}
-
-.phase-header h2 {
-  font-family: var(--display);
-  font-size: clamp(1.5rem, 3.5vw, 2rem);
-  font-weight: 700;
-  color: var(--text-bright);
-  line-height: 1.2;
-}
-
-.phase-header > p {
-  margin-top: 0.75rem;
-  color: var(--text-dim);
-  font-size: 0.9rem;
-  max-width: 600px;
-}
-
-h3 {
-  font-family: var(--display);
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--amber);
-  margin: 3rem 0 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-h3::before {
-  content: '>';
-  color: var(--green);
-  font-family: var(--mono);
-  font-weight: 400;
-}
-
-h4 {
-  font-family: var(--display);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-dim);
-  margin: 2rem 0 0.75rem;
-  font-style: italic;
-}
-
-p { margin-bottom: 1rem; }
-
-pre {
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--green-dim);
-  border-radius: 4px;
-  padding: 1rem 1.25rem;
-  margin: 1rem 0 1.5rem;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  font-size: 0.8rem;
-  line-height: 1.7;
-  position: relative;
-}
-
-pre.ps { border-left-color: #0078d4; }
-
-pre .lang-tag {
-  position: absolute;
-  top: 0; right: 0;
-  background: var(--border);
-  color: var(--text-dim);
-  font-size: 0.6rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 0 3px 0 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-code { font-family: var(--mono); font-size: 0.85em; }
-
-p code, li code {
-  background: var(--bg-raised);
-  border: 1px solid var(--border);
-  padding: 0.1rem 0.35rem;
-  border-radius: 3px;
-  color: var(--cyan);
-  font-size: 0.8em;
-}
-
-.cm { color: #5c6370; font-style: italic; }
-.kw { color: #c678dd; }
-.st { color: #98c379; }
-.nu { color: #d19a66; }
-
-.callout {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 1.25rem 1.5rem;
-  margin: 1.5rem 0;
-}
-
-.callout.tip { border-left: 3px solid var(--green); }
-.callout.warn { border-left: 3px solid var(--amber); }
-.callout.key { border-left: 3px solid var(--cyan); }
-
-.callout-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin-bottom: 0.5rem;
-}
-
-.callout.tip .callout-label { color: var(--green); }
-.callout.warn .callout-label { color: var(--amber); }
-.callout.key .callout-label { color: var(--cyan); }
-.callout p:last-child { margin-bottom: 0; }
-
-.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; }
-
-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-
-th {
-  text-align: left;
-  padding: 0.6rem 1rem;
-  border-bottom: 2px solid var(--green-dim);
-  color: var(--green);
-  font-weight: 600;
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  white-space: nowrap;
-}
-
-td { padding: 0.55rem 1rem; border-bottom: 1px solid var(--border); }
-tr:hover td { background: var(--green-glow); }
-
-ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
-li { margin-bottom: 0.4rem; }
-li::marker { color: var(--green-dim); }
-
-strong { color: var(--text-bright); font-weight: 600; }
-em { color: var(--amber); font-style: normal; }
-
-.routine {
-  display: grid;
-  grid-template-columns: 60px 1fr;
-  margin: 1.5rem 0;
-}
-
-.routine-time {
-  color: var(--green);
-  font-weight: 600;
-  font-size: 0.8rem;
-  padding: 0.5rem 0;
-  border-right: 2px solid var(--green-dim);
-  text-align: right;
-  padding-right: 1rem;
-}
-
-.routine-task {
-  padding: 0.5rem 0 0.5rem 1rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.routine-task:last-child { border-bottom: none; }
-
-.phase-nav {
-  position: fixed;
-  right: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.phase-nav a {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border);
-  border: 1px solid var(--text-dim);
-  display: block;
-  transition: all 0.3s;
-}
-
-.phase-nav a:hover, .phase-nav a.active {
-  background: var(--green);
-  border-color: var(--green);
-  box-shadow: 0 0 8px var(--green);
-  transform: scale(1.4);
-}
-
-.footer {
-  text-align: center;
-  padding: 3rem 1.5rem;
-  border-top: 1px solid var(--border);
-  color: var(--text-dim);
-  font-size: 0.75rem;
-}
-
-.footer span { color: var(--green); }
-
-@keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
-.cursor { display:inline-block; width:0.55em; height:1.1em; background:var(--green); margin-left:2px; vertical-align:text-bottom; animation:blink 1s step-end infinite; }
-
-.fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
-.fade-in.visible { opacity: 1; transform: translateY(0); }
-
-@media (max-width: 768px) {
-  .phase-nav { display: none; }
-  body { font-size: 13px; }
-  pre { font-size: 0.75rem; padding: 0.75rem 1rem; }
-  .hero { min-height: 70vh; }
-  .content { padding: 0 1rem 4rem; }
+@media(max-width:640px){
+  body{font-size:14px}.c{padding:0 16px}pre{padding:12px 14px;font-size:12px}.hero{min-height:75vh;padding:60px 0 40px}.sg{grid-template-columns:1fr}.rt{grid-template-columns:48px 1fr}.ph{margin-bottom:56px}
 }
 </style>
 </head>
 <body>
 
-<nav class="phase-nav" aria-label="Section navigation">
-  <a href="#phase-0" title="Bootstrap"></a>
-  <a href="#phase-1" title="System Literacy"></a>
-  <a href="#phase-2" title="AI-Assisted Shell"></a>
-  <a href="#phase-3" title="Python"></a>
-  <a href="#phase-4" title="Math"></a>
-  <a href="#phase-5" title="Practice"></a>
-</nav>
-
 <section class="hero">
-  <div class="hero-bg" style="background-image: url('https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-hero.jpg')"></div>
-  <div class="hero-content">
-    <div class="hero-prompt"><span>$</span> ./learn --while-looking-busy<span class="cursor"></span></div>
-    <h1>The Bored&#8209;at&#8209;Work<br><em>Learning Lab</em></h1>
-    <p class="hero-sub">Turn a Windows box with nothing but PowerShell into a full computer science education. Python, AI tools, Nushell, and real projects &mdash; all from the terminal.</p>
+  <div class="hero-bg"><img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/learning-lab-hero.webp" alt=""></div>
+  <div class="c hero-ct">
+    <div class="hero-pr"><span>$</span> ./learn --from=nothing --at=work</div>
+    <h1>The Bored&#8209;at&#8209;Work<br><em>Windows Learning Lab</em></h1>
+    <p class="hero-sub">Turn a Windows box with PowerShell and winget into a full computer science education. Python, Nushell, AI tools, and systems knowledge, all from a terminal prompt while you're getting paid to do nothing.</p>
     <div class="hero-tags">
-      <span>Python</span>
-      <span>Nushell</span>
-      <span>Claude Code</span>
-      <span>aichat</span>
-      <span>No Admin Needed*</span>
+      <span>Python</span><span>Nushell</span><span>Claude Code</span><span>aichat</span><span>PowerShell literacy</span><span>Math</span><span>SQLite</span>
     </div>
   </div>
 </section>
 
-<main class="content">
+<main class="c">
 
-<div class="tldr fade-in">
-  <h3>TL;DR</h3>
-  <p><code>winget install</code> everything. Set Nushell as your default shell. Use <code>uv</code> for Python (no venv pain). Put Claude Code and <code>aichat</code> in your terminal for an AI-assisted feedback loop that makes learning 10x faster. Spend ~1 hour a day scattered across a boring shift. After 3 months you've got a GitHub full of real projects and fluency most bootcamp grads don't touch.</p>
-</div>
+<div class="bluf">Python + Nushell + AI-assisted tooling is the stack. Everything else supports those three. The goal is fluency in navigating, manipulating, and automating a system from the terminal, using AI as a force multiplier from day one. PowerShell is read-only literacy. Terminal glitter is optional.</div>
 
-<div id="phase-0" class="phase-header fade-in">
-  <div class="phase-number">Phase 0</div>
-  <h2>Bootstrap</h2>
-  <p>One elevated PowerShell session. Ten minutes. Transforms the machine.</p>
-</div>
+<nav class="toc">
+  <div class="toc-l">Contents</div>
+  <a href="#p0"><span class="n">00</span> Bootstrap</a>
+  <a href="#p1"><span class="n">01</span> System Literacy</a>
+  <a href="#p2"><span class="n">02</span> AI-Assisted Shell Work</a>
+  <a href="#p3"><span class="n">03</span> Python (The Main Event)</a>
+  <a href="#p4"><span class="n">04</span> Math from the Terminal</a>
+  <a href="#p5"><span class="n">05</span> Structured Practice</a>
+  <a href="#cs"><span class="n">++</span> The Compound Stack</a>
+</nav>
 
-<div class="fade-in">
-<pre><span class="lang-tag">powershell</span>
-<span class="cm"># Shell</span>
-winget install nushell
+<section class="ph" id="p0">
+  <div class="ph-h"><span class="ph-n">PHASE 0</span><h2 class="ph-t">Bootstrap</h2></div>
+  <div class="ct">
+    <p>Elevated PowerShell, one time. About 10 minutes to transform the machine.</p>
+    <pre data-lang="powershell"><code><span class="cmt"># Shell</span>
+<span class="cmd">winget install</span> nushell
 
-<span class="cm"># Python ecosystem</span>
-winget install astral-sh.uv Python.Python.3.12
+<span class="cmt"># Python ecosystem</span>
+<span class="cmd">winget install</span> astral-sh.uv Python.Python.3.12
 
-<span class="cm"># AI tooling</span>
-winget install Anthropic.ClaudeCode sigoden.aichat
+<span class="cmt"># AI tooling</span>
+<span class="cmd">winget install</span> Anthropic.ClaudeCode sigoden.aichat
 
-<span class="cm"># Core Unix toolkit</span>
-winget install Git.Git BurntSushi.ripgrep.MSVC sharkdp.fd jqlang.jq 7zip.7zip GNU.Wget2 cURL.cURL
+<span class="cmt"># Core Unix toolkit</span>
+<span class="cmd">winget install</span> Git.Git BurntSushi.ripgrep.MSVC sharkdp.fd jqlang.jq 7zip.7zip GNU.Wget2 cURL.cURL
 
-<span class="cm"># Media & image processing</span>
-winget install Gyan.FFmpeg ImageMagick.ImageMagick
+<span class="cmt"># Media & image processing</span>
+<span class="cmd">winget install</span> Gyan.FFmpeg ImageMagick.ImageMagick
 
-<span class="cm"># Editor + database + terminal</span>
-winget install Neovim.Neovim Microsoft.VisualStudioCode SQLite.SQLite
-winget install OpenJS.NodeJS.LTS Microsoft.WindowsTerminal</pre>
+<span class="cmt"># Editor</span>
+<span class="cmd">winget install</span> Neovim.Neovim Microsoft.VisualStudioCode
 
-<p>Then install your Python command-line tools:</p>
+<span class="cmt"># Database & Node</span>
+<span class="cmd">winget install</span> SQLite.SQLite OpenJS.NodeJS.LTS
 
-<pre><span class="lang-tag">nu</span>
-uv tool install ruff ipython litecli httpie</pre>
+<span class="cmt"># Terminal</span>
+<span class="cmd">winget install</span> Microsoft.WindowsTerminal</code></pre>
+    <p>Then install Python global tools:</p>
+    <pre data-lang="nushell"><code><span class="cmd">uv tool install</span> ruff ipython litecli httpie</code></pre>
+    <p>Set Nushell as your default profile in Windows Terminal. Done. No starship, no eza, no bat, no delta. Those are seasoning, not the meal.</p>
+  </div>
+</section>
 
-<p>Set Nushell as your default profile in Windows Terminal. That's the whole setup.</p>
-</div>
+<section class="ph" id="p1">
+  <div class="ph-h"><span class="ph-n">PHASE 1</span><h2 class="ph-t">System Literacy</h2></div>
+  <div class="ct">
+    <p>Before you write code, you need to be comfortable <strong>in</strong> the machine. This is the difference between "I can follow a tutorial" and "I can figure things out."</p>
+    <h3>Filesystem Navigation & Manipulation</h3>
+    <pre data-lang="nushell"><code><span class="cmt"># Where am I, what's here</span>
+<span class="fn">ls</span> | <span class="fn">sort-by</span> size <span class="flag">-r</span>
+<span class="fn">ls</span> **/* | <span class="fn">where</span> type <span class="op">==</span> file | <span class="fn">sort-by</span> size <span class="flag">-r</span> | <span class="fn">first</span> <span class="num">20</span>
 
-<div id="phase-1" class="phase-header fade-in">
-  <div class="phase-number">Phase 1</div>
-  <h2>System Literacy</h2>
-  <p>Before you write code, get comfortable <em>in</em> the machine. This separates "I can follow a tutorial" from "I can figure things out."</p>
-</div>
+<span class="cmt"># Finding things</span>
+<span class="cmd">fd</span> <span class="str">"*.log"</span>
+<span class="cmd">fd</span> <span class="flag">-e</span> py <span class="flag">-e</span> js
+<span class="cmd">rg</span> <span class="str">"password"</span> .
+<span class="cmd">rg</span> <span class="flag">-l</span> <span class="str">"TODO"</span> <span class="flag">--type</span> py
 
-<div class="fade-in">
-<h3>Filesystem Navigation</h3>
+<span class="cmt"># Bulk rename</span>
+<span class="fn">ls</span> *.jpg | <span class="fn">each</span> { |f| <span class="cmd">mv</span> $f.name $<span class="str">"photos/($f.name)"</span> }
 
-<p>Most people are scared of their own filesystem. Get un-scared. Everything below is Nushell:</p>
+<span class="cmt"># Disk usage by subdirectory</span>
+<span class="fn">ls</span> | <span class="fn">where</span> type <span class="op">==</span> dir | <span class="fn">each</span> { |d|
+  { name: $d.name, size: (<span class="cmd">du</span> $d.name | <span class="fn">get</span> apparent | <span class="fn">first</span>) }
+}</code></pre>
+    <div class="co co-g"><strong>The exercise:</strong> Pick a messy folder (Downloads, Desktop, whatever). Organize it entirely from Nu. Rename, sort, deduplicate, move. Don't touch the GUI.</div>
+    <h3>Process & System Awareness</h3>
+    <pre data-lang="nushell"><code><span class="fn">ps</span> | <span class="fn">sort-by</span> cpu <span class="flag">-r</span> | <span class="fn">first</span> <span class="num">10</span>
+<span class="fn">ps</span> | <span class="fn">where</span> name <span class="op">=~</span> <span class="str">"chrome"</span> | <span class="fn">get</span> mem | <span class="fn">math sum</span>
+$env.PATH | <span class="fn">split row</span> (<span class="fn">char</span> esep)
 
-<pre><span class="lang-tag">nu</span>
-<span class="cm"># Where am I, what's here</span>
-ls | sort-by size -r
-ls **/* | where type == file | sort-by size -r | first <span class="nu">20</span>
+<span class="cmt"># Data format conversion (Nu eats everything)</span>
+<span class="fn">open</span> data.csv | <span class="fn">where</span> age <span class="op">></span> <span class="num">30</span> | <span class="fn">to json</span> | <span class="fn">save</span> filtered.json
+<span class="fn">http get</span> https://jsonplaceholder.typicode.com/users | <span class="fn">select</span> name email</code></pre>
+    <h3>PowerShell: Read Literacy Only</h3>
+    <p>You won't use it daily, but you need to <strong>read</strong> it. Every Windows tutorial and sysadmin script is written in it.</p>
+    <pre data-lang="powershell"><code><span class="cmt"># Cmdlets: Verb-Noun pattern</span>
+<span class="fn">Get-Process</span>          <span class="cmt"># = ps in Nu</span>
+<span class="fn">Get-ChildItem</span>        <span class="cmt"># = ls</span>
+<span class="fn">Get-Content</span>          <span class="cmt"># = open (text)</span>
+<span class="fn">Where-Object</span>         <span class="cmt"># = where</span>
 
-<span class="cm"># Finding things</span>
-fd <span class="st">"*.log"</span>                    <span class="cm"># files by name/glob</span>
-fd -e py -e js                <span class="cm"># by extension</span>
-rg <span class="st">"password"</span> .               <span class="cm"># text in files (recursive, fast)</span>
-rg -l <span class="st">"TODO"</span> --type py        <span class="cm"># which Python files have TODOs</span>
+<span class="cmt"># $_ is "current item" (like $in in Nu)</span>
+<span class="fn">Get-Process</span> | <span class="fn">Where-Object</span> { $_.CPU <span class="op">-gt</span> <span class="num">10</span> }
 
-<span class="cm"># Bulk operations</span>
-ls *.jpg | each { |f| mv $f.name $<span class="st">"photos/($f.name)"</span> }
-ls *.txt | enumerate | each { |e|
-    mv $e.item.name $<span class="st">"($e.index | fill -a r -w 3 -c '0').txt"</span>
-}</pre>
+<span class="cmt"># COM objects = Windows app automation</span>
+$excel = <span class="kw">New-Object</span> <span class="flag">-ComObject</span> Excel.Application
+$wscript = <span class="kw">New-Object</span> <span class="flag">-ComObject</span> WScript.Shell
 
-<div class="callout tip">
-  <div class="callout-label">Exercise</div>
-  <p>Pick a messy folder (Downloads, Desktop). Organize it <em>entirely from Nu</em>. Rename, sort, deduplicate, move. Don't touch the GUI.</p>
-</div>
+<span class="cmt"># WMI/CIM = system info database</span>
+<span class="fn">Get-CimInstance</span> Win32_Processor
+<span class="fn">Get-CimInstance</span> Win32_LogicalDisk
 
-<h3>Process & System Awareness</h3>
+<span class="cmt"># .NET access (PS is a .NET shell)</span>
+[System.IO.File]::<span class="fn">ReadAllText</span>(<span class="str">"file.txt"</span>)
+[Math]::<span class="fn">Sqrt</span>(<span class="num">144</span>)</code></pre>
+    <div class="co co-b"><strong>The mental model:</strong> PowerShell is a .NET REPL that happens to be a shell. COM objects let you automate Windows apps. WMI/CIM is a system-info database. The Registry is a giant config file. You don't memorize this, you recognize it and know what to Google.</div>
+  </div>
+</section>
 
-<pre><span class="lang-tag">nu</span>
-<span class="cm"># What's eating resources</span>
-ps | sort-by cpu -r | first <span class="nu">10</span>
-ps | where name =~ <span class="st">"chrome"</span> | get mem | math sum
+<section class="ph" id="p2">
+  <div class="ph-h"><span class="ph-n">PHASE 2</span><h2 class="ph-t">AI-Assisted Shell Work</h2></div>
+  <div class="ct">
+    <p>This is the game-changer. AI in the terminal isn't a gimmick, it's a fundamentally different way to work and learn.</p>
+    <h3>Claude Code</h3>
+    <p>The most powerful option. It reads files, runs commands, edits code, and chains operations autonomously.</p>
+    <pre data-lang="shell"><code><span class="cmt"># Just talk to it</span>
+<span class="cmd">claude</span> <span class="str">"find all Python files that import requests and list them"</span>
+<span class="cmd">claude</span> <span class="str">"explain what this PowerShell script does"</span>
+<span class="cmd">claude</span> <span class="str">"write a script that monitors this folder for new CSVs"</span>
 
-<span class="cm"># Environment variables</span>
-$env.PATH | split row (char esep)
+<span class="cmt"># Interactive mode for longer sessions</span>
+<span class="cmd">claude</span>
 
-<span class="cm"># Data format fluency - Nu eats these natively</span>
-open data.csv | where age > <span class="nu">30</span> | sort-by name
-open config.json | get settings.display
-http get https://jsonplaceholder.typicode.com/users | select name email company.name
+<span class="cmt"># Pipe data in</span>
+<span class="cmd">cat</span> weird_log.txt | <span class="cmd">claude</span> <span class="str">"parse this and extract all errors"</span></code></pre>
+    <p>Claude Code isn't autocomplete. It's a pair programmer that can <strong>do things on the system</strong>. Use it to explore codebases, debug failures, automate tasks, and learn interactively.</p>
+    <h3>aichat (sigoden/aichat)</h3>
+    <p>Lighter weight. Quick questions and piping data through AI.</p>
+    <pre data-lang="shell"><code><span class="cmd">aichat</span> <span class="str">"what does the -R flag do in chmod"</span>
 
-<span class="cm"># Convert between formats</span>
-open data.csv | to json | save data.json</pre>
+<span class="cmd">cat</span> error.log | <span class="cmd">aichat</span> <span class="str">"summarize these errors"</span>
 
-<h3>PowerShell Read Literacy</h3>
+<span class="cmt"># Generate shell commands</span>
+<span class="cmd">aichat</span> <span class="flag">-r</span> shell <span class="str">"find files modified today larger than 10MB"</span>
 
-<p>You won't use PowerShell daily, but you need to read it because every Windows tutorial and Stack Overflow answer is written in it. Here's the decoder ring:</p>
-
-<pre class="ps"><span class="lang-tag">powershell</span>
-<span class="cm"># Cmdlets follow Verb-Noun pattern</span>
-Get-Process          <span class="cm"># = ps in Nu</span>
-Get-ChildItem        <span class="cm"># = ls</span>
-Set-Location         <span class="cm"># = cd</span>
-Get-Content          <span class="cm"># = open (text files)</span>
-Where-Object         <span class="cm"># = where</span>
-ForEach-Object       <span class="cm"># = each</span>
-
-<span class="cm"># $_ is "current pipeline item" (like |row| in Nu)</span>
-Get-Process | Where-Object { $_.CPU -gt <span class="nu">10</span> } | Select-Object Name, CPU</pre>
-
-<div class="callout key">
-  <div class="callout-label">Concepts to Recognize</div>
-  <p><strong>COM objects</strong> &mdash; how Windows apps expose their internals to automation. <code>New-Object -ComObject Excel.Application</code> lets you script Excel directly.</p>
-  <p><strong>WMI/CIM</strong> &mdash; a system-info database. <code>Get-CimInstance Win32_Processor</code> queries everything Windows knows about your CPU.</p>
-  <p><strong>Registry</strong> &mdash; Windows' giant config file. <code>HKLM:\</code> is machine-wide, <code>HKCU:\</code> is per-user.</p>
-  <p><strong>.NET calls</strong> &mdash; <code>[System.IO.File]::ReadAllText("file.txt")</code> is calling .NET directly. PowerShell is basically a .NET REPL that happens to be a shell.</p>
-  <p>You don't need to memorize any of this. You need to recognize it when you see it.</p>
-</div>
-</div>
-
-<div id="phase-2" class="phase-header fade-in">
-  <div class="phase-number">Phase 2</div>
-  <h2>AI-Assisted Shell Work</h2>
-  <p>This is the actual game-changer. AI in the terminal isn't a gimmick, it's a fundamentally different way to learn and work.</p>
-</div>
-
-<div class="fade-in">
-<h3>Claude Code</h3>
-
-<p>The most powerful option. It reads files, runs commands, edits code, and chains operations autonomously:</p>
-
-<pre><span class="lang-tag">shell</span>
-<span class="cm"># Just talk to it</span>
-claude <span class="st">"find all Python files that import requests and list them"</span>
-claude <span class="st">"explain what this PowerShell script does"</span>
-claude <span class="st">"write a script that monitors this folder for new CSVs and summarizes them"</span>
-
-<span class="cm"># Interactive mode for longer sessions</span>
-claude
-<span class="cm"># Now Claude can see your filesystem, run commands, iterate on code</span>
-
-<span class="cm"># Pipe data through it</span>
-cat weird_log.txt | claude <span class="st">"parse this and extract all error messages with timestamps"</span></pre>
-
-<p>It's not autocomplete. It's a pair programmer that can do things on the system. Use it to explore unfamiliar codebases, debug errors, automate repetitive tasks, and learn by having it explain and then quiz you.</p>
-
-<h3>aichat (sigoden/aichat)</h3>
-
-<p>Lighter weight, perfect for quick questions and piping data through AI:</p>
-
-<pre><span class="lang-tag">shell</span>
-<span class="cm"># Quick questions</span>
-aichat <span class="st">"what does the -R flag do in chmod"</span>
-
-<span class="cm"># Pipe data through AI</span>
-cat error.log | aichat <span class="st">"summarize these errors and suggest fixes"</span>
-ls -la | aichat <span class="st">"which of these files are suspiciously large"</span>
-
-<span class="cm"># Shell integration - generates commands for you</span>
-aichat -r shell <span class="st">"find all files modified in the last 24 hours larger than 10MB"</span>
-
-<span class="cm"># Code generation</span>
-aichat -r code <span class="st">"python function that takes a CSV and returns summary stats"</span></pre>
-
-<div class="callout key">
-  <div class="callout-label">The Learning Loop</div>
-  <p><strong>Encounter</strong> something you don't understand (a script, an error, a concept). <strong>Ask AI in the terminal</strong> &mdash; don't context-switch to a browser. <strong>Try it immediately</strong> in a REPL. <strong>Break it on purpose</strong>, ask AI about the errors. <strong>Build something small</strong> with it, even 10 lines. <strong>Commit it.</strong></p>
-  <p>The feedback loop is seconds, not minutes of Googling. That changes everything.</p>
-</div>
-
-<h3>Build Your Own AI Shell Tools</h3>
-
-<p>Once you're comfortable, start building AI-powered utilities. A text summarizer in 8 lines:</p>
-
-<pre><span class="lang-tag">python</span>
-<span class="cm">#!/usr/bin/env -S uv run --with httpx,anthropic</span>
-<span class="st">"""Pipe anything to this and get a summary."""</span>
+<span class="cmt"># Generate code</span>
+<span class="cmd">aichat</span> <span class="flag">-r</span> code <span class="str">"python: CSV path to summary dict"</span></code></pre>
+    <h3>The AI-Assisted Learning Loop</h3>
+    <ol class="steps">
+      <li><strong>Encounter something you don't understand.</strong> A script, config file, error, or concept.</li>
+      <li><strong>Ask AI in the terminal.</strong> Don't context-switch to a browser.</li>
+      <li><strong>Try it immediately.</strong> AI explains sockets? Open a Python REPL and make one.</li>
+      <li><strong>Break it on purpose.</strong> Change things, see errors, ask AI to explain them.</li>
+      <li><strong>Build something small with it.</strong> Even 10 lines. Commit it.</li>
+    </ol>
+    <h3>Build Your Own AI Shell Tools</h3>
+    <pre data-lang="python"><code><span class="cmt">#!/usr/bin/env -S uv run --with httpx,anthropic</span>
+<span class="str">"""Pipe anything to this and get a summary."""</span>
 <span class="kw">import</span> sys, anthropic
 
 text = sys.stdin.read()
 msg = anthropic.Anthropic().messages.create(
-    model=<span class="st">"claude-sonnet-4-20250514"</span>,
-    max_tokens=<span class="nu">1024</span>,
-    messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: <span class="st">f"Summarize this concisely:\n\n{text}"</span>}]
+    model=<span class="str">"claude-sonnet-4-20250514"</span>,
+    max_tokens=<span class="num">1024</span>,
+    messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>,
+               <span class="str">"content"</span>: <span class="str">f"Summarize concisely:\n\n</span>{text}<span class="str">"</span>}]
 )
-print(msg.content[<span class="nu">0</span>].text)</pre>
+print(msg.content[<span class="num">0</span>].text)</code></pre>
+    <p>Save as <span class="ic">summarize.py</span>. Now: <span class="ic">cat giant_report.txt | python summarize.py</span>. You just built your first AI tool. From here: commit message generators, code reviewers, log analyzers, documentation writers.</p>
+  </div>
+</section>
 
-<p>Save as <code>summarize.py</code>. Now: <code>cat giant_report.txt | python summarize.py</code>. From here, build a commit message generator, a code reviewer, a log analyzer. Each one is 10-20 lines.</p>
-</div>
+<section class="ph" id="p3">
+  <div class="ph-h"><span class="ph-n">PHASE 3</span><h2 class="ph-t">Python (The Main Event)</h2></div>
+  <div class="ct">
+    <h3>Stage 1: Interactive Exploration (Week 1-2)</h3>
+    <p>Don't write files yet. Use IPython or <span class="ic">uvx</span> one-shots. The goal is muscle memory.</p>
+    <pre data-lang="python"><code><span class="cmt"># Strings (you'll use these constantly)</span>
+path = <span class="str">"/home/user/documents/report_final_v2.txt"</span>
+path.split(<span class="str">"/"</span>)
+path.rsplit(<span class="str">"."</span>, <span class="num">1</span>)
+<span class="str">f"processed </span>{<span class="num">42</span>}<span class="str"> files in </span>{<span class="num">3.7</span>:<span class="str">.1f</span>}<span class="str">s"</span>
 
-<div id="phase-3" class="phase-header fade-in">
-  <div class="phase-number">Phase 3</div>
-  <h2>Python (The Main Event)</h2>
-  <p>This is where the real investment goes. Python is the broadest, most useful language you can learn, and <code>uv</code> removes all the setup friction.</p>
-</div>
+<span class="cmt"># Core data structures (95% of everything)</span>
+nums = [<span class="num">3, 1, 4, 1, 5, 9, 2, 6</span>]
+sorted(nums)                                <span class="cmt"># [1, 1, 2, 3, 4, 5, 6, 9]</span>
+set(nums)                                   <span class="cmt"># {1, 2, 3, 4, 5, 6, 9}</span>
+[x**<span class="num">2</span> <span class="kw">for</span> x <span class="kw">in</span> nums <span class="kw">if</span> x > <span class="num">3</span>]               <span class="cmt"># list comprehension</span>
+{x: x**<span class="num">2</span> <span class="kw">for</span> x <span class="kw">in</span> range(<span class="num">5</span>)}                <span class="cmt"># dict comprehension</span>
 
-<div class="fade-in">
-<h3>Stage 1: Interactive Exploration</h3>
-<h4>Weeks 1-2 &mdash; Don't write files yet. Live in the REPL.</h4>
-
-<pre><span class="lang-tag">python</span>
-<span class="cm"># Strings - you'll use these constantly</span>
-path = <span class="st">"/home/user/documents/report_final_v2.txt"</span>
-path.split(<span class="st">"/"</span>)                 <span class="cm"># split on delimiter</span>
-path.rsplit(<span class="st">"."</span>, <span class="nu">1</span>)              <span class="cm"># split from right, once (name vs ext)</span>
-<span class="st">f"processed {42} files in {3.7:.1f}s"</span>   <span class="cm"># f-strings for everything</span>
-
-<span class="cm"># Lists, dicts, sets - 95% of your data structures</span>
-nums = [<span class="nu">3</span>, <span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">1</span>, <span class="nu">5</span>, <span class="nu">9</span>, <span class="nu">2</span>, <span class="nu">6</span>]
-sorted(nums)                     <span class="cm"># [1, 1, 2, 3, 4, 5, 6, 9]</span>
-set(nums)                        <span class="cm"># {1, 2, 3, 4, 5, 6, 9} unique values</span>
-[x**<span class="nu">2</span> <span class="kw">for</span> x <span class="kw">in</span> nums <span class="kw">if</span> x > <span class="nu">3</span>]   <span class="cm"># list comprehension: [16, 25, 81, 36]</span>
-
-<span class="cm"># pathlib - paths as objects, not strings</span>
+<span class="cmt"># pathlib (always use this, never os.path)</span>
 <span class="kw">from</span> pathlib <span class="kw">import</span> Path
-p = Path(<span class="st">"."</span>)
-list(p.glob(<span class="st">"**/*.py"</span>))          <span class="cm"># find all Python files recursively</span>
-(Path(<span class="st">"data"</span>) / <span class="st">"results.csv"</span>).suffix   <span class="cm"># ".csv"</span></pre>
-
-<div class="callout tip">
-  <div class="callout-label">Week 1 Exercise</div>
-  <p>Open IPython. Use only <code>pathlib</code>, <code>os</code>, and built-in types to explore your entire filesystem. List files, read them, count them, find the biggest, find duplicates by hash, organize them. No scripts. Just REPL exploration.</p>
-</div>
-
-<h3>Stage 2: One-Shot Scripts</h3>
-<h4>Weeks 2-4 &mdash; <code>uvx</code> one-liners that solve real problems</h4>
-
-<pre><span class="lang-tag">nu</span>
-<span class="cm"># Scrape Hacker News front page</span>
-uvx --with httpx,selectolux python -c r#'
+list(Path(<span class="str">"."</span>).glob(<span class="str">"**/*.py"</span>))              <span class="cmt"># recursive find</span>
+(Path(<span class="str">"data"</span>) / <span class="str">"results.csv"</span>).read_text()   <span class="cmt"># path joining</span></code></pre>
+    <div class="co co-g"><strong>Week 1 exercise:</strong> Open IPython. Use only <span class="ic">pathlib</span> and built-in types to explore your filesystem. List, read, count, find the biggest files, find duplicates. No scripts, just REPL.</div>
+    <h3>Stage 2: One-Shot Scripts (Week 2-4)</h3>
+    <pre data-lang="nushell"><code><span class="cmt"># Scrape Hacker News front page</span>
+<span class="cmd">uvx</span> <span class="flag">--with</span> httpx,selectolux python -c r#'
 import httpx
 from selectolux.parser import HTMLParser
 html = httpx.get("https://news.ycombinator.com").text
 for link in HTMLParser(html).css(".titleline > a"):
-    print(f"{link.text()} -> {link.attributes.get("href", "")}")
+    print(link.text())
 '#
 
-<span class="cm"># Quick CSV analysis</span>
-uvx --with pandas python -c r#'
+<span class="cmt"># Quick CSV analysis</span>
+<span class="cmd">uvx</span> <span class="flag">--with</span> pandas python -c r#'
 import pandas as pd
 df = pd.read_csv("sales.csv")
-print(df.groupby("region")["revenue"].agg(["sum","mean","count"])
-      .sort_values("sum", ascending=False))
-'#
+print(df.groupby("region")["revenue"].agg(["sum","mean","count"]))
+'#</code></pre>
+    <h3>Stage 3: Real Tools (Week 4-8)</h3>
+    <div class="co co-p">
+      <strong>Project 1: File Deduplicator</strong> &mdash; hashing, pathlib, generators, collections<br>
+      <strong>Project 2: HTTP API Client</strong> &mdash; httpx, JSON, Pydantic, error handling<br>
+      <strong>Project 3: SQLite Dashboard</strong> &mdash; SQL, data modeling, persistence<br>
+      <strong>Project 4: Log Parser</strong> &mdash; regex, generators, streaming large files<br>
+      <strong>Project 5: Web Scraper Pipeline</strong> &mdash; HTTP, HTML, async, data pipelines
+    </div>
+    <h3>Stage 4: Intermediate Concepts (Month 2-3)</h3>
+    <p><strong>Decorators.</strong> Write <span class="ic">@timer</span>, <span class="ic">@retry</span>, <span class="ic">@cache</span>. Now you understand 90% of decorators in the wild.</p>
+    <p><strong>Context managers.</strong> Write a <span class="ic">with</span> block that logs entry/exit. Now <span class="ic">with open(...)</span> makes deep sense.</p>
+    <p><strong>Generators.</strong> Process a 10GB file without loading it. <span class="ic">yield</span> is the keyword.</p>
+    <p><strong>Async.</strong> Fetch 100 URLs concurrently. Compare to sequential. Async exists for this.</p>
+    <p><strong>Type hints.</strong> Add types to everything. Validate with <span class="ic">ruff</span> and <span class="ic">pyright</span>.</p>
+    <h3>The Python Toolbox</h3>
+    <div class="tw"><table>
+      <tr><th>When you need to...</th><th>Use</th><th>Learn by</th></tr>
+      <tr><td>HTTP requests</td><td><span class="ic">httpx</span></td><td>Day 1</td></tr>
+      <tr><td>Parse HTML</td><td><span class="ic">selectolux</span></td><td>Week 2</td></tr>
+      <tr><td>Files & paths</td><td><span class="ic">pathlib</span> (stdlib)</td><td>Day 1</td></tr>
+      <tr><td>Data validation</td><td><span class="ic">pydantic</span></td><td>Week 2</td></tr>
+      <tr><td>Build CLIs</td><td><span class="ic">typer</span></td><td>Week 3</td></tr>
+      <tr><td>Pretty output</td><td><span class="ic">rich</span></td><td>Week 1</td></tr>
+      <tr><td>DataFrames</td><td><span class="ic">pandas</span></td><td>Week 3</td></tr>
+      <tr><td>Database</td><td><span class="ic">sqlite3</span> (stdlib)</td><td>Week 2</td></tr>
+      <tr><td>AI / LLMs</td><td><span class="ic">anthropic</span>, <span class="ic">openai</span></td><td>Week 1</td></tr>
+      <tr><td>Shell commands</td><td><span class="ic">subprocess</span> (stdlib)</td><td>Week 1</td></tr>
+      <tr><td>Images</td><td><span class="ic">pillow</span></td><td>When needed</td></tr>
+      <tr><td>Video / audio</td><td><span class="ic">ffmpeg-python</span></td><td>When needed</td></tr>
+      <tr><td>Math</td><td><span class="ic">numpy</span>, <span class="ic">sympy</span></td><td>When curious</td></tr>
+      <tr><td>Web APIs</td><td><span class="ic">fastapi</span></td><td>Month 2</td></tr>
+      <tr><td>Testing</td><td><span class="ic">pytest</span></td><td>Month 2</td></tr>
+    </table></div>
+  </div>
+</section>
 
-<span class="cm"># Bulk rename with zero setup</span>
-uvx python -c r#'
-from pathlib import Path
-for i, f in enumerate(sorted(Path(".").glob("IMG_*.jpg")), 1):
-    f.rename(f.parent / f"vacation_2024_{i:03d}.jpg")
-'#</pre>
+<section class="ph" id="p4">
+  <div class="ph-h"><span class="ph-n">PHASE 4</span><h2 class="ph-t">Math from the Terminal</h2></div>
+  <div class="ct">
+    <p>Not a prerequisite, but a force multiplier. Python makes math tangible and interactive.</p>
+    <pre data-lang="python"><code><span class="kw">from</span> sympy <span class="kw">import</span> *
+x = Symbol(<span class="str">'x'</span>)
 
-<h3>Stage 3: Real Tools</h3>
-<h4>Weeks 4-8 &mdash; Proper scripts with <code>uv</code> inline metadata</h4>
+solve(x**<span class="num">2</span> - <span class="num">5</span>*x + <span class="num">6</span>, x)                <span class="cmt"># [2, 3]</span>
+diff(sin(x) * exp(x), x)                 <span class="cmt"># derivative</span>
+integrate(<span class="num">1</span>/(<span class="num">1</span> + x**<span class="num">2</span>), x)               <span class="cmt"># arctan(x)</span>
+series(exp(x), x, <span class="num">0</span>, <span class="num">6</span>)                  <span class="cmt"># Taylor series</span>
 
-<div class="table-wrap">
-<table>
-  <thead><tr><th>Project</th><th>What You Learn</th></tr></thead>
-  <tbody>
-    <tr><td>File deduplicator</td><td>Hashing, pathlib, generators, CLI args</td></tr>
-    <tr><td>HTTP API client</td><td>httpx, JSON, Pydantic, error handling</td></tr>
-    <tr><td>SQLite personal dashboard</td><td>SQL, data modeling, persistence</td></tr>
-    <tr><td>Log parser/analyzer</td><td>Regex, generators, streaming data</td></tr>
-    <tr><td>Web scraper pipeline</td><td>HTTP, HTML parsing, async, ETL</td></tr>
-  </tbody>
-</table>
-</div>
+<span class="cmt"># Linear algebra</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+A = np.array([[<span class="num">1,2</span>],[<span class="num">3,4</span>]])
+np.linalg.eigvals(A)                      <span class="cmt"># eigenvalues</span>
 
-<h3>Stage 4: Intermediate Concepts</h3>
-<h4>Month 2-3 &mdash; Learn by building, not reading</h4>
-
-<p><strong>Decorators.</strong> Write a <code>@timer</code>, a <code>@retry</code>, a <code>@cache</code>. Now you understand 90% of decorators in the wild.</p>
-
-<p><strong>Context managers.</strong> Write a <code>with</code> block that logs entry/exit time. Now <code>with open(...)</code> makes deep sense.</p>
-
-<p><strong>Generators.</strong> Process a 10GB file without loading it into memory. <code>yield</code> is the keyword.</p>
-
-<p><strong>Async.</strong> Fetch 100 URLs concurrently with <code>httpx.AsyncClient</code>. Compare wall-clock time to sequential. That's why async exists.</p>
-
-<p><strong>Type hints.</strong> Add types to everything. Run <code>ruff check</code> and <code>pyright</code>. Types are documentation the computer verifies.</p>
-
-<h3>The Python Toolbox</h3>
-
-<div class="table-wrap">
-<table>
-  <thead><tr><th>When you need to...</th><th>Use</th><th>When</th></tr></thead>
-  <tbody>
-    <tr><td>Make HTTP requests</td><td><code>httpx</code></td><td>Day 1</td></tr>
-    <tr><td>Parse HTML</td><td><code>selectolux</code></td><td>Week 2</td></tr>
-    <tr><td>Work with paths/files</td><td><code>pathlib</code> (stdlib)</td><td>Day 1</td></tr>
-    <tr><td>Validate data</td><td><code>pydantic</code></td><td>Week 2</td></tr>
-    <tr><td>Build CLIs</td><td><code>typer</code></td><td>Week 3</td></tr>
-    <tr><td>Pretty output</td><td><code>rich</code></td><td>Week 1</td></tr>
-    <tr><td>CSVs and data</td><td><code>pandas</code></td><td>Week 3</td></tr>
-    <tr><td>Database</td><td><code>sqlite3</code> (stdlib)</td><td>Week 2</td></tr>
-    <tr><td>Process images</td><td><code>pillow</code></td><td>When needed</td></tr>
-    <tr><td>Process video/audio</td><td><code>ffmpeg-python</code></td><td>When needed</td></tr>
-    <tr><td>Math/science</td><td><code>numpy</code>, <code>sympy</code></td><td>When curious</td></tr>
-    <tr><td>Testing</td><td><code>pytest</code></td><td>Month 2</td></tr>
-    <tr><td>Web APIs</td><td><code>fastapi</code></td><td>Month 2</td></tr>
-    <tr><td>AI/LLM integration</td><td><code>anthropic</code>, <code>openai</code></td><td>Week 1</td></tr>
-  </tbody>
-</table>
-</div>
-</div>
-
-<div id="phase-4" class="phase-header fade-in">
-  <div class="phase-number">Phase 4</div>
-  <h2>Math from the Terminal</h2>
-  <p>Not a prerequisite, but a force multiplier. Python makes abstract math tangible.</p>
-</div>
-
-<div class="fade-in">
-<pre><span class="lang-tag">python</span>
-<span class="cm"># SymPy: a complete CAS, free, in your terminal</span>
-<span class="kw">from</span> sympy <span class="kw">import</span> *
-x = Symbol(<span class="st">'x'</span>)
-
-solve(x**<span class="nu">2</span> - <span class="nu">5</span>*x + <span class="nu">6</span>, x)           <span class="cm"># [2, 3]</span>
-diff(sin(x) * exp(x), x)           <span class="cm"># derivative</span>
-integrate(<span class="nu">1</span>/(<span class="nu">1</span> + x**<span class="nu">2</span>), x)          <span class="cm"># arctan(x)</span>
-series(exp(x), x, <span class="nu">0</span>, <span class="nu">6</span>)            <span class="cm"># Taylor series</span>
-
-<span class="cm"># Learn probability by simulation (the best way)</span>
+<span class="cmt"># Learn probability by simulation</span>
 <span class="kw">import</span> random
-wins = sum(random.choice([<span class="nu">0</span>,<span class="nu">1</span>,<span class="nu">2</span>]) != random.choice([<span class="nu">0</span>,<span class="nu">1</span>,<span class="nu">2</span>]) <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="nu">100000</span>))
-print(<span class="st">f"Monty Hall switch wins {wins/1000:.1f}% of the time"</span>)  <span class="cm"># ~66.7%</span></pre>
+wins = sum(random.choice([<span class="num">0,1,2</span>]) != random.choice([<span class="num">0,1,2</span>])
+           <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="num">100_000</span>))
+print(<span class="str">f"Monty Hall switch wins </span>{wins/<span class="num">1000</span>:<span class="str">.1f</span>}<span class="str">%"</span>)  <span class="cmt"># ~66.7%</span></code></pre>
+    <div class="co co-o"><strong>Where to practice:</strong> Project Euler (projecteuler.net). Bite-sized math+code puzzles, hundreds of them, escalating difficulty. Problem 1 takes 5 minutes. Problem 50 takes an hour. Perfect for work downtime.</div>
+  </div>
+</section>
 
-<div class="callout tip">
-  <div class="callout-label">Where to Practice</div>
-  <p><a href="https://projecteuler.net" target="_blank" rel="noopener">Project Euler</a> is perfect for downtime. Bite-sized math+code puzzles, hundreds of them, escalating difficulty. Problem 1 takes 5 minutes. Problem 50 takes an hour. Problem 500 takes days.</p>
-</div>
-</div>
+<section class="ph" id="p5">
+  <div class="ph-h"><span class="ph-n">PHASE 5</span><h2 class="ph-t">Structured Practice</h2></div>
+  <div class="ct">
+    <h3>Daily Routine (~1 hour scattered)</h3>
+    <div class="rt">
+      <div class="rt-t">10m</div><div class="rt-k">Solve one problem (Project Euler, Exercism, Advent of Code)</div>
+      <div class="rt-t">20m</div><div class="rt-k">Work on current project from Stage 3</div>
+      <div class="rt-t">20m</div><div class="rt-k">Explore something new (a library, a concept, a math topic)</div>
+      <div class="rt-t">10m</div><div class="rt-k">Write up what you learned in a TIL repo, commit</div>
+    </div>
+    <p>That's just over an hour scattered across an 8-hour day. After 6 months: 100+ problems solved, 10+ tools built, 500+ commits.</p>
+    <h3>Best Resources (Ranked)</h3>
+    <div class="rs">
+      <div class="re"><div class="re-r">1</div><div><div class="re-n">Exercism</div><div class="re-d">exercism.org &mdash; Guided exercises with real feedback. Python track is excellent.</div></div></div>
+      <div class="re"><div class="re-r">2</div><div><div class="re-n">Project Euler</div><div class="re-d">projecteuler.net &mdash; Math + code. Addictive. Great for short bursts.</div></div></div>
+      <div class="re"><div class="re-r">3</div><div><div class="re-n">Advent of Code</div><div class="re-d">adventofcode.com &mdash; All past years open. Fantastic puzzles.</div></div></div>
+      <div class="re"><div class="re-r">4</div><div><div class="re-n">Build Your Own X</div><div class="re-d">github.com/codecrafters-io/build-your-own-x &mdash; Build Redis, Git, a shell from scratch.</div></div></div>
+      <div class="re"><div class="re-r">5</div><div><div class="re-n">The Missing Semester</div><div class="re-d">MIT &mdash; Terminal/shell/tools fundamentals CS programs skip.</div></div></div>
+      <div class="re"><div class="re-r">6</div><div><div class="re-n">Automate the Boring Stuff</div><div class="re-d">automatetheboringstuff.com &mdash; Free. Python-first. Practical.</div></div></div>
+    </div>
+    <h3>The TIL Repo</h3>
+    <p>Every single thing you learn gets a markdown file. It forces you to articulate understanding (which deepens it). After 3 months you have a searchable knowledge base with 100+ entries. Structure by topic: <span class="ic">python/</span>, <span class="ic">nushell/</span>, <span class="ic">networking/</span>, etc.</p>
+  </div>
+</section>
 
-<div id="phase-5" class="phase-header fade-in">
-  <div class="phase-number">Phase 5</div>
-  <h2>Structured Practice</h2>
-  <p>The system that makes all of this compound instead of scatter.</p>
-</div>
-
-<div class="fade-in">
-<h3>The Daily Routine</h3>
-
-<p>About an hour total, scattered across a boring 8-hour day. Invisible to anyone watching.</p>
-
-<div class="routine">
-  <div class="routine-time">10 min</div>
-  <div class="routine-task">Solve one problem <span style="color:var(--text-dim)">(Project Euler, Exercism, Advent of Code)</span></div>
-  <div class="routine-time">20 min</div>
-  <div class="routine-task">Work on current project</div>
-  <div class="routine-time">20 min</div>
-  <div class="routine-task">Explore something new <span style="color:var(--text-dim)">(library, concept, math topic)</span></div>
-  <div class="routine-time">10 min</div>
-  <div class="routine-task">Write up what you learned, commit to TIL repo</div>
-</div>
-
-<h3>Resources (Ranked)</h3>
-
-<ol>
-  <li><a href="https://exercism.org" target="_blank" rel="noopener"><strong>Exercism</strong></a> &mdash; guided exercises with real feedback, Python track is excellent</li>
-  <li><a href="https://projecteuler.net" target="_blank" rel="noopener"><strong>Project Euler</strong></a> &mdash; math + code, addictive, great for short bursts</li>
-  <li><a href="https://adventofcode.com" target="_blank" rel="noopener"><strong>Advent of Code</strong></a> &mdash; all past years open, fantastic puzzles</li>
-  <li><a href="https://github.com/codecrafters-io/build-your-own-x" target="_blank" rel="noopener"><strong>Build Your Own X</strong></a> &mdash; build Redis, Git, a shell from scratch</li>
-  <li><a href="https://missing.csail.mit.edu" target="_blank" rel="noopener"><strong>The Missing Semester</strong></a> (MIT) &mdash; shell/tools fundamentals CS programs skip</li>
-  <li><a href="https://automatetheboringstuff.com" target="_blank" rel="noopener"><strong>Automate the Boring Stuff</strong></a> &mdash; free, Python-first, practical</li>
-  <li><a href="https://www.pythonmorsels.com" target="_blank" rel="noopener"><strong>Python Morsels</strong></a> &mdash; weekly exercises focused on idiomatic Python</li>
-</ol>
-
-<h3>The TIL Repo</h3>
-
-<p>Every single thing you learn gets a markdown file in a Git repo. Forces you to articulate understanding (which deepens it). After 3 months: 100+ entries, a searchable knowledge base, and a portfolio.</p>
-
-<pre><span class="lang-tag">shell</span>
-mkdir til && cd til && git init
-<span class="cm"># til/python/generators-are-lazy.md</span>
-<span class="cm"># til/nushell/structured-data-pipelines.md</span>
-<span class="cm"># til/networking/tcp-handshake-explained.md</span></pre>
-
-<div class="callout key">
-  <div class="callout-label">The Compound Stack (After 2-3 Months)</div>
-  <p>Navigate any system from the terminal without the GUI. Write Python that automates anything tedious. Use AI in the shell to 10x your speed on unfamiliar problems. Read any PowerShell or bash script. Query CSV, JSON, and SQLite with equal ease. Process media files programmatically. Solve computational problems interactively.</p>
-  <p>None of this requires admin access beyond the initial installs. All of it transfers to any platform. The AI-assisted workflow means you're never stuck for more than 30 seconds.</p>
-</div>
-</div>
+<section class="ph" id="cs">
+  <div class="ph-h"><span class="ph-n">++</span><h2 class="ph-t">The Compound Stack</h2></div>
+  <div class="ct">
+    <p>Skills stack <strong>multiplicatively</strong>, not additively. After 2-3 months:</p>
+    <div class="sg">
+      <div class="sc"><div class="f">Nu + regex + SQL</div><div class="r">Answer any data question in seconds</div></div>
+      <div class="sc"><div class="f">Python + HTTP + SQLite</div><div class="r">Build any tool you can imagine</div></div>
+      <div class="sc"><div class="f">Git + markdown + automation</div><div class="r">Document and share everything</div></div>
+      <div class="sc"><div class="f">AI + shell + pipe</div><div class="r">Never stuck for more than 30 seconds</div></div>
+      <div class="sc"><div class="f">Math + Python + simulation</div><div class="r">Model and verify anything</div></div>
+      <div class="sc"><div class="f">All of the above</div><div class="r">Think in systems, not tutorials</div></div>
+    </div>
+    <p>None of this requires admin access beyond the initial winget installs. All of it transfers to any platform. And the AI-assisted workflow means you're never stuck for more than 30 seconds on any question.</p>
+    <div class="co co-g"><strong>The meta-move:</strong> Write a Nu script that logs what you learned each day, timestamps it, appends to a markdown file, and auto-commits to git. Now your boredom is a documented growth trajectory.</div>
+  </div>
+</section>
 
 </main>
 
-<footer class="footer">
-  <p><span>$</span> echo "stop scrolling, open a terminal"</p>
-</footer>
+<footer><div class="c"><span style="color:var(--g);">$</span> exit<span class="cur"></span></div></footer>
 
 <script>
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-const navLinks = document.querySelectorAll('.phase-nav a');
-const sections = document.querySelectorAll('[id^="phase-"]');
-const navObs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      navLinks.forEach(l => l.classList.remove('active'));
-      const a = document.querySelector(`.phase-nav a[href="#${e.target.id}"]`);
-      if (a) a.classList.add('active');
-    }
-  });
-}, { threshold: 0.3 });
-sections.forEach(s => navObs.observe(s));
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('v')})},{threshold:.08,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.ph').forEach(el=>obs.observe(el));
 </script>
 </body>
 </html>
