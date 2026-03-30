@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mow Path Planner — Obstacle Mapper</title>
+<meta property="og:title" content="Mow Path Planner — Obstacle Mapper">
+<meta property="og:description" content="Interactive satellite-overlay tool for mapping yard obstacles and computing optimal mowing paths with turn radius constraints.">
+<meta property="og:url" content="https://niggerfaggot.club/mow-mapper.html">
+<meta name="twitter:card" content="summary">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:hidden}
+:root{
+  --bg:#0a0e14;--surface:#131820;--surface2:#1a2230;--border:#2a3444;
+  --green:#34d399;--green-dim:#1a6b4d;--orange:#f59e0b;--red:#ef4444;
+  --blue:#60a5fa;--purple:#a78bfa;--text:#e2e8f0;--text-dim:#94a3b8;
+  --font-mono:'JetBrains Mono',monospace;--font-sans:'Outfit',sans-serif;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font-sans)}
+#app{display:grid;grid-template-columns:320px 1fr;grid-template-rows:auto 1fr;height:100vh}
+header{grid-column:1/-1;background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:16px}
+header h1{font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--green);letter-spacing:1px;text-transform:uppercase}
+header .badge{font-size:11px;background:var(--green-dim);color:var(--green);padding:2px 8px;border-radius:4px;font-family:var(--font-mono)}
+header .parcel-info{margin-left:auto;font-size:12px;color:var(--text-dim);font-family:var(--font-mono)}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;padding:16px}
+.sidebar h2{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:12px;font-weight:600}
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+.tool-btn{
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  padding:12px 10px;cursor:pointer;text-align:center;transition:all .15s;
+  color:var(--text);font-family:var(--font-sans);font-size:12px;font-weight:500;
+}
+.tool-btn:hover{border-color:var(--green);background:#1a2a30}
+.tool-btn.active{border-color:var(--green);background:var(--green-dim);color:var(--green)}
+.tool-btn .icon{font-size:22px;display:block;margin-bottom:4px}
+.tool-btn.full-width{grid-column:1/-1}
+.section{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.obstacle-list{display:flex;flex-direction:column;gap:6px}
+.obstacle-item{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;
+  background:var(--surface2);border-radius:6px;font-size:12px;
+  font-family:var(--font-mono);border:1px solid var(--border);
+}
+.obstacle-item .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.obstacle-item .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.obstacle-item .delete{
+  background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;
+  opacity:.5;transition:opacity .15s;padding:0 4px;
+}
+.obstacle-item .delete:hover{opacity:1}
+.param-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.param-row label{font-size:12px;color:var(--text-dim);min-width:90px;font-family:var(--font-mono)}
+.param-row input,.param-row select{
+  flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;
+  padding:6px 8px;color:var(--text);font-size:12px;font-family:var(--font-mono);
+}
+.param-row input:focus,.param-row select:focus{outline:none;border-color:var(--green)}
+.btn-primary{
+  width:100%;padding:12px;background:var(--green);color:var(--bg);border:none;
+  border-radius:8px;font-family:var(--font-mono);font-size:13px;font-weight:700;
+  cursor:pointer;text-transform:uppercase;letter-spacing:1px;transition:all .15s;
+}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn-secondary{
+  width:100%;padding:10px;background:var(--surface2);color:var(--text);
+  border:1px solid var(--border);border-radius:8px;font-family:var(--font-mono);
+  font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;margin-top:8px;
+}
+.btn-secondary:hover{border-color:var(--green);color:var(--green)}
+#map{width:100%;height:100%}
+.status-bar{
+  position:fixed;bottom:0;left:320px;right:0;background:var(--surface);
+  border-top:1px solid var(--border);padding:8px 16px;font-size:11px;
+  font-family:var(--font-mono);color:var(--text-dim);display:flex;gap:20px;z-index:1000;
+}
+.status-bar .coord{color:var(--green)}
+.instructions{
+  position:fixed;top:70px;left:50%;transform:translateX(-30%);
+  background:var(--surface);border:1px solid var(--green);border-radius:8px;
+  padding:10px 16px;font-size:12px;font-family:var(--font-mono);color:var(--green);
+  z-index:1000;pointer-events:none;transition:opacity .3s;
+}
+.instructions.hidden{opacity:0}
+.buffer-note{font-size:10px;color:var(--text-dim);margin-top:4px;font-style:italic}
+.leaflet-container{background:var(--bg)!important}
+.tooltip-label{
+  background:rgba(0,0,0,.8)!important;border:1px solid var(--green)!important;
+  color:var(--green)!important;font-family:var(--font-mono)!important;
+  font-size:11px!important;padding:2px 6px!important;
+}
+.export-preview{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:24px;z-index:2000;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;
+  display:none;
+}
+.export-preview h3{font-family:var(--font-mono);color:var(--green);margin-bottom:12px}
+.export-preview pre{
+  background:var(--bg);padding:12px;border-radius:6px;font-size:11px;
+  font-family:var(--font-mono);overflow-x:auto;color:var(--text-dim);
+  max-height:400px;overflow-y:auto;
+}
+.export-preview .close{
+  position:absolute;top:12px;right:12px;background:none;border:none;
+  color:var(--text-dim);font-size:18px;cursor:pointer;
+}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1999;display:none}
+.mower-specs{
+  background:var(--bg);border:1px solid var(--border);border-radius:6px;
+  padding:10px;margin-bottom:12px;
+}
+.mower-specs .spec{display:flex;justify-content:space-between;font-size:11px;font-family:var(--font-mono);padding:2px 0}
+.mower-specs .spec .val{color:var(--green)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>🚜 Mow Planner</h1>
+    <span class="badge">OBSTACLE MAPPER</span>
+    <span class="parcel-info">7613 Eagle Chase Dr · 0.571 ac · Parcel #0685263494</span>
+  </header>
+  <div class="sidebar">
+    <div class="section">
+      <h2>Mower Specs</h2>
+      <div class="mower-specs">
+        <div class="spec"><span>Deck</span><span class="val">42" (38" effective)</span></div>
+        <div class="spec"><span>Turn Radius</span><span class="val">16"</span></div>
+        <div class="spec"><span>Model</span><span class="val">Husqvarna YTH</span></div>
+      </div>
+      <div class="param-row">
+        <label>Deck (in)</label>
+        <input type="number" id="deckWidth" value="42" min="20" max="72" step="1">
+      </div>
+      <div class="param-row">
+        <label>Overlap (in)</label>
+        <input type="number" id="overlap" value="4" min="0" max="12" step="1">
+      </div>
+      <div class="param-row">
+        <label>Turn Rad (in)</label>
+        <input type="number" id="turnRadius" value="16" min="0" max="48" step="1">
+      </div>
+      <div class="param-row">
+        <label>Ob. Buffer (ft)</label>
+        <input type="number" id="obstacleBuffer" value="1" min="0" max="5" step="0.5">
+      </div>
+      <div class="buffer-note">Buffer = extra clearance around each obstacle</div>
+    </div>
+    <div class="section">
+      <h2>Draw Tools</h2>
+      <div class="tool-grid">
+        <button class="tool-btn" data-tool="tree" onclick="setTool('tree')">
+          <span class="icon">🌳</span>Tree
+        </button>
+        <button class="tool-btn" data-tool="firepit" onclick="setTool('firepit')">
+          <span class="icon">🔥</span>Fire Pit
+        </button>
+        <button class="tool-btn" data-tool="fence" onclick="setTool('fence')">
+          <span class="icon">🏗️</span>Fence Area
+        </button>
+        <button class="tool-btn" data-tool="house" onclick="setTool('house')">
+          <span class="icon">🏠</span>House
+        </button>
+        <button class="tool-btn" data-tool="gate" onclick="setTool('gate')">
+          <span class="icon">🚪</span>Gate
+        </button>
+        <button class="tool-btn" data-tool="obstacle" onclick="setTool('obstacle')">
+          <span class="icon">⚠️</span>Other
+        </button>
+        <button class="tool-btn full-width" data-tool="polygon" onclick="setTool('polygon')">
+          <span class="icon">📐</span>Custom Polygon (garden bed, driveway, etc.)
+        </button>
+      </div>
+      <div class="param-row" id="radiusRow">
+        <label>Radius (ft)</label>
+        <input type="number" id="drawRadius" value="3" min="0.5" max="30" step="0.5">
+      </div>
+      <div class="param-row" id="labelRow">
+        <label>Label</label>
+        <input type="text" id="drawLabel" value="" placeholder="optional name">
+      </div>
+    </div>
+    <div class="section">
+      <h2>Obstacles (<span id="obstacleCount">0</span>)</h2>
+      <div class="obstacle-list" id="obstacleList"></div>
+    </div>
+    <div class="section">
+      <h2>Actions</h2>
+      <button class="btn-secondary" onclick="undoLast()">↩ Undo Last</button>
+      <button class="btn-secondary" onclick="clearAll()">🗑 Clear All</button>
+      <button class="btn-secondary" onclick="showExport()">📋 Preview JSON</button>
+      <div style="margin-top:12px">
+        <button class="btn-primary" onclick="exportData()">⬇ Export Obstacle Map</button>
+      </div>
+    </div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<div class="status-bar">
+  <span>Cursor: <span class="coord" id="cursorCoord">—</span></span>
+  <span>Obstacles: <span class="coord" id="statusCount">0</span></span>
+  <span>Tool: <span class="coord" id="statusTool">none</span></span>
+  <span id="polyStatus"></span>
+</div>
+
+<div id="instructionBox" class="instructions hidden"></div>
+<div class="overlay" id="overlay" onclick="hideExport()"></div>
+<div class="export-preview" id="exportPreview">
+  <button class="close" onclick="hideExport()">✕</button>
+  <h3>Obstacle Map JSON</h3>
+  <pre id="exportJson"></pre>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Parcel data from NC OneMap ArcGIS ──
+const PARCEL_COORDS = [
+  [35.55338220234137, -78.72251055492309],
+  [35.55362919414524, -78.72250542144467],
+  [35.553367707215756, -78.72348752267666],
+  [35.553145660369516, -78.72339898218465],
+  [35.55338220234137, -78.72251055492309]
+];
+const PARCEL_CENTER = [35.55339, -78.72298];
+
+// ── Map setup ──
+const map = L.map('map', {
+  center: PARCEL_CENTER,
+  zoom: 19,
+  maxZoom: 21,
+  zoomControl: true
+});
+
+// Esri satellite tiles
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 21,
+  maxNativeZoom: 19,
+  attribution: 'Esri Satellite'
+}).addTo(map);
+
+// Parcel boundary
+const parcelPoly = L.polygon(PARCEL_COORDS, {
+  color: '#34d399',
+  weight: 3,
+  fillOpacity: 0.08,
+  fillColor: '#34d399',
+  dashArray: '8 4'
+}).addTo(map);
+
+// Fit to parcel
+map.fitBounds(parcelPoly.getBounds().pad(0.15));
+
+// ── State ──
+let currentTool = null;
+let obstacles = [];
+let obstacleIdCounter = 0;
+let polyPoints = [];
+let polyPreviewLine = null;
+let polyMarkers = [];
+
+const TOOL_COLORS = {
+  tree: '#22c55e',
+  firepit: '#f59e0b',
+  fence: '#60a5fa',
+  house: '#a78bfa',
+  gate: '#ec4899',
+  obstacle: '#ef4444',
+  polygon: '#14b8a6'
+};
+const TOOL_DEFAULTS = {
+  tree: { radius: 4, label: 'Tree' },
+  firepit: { radius: 3, label: 'Fire Pit' },
+  fence: { radius: 0, label: 'Fenced Area' },
+  house: { radius: 0, label: 'House' },
+  gate: { radius: 0, label: 'Gate' },
+  obstacle: { radius: 2, label: 'Obstacle' },
+  polygon: { radius: 0, label: 'Custom Area' }
+};
+const CIRCLE_TOOLS = ['tree', 'firepit', 'obstacle'];
+const POLY_TOOLS = ['fence', 'house', 'polygon'];
+
+function setTool(tool) {
+  // Clear any in-progress polygon
+  if (currentTool !== tool) finishPoly(true);
+  
+  currentTool = tool;
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`[data-tool="${tool}"]`);
+  if (btn) btn.classList.add('active');
+  
+  const defaults = TOOL_DEFAULTS[tool];
+  document.getElementById('drawRadius').value = defaults.radius;
+  document.getElementById('drawLabel').value = defaults.label;
+  
+  const isCircle = CIRCLE_TOOLS.includes(tool);
+  document.getElementById('radiusRow').style.display = isCircle ? 'flex' : 'none';
+  document.getElementById('statusTool').textContent = tool;
+  
+  // Instructions
+  const box = document.getElementById('instructionBox');
+  if (tool === 'gate') {
+    box.textContent = 'Click TWO points to define the gate opening';
+    box.classList.remove('hidden');
+  } else if (POLY_TOOLS.includes(tool)) {
+    box.textContent = 'Click points to draw polygon. Double-click to finish.';
+    box.classList.remove('hidden');
+  } else if (isCircle) {
+    box.textContent = `Click to place ${defaults.label}. Adjust radius in sidebar.`;
+    box.classList.remove('hidden');
+  } else {
+    box.classList.add('hidden');
+  }
+  
+  map.getContainer().style.cursor = 'crosshair';
+}
+
+// ── Map click handler ──
+map.on('click', function(e) {
+  if (!currentTool) return;
+  const latlng = e.latlng;
+  
+  if (CIRCLE_TOOLS.includes(currentTool)) {
+    addCircleObstacle(latlng);
+  } else if (currentTool === 'gate') {
+    addGatePoint(latlng);
+  } else if (POLY_TOOLS.includes(currentTool)) {
+    addPolyPoint(latlng);
+  }
+});
+
+map.on('dblclick', function(e) {
+  if (POLY_TOOLS.includes(currentTool) && polyPoints.length >= 3) {
+    L.DomEvent.stopPropagation(e);
+    L.DomEvent.preventDefault(e);
+    finishPoly(false);
+  }
+});
+
+map.on('mousemove', function(e) {
+  const c = e.latlng;
+  document.getElementById('cursorCoord').textContent = `${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}`;
+  
+  // Preview line for polygon drawing
+  if (POLY_TOOLS.includes(currentTool) && polyPoints.length > 0) {
+    const pts = [...polyPoints.map(p => [p.lat, p.lng]), [c.lat, c.lng]];
+    if (polyPreviewLine) map.removeLayer(polyPreviewLine);
+    polyPreviewLine = L.polyline(pts, {
+      color: TOOL_COLORS[currentTool], weight: 2, dashArray: '4 4', opacity: 0.7
+    }).addTo(map);
+  }
+});
+
+// ── Obstacle creation ──
+function feetToMeters(ft) { return ft * 0.3048; }
+
+function addCircleObstacle(latlng) {
+  const radiusFt = parseFloat(document.getElementById('drawRadius').value) || 3;
+  const label = document.getElementById('drawLabel').value || TOOL_DEFAULTS[currentTool].label;
+  const color = TOOL_COLORS[currentTool];
+  const id = ++obstacleIdCounter;
+  
+  const circle = L.circle(latlng, {
+    radius: feetToMeters(radiusFt),
+    color: color,
+    fillColor: color,
+    fillOpacity: 0.3,
+    weight: 2
+  }).addTo(map);
+  
+  circle.bindTooltip(label, { permanent: true, className: 'tooltip-label', direction: 'top', offset: [0, -10] });
+  
+  const obs = {
+    id, type: currentTool, shape: 'circle',
+    center: { lat: latlng.lat, lng: latlng.lng },
+    radiusFt: radiusFt, label: label,
+    layer: circle
+  };
+  obstacles.push(obs);
+  updateUI();
+}
+
+let gateFirstPoint = null;
+let gatePreviewMarker = null;
+
+function addGatePoint(latlng) {
+  if (!gateFirstPoint) {
+    gateFirstPoint = latlng;
+    gatePreviewMarker = L.circleMarker(latlng, {
+      radius: 6, color: '#ec4899', fillColor: '#ec4899', fillOpacity: 1
+    }).addTo(map);
+    document.getElementById('instructionBox').textContent = 'Now click the SECOND gate point';
+  } else {
+    const label = document.getElementById('drawLabel').value || 'Gate';
+    const id = ++obstacleIdCounter;
+    const line = L.polyline([[gateFirstPoint.lat, gateFirstPoint.lng], [latlng.lat, latlng.lng]], {
+      color: '#ec4899', weight: 4, dashArray: '6 3'
+    }).addTo(map);
+    
+    const midLat = (gateFirstPoint.lat + latlng.lat) / 2;
+    const midLng = (gateFirstPoint.lng + latlng.lng) / 2;
+    line.bindTooltip(label, { permanent: true, className: 'tooltip-label', direction: 'top' });
+    
+    // Calculate width in feet
+    const dist = map.distance(gateFirstPoint, latlng);
+    const widthFt = (dist / 0.3048).toFixed(1);
+    
+    const obs = {
+      id, type: 'gate', shape: 'line',
+      points: [
+        { lat: gateFirstPoint.lat, lng: gateFirstPoint.lng },
+        { lat: latlng.lat, lng: latlng.lng }
+      ],
+      widthFt: parseFloat(widthFt),
+      label: label + ` (${widthFt}ft)`,
+      layer: line
+    };
+    obstacles.push(obs);
+    
+    if (gatePreviewMarker) map.removeLayer(gatePreviewMarker);
+    gateFirstPoint = null;
+    gatePreviewMarker = null;
+    updateUI();
+    
+    document.getElementById('instructionBox').textContent = 'Click TWO points to define the gate opening';
+  }
+}
+
+function addPolyPoint(latlng) {
+  polyPoints.push(latlng);
+  const color = TOOL_COLORS[currentTool];
+  const marker = L.circleMarker(latlng, {
+    radius: 5, color: color, fillColor: color, fillOpacity: 1
+  }).addTo(map);
+  polyMarkers.push(marker);
+  
+  document.getElementById('polyStatus').textContent = `Polygon: ${polyPoints.length} points (dbl-click to finish)`;
+}
+
+function finishPoly(cancel) {
+  if (polyPreviewLine) { map.removeLayer(polyPreviewLine); polyPreviewLine = null; }
+  polyMarkers.forEach(m => map.removeLayer(m));
+  polyMarkers = [];
+  
+  if (!cancel && polyPoints.length >= 3) {
+    const label = document.getElementById('drawLabel').value || TOOL_DEFAULTS[currentTool].label;
+    const color = TOOL_COLORS[currentTool];
+    const id = ++obstacleIdCounter;
+    
+    const coords = polyPoints.map(p => [p.lat, p.lng]);
+    const polygon = L.polygon(coords, {
+      color: color, fillColor: color, fillOpacity: 0.25, weight: 2
+    }).addTo(map);
+    
+    polygon.bindTooltip(label, { permanent: true, className: 'tooltip-label', direction: 'center' });
+    
+    const obs = {
+      id, type: currentTool, shape: 'polygon',
+      points: polyPoints.map(p => ({ lat: p.lat, lng: p.lng })),
+      label: label,
+      layer: polygon
+    };
+    obstacles.push(obs);
+    updateUI();
+  }
+  
+  polyPoints = [];
+  document.getElementById('polyStatus').textContent = '';
+}
+
+// ── UI updates ──
+function updateUI() {
+  const count = obstacles.length;
+  document.getElementById('obstacleCount').textContent = count;
+  document.getElementById('statusCount').textContent = count;
+  
+  const list = document.getElementById('obstacleList');
+  list.innerHTML = obstacles.map(obs => `
+    <div class="obstacle-item">
+      <span class="dot" style="background:${TOOL_COLORS[obs.type]}"></span>
+      <span class="name">${obs.label}</span>
+      <span style="color:var(--text-dim);font-size:10px">${obs.shape}</span>
+      <button class="delete" onclick="removeObstacle(${obs.id})">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeObstacle(id) {
+  const idx = obstacles.findIndex(o => o.id === id);
+  if (idx !== -1) {
+    map.removeLayer(obstacles[idx].layer);
+    obstacles.splice(idx, 1);
+    updateUI();
+  }
+}
+
+function undoLast() {
+  if (obstacles.length > 0) {
+    const last = obstacles.pop();
+    map.removeLayer(last.layer);
+    updateUI();
+  }
+}
+
+function clearAll() {
+  if (obstacles.length === 0) return;
+  if (!confirm(`Clear all ${obstacles.length} obstacles?`)) return;
+  obstacles.forEach(o => map.removeLayer(o.layer));
+  obstacles = [];
+  updateUI();
+}
+
+// ── Export ──
+function buildExportData() {
+  return {
+    metadata: {
+      address: "7613 Eagle Chase Dr, Willow Spring, NC 27592",
+      parcelId: "0685263494",
+      acreage: 0.571,
+      generated: new Date().toISOString()
+    },
+    mower: {
+      deckWidthIn: parseInt(document.getElementById('deckWidth').value),
+      overlapIn: parseInt(document.getElementById('overlap').value),
+      effectiveWidthIn: parseInt(document.getElementById('deckWidth').value) - parseInt(document.getElementById('overlap').value),
+      turnRadiusIn: parseInt(document.getElementById('turnRadius').value),
+      obstacleBufferFt: parseFloat(document.getElementById('obstacleBuffer').value)
+    },
+    parcel: {
+      type: "Polygon",
+      coordinates: PARCEL_COORDS.map(c => ({ lat: c[0], lng: c[1] }))
+    },
+    obstacles: obstacles.map(obs => {
+      const base = { id: obs.id, type: obs.type, shape: obs.shape, label: obs.label };
+      if (obs.shape === 'circle') {
+        base.center = obs.center;
+        base.radiusFt = obs.radiusFt;
+      } else if (obs.shape === 'polygon') {
+        base.points = obs.points;
+      } else if (obs.shape === 'line') {
+        base.points = obs.points;
+        base.widthFt = obs.widthFt;
+      }
+      return base;
+    })
+  };
+}
+
+function showExport() {
+  const data = buildExportData();
+  document.getElementById('exportJson').textContent = JSON.stringify(data, null, 2);
+  document.getElementById('overlay').style.display = 'block';
+  document.getElementById('exportPreview').style.display = 'block';
+}
+
+function hideExport() {
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('exportPreview').style.display = 'none';
+}
+
+function exportData() {
+  const data = buildExportData();
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'yard-obstacles.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Keyboard shortcuts ──
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    finishPoly(true);
+    currentTool = null;
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('statusTool').textContent = 'none';
+    document.getElementById('instructionBox').classList.add('hidden');
+    map.getContainer().style.cursor = '';
+    gateFirstPoint = null;
+    if (gatePreviewMarker) { map.removeLayer(gatePreviewMarker); gatePreviewMarker = null; }
+  }
+  if (e.key === 'z' && (e.ctrlKey || e.metaKey)) undoLast();
+  if (e.key === '1') setTool('tree');
+  if (e.key === '2') setTool('firepit');
+  if (e.key === '3') setTool('fence');
+  if (e.key === '4') setTool('house');
+  if (e.key === '5') setTool('gate');
+  if (e.key === '6') setTool('obstacle');
+});
+
+// Disable double-click zoom when drawing polygons
+map.doubleClickZoom.disable();
+</script>
+</body>
+</html>
