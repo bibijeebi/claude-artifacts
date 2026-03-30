@@ -9,6 +9,7 @@
 <meta property="og:url" content="https://niggerfaggot.club/fishcast.html">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎣</text></svg>">
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
@@ -161,6 +162,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <body>
 <div class="app">
   <div class="header"><h1><span>🎣</span> Fish<span>Cast</span></h1></div>
+  <div id="solunar-bar" style="text-align:center;padding:2px 16px 8px;font-size:12px;color:#7a917e"></div>
   <div class="view-tabs">
     <div class="view-tab active" id="vtPlanner" onclick="showView('planner')">Planner</div>
     <div class="view-tab" id="vtDetail" onclick="showView('detail')">Detail</div>
@@ -183,9 +185,35 @@ let allLakeData={};// lakeId -> {days,raw}
 let detailLake=0,detailDay=0;
 let plannerFilter='all';
 
-// --- Scoring ---
-function getMoonPhase(d){let y=d.getFullYear(),m=d.getMonth()+1,day=d.getDate(),r=y%100;r%=19;if(r>9)r-=19;r=((r*11)%30)+m+day;if(m<3)r+=2;r-=((y<2000)?4:8.3);r=Math.floor(r+.5)%30;return r<0?r+30:r}
-function getMoonInfo(d){const p=getMoonPhase(d);if(p<=1||p>=29)return{name:"New Moon",icon:"🌑",score:8};if(p<=6)return{name:"Waxing Crescent",icon:"🌒",score:3};if(p<=8)return{name:"First Quarter",icon:"🌓",score:5};if(p<=13)return{name:"Waxing Gibbous",icon:"🌔",score:4};if(p<=16)return{name:"Full Moon",icon:"🌕",score:8};if(p<=21)return{name:"Waning Gibbous",icon:"🌖",score:4};if(p<=23)return{name:"Last Quarter",icon:"🌗",score:5};return{name:"Waning Crescent",icon:"🌘",score:3}}
+// --- Solunar Engine (astronomy-engine powered) ---
+const ZODIAC=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+const ZODIAC_EMOJI=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+const ZODIAC_SHIFT={Aries:-1,Taurus:0,Gemini:0,Cancer:1,Leo:-1,Virgo:0,Libra:0,Scorpio:1,Sagittarius:0,Capricorn:0,Aquarius:-1,Pisces:1};
+const SOL_TIERS=['Poor','Fair','Good','Best'];
+const PHASE_NAMES=['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
+const PHASE_ICONS=['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+
+function getSolunar(d){
+  const t=Astronomy.MakeTime(d);
+  const pa=Astronomy.MoonPhase(t);
+  const ecl=Astronomy.EclipticGeoMoon(t);
+  const lon=(ecl.lon+360)%360;
+  const zIdx=Math.floor(lon/30);
+  const zodiac=ZODIAC[zIdx];
+  let pIdx;
+  if(pa<11.25||pa>=348.75)pIdx=0;else if(pa<78.75)pIdx=1;else if(pa<101.25)pIdx=2;else if(pa<168.75)pIdx=3;else if(pa<191.25)pIdx=4;else if(pa<258.75)pIdx=5;else if(pa<281.25)pIdx=6;else pIdx=7;
+  const dNew=Math.min(pa,360-pa)/12.19,dFull=Math.abs(pa-180)/12.19,dNF=Math.min(dNew,dFull);
+  const dQ=Math.min(Math.abs(pa-90),Math.abs(pa-270))/12.19;
+  let baseIdx;
+  if(dNF<=0.8)baseIdx=3;else if(dNF<=3.2)baseIdx=2;else if(dQ<=0.8)baseIdx=2;else if(dQ<=2.2)baseIdx=1;else baseIdx=0;
+  const shift=ZODIAC_SHIFT[zodiac];
+  const finalIdx=Math.max(0,Math.min(3,baseIdx+shift));
+  const illum=((1-Math.cos(pa*Math.PI/180))/2)*100;
+  // Score: 0-10 scale for integration with weather scoring
+  const solScore=finalIdx<=0?2:finalIdx===1?4:finalIdx===2?6:9;
+  return{name:PHASE_NAMES[pIdx],icon:PHASE_ICONS[pIdx],score:solScore,rating:SOL_TIERS[finalIdx],zodiac,zodiacIdx:zIdx,zodiacEmoji:ZODIAC_EMOJI[zIdx],shift,phaseAngle:Math.round(pa*10)/10,illumination:Math.round(illum*10)/10,daysFromNF:Math.round(dNF*10)/10}
+}
+function getMoonInfo(d){return getSolunar(d)}
 function scColor(s){return s>=75?'#4abd6a':s>=60?'#7ac06a':s>=45?'#c0b84a':s>=30?'#c07a4a':'#b85c5c'}
 function scLabel(s){return s>=75?'Excellent':s>=60?'Good':s>=45?'Fair':s>=30?'Poor':'Bad'}
 function wIcon(cloud,precip,h,sr,ss){const n=h<sr||h>=ss;if(precip>2)return'🌧️';if(precip>.5)return'🌦️';if(cloud>80)return'☁️';if(cloud>50)return n?'☁️':'⛅';if(cloud>20)return n?'🌙':'🌤️';return n?'🌙':'☀️'}
@@ -209,7 +237,7 @@ function computeScore(hour,temp,pressure,pDelta,cloud,wind,precip,sr,ss,lake,mon
   pts.precip=pr;
   let tp=0;if(temp>=60&&temp<=75){tp=6;factors.temp=Math.round(temp)+"°"}else if(temp>=55&&temp<60||temp>75&&temp<=80){tp=3;factors.temp=Math.round(temp)+"°"}else if(temp>=45&&temp<55){tp=0;factors.temp=Math.round(temp)+"°"}else if(temp>80&&temp<=88){tp=-2;factors.temp=Math.round(temp)+"°"}else if(temp>88){tp=-6;factors.temp=Math.round(temp)+"°"}else if(temp>=35&&temp<45){tp=-3;factors.temp=Math.round(temp)+"°"}else{tp=-6;factors.temp=Math.round(temp)+"°"}
   pts.temp=tp;
-  let mn=Math.round((moonSc-5)*1.5);factors.moon=getMoonInfo(new Date()).name;pts.moon=mn;
+  let mn=Math.round((moonSc-5)*1.5);const sol=getSolunar(new Date());factors.moon=sol.rating+' · '+sol.zodiacEmoji+sol.zodiac;pts.moon=mn;
   let lk=0;if(lake.thermal&&isW){lk=8;factors.lake="Thermal"}else if(lake.stain==="stained"&&cloud<30){lk=3;factors.lake="Stained water"}else if(lake.acres<50&&isS&&hour>=10&&hour<=15){lk=-5;factors.lake="Small pond"}else factors.lake=null;
   if(lk)pts.lake=lk;
   return{score:sigmoid(Object.values(pts).reduce((a,v)=>a+v,0)),factors,pts}
@@ -331,7 +359,7 @@ function renderPlanner(){
         <div class="ph-info">
           <div class="ph-lake">${best.lake.name}</div>
           <div class="ph-when">${best.dayName} · ${fh(best.window.start)} – ${fh(best.window.end+1)} (${dur}h)</div>
-          <div class="ph-why">${best.window.reason} · ${best.peak.temp}° · ${best.peak.icon} · 💨${best.peak.wind}mph</div>
+          <div class="ph-why">${best.window.reason} · ${best.peak.temp}° · ${best.peak.icon} · 💨${best.peak.wind}mph · ${best.day.moonInfo.icon}${best.day.moonInfo.rating}</div>
         </div>
         <div class="ph-arrow">›</div>
       </div>
@@ -367,6 +395,7 @@ function renderPlanner(){
           <span class="opp-detail">💨 ${o.peak.wind}mph</span>
           <span class="opp-detail">☁️ ${o.peak.cloud}%</span>
           <span class="opp-detail">${dur}h window</span>
+          <span class="opp-detail">${o.day.moonInfo.icon}${o.day.moonInfo.rating}</span>
         </div>
         <div class="opp-details" style="margin-top:1px"><span style="color:var(--text)">${o.window.reason}</span></div>
       </div>
@@ -422,7 +451,7 @@ function renderDetail(){
       <div class="cond-item"><div class="cond-icon">📉</div><div class="cond-val">${pA} ${pD}</div><div class="cond-label">6hr hPa</div></div>
       <div class="cond-item"><div class="cond-icon">🌧️</div><div class="cond-val">${dispHour.precip.toFixed(2)}"</div><div class="cond-label">Rain</div></div>
     </div>
-    <div class="moon-bar"><span class="moon-icon">${day.moonInfo.icon}</span><span class="moon-text"><span class="moon-phase">${day.moonInfo.name}</span> · ${day.moonInfo.score>=7?'Strong solunar':day.moonInfo.score>=5?'Moderate solunar':'Weak solunar'}</span></div>
+    <div class="moon-bar"><span class="moon-icon">${day.moonInfo.icon}</span><span class="moon-text"><span class="moon-phase">${day.moonInfo.name}</span> · ${day.moonInfo.rating} · ${day.moonInfo.zodiacEmoji||''}${day.moonInfo.zodiac||''} · ${Math.round(day.moonInfo.illumination||0)}% illum</span></div>
   </div>`;
 
   // Strategy
@@ -462,7 +491,7 @@ function renderDetail(){
 
   // Factors
   const fH=isToday?dispHour:day.peakHour;
-  const fList=[{icon:'🕐',name:'Time of Day',key:'time'},{icon:'📉',name:'Pressure Trend',key:'pressure'},{icon:'☁️',name:'Cloud Cover',key:'cloud'},{icon:'💨',name:'Wind',key:'wind'},{icon:'🌧️',name:'Precipitation',key:'precip'},{icon:'🌡️',name:'Temperature',key:'temp'},{icon:fH.moonInfo.icon,name:'Moon Phase',key:'moon'}];
+  const fList=[{icon:'🕐',name:'Time of Day',key:'time'},{icon:'📉',name:'Pressure Trend',key:'pressure'},{icon:'☁️',name:'Cloud Cover',key:'cloud'},{icon:'💨',name:'Wind',key:'wind'},{icon:'🌧️',name:'Precipitation',key:'precip'},{icon:'🌡️',name:'Temperature',key:'temp'},{icon:fH.moonInfo.icon,name:'Solunar',key:'moon'}];
   if(fH.factors.lake)fList.push({icon:'♨️',name:'Lake Bonus',key:'lake'});
   h+=`<div class="factors"><h3>Factor Breakdown (${isToday?'Now':'Peak '+fh(fH.hour)})</h3>`;
   fList.forEach(f=>{const val=fH.factors[f.key]||'Neutral',p=fH.pts[f.key]||0;const pc=p>0?'pos':(p<0?'neg':'neu'),ps=p>0?'+'+p:String(p);let b='fair';if(p>=8)b='great';else if(p>=4)b='good';else if(p>=0)b='fair';else if(p>=-5)b='poor';else b='bad';h+=`<div class="factor-row"><div class="factor-left"><div class="factor-icon">${f.icon}</div><div class="factor-name">${f.name}</div></div><div class="factor-right"><span class="factor-badge badge-${b}">${val}</span><span class="factor-pts ${pc}">${ps}</span></div></div>`});
@@ -484,6 +513,10 @@ function renderDetail(){
 }
 
 // --- Init ---
+if(typeof Astronomy!=='undefined'){
+  const sol=getSolunar(new Date());
+  document.getElementById('solunar-bar').innerHTML=`${sol.icon} ${sol.name} · <span style="color:${sol.rating==='Best'?'#4abd6a':sol.rating==='Good'?'#7ac06a':sol.rating==='Fair'?'#c0b84a':'#b85c5c'};font-weight:600">${sol.rating}</span> · ${sol.zodiacEmoji}${sol.zodiac} · ${sol.illumination}% · <a href="/solunar.html" style="color:#5cb870;text-decoration:none">Full Calendar →</a>`;
+}
 loadPlanner();
 </script>
 </body>
