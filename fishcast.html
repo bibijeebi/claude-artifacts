@@ -3,579 +3,489 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FishCast - Fishing Intelligence</title>
+<title>FishCast</title>
 <meta property="og:title" content="FishCast - Fishing Intelligence">
-<meta property="og:description" content="Solunar + weather + location data fused into one fishing forecast. 7 Wake County lakes, 7-day hourly forecasts.">
+<meta property="og:description" content="Solunar + weather + location. Three signals, one score. Wake County NC lakes.">
 <meta property="og:url" content="https://niggerfaggot.club/fishcast">
-<meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎣</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{overflow-x:hidden}
-:root{--bg:#0f1a12;--bg2:#162016;--bg3:#1c2a1e;--card:#1a2b1d;--card2:#213524;--border:#2a3f2d;--text:#d4ddd6;--dim:#7a917e;--bright:#e8f0ea;--accent:#5cb870;--accent2:#3a7a48}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.app{max-width:540px;margin:0 auto;padding:12px;padding-bottom:40px}
+:root{
+  --cream:#F7F3ED;--warm:#EDE7DC;--paper:#FFFFFF;
+  --ink:#1a2633;--slate:#3d4f5f;--gray:#8b9299;--light:#c4c8cc;
+  --gold:#c4841d;--amber:#e09b2d;--honey:#f0c040;
+  --sage:#4a7c59;--water:#5a7a8a;--coral:#c45a3c;
+  --shadow:0 1px 3px rgba(26,38,51,.06),0 4px 12px rgba(26,38,51,.04);
+  --shadow2:0 2px 8px rgba(26,38,51,.08),0 8px 24px rgba(26,38,51,.06);
+}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased}
+.app{max-width:520px;margin:0 auto;padding:16px 16px 48px}
 
 /* Header */
-.hdr{display:flex;align-items:center;gap:8px;margin-bottom:4px}
-.hdr h1{font-family:'Instrument Serif',serif;font-size:26px;font-weight:400;color:var(--bright);letter-spacing:-.5px}
-.hdr h1 span{color:var(--accent)}
-.sol-bar{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:12px;color:var(--dim);flex-wrap:wrap}
-.sol-bar .sb-rating{font-weight:700;padding:1px 6px;border-radius:4px;font-size:11px}
-.sb-Best{background:rgba(74,189,106,.2);color:#4abd6a}
-.sb-Good{background:rgba(122,192,106,.2);color:#7ac06a}
-.sb-Fair{background:rgba(192,184,74,.2);color:#c0b84a}
-.sb-Poor{background:rgba(184,92,92,.2);color:#b85c5c}
-.sol-bar a{color:var(--accent);text-decoration:none;margin-left:auto}
+.masthead{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.masthead h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;letter-spacing:-.5px}
+.masthead .sub{font-size:11px;color:var(--gray);font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.sol-strip{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--paper);border-radius:10px;box-shadow:var(--shadow);margin-bottom:16px;font-size:12px;color:var(--slate)}
+.sol-strip .moon-i{font-size:18px}
+.sol-strip .rating{font-weight:600;padding:2px 8px;border-radius:6px;font-size:11px;letter-spacing:.3px}
+.r-Best{background:#f0e6d0;color:#9a6c14}.r-Good{background:#dfe9df;color:#3d6b4a}.r-Fair{background:#f0e4d0;color:#8a6830}.r-Poor{background:#f0d8d4;color:#8a3c30}
+.sol-strip .zodiac{color:var(--gray)}
+.sol-strip .cal-link{margin-left:auto;color:var(--gold);text-decoration:none;font-weight:600;font-size:11px}
 
-/* Tabs */
-.tabs{display:flex;gap:0;margin-bottom:14px;background:var(--bg3);border-radius:10px;padding:3px;border:1px solid var(--border)}
-.tab{flex:1;text-align:center;padding:9px 12px;font-size:13px;font-weight:600;color:var(--dim);cursor:pointer;border-radius:8px;transition:all .2s;border:none;background:none;font-family:'DM Sans',sans-serif}
-.tab.active{background:var(--card);color:var(--bright);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+/* Nav */
+.nav{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--warm)}
+.nav-item{padding:10px 16px;font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;letter-spacing:.2px}
+.nav-item.active{color:var(--ink);border-bottom-color:var(--ink)}
+.nav-item:hover:not(.active){color:var(--slate)}
 
 /* Loading */
-.loading{text-align:center;padding:48px 20px;color:var(--dim)}
-.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* Score colors */
-.sc75{color:#4abd6a}.sc60{color:#7ac06a}.sc45{color:#c0b84a}.sc30{color:#c07a4a}.sc0{color:#b85c5c}
+.loading{text-align:center;padding:60px 20px;color:var(--gray)}
+.spin{width:28px;height:28px;border:2.5px solid var(--warm);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
 
 /* Planner */
-.hero{background:linear-gradient(135deg,var(--bg3),var(--card));border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(92,184,112,.06) 0%,transparent 60%);pointer-events:none}
-.hero-title{font-family:'Instrument Serif',serif;font-size:20px;color:var(--bright);margin-bottom:2px}
-.hero-sub{font-size:11px;color:var(--dim);margin-bottom:12px}
-.hero-pick{display:flex;align-items:center;gap:12px;cursor:pointer;padding:12px;background:rgba(92,184,112,.06);border-radius:10px;border:1px solid var(--accent2);text-align:left}
-.hero-score{font-family:'Instrument Serif',serif;font-size:40px;line-height:1}
-.hero-info{flex:1;min-width:0}
-.hero-lake{font-size:15px;font-weight:700;color:var(--bright)}
-.hero-when{font-size:13px;color:var(--accent);font-weight:600}
-.hero-why{font-size:11px;color:var(--dim);margin-top:2px}
-.hero-arrow{color:var(--dim);font-size:18px;margin-left:auto}
+.hero-card{background:var(--paper);border-radius:14px;box-shadow:var(--shadow2);padding:20px;margin-bottom:18px;position:relative;overflow:hidden}
+.hero-card::after{content:'';position:absolute;top:0;right:0;width:120px;height:120px;background:radial-gradient(circle at 80% 20%,rgba(196,132,29,.06) 0%,transparent 70%);pointer-events:none}
+.hero-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);font-weight:600;margin-bottom:10px}
+.hero-inner{display:flex;align-items:center;gap:16px;cursor:pointer}
+.hero-score{font-family:'Playfair Display',serif;font-size:52px;font-weight:700;line-height:1;letter-spacing:-2px}
+.hero-meta{flex:1;min-width:0}
+.hero-lake{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;margin-bottom:2px}
+.hero-when{font-size:13px;color:var(--gold);font-weight:600}
+.hero-detail{font-size:11px;color:var(--gray);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
+.hero-arrow{font-size:22px;color:var(--light);margin-left:auto}
 
-.pills{display:flex;gap:4px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.pills::-webkit-scrollbar{display:none}
-.pill{background:var(--bg3);border:1px solid var(--border);color:var(--dim);padding:5px 10px;border-radius:14px;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s;font-family:'DM Sans',sans-serif}
-.pill.active{background:var(--accent2);border-color:var(--accent);color:var(--bright)}
+.filter-row{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--warm);color:var(--gray);background:var(--paper);transition:all .15s;white-space:nowrap;flex-shrink:0}
+.chip.active{border-color:var(--ink);color:var(--ink);background:var(--paper);font-weight:600}
+.chip:hover:not(.active){border-color:var(--light)}
 
-.section-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);margin-bottom:8px;font-weight:600}
-
-.opp{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;transition:all .15s;margin-bottom:5px}
-.opp:hover{background:var(--card2);border-color:var(--accent2)}
-.opp-rank{font-family:'Instrument Serif',serif;font-size:18px;color:var(--accent);width:22px;text-align:center;flex-shrink:0}
-.opp-ring{width:40px;height:40px;flex-shrink:0;position:relative}
-.opp-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.opp-ring .bg{stroke:var(--bg);stroke-width:4;fill:none}
-.opp-ring .fg{stroke-width:4;fill:none;stroke-linecap:round}
-.opp-ring .val{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Instrument Serif',serif;font-size:15px;color:var(--bright)}
+.opp-list{display:flex;flex-direction:column;gap:6px}
+.opp{display:flex;align-items:center;gap:12px;background:var(--paper);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;cursor:pointer;transition:all .15s}
+.opp:hover{box-shadow:var(--shadow2);transform:translateY(-1px)}
+.opp-num{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--light);width:18px;text-align:right;flex-shrink:0}
+.opp-sc{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;line-height:1;width:40px;text-align:center;flex-shrink:0}
 .opp-body{flex:1;min-width:0}
 .opp-top{display:flex;align-items:baseline;gap:6px}
-.opp-lake{font-size:13px;font-weight:700;color:var(--bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.opp-when{font-size:11px;color:var(--accent);font-weight:600}
-.opp-det{font-size:10px;color:var(--dim);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap}
-.opp-reason{font-size:10px;color:var(--text);margin-top:1px}
-.opp-arrow{color:var(--dim);font-size:14px;flex-shrink:0}
+.opp-name{font-weight:600;font-size:13px}
+.opp-time{font-size:11px;color:var(--gold);font-weight:600}
+.opp-info{font-size:10px;color:var(--gray);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap}
+.opp-why{font-size:10px;color:var(--slate);margin-top:1px}
+.opp .arrow{color:var(--light);font-size:16px}
 
 /* Calendar */
-.cal-nav{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px}
-.cal-nav button{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;color:var(--dim);cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif}
-.cal-nav button:hover{border-color:var(--accent);color:var(--accent)}
-.cal-nav .month{font-family:'Instrument Serif',serif;font-size:18px;font-weight:400;color:var(--bright);min-width:160px;text-align:center}
-.cal-lake-sel{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;justify-content:center}
-.cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
-.cal-body{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cal-cell{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:4px;min-height:64px;cursor:pointer;transition:all .1s}
-.cal-cell:hover{border-color:var(--accent2)}
-.cal-cell.empty{background:transparent;border:none;cursor:default}
-.cal-cell.today{border:2px solid var(--accent)}
-.cal-cell .dn{font-size:12px;font-weight:700;color:var(--bright)}
-.cal-cell .cs{font-family:'Instrument Serif',serif;font-size:18px;line-height:1;text-align:center;margin:2px 0}
-.cal-cell .ci{font-size:9px;color:var(--dim);text-align:center}
-.cal-cell .cm{font-size:12px;text-align:center}
-.cal-legend{display:flex;justify-content:center;gap:12px;margin-top:8px;font-size:10px;color:var(--dim)}
-.cal-legend span{display:flex;align-items:center;gap:3px}
-.cal-legend .dot{width:8px;height:8px;border-radius:2px}
+.cal-head{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px}
+.cal-head button{background:var(--paper);border:1.5px solid var(--warm);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;color:var(--slate);font-family:'IBM Plex Sans',sans-serif;transition:all .15s}
+.cal-head button:hover{border-color:var(--gold);color:var(--gold)}
+.cal-head .mo{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;min-width:180px;text-align:center}
+.cal-head .today-btn{background:var(--ink);color:var(--cream);border:none;font-size:10px;padding:5px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.cal-lk{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;justify-content:center}
+.cal-dh{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:4px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-c{background:var(--paper);border-radius:8px;padding:5px;min-height:68px;cursor:pointer;transition:all .15s;box-shadow:0 1px 2px rgba(26,38,51,.04)}
+.cal-c:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.cal-c.empty{background:transparent;box-shadow:none;cursor:default}
+.cal-c.today{box-shadow:inset 0 0 0 2px var(--gold)}
+.cal-c .cd{font-size:11px;font-weight:600;color:var(--ink)}
+.cal-c .csc{font-family:'Playfair Display',serif;font-size:17px;text-align:center;margin:2px 0;line-height:1}
+.cal-c .cph{font-size:13px;text-align:center}
+.cal-c .czd{font-size:8px;color:var(--gray);text-align:center;letter-spacing:.3px}
 
 /* Detail */
-.back{background:none;border:1px solid var(--border);color:var(--dim);padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-flex;align-items:center;gap:4px;font-family:'DM Sans',sans-serif}
-.back:hover{background:var(--bg3);color:var(--text)}
-.lake-sel{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
-.lake-btn{background:var(--bg3);border:1px solid var(--border);color:var(--dim);padding:5px 10px;border-radius:16px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
-.lake-btn.active{background:var(--accent2);border-color:var(--accent);color:var(--bright)}
+.back-btn{background:none;border:none;color:var(--gray);font-size:12px;cursor:pointer;margin-bottom:12px;display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Sans',sans-serif;font-weight:500}
+.back-btn:hover{color:var(--ink)}
+.lake-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.lk-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1.5px solid var(--warm);color:var(--gray);background:var(--paper);font-family:'IBM Plex Sans',sans-serif;transition:all .15s}
+.lk-btn.active{border-color:var(--ink);color:var(--ink);font-weight:600}
 
-.detail-hero{background:linear-gradient(135deg,var(--bg3),var(--card));border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden}
-.detail-hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(92,184,112,.06) 0%,transparent 60%);pointer-events:none}
-.dh-name{font-family:'Instrument Serif',serif;font-size:18px;color:var(--bright);margin-bottom:2px}
-.dh-sub{font-size:11px;color:var(--dim);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px}
-.dh-ring{width:120px;height:120px;margin:0 auto 10px;position:relative}
-.dh-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.dh-ring .bg{stroke:var(--bg);stroke-width:7;fill:none}
-.dh-ring .fg{stroke-width:7;fill:none;stroke-linecap:round;transition:all .6s}
-.dh-ring .txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.dh-ring .num{font-family:'Instrument Serif',serif;font-size:38px;color:var(--bright);line-height:1}
-.dh-ring .lbl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.dh-conds{display:flex;justify-content:center;gap:14px;margin-top:14px;flex-wrap:wrap}
-.dh-cond{display:flex;flex-direction:column;align-items:center;gap:1px}
-.dh-cond .ci{font-size:16px}
-.dh-cond .cv{font-size:13px;font-weight:600;color:var(--bright)}
-.dh-cond .cl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.3px}
-.dh-moon{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(42,63,45,.4);font-size:12px}
-.dh-moon .mi{font-size:18px}
-.dh-moon .mt{color:var(--dim)}
-.dh-moon .mp{color:var(--text);font-weight:600}
+.detail-hero{background:var(--paper);border-radius:16px;box-shadow:var(--shadow2);padding:24px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.detail-hero::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--water),var(--gold),var(--sage))}
+.dh-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;margin-bottom:2px}
+.dh-when{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.ring-wrap{width:130px;height:130px;margin:0 auto 12px;position:relative}
+.ring-wrap svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-wrap .rbg{stroke:var(--warm);stroke-width:6;fill:none}
+.ring-wrap .rfg{stroke-width:6;fill:none;stroke-linecap:round;transition:all .6s}
+.ring-wrap .rtxt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-wrap .rnum{font-family:'Playfair Display',serif;font-size:44px;font-weight:700;line-height:1;color:var(--ink)}
+.ring-wrap .rlbl{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.cond-row{display:flex;justify-content:center;gap:16px;margin-top:14px;flex-wrap:wrap}
+.cond{display:flex;flex-direction:column;align-items:center;gap:1px}
+.cond .cc-i{font-size:18px}
+.cond .cc-v{font-size:14px;font-weight:600;color:var(--ink)}
+.cond .cc-l{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:.3px}
+.moon-strip{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;padding-top:14px;border-top:1px solid var(--warm);font-size:12px;color:var(--gray)}
+.moon-strip .m-n{color:var(--ink);font-weight:600}
 
-.tip{background:linear-gradient(135deg,rgba(92,184,112,.06),rgba(74,144,184,.04));border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:14px}
-.tip-t{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
-.tip-b{font-size:12px;color:var(--text);line-height:1.4}
+.strategy{background:linear-gradient(135deg,rgba(196,132,29,.04),rgba(74,124,89,.03));border:1px solid var(--warm);border-radius:12px;padding:14px;margin-bottom:16px}
+.strategy .st{font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.strategy .sb{font-size:12px;color:var(--slate);line-height:1.5}
 
-.day-tabs{display:flex;gap:3px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.day-tabs::-webkit-scrollbar{display:none}
-.dtab{background:var(--bg3);border:1px solid var(--border);color:var(--dim);padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer;text-align:center;min-width:56px;flex-shrink:0;font-family:'DM Sans',sans-serif;transition:all .2s}
-.dtab.active{background:var(--card);border-color:var(--accent2);color:var(--bright)}
-.dtab .dn{font-weight:600}.dtab .ds{font-family:'Instrument Serif',serif;font-size:17px;line-height:1.2}
+.day-row{display:flex;gap:4px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.day-row::-webkit-scrollbar{display:none}
+.dy{background:var(--paper);border:1.5px solid var(--warm);padding:6px 10px;border-radius:10px;font-size:11px;cursor:pointer;text-align:center;min-width:54px;flex-shrink:0;transition:all .15s}
+.dy.active{border-color:var(--ink)}
+.dy .dy-n{font-weight:600;color:var(--slate);font-size:10px}
+.dy .dy-s{font-family:'Playfair Display',serif;font-size:20px;line-height:1.2}
 
-.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
-.panel h3{font-size:12px;font-weight:600;color:var(--bright);margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px}
-.win-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(42,63,45,.5)}
-.win-item:last-child{border-bottom:none}
-.win-rank{font-family:'Instrument Serif',serif;font-size:20px;color:var(--accent);width:24px;text-align:center}
-.win-info{flex:1}
-.win-time{font-size:13px;font-weight:600;color:var(--bright)}
-.win-why{font-size:10px;color:var(--dim);margin-top:1px}
-.win-sc{font-family:'Instrument Serif',serif;font-size:22px}
+.panel{background:var(--paper);border-radius:12px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.panel h3{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;margin-bottom:10px;color:var(--ink)}
+.w-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--warm)}
+.w-item:last-child{border-bottom:none}
+.w-rank{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold);width:26px;text-align:center}
+.w-info{flex:1}
+.w-time{font-size:13px;font-weight:600;color:var(--ink)}
+.w-why{font-size:10px;color:var(--gray);margin-top:1px}
+.w-sc{font-family:'Playfair Display',serif;font-size:24px}
 
 .hourly{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:14px;scrollbar-width:none}
 .hourly::-webkit-scrollbar{display:none}
-.hrow{display:flex;gap:3px;width:max-content}
-.hcell{width:48px;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:6px 3px;text-align:center}
-.hcell.prime{border-color:var(--accent2);background:linear-gradient(180deg,rgba(92,184,112,.08),var(--bg3))}
-.hcell.now{border-color:var(--accent);box-shadow:0 0 6px rgba(92,184,112,.25)}
-.hcell .ht{font-size:9px;color:var(--dim);font-weight:600}
-.hcell .hi{font-size:14px;margin:3px 0}
-.hcell .hs{font-family:'Instrument Serif',serif;font-size:17px;line-height:1}
-.hcell .hd{font-size:9px;color:var(--dim)}
-.hcell .hbar{width:100%;height:20px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:3px;display:flex;align-items:flex-end}
-.hcell .hfill{width:100%;border-radius:2px}
-.sun-m{width:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 2px;font-size:9px;color:#e8a838;font-weight:700;gap:2px;border-radius:8px;background:linear-gradient(180deg,rgba(232,168,56,.06),transparent);border:1px dashed rgba(232,168,56,.3)}
-.sun-m .si{font-size:16px}
+.h-row{display:flex;gap:3px;width:max-content}
+.h-c{width:48px;flex-shrink:0;background:var(--paper);border:1px solid var(--warm);border-radius:8px;padding:5px 3px;text-align:center}
+.h-c.prime{border-color:var(--gold);background:rgba(196,132,29,.03)}
+.h-c.now{box-shadow:inset 0 0 0 2px var(--gold)}
+.h-c .hh{font-size:9px;color:var(--gray);font-weight:600}
+.h-c .hicon{font-size:14px;margin:3px 0}
+.h-c .hsc{font-family:'Playfair Display',serif;font-size:17px;line-height:1}
+.h-c .ht{font-size:9px;color:var(--gray)}
+.h-c .hbar{width:100%;height:18px;background:var(--warm);border-radius:2px;overflow:hidden;margin-top:3px;display:flex;align-items:flex-end}
+.h-c .hfill{width:100%;border-radius:2px}
+.sun-mk{width:48px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 2px;font-size:9px;color:var(--gold);font-weight:700;gap:2px;border-radius:8px;background:rgba(196,132,29,.04);border:1px dashed rgba(196,132,29,.25)}
+.sun-mk .si{font-size:16px}
 
-.frow{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(42,63,45,.5)}
-.frow:last-child{border-bottom:none}
-.fl{display:flex;align-items:center;gap:6px}
-.fi{font-size:14px;width:22px;text-align:center}
-.fn{font-size:12px;color:var(--text)}
-.fr{display:flex;align-items:center;gap:5px}
-.fp{font-family:'Instrument Serif',serif;font-size:15px;min-width:28px;text-align:right}
-.fp.pos{color:#5cb870}.fp.neg{color:#b85c5c}.fp.neu{color:var(--dim)}
-.fb{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;text-transform:uppercase;letter-spacing:.3px;max-width:160px;text-align:right}
-.fb-great{background:rgba(74,189,106,.15);color:#4abd6a}
-.fb-good{background:rgba(122,192,106,.15);color:#7ac06a}
-.fb-fair{background:rgba(192,184,74,.15);color:#c0b84a}
-.fb-poor{background:rgba(192,122,74,.15);color:#c07a4a}
-.fb-bad{background:rgba(184,92,92,.15);color:#b85c5c}
+.f-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--warm)}
+.f-row:last-child{border-bottom:none}
+.f-l{display:flex;align-items:center;gap:8px}
+.f-i{font-size:15px;width:22px;text-align:center}
+.f-n{font-size:12px;color:var(--slate)}
+.f-r{display:flex;align-items:center;gap:6px}
+.f-p{font-family:'IBM Plex Mono',monospace;font-size:13px;min-width:30px;text-align:right}
+.f-p.pos{color:var(--sage)}.f-p.neg{color:var(--coral)}.f-p.neu{color:var(--light)}
+.f-b{font-size:9px;font-weight:600;padding:2px 8px;border-radius:6px;letter-spacing:.3px}
+.fb-g{background:rgba(74,124,89,.1);color:var(--sage)}
+.fb-k{background:rgba(196,132,29,.1);color:var(--gold)}
+.fb-f{background:rgba(139,146,153,.1);color:var(--gray)}
+.fb-p{background:rgba(196,90,60,.08);color:var(--coral)}
+.fb-b{background:rgba(196,90,60,.15);color:var(--coral)}
 
-.species{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
-.species h3{font-size:12px;font-weight:600;color:var(--bright);margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px}
-.sp-row{display:flex;align-items:center;gap:8px;padding:5px 0}
-.sp-icon{font-size:16px;width:22px;text-align:center}
-.sp-name{font-size:12px;font-weight:600;color:var(--bright)}
-.sp-tip{font-size:10px;color:var(--dim);margin-top:1px}
+.sp-panel{background:var(--paper);border-radius:12px;box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.sp-panel h3{font-family:'Playfair Display',serif;font-size:14px;font-weight:600;margin-bottom:10px}
+.sp{display:flex;align-items:center;gap:10px;padding:5px 0}
+.sp .si{font-size:18px;width:24px;text-align:center}
+.sp .sn{font-size:12px;font-weight:600;color:var(--ink)}
+.sp .st{font-size:10px;color:var(--gray);margin-top:1px}
+
+.section-lbl{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);font-weight:600;margin-bottom:8px}
 
 @media(max-width:480px){
-  .cal-cell{min-height:54px;padding:3px}
-  .cal-cell .dn{font-size:10px}
-  .cal-cell .cs{font-size:15px}
+  .cal-c{min-height:56px;padding:3px}
+  .cal-c .cd{font-size:10px}
+  .cal-c .csc{font-size:14px}
+  .opp-sc{font-size:24px;width:34px}
+  .hero-score{font-size:44px}
 }
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="hdr"><h1><span>🎣</span> Fish<span>Cast</span></h1></div>
-  <div id="sol-bar" class="sol-bar"></div>
-  <div class="tabs">
-    <div class="tab active" id="t0" onclick="showTab(0)">Planner</div>
-    <div class="tab" id="t1" onclick="showTab(1)">Calendar</div>
-    <div class="tab" id="t2" onclick="showTab(2)">Detail</div>
+  <div class="masthead"><h1>FishCast</h1><span class="sub">Wake County NC</span></div>
+  <div id="sol-strip" class="sol-strip"></div>
+  <div class="nav">
+    <div class="nav-item active" id="n0" onclick="go(0)">Planner</div>
+    <div class="nav-item" id="n1" onclick="go(1)">Calendar</div>
+    <div class="nav-item" id="n2" onclick="go(2)">Lake Detail</div>
   </div>
-  <div id="content"><div class="loading"><div class="spinner"></div>Scanning lakes...</div></div>
+  <div id="C"><div class="loading"><div class="spin"></div>Scanning 7 lakes...</div></div>
 </div>
 <script>
-const LAKES=[
-  {id:0,name:"Jordan Lake",short:"Jordan",lat:35.725,lon:-79.025,acres:14000,stain:"stained",thermal:false},
-  {id:1,name:"Falls Lake",short:"Falls",lat:36.02,lon:-78.68,acres:12400,stain:"moderate",thermal:false},
-  {id:2,name:"Harris Lake",short:"Harris",lat:35.605,lon:-78.945,acres:4100,stain:"moderate",thermal:true},
-  {id:3,name:"Lake Wheeler",short:"Wheeler",lat:35.705,lon:-78.695,acres:650,stain:"stained",thermal:false},
-  {id:4,name:"Lake Benson",short:"Benson",lat:35.67,lon:-78.60,acres:200,stain:"stained",thermal:false},
-  {id:5,name:"Panther Lake",short:"Panther",lat:35.55,lon:-78.67,acres:11,stain:"murky",thermal:false},
-  {id:6,name:"Bass Lake",short:"Bass",lat:35.64,lon:-78.83,acres:50,stain:"moderate",thermal:false},
+const LK=[
+  {id:0,name:"Jordan Lake",s:"Jordan",lat:35.725,lon:-79.025,acres:14000,stain:"stained",thermal:false},
+  {id:1,name:"Falls Lake",s:"Falls",lat:36.02,lon:-78.68,acres:12400,stain:"moderate",thermal:false},
+  {id:2,name:"Harris Lake",s:"Harris",lat:35.605,lon:-78.945,acres:4100,stain:"moderate",thermal:true},
+  {id:3,name:"Lake Wheeler",s:"Wheeler",lat:35.705,lon:-78.695,acres:650,stain:"stained",thermal:false},
+  {id:4,name:"Lake Benson",s:"Benson",lat:35.67,lon:-78.60,acres:200,stain:"stained",thermal:false},
+  {id:5,name:"Panther Lake",s:"Panther",lat:35.55,lon:-78.67,acres:11,stain:"murky",thermal:false},
+  {id:6,name:"Bass Lake",s:"Bass",lat:35.64,lon:-78.83,acres:50,stain:"moderate",thermal:false},
 ];
-const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const MONN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MF=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// ============ SOLUNAR ENGINE ============
-const ZOD=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+/* === SOLUNAR === */
+const ZN=['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
 const ZE=['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
 const ZS={Aries:-1,Taurus:0,Gemini:0,Cancer:1,Leo:-1,Virgo:0,Libra:0,Scorpio:1,Sagittarius:0,Capricorn:0,Aquarius:-1,Pisces:1};
 const PN=['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
-const PE=['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
-const ST=['Poor','Fair','Good','Best'];
-
-const solCache={};
-function getSolunar(d){
-  const key=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
-  if(solCache[key])return solCache[key];
+const PI=['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+const RT=['Poor','Fair','Good','Best'];
+const _sc={};
+function sol(d){
+  const k=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+  if(_sc[k])return _sc[k];
   const t=Astronomy.MakeTime(new Date(d.getFullYear(),d.getMonth(),d.getDate(),12));
-  const pa=Astronomy.MoonPhase(t);
-  const ecl=Astronomy.EclipticGeoMoon(t);
-  const lon=(ecl.lon+360)%360;
-  const zi=Math.floor(lon/30),zod=ZOD[zi];
-  let pi;
-  if(pa<11.25||pa>=348.75)pi=0;else if(pa<78.75)pi=1;else if(pa<101.25)pi=2;else if(pa<168.75)pi=3;else if(pa<191.25)pi=4;else if(pa<258.75)pi=5;else if(pa<281.25)pi=6;else pi=7;
-  const dN=Math.min(pa,360-pa)/12.19,dF=Math.abs(pa-180)/12.19,dNF=Math.min(dN,dF);
-  const dQ=Math.min(Math.abs(pa-90),Math.abs(pa-270))/12.19;
+  const pa=Astronomy.MoonPhase(t),ec=Astronomy.EclipticGeoMoon(t),ln=(ec.lon+360)%360,zi=Math.floor(ln/30),z=ZN[zi];
+  let pi;if(pa<11.25||pa>=348.75)pi=0;else if(pa<78.75)pi=1;else if(pa<101.25)pi=2;else if(pa<168.75)pi=3;else if(pa<191.25)pi=4;else if(pa<258.75)pi=5;else if(pa<281.25)pi=6;else pi=7;
+  const dN=Math.min(pa,360-pa)/12.19,dF=Math.abs(pa-180)/12.19,dNF=Math.min(dN,dF),dQ=Math.min(Math.abs(pa-90),Math.abs(pa-270))/12.19;
   let bi;if(dNF<=.8)bi=3;else if(dNF<=3.2)bi=2;else if(dQ<=.8)bi=2;else if(dQ<=2.2)bi=1;else bi=0;
-  const sh=ZS[zod],fi=Math.max(0,Math.min(3,bi+sh));
-  const illum=((1-Math.cos(pa*Math.PI/180))/2)*100;
-  // Raw solunar points for weather integration: Poor=-3, Fair=0, Good=+4, Best=+8
-  const solPts=fi===0?-3:fi===1?0:fi===2?4:8;
-  const r={name:PN[pi],icon:PE[pi],rating:ST[fi],zodiac:zod,zi,ze:ZE[zi],shift:sh,pa:Math.round(pa*10)/10,illum:Math.round(illum*10)/10,dNF:Math.round(dNF*10)/10,solPts,score:fi===0?2:fi===1?4:fi===2?6:9};
-  solCache[key]=r;return r;
+  const sh=ZS[z],fi=Math.max(0,Math.min(3,bi+sh)),il=((1-Math.cos(pa*Math.PI/180))/2)*100;
+  const sp=fi===0?-3:fi===1?0:fi===2?4:8;
+  const r={name:PN[pi],icon:PI[pi],rating:RT[fi],zodiac:z,zi,ze:ZE[zi],shift:sh,illum:Math.round(il*10)/10,solPts:sp,dNF:Math.round(dNF*10)/10};
+  _sc[k]=r;return r;
 }
 
-// ============ WEATHER SCORING ============
-function scC(s){return s>=75?'#4abd6a':s>=60?'#7ac06a':s>=45?'#c0b84a':s>=30?'#c07a4a':'#b85c5c'}
-function scL(s){return s>=75?'Excellent':s>=60?'Good':s>=45?'Fair':s>=30?'Poor':'Bad'}
-function scCls(s){return s>=75?'sc75':s>=60?'sc60':s>=45?'sc45':s>=30?'sc30':'sc0'}
+/* === SCORING === */
+function sC(s){return s>=75?'var(--sage)':s>=60?'#6a9a5c':s>=45?'var(--gold)':s>=30?'var(--coral)':'#994040'}
+function sL(s){return s>=75?'Excellent':s>=60?'Good':s>=45?'Fair':s>=30?'Poor':'Bad'}
 function wI(cl,pr,h,sr,ss){const n=h<sr||h>=ss;if(pr>2)return'🌧️';if(pr>.5)return'🌦️';if(cl>80)return'☁️';if(cl>50)return n?'☁️':'⛅';if(cl>20)return n?'🌙':'🌤️';return n?'🌙':'☀️'}
 function fh(h){return h===0||h===24?'12a':h<12?h+'a':h===12?'12p':(h-12)+'p'}
-function sig(raw){return Math.round(5+87/(1+Math.exp(-0.04*raw)))}
+function sig(r){return Math.round(5+87/(1+Math.exp(-0.04*r)))}
 
-function computeScore(hour,temp,pressure,pDelta,cloud,wind,precip,sr,ss,lake,month,solPts){
-  const F={},P={};
-  const isW=month<=2||month===12,isS=month>=6&&month<=8;
+function score(hr,tmp,prs,pD,cl,wn,prp,sr,ss,lk,mo,sp){
+  const F={},P={};const iW=mo<=2||mo===12,iS=mo>=6&&mo<=8;
   let t=0;
-  if(isW){if(hour>=11&&hour<=14){t=20;F.time="Prime winter midday"}else if(hour===10||hour===15){t=12;F.time="Near-prime winter"}else if((hour>=8&&hour<10)||(hour>15&&hour<=17)){t=5;F.time="Decent winter"}else if(hour>=7&&hour<8){t=-5;F.time="Cold morning"}else if(hour>=17&&hour<19){t=-3;F.time="Cooling evening"}else{t=-35;F.time="Off hours"}}
-  else{const srH=Math.floor(sr),ssH=Math.floor(ss);if(hour===srH||hour===srH+1){t=30;F.time="Dawn golden hour"}else if(hour===srH-1||hour===srH+2){t=20;F.time="Near dawn"}else if(hour===ssH-1||hour===ssH){t=30;F.time="Dusk golden hour"}else if(hour===ssH-2||hour===ssH+1){t=20;F.time="Near dusk"}else if(hour>srH+2&&hour<10){t=8;F.time="Morning"}else if(hour>15&&hour<ssH-2){t=8;F.time="Afternoon"}else if(hour>=10&&hour<=15){const d=Math.abs(hour-12.5);t=Math.round(isS?-25+d*4:-12+d*2);F.time=isS?"Midday dead zone":"Midday slump"}else if(hour>=20&&hour<=22){t=-12;F.time="Late evening"}else{t=-35;F.time="Off hours"}}
+  if(iW){if(hr>=11&&hr<=14){t=20;F.time="Prime winter midday"}else if(hr===10||hr===15){t=12;F.time="Near-prime"}else if((hr>=8&&hr<10)||(hr>15&&hr<=17)){t=5;F.time="Decent"}else if(hr>=7&&hr<8){t=-5;F.time="Cold morning"}else if(hr>=17&&hr<19){t=-3;F.time="Cooling"}else{t=-35;F.time="Off hours"}}
+  else{const sH=Math.floor(sr),eH=Math.floor(ss);if(hr===sH||hr===sH+1){t=30;F.time="Dawn golden hour"}else if(hr===sH-1||hr===sH+2){t=20;F.time="Near dawn"}else if(hr===eH-1||hr===eH){t=30;F.time="Dusk golden hour"}else if(hr===eH-2||hr===eH+1){t=20;F.time="Near dusk"}else if(hr>sH+2&&hr<10){t=8;F.time="Morning"}else if(hr>15&&hr<eH-2){t=8;F.time="Afternoon"}else if(hr>=10&&hr<=15){const d=Math.abs(hr-12.5);t=Math.round(iS?-25+d*4:-12+d*2);F.time=iS?"Dead zone":"Midday"}else if(hr>=20&&hr<=22){t=-12;F.time="Late evening"}else{t=-35;F.time="Off hours"}}
   P.time=t;
-  let p=0;if(pDelta<-2.5){p=16;F.pressure="Crashing ↓↓↓"}else if(pDelta<-1.5){p=12;F.pressure="Dropping fast ↓↓"}else if(pDelta<-0.6){p=7;F.pressure="Falling ↓"}else if(pDelta>2.5){p=-16;F.pressure="Spiking ↑↑↑"}else if(pDelta>1.5){p=-12;F.pressure="Rising fast ↑↑"}else if(pDelta>0.6){p=-5;F.pressure="Rising ↑"}else if(pressure>1028){p=-10;F.pressure="Very high"}else if(pressure>1022){p=-5;F.pressure="High & steady"}else if(pressure<1005){p=5;F.pressure="Low system"}else{p=0;F.pressure="Stable →"}
+  let p=0;if(pD<-2.5){p=16;F.pressure="Crashing ↓↓↓"}else if(pD<-1.5){p=12;F.pressure="Dropping ↓↓"}else if(pD<-.6){p=7;F.pressure="Falling ↓"}else if(pD>2.5){p=-16;F.pressure="Spiking ↑↑↑"}else if(pD>1.5){p=-12;F.pressure="Rising ↑↑"}else if(pD>.6){p=-5;F.pressure="Rising ↑"}else if(prs>1028){p=-10;F.pressure="Very high"}else if(prs>1022){p=-5;F.pressure="High"}else if(prs<1005){p=5;F.pressure="Low system"}else{p=0;F.pressure="Stable →"}
   P.pressure=p;
-  let c=0;if(cloud>=85){c=10;F.cloud="Overcast"}else if(cloud>=70){c=7;F.cloud="Heavy clouds"}else if(cloud>=50){c=4;F.cloud="Mostly cloudy"}else if(cloud>=30){c=0;F.cloud="Partly cloudy"}else if(cloud>=15){c=-3;F.cloud="Mostly clear"}else{c=-7;F.cloud="Clear skies"}
+  let c=0;if(cl>=85){c=10;F.cloud="Overcast"}else if(cl>=70){c=7;F.cloud="Heavy clouds"}else if(cl>=50){c=4;F.cloud="Mostly cloudy"}else if(cl>=30){c=0;F.cloud="Partly cloudy"}else if(cl>=15){c=-3;F.cloud="Mostly clear"}else{c=-7;F.cloud="Clear"}
   P.cloud=c;
-  let w=0;if(wind>=7&&wind<=12){w=10;F.wind="Perfect chop"}else if(wind>=5&&wind<7||wind>12&&wind<=15){w=6;F.wind="Good breeze"}else if(wind>15&&wind<=20){w=1;F.wind="Windy"}else if(wind>20){w=-8;F.wind="Too windy"}else if(wind>=3){w=2;F.wind="Light breeze"}else{w=-5;F.wind="Dead calm"}
-  if(lake.acres<100&&wind>15)w-=4;P.wind=w;
-  let pr=0;if(precip>.02&&precip<=.15){pr=10;F.precip="Drizzle"}else if(precip>.15&&precip<=.4){pr=7;F.precip="Light rain"}else if(precip>.4&&precip<=1){pr=3;F.precip="Moderate rain"}else if(precip>1){pr=-7;F.precip="Heavy rain"}else{pr=0;F.precip="Dry"}
+  let w=0;if(wn>=7&&wn<=12){w=10;F.wind="Perfect chop"}else if(wn>=5&&wn<7||wn>12&&wn<=15){w=6;F.wind="Good breeze"}else if(wn>15&&wn<=20){w=1;F.wind="Windy"}else if(wn>20){w=-8;F.wind="Too windy"}else if(wn>=3){w=2;F.wind="Light breeze"}else{w=-5;F.wind="Dead calm"}
+  if(lk.acres<100&&wn>15)w-=4;P.wind=w;
+  let pr=0;if(prp>.02&&prp<=.15){pr=10;F.precip="Drizzle"}else if(prp>.15&&prp<=.4){pr=7;F.precip="Light rain"}else if(prp>.4&&prp<=1){pr=3;F.precip="Rain"}else if(prp>1){pr=-7;F.precip="Heavy rain"}else{pr=0;F.precip="Dry"}
   P.precip=pr;
-  let tp=0;if(temp>=60&&temp<=75){tp=6;F.temp=Math.round(temp)+"°"}else if(temp>=55&&temp<60||temp>75&&temp<=80){tp=3;F.temp=Math.round(temp)+"°"}else if(temp>=45&&temp<55){tp=0;F.temp=Math.round(temp)+"°"}else if(temp>80&&temp<=88){tp=-2;F.temp=Math.round(temp)+"°"}else if(temp>88){tp=-6;F.temp=Math.round(temp)+"°"}else if(temp>=35&&temp<45){tp=-3;F.temp=Math.round(temp)+"°"}else{tp=-6;F.temp=Math.round(temp)+"°"}
-  P.temp=tp;
-  // Solunar integrated directly as points
-  P.solunar=solPts;
-  const sol=getSolunar(new Date());
-  F.solunar=sol.rating+' · '+sol.ze+sol.zodiac;
-  let lk=0;if(lake.thermal&&isW){lk=8;F.lake="Thermal"}else if(lake.stain==="stained"&&cloud<30){lk=3;F.lake="Stained water"}else if(lake.acres<50&&isS&&hour>=10&&hour<=15){lk=-5;F.lake="Small pond"}else F.lake=null;
-  if(lk)P.lake=lk;
+  let tp=0;if(tmp>=60&&tmp<=75){tp=6}else if(tmp>=55&&tmp<60||tmp>75&&tmp<=80){tp=3}else if(tmp>=45&&tmp<55){tp=0}else if(tmp>80&&tmp<=88){tp=-2}else if(tmp>88){tp=-6}else if(tmp>=35&&tmp<45){tp=-3}else{tp=-6}
+  F.temp=Math.round(tmp)+"°";P.temp=tp;
+  P.solunar=sp;const sl=sol(new Date());F.solunar=sl.rating+' · '+sl.ze+sl.zodiac;
+  let lp=0;if(lk.thermal&&iW){lp=8;F.lake="Thermal"}else if(lk.stain==="stained"&&cl<30){lp=3;F.lake="Stained"}else if(lk.acres<50&&iS&&hr>=10&&hr<=15){lp=-5;F.lake="Small pond"}else F.lake=null;
+  if(lp)P.lake=lp;
   return{score:sig(Object.values(P).reduce((a,v)=>a+v,0)),factors:F,pts:P}
 }
 
-// ============ DATA ============
-let allData={},curTab=0,dLake=0,dDay=0,planFilter='all',planOpps=[],calYear,calMonth,calLake=null;
+/* === DATA === */
+let D={},tab=0,dL=0,dD=0,pF='all',pO=[],cY,cM,cLk=null;
 
-function parseSH(s){const d=new Date(s);return d.getHours()+d.getMinutes()/60}
+async function fetchW(lk){return(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lk.lat}&longitude=${lk.lon}&hourly=temperature_2m,precipitation,cloudcover,windspeed_10m,pressure_msl&daily=sunrise,sunset&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America/New_York&forecast_days=7`)).json()}
 
-async function fetchWeather(lake){
-  return(await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lake.lat}&longitude=${lake.lon}&hourly=temperature_2m,precipitation,cloudcover,windspeed_10m,pressure_msl&daily=sunrise,sunset&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America/New_York&forecast_days=7`)).json()
-}
-
-function processData(data,lake){
-  const hrs=data.hourly.time,allP=data.hourly.pressure_msl,days=[];let cur=null;
+function proc(data,lk){
+  const hrs=data.hourly.time,aP=data.hourly.pressure_msl,days=[];let cur=null;
   for(let i=0;i<hrs.length;i++){
     const dt=new Date(hrs[i]),di=Math.floor(i/24),hr=dt.getHours(),mo=dt.getMonth()+1;
-    const srH=parseSH(data.daily.sunrise[di]),ssH=parseSH(data.daily.sunset[di]);
-    const pD=allP[i]-allP[Math.max(0,i-6)];
-    const sol=getSolunar(dt);
-    const{score,factors,pts}=computeScore(hr,data.hourly.temperature_2m[i],allP[i],pD,data.hourly.cloudcover[i],data.hourly.windspeed_10m[i],data.hourly.precipitation[i],srH,ssH,lake,mo,sol.solPts);
-    const hd={hour:hr,score,factors,pts,dt,temp:Math.round(data.hourly.temperature_2m[i]),pressure:allP[i],pressureDelta:pD,cloud:data.hourly.cloudcover[i],wind:Math.round(data.hourly.windspeed_10m[i]),precip:data.hourly.precipitation[i],icon:wI(data.hourly.cloudcover[i],data.hourly.precipitation[i],hr,srH,ssH),sunriseH:srH,sunsetH:ssH,sol};
-    if(i%24===0){cur={date:dt,hours:[],sunriseH:srH,sunsetH:ssH,sol};days.push(cur)}
+    const srH=(() => {const d=new Date(data.daily.sunrise[di]);return d.getHours()+d.getMinutes()/60})();
+    const ssH=(() => {const d=new Date(data.daily.sunset[di]);return d.getHours()+d.getMinutes()/60})();
+    const pD=aP[i]-aP[Math.max(0,i-6)],sl=sol(dt);
+    const{score:sc,factors:F,pts:P}=score(hr,data.hourly.temperature_2m[i],aP[i],pD,data.hourly.cloudcover[i],data.hourly.windspeed_10m[i],data.hourly.precipitation[i],srH,ssH,lk,mo,sl.solPts);
+    const hd={hour:hr,score:sc,factors:F,pts:P,dt,temp:Math.round(data.hourly.temperature_2m[i]),pressure:aP[i],pressureDelta:pD,cloud:data.hourly.cloudcover[i],wind:Math.round(data.hourly.windspeed_10m[i]),precip:data.hourly.precipitation[i],icon:wI(data.hourly.cloudcover[i],data.hourly.precipitation[i],hr,srH,ssH),srH,ssH,sol:sl};
+    if(i%24===0){cur={date:dt,hours:[],srH,ssH,sol:sl};days.push(cur)}
     cur.hours.push(hd)
   }
-  days.forEach(d=>{const f=d.hours.filter(h=>h.hour>=5&&h.hour<=21);d.avgScore=Math.round(f.reduce((a,h)=>a+h.score,0)/f.length);d.peakScore=Math.max(...f.map(h=>h.score));d.peakHour=f.find(h=>h.score===d.peakScore)});
+  days.forEach(d=>{const f=d.hours.filter(h=>h.hour>=5&&h.hour<=21);d.avg=Math.round(f.reduce((a,h)=>a+h.score,0)/f.length);d.peak=Math.max(...f.map(h=>h.score));d.peakH=f.find(h=>h.score===d.peak)});
   return days
 }
 
-function findWindows(hours){
-  const fh=hours.filter(h=>h.hour>=5&&h.hour<=21);if(!fh.length)return[];
+function wins(hours){
+  const fhr=hours.filter(h=>h.hour>=5&&h.hour<=21);if(!fhr.length)return[];
   const runs=[];let run=null;
-  for(const h of fh){if(h.score>=50){if(!run)run={start:h.hour,end:h.hour,hours:[h]};else{run.end=h.hour;run.hours.push(h)}}else{if(run){runs.push(run);run=null}}}
+  for(const h of fhr){if(h.score>=50){if(!run)run={start:h.hour,end:h.hour,hours:[h]};else{run.end=h.hour;run.hours.push(h)}}else{if(run){runs.push(run);run=null}}}
   if(run)runs.push(run);
-  if(!runs.length)return[...fh].sort((a,b)=>b.score-a.score).slice(0,2).map(h=>({start:h.hour,end:h.hour,score:h.score,peakScore:h.score,reason:h.factors.time}));
+  if(!runs.length)return[...fhr].sort((a,b)=>b.score-a.score).slice(0,2).map(h=>({start:h.hour,end:h.hour,score:h.score,reason:h.factors.time}));
   return runs.map(r=>{
-    const peak=r.hours.reduce((a,b)=>b.score>a.score?b:a);
-    let s=r.start,e=r.end;if(e-s>5){s=Math.max(r.start,peak.hour-3);e=Math.min(r.end,peak.hour+3)}
+    const pk=r.hours.reduce((a,b)=>b.score>a.score?b:a);
+    let s=r.start,e=r.end;if(e-s>5){s=Math.max(r.start,pk.hour-3);e=Math.min(r.end,pk.hour+3)}
     const wh=r.hours.filter(h=>h.hour>=s&&h.hour<=e);
     const avg=Math.round(wh.reduce((a,h)=>a+h.score,0)/wh.length);
-    const reasons=[];const p=peak.pts;
-    if(p.time>=15)reasons.push(peak.factors.time);else if(p.time>=5)reasons.push(peak.factors.time);
-    if(p.pressure>=7)reasons.push(peak.factors.pressure);if(p.cloud>=7)reasons.push("Overcast");if(p.precip>=5)reasons.push("Rain");if(p.wind>=8)reasons.push("Perfect chop");
-    if(!reasons.length)reasons.push(peak.factors.time||'Best available');
-    return{start:s,end:e,score:avg,peakScore:peak.score,reason:reasons.slice(0,2).join(' + ')}
+    const rr=[];const p=pk.pts;
+    if(p.time>=15)rr.push(pk.factors.time);else if(p.time>=5)rr.push(pk.factors.time);
+    if(p.pressure>=7)rr.push(pk.factors.pressure);if(p.cloud>=7)rr.push("Overcast");if(p.precip>=5)rr.push("Rain");if(p.wind>=8)rr.push("Perfect chop");
+    if(!rr.length)rr.push(pk.factors.time||'Best available');
+    return{start:s,end:e,score:avg,reason:rr.slice(0,2).join(' + ')}
   }).sort((a,b)=>b.score-a.score).slice(0,3)
 }
 
-// ============ TABS ============
-function showTab(n){curTab=n;[0,1,2].forEach(i=>{document.getElementById('t'+i).className='tab'+(i===n?' active':'')});render()}
+/* === TABS === */
+function go(n){tab=n;[0,1,2].forEach(i=>{document.getElementById('n'+i).className='nav-item'+(i===n?' active':'')});render()}
+function render(){if(tab===0)rPlan();else if(tab===1)rCal();else rDet()}
 
-function render(){
-  if(curTab===0)renderPlanner();
-  else if(curTab===1)renderCalendar();
-  else renderDetail();
-}
-
-// ============ PLANNER ============
-async function loadAll(){
-  const el=document.getElementById('content');
-  el.innerHTML='<div class="loading"><div class="spinner"></div>Scanning all lakes...<div id="prog" style="font-size:11px;margin-top:4px">0/7</div></div>';
+/* === PLANNER === */
+async function load(){
+  document.getElementById('C').innerHTML='<div class="loading"><div class="spin"></div>Scanning 7 lakes...<div id="prg" style="font-size:11px;margin-top:6px;color:var(--gray)">0 / 7</div></div>';
   let n=0;
-  await Promise.all(LAKES.map(async lk=>{
-    const d=await fetchWeather(lk);allData[lk.id]=processData(d,lk);n++;
-    const p=document.getElementById('prog');if(p)p.textContent=n+'/7';
-  }));
-  buildOpps();render();
+  await Promise.all(LK.map(async lk=>{const d=await fetchW(lk);D[lk.id]=proc(d,lk);n++;const p=document.getElementById('prg');if(p)p.textContent=n+' / 7'}));
+  buildO();render();
 }
-
-function buildOpps(){
-  planOpps=[];const now=new Date(),curHr=now.getHours();
-  LAKES.forEach(lk=>{
-    const days=allData[lk.id];if(!days)return;
-    days.forEach((day,di)=>{
-      const wins=findWindows(day.hours);
-      wins.forEach(w=>{
-        if(di===0&&w.end<curHr)return;
-        const peak=day.hours.filter(h=>h.hour>=w.start&&h.hour<=w.end).reduce((a,b)=>b.score>a.score?b:a);
-        planOpps.push({lake:lk,dayIdx:di,day,window:w,peak,
-          dayName:di===0?'Today':di===1?'Tomorrow':DOW[day.date.getDay()],
-          dayShort:di===0?'Today':di===1?'Tmrw':DOW[day.date.getDay()]});
-      });
-    });
+function buildO(){
+  pO=[];const now=new Date(),ch=now.getHours();
+  LK.forEach(lk=>{const days=D[lk.id];if(!days)return;
+    days.forEach((day,di)=>{wins(day.hours).forEach(w=>{
+      if(di===0&&w.end<ch)return;
+      const pk=day.hours.filter(h=>h.hour>=w.start&&h.hour<=w.end).reduce((a,b)=>b.score>a.score?b:a);
+      pO.push({lk,di,day,w,pk,dn:di===0?'Today':di===1?'Tmrw':DW[day.date.getDay()],ds:di===0?'Today':di===1?'Tmrw':DW[day.date.getDay()]});
+    })});
   });
-  planOpps.sort((a,b)=>b.window.score-a.window.score);
+  pO.sort((a,b)=>b.w.score-a.w.score);
 }
 
-function renderPlanner(){
-  if(!planOpps.length){loadAll();return}
-  let filtered=planFilter==='all'?planOpps:planOpps.filter(o=>o.dayIdx===planFilter);
-  const top=filtered.slice(0,15);
+function rPlan(){
+  if(!pO.length){load();return}
+  let fl=pF==='all'?pO:pO.filter(o=>o.di===pF);
+  const top=fl.slice(0,15);
   let h='';
   if(top.length){
-    const b=top[0],dur=b.window.end-b.window.start+1;
-    h+=`<div class="hero"><div class="hero-title">Best Opportunity</div><div class="hero-sub">Across ${LAKES.length} lakes · 7 days · Solunar + Weather</div>
-      <div class="hero-pick" onclick="drill(${b.lake.id},${b.dayIdx})">
-        <div class="hero-score" style="color:${scC(b.window.score)}">${b.window.score}</div>
-        <div class="hero-info"><div class="hero-lake">${b.lake.name}</div>
-          <div class="hero-when">${b.dayName} · ${fh(b.window.start)} – ${fh(b.window.end+1)} (${dur}h)</div>
-          <div class="hero-why">${b.window.reason} · ${b.peak.temp}° · ${b.peak.icon} · 💨${b.peak.wind}mph · ${b.day.sol.icon}${b.day.sol.rating}</div>
+    const b=top[0],dur=b.w.end-b.w.start+1;
+    h+=`<div class="hero-card"><div class="hero-label">Top pick this week</div>
+      <div class="hero-inner" onclick="drill(${b.lk.id},${b.di})">
+        <div class="hero-score" style="color:${sC(b.w.score)}">${b.w.score}</div>
+        <div class="hero-meta"><div class="hero-lake">${b.lk.name}</div>
+          <div class="hero-when">${b.dn} · ${fh(b.w.start)} – ${fh(b.w.end+1)} · ${dur}h</div>
+          <div class="hero-detail"><span>${b.pk.icon} ${b.pk.temp}°</span><span>💨 ${b.pk.wind}mph</span><span>${b.day.sol.icon} ${b.day.sol.rating}</span><span>${b.w.reason}</span></div>
         </div><div class="hero-arrow">›</div>
       </div></div>`;
   }
-  h+=`<div class="pills"><div class="pill${planFilter==='all'?' active':''}" onclick="setFilter('all')">All</div>`;
-  for(let i=0;i<7;i++){const nm=i===0?'Today':i===1?'Tmrw':DOW[allData[0][i].date.getDay()];h+=`<div class="pill${planFilter===i?' active':''}" onclick="setFilter(${i})">${nm}</div>`}
-  h+=`</div><div class="section-lbl">Top opportunities${planFilter!=='all'?' (filtered)':''}</div>`;
+  h+=`<div class="filter-row"><div class="chip${pF==='all'?' active':''}" onclick="sf('all')">All days</div>`;
+  for(let i=0;i<7;i++){h+=`<div class="chip${pF===i?' active':''}" onclick="sf(${i})">${i===0?'Today':i===1?'Tmrw':DW[D[0][i].date.getDay()]}</div>`}
+  h+=`</div><div class="section-lbl">Ranked opportunities</div><div class="opp-list">`;
   top.forEach((o,i)=>{
-    const dur=o.window.end-o.window.start+1,circ=2*Math.PI*16,off=circ-(o.window.score/100)*circ;
-    h+=`<div class="opp" onclick="drill(${o.lake.id},${o.dayIdx})">
-      <div class="opp-rank">${i+1}</div>
-      <div class="opp-ring"><svg viewBox="0 0 40 40"><circle class="bg" cx="20" cy="20" r="16"/><circle class="fg" cx="20" cy="20" r="16" stroke="${scC(o.window.score)}" stroke-dasharray="${circ}" stroke-dashoffset="${off}" transform="rotate(-90 20 20)"/></svg><div class="val">${o.window.score}</div></div>
-      <div class="opp-body"><div class="opp-top"><span class="opp-lake">${o.lake.short}</span><span class="opp-when">${o.dayShort} ${fh(o.window.start)}–${fh(o.window.end+1)}</span></div>
-        <div class="opp-det"><span>${o.peak.icon} ${o.peak.temp}°</span><span>💨${o.peak.wind}mph</span><span>☁️${o.peak.cloud}%</span><span>${dur}h</span><span>${o.day.sol.icon}${o.day.sol.rating}</span></div>
-        <div class="opp-reason">${o.window.reason}</div>
-      </div><div class="opp-arrow">›</div></div>`;
+    const dur=o.w.end-o.w.start+1;
+    h+=`<div class="opp" onclick="drill(${o.lk.id},${o.di})">
+      <div class="opp-num">${i+1}</div>
+      <div class="opp-sc" style="color:${sC(o.w.score)}">${o.w.score}</div>
+      <div class="opp-body"><div class="opp-top"><span class="opp-name">${o.lk.s}</span><span class="opp-time">${o.ds} ${fh(o.w.start)}–${fh(o.w.end+1)}</span></div>
+        <div class="opp-info"><span>${o.pk.icon}${o.pk.temp}°</span><span>💨${o.pk.wind}</span><span>☁️${o.pk.cloud}%</span><span>${dur}h</span><span>${o.day.sol.icon}${o.day.sol.rating}</span></div>
+        <div class="opp-why">${o.w.reason}</div>
+      </div><div class="arrow">›</div></div>`;
   });
-  document.getElementById('content').innerHTML=h;
-}
-function setFilter(f){planFilter=f;renderPlanner()}
-function drill(lid,di){dLake=lid;dDay=di;showTab(2)}
-
-// ============ CALENDAR ============
-function renderCalendar(){
-  if(!calYear){const n=new Date();calYear=n.getFullYear();calMonth=n.getMonth()}
-  const now=new Date(),todayStr=now.getFullYear()*10000+(now.getMonth()+1)*100+now.getDate();
-  // Compute solunar for every day in month
-  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-  const firstDow=new Date(calYear,calMonth,1).getDay();
-  const solDays=[];
-  for(let d=1;d<=daysInMonth;d++){
-    const sol=getSolunar(new Date(calYear,calMonth,d));
-    // If we have weather data for this lake+day, show combined score
-    let wScore=null,wData=null;
-    if(calLake!==null&&allData[calLake]){
-      const lkDays=allData[calLake];
-      const match=lkDays.find(ld=>ld.date.getDate()===d&&ld.date.getMonth()===calMonth&&ld.date.getFullYear()===calYear);
-      if(match){wScore=match.avgScore;wData=match}
-    }
-    solDays.push({day:d,sol,wScore,wData});
-  }
-  
-  let h=`<div class="cal-nav">
-    <button onclick="calPrev()">◀</button>
-    <div class="month">${MONN[calMonth]} ${calYear}</div>
-    <button onclick="calNext()">▶</button>
-    <button onclick="calToday()" style="font-size:10px;padding:4px 8px;background:var(--accent);color:#fff;border:none">Today</button>
-  </div>`;
-  
-  // Lake selector for weather overlay
-  h+=`<div class="cal-lake-sel">
-    <div class="pill${calLake===null?' active':''}" onclick="calSetLake(null)" style="font-size:10px">Solunar Only</div>`;
-  LAKES.forEach((lk,i)=>{h+=`<div class="pill${calLake===i?' active':''}" onclick="calSetLake(${i})" style="font-size:10px">${lk.short}</div>`});
   h+=`</div>`;
-  
-  h+=`<div class="cal-hdr">${DOW.map(d=>`<div>${d}</div>`).join('')}</div><div class="cal-body">`;
-  for(let i=0;i<firstDow;i++)h+=`<div class="cal-cell empty"></div>`;
-  solDays.forEach(sd=>{
-    const isToday=calYear*10000+(calMonth+1)*100+sd.day===todayStr;
-    const sol=sd.sol;
-    if(sd.wScore!==null){
-      // Combined view
-      h+=`<div class="cal-cell${isToday?' today':''}" onclick="calDrill(${sd.day})">
-        <div class="dn">${sd.day}</div>
-        <div class="cs ${scCls(sd.wScore)}">${sd.wScore}</div>
-        <div class="cm">${sol.icon}</div>
-        <div class="ci">${sol.rating}</div>
-      </div>`;
+  document.getElementById('C').innerHTML=h;
+}
+function sf(f){pF=f;rPlan()}
+function drill(lid,di){dL=lid;dD=di;go(2)}
+
+/* === CALENDAR === */
+function rCal(){
+  if(!cY){const n=new Date();cY=n.getFullYear();cM=n.getMonth()}
+  const now=new Date(),tK=now.getFullYear()*10000+(now.getMonth()+1)*100+now.getDate();
+  const dim=new Date(cY,cM+1,0).getDate(),fd=new Date(cY,cM,1).getDay();
+  let h=`<div class="cal-head"><button onclick="cP()">◀</button><div class="mo">${MF[cM]} ${cY}</div><button onclick="cN()">▶</button><button class="today-btn" onclick="cT()">Today</button></div>`;
+  h+=`<div class="cal-lk"><div class="chip${cLk===null?' active':''}" onclick="cSL(null)" style="font-size:10px">Solunar only</div>`;
+  LK.forEach((lk,i)=>{h+=`<div class="chip${cLk===i?' active':''}" onclick="cSL(${i})" style="font-size:10px">${lk.s}</div>`});
+  h+=`</div><div class="cal-dh">${DW.map(d=>`<div>${d}</div>`).join('')}</div><div class="cal-grid">`;
+  for(let i=0;i<fd;i++)h+=`<div class="cal-c empty"></div>`;
+  for(let d=1;d<=dim;d++){
+    const s=sol(new Date(cY,cM,d)),isT=cY*10000+(cM+1)*100+d===tK;
+    let wS=null;
+    if(cLk!==null&&D[cLk]){const m=D[cLk].find(ld=>ld.date.getDate()===d&&ld.date.getMonth()===cM&&ld.date.getFullYear()===cY);if(m)wS=m.avg}
+    if(wS!==null){
+      h+=`<div class="cal-c${isT?' today':''}" onclick="cDr(${d})"><div class="cd">${d}</div><div class="csc" style="color:${sC(wS)}">${wS}</div><div class="cph">${s.icon}</div><div class="czd">${s.rating}</div></div>`;
     }else{
-      // Solunar only
-      const rc=sol.rating==='Best'?'#4abd6a':sol.rating==='Good'?'#7ac06a':sol.rating==='Fair'?'#c0b84a':'#b85c5c';
-      h+=`<div class="cal-cell${isToday?' today':''}" onclick="calDrill(${sd.day})">
-        <div class="dn">${sd.day}</div>
-        <div class="cm">${sol.icon}</div>
-        <div style="font-size:10px;text-align:center;font-weight:600;color:${rc};margin-top:2px">${sol.rating}</div>
-        <div class="ci">${sol.ze}${sol.zodiac.slice(0,3)}</div>
-      </div>`;
+      const rc=s.rating==='Best'?'var(--sage)':s.rating==='Good'?'#6a9a5c':s.rating==='Fair'?'var(--gold)':'var(--coral)';
+      h+=`<div class="cal-c${isT?' today':''}" onclick="cDr(${d})"><div class="cd">${d}</div><div class="cph">${s.icon}</div><div style="font-size:10px;text-align:center;font-weight:600;color:${rc}">${s.rating}</div><div class="czd">${s.ze}${s.zodiac.slice(0,3)}</div></div>`;
     }
-  });
-  h+=`</div>`;
-  h+=`<div class="cal-legend"><span><div class="dot" style="background:#4abd6a"></div>Best/Excellent</span><span><div class="dot" style="background:#7ac06a"></div>Good</span><span><div class="dot" style="background:#c0b84a"></div>Fair</span><span><div class="dot" style="background:#b85c5c"></div>Poor</span></div>`;
-  
-  document.getElementById('content').innerHTML=h;
-}
-function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--}renderCalendar()}
-function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++}renderCalendar()}
-function calToday(){const n=new Date();calYear=n.getFullYear();calMonth=n.getMonth();renderCalendar()}
-function calSetLake(id){calLake=id;if(id!==null&&!allData[id]){fetchWeather(LAKES[id]).then(d=>{allData[id]=processData(d,LAKES[id]);renderCalendar()})}else renderCalendar()}
-function calDrill(day){
-  // If we have weather data, go to detail
-  if(calLake!==null&&allData[calLake]){
-    const match=allData[calLake].findIndex(ld=>ld.date.getDate()===day);
-    if(match>=0){dLake=calLake;dDay=match;showTab(2);return}
   }
-  // Otherwise just show the solunar detail
-  const sol=getSolunar(new Date(calYear,calMonth,day));
-  alert(`${calYear}-${calMonth+1}-${day}\n${sol.icon} ${sol.name}\nRating: ${sol.rating}\nZodiac: ${sol.ze} ${sol.zodiac} (shift ${sol.shift>0?'+':''}${sol.shift})\nIllumination: ${sol.illum}%\nDays from N/F: ${sol.dNF}`);
+  h+=`</div>`;
+  document.getElementById('C').innerHTML=h;
+}
+function cP(){cM--;if(cM<0){cM=11;cY--}rCal()}
+function cN(){cM++;if(cM>11){cM=0;cY++}rCal()}
+function cT(){const n=new Date();cY=n.getFullYear();cM=n.getMonth();rCal()}
+function cSL(id){cLk=id;if(id!==null&&!D[id]){fetchW(LK[id]).then(d=>{D[id]=proc(d,LK[id]);rCal()})}else rCal()}
+function cDr(day){if(cLk!==null&&D[cLk]){const m=D[cLk].findIndex(ld=>ld.date.getDate()===day);if(m>=0){dL=cLk;dD=m;go(2);return}}
+  const s=sol(new Date(cY,cM,day));alert(`${cY}-${cM+1}-${day}\n${s.icon} ${s.name}\n${s.rating} · ${s.ze} ${s.zodiac}\n${s.illum}% illumination`);
 }
 
-// ============ DETAIL ============
-function renderDetail(){
-  if(!allData[dLake]){
-    document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div>Loading...</div>';
-    fetchWeather(LAKES[dLake]).then(d=>{allData[dLake]=processData(d,LAKES[dLake]);renderDetail()});return;
-  }
-  const lake=LAKES[dLake],days=allData[dLake],day=days[dDay],now=new Date(),curHr=now.getHours(),isToday=dDay===0;
-  const dH=isToday?(day.hours[curHr]||day.peakHour):day.peakHour;
-  const dS=isToday?dH.score:day.avgScore;
-  const wins=findWindows(day.hours);
-  const sol=day.sol;
-  const circ=2*Math.PI*50,off=circ-(dS/100)*circ;
-  const pA=dH.pressureDelta<-0.6?'↓':dH.pressureDelta>0.6?'↑':'→';
-  const pD=(dH.pressureDelta>=0?'+':'')+dH.pressureDelta.toFixed(1);
+/* === DETAIL === */
+function rDet(){
+  if(!D[dL]){document.getElementById('C').innerHTML='<div class="loading"><div class="spin"></div>Loading...</div>';fetchW(LK[dL]).then(d=>{D[dL]=proc(d,LK[dL]);rDet()});return}
+  const lk=LK[dL],days=D[dL],day=days[dD],now=new Date(),ch=now.getHours(),isT=dD===0;
+  const dH=isT?(day.hours[ch]||day.peakH):day.peakH;
+  const dS=isT?dH.score:day.avg;
+  const wn=wins(day.hours),sl=day.sol;
+  const circ=2*Math.PI*54,off=circ-(dS/100)*circ;
+  const pA=dH.pressureDelta<-.6?'↓':dH.pressureDelta>.6?'↑':'→';
+  const pDt=(dH.pressureDelta>=0?'+':'')+dH.pressureDelta.toFixed(1);
 
   let h='';
-  if(planOpps.length)h+=`<button class="back" onclick="showTab(0)">← Planner</button>`;
-  h+=`<div class="lake-sel">`;LAKES.forEach((l,i)=>{h+=`<button class="lake-btn${i===dLake?' active':''}" onclick="dLake=${i};dDay=0;renderDetail()">${l.short}</button>`});h+=`</div>`;
+  if(pO.length)h+=`<button class="back-btn" onclick="go(0)">← Back to planner</button>`;
+  h+=`<div class="lake-row">`;LK.forEach((l,i)=>{h+=`<button class="lk-btn${i===dL?' active':''}" onclick="dL=${i};dD=0;rDet()">${l.s}</button>`});h+=`</div>`;
 
-  h+=`<div class="detail-hero"><div class="dh-name">${lake.name}</div>
-    <div class="dh-sub">${isToday?'Right now':DOW[day.date.getDay()]+' '+MON[day.date.getMonth()]+' '+day.date.getDate()}</div>
-    <div class="dh-ring"><svg viewBox="0 0 112 112"><circle class="bg" cx="56" cy="56" r="50"/><circle class="fg" cx="56" cy="56" r="50" stroke="${scC(dS)}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/></svg><div class="txt"><div class="num">${dS}</div><div class="lbl" style="color:${scC(dS)}">${scL(dS)}</div></div></div>
-    <div class="dh-conds">
-      <div class="dh-cond"><div class="ci">${dH.icon}</div><div class="cv">${dH.temp}°</div><div class="cl">Temp</div></div>
-      <div class="dh-cond"><div class="ci">💨</div><div class="cv">${dH.wind}mph</div><div class="cl">Wind</div></div>
-      <div class="dh-cond"><div class="ci">☁️</div><div class="cv">${dH.cloud}%</div><div class="cl">Cloud</div></div>
-      <div class="dh-cond"><div class="ci">📉</div><div class="cv">${pA}${pD}</div><div class="cl">6hr hPa</div></div>
-      <div class="dh-cond"><div class="ci">🌧️</div><div class="cv">${dH.precip.toFixed(2)}"</div><div class="cl">Rain</div></div>
+  h+=`<div class="detail-hero"><div class="dh-name">${lk.name}</div>
+    <div class="dh-when">${isT?'Right now':DW[day.date.getDay()]+' '+MN[day.date.getMonth()]+' '+day.date.getDate()}</div>
+    <div class="ring-wrap"><svg viewBox="0 0 120 120"><circle class="rbg" cx="60" cy="60" r="54"/><circle class="rfg" cx="60" cy="60" r="54" stroke="${sC(dS)}" stroke-dasharray="${circ}" stroke-dashoffset="${off}"/></svg><div class="rtxt"><div class="rnum">${dS}</div><div class="rlbl" style="color:${sC(dS)}">${sL(dS)}</div></div></div>
+    <div class="cond-row">
+      <div class="cond"><div class="cc-i">${dH.icon}</div><div class="cc-v">${dH.temp}°</div><div class="cc-l">Temp</div></div>
+      <div class="cond"><div class="cc-i">💨</div><div class="cc-v">${dH.wind}mph</div><div class="cc-l">Wind</div></div>
+      <div class="cond"><div class="cc-i">☁️</div><div class="cc-v">${dH.cloud}%</div><div class="cc-l">Cloud</div></div>
+      <div class="cond"><div class="cc-i">📊</div><div class="cc-v">${pA}${pDt}</div><div class="cc-l">Pressure</div></div>
+      <div class="cond"><div class="cc-i">🌧️</div><div class="cc-v">${dH.precip.toFixed(2)}"</div><div class="cc-l">Rain</div></div>
     </div>
-    <div class="dh-moon"><span class="mi">${sol.icon}</span><span class="mt"><span class="mp">${sol.name}</span> · ${sol.rating} · ${sol.ze}${sol.zodiac} · ${sol.illum}% illum</span></div>
+    <div class="moon-strip"><span>${sl.icon}</span><span class="m-n">${sl.name}</span><span>·</span><span class="rating r-${sl.rating}">${sl.rating}</span><span>·</span><span>${sl.ze}${sl.zodiac}</span><span>·</span><span>${sl.illum}%</span></div>
   </div>`;
 
-  // Strategy
   let tip='';
-  if(dS>=70)tip=lake.stain==='stained'?'Everything aligned. Reaction baits: spinnerbaits, chatterbaits, lipless cranks.':'Conditions stacked. Moving baits during golden hours, slow down between.';
-  else if(dS>=55)tip='Decent day. Focus effort during prime windows. Structure and shade between.';
-  else if(dH.pts.time<=-10)tip='Off-hours right now. Check the windows below for when to get out.';
-  else if(dS>=40)tip='Mediocre. Downsize baits, slow down, fish tight to cover.';
-  else tip='Rough day. One spot, good structure, commit. Night catfishing might work.';
-  if(sol.rating==='Best')tip+=' Solunar is Best today - fish should be actively feeding.';
-  else if(sol.rating==='Poor')tip+=' Solunar is Poor - temper expectations, focus on structure.';
-  h+=`<div class="tip"><div class="tip-t">Strategy</div><div class="tip-b">${tip}</div></div>`;
+  if(dS>=70)tip=lk.stain==='stained'?'Everything aligned. Reaction baits: spinnerbaits, chatterbaits, lipless cranks.':'Conditions stacked. Moving baits during golden hours, slow down between.';
+  else if(dS>=55)tip='Decent day. Focus during prime windows. Structure and shade between.';
+  else if(dH.pts.time<=-10)tip='Off-hours right now. Check windows below for when to get out.';
+  else if(dS>=40)tip='Mediocre. Downsize baits, slow presentations, tight to cover.';
+  else tip='Tough day. One spot, good structure, commit. Night catfishing might work.';
+  if(sl.rating==='Best')tip+=' Solunar is Best today. Fish should be actively feeding.';
+  else if(sl.rating==='Poor')tip+=' Solunar is Poor. Temper expectations, focus structure.';
+  h+=`<div class="strategy"><div class="st">Strategy</div><div class="sb">${tip}</div></div>`;
 
-  // Day tabs
-  h+=`<div class="day-tabs">`;
-  days.forEach((d,i)=>{const nm=i===0?'Today':i===1?'Tmrw':DOW[d.date.getDay()];h+=`<div class="dtab${i===dDay?' active':''}" onclick="dDay=${i};renderDetail()"><div class="dn">${nm}</div><div class="ds ${scCls(d.avgScore)}">${d.avgScore}</div></div>`});
-  h+=`</div>`;
+  h+=`<div class="day-row">`;days.forEach((d,i)=>{h+=`<div class="dy${i===dD?' active':''}" onclick="dD=${i};rDet()"><div class="dy-n">${i===0?'Today':i===1?'Tmrw':DW[d.date.getDay()]}</div><div class="dy-s" style="color:${sC(d.avg)}">${d.avg}</div></div>`});h+=`</div>`;
 
-  // Windows
-  if(wins.length){
+  if(wn.length){
     h+=`<div class="panel"><h3>Best Windows</h3>`;
-    wins.forEach((w,i)=>{const dur=w.end-w.start+1;h+=`<div class="win-item"><div class="win-rank">${i+1}</div><div class="win-info"><div class="win-time">${fh(w.start)} – ${fh(w.end+1)} <span style="font-size:10px;color:var(--dim);font-weight:400">${dur}h</span></div><div class="win-why">${w.reason}</div></div><div class="win-sc" style="color:${scC(w.score)}">${w.score}</div></div>`});
+    wn.forEach((w,i)=>{const dur=w.end-w.start+1;h+=`<div class="w-item"><div class="w-rank">${i+1}</div><div class="w-info"><div class="w-time">${fh(w.start)} – ${fh(w.end+1)} <span style="font-size:10px;color:var(--gray);font-weight:400">${dur}h</span></div><div class="w-why">${w.reason}</div></div><div class="w-sc" style="color:${sC(w.score)}">${w.score}</div></div>`});
     h+=`</div>`;
   }
 
-  // Hourly
-  const srHr=Math.round(day.sunriseH),ssHr=Math.round(day.sunsetH);
-  const dMin=Math.min(...day.hours.map(x=>x.score)),dMax=Math.max(...day.hours.map(x=>x.score)),dRange=Math.max(dMax-dMin,10);
-  h+=`<div class="section-lbl">Hourly Forecast</div><div class="hourly" id="hScroll"><div class="hrow">`;
+  const srHr=Math.round(day.srH),ssHr=Math.round(day.ssH);
+  const dMin=Math.min(...day.hours.map(x=>x.score)),dMax=Math.max(...day.hours.map(x=>x.score)),dRng=Math.max(dMax-dMin,10);
+  h+=`<div class="section-lbl">Hourly</div><div class="hourly" id="hS"><div class="h-row">`;
   day.hours.forEach(hr=>{
-    if(hr.hour===srHr){const m=Math.round((day.sunriseH%1)*60);h+=`<div class="sun-m"><div class="si">🌅</div>${srHr>12?srHr-12:srHr}:${String(m).padStart(2,'0')}</div>`}
-    const prime=hr.score>=60,isNow=isToday&&hr.hour===curHr;
-    const relH=15+85*((hr.score-dMin)/dRange);
-    h+=`<div class="hcell${prime?' prime':''}${isNow?' now':''}" data-hour="${hr.hour}"><div class="ht">${fh(hr.hour)}</div><div class="hi">${hr.icon}</div><div class="hs" style="color:${scC(hr.score)}">${hr.score}</div><div class="hd">${hr.temp}°</div><div class="hbar"><div class="hfill" style="height:${relH}%;background:${scC(hr.score)}"></div></div></div>`;
-    if(hr.hour===ssHr){const m=Math.round((day.sunsetH%1)*60);h+=`<div class="sun-m" style="background:linear-gradient(180deg,rgba(184,92,92,.06),transparent);border-color:rgba(184,92,92,.3)"><div class="si">🌇</div>${ssHr>12?ssHr-12:ssHr}:${String(m).padStart(2,'0')}</div>`}
+    if(hr.hour===srHr){const m=Math.round((day.srH%1)*60);h+=`<div class="sun-mk"><div class="si">🌅</div>${srHr>12?srHr-12:srHr}:${String(m).padStart(2,'0')}</div>`}
+    const prime=hr.score>=60,isNow=isT&&hr.hour===ch;
+    const rH=15+85*((hr.score-dMin)/dRng);
+    h+=`<div class="h-c${prime?' prime':''}${isNow?' now':''}" data-hr="${hr.hour}"><div class="hh">${fh(hr.hour)}</div><div class="hicon">${hr.icon}</div><div class="hsc" style="color:${sC(hr.score)}">${hr.score}</div><div class="ht">${hr.temp}°</div><div class="hbar"><div class="hfill" style="height:${rH}%;background:${sC(hr.score)}"></div></div></div>`;
+    if(hr.hour===ssHr){const m=Math.round((day.ssH%1)*60);h+=`<div class="sun-mk" style="color:var(--coral);border-color:rgba(196,90,60,.25);background:rgba(196,90,60,.03)"><div class="si">🌇</div>${ssHr>12?ssHr-12:ssHr}:${String(m).padStart(2,'0')}</div>`}
   });
   h+=`</div></div>`;
 
-  // Factor breakdown
-  const fH=isToday?dH:day.peakHour;
-  const fList=[{i:'🕐',n:'Time of Day',k:'time'},{i:'📉',n:'Pressure',k:'pressure'},{i:'☁️',n:'Cloud Cover',k:'cloud'},{i:'💨',n:'Wind',k:'wind'},{i:'🌧️',n:'Precipitation',k:'precip'},{i:'🌡️',n:'Temperature',k:'temp'},{i:sol.icon,n:'Solunar',k:'solunar'}];
-  if(fH.factors.lake)fList.push({i:'♨️',n:'Lake Bonus',k:'lake'});
-  h+=`<div class="panel"><h3>Factor Breakdown (${isToday?'Now':'Peak '+fh(fH.hour)})</h3>`;
-  fList.forEach(f=>{
-    const val=fH.factors[f.k]||'Neutral',p=fH.pts[f.k]||0;
+  const fH=isT?dH:day.peakH;
+  const fL=[{i:'🕐',n:'Time of Day',k:'time'},{i:'📊',n:'Pressure',k:'pressure'},{i:'☁️',n:'Cloud Cover',k:'cloud'},{i:'💨',n:'Wind',k:'wind'},{i:'🌧️',n:'Precipitation',k:'precip'},{i:'🌡️',n:'Temperature',k:'temp'},{i:sl.icon,n:'Solunar',k:'solunar'}];
+  if(fH.factors.lake)fL.push({i:'📍',n:'Lake Bonus',k:'lake'});
+  h+=`<div class="panel"><h3>Factor Breakdown · ${isT?'Now':'Peak '+fh(fH.hour)}</h3>`;
+  fL.forEach(f=>{
+    const val=fH.factors[f.k]||'—',p=fH.pts[f.k]||0;
     const pc=p>0?'pos':p<0?'neg':'neu',ps=p>0?'+'+p:String(p);
-    let b='fair';if(p>=8)b='great';else if(p>=4)b='good';else if(p>=0)b='fair';else if(p>=-5)b='poor';else b='bad';
-    h+=`<div class="frow"><div class="fl"><div class="fi">${f.i}</div><div class="fn">${f.n}</div></div><div class="fr"><span class="fb fb-${b}">${val}</span><span class="fp ${pc}">${ps}</span></div></div>`;
+    let b='fb-f';if(p>=8)b='fb-g';else if(p>=4)b='fb-k';else if(p>=0)b='fb-f';else if(p>=-5)b='fb-p';else b='fb-b';
+    h+=`<div class="f-row"><div class="f-l"><div class="f-i">${f.i}</div><div class="f-n">${f.n}</div></div><div class="f-r"><span class="f-b ${b}">${val}</span><span class="f-p ${pc}">${ps}</span></div></div>`;
   });
   h+=`</div>`;
 
-  // Species
-  const pk=day.peakHour,t=pk.temp,m=day.date.getMonth()+1,sp=[];
-  if(m>=3&&m<=5&&t>=50)sp.push({i:"🐟",n:"Largemouth Bass",t:"Pre-spawn. Spinnerbaits, jigs near laydowns on shallow flats."});
-  else if(m>=6&&m<=8)sp.push({i:"🐟",n:"Largemouth Bass",t:"Deep structure, morning topwater. Texas rig on ledges."});
+  const pk=day.peakH,t=pk.temp,m=day.date.getMonth()+1,sp=[];
+  if(m>=3&&m<=5&&t>=50)sp.push({i:"🐟",n:"Largemouth Bass",t:"Pre-spawn. Spinnerbaits, jigs near laydowns."});
+  else if(m>=6&&m<=8)sp.push({i:"🐟",n:"Largemouth Bass",t:"Deep structure, morning topwater. Texas rig."});
   else if(m>=9&&m<=11)sp.push({i:"🐟",n:"Largemouth Bass",t:"Fall feed-up. Follow shad, crankbaits on points."});
-  else sp.push({i:"🐟",n:"Largemouth Bass",t:"Slow and deep. Jigs, blade baits."+(lake.thermal?" Near warm discharge.":"")});
-  if(t>=55&&t<=70&&m>=3&&m<=5)sp.push({i:"🐠",n:"Crappie",t:"Moving shallow. Minnows under cork, 5-8 ft, around brush."});
-  else sp.push({i:"🐠",n:"Crappie",t:"Vertical jig around timber and bridge pilings."});
+  else sp.push({i:"🐟",n:"Largemouth Bass",t:"Slow and deep. Jigs, blade baits."+(lk.thermal?" Near warm discharge.":"")});
+  if(t>=55&&t<=70&&m>=3&&m<=5)sp.push({i:"🐠",n:"Crappie",t:"Moving shallow. Minnows under cork, 5-8 ft."});
+  else sp.push({i:"🐠",n:"Crappie",t:"Vertical jig, timber and bridge pilings."});
   if(pk.hour>=17||pk.hour<=6||pk.cloud>=70)sp.push({i:"🐱",n:"Catfish",t:"Cut bait or stink bait near channel drops."});
-  if(sp.length){h+=`<div class="species"><h3>Species Intel</h3>`;sp.forEach(s=>{h+=`<div class="sp-row"><div class="sp-icon">${s.i}</div><div><div class="sp-name">${s.n}</div><div class="sp-tip">${s.t}</div></div></div>`});h+=`</div>`}
+  if(sp.length){h+=`<div class="sp-panel"><h3>Species Intel</h3>`;sp.forEach(s=>{h+=`<div class="sp"><div class="si">${s.i}</div><div><div class="sn">${s.n}</div><div class="st">${s.t}</div></div></div>`});h+=`</div>`}
 
-  document.getElementById('content').innerHTML=h;
-  requestAnimationFrame(()=>{const s=document.getElementById('hScroll');if(!s)return;const tgt=s.querySelector(`[data-hour="${isToday?curHr:Math.max(5,srHr-1)}"]`);if(tgt)s.scrollLeft=tgt.offsetLeft-16})
+  document.getElementById('C').innerHTML=h;
+  requestAnimationFrame(()=>{const s=document.getElementById('hS');if(!s)return;const tgt=s.querySelector(`[data-hr="${isT?ch:Math.max(5,srHr-1)}"]`);if(tgt)s.scrollLeft=tgt.offsetLeft-16})
 }
 
-// ============ INIT ============
+/* INIT */
 if(typeof Astronomy!=='undefined'){
-  const sol=getSolunar(new Date());
-  document.getElementById('sol-bar').innerHTML=`${sol.icon} ${sol.name} · <span class="sb-rating sb-${sol.rating}">${sol.rating}</span> · ${sol.ze}${sol.zodiac} · ${sol.illum}% · <a href="/solunar.html">Full Calendar →</a>`;
+  const s=sol(new Date());
+  document.getElementById('sol-strip').innerHTML=`<span class="moon-i">${s.icon}</span>${s.name} · <span class="rating r-${s.rating}">${s.rating}</span> · <span class="zodiac">${s.ze}${s.zodiac}</span> · ${s.illum}% · <a class="cal-link" href="/solunar.html">Full Calendar →</a>`;
 }
-loadAll();
+load();
 </script>
 </body>
 </html>
