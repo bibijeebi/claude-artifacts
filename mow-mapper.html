@@ -122,7 +122,7 @@ header .parcel-info{margin-left:auto;font-size:12px;color:var(--text-dim);font-f
   <header>
     <h1>🚜 Mow Planner</h1>
     <span class="badge">OBSTACLE MAPPER</span>
-    <span class="parcel-info">7613 Eagle Chase Dr · 0.571 ac · Parcel #0685263494</span>
+    <span class="parcel-info">7613 Eagle Chase Dr · 0.571 ac · 90×307×85×278 ft</span>
   </header>
   <div class="sidebar">
     <div class="section">
@@ -186,6 +186,7 @@ header .parcel-info{margin-left:auto;font-size:12px;color:var(--text-dim);font-f
     </div>
     <div class="section">
       <h2>Obstacles (<span id="obstacleCount">0</span>)</h2>
+      <div style="font-size:10px;color:var(--text-dim);margin-bottom:8px;font-family:var(--font-mono)">House pre-loaded from OSM. Add trees, fire pit, fence, etc.</div>
       <div class="obstacle-list" id="obstacleList"></div>
     </div>
     <div class="section">
@@ -597,6 +598,57 @@ document.addEventListener('keydown', (e) => {
 
 // Disable double-click zoom when drawing polygons
 map.doubleClickZoom.disable();
+
+// ── Pre-populate house footprint from OpenStreetMap ──
+const HOUSE_COORDS = [
+  [35.55328800, -78.72335100],
+  [35.55330200, -78.72327400],
+  [35.55321800, -78.72325000],
+  [35.55324000, -78.72312800],
+  [35.55327600, -78.72313800],
+  [35.55328200, -78.72310400],
+  [35.55340500, -78.72313900],
+  [35.55336300, -78.72337200],
+  [35.55328800, -78.72335100]
+];
+
+const housePoly = L.polygon(HOUSE_COORDS, {
+  color: '#a78bfa', fillColor: '#a78bfa', fillOpacity: 0.3, weight: 2
+}).addTo(map);
+housePoly.bindTooltip('House', { permanent: true, className: 'tooltip-label', direction: 'center' });
+
+const houseObs = {
+  id: ++obstacleIdCounter, type: 'house', shape: 'polygon',
+  points: HOUSE_COORDS.map(c => ({ lat: c[0], lng: c[1] })),
+  label: 'House (from OSM)',
+  layer: housePoly
+};
+obstacles.push(houseObs);
+
+// ── Neighbor buildings (non-interactive context) ──
+const NEIGHBORS = [
+  { addr: '7601', coords: [[35.55392200,-78.72344500],[35.55393000,-78.72360900],[35.55382700,-78.72361800],[35.55381800,-78.72345300]] },
+  { addr: '7617', coords: [[35.55302800,-78.72301600],[35.55317600,-78.72306500],[35.55314100,-78.72322200],[35.55305500,-78.72319400],[35.55304300,-78.72324600],[35.55298200,-78.72322600]] },
+  { addr: '7604', coords: [[35.55363900,-78.72383900],[35.55365400,-78.72390800],[35.55372900,-78.72388300],[35.55375100,-78.72398200],[35.55362100,-78.72402500],[35.55358400,-78.72385800]] },
+  { addr: '7600', coords: [[35.55374200,-78.72382400],[35.55382900,-78.72367500],[35.55395000,-78.72378300],[35.55386300,-78.72393200]] },
+];
+NEIGHBORS.forEach(n => {
+  L.polygon(n.coords, { color: '#475569', fillColor: '#334155', fillOpacity: 0.2, weight: 1, dashArray: '3 3' }).addTo(map)
+    .bindTooltip(n.addr, { permanent: false, className: 'tooltip-label', direction: 'center' });
+});
+
+// ── Lot dimension labels ──
+const dimStyle = { permanent: true, direction: 'center', className: 'tooltip-label' };
+// West (road side) ~90 ft
+L.marker([35.55350570, -78.72250800], {opacity:0}).addTo(map).bindTooltip('90\'', dimStyle);
+// North (top) ~307 ft
+L.marker([35.55349845, -78.72299648], {opacity:0}).addTo(map).bindTooltip('307\'', dimStyle);
+// East (back) ~85 ft
+L.marker([35.55325669, -78.72344326], {opacity:0}).addTo(map).bindTooltip('85\'', dimStyle);
+// South (bottom) ~278 ft
+L.marker([35.55326393, -78.72295478], {opacity:0}).addTo(map).bindTooltip('278\'', dimStyle);
+
+updateUI();
 </script>
 </body>
 </html>
