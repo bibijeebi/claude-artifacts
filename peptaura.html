@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peptaura Intel Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;600;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:hidden}
+
+:root{
+  --bg:#0a0b0d;--bg2:#111318;--bg3:#181b22;--bg4:#1f232c;
+  --fg:#e4e6eb;--fg2:#9ca3af;--fg3:#6b7280;
+  --accent:#22d3ee;--accent2:#06b6d4;--accent-dim:rgba(34,211,238,0.1);
+  --green:#4ade80;--green-dim:rgba(74,222,128,0.1);
+  --red:#f87171;--red-dim:rgba(248,113,113,0.1);
+  --yellow:#fbbf24;--yellow-dim:rgba(251,191,36,0.1);
+  --orange:#fb923c;
+  --border:#2a2f3a;
+  --radius:6px;
+}
+
+body{background:var(--bg);color:var(--fg);font-family:'Outfit',sans-serif;font-size:14px;line-height:1.5}
+
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* Header */
+header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+header h1{font-size:18px;font-weight:700;letter-spacing:-0.5px}
+header h1 span{color:var(--accent);font-weight:300}
+header .meta{color:var(--fg3);font-size:12px}
+
+/* Tabs */
+.tabs{display:flex;gap:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:57px;z-index:99}
+.tab{padding:12px 20px;cursor:pointer;color:var(--fg3);font-weight:600;font-size:13px;border-bottom:2px solid transparent;transition:all 0.15s;letter-spacing:0.5px;text-transform:uppercase}
+.tab:hover{color:var(--fg2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* Main content */
+main{max-width:1400px;margin:0 auto;padding:24px}
+.panel{display:none}
+.panel.active{display:block}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card h3{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.stat .label{font-size:11px;color:var(--fg3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.stat .value{font-size:28px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.stat .value.accent{color:var(--accent)}
+.stat .value.green{color:var(--green)}
+
+/* Tables */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--bg3);color:var(--fg2);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:0.5px;padding:10px 12px;text-align:left;position:sticky;top:0;cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--accent)}
+th.sort-asc::after{content:' ▲';color:var(--accent)}
+th.sort-desc::after{content:' ▼';color:var(--accent)}
+td{padding:8px 12px;border-top:1px solid var(--border);white-space:nowrap}
+tr:hover td{background:var(--accent-dim)}
+.oos{opacity:0.4}
+
+/* Supplier cards */
+.supplier-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px}
+.s-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color 0.15s}
+.s-card:hover{border-color:var(--accent)}
+.s-card-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.s-card-head h3{font-size:16px;margin:0}
+.s-card-head .flag{font-size:18px;margin-right:6px}
+.s-card-body{padding:16px 20px}
+.s-meta{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.s-meta .pill{background:var(--bg3);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.s-meta .pill.good{background:var(--green-dim);color:var(--green)}
+.s-meta .pill.warn{background:var(--yellow-dim);color:var(--yellow)}
+.s-meta .pill.bad{background:var(--red-dim);color:var(--red)}
+.s-meta .pill.neutral{background:var(--bg4);color:var(--fg2)}
+
+.review{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.review:last-child{border-bottom:none}
+.review .r-head{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.review .stars{color:var(--yellow);font-size:12px}
+.review .r-date{color:var(--fg3);font-size:11px}
+.review .r-text{color:var(--fg2);line-height:1.4}
+
+.coa-list{display:flex;flex-wrap:wrap;gap:6px}
+.coa-tag{background:var(--bg3);border:1px solid var(--border);padding:3px 8px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace}
+.coa-tag.reta{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+
+/* Tier badges */
+.tier{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:0.5px}
+.tier.t1{background:var(--green-dim);color:var(--green)}
+.tier.t2{background:var(--yellow-dim);color:var(--yellow)}
+.tier.t3{background:var(--red-dim);color:var(--red)}
+
+/* Filters */
+.filters{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filters select,.filters input{background:var(--bg3);border:1px solid var(--border);color:var(--fg);padding:8px 12px;border-radius:var(--radius);font-size:13px;font-family:'Outfit',sans-serif}
+.filters select:focus,.filters input:focus{outline:none;border-color:var(--accent)}
+.filters label{color:var(--fg3);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+
+/* Calculator */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:768px){.calc-grid{grid-template-columns:1fr}.supplier-grid{grid-template-columns:1fr}}
+.calc-result{background:var(--bg3);border:2px solid var(--accent);border-radius:var(--radius);padding:24px;text-align:center}
+.calc-result .big{font-size:42px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.calc-result .sub{color:var(--fg2);font-size:13px;margin-top:4px}
+
+/* Section headers */
+.section-title{font-size:13px;color:var(--fg3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* Price highlights */
+.price-best{color:var(--green);font-weight:700}
+.price-ok{color:var(--fg)}
+.price-bad{color:var(--red)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--fg3)}
+
+/* Your order highlight */
+.your-supplier{border-left:3px solid var(--accent) !important}
+
+/* Toggle */
+.toggle-btn{background:var(--bg3);border:1px solid var(--border);color:var(--fg2);padding:6px 14px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600}
+.toggle-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+
+.expand-btn{background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;padding:4px 0}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PEPTAURA <span>INTEL</span></h1>
+  <div class="meta">Scraped Mar 31, 2026 &middot; 96 listings &middot; 13 suppliers &middot; Retatrutide focus</div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="overview">Overview</div>
+  <div class="tab" data-tab="catalog">Catalog</div>
+  <div class="tab" data-tab="suppliers">Suppliers</div>
+  <div class="tab" data-tab="calculator">Calculator</div>
+</div>
+
+<main>
+<!-- OVERVIEW -->
+<div class="panel active" id="overview">
+  <div class="stats-row" id="overview-stats"></div>
+  <div class="card">
+    <h3>Supplier Rankings (Trust-Weighted)</h3>
+    <div class="table-wrap"><table id="rankings-table"><thead><tr>
+      <th>Rank</th><th>Supplier</th><th>API Name</th><th>Rating</th><th>Reviews</th><th>Rec%</th><th>Reta COAs</th><th>Best $/mg</th><th>Tier</th>
+    </tr></thead><tbody></tbody></table></div>
+  </div>
+  <div class="card">
+    <h3>Best Deals by Vial Size (10-packs, all-in cost incl. 20% fee + $90 ship)</h3>
+    <div id="deals-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px"></div>
+  </div>
+  <div class="card">
+    <h3>Your Last Order (Reference)</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+      <div class="stat"><div class="label">Order #</div><div class="value" style="font-size:16px">#10182</div></div>
+      <div class="stat"><div class="label">Supplier</div><div class="value" style="font-size:16px">Lumira</div></div>
+      <div class="stat"><div class="label">Total</div><div class="value" style="font-size:20px">$145.80</div></div>
+      <div class="stat"><div class="label">Product</div><div class="value" style="font-size:14px">2x Reta 10mg + 1x BPC+TB</div></div>
+      <div class="stat"><div class="label">$/mg (reta)</div><div class="value" style="font-size:20px;color:var(--red)">$7.29</div></div>
+      <div class="stat"><div class="label">Transit</div><div class="value" style="font-size:16px">17 days</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CATALOG -->
+<div class="panel" id="catalog">
+  <div class="filters">
+    <div>
+      <label>Supplier</label><br>
+      <select id="filter-supplier"><option value="">All Suppliers</option></select>
+    </div>
+    <div>
+      <label>Vial Size</label><br>
+      <select id="filter-dose"><option value="">All Sizes</option></select>
+    </div>
+    <div>
+      <label>Quantity</label><br>
+      <select id="filter-box"><option value="">All</option><option value="1">Singles</option><option value="10">10-packs</option></select>
+    </div>
+    <div>
+      <label>Tier</label><br>
+      <select id="filter-tier"><option value="">All</option><option value="1">Tier 1 Only</option><option value="2">Tier 1+2</option></select>
+    </div>
+    <div>
+      <label>Sort By</label><br>
+      <select id="sort-by">
+        <option value="allin_mg">$/mg All-in</option>
+        <option value="raw_mg">$/mg Raw</option>
+        <option value="price">Price</option>
+        <option value="total_mg">Total mg</option>
+        <option value="supplier">Supplier</option>
+      </select>
+    </div>
+  </div>
+  <div class="table-wrap"><table id="catalog-table"><thead><tr>
+    <th data-sort="ui">Supplier</th>
+    <th data-sort="dose">Vial</th>
+    <th data-sort="box">Qty</th>
+    <th data-sort="total">Total mg</th>
+    <th data-sort="price">Raw Price</th>
+    <th data-sort="pmg">$/mg Raw</th>
+    <th data-sort="allin">All-in</th>
+    <th data-sort="allin_mg">$/mg Deliv.</th>
+    <th>Tiers</th>
+    <th>Trust</th>
+  </tr></thead><tbody></tbody></table></div>
+</div>
+
+<!-- SUPPLIERS -->
+<div class="panel" id="suppliers">
+  <div class="filters">
+    <div>
+      <label>Show</label><br>
+      <select id="supplier-filter">
+        <option value="all">All Suppliers</option>
+        <option value="reviewed">Reviewed Only</option>
+        <option value="reta-coa">Has Reta COA</option>
+      </select>
+    </div>
+    <div>
+      <label>Sort</label><br>
+      <select id="supplier-sort">
+        <option value="trust">Trust Score</option>
+        <option value="reviews">Review Count</option>
+        <option value="rating">Rating</option>
+        <option value="price">Best $/mg</option>
+      </select>
+    </div>
+  </div>
+  <div class="supplier-grid" id="supplier-grid"></div>
+</div>
+
+<!-- CALCULATOR -->
+<div class="panel" id="calculator">
+  <div class="calc-grid">
+    <div class="card">
+      <h3>Order Builder</h3>
+      <div style="display:grid;gap:12px">
+        <div>
+          <label style="color:var(--fg3);font-size:12px">Supplier</label>
+          <select id="calc-supplier" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);color:var(--fg);border-radius:var(--radius);font-size:14px;margin-top:4px"></select>
+        </div>
+        <div>
+          <label style="color:var(--fg3);font-size:12px">Vial Size</label>
+          <select id="calc-dose" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);color:var(--fg);border-radius:var(--radius);font-size:14px;margin-top:4px"></select>
+        </div>
+        <div>
+          <label style="color:var(--fg3);font-size:12px">Box (singles or 10-pack)</label>
+          <select id="calc-box" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);color:var(--fg);border-radius:var(--radius);font-size:14px;margin-top:4px"></select>
+        </div>
+        <div>
+          <label style="color:var(--fg3);font-size:12px">Weekly combined dose (mg, both people)</label>
+          <input type="number" id="calc-weekly" value="8" min="1" max="30" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);color:var(--fg);border-radius:var(--radius);font-size:14px;margin-top:4px">
+        </div>
+        <div>
+          <label style="color:var(--fg3);font-size:12px">Peptaura fee (%)</label>
+          <input type="number" id="calc-fee" value="20" min="0" max="50" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);color:var(--fg);border-radius:var(--radius);font-size:14px;margin-top:4px">
+        </div>
+        <div>
+          <label style="color:var(--fg3);font-size:12px">Shipping ($)</label>
+          <input type="number" id="calc-ship" value="90" min="0" style="width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);color:var(--fg);border-radius:var(--radius);font-size:14px;margin-top:4px">
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="calc-result" id="calc-output">
+        <div class="big">$---</div>
+        <div class="sub">Select options to calculate</div>
+      </div>
+      <div id="calc-details" style="margin-top:16px"></div>
+    </div>
+  </div>
+</div>
+</main>
+
+<script>
+const DATA = {"suppliers":{"Arcadia BioLabs":{"r":null,"n":0,"rec":0,"reviews":[],"coas":[]},"Hang Sciences":{"r":null,"n":0,"rec":0,"reviews":[],"coas":[]},"Hebei Bennan":{"r":null,"n":0,"rec":0,"reviews":[],"coas":[]},"Hebei Ktc":{"r":null,"n":0,"rec":0,"reviews":[],"coas":[]},"HelixBridge":{"r":4.6,"n":8,"rec":88,"reviews":[{"s":5,"d":"3/27/2026","t":"All good, can&#x27;t complain!","rec":true},{"s":4,"d":"3/9/2026","t":"Product was as advertised, little slow on shipping but not too bad.","rec":true},{"s":5,"d":"3/6/2026","t":"I placed the order and it was processed quickly, with tracking provided shortly after. From the time I ordered to when it arrived it took about 19 days total. Shipping updates were consistent throughout and the seller was transparent and communicative the entire time. The product arrived in great co","rec":true},{"s":5,"d":"3/2/2026","t":"Received shipping notification and product arrived in time window given.","rec":true},{"s":5,"d":"2/22/2026","t":"Decent speed on shipping","rec":true},{"s":5,"d":"2/4/2026","t":"First time order. Took a bit. Started to get worried. Talked with Peptaura and they got the supplier to communicate. And they let me know they were backlogged on one of the items I wanted. Made up for it with a full stack of MJR. Shut me right up \ud83e\udd23\ud83d\ude39. I\u2019d shop with them again.","rec":true},{"s":4,"d":"1/26/2026","t":"Good product, but pretty slow shipping. No labels on anything, but the order e-mail indicated cap color to corresponding product (not great) Product was boxed in cardboard/paper instead of the typical hard plastic boxes, so would probably chose another vendor next time. Peptaura response Just a note","rec":false},{"s":4,"d":"1/26/2026","t":"Slower delivery, maybe attributed to the holiday. 2 orders from Medi: Both were packaged very well, extremely padded and discrete. 1 order was labeled properly and other was partially labeled (two kits were not, but they did respond quickly via DM to tell me cap color).","rec":true},{"s":5,"d":"3/27/2026","t":"","rec":null},{"s":4,"d":"3/9/2026","t":"","rec":null},{"s":5,"d":"3/6/2026","t":"","rec":null},{"s":5,"d":"3/2/2026","t":"","rec":null},{"s":5,"d":"2/22/2026","t":"","rec":null},{"s":5,"d":"2/4/2026","t":"","rec":null},{"s":4,"d":"1/26/2026","t":"","rec":null}],"coas":[]},"Lumira":{"r":4.8,"n":43,"rec":100,"reviews":[{"s":5,"d":"3/31/2026","t":"Good service , took time over Lunar New Year . But product was A-Grade quality . Hopefully open to service Australia again soon","rec":true},{"s":5,"d":"3/31/2026","t":"Quality stuff, i am 2 weeks in and already have a skin tone i never achieved in my entire life","rec":true},{"s":5,"d":"3/30/2026","t":"The product came as described, there was a minor delay in shipping but wasn\u2019t too long, around 3 days due to the Chinese\u2019s new year and back log of orders in this time. But overall solid, as soon as the item was shipped I revived it within a week, no damaged and packed nicely, would highly recommend","rec":true},{"s":5,"d":"3/30/2026","t":"Arrival date was exactly as cited (25 days). Obviously we want items we order yesterday but glad I was able to receive the package. Hopefully in the future the orders come with some context and labels but I fully understand. Looking forward to my next order!","rec":true},{"s":5,"d":"3/28/2026","t":"Got my order and everything was in it and seems to be working well so far. Shipping took a little over a month from payment however could be because of Chinese New Year.","rec":true},{"s":4,"d":"3/25/2026","t":"Items delivered quickly and quality is good","rec":true},{"s":5,"d":"3/22/2026","t":"No comment","rec":true},{"s":5,"d":"3/17/2026","t":"Great communication, product and attention to detail. These guys are professionals.","rec":true},{"s":4,"d":"3/17/2026","t":"Everything came as expected. Shipping was around 20days to USA, and I received updates along the way. I placed another order with lumina.","rec":true},{"s":5,"d":"3/13/2026","t":"All work, good shipping, all are labeled, good prices, no complaints. Super easy to use the platform and the supplier delivered!","rec":true},{"s":5,"d":"3/31/2026","t":"","rec":null},{"s":5,"d":"3/30/2026","t":"","rec":null},{"s":5,"d":"3/28/2026","t":"","rec":null},{"s":4,"d":"3/25/2026","t":"","rec":null},{"s":5,"d":"3/22/2026","t":"","rec":null},{"s":5,"d":"3/17/2026","t":"","rec":null},{"s":4,"d":"3/17/2026","t":"","rec":null},{"s":5,"d":"3/13/2026","t":"","rec":null}],"coas":[{"compound":"Retatrutide","dosage":"10mg","date":"03/23/2026"},{"compound":"CJC-1295 (no DAC)","dosage":"2mg","date":"02/27/2026"},{"compound":"GLOW","dosage":"70mg","date":"02/26/2026"},{"compound":"Ipamorelin","dosage":"5mg","date":"02/26/2026"},{"compound":"BPC157+TB500","dosage":"10mg","date":"02/25/2026"},{"compound":"BPC157","dosage":"10mg","date":"02/18/2026"},{"compound":"GHK-Cu","dosage":"50mg","date":"02/18/2026"}]},"NovaVial":{"r":4.6,"n":19,"rec":95,"reviews":[{"s":5,"d":"3/31/2026","t":"It took a while to get here but I believe that was due to Chinese New Year, so no issues there. Everything came perfectly packaged and very legitimate looking. I need to do more testing on actual purity but so far everything looks great! Would definitely recommend.","rec":true},{"s":5,"d":"3/30/2026","t":"Retatrutide was perfect. I have used this many times before with other labs, I felt like this one I had to use more units to get the same effect. So potency might be 80%. But works well after that adjustment and everything else is perfect, no surprises. Cerebrolysin received is not really cerebrolys","rec":true},{"s":5,"d":"3/24/2026","t":"The only company able to deliver to Brazil!!","rec":true},{"s":5,"d":"3/23/2026","t":"Everything came in a timely manner. Very pleased with the products. High quality without a doubt.","rec":true},{"s":5,"d":"3/15/2026","t":"Amazing, compounds are perfect and delivery arrived on time despite the Chinese New Year celebrations.","rec":true},{"s":5,"d":"3/10/2026","t":"The peptides were great! No complaints","rec":true},{"s":5,"d":"3/8/2026","t":"Awesome","rec":true},{"s":5,"d":"3/7/2026","t":"Good shipping. Quality products.","rec":true},{"s":5,"d":"3/5/2026","t":"Works great!","rec":true},{"s":5,"d":"3/5/2026","t":"Great packaging and great product!","rec":true}],"coas":[{"compound":"Selank","dosage":"10mg","date":"03/13/2026"},{"compound":"Pinealon","dosage":"20mg","date":"03/13/2026"},{"compound":"Ipamorelin","dosage":"10mg","date":"03/13/2026"},{"compound":"CJC-1295 (no DAC)","dosage":"10mg","date":"03/13/2026"},{"compound":"Somatropin (HGH)","dosage":"36IU","date":"03/02/2026"}]},"Pepturion":{"r":4.8,"n":148,"rec":95,"reviews":[{"s":5,"d":"3/24/2026","t":"No comment","rec":true},{"s":5,"d":"3/22/2026","t":"No comment","rec":true},{"s":5,"d":"3/19/2026","t":"Seems to be good purity; works well; good packaging","rec":true},{"s":5,"d":"3/18/2026","t":"Ordered retatrutide just before Chinese new year and shipping only took 7 days! Couldn&#x27;t have gone any smoother, highly recommend.","rec":true},{"s":5,"d":"3/18/2026","t":"Shipped before going on a break really appreciate that, product great quality.","rec":true},{"s":5,"d":"3/15/2026","t":"Great products, fast delivery. Will order again.","rec":true},{"s":5,"d":"3/12/2026","t":"Legit fast delivery and good communication real deal good stuff","rec":true},{"s":5,"d":"3/11/2026","t":"Yimei is very fast and provided 99%+ purity. Thank you Peptaura","rec":true},{"s":5,"d":"3/10/2026","t":"Quick shipping and products are working good. Will order again.","rec":true},{"s":1,"d":"3/10/2026","t":"Order placed January 18 and shipped January 29. Requested refund March 2, telling the supplier that the order was placed 6 weeks ago and that I am moving soon so likely won\u2019t be able to receive it even if/when delivered. Supplier responded to my request saying it is being inspected. Didn\u2019t even spec","rec":false},{"s":5,"d":"3/24/2026","t":"","rec":null},{"s":5,"d":"3/22/2026","t":"","rec":null},{"s":5,"d":"3/19/2026","t":"","rec":null},{"s":5,"d":"3/18/2026","t":"","rec":null},{"s":5,"d":"3/15/2026","t":"","rec":null},{"s":5,"d":"3/12/2026","t":"","rec":null},{"s":5,"d":"3/11/2026","t":"","rec":null},{"s":5,"d":"3/10/2026","t":"","rec":null},{"s":1,"d":"3/10/2026","t":"","rec":null}],"coas":[{"compound":"BPC157","dosage":"10mg","date":"03/30/2026"},{"compound":"BPC157+TB500","dosage":"20mg","date":"03/27/2026"},{"compound":"Retatrutide","dosage":"20mg","date":"03/19/2026"},{"compound":"Tesamorelin","dosage":"5mg","date":"03/10/2026"},{"compound":"Retatrutide","dosage":"15mg","date":"03/10/2026"},{"compound":"MOTS-c","dosage":"10mg","date":"03/07/2026"},{"compound":"Somatropin (HGH)","dosage":"10IU","date":"03/07/2026"},{"compound":"GHK-Cu","dosage":"100mg","date":"02/26/2026"},{"compound":"Retatrutide","dosage":"10mg","date":"02/26/2026"},{"compound":"MT-2","dosage":"10mg","date":"02/22/2026"}]},"Railion Tech":{"r":null,"n":0,"rec":0,"reviews":[],"coas":[]},"Retalux":{"r":4.8,"n":81,"rec":94,"reviews":[{"s":5,"d":"3/30/2026","t":"(Btw this a real human by the way) I haven&#x27;t tested them with a CoA yet but I got tirzepatide from them. Haven&#x27;t used it yet either but the shipping was fast, some of these other suppliers weeks will go by and I&#x27;ll have nothing. Being in Arizona I got it in like 7 days I want to say. ","rec":true},{"s":5,"d":"3/30/2026","t":"Shipping took exactly 18 days after it was sent. Products were very well and specially packaged. Quality seems good as well. Prices are very competitive. Great shopping experience. I love this platform and this seller thanks!","rec":true},{"s":5,"d":"3/30/2026","t":"Ordered Retatrutide. Did not get a COA test. Lost 10 pounds in the first 2 weeks. Huge appetite suppression. So I&#x27;d say working well","rec":true},{"s":5,"d":"3/30/2026","t":"Order was well packaged, shipped via FedEx, no issues with customs. Would order again. Thank you!","rec":true},{"s":5,"d":"3/30/2026","t":"Quick to arrive, discreet packaging, and potent product. Excellent experience.","rec":true},{"s":5,"d":"3/30/2026","t":"Arrived fast and well packaged, works great, and fair priced. Will always go back to retalux.","rec":true},{"s":5,"d":"3/30/2026","t":"Items came as described and quick shipping after the new year pause.","rec":true},{"s":5,"d":"3/30/2026","t":"Great supplier, items were shipped fast and packaged well. Tested well and great quality.","rec":true},{"s":5,"d":"3/30/2026","t":"Ordered during CNY so it took about 4 weeks to arrive, but that\u2019s a welcome tradeoff vs. spending the equivalent amount of a small car here in the United States. Peptaura rocks.","rec":true},{"s":5,"d":"3/30/2026","t":"Order arrived timely and packed well. No problems","rec":true},{"s":5,"d":"3/30/2026","t":"","rec":null}],"coas":[{"compound":"Tirzepatide","dosage":"60mg","date":"03/13/2026"},{"compound":"SS-31","dosage":"50mg","date":"03/13/2026"},{"compound":"Epitalon","dosage":"50mg","date":"03/13/2026"},{"compound":"BPC157","dosage":"10mg","date":"03/07/2026"},{"compound":"GHK-Cu","dosage":"100mg","date":"03/07/2026"},{"compound":"Ipamorelin","dosage":"10mg","date":"03/04/2026"},{"compound":"Retatrutide","dosage":"20mg","date":"03/03/2026"},{"compound":"Retatrutide","dosage":"10mg","date":"03/02/2026"},{"compound":"Tirzepatide","dosage":"30mg","date":"02/26/2026"},{"compound":"GLOW","dosage":"70mg","date":"02/24/2026"}]},"Solvion":{"r":null,"n":0,"rec":0,"reviews":[],"coas":[]},"Ultrapept":{"r":4.0,"n":2,"rec":50,"reviews":[{"s":3,"d":"3/22/2026","t":"Took over 6 weeks to deliver with no communication for the first month. They also messed up the address initially but fixed it before shipping. On the plus side, they sent me 10 mg Pinealon vs 5 since they were out of the 5 mg.","rec":false},{"s":5,"d":"2/22/2026","t":"Everything came in labeled and packaged great!","rec":true}],"coas":[]},"VialForge":{"r":4.8,"n":19,"rec":100,"reviews":[{"s":5,"d":"3/31/2026","t":"Took about 14 days to get shipped to the states , The seller responded immediately when i had a question. Everything arrived well packed and the test came back good. I will be doing business with them again. Thanks !","rec":true},{"s":5,"d":"3/31/2026","t":"Quality product. Efficacy similar to more expensive options. Packaging and delivery was discreet.","rec":true},{"s":5,"d":"3/28/2026","t":"Perfect, as described, reasonably quick shippping","rec":true},{"s":4,"d":"3/13/2026","t":"Peptides work - vials aren\u2019t vacuum sealed however.","rec":true},{"s":5,"d":"3/11/2026","t":"Products arrived as expected. Very happy with supplier. Will continue to use them product was packaged well, but most importantly the product works very well. I have taken 2 doses and it&#x27;s working great no side effects.","rec":true},{"s":5,"d":"3/10/2026","t":"Very fast delivery, good communication from seller","rec":true},{"s":4,"d":"3/2/2026","t":"Quality seems great so far. Tested Tesa20 for endotoxins and it came back low. Did have an issue with missing items from my first order but they resolved and sent. A couple orders in now, would give 5 stars if they shipped before having to request at 10 days.","rec":true},{"s":5,"d":"2/23/2026","t":"Came quickly and with accurate tracking. Well packaged. Would order again.","rec":true},{"s":5,"d":"2/19/2026","t":"Ordered Reta and it was great, tested at 99.8% purity. Would recommend","rec":true},{"s":5,"d":"2/17/2026","t":"Great quality. Good shipping. Tracking was accurate. 10/10 will order again","rec":true},{"s":5,"d":"3/31/2026","t":"","rec":null},{"s":5,"d":"3/28/2026","t":"","rec":null},{"s":4,"d":"3/13/2026","t":"","rec":null},{"s":5,"d":"3/11/2026","t":"","rec":null},{"s":5,"d":"3/10/2026","t":"","rec":null},{"s":4,"d":"3/2/2026","t":"","rec":null},{"s":5,"d":"2/23/2026","t":"","rec":null},{"s":5,"d":"2/19/2026","t":"","rec":null},{"s":5,"d":"2/17/2026","t":"","rec":null}],"coas":[{"compound":"Retatrutide","dosage":"20mg","date":"02/19/2026"},{"compound":"Tesamorelin","dosage":"20mg","date":"02/19/2026"}]}},"catalog":[{"api":"Shanghai Huahaige Plastic Co., Ltd.","ui":"VialForge","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":149,"pmg":0.745,"oos":false,"form":"vial","tiers":[{"price":149,"min_qty":1}],"coa_date":"2026-02-19","purity":null,"batch":null},{"api":"Shaanxi Medibridge Biotechnology Co., Ltd.","ui":"HelixBridge","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":398,"pmg":0.6633,"oos":false,"form":"vial","tiers":[{"price":398,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Shanghai Huahaige Plastic Co., Ltd.","ui":"VialForge","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":79,"pmg":0.79,"oos":false,"form":"vial","tiers":[{"price":79,"min_qty":1}],"coa_date":null,"purity":null,"batch":null},{"api":"Shanghai Huahaige Plastic Co., Ltd.","ui":"VialForge","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":119,"pmg":0.7933,"oos":false,"form":"vial","tiers":[{"price":119,"min_qty":1}],"coa_date":null,"purity":null,"batch":null},{"api":"Welon","ui":"Lumira","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":199,"pmg":0.995,"oos":false,"form":"vial","tiers":[{"price":199,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"Shanghai Huahaige Plastic Co., Ltd.","ui":"VialForge","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":329,"pmg":0.8225,"oos":false,"form":"vial","tiers":[{"price":329,"min_qty":1}],"coa_date":null,"purity":null,"batch":null},{"api":"Welon","ui":"Lumira","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":172,"pmg":1.1467,"oos":false,"form":"vial","tiers":[{"price":172,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"Yimei Co. Ltd.","ui":"Pepturion","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":195,"pmg":0.4875,"oos":false,"form":"vial","tiers":[{"price":195,"min_qty":1}],"coa_date":null,"purity":99,"batch":null},{"api":"Yimei Co. Ltd.","ui":"Pepturion","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":800,"pmg":8.0,"oos":false,"form":"vial","tiers":[{"price":800,"min_qty":1}],"coa_date":"2026-02-26","purity":99.82,"batch":null},{"api":"Shaanxi Medibridge Biotechnology Co., Ltd.","ui":"HelixBridge","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":120,"pmg":1.2,"oos":false,"form":"vial","tiers":[{"price":120,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Shaanxi Medibridge Biotechnology Co., Ltd.","ui":"HelixBridge","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":83,"pmg":1.66,"oos":false,"form":"vial","tiers":[{"price":83,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Shaanxi Medibridge Biotechnology Co., Ltd.","ui":"HelixBridge","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":152,"pmg":1.0133,"oos":false,"form":"vial","tiers":[{"price":152,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Welon","ui":"Lumira","dose":"20mg","mg":20.0,"box":1,"total":20.0,"price":25.87,"pmg":1.2935,"oos":false,"form":"vial","tiers":[{"price":25.87,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"Yimei Co. Ltd.","ui":"Pepturion","dose":"50mg","mg":50.0,"box":10,"total":500.0,"price":230,"pmg":0.46,"oos":false,"form":"vial","tiers":[{"price":230,"min_qty":1}],"coa_date":"2026-02-22","purity":99,"batch":null},{"api":"RETA-PEPTIDE","ui":"Retalux","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":60,"pmg":1.2,"oos":false,"form":"vial","tiers":[{"price":60,"min_qty":1},{"price":55,"min_qty":10},{"price":51,"min_qty":30},{"price":51,"min_qty":50}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Railion Tech","ui":"Railion Tech","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":350,"pmg":0.875,"oos":false,"form":"vial","tiers":[{"price":350,"min_qty":1}],"coa_date":null,"purity":98.5,"batch":null},{"api":"RETA-PEPTIDE","ui":"Retalux","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":90,"pmg":0.9,"oos":false,"form":"vial","tiers":[{"price":90,"min_qty":1},{"price":85,"min_qty":10},{"price":80,"min_qty":30},{"price":80,"min_qty":50}],"coa_date":"2026-03-02","purity":99.85,"batch":null},{"api":"Welon","ui":"Lumira","dose":"5mg","mg":5.0,"box":1,"total":5.0,"price":9.75,"pmg":1.95,"oos":false,"form":"vial","tiers":[{"price":9.75,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"Hebei Bennan","ui":"Hebei Bennan","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":497,"pmg":0.8283,"oos":false,"form":"vial","tiers":[{"price":497,"min_qty":1}],"coa_date":null,"purity":99.9,"batch":null},{"api":"Railion Tech","ui":"Railion Tech","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":223,"pmg":0.7433,"oos":false,"form":"vial","tiers":[{"price":223,"min_qty":1}],"coa_date":null,"purity":99.3,"batch":null},{"api":"Ningbo Shu You plastic Co., LTD","ui":"NovaVial","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":235,"pmg":0.7833,"oos":false,"form":"vial","tiers":[{"price":235,"min_qty":1},{"price":230,"min_qty":10}],"coa_date":null,"purity":99.9,"batch":null},{"api":"Railion Tech","ui":"Railion Tech","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":120,"pmg":0.8,"oos":false,"form":"vial","tiers":[{"price":120,"min_qty":1}],"coa_date":null,"purity":99.1,"batch":null},{"api":"Railion Tech","ui":"Railion Tech","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":160,"pmg":0.8,"oos":false,"form":"vial","tiers":[{"price":160,"min_qty":1}],"coa_date":null,"purity":98.7,"batch":null},{"api":"Ningbo Shu You plastic Co., LTD","ui":"NovaVial","dose":"50mg","mg":50.0,"box":10,"total":500.0,"price":375,"pmg":0.75,"oos":false,"form":"vial","tiers":[{"price":375,"min_qty":1},{"price":370,"min_qty":10}],"coa_date":null,"purity":99.9,"batch":null},{"api":"Hebei Bennan","ui":"Hebei Bennan","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":497,"pmg":0.8283,"oos":false,"form":"vial","tiers":[{"price":497,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Hebei Bennan","ui":"Hebei Bennan","dose":"50mg","mg":50.0,"box":10,"total":500.0,"price":385,"pmg":0.77,"oos":false,"form":"vial","tiers":[{"price":385,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"RETA-PEPTIDE","ui":"Retalux","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":120,"pmg":0.8,"oos":false,"form":"vial","tiers":[{"price":120,"min_qty":1},{"price":110,"min_qty":10},{"price":103,"min_qty":30},{"price":103,"min_qty":50}],"coa_date":"2025-04-16T00:00:00+00:00","purity":99.85,"batch":null},{"api":"Ningbo Shu You plastic Co., LTD","ui":"NovaVial","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":123,"pmg":0.82,"oos":false,"form":"vial","tiers":[{"price":123,"min_qty":1},{"price":120,"min_qty":10}],"coa_date":null,"purity":99.9,"batch":null},{"api":"Hebei KTC","ui":"Hebei Ktc","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":115,"pmg":0.7667,"oos":false,"form":"vial","tiers":[{"price":115,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"RETA-PEPTIDE","ui":"Retalux","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":235,"pmg":0.5875,"oos":false,"form":"vial","tiers":[{"price":235,"min_qty":1},{"price":220,"min_qty":10},{"price":208,"min_qty":30},{"price":208,"min_qty":50}],"coa_date":null,"purity":99.8,"batch":null},{"api":"RETA-PEPTIDE","ui":"Retalux","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":150,"pmg":0.75,"oos":false,"form":"vial","tiers":[{"price":150,"min_qty":1},{"price":140,"min_qty":10},{"price":130,"min_qty":30},{"price":130,"min_qty":50}],"coa_date":"2026-03-03","purity":99.85,"batch":null},{"api":"Shanghai Zheng Peptide Plastic Co., Ltd.","ui":"Solvion","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":85,"pmg":0.85,"oos":false,"form":"vial","tiers":[{"price":85,"min_qty":1},{"price":80,"min_qty":5},{"price":75,"min_qty":10},{"price":70,"min_qty":20},{"price":65,"min_qty":50}],"coa_date":null,"purity":99,"batch":null},{"api":"Hebei KTC","ui":"Hebei Ktc","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":80,"pmg":0.8,"oos":false,"form":"vial","tiers":[{"price":80,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Hebei KTC","ui":"Hebei Ktc","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":220,"pmg":0.7333,"oos":false,"form":"vial","tiers":[{"price":220,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Hebei KTC","ui":"Hebei Ktc","dose":"50mg","mg":50.0,"box":10,"total":500.0,"price":380,"pmg":0.76,"oos":false,"form":"vial","tiers":[{"price":380,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Hebei KTC","ui":"Hebei Ktc","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":430,"pmg":0.7167,"oos":false,"form":"vial","tiers":[{"price":430,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Ningbo Shu You plastic Co., LTD","ui":"NovaVial","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":46,"pmg":0.92,"oos":false,"form":"vial","tiers":[{"price":46,"min_qty":1},{"price":43,"min_qty":10}],"coa_date":null,"purity":99.7,"batch":null},{"api":"Hebei KTC","ui":"Hebei Ktc","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":45,"pmg":0.9,"oos":false,"form":"vial","tiers":[{"price":45,"min_qty":1}],"coa_date":null,"purity":98.5,"batch":null},{"api":"Hebei KTC","ui":"Hebei Ktc","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":145,"pmg":0.725,"oos":false,"form":"vial","tiers":[{"price":145,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Hebei KTC","ui":"Hebei Ktc","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":330,"pmg":0.825,"oos":false,"form":"vial","tiers":[{"price":330,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"RETA-PEPTIDE","ui":"Retalux","dose":"50mg","mg":50.0,"box":10,"total":500.0,"price":260,"pmg":0.52,"oos":false,"form":"vial","tiers":[{"price":260,"min_qty":1},{"price":245,"min_qty":10},{"price":235,"min_qty":30},{"price":235,"min_qty":50}],"coa_date":"2026-02-05","purity":99.8,"batch":null},{"api":"PharmaChads","ui":"Arcadia BioLabs","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":74,"pmg":1.48,"oos":false,"form":"vial","tiers":[{"price":74,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Hang Sciences","ui":"Hang Sciences","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":101,"pmg":1.01,"oos":false,"form":"vial","tiers":[{"price":101,"min_qty":1}],"coa_date":"2026-02-26T00:00:00+00:00","purity":99.9,"batch":null},{"api":"Shanghai Zheng Peptide Plastic Co., Ltd.","ui":"Solvion","dose":"10mg","mg":10.0,"box":1,"total":10.0,"price":16,"pmg":1.6,"oos":false,"form":"cartridge","tiers":[{"price":16,"min_qty":1}],"coa_date":null,"purity":99,"batch":null},{"api":"Shanghai Zheng Peptide Plastic Co., Ltd.","ui":"Solvion","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":240,"pmg":0.8,"oos":false,"form":"vial","tiers":[{"price":240,"min_qty":1},{"price":235,"min_qty":5},{"price":230,"min_qty":10},{"price":220,"min_qty":20},{"price":210,"min_qty":50}],"coa_date":null,"purity":99,"batch":null},{"api":"Shanghai Zheng Peptide Plastic Co., Ltd.","ui":"Solvion","dose":"50mg","mg":50.0,"box":10,"total":500.0,"price":385,"pmg":0.77,"oos":false,"form":"vial","tiers":[{"price":385,"min_qty":1},{"price":380,"min_qty":5},{"price":370,"min_qty":10},{"price":360,"min_qty":20},{"price":350,"min_qty":50}],"coa_date":null,"purity":99,"batch":null},{"api":"Hebei Bennan","ui":"Hebei Bennan","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":45,"pmg":0.9,"oos":false,"form":"vial","tiers":[{"price":45,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Hebei Bennan","ui":"Hebei Bennan","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":85,"pmg":0.85,"oos":false,"form":"vial","tiers":[{"price":85,"min_qty":1}],"coa_date":null,"purity":99.9,"batch":null},{"api":"Yimei Co. Ltd.","ui":"Pepturion","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":95,"pmg":0.6333,"oos":false,"form":"vial","tiers":[{"price":95,"min_qty":1}],"coa_date":"2026-03-10","purity":99,"batch":null},{"api":"Welon","ui":"Lumira","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":293,"pmg":0.9767,"oos":false,"form":"vial","tiers":[{"price":293,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"Welon","ui":"Lumira","dose":"60mg","mg":60.0,"box":1,"total":60.0,"price":68.25,"pmg":1.1375,"oos":false,"form":"vial","tiers":[{"price":68.25,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"PharmaChads","ui":"Arcadia BioLabs","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":202,"pmg":1.01,"oos":false,"form":"vial","tiers":[{"price":202,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":"PC-260-331120"},{"api":"Hebei Bennan","ui":"Hebei Bennan","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":125,"pmg":0.8333,"oos":false,"form":"vial","tiers":[{"price":125,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"U-PEPTIDE","ui":"Ultrapept","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":160,"pmg":1.0667,"oos":false,"form":"vial","tiers":[{"price":160,"min_qty":1},{"price":156,"min_qty":10},{"price":152,"min_qty":20}],"coa_date":null,"purity":99,"batch":null},{"api":"Welon","ui":"Lumira","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":122,"pmg":1.22,"oos":false,"form":"vial","tiers":[{"price":122,"min_qty":1}],"coa_date":"2026-03-23","purity":99.5,"batch":null},{"api":"PharmaChads","ui":"Arcadia BioLabs","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":290,"pmg":0.9667,"oos":false,"form":"vial","tiers":[{"price":290,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Yimei Co. Ltd.","ui":"Pepturion","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":157,"pmg":0.5233,"oos":false,"form":"vial","tiers":[{"price":157,"min_qty":1}],"coa_date":"2025-12-17T00:00:00+00:00","purity":99,"batch":null},{"api":"U-PEPTIDE","ui":"Ultrapept","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":260,"pmg":0.8667,"oos":false,"form":"vial","tiers":[{"price":260,"min_qty":1},{"price":254,"min_qty":10},{"price":247,"min_qty":20}],"coa_date":null,"purity":99,"batch":null},{"api":"Hebei Bennan","ui":"Hebei Bennan","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":153,"pmg":0.765,"oos":false,"form":"vial","tiers":[{"price":153,"min_qty":1}],"coa_date":null,"purity":99.9,"batch":null},{"api":"Hebei Bennan","ui":"Hebei Bennan","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":240,"pmg":0.8,"oos":false,"form":"vial","tiers":[{"price":240,"min_qty":1}],"coa_date":null,"purity":99.9,"batch":null},{"api":"Welon","ui":"Lumira","dose":"10mg","mg":10.0,"box":1,"total":10.0,"price":15.86,"pmg":1.586,"oos":false,"form":"vial","tiers":[{"price":15.86,"min_qty":1}],"coa_date":"2026-03-23","purity":99.5,"batch":null},{"api":"Shanghai Zheng Peptide Plastic Co., Ltd.","ui":"Solvion","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":155,"pmg":0.775,"oos":false,"form":"vial","tiers":[{"price":155,"min_qty":1},{"price":148,"min_qty":5},{"price":145,"min_qty":10},{"price":140,"min_qty":20},{"price":130,"min_qty":50}],"coa_date":null,"purity":99,"batch":null},{"api":"PharmaChads","ui":"Arcadia BioLabs","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":520,"pmg":0.8667,"oos":false,"form":"vial","tiers":[{"price":520,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"U-PEPTIDE","ui":"Ultrapept","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":440,"pmg":0.7333,"oos":false,"form":"vial","tiers":[{"price":440,"min_qty":1},{"price":431,"min_qty":10},{"price":418,"min_qty":20}],"coa_date":null,"purity":99,"batch":null},{"api":"Hebei Bennan","ui":"Hebei Bennan","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":337,"pmg":0.8425,"oos":false,"form":"vial","tiers":[{"price":337,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Ningbo Shu You plastic Co., LTD","ui":"NovaVial","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":150,"pmg":0.75,"oos":false,"form":"vial","tiers":[{"price":150,"min_qty":1},{"price":140,"min_qty":10}],"coa_date":null,"purity":99.9,"batch":null},{"api":"Railion Tech","ui":"Railion Tech","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":82,"pmg":0.82,"oos":false,"form":"vial","tiers":[{"price":82,"min_qty":1}],"coa_date":null,"purity":99.3,"batch":null},{"api":"Welon","ui":"Lumira","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":75,"pmg":1.5,"oos":false,"form":"vial","tiers":[{"price":75,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"Welon","ui":"Lumira","dose":"15mg","mg":15.0,"box":1,"total":15.0,"price":22.36,"pmg":1.4907,"oos":false,"form":"vial","tiers":[{"price":22.36,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"Ningbo Shu You plastic Co., LTD","ui":"NovaVial","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":330,"pmg":0.825,"oos":false,"form":"vial","tiers":[{"price":330,"min_qty":1},{"price":320,"min_qty":10}],"coa_date":null,"purity":99.9,"batch":null},{"api":"U-PEPTIDE","ui":"Ultrapept","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":200,"pmg":1.0,"oos":false,"form":"vial","tiers":[{"price":200,"min_qty":1},{"price":196,"min_qty":10},{"price":190,"min_qty":20}],"coa_date":null,"purity":99,"batch":null},{"api":"Welon","ui":"Lumira","dose":"30mg","mg":30.0,"box":1,"total":30.0,"price":38.09,"pmg":1.2697,"oos":false,"form":"vial","tiers":[{"price":38.09,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"Ningbo Shu You plastic Co., LTD","ui":"NovaVial","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":80,"pmg":0.8,"oos":false,"form":"vial","tiers":[{"price":80,"min_qty":1},{"price":78,"min_qty":10}],"coa_date":null,"purity":99.8,"batch":null},{"api":"U-PEPTIDE","ui":"Ultrapept","dose":"50mg","mg":50.0,"box":10,"total":500.0,"price":380,"pmg":0.76,"oos":false,"form":"vial","tiers":[{"price":380,"min_qty":1},{"price":372,"min_qty":10},{"price":361,"min_qty":20}],"coa_date":null,"purity":99,"batch":null},{"api":"Shanghai Huahaige Plastic Co., Ltd.","ui":"VialForge","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":45,"pmg":0.9,"oos":false,"form":"vial","tiers":[{"price":45,"min_qty":1}],"coa_date":null,"purity":null,"batch":null},{"api":"Shaanxi Medibridge Biotechnology Co., Ltd.","ui":"HelixBridge","dose":"20mg","mg":20.0,"box":10,"total":200.0,"price":180,"pmg":0.9,"oos":false,"form":"vial","tiers":[{"price":180,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"U-PEPTIDE","ui":"Ultrapept","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":120,"pmg":1.2,"oos":false,"form":"vial","tiers":[{"price":120,"min_qty":1},{"price":117,"min_qty":10},{"price":114,"min_qty":20}],"coa_date":null,"purity":99,"batch":null},{"api":"Welon","ui":"Lumira","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":525,"pmg":0.875,"oos":false,"form":"vial","tiers":[{"price":525,"min_qty":1}],"coa_date":"2026-02-05T00:00:00+00:00","purity":99.5,"batch":null},{"api":"Shanghai Huahaige Plastic Co., Ltd.","ui":"VialForge","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":234,"pmg":0.78,"oos":false,"form":"vial","tiers":[{"price":234,"min_qty":1}],"coa_date":null,"purity":null,"batch":null},{"api":"Shaanxi Medibridge Biotechnology Co., Ltd.","ui":"HelixBridge","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":220,"pmg":0.7333,"oos":false,"form":"vial","tiers":[{"price":220,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"U-PEPTIDE","ui":"Ultrapept","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":90,"pmg":1.8,"oos":false,"form":"vial","tiers":[{"price":90,"min_qty":1},{"price":88,"min_qty":10},{"price":85,"min_qty":20}],"coa_date":null,"purity":99,"batch":null},{"api":"Hang Sciences","ui":"Hang Sciences","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":114,"pmg":0.76,"oos":false,"form":"vial","tiers":[{"price":114,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Hang Sciences","ui":"Hang Sciences","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":190,"pmg":0.6333,"oos":false,"form":"vial","tiers":[{"price":190,"min_qty":1}],"coa_date":"2026-02-16T00:00:00+00:00","purity":99.8,"batch":null},{"api":"Railion Tech","ui":"Railion Tech","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":320,"pmg":0.8,"oos":false,"form":"vial","tiers":[{"price":320,"min_qty":1}],"coa_date":null,"purity":98.5,"batch":null},{"api":"Shanghai Zheng Peptide Plastic Co., Ltd.","ui":"Solvion","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":125,"pmg":0.8333,"oos":false,"form":"vial","tiers":[{"price":125,"min_qty":1},{"price":120,"min_qty":5},{"price":115,"min_qty":10},{"price":110,"min_qty":20}],"coa_date":null,"purity":99,"batch":null},{"api":"U-PEPTIDE","ui":"Ultrapept","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":320,"pmg":0.8,"oos":false,"form":"vial","tiers":[{"price":320,"min_qty":1},{"price":313,"min_qty":10},{"price":304,"min_qty":20}],"coa_date":null,"purity":99,"batch":null},{"api":"Railion Tech","ui":"Railion Tech","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":470,"pmg":0.7833,"oos":false,"form":"vial","tiers":[{"price":470,"min_qty":1}],"coa_date":null,"purity":99.5,"batch":null},{"api":"Hang Sciences","ui":"Hang Sciences","dose":"40mg","mg":40.0,"box":10,"total":400.0,"price":238,"pmg":0.595,"oos":false,"form":"vial","tiers":[{"price":238,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Railion Tech","ui":"Railion Tech","dose":"5mg","mg":5.0,"box":10,"total":50.0,"price":62,"pmg":1.24,"oos":false,"form":"vial","tiers":[{"price":62,"min_qty":1}],"coa_date":null,"purity":99.2,"batch":null},{"api":"Hang Sciences","ui":"Hang Sciences","dose":"50mg","mg":50.0,"box":10,"total":500.0,"price":278,"pmg":0.556,"oos":false,"form":"vial","tiers":[{"price":278,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"Railion Tech","ui":"Railion Tech","dose":"50mg","mg":50.0,"box":10,"total":500.0,"price":370,"pmg":0.74,"oos":false,"form":"vial","tiers":[{"price":370,"min_qty":1}],"coa_date":null,"purity":99.2,"batch":null},{"api":"Hang Sciences","ui":"Hang Sciences","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":329,"pmg":0.5483,"oos":false,"form":"vial","tiers":[{"price":329,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"RETA-PEPTIDE","ui":"Retalux","dose":"60mg","mg":60.0,"box":10,"total":600.0,"price":290,"pmg":0.4833,"oos":false,"form":"vial","tiers":[{"price":290,"min_qty":1},{"price":270,"min_qty":10},{"price":250,"min_qty":30},{"price":250,"min_qty":50}],"coa_date":null,"purity":99.8,"batch":null},{"api":"RETA-PEPTIDE","ui":"Retalux","dose":"30mg","mg":30.0,"box":10,"total":300.0,"price":210,"pmg":0.7,"oos":false,"form":"vial","tiers":[{"price":210,"min_qty":1},{"price":195,"min_qty":10},{"price":180,"min_qty":30},{"price":180,"min_qty":50}],"coa_date":null,"purity":99.8,"batch":null},{"api":"PharmaChads","ui":"Arcadia BioLabs","dose":"10mg","mg":10.0,"box":10,"total":100.0,"price":120,"pmg":1.2,"oos":false,"form":"vial","tiers":[{"price":120,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null},{"api":"PharmaChads","ui":"Arcadia BioLabs","dose":"15mg","mg":15.0,"box":10,"total":150.0,"price":170,"pmg":1.1333,"oos":false,"form":"vial","tiers":[{"price":170,"min_qty":1}],"coa_date":null,"purity":99.8,"batch":null}],"mappings":{"Welon":"Lumira","Yimei Co. Ltd.":"Pepturion","Hebei Bennan":"Hebei Bennan","Hebei KTC":"Hebei Ktc","Railion Tech":"Railion Tech","Hang Sciences":"Hang Sciences","RETA-PEPTIDE":"Retalux","U-PEPTIDE":"Ultrapept","Shanghai Huahaige Plastic Co., Ltd.":"VialForge","Ningbo Shu You plastic Co., LTD":"NovaVial","Shaanxi Medibridge Biotechnology Co., Ltd.":"HelixBridge","Shanghai Zheng Peptide Plastic Co., Ltd.":"Solvion","PharmaChads":"Arcadia BioLabs"},"confirmed_mappings":["Welon","Yimei Co. Ltd.","Hebei Bennan","Hebei KTC","Railion Tech","Hang Sciences"]};
+
+// Supplier tier classification
+function getTier(name) {
+  const s = DATA.suppliers[name];
+  if (!s) return {tier:3,label:'Unknown',cls:'t3'};
+  if (s.n >= 40 && s.rec >= 94) return {tier:1,label:'Tier 1',cls:'t1'};
+  if (s.n >= 8 && s.rec >= 85) return {tier:2,label:'Tier 2',cls:'t2'};
+  return {tier:3,label:'Tier 3',cls:'t3'};
+}
+
+function getBestPmg(uiName) {
+  const items = DATA.catalog.filter(c => c.ui === uiName && c.box === 10 && !c.oos);
+  if (!items.length) return Infinity;
+  return Math.min(...items.map(c => c.pmg));
+}
+
+function getAllin(price) { return price * 1.20 + 90; }
+function getAllinMg(price, totalMg) { return totalMg ? getAllin(price) / totalMg : 0; }
+
+function getRetaCoas(uiName) {
+  const s = DATA.suppliers[uiName];
+  if (!s) return [];
+  return s.coas.filter(c => c.compound && c.compound.toLowerCase().includes('retatrutide'));
+}
+
+function stars(n) { return '★'.repeat(n) + '☆'.repeat(5-n); }
+
+// ============ OVERVIEW ============
+function renderOverview() {
+  const allItems = DATA.catalog.filter(c => c.box === 10 && !c.oos);
+  const bestDeal = allItems.reduce((a,b) => getAllinMg(a.price,a.total) < getAllinMg(b.price,b.total) ? a : b);
+  const totalSuppliers = new Set(DATA.catalog.map(c => c.ui)).size;
+  const reviewedSuppliers = Object.entries(DATA.suppliers).filter(([_,s]) => s.n > 0).length;
+  
+  document.getElementById('overview-stats').innerHTML = `
+    <div class="stat"><div class="label">Total Listings</div><div class="value accent">${DATA.catalog.length}</div></div>
+    <div class="stat"><div class="label">Suppliers</div><div class="value">${totalSuppliers} <span style="font-size:14px;color:var(--fg3)">(${reviewedSuppliers} reviewed)</span></div></div>
+    <div class="stat"><div class="label">Best $/mg Delivered</div><div class="value green">$${getAllinMg(bestDeal.price,bestDeal.total).toFixed(2)}</div></div>
+    <div class="stat"><div class="label">Best Deal</div><div class="value" style="font-size:16px">${bestDeal.ui} ${bestDeal.dose}x${bestDeal.box}</div></div>
+  `;
+
+  // Rankings table
+  const suppliers = [...new Set(DATA.catalog.map(c => c.ui))];
+  const ranked = suppliers.map(ui => {
+    const s = DATA.suppliers[ui] || {r:null,n:0,rec:0,coas:[]};
+    const apiName = Object.entries(DATA.mappings).find(([_,v]) => v === ui);
+    const confirmed = apiName && DATA.confirmed_mappings.includes(apiName[0]);
+    const retaCoas = getRetaCoas(ui);
+    const best = getBestPmg(ui);
+    const tier = getTier(ui);
+    return {ui, apiName: apiName ? apiName[0] : '?', confirmed, s, retaCoas, best, tier};
+  }).sort((a,b) => a.tier.tier - b.tier.tier || (a.best - b.best));
+
+  const tbody = document.querySelector('#rankings-table tbody');
+  tbody.innerHTML = ranked.map((r,i) => `<tr class="${r.ui === 'Lumira' ? 'your-supplier' : ''}">
+    <td class="mono">${i+1}</td>
+    <td><strong>${r.ui}</strong></td>
+    <td style="color:var(--fg3);font-size:12px">${r.apiName}${r.confirmed ? ' ✓' : ' ?'}</td>
+    <td>${r.s.r ? r.s.r.toFixed(1) : '—'}</td>
+    <td>${r.s.n || '—'}</td>
+    <td>${r.s.n ? r.s.rec + '%' : '—'}</td>
+    <td>${r.retaCoas.length || '—'}</td>
+    <td class="mono ${r.best < 0.6 ? 'price-best' : r.best < 1.0 ? 'price-ok' : 'price-bad'}">$${r.best === Infinity ? '—' : r.best.toFixed(2)}</td>
+    <td><span class="tier ${r.tier.cls}">${r.tier.label}</span></td>
+  </tr>`).join('');
+
+  // Best deals by vial size
+  const sizes = [10,15,20,30,40,50,60];
+  const dealsHtml = sizes.map(size => {
+    const items = DATA.catalog.filter(c => c.mg === size && c.box === 10 && !c.oos)
+      .sort((a,b) => getAllinMg(a.price,a.total) - getAllinMg(b.price,b.total))
+      .slice(0,3);
+    if (!items.length) return '';
+    return `<div class="card" style="margin:0"><h3 style="font-size:14px">${size}mg vials</h3>
+      <table style="font-size:12px"><tbody>${items.map((it,i) => {
+        const ai = getAllin(it.price);
+        const aim = getAllinMg(it.price,it.total);
+        const tier = getTier(it.ui);
+        return `<tr><td>${i+1}.</td><td><strong>${it.ui}</strong></td><td class="mono">$${ai.toFixed(0)}</td><td class="mono ${i===0?'price-best':''}">${aim.toFixed(2)}/mg</td><td><span class="tier ${tier.cls}" style="font-size:10px">${tier.label}</span></td></tr>`;
+      }).join('')}</tbody></table>
+    </div>`;
+  }).join('');
+  document.getElementById('deals-grid').innerHTML = dealsHtml;
+}
+
+// ============ CATALOG ============
+function renderCatalog() {
+  const supplierSelect = document.getElementById('filter-supplier');
+  const doseSelect = document.getElementById('filter-dose');
+  const uiNames = [...new Set(DATA.catalog.map(c => c.ui))].sort();
+  const doses = [...new Set(DATA.catalog.map(c => c.dose))].sort((a,b) => parseFloat(a) - parseFloat(b));
+  
+  uiNames.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; supplierSelect.appendChild(o); });
+  doses.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; doseSelect.appendChild(o); });
+
+  function updateTable() {
+    const sf = document.getElementById('filter-supplier').value;
+    const df = document.getElementById('filter-dose').value;
+    const bf = document.getElementById('filter-box').value;
+    const tf = document.getElementById('filter-tier').value;
+    const sort = document.getElementById('sort-by').value;
+
+    let items = DATA.catalog.filter(c => !c.oos);
+    if (sf) items = items.filter(c => c.ui === sf);
+    if (df) items = items.filter(c => c.dose === df);
+    if (bf) items = items.filter(c => c.box === parseInt(bf));
+    if (tf) {
+      const maxTier = parseInt(tf);
+      items = items.filter(c => getTier(c.ui).tier <= maxTier);
+    }
+
+    items.sort((a,b) => {
+      if (sort === 'allin_mg') return getAllinMg(a.price,a.total) - getAllinMg(b.price,b.total);
+      if (sort === 'raw_mg') return a.pmg - b.pmg;
+      if (sort === 'price') return a.price - b.price;
+      if (sort === 'total_mg') return b.total - a.total;
+      if (sort === 'supplier') return a.ui.localeCompare(b.ui);
+      return 0;
+    });
+
+    const tbody = document.querySelector('#catalog-table tbody');
+    tbody.innerHTML = items.map(c => {
+      const ai = getAllin(c.price);
+      const aim = getAllinMg(c.price,c.total);
+      const tier = getTier(c.ui);
+      const tiers = c.tiers.length > 1 ? c.tiers.slice(1).map(t => `${t.min_qty}+: $${t.price}`).join(', ') : '—';
+      return `<tr>
+        <td><strong>${c.ui}</strong></td>
+        <td class="mono">${c.dose}</td>
+        <td>${c.box === 1 ? 'single' : 'x'+c.box}</td>
+        <td class="mono">${c.total}mg</td>
+        <td class="mono">$${c.price.toFixed(2)}</td>
+        <td class="mono">$${c.pmg.toFixed(2)}</td>
+        <td class="mono">$${ai.toFixed(0)}</td>
+        <td class="mono" style="font-weight:700;color:${aim < 1.0 ? 'var(--green)' : aim < 1.5 ? 'var(--fg)' : 'var(--red)'}">$${aim.toFixed(2)}</td>
+        <td style="font-size:11px;color:var(--fg3)">${tiers}</td>
+        <td><span class="tier ${tier.cls}" style="font-size:10px">${tier.label}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  ['filter-supplier','filter-dose','filter-box','filter-tier','sort-by'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updateTable);
+  });
+  updateTable();
+}
+
+// ============ SUPPLIERS ============
+function renderSuppliers() {
+  function update() {
+    const filter = document.getElementById('supplier-filter').value;
+    const sort = document.getElementById('supplier-sort').value;
+
+    let entries = Object.entries(DATA.suppliers);
+    if (filter === 'reviewed') entries = entries.filter(([_,s]) => s.n > 0);
+    if (filter === 'reta-coa') entries = entries.filter(([n,s]) => getRetaCoas(n).length > 0);
+
+    entries.sort((a,b) => {
+      if (sort === 'trust') return (b[1].n * b[1].rec/100) - (a[1].n * a[1].rec/100);
+      if (sort === 'reviews') return b[1].n - a[1].n;
+      if (sort === 'rating') return (b[1].r||0) - (a[1].r||0);
+      if (sort === 'price') return getBestPmg(a[0]) - getBestPmg(b[0]);
+      return 0;
+    });
+
+    const grid = document.getElementById('supplier-grid');
+    grid.innerHTML = entries.map(([name, s]) => {
+      const tier = getTier(name);
+      const retaCoas = getRetaCoas(name);
+      const apiEntry = Object.entries(DATA.mappings).find(([_,v]) => v === name);
+      const apiName = apiEntry ? apiEntry[0] : '?';
+      const isYours = name === 'Lumira';
+      
+      // Reta catalog for this supplier
+      const retaItems = DATA.catalog.filter(c => c.ui === name && !c.oos)
+        .sort((a,b) => a.mg - b.mg || a.box - b.box);
+
+      const recClass = s.rec >= 95 ? 'good' : s.rec >= 85 ? 'warn' : s.rec > 0 ? 'bad' : 'neutral';
+      
+      return `<div class="s-card ${isYours ? 'your-supplier' : ''}">
+        <div class="s-card-head">
+          <h3><span class="flag">🇨🇳</span> ${name} ${isYours ? '<span style="color:var(--accent);font-size:11px">(YOUR SUPPLIER)</span>' : ''}</h3>
+          <span class="tier ${tier.cls}">${tier.label}</span>
+        </div>
+        <div class="s-card-body">
+          <div class="s-meta">
+            ${s.r ? `<span class="pill good">★ ${s.r}</span>` : '<span class="pill neutral">No rating</span>'}
+            <span class="pill ${s.n > 0 ? 'neutral' : 'bad'}">${s.n} reviews</span>
+            <span class="pill ${recClass}">${s.n ? s.rec+'% rec' : 'No data'}</span>
+            ${retaCoas.length ? `<span class="pill good">${retaCoas.length} reta COA${retaCoas.length>1?'s':''}</span>` : ''}
+          </div>
+          
+          ${retaItems.length ? `
+          <div class="section-title">Reta Catalog (${retaItems.length} listings)</div>
+          <div class="table-wrap" style="margin-bottom:12px;max-height:200px;overflow-y:auto">
+            <table style="font-size:11px"><thead><tr><th>Vial</th><th>Qty</th><th>Price</th><th>$/mg raw</th><th>$/mg all-in</th></tr></thead><tbody>
+            ${retaItems.map(it => {
+              const aim = getAllinMg(it.price, it.total);
+              return `<tr><td>${it.dose}</td><td>${it.box===1?'single':'x'+it.box}</td><td class="mono">$${it.price.toFixed(2)}</td><td class="mono">$${it.pmg.toFixed(2)}</td><td class="mono" style="color:${aim<1?'var(--green)':aim<1.5?'var(--fg)':'var(--red)'}">$${aim.toFixed(2)}</td></tr>`;
+            }).join('')}
+            </tbody></table>
+          </div>` : ''}
+
+          ${s.coas.length ? `
+          <div class="section-title">COAs</div>
+          <div class="coa-list" style="margin-bottom:12px">
+            ${s.coas.map(c => `<span class="coa-tag ${c.compound && c.compound.toLowerCase().includes('retatrutide') ? 'reta' : ''}">${c.compound} ${c.dosage} (${c.date})</span>`).join('')}
+          </div>` : ''}
+
+          ${s.reviews.length ? `
+          <div class="section-title">Recent Reviews</div>
+          ${s.reviews.filter(r => r.t).slice(0,5).map(r => `
+            <div class="review">
+              <div class="r-head">
+                <span class="stars">${stars(r.s)}</span>
+                <span class="r-date">${r.d}</span>
+                ${r.rec === true ? '<span style="color:var(--green);font-size:11px">✓ recommends</span>' : r.rec === false ? '<span style="color:var(--red);font-size:11px">✗ doesn\'t recommend</span>' : ''}
+              </div>
+              <div class="r-text">${r.t}</div>
+            </div>
+          `).join('')}
+          ${s.reviews.length > 5 ? `<div style="color:var(--fg3);font-size:12px;margin-top:8px">+ ${s.reviews.length - 5} more reviews (page 1 of ${Math.ceil(s.n/10)})</div>` : ''}
+          ` : '<div style="color:var(--fg3);font-size:12px">No reviews yet</div>'}
+          
+          <div style="margin-top:8px;font-size:11px;color:var(--fg3)">API name: ${apiName}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('supplier-filter').addEventListener('change', update);
+  document.getElementById('supplier-sort').addEventListener('change', update);
+  update();
+}
+
+// ============ CALCULATOR ============
+function renderCalculator() {
+  const supplierSelect = document.getElementById('calc-supplier');
+  const doseSelect = document.getElementById('calc-dose');
+  const boxSelect = document.getElementById('calc-box');
+
+  const uiNames = [...new Set(DATA.catalog.filter(c => !c.oos).map(c => c.ui))].sort();
+  uiNames.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; supplierSelect.appendChild(o); });
+
+  function updateDoses() {
+    const supplier = supplierSelect.value;
+    const doses = [...new Set(DATA.catalog.filter(c => c.ui === supplier && !c.oos).map(c => c.dose))].sort((a,b) => parseFloat(a) - parseFloat(b));
+    doseSelect.innerHTML = doses.map(d => `<option value="${d}">${d}</option>`).join('');
+    updateBoxes();
+  }
+
+  function updateBoxes() {
+    const supplier = supplierSelect.value;
+    const dose = doseSelect.value;
+    const boxes = [...new Set(DATA.catalog.filter(c => c.ui === supplier && c.dose === dose && !c.oos).map(c => c.box))].sort((a,b) => a-b);
+    boxSelect.innerHTML = boxes.map(b => `<option value="${b}">${b === 1 ? 'Single vial' : b + '-pack'}</option>`).join('');
+    calculate();
+  }
+
+  function calculate() {
+    const supplier = supplierSelect.value;
+    const dose = doseSelect.value;
+    const box = parseInt(boxSelect.value);
+    const weekly = parseFloat(document.getElementById('calc-weekly').value) || 8;
+    const fee = parseFloat(document.getElementById('calc-fee').value) || 20;
+    const ship = parseFloat(document.getElementById('calc-ship').value) || 90;
+
+    const item = DATA.catalog.find(c => c.ui === supplier && c.dose === dose && c.box === box && !c.oos);
+    if (!item) { document.getElementById('calc-output').innerHTML = '<div class="big">—</div><div class="sub">No matching listing</div>'; return; }
+
+    const rawPrice = item.price;
+    const withFee = rawPrice * (1 + fee/100);
+    const allIn = withFee + ship;
+    const perMg = allIn / item.total;
+    const weeksSupply = item.total / weekly;
+    const monthsSupply = weeksSupply / 4.33;
+    const perMonth = allIn / monthsSupply;
+    const vialDays = (item.mg / weekly) * 7;
+
+    const shelfOk = vialDays <= 28;
+
+    document.getElementById('calc-output').innerHTML = `
+      <div class="big">$${allIn.toFixed(0)}</div>
+      <div class="sub">all-in delivered</div>
+    `;
+
+    document.getElementById('calc-details').innerHTML = `
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+          <div>Raw price:</div><div class="mono" style="text-align:right">$${rawPrice.toFixed(2)}</div>
+          <div>+ ${fee}% fee:</div><div class="mono" style="text-align:right">$${(rawPrice * fee/100).toFixed(2)}</div>
+          <div>+ shipping:</div><div class="mono" style="text-align:right">$${ship.toFixed(2)}</div>
+          <div style="border-top:1px solid var(--border);padding-top:8px;font-weight:700">Total:</div>
+          <div class="mono" style="text-align:right;border-top:1px solid var(--border);padding-top:8px;font-weight:700;color:var(--accent)">$${allIn.toFixed(2)}</div>
+        </div>
+        <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+          <div>Total product:</div><div class="mono" style="text-align:right">${item.total}mg</div>
+          <div>$/mg delivered:</div><div class="mono" style="text-align:right;color:${perMg < 1 ? 'var(--green)' : perMg < 1.5 ? 'var(--fg)' : 'var(--red)'}">$${perMg.toFixed(2)}</div>
+          <div>Supply at ${weekly}mg/wk:</div><div class="mono" style="text-align:right">${weeksSupply.toFixed(1)} weeks (${monthsSupply.toFixed(1)} mo)</div>
+          <div>Cost per month:</div><div class="mono" style="text-align:right">$${perMonth.toFixed(0)}/mo</div>
+          <div>Vial shelf life:</div><div class="mono" style="text-align:right;color:${shelfOk ? 'var(--green)' : 'var(--red)'}">${vialDays.toFixed(0)} days ${shelfOk ? '✓' : '⚠ >28d waste risk'}</div>
+        </div>
+      </div>
+      <div class="card" style="border-color:${perMg < getAllinMg(38.06,20) ? 'var(--green)' : 'var(--red)'}">
+        <h3 style="font-size:13px">vs Your Last Order ($7.29/mg)</h3>
+        <div style="font-size:24px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace">
+          ${((1 - perMg / 7.29) * 100).toFixed(0)}% cheaper
+        </div>
+        <div style="color:var(--fg2);font-size:12px">${(item.total / 20).toFixed(0)}x more product for ${(allIn / 145.80).toFixed(1)}x the price</div>
+      </div>
+    `;
+  }
+
+  supplierSelect.addEventListener('change', updateDoses);
+  doseSelect.addEventListener('change', updateBoxes);
+  boxSelect.addEventListener('change', calculate);
+  document.getElementById('calc-weekly').addEventListener('input', calculate);
+  document.getElementById('calc-fee').addEventListener('input', calculate);
+  document.getElementById('calc-ship').addEventListener('input', calculate);
+  
+  // Initialize
+  supplierSelect.value = 'Pepturion';
+  updateDoses();
+}
+
+// ============ TABS ============
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ============ INIT ============
+renderOverview();
+renderCatalog();
+renderSuppliers();
+renderCalculator();
+</script>
+</body>
+</html>
