@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: Deck Rehab</title>
+<meta property="og:title" content="Proposal: Deck Rehab">
+<meta property="og:description" content="Diagnosis and repair plan for the deck. Splitting, bowing, carpenter bee damage, and failed screen framing.">
+<meta property="og:url" content="https://niggerfaggot.club/proposals/deck-repair.html">
+<meta name="twitter:card" content="summary">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+
+  :root {
+    --bg: #0c0c0e;
+    --surface: #151518;
+    --surface-2: #1c1c20;
+    --border: #2a2a30;
+    --text: #e8e6e1;
+    --text-dim: #8a8880;
+    --accent: #4a9eff;
+    --accent-dim: #2a5a99;
+    --green: #3ecf71;
+    --red: #e85454;
+    --amber: #f0a830;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+    border-radius: 100px;
+    padding: 0.3em 1em;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle { color: var(--text-dim); font-size: 1rem; margin-bottom: 2.5rem; }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+    font-size: 0.85rem;
+  }
+
+  .meta-item { display: flex; flex-direction: column; gap: 0.2rem; }
+  .meta-label { color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
+  .meta-value { font-weight: 500; }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: 600;
+    color: var(--amber);
+  }
+  .status-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--amber);
+  }
+
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400;
+    font-size: 1.5rem;
+    margin: 2.5rem 0 0.8rem;
+    letter-spacing: -0.01em;
+  }
+
+  p { margin-bottom: 1rem; color: var(--text); font-size: 0.95rem; }
+  p.dim { color: var(--text-dim); }
+
+  .tldr-box {
+    background: var(--surface);
+    border-left: 3px solid var(--accent);
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 2rem;
+  }
+  .tldr-box strong { color: var(--accent); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.4rem; }
+
+  .cost-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .cost-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cost-card.recommended { border-color: var(--green); }
+  .cost-card.recommended::after {
+    content: 'RECOMMENDED';
+    position: absolute;
+    top: 10px;
+    right: -28px;
+    background: var(--green);
+    color: var(--bg);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 0.2em 2em;
+    transform: rotate(45deg);
+  }
+
+  .cost-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+  .cost-price {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .cost-price .currency { font-size: 1.2rem; vertical-align: top; color: var(--text-dim); }
+  .cost-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.4; }
+
+  .diagnosis-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .diagnosis-card .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+  }
+  .diagnosis-card .label.myth { color: var(--red); }
+  .diagnosis-card .label.reality { color: var(--green); }
+  .diagnosis-card p { margin-bottom: 0; font-size: 0.9rem; }
+
+  .steps {
+    counter-reset: step;
+    margin: 1.5rem 0;
+  }
+  .step {
+    counter-increment: step;
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .step::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.2rem; }
+  .step-desc { font-size: 0.85rem; color: var(--text-dim); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  .footer-note {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .issue-list {
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+  }
+  .issue-list li {
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0.6rem;
+    align-items: baseline;
+  }
+  .issue-list li::before {
+    content: '×';
+    color: var(--red);
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .materials-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.85rem;
+  }
+  .materials-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-dim);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .materials-table td {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .materials-table td:last-child { text-align: right; font-weight: 500; }
+  .materials-table th:last-child { text-align: right; }
+  .materials-table tr.total td {
+    font-weight: 600;
+    border-top: 2px solid var(--border);
+    padding-top: 0.8rem;
+  }
+
+  @media (max-width: 500px) {
+    .cost-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <span class="badge">Home Improvement</span>
+  <h1>Deck Rehab</h1>
+  <p class="subtitle">Diagnosis, root cause, and repair plan for the deck railing, screen framing, and surface.</p>
+
+  <div class="meta-row">
+    <div class="meta-item">
+      <span class="meta-label">Status</span>
+      <span class="meta-value"><span class="status-badge">Proposed</span></span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Est. Cost</span>
+      <span class="meta-value">$400 - $650</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Timeline</span>
+      <span class="meta-value">2 weekends</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Date</span>
+      <span class="meta-value">April 2026</span>
+    </div>
+  </div>
+
+  <div class="tldr-box">
+    <strong>TL;DR</strong>
+    The wood is pressure-treated, so the type isn't the problem. The deck was never sealed or stained, causing years of moisture damage. Screen framing was glued instead of fastened. Cheap lumber + no finish + lazy joints = everything failing at once. Fix is straightforward DIY: replace the worst boards, properly fasten screen frames, fill bee holes, seal everything.
+  </div>
+
+  <h2>What We Assumed</h2>
+  <div class="diagnosis-card">
+    <div class="label myth">Assumed</div>
+    <p>Carpenter bees destroyed the deck, and maybe the previous owner didn't use pressure-treated wood.</p>
+  </div>
+
+  <h2>What's Actually Going On</h2>
+  <div class="diagnosis-card">
+    <div class="label reality">Reality</div>
+    <p>The wood IS pressure-treated southern yellow pine. PT protects against fungal rot and termites only. It does nothing against carpenter bees, which bore into any softwood regardless of treatment.</p>
+  </div>
+
+  <p>The real damage comes from a combination of failures by whoever built or "repaired" this deck before we bought the house:</p>
+
+  <ul class="issue-list">
+    <li>Never sealed or stained. Years of rain/sun cycles caused all the splitting, warping, and bowing as the wood swells and shrinks repeatedly.</li>
+    <li>Screen frame pieces glued on with construction adhesive instead of being screwed or bolted. Adhesive fails outdoors from UV and moisture, which is why the frames are separating.</li>
+    <li>Lower-grade lumber (#2 or construction grade) used instead of #1 or select, making it more prone to warping.</li>
+    <li>Wood likely installed wet/green and left to dry unevenly, accelerating the bowing.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2>Repair Plan</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-content">
+        <div class="step-title">Replace worst rails and screen frame boards</div>
+        <div class="step-desc">Swap out split, bowed, and separated boards with new pressure-treated lumber. Use proper structural screws and carriage bolts for the screen frames, not adhesive.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <div class="step-title">Address carpenter bee damage</div>
+        <div class="step-desc">Plug existing bore holes with steel wool pushed into the holes, then seal over with exterior caulk or wood putty. Treat with residual insecticide (permethrin) to deter new boring.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <div class="step-title">Sand and prep surfaces</div>
+        <div class="step-desc">Hit the worst UV-damaged areas with 80-grit to open up the grain. Clean the whole deck with a deck brightener/cleaner to remove gray oxidation and prep for stain adhesion.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <div class="step-title">Seal and stain the entire deck</div>
+        <div class="step-desc">Apply a penetrating exterior stain/sealant to the whole deck, railings, and screen framing. This is what should have been done from day one and will prevent future damage cycles.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <h2>Estimated Materials</h2>
+
+  <div style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
+  <table class="materials-table">
+    <thead>
+      <tr><th>Item</th><th>Est. Cost</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>PT 2x4s and 2x6s (replacement rails/framing)</td><td>$100 - $180</td></tr>
+      <tr><td>PT balusters (replacement)</td><td>$40 - $60</td></tr>
+      <tr><td>Structural screws, carriage bolts, hardware</td><td>$30 - $50</td></tr>
+      <tr><td>Steel wool, exterior caulk, wood putty</td><td>$15 - $25</td></tr>
+      <tr><td>Permethrin spray (carpenter bee treatment)</td><td>$10 - $15</td></tr>
+      <tr><td>Deck cleaner/brightener</td><td>$15 - $25</td></tr>
+      <tr><td>Exterior stain/sealant (5 gal)</td><td>$120 - $180</td></tr>
+      <tr><td>Sandpaper, brushes, rollers, misc</td><td>$20 - $30</td></tr>
+      <tr class="total"><td>Total Estimated</td><td>$400 - $650</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <hr class="divider">
+
+  <h2>Options</h2>
+
+  <div class="cost-grid">
+    <div class="cost-card recommended">
+      <div class="cost-label">Targeted Rehab</div>
+      <div class="cost-price"><span class="currency">$</span>400-650</div>
+      <div class="cost-desc">Replace worst boards, fix fasteners, fill bee holes, seal/stain everything. Gets 3-5+ more years out of the deck.</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">Full Tear & Rebuild</div>
+      <div class="cost-price"><span class="currency">$</span>3,000+</div>
+      <div class="cost-desc">Rip it all down and start fresh. Only makes sense if structural posts or joists are compromised (they appear fine from photos).</div>
+    </div>
+  </div>
+
+  <p class="dim" style="margin-top:1.5rem;">The structural posts and joists appear solid from the photos. The damage is concentrated in the railings, screen framing, and surface, all of which are replaceable without tearing the whole thing down.</p>
+
+  <div class="footer-note">Foreman Home Projects &middot; April 2026</div>
+</div>
+</body>
+</html>
