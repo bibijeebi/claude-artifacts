@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WGU Slurp - Course Content Extractor</title>
+<style>
+html, body { overflow-x: hidden; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a1628; color: #e0e8f0; min-height: 100vh; padding: 40px 20px; }
+.container { max-width: 640px; margin: 0 auto; }
+h1 { font-size: 28px; margin-bottom: 8px; color: #fff; }
+.subtitle { color: #7eb8d8; margin-bottom: 32px; font-size: 15px; }
+.card { background: #141f33; border: 1px solid #1e3050; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.card h2 { font-size: 18px; color: #4da8da; margin-bottom: 12px; }
+.card p { font-size: 14px; line-height: 1.6; color: #a0b4c8; margin-bottom: 12px; }
+.bookmark-btn { display: inline-block; background: #003057; color: #fff; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 600; text-decoration: none; cursor: grab; border: 2px solid #4da8da; transition: all 0.2s; }
+.bookmark-btn:hover { background: #004080; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(77, 168, 218, 0.3); }
+.step { display: flex; gap: 12px; margin-bottom: 16px; }
+.step-num { background: #4da8da; color: #0a1628; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.step-text { font-size: 14px; line-height: 1.5; color: #c0d0e0; }
+code { background: #1a2a44; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #7eb8d8; }
+.stats { font-family: monospace; font-size: 13px; color: #4da8da; padding: 12px; background: #0d1520; border-radius: 6px; }
+.status { margin-top: 12px; }
+.note { font-size: 12px; color: #607890; margin-top: 8px; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>WGU Slurp</h1>
+  <p class="subtitle">Extract course content from WGU portal for Claude-powered adaptive tutoring</p>
+
+  <div class="card">
+    <h2>Install the Bookmarklet</h2>
+    <p>Drag this button to your bookmarks bar:</p>
+    <p style="text-align:center; margin: 20px 0;">
+      <a class="bookmark-btn" href="javascript:void(function(){var S='https://wgu-slurp.bennyforeman1.workers.dev',T='Bearer benny_wgu_Rx4mKpN7tQvW9yJ2';function toast(m,ok){var t=document.createElement('div');t.style.cssText='position:fixed;top:20px;right:20px;background:'+(ok?'%23003057':'%23802020')+';color:white;padding:16px 24px;border-radius:8px;z-index:99999;font:14px/-apple-system,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.4);max-width:320px';t.innerHTML=m;document.body.appendChild(t);setTimeout(function(){t.remove()},4000)}try{var main=document.querySelector('main,article,[role=main],.content-body,.zybook-content,#courseware-content,.lesson-content');var content=main?main.innerText:document.body.innerText;var title=document.title;var url=location.href;var links=Array.from(document.querySelectorAll('a[href]')).map(function(a){return{text:a.textContent.trim().slice(0,100),href:a.href}}).filter(function(l){return l.text&&l.href.includes('wgu')});var navItems=Array.from(document.querySelectorAll('nav a,.breadcrumb a,.sidebar a,.module-nav a')).map(function(a){return{text:a.textContent.trim(),href:a.href}});var h1=document.querySelector('h1,h2');var section=h1?h1.textContent.trim():'';var cm=(url+' '+title+' '+content.slice(0,1000)).match(/\b([A-Z]\d{3})\b/);var course=cm?cm[1]:prompt('Course code (e.g. C715):','');if(!course){toast('Cancelled',false);return}toast('Slurping '+course+'...',true);fetch(S+'/ingest',{method:'POST',headers:{'Content-Type':'application/json','Authorization':T},body:JSON.stringify({url:url,title:title,content:content,course:course,section:section,links:links,metadata:{nav:navItems,ua:navigator.userAgent,ts:new Date().toISOString()}})}).then(function(r){return r.json()}).then(function(d){toast('<b>Slurped!</b><br>'+d.course+' - '+d.title.slice(0,60)+'<br>'+d.content_length+' chars | Page '+d.total_pages,true)}).catch(function(e){toast('Failed: '+e,false)})}catch(e){toast('Error: '+e,false)}})();">
+        📚 WGU Slurp
+      </a>
+    </p>
+    <p class="note">On mobile Safari: copy the code below, create any bookmark, edit it, and paste this as the URL.</p>
+  </div>
+
+  <div class="card">
+    <h2>How to Use</h2>
+    <div class="step"><div class="step-num">1</div><div class="step-text">Log into <code>my.wgu.edu</code> and navigate to a course content page</div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-text">Click the <b>WGU Slurp</b> bookmark in your bookmarks bar</div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-text">If the course code isn't auto-detected, type it (e.g. <code>C715</code>)</div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-text">A toast confirms the page was captured. Move to the next page and repeat.</div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-text">Tell Claude "quiz me on C715" and it pulls your slurped content automatically</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Content Stats</h2>
+    <div class="stats status" id="stats">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h2>Tips</h2>
+    <p>The bookmarklet grabs text from the main content area, skipping nav/footer. It also captures all WGU links on the page for cross-referencing.</p>
+    <p>Works on any WGU page: course content, pre-assessment results, study guides, module overviews.</p>
+    <p>Each page is deduplicated by URL, so re-slurping the same page just updates it.</p>
+  </div>
+</div>
+
+<script>
+fetch('https://wgu-slurp.bennyforeman1.workers.dev/stats', {
+  headers: { 'Authorization': 'Bearer benny_wgu_Rx4mKpN7tQvW9yJ2' }
+})
+.then(r => r.json())
+.then(d => {
+  let html = `Courses: ${d.total_courses} | Pages: ${d.total_pages}\n`;
+  d.courses.forEach(c => { html += `\n${c.code}: ${c.pages} pages`; });
+  document.getElementById('stats').textContent = html || 'No content yet. Start slurping!';
+})
+.catch(() => { document.getElementById('stats').textContent = 'Could not load stats'; });
+</script>
+</body>
+</html>
