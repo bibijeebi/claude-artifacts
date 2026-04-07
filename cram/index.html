@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>WGU Cram</title>
+<meta property="og:title" content="WGU Cram — Adaptive Drill Engine">
+<meta property="og:description" content="HamStudy-style cram engine for WGU courses. Wrong answers re-queue immediately. Session ends when you've nailed every question 3x.">
+<meta property="og:url" content="https://niggerfaggot.club/cram/">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; background: #0a0a0f; color: #e2e2e8; font-family: 'JetBrains Mono', monospace; min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+  .container { max-width: 720px; margin: 0 auto; padding: 20px 16px; }
+  .grad-text { background: linear-gradient(135deg, #a78bfa, #67e8f9, #6ee7b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+  /* Buttons */
+  .btn { border: none; border-radius: 12px; padding: 14px 24px; font-family: inherit; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.15s ease; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: linear-gradient(135deg, #a78bfa, #6ee7b7); color: #0a0a0f; font-size: 16px; font-weight: 800; letter-spacing: 1px; }
+  .btn-ghost { background: #111118; border: 1px solid #333; color: #999; }
+  .btn-correct { background: linear-gradient(135deg, #22c55e, #6ee7b7); color: #0a0a0f; font-weight: 800; }
+  .btn-wrong { background: linear-gradient(135deg, #ef4444, #fca5a5); color: #0a0a0f; font-weight: 800; }
+
+  /* Progress bar */
+  .progress-track { height: 4px; background: #1a1a2e; border-radius: 2px; overflow: hidden; margin-bottom: 16px; }
+  .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+
+  /* Choice buttons */
+  .choice { width: 100%; background: #0d0d14; border: 1px solid #222233; border-radius: 10px; padding: 12px 14px; color: #b0b0bc; font-size: 13px; line-height: 1.45; text-align: left; cursor: pointer; font-family: inherit; transition: all 0.15s ease; display: flex; align-items: flex-start; gap: 10px; }
+  .choice:active { transform: scale(0.98); }
+  .choice[disabled] { cursor: default; }
+  .choice.correct { background: #0a2e1a; border-color: #22c55e; color: #6ee7b7; }
+  .choice.wrong { background: #2e0a0a; border-color: #ef4444; color: #fca5a5; }
+  .choice.dimmed { opacity: 0.4; }
+  .choice-letter { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; min-width: 22px; border-radius: 6px; border: 1.5px solid #333; font-size: 11px; font-weight: 700; color: #555; flex-shrink: 0; }
+  .choice.correct .choice-letter { border-color: #22c55e; background: #22c55e22; color: #6ee7b7; }
+
+  /* Mnemonic */
+  .mnemonic { margin-top: 14px; padding: 10px 14px; border-radius: 10px; font-size: 12px; line-height: 1.5; color: #aaa; }
+  .mnemonic.correct { background: #0a2e1a44; border: 1px solid #22c55e33; }
+  .mnemonic.wrong { background: #2e0a0a44; border: 1px solid #ef444433; }
+
+  /* Comp chips */
+  .comp-bar { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 16px 0; }
+  .comp-chip { border-radius: 8px; padding: 6px 10px; font-size: 10px; min-width: 90px; text-align: center; }
+
+  /* Question grid */
+  .q-grid { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 20px; }
+  .q-dot { width: 28px; height: 28px; border-radius: 6px; font-size: 10px; border: 1px solid #222; background: #0d0d14; color: #444; cursor: pointer; font-family: inherit; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .q-dot.answered { background: #1a2e1a; color: #6ee7b7; }
+  .q-dot.current { border: 2px solid #a78bfa; }
+
+  /* Streak dots */
+  .streak-dots { display: flex; gap: 4px; justify-content: center; align-items: center; margin-bottom: 12px; }
+  .streak-dot { width: 8px; height: 8px; border-radius: 4px; background: #222; transition: background 0.3s ease; }
+  .streak-dot.filled { background: #22c55e; }
+
+  /* Course card */
+  .course-card { background: #111118; border: 1px solid #222; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.15s ease; }
+  .course-card:hover { border-color: #a78bfa44; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.2s ease; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+const COMP_COLORS = {
+  "Behavioral Influences": { bg: "#2d1b69", accent: "#a78bfa", glow: "rgba(167,139,250,0.3)" },
+  "Group Development": { bg: "#1b3a4b", accent: "#67e8f9", glow: "rgba(103,232,249,0.3)" },
+  "Teams and Team Building": { bg: "#1a3c34", accent: "#6ee7b7", glow: "rgba(110,231,183,0.3)" },
+  "Organizational Culture": { bg: "#3b1c32", accent: "#f9a8d4", glow: "rgba(249,168,212,0.3)" },
+  "Leadership": { bg: "#3b2f1a", accent: "#fcd34d", glow: "rgba(252,211,77,0.3)" },
+  "Performance Evaluation": { bg: "#1a2e3b", accent: "#93c5fd", glow: "rgba(147,197,253,0.3)" },
+};
+const DEFAULT_COMP_COLOR = { bg: "#1a1a2e", accent: "#888", glow: "rgba(136,136,136,0.2)" };
+
+function getCompColor(comp) {
+  if (COMP_COLORS[comp]) return COMP_COLORS[comp];
+  const hue = [...comp].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
+  return { bg: `hsl(${hue},30%,15%)`, accent: `hsl(${hue},60%,70%)`, glow: `hsla(${hue},60%,70%,0.2)` };
+}
+
+// ─── CRAM ENGINE ─────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initCram(bank) {
+  const queue = shuffle(bank.map(q => q.id));
+  const cards = {};
+  bank.forEach(q => { cards[q.id] = { streak: 0, seen: 0, correct: 0, status: "unseen" }; });
+  return { queue, cards, known: 0, total: bank.length, history: [] };
+}
+
+function cramAnswer(state, qId, isCorrect) {
+  const card = { ...state.cards[qId] };
+  card.seen++;
+  card.status = "learning";
+  const newQueue = [...state.queue];
+  if (isCorrect) {
+    card.correct++;
+    card.streak++;
+    if (card.streak >= 3) {
+      card.status = "known";
+      return { ...state, cards: { ...state.cards, [qId]: card }, queue: newQueue, known: state.known + 1, history: [...state.history, { id: qId, correct: true }] };
+    }
+  } else {
+    card.streak = 0;
+    const pos = Math.min(3 + Math.floor(Math.random() * 4), newQueue.length);
+    newQueue.splice(pos, 0, qId);
+  }
+  return { ...state, cards: { ...state.cards, [qId]: card }, queue: newQueue, history: [...state.history, { id: qId, correct: isCorrect }] };
+}
+
+// ─── COMPONENTS ──────────────────────────────────────────────────────────────
+function CompBar({ cards, bank }) {
+  const comps = [...new Set(bank.map(q => q.comp))];
+  const byComp = {};
+  comps.forEach(c => { byComp[c] = { total: 0, known: 0 }; });
+  bank.forEach(q => { byComp[q.comp].total++; if (cards[q.id]?.status === "known") byComp[q.comp].known++; });
+  return (
+    <div className="comp-bar">
+      {comps.map(c => {
+        const { total, known } = byComp[c];
+        const pct = total > 0 ? Math.round((known / total) * 100) : 0;
+        const col = getCompColor(c);
+        return (
+          <div key={c} className="comp-chip" style={{ background: col.bg, border: `1px solid ${col.accent}33` }}>
+            <div style={{ color: col.accent, fontWeight: 700, marginBottom: 2 }}>{pct}%</div>
+            <div style={{ color: "#888", lineHeight: 1.2 }}>{c.length > 20 ? c.slice(0, 18) + "…" : c}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function QuestionCard({ question, onAnswer, showMnemonic, selectedIdx }) {
+  const col = getCompColor(question.comp);
+  const answered = selectedIdx !== null;
+  return (
+    <div style={{ background: "#111118", border: `1px solid ${col.accent}22`, borderRadius: 16, padding: "20px 16px", marginBottom: 16, boxShadow: answered ? "none" : `0 0 40px ${col.glow}` }}>
+      <div style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: col.accent, marginBottom: 12, fontWeight: 600 }}>{question.comp}</div>
+      <div style={{ fontSize: 15, lineHeight: 1.55, color: "#d4d4dc", marginBottom: 16 }}>{question.q}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {question.choices.map((ch, i) => {
+          let cls = "choice";
+          if (answered) {
+            if (i === question.answer) cls += " correct";
+            else if (i === selectedIdx) cls += " wrong";
+            else cls += " dimmed";
+          }
+          return (
+            <button key={i} className={cls} onClick={() => !answered && onAnswer(i)} disabled={answered}>
+              <span className="choice-letter">{String.fromCharCode(65 + i)}</span>
+              <span>{ch}</span>
+            </button>
+          );
+        })}
+      </div>
+      {showMnemonic && answered && question.mnemonic && (
+        <div className={`mnemonic ${selectedIdx === question.answer ? "correct" : "wrong"}`}>
+          <span style={{ fontWeight: 700, color: selectedIdx === question.answer ? "#6ee7b7" : "#fca5a5" }}>
+            {selectedIdx === question.answer ? "✓ " : "✗ "}
+          </span>
+          {question.mnemonic}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── SCREENS ─────────────────────────────────────────────────────────────────
+function CourseSelectScreen({ courses, onSelect }) {
+  return (
+    <div className="container">
+      <div style={{ textAlign: "center", marginBottom: 32, paddingTop: 20 }}>
+        <div style={{ fontSize: 14, letterSpacing: 6, textTransform: "uppercase", color: "#555", marginBottom: 4 }}>WGU</div>
+        <div className="grad-text" style={{ fontSize: 32, fontWeight: 800 }}>CRAM</div>
+        <div style={{ fontSize: 12, color: "#444", letterSpacing: 2, marginTop: 4 }}>Adaptive Drill Engine</div>
+      </div>
+      {courses.length === 0 && (
+        <div style={{ textAlign: "center", color: "#555", padding: 40 }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>📭</div>
+          <div>No question banks found.</div>
+          <div style={{ fontSize: 12, marginTop: 8, color: "#444" }}>Banks load from /cram/banks/*.json</div>
+        </div>
+      )}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {courses.map(c => (
+          <div key={c.id} className="course-card" onClick={() => onSelect(c)}>
+            <div className="grad-text" style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>{c.id}</div>
+            <div style={{ fontSize: 13, color: "#888", marginBottom: 8 }}>{c.name}</div>
+            <div style={{ fontSize: 11, color: "#555" }}>{c.questions.length} questions · {[...new Set(c.questions.map(q => q.comp))].length} competencies</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ModeSelectScreen({ course, onStart, onBack }) {
+  const comps = [...new Set(course.questions.map(q => q.comp))];
+  return (
+    <div className="container">
+      <div style={{ textAlign: "center", marginBottom: 24, paddingTop: 12 }}>
+        <div style={{ fontSize: 12, letterSpacing: 4, textTransform: "uppercase", color: "#555" }}>WGU CRAM</div>
+        <div className="grad-text" style={{ fontSize: 28, fontWeight: 800 }}>{course.id}</div>
+        <div style={{ fontSize: 13, color: "#666" }}>{course.name}</div>
+      </div>
+      <div style={{ textAlign: "center", marginBottom: 24 }}>
+        <div style={{ fontSize: 48, fontWeight: 800 }}>{course.questions.length}</div>
+        <div style={{ fontSize: 12, color: "#666", letterSpacing: 1 }}>QUESTIONS</div>
+      </div>
+      <CompBar cards={Object.fromEntries(course.questions.map(q => [q.id, { status: "unseen" }]))} bank={course.questions} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 24 }}>
+        <button className="btn btn-primary" style={{ width: "100%", padding: "16px" }} onClick={() => onStart("cram")}>⚡ CRAM MODE</button>
+        <div style={{ fontSize: 11, color: "#555", textAlign: "center", lineHeight: 1.5 }}>
+          Wrong answers re-queue immediately. 3× streak to master.<br/>Session ends when pool is empty.
+        </div>
+        <button className="btn btn-ghost" style={{ width: "100%" }} onClick={() => onStart("exam")}>📝 EXAM SIMULATION</button>
+        <div style={{ fontSize: 11, color: "#444", textAlign: "center" }}>Full timed practice OA</div>
+        <button className="btn btn-ghost" style={{ width: "100%", marginTop: 8, color: "#555" }} onClick={onBack}>← courses</button>
+      </div>
+    </div>
+  );
+}
+
+function CramScreen({ bank, onHome }) {
+  const [state, setState] = useState(() => initCram(bank));
+  const [currentQ, setCurrentQ] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [showNext, setShowNext] = useState(false);
+  const [start] = useState(Date.now());
+  const [done, setDone] = useState(false);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  const drawNext = useCallback(() => {
+    const st = stateRef.current;
+    if (st.queue.length === 0) { setDone(true); return; }
+    const nextId = st.queue[0];
+    setState(prev => ({ ...prev, queue: prev.queue.slice(1) }));
+    setCurrentQ(bank.find(q => q.id === nextId));
+    setSelected(null);
+    setShowNext(false);
+  }, [bank]);
+
+  useEffect(() => { drawNext(); }, []);
+
+  const handleAnswer = (idx) => {
+    if (selected !== null) return;
+    setSelected(idx);
+    const isCorrect = idx === currentQ.answer;
+    setState(prev => {
+      const next = cramAnswer(prev, currentQ.id, isCorrect);
+      stateRef.current = next;
+      return next;
+    });
+    setShowNext(true);
+  };
+
+  if (done) {
+    const elapsed = Math.round((Date.now() - start) / 1000);
+    const mins = Math.floor(elapsed / 60);
+    const secs = elapsed % 60;
+    const total = state.history.length;
+    const correct = state.history.filter(h => h.correct).length;
+    return (
+      <div className="container" style={{ textAlign: "center", paddingTop: 40 }}>
+        <div style={{ fontSize: 48, marginBottom: 8 }}>🔥</div>
+        <div className="grad-text" style={{ fontSize: 24, fontWeight: 800 }}>BANK CLEARED</div>
+        <div style={{ color: "#666", fontSize: 13, marginBottom: 32 }}>Every question 3× correct in a row</div>
+        <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 32 }}>
+          <div><div style={{ fontSize: 32, fontWeight: 800, color: "#6ee7b7" }}>{mins}:{String(secs).padStart(2, "0")}</div><div style={{ fontSize: 10, color: "#555" }}>TIME</div></div>
+          <div><div style={{ fontSize: 32, fontWeight: 800, color: "#a78bfa" }}>{total}</div><div style={{ fontSize: 10, color: "#555" }}>ANSWERS</div></div>
+          <div><div style={{ fontSize: 32, fontWeight: 800, color: "#67e8f9" }}>{total > 0 ? Math.round((correct / total) * 100) : 0}%</div><div style={{ fontSize: 10, color: "#555" }}>ACCURACY</div></div>
+        </div>
+        <CompBar cards={state.cards} bank={bank} />
+        <button className="btn btn-ghost" style={{ marginTop: 24 }} onClick={onHome}>← Back</button>
+      </div>
+    );
+  }
+
+  if (!currentQ) return null;
+  const card = state.cards[currentQ.id];
+  const remaining = state.queue.length + 1;
+
+  return (
+    <div className="container">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <button onClick={onHome} style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 13, fontFamily: "inherit" }}>← quit</button>
+        <div style={{ fontSize: 11, color: "#555" }}>{remaining} left · {state.known}/{state.total} known</div>
+      </div>
+      <div className="progress-track">
+        <div className="progress-fill" style={{ background: "linear-gradient(90deg, #a78bfa, #6ee7b7)", width: `${(state.known / state.total) * 100}%` }} />
+      </div>
+      {card.seen > 0 && (
+        <div className="streak-dots">
+          {[0, 1, 2].map(i => <div key={i} className={`streak-dot ${i < card.streak ? "filled" : ""}`} />)}
+          <span style={{ fontSize: 10, color: "#444", marginLeft: 4 }}>{card.streak}/3</span>
+        </div>
+      )}
+      <QuestionCard question={currentQ} onAnswer={handleAnswer} showMnemonic={true} selectedIdx={selected} />
+      {showNext && (
+        <button
+          className={`btn ${selected === currentQ.answer ? "btn-correct" : "btn-wrong"} fade-in`}
+          style={{ width: "100%", fontSize: 15 }}
+          onClick={drawNext}
+        >
+          {state.queue.length === 0 ? "🔥 FINISH" : selected === currentQ.answer ? "NEXT →" : "GOT IT — NEXT →"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ExamScreen({ bank, onHome }) {
+  const [questions] = useState(() => shuffle(bank).slice(0, Math.min(bank.length, 42)));
+  const [answers, setAnswers] = useState({});
+  const [idx, setIdx] = useState(0);
+  const [submitted, setSubmitted] = useState(false);
+  const [start] = useState(Date.now());
+  const q = questions[idx];
+  const cnt = Object.keys(answers).length;
+
+  if (submitted) {
+    let correct = 0;
+    questions.forEach(q => { if (answers[q.id] === q.answer) correct++; });
+    const pct = Math.round((correct / questions.length) * 100);
+    const passed = pct >= 67;
+    const elapsed = Math.round((Date.now() - start) / 1000);
+    const byComp = {};
+    questions.forEach(q => { if (!byComp[q.comp]) byComp[q.comp] = { total: 0, correct: 0 }; byComp[q.comp].total++; if (answers[q.id] === q.answer) byComp[q.comp].correct++; });
+    const missed = questions.filter(q => answers[q.id] !== q.answer);
+    return (
+      <div className="container">
+        <div style={{ textAlign: "center", padding: "40px 0 24px" }}>
+          <div style={{ fontSize: 48, marginBottom: 8 }}>{passed ? "✅" : "❌"}</div>
+          <div className="grad-text" style={{ fontSize: 24, fontWeight: 800 }}>{correct}/{questions.length} — {pct}%</div>
+          <div style={{ color: "#666", fontSize: 13 }}>{passed ? "COMPETENT" : "NOT YET COMPETENT"} · {Math.floor(elapsed / 60)} min</div>
+        </div>
+        <div style={{ marginBottom: 24 }}>
+          {Object.entries(byComp).map(([comp, data]) => {
+            const cpct = Math.round((data.correct / data.total) * 100);
+            const col = getCompColor(comp);
+            return (
+              <div key={comp} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 0", borderBottom: "1px solid #151520" }}>
+                <div style={{ flex: 1, fontSize: 12, color: col.accent }}>{comp}</div>
+                <div style={{ width: 100, height: 6, background: "#1a1a2e", borderRadius: 3, overflow: "hidden" }}><div style={{ height: "100%", width: `${cpct}%`, background: col.accent, borderRadius: 3 }} /></div>
+                <div style={{ fontSize: 12, color: "#888", width: 50, textAlign: "right" }}>{data.correct}/{data.total}</div>
+              </div>
+            );
+          })}
+        </div>
+        {missed.length > 0 && <div style={{ fontSize: 13, color: "#555", fontWeight: 700, marginBottom: 12, letterSpacing: 1 }}>REVIEW MISSED</div>}
+        {missed.map(q => <QuestionCard key={q.id} question={q} onAnswer={() => {}} showMnemonic={true} selectedIdx={answers[q.id] ?? null} />)}
+        {missed.length === 0 && <div style={{ color: "#22c55e", fontSize: 14, textAlign: "center", padding: 20 }}>Perfect score.</div>}
+        <button className="btn btn-ghost" style={{ width: "100%", marginTop: 16, marginBottom: 32 }} onClick={onHome}>← Back</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <button onClick={onHome} style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 13, fontFamily: "inherit" }}>← quit</button>
+        <div style={{ fontSize: 11, color: "#555" }}>Q{idx + 1}/{questions.length} · {cnt} answered</div>
+      </div>
+      <div className="progress-track"><div className="progress-fill" style={{ background: "linear-gradient(90deg, #fcd34d, #f97316)", width: `${((idx + 1) / questions.length) * 100}%` }} /></div>
+      <QuestionCard question={q} onAnswer={(i) => setAnswers(prev => ({ ...prev, [q.id]: i }))} showMnemonic={false} selectedIdx={answers[q.id] ?? null} />
+      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+        <button className="btn btn-ghost" style={{ flex: 1, opacity: idx === 0 ? 0.3 : 1 }} disabled={idx === 0} onClick={() => setIdx(i => i - 1)}>← Prev</button>
+        {idx < questions.length - 1
+          ? <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setIdx(i => i + 1)}>Next →</button>
+          : <button className="btn" style={{ flex: 1, background: cnt === questions.length ? "linear-gradient(135deg, #fcd34d, #f97316)" : "#222", color: cnt === questions.length ? "#0a0a0f" : "#555", fontWeight: 800 }} onClick={() => setSubmitted(true)}>SUBMIT ({cnt}/{questions.length})</button>
+        }
+      </div>
+      <div className="q-grid">
+        {questions.map((q, i) => (
+          <button key={i} className={`q-dot ${answers[q.id] !== undefined ? "answered" : ""} ${i === idx ? "current" : ""}`} onClick={() => setIdx(i)}>{i + 1}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── APP ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
+  const [mode, setMode] = useState(null); // "cram" | "exam"
+
+  useEffect(() => {
+    async function loadBanks() {
+      try {
+        const manifest = await fetch("banks/manifest.json").then(r => r.json());
+        const loaded = [];
+        for (const entry of manifest) {
+          try {
+            const data = await fetch(`banks/${entry.file}`).then(r => r.json());
+            loaded.push({ id: entry.id, name: entry.name, questions: data });
+          } catch (e) { console.warn(`Failed to load ${entry.file}`, e); }
+        }
+        setCourses(loaded);
+      } catch (e) {
+        console.warn("No manifest found, trying c715.json directly");
+        try {
+          const data = await fetch("banks/c715.json").then(r => r.json());
+          setCourses([{ id: "C715", name: "Organizational Behavior", questions: data }]);
+        } catch (e2) { console.warn("No banks found"); }
+      }
+      setLoading(false);
+    }
+    loadBanks();
+  }, []);
+
+  if (loading) return <div className="container" style={{ textAlign: "center", paddingTop: 100, color: "#555" }}>Loading banks...</div>;
+  if (mode === "cram" && selected) return <CramScreen bank={selected.questions} onHome={() => setMode(null)} />;
+  if (mode === "exam" && selected) return <ExamScreen bank={selected.questions} onHome={() => setMode(null)} />;
+  if (selected) return <ModeSelectScreen course={selected} onStart={setMode} onBack={() => setSelected(null)} />;
+  return <CourseSelectScreen courses={courses} onSelect={setSelected} />;
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+</script>
+</body>
+</html>
