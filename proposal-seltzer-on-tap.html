@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: Seltzer on Tap</title>
+<meta property="og:title" content="Proposal: Seltzer on Tap">
+<meta property="og:description" content="Ditch the $6 Food Lion 12-packs. Bulk CO2 tank + used SodaStream = unlimited seltzer for pennies. Break even in 3 months, save $280+/year.">
+<meta property="og:url" content="https://niggerfaggot.club/proposal-seltzer-on-tap.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { overflow-x: hidden; }
+:root {
+  --bark: #2C1810;
+  --loam: #3D2914;
+  --timber: #4A3320;
+  --fence: #5C4033;
+  --wire: #8B7355;
+  --hay: #D4A843;
+  --straw: #E8C878;
+  --cream: #F5F0E1;
+  --milk: #FDF8EF;
+  --grass: #4A7C3F;
+  --grass-light: #6BAF5B;
+  --rust: #A0522D;
+  --sky: #87CEEB;
+  --danger: #C0392B;
+  --info: #2980B9;
+  --steel: #5B6770;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background: var(--milk);
+  color: var(--bark);
+  line-height: 1.75;
+  font-size: 17px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--fence);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.back-link:hover { color: var(--hay); }
+.hero {
+  position: relative;
+  padding: 4rem 1.5rem 3rem;
+  background: linear-gradient(135deg, var(--loam) 0%, var(--timber) 50%, var(--fence) 100%);
+  color: var(--cream);
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0px,
+    transparent 20px,
+    rgba(255,255,255,0.015) 20px,
+    rgba(255,255,255,0.015) 22px
+  );
+}
+.hero-inner {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.badge {
+  display: inline-block;
+  background: var(--hay);
+  color: var(--bark);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+.hero .subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--straw);
+  max-width: 600px;
+}
+.meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.12);
+}
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.meta-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--wire);
+}
+.meta-value {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--straw);
+}
+.meta-value.cost { color: var(--hay); }
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+.section {
+  margin-bottom: 3rem;
+}
+.section h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--loam);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--hay);
+}
+.section h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--timber);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+p { margin-bottom: 1rem; }
+p:last-child { margin-bottom: 0; }
+div.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.materials-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+.materials-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--wire);
+  padding: 8px 10px;
+  border-bottom: 2px solid #e8e0d0;
+}
+.materials-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0ebe0;
+  color: var(--timber);
+}
+.materials-table tr:last-child td { border-bottom: none; }
+.materials-table .price { font-weight: 600; color: var(--grass); text-align: right; white-space: nowrap; }
+.materials-table .subtotal td {
+  border-top: 2px solid #e8e0d0;
+  font-weight: 600;
+}
+.materials-table .free { font-weight: 600; color: var(--hay); text-align: right; }
+.callout {
+  background: #FFF8E7;
+  border-left: 3px solid var(--hay);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.95rem;
+}
+.callout.info {
+  background: #EFF6FF;
+  border-left-color: var(--info);
+}
+.callout.warn {
+  background: #FEF2F2;
+  border-left-color: var(--danger);
+}
+.callout strong { color: var(--bark); }
+.direction-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.direction-card {
+  background: white;
+  border: 1px solid #e8e0d0;
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+.direction-card.recommended {
+  border-color: var(--hay);
+  border-width: 2px;
+  position: relative;
+}
+.direction-card.recommended::after {
+  content: '\u2605 RECOMMENDED';
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  background: var(--hay);
+  color: var(--bark);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+.direction-card h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  color: var(--loam);
+  margin: 0 0 0.5rem;
+}
+.direction-card p {
+  font-size: 0.9rem;
+  color: var(--fence);
+  margin-bottom: 0.5rem;
+}
+.direction-meta {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.8rem;
+  color: var(--wire);
+  margin-top: 0.5rem;
+}
+.direction-meta span { font-weight: 600; }
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+.comparison-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--wire);
+  padding: 10px;
+  border-bottom: 2px solid #e8e0d0;
+}
+.comparison-table td {
+  padding: 10px;
+  border-bottom: 1px solid #f0ebe0;
+  color: var(--timber);
+}
+.comparison-table .highlight {
+  background: #f0fbe8;
+  font-weight: 600;
+}
+.comparison-table .winner { color: var(--grass); font-weight: 700; }
+.comparison-table .loser { color: var(--danger); }
+.action-list {
+  list-style: none;
+  counter-reset: action;
+}
+.action-list li {
+  counter-increment: action;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--timber);
+}
+.action-list li::before {
+  content: counter(action);
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  background: var(--grass);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.verdict {
+  background: linear-gradient(135deg, var(--loam), var(--timber));
+  color: var(--cream);
+  padding: 2rem;
+  border-radius: 6px;
+  margin-top: 2rem;
+}
+.verdict h2 {
+  font-family: 'Fraunces', serif;
+  color: var(--straw);
+  border-bottom-color: rgba(255,255,255,0.15);
+  margin-bottom: 0.75rem;
+}
+.verdict p { color: var(--straw); font-size: 0.95rem; }
+.verdict .send-it {
+  font-family: 'Fraunces', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--hay);
+  margin-top: 1rem;
+}
+.savings-banner {
+  background: var(--grass);
+  color: white;
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+}
+.savings-banner .amount {
+  font-family: 'Fraunces', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+.savings-banner .label {
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+@media (max-width: 600px) {
+  .meta-bar { gap: 1rem; }
+  .hero { padding: 3rem 1.25rem 2rem; }
+  .content { padding: 2rem 1.25rem 3rem; }
+  .direction-meta { flex-direction: column; gap: 0.25rem; }
+}
+</style>
+</head>
+<body>
+
+<a href="/proposals" class="back-link">&larr; All Proposals</a>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="badge">Proposal #010</span>
+    <h1>Seltzer on Tap</h1>
+    <p class="subtitle">Stop paying $6/week for cans of fizzy water. Bulk CO2 tank, used SodaStream, unlimited seltzer for pennies per liter. Break even in 3 months.</p>
+    <div class="meta-bar">
+      <div class="meta-item">
+        <span class="meta-label">Total Cost</span>
+        <span class="meta-value cost">$80&ndash;$110</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Difficulty</span>
+        <span class="meta-value">1/5</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Setup Time</span>
+        <span class="meta-value">1 afternoon</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Category</span>
+        <span class="meta-value">Kitchen</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Status</span>
+        <span class="meta-value">Proposed</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="section">
+    <h2>The Problem</h2>
+    <p>We go through roughly a 12-pack of store-brand seltzer water per week from Food Lion at about $5&ndash;6 per pack. That's $260&ndash;$312 per year on cans of water with bubbles in it. The cans pile up in recycling, take up fridge space, and we run out mid-week when we're mixing drinks at the bar. It's a consumable that never stops costing money.</p>
+    <p>Seltzer water is literally just water + CO2. There's no reason to keep buying it pre-packaged in aluminum cans shipped from a bottling plant when CO2 is one of the cheapest industrial gases on earth.</p>
+  </div>
+
+  <div class="section">
+    <h2>The Solution</h2>
+    <p>A used SodaStream (or any generic soda maker) connected via a CGA320 adapter hose to a 5lb bulk CO2 tank. The soda maker is just a valve that pushes CO2 into a bottle of water. The adapter hose bypasses SodaStream's overpriced proprietary cartridges and connects directly to a bulk tank that costs $15&ndash;25 to refill and lasts 6&ndash;12 months at our usage level.</p>
+    <p>A 5lb CO2 tank produces roughly 400 liters of sparkling water. At one 12-pack per week (about 4.25 liters), that's nearly two years of seltzer on a single fill. The ongoing cost works out to about 1&ndash;2 cents per liter.</p>
+
+    <div class="savings-banner">
+      <div class="label">Projected Annual Savings</div>
+      <div class="amount">$280+</div>
+      <div class="label">After Year 1 (equipment paid off)</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Two Paths</h2>
+    <div class="direction-grid">
+      <div class="direction-card recommended">
+        <h3>Path B: Used + Bulk CO2</h3>
+        <p>Grab a used SodaStream off Facebook Marketplace for $15&ndash;30 (they're everywhere, people buy them and forget about them). Buy a CGA320 adapter hose on Amazon (~$25&ndash;35). Get a 5lb CO2 tank filled at Machine &amp; Welding Supply in Garner (~$25 swap) or Pye Barker Fire &amp; Safety in Raleigh (~$25 fill). Done.</p>
+        <div class="direction-meta">
+          <span>$80&ndash;110 upfront</span>
+          <span>Break even: ~3 months</span>
+          <span>Lowest cost</span>
+        </div>
+      </div>
+      <div class="direction-card">
+        <h3>Path A: New Generic + Bulk CO2</h3>
+        <p>Buy a new generic soda maker (Drinkmate, random Amazon brand) for $40&ndash;50. Same adapter hose setup. New 5lb CO2 tank from Amazon (VEVOR ~$60) or swap locally. Cleaner start, slightly higher upfront.</p>
+        <div class="direction-meta">
+          <span>$130&ndash;170 upfront</span>
+          <span>Break even: ~6 months</span>
+          <span>No Marketplace hunting</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Shopping List (Path B)</h2>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <tr><th>Item</th><th>Source</th><th style="text-align:right">Cost</th></tr>
+      <tr>
+        <td>SodaStream (any model with TR21-4 thread: Fizzi, One Touch, Jet, Source)</td>
+        <td>Facebook Marketplace</td>
+        <td class="price">$15&ndash;30</td>
+      </tr>
+      <tr>
+        <td>CGA320 to TR21-4 adapter hose, 60" stainless steel, with pressure gauge</td>
+        <td>Amazon</td>
+        <td class="price">$25&ndash;35</td>
+      </tr>
+      <tr>
+        <td>5lb CO2 tank (filled, swap)</td>
+        <td>Machine &amp; Welding Supply, Garner</td>
+        <td class="price">$25</td>
+      </tr>
+      <tr>
+        <td>Roll of plumber's tape (for sealing threads)</td>
+        <td>Already own / $2</td>
+        <td class="price">$0&ndash;2</td>
+      </tr>
+      <tr class="subtotal">
+        <td colspan="2"><strong>Total Upfront</strong></td>
+        <td class="price">$65&ndash;92</td>
+      </tr>
+    </table>
+    </div>
+
+    <div class="callout info">
+      <strong>Important:</strong> Do NOT buy the newer SodaStream Terra/DUO/Art/Gaia models. These use a different "Quick Connect" pink cylinder that requires a different (more expensive) adapter. Stick with any model that uses the classic blue screw-in TR21-4 cylinder: Fizzi, One Touch, Jet, Source, Aqua Fizz, Genesis.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>5-Year Cost Comparison</h2>
+    <div class="table-wrap">
+    <table class="comparison-table">
+      <tr><th>Method</th><th>Year 1</th><th>Year 2</th><th>Year 3</th><th>Year 5</th></tr>
+      <tr>
+        <td>Food Lion cans ($6/wk)</td>
+        <td class="loser">$312</td>
+        <td class="loser">$624</td>
+        <td class="loser">$936</td>
+        <td class="loser">$1,560</td>
+      </tr>
+      <tr class="highlight">
+        <td>Path B (used + bulk CO2)</td>
+        <td class="winner">$95</td>
+        <td class="winner">$115</td>
+        <td class="winner">$135</td>
+        <td class="winner">$175</td>
+      </tr>
+      <tr>
+        <td>Path A (new + bulk CO2)</td>
+        <td>$155</td>
+        <td>$175</td>
+        <td>$195</td>
+        <td>$235</td>
+      </tr>
+      <tr>
+        <td>SodaStream + proprietary refills</td>
+        <td>$160</td>
+        <td>$250</td>
+        <td>$340</td>
+        <td>$520</td>
+      </tr>
+    </table>
+    </div>
+    <p style="font-size:0.85rem;color:var(--wire);">Assumes ~1 refill per 18 months at $20&ndash;25 for bulk CO2 paths. SodaStream proprietary assumes $15/cartridge every 2 months.</p>
+  </div>
+
+  <div class="section">
+    <h2>Local CO2 Refill Options</h2>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <tr><th>Place</th><th>Location</th><th>Type</th><th style="text-align:right">5lb Price</th></tr>
+      <tr>
+        <td><strong>Machine &amp; Welding Supply</strong></td>
+        <td>Garner (Rt 401) &mdash; closest</td>
+        <td>Swap</td>
+        <td class="price">~$25</td>
+      </tr>
+      <tr>
+        <td>Pye Barker Fire &amp; Safety</td>
+        <td>832 Purser Dr, Raleigh</td>
+        <td>Fill (keep your tank)</td>
+        <td class="price">~$25</td>
+      </tr>
+      <tr>
+        <td>American Brewmaster</td>
+        <td>Raleigh (Beltline)</td>
+        <td>Fill while you wait</td>
+        <td class="price">~$25&ndash;35</td>
+      </tr>
+      <tr>
+        <td>BFPE International</td>
+        <td>115 Best Wood Dr, Clayton</td>
+        <td>Fill</td>
+        <td class="price">~$19</td>
+      </tr>
+      <tr>
+        <td>Airgas</td>
+        <td>4301 Capital Blvd, Raleigh</td>
+        <td>Swap</td>
+        <td class="price">~$30&ndash;40</td>
+      </tr>
+    </table>
+    </div>
+    <div class="callout">
+      <strong>Pro tip:</strong> Machine &amp; Welding in Garner is a 10-minute drive from the house. Tank swap takes 5 minutes. At our usage rate you'd go maybe once a year.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Setup Instructions</h2>
+    <ul class="action-list">
+      <li><span>Browse Facebook Marketplace for "SodaStream" in the Raleigh area. Filter under $30. Confirm it uses the blue screw-in cylinder (NOT the pink quick-connect).</span></li>
+      <li><span>Order a CGA320 to TR21-4 adapter hose from Amazon. Get one with a pressure gauge and 60" length. ~$30.</span></li>
+      <li><span>Drive to Machine &amp; Welding Supply in Garner. Buy/swap a filled 5lb CO2 tank. ~$25.</span></li>
+      <li><span>Wrap the CGA320 threads with plumber's tape. Connect hose to CO2 tank. Connect other end to SodaStream (where the blue cylinder normally goes).</span></li>
+      <li><span>Fill SodaStream bottle with cold water. Open CO2 tank valve. Press the carbonation button 3&ndash;5 times until you hear the buzz. Done.</span></li>
+      <li><span>Close the CO2 tank valve after each use. Some adapter seals leak slowly if left open.</span></li>
+    </ul>
+
+    <div class="callout warn">
+      <strong>Heads up from Amazon reviews:</strong> Some cheap hoses leak at the crimp or quick-disconnect. Wrap all threads with plumber's tape, tighten with a wrench (not just hand-tight), and close the tank valve between uses. If you get a dud hose, return it. The brass adapter itself is reliable, it's usually the hose that fails.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Why This Matters for the Bar</h2>
+    <p>Half the cocktails on the drinks bar use seltzer, tonic, or sparkling water as a component. Running out of cans mid-session means a trip to Food Lion or a flat drink. With a bulk setup, there's always carbonated water on demand. Fill a bottle, carbonate, pour. No cans to chill, no recycling pile, no running out. It also opens up making homemade tonic water and flavored seltzers with syrups from the bar.</p>
+  </div>
+
+  <div class="verdict">
+    <h2>The Ask</h2>
+    <p>This is a no-brainer money saver. The upfront cost is under $100 using Path B, it pays for itself in 3 months, and after that we're saving $280+ per year on something we buy every single week. The setup takes one afternoon and there's basically zero ongoing maintenance. One CO2 refill per year.</p>
+    <p>The only question is whether Bekah wants the SodaStream machine on the counter or tucked in the pantry with a hose running to the tank. Either way, unlimited bubbles.</p>
+    <p class="send-it">Fizz it up?</p>
+  </div>
+
+</div>
+
+</body>
+</html>
