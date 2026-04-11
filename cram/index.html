@@ -151,22 +151,32 @@ function CompBar({ cards, bank }) {
 function QuestionCard({ question, onAnswer, showMnemonic, selectedIdx }) {
   const col = getCompColor(question.comp);
   const answered = selectedIdx !== null;
+  const shuffledOrder = React.useMemo(() => {
+    const indices = question.choices.map((_, i) => i);
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    return indices;
+  }, [question.id]);
+  const shuffledAnswer = shuffledOrder.indexOf(question.answer);
+  const shuffledSelected = selectedIdx !== null ? shuffledOrder.indexOf(selectedIdx) : null;
   return (
     <div style={{ background: "#111118", border: `1px solid ${col.accent}22`, borderRadius: 16, padding: "20px 16px", marginBottom: 16, boxShadow: answered ? "none" : `0 0 40px ${col.glow}` }}>
       <div style={{ fontSize: 10, letterSpacing: 2, textTransform: "uppercase", color: col.accent, marginBottom: 12, fontWeight: 600 }}>{question.comp}</div>
       <div style={{ fontSize: 15, lineHeight: 1.55, color: "#d4d4dc", marginBottom: 16 }}>{question.q}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {question.choices.map((ch, i) => {
+        {shuffledOrder.map((origIdx, displayIdx) => {
           let cls = "choice";
           if (answered) {
-            if (i === question.answer) cls += " correct";
-            else if (i === selectedIdx) cls += " wrong";
+            if (origIdx === question.answer) cls += " correct";
+            else if (origIdx === selectedIdx) cls += " wrong";
             else cls += " dimmed";
           }
           return (
-            <button key={i} className={cls} onClick={() => !answered && onAnswer(i)} disabled={answered}>
-              <span className="choice-letter">{String.fromCharCode(65 + i)}</span>
-              <span>{ch}</span>
+            <button key={displayIdx} className={cls} onClick={() => !answered && onAnswer(origIdx)} disabled={answered}>
+              <span className="choice-letter">{String.fromCharCode(65 + displayIdx)}</span>
+              <span>{question.choices[origIdx]}</span>
             </button>
           );
         })}
