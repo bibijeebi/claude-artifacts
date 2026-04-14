@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D072 BIZ CRAM | WGU</title>
+<style>
+html, body { overflow-x: hidden; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
+body { font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace; background: #1e1e2e; color: #cdd6f4; }
+#root { min-height: 100vh; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const { useState, useEffect, useCallback, useRef } = React;
+
+const QUESTIONS = [{"i": 0, "s": "A company employee is involved in developing the vision for the organization and developing the broad goals necessary to move toward that vision. What is this employee's role?", "c": ["Manager", "Leader", "Supervisor", "Team member"], "a": 1, "d": "leadership", "e": "Leaders create vision and inspire. Managers plan, organize, and direct. Vision = Leader.", "b": "recall", "src": "bank"}, {"i": 1, "s": "A new supervisor motivates employees through bonuses but offers little vision or innovation. Which leadership style is this?", "c": ["Transformational", "Transactional", "Autocratic", "Laissez-faire"], "a": 1, "d": "leadership", "e": "Bonuses but no vision = Transactional. 'If you do X, you get Y.' Transformational = vision + intrinsic motivation.", "b": "recall", "src": "bank"}, {"i": 2, "s": "Which four components make up transformational leadership?", "c": ["Idealized Influence, Inspirational Motivation, Intellectual Stimulation, Individualized Consideration", "Rewards, Punishments, Vision, Delegation", "Planning, Organizing, Directing, Controlling", "Self-Awareness, Self-Management, Social Awareness, Relationship Management"], "a": 0, "d": "leadership", "e": "The 4 I's of Transformational: Idealized Influence, Inspirational Motivation, Intellectual Stimulation, Individualized Consideration. Last option is EI pillars.", "b": "recall", "src": "bank"}, {"i": 3, "s": "A manager keeps close control over subordinates and does not seek much input from others. Which leadership style is this?", "c": ["Participative", "Laissez-faire", "Autocratic", "Transformational"], "a": 2, "d": "leadership", "e": "Close control + no input = Autocratic. Participative seeks input. Laissez-faire is hands-off.", "b": "recall", "src": "bank"}, {"i": 4, "s": "Which leadership style seeks input from subordinates before making decisions?", "c": ["Autocratic", "Participative", "Transactional", "Laissez-faire"], "a": 1, "d": "leadership", "e": "Participative = seeks input. Autocratic = no input. Laissez-faire = no direction at all.", "b": "recall", "src": "bank"}, {"i": 5, "s": "Which leadership style is primarily concerned with interpersonal relations in the workplace?", "c": ["Task-Oriented", "People-Oriented", "Autocratic", "Transactional"], "a": 1, "d": "leadership", "e": "People-Oriented = interpersonal relations. Task-Oriented = job tasks. Don't confuse these two.", "b": "recall", "src": "bank"}, {"i": 6, "s": "A leader has high concern for people but low concern for production. Which style is this?", "c": ["Autocratic", "Accommodating", "Market", "Task-Oriented"], "a": 1, "d": "leadership", "e": "Accommodating = high people, low production. They prioritize keeping everyone happy even at the cost of productivity.", "b": "recall", "src": "bank"}, {"i": 7, "s": "Power based on knowledge and special skill or experience is called:", "c": ["Legitimate Power", "Referent Power", "Expert Power", "Coercive Power"], "a": 2, "d": "leadership", "e": "Expert = knowledge/skill. Legitimate = position. Referent = charisma/personality. Coercive = punishment. Reward = incentives.", "b": "recall", "src": "bank"}, {"i": 8, "s": "The extent to which individuals believe circumstances and responses are within their control is called:", "c": ["Self-awareness", "Emotional intelligence", "Locus of control", "Self-management"], "a": 2, "d": "leadership", "e": "Locus of control: Internal = 'I control my outcomes.' External = 'Things happen to me.' Leaders tend to have internal locus.", "b": "recall", "src": "bank"}, {"i": 9, "s": "What is the difference between a manager and a leader?", "c": ["Managers create vision; leaders execute tasks", "Leaders earn influence through followers; managers hold positional power", "Managers motivate intrinsically; leaders use rewards", "There is no difference"], "a": 1, "d": "leadership", "e": "Leader = influence earned from followers via knowledge/personality. Manager = positional power, plans/organizes/directs.", "b": "recall", "src": "bank"}, {"i": 10, "s": "A manager encourages employees to think creatively and take risks to increase their impact. Which organizational culture is reflected?", "c": ["Clan", "Hierarchy", "Market", "Adhocracy"], "a": 3, "d": "org_functions", "e": "Adhocracy = creative, risk-taking, innovative. CVF quadrant: external focus + flexibility.", "b": "recall", "src": "bank"}, {"i": 11, "s": "An individual wants to be part of a team where employees are the most valued asset and are given opportunities for personal and professional development. Which CVF quadrant is this?", "c": ["Market", "Adhocracy", "Clan", "Hierarchy"], "a": 2, "d": "org_functions", "e": "Clan = family-like, employees valued, mentoring, development. Internal focus + flexibility. CAMH mnemonic.", "b": "recall", "src": "bank"}, {"i": 12, "s": "A manager encourages employees to distinguish themselves by consistently exceeding goal expectations and winning monthly sales competitions. Which culture type?", "c": ["Clan", "Adhocracy", "Market", "Hierarchy"], "a": 2, "d": "org_functions", "e": "Market = results-oriented, competitive, demanding. External focus + stability. Sales competitions = Market.", "b": "recall", "src": "bank"}, {"i": 13, "s": "Which characteristic of an organization is considered in the Competing Values Framework?", "c": ["Profit margin vs. revenue", "External versus internal focus of activity", "Product quality vs. customer service", "Employee count vs. market share"], "a": 1, "d": "org_functions", "e": "CVF considers two axes: external vs. internal focus, and flexibility vs. stability. Four quadrants: Clan, Adhocracy, Market, Hierarchy.", "b": "recall", "src": "bank"}, {"i": 14, "s": "An organization is known to have low tolerance for ambiguity. Which personality type is ideally suited?", "c": ["Creative", "Independent", "Rigorous", "Flexible"], "a": 2, "d": "org_functions", "e": "Low tolerance for ambiguity = needs structure = Rigorous personality. This maps to Hierarchy culture.", "b": "recall", "src": "bank"}, {"i": 15, "s": "Which personality trait is ideally suited for an organizational culture that stresses individualism?", "c": ["Collaborative", "Rigorous", "Independent", "Agreeable"], "a": 2, "d": "org_functions", "e": "Individualism culture = Independent personality. Clan culture would want Collaborative.", "b": "recall", "src": "bank"}, {"i": 16, "s": "According to the Attraction-Selection-Attrition (A-S-A) model, what happens to employees who don't fit the organizational culture?", "c": ["They are promoted to different roles", "They adapt and change their values", "They are more likely to leave over time", "They become the most productive employees"], "a": 2, "d": "org_functions", "e": "A-S-A: Attraction (like attracts like), Selection (orgs pick similar people), Attrition (misfits leave). Culture self-reinforces.", "b": "recall", "src": "bank"}, {"i": 17, "s": "Which must exist for new employees to perform well in an organization prior to being fully trained?", "c": ["High salary", "Fit with the culture", "Management approval", "Prior industry experience"], "a": 1, "d": "org_functions", "e": "Culture fit enables performance before training is complete. Person-organization fit + person-job fit both matter.", "b": "recall", "src": "bank"}, {"i": 18, "s": "The McKinsey 7-S Model defines which element of organizational culture?", "c": ["The four competing values", "Seven shared values including strategy, structure, and systems", "The five levels of ethical issues", "The four pillars of emotional intelligence"], "a": 1, "d": "org_functions", "e": "McKinsey 7-S: Strategy, Structure, Systems, Shared Values, Style, Staff, Skills. All start with S.", "b": "recall", "src": "bank"}, {"i": 19, "s": "During the hiring process, companies and employees should consider both:", "c": ["Salary and benefits", "Person-organization fit and person-job fit", "Education and experience", "Location and commute time"], "a": 1, "d": "org_functions", "e": "Person-org fit = do your values match the culture? Person-job fit = can you do the actual work? Both matter.", "b": "recall", "src": "bank"}, {"i": 20, "s": "A finance director hides debt to attract investors. Which ethical concept is violated?", "c": ["Confidentiality", "Fraud prevention", "CSR", "Environmental stewardship"], "a": 1, "d": "ethics", "e": "Hiding debt = deception = fraud. This is illegal AND unethical. CSR is voluntary good, not relevant here.", "b": "recall", "src": "bank"}, {"i": 21, "s": "An organization plans to close its local factory and shift manufacturing overseas. Employees oppose this. Which term describes this situation?", "c": ["Stakeholder issue", "Internal policy issue", "Societal issue", "Personal issue"], "a": 0, "d": "ethics", "e": "Stakeholder issue = anyone affected by company actions. Employees, community, suppliers are all stakeholders affected by offshoring.", "b": "recall", "src": "bank"}, {"i": 22, "s": "What are the four levels of organizational ethics?", "c": ["Legal, illegal, ethical, unethical", "Societal, stakeholder, internal policy, personal", "Individual, team, department, company", "Planning, organizing, directing, controlling"], "a": 1, "d": "ethics", "e": "Four levels: Societal (world), Stakeholder (affected parties), Internal Policy (employee relations), Personal (individual). Last option is management functions.", "b": "recall", "src": "bank"}, {"i": 23, "s": "An act that is permitted by law but violates personal or organizational ethics is called:", "c": ["Illegal-ethical", "Legal-ethical", "Legal-unethical", "Illegal-unethical"], "a": 2, "d": "ethics", "e": "Legal-unethical = loopholes that harm people. Example: paying minimum wage in expensive cities. Legal but arguably unethical.", "b": "recall", "src": "bank"}, {"i": 24, "s": "U.S. Government officials leaked top secret papers to inform the public about Vietnam War actions. This is an example of:", "c": ["Legal-ethical", "Legal-unethical", "Illegal-ethical", "Illegal-unethical"], "a": 2, "d": "ethics", "e": "Pentagon Papers: illegal (leaked classified docs) but ethical (public deserved to know). Classic illegal-ethical example.", "b": "recall", "src": "bank"}, {"i": 25, "s": "A manager decides to get employees involved in a community technology recycling program. Which concept does this demonstrate?", "c": ["Stakeholder management", "Corporate Social Responsibility", "Internal policy", "Transactional leadership"], "a": 1, "d": "ethics", "e": "CSR = voluntarily doing good beyond profit. Community recycling = giving back = CSR.", "b": "recall", "src": "bank"}, {"i": 26, "s": "Which factors influence personal ethics?", "c": ["Salary, benefits, and job title", "Family, community, personal beliefs, and values", "Education level and work experience only", "Government regulations and laws"], "a": 1, "d": "ethics", "e": "Personal ethics shaped by family, community, beliefs, values. These are stable but can evolve through experience.", "b": "recall", "src": "bank"}, {"i": 27, "s": "Where culture intersects with ethics, what challenge can arise?", "c": ["All cultures agree on ethical standards", "Variation in ethical understanding across cultures", "Laws automatically resolve all ethical conflicts", "Ethics becomes irrelevant in multicultural settings"], "a": 1, "d": "ethics", "e": "Different cultures = different ethics. Creates challenges with bribery, harassment, honesty, timekeeping, reporting practices.", "b": "recall", "src": "bank"}, {"i": 28, "s": "The capacity to be aware of, control, and express one's emotions, and handle interpersonal relationships judiciously and empathetically is called:", "c": ["Intelligence Quotient", "Emotional Intelligence", "Locus of Control", "Cultural Intelligence"], "a": 1, "d": "emotional_intelligence", "e": "EI definition verbatim. IQ = reasoning ability. Locus of control = belief about who controls outcomes.", "b": "recall", "src": "bank"}, {"i": 29, "s": "What are the four building blocks of Emotional Intelligence?", "c": ["Planning, Organizing, Directing, Controlling", "Self-Awareness, Self-Management, Social Awareness, Relationship Management", "Idealized Influence, Inspirational Motivation, Intellectual Stimulation, Individualized Consideration", "Clan, Adhocracy, Market, Hierarchy"], "a": 1, "d": "emotional_intelligence", "e": "EI = S-S-S-R: Self-Awareness, Self-Management, Social Awareness, Relationship Management. Option C = Transformational 4 I's. Option D = CVF.", "b": "recall", "src": "bank"}, {"i": 30, "s": "Which EI component involves being attuned to your inner preferences, values, beliefs, and resources?", "c": ["Self-Management", "Social Awareness", "Relationship Management", "Self-Awareness"], "a": 3, "d": "emotional_intelligence", "e": "Self-Awareness = knowing yourself. Qualities: self-confidence, self-assessment, emotional awareness. Foundation of the EI ladder.", "b": "recall", "src": "bank"}, {"i": 31, "s": "Which EI component enables you to channel your emotions in a positive way when needed?", "c": ["Self-Awareness", "Self-Management", "Social Awareness", "Relationship Management"], "a": 1, "d": "emotional_intelligence", "e": "Self-Management = channeling emotions positively. Know yourself (awareness) THEN manage yourself.", "b": "recall", "src": "bank"}, {"i": 32, "s": "Why do employees with high EI work effectively and ethically in customer service?", "c": ["Because of their high IQ scores", "Because of their ability to regulate their emotions", "Because of their technical training", "Because of their management experience"], "a": 1, "d": "emotional_intelligence", "e": "EI = emotion regulation. Customer service requires staying calm, empathizing, and not reacting emotionally. That's self-management + social awareness.", "b": "recall", "src": "bank"}, {"i": 33, "s": "What is the difference between EI and IQ?", "c": ["EI measures reasoning; IQ measures emotions", "IQ measures reasoning and learning ability; EI measures emotional competencies", "They measure the same thing differently", "IQ is more important for leadership than EI"], "a": 1, "d": "emotional_intelligence", "e": "IQ = reasoning/learning (Wechsler, Stanford-Binet tests). EI = emotional competencies (Mayer-Salovey-Caruso, Goleman). EI is actually a stronger predictor of leadership success.", "b": "recall", "src": "bank"}, {"i": 34, "s": "Which force complements emotional intelligence to help an individual collaborate effectively in the workplace?", "c": ["Power", "Authority", "Knowledge", "Charisma"], "a": 2, "d": "emotional_intelligence", "e": "Knowledge = facts, information, skills acquired through experience/education. EI + Knowledge = effective collaboration.", "b": "recall", "src": "bank"}, {"i": 35, "s": "Personal competencies in EI relate to:", "c": ["Empathy and social skills", "Self-awareness, self-regulation, and motivation", "Knowledge and abilities", "Leadership and influence"], "a": 1, "d": "emotional_intelligence", "e": "Personal competencies = self-focused (awareness, regulation, motivation). Social competencies = others-focused (empathy, social skills).", "b": "recall", "src": "bank"}, {"i": 36, "s": "Which EI test uses emotion-based problem-solving tasks?", "c": ["Stanford-Binet", "Wechsler Adult Intelligence Scale", "Mayer-Salovey-Caruso Test", "Woodcock-Johnson"], "a": 2, "d": "emotional_intelligence", "e": "MSCEIT = EI test (emotion-based). Stanford-Binet, Wechsler, Woodcock-Johnson = IQ tests.", "b": "recall", "src": "bank"}, {"i": 37, "s": "Which competency is the basis for developing effective business relationships, including teamwork, empathy, and trust?", "c": ["Technical skills", "IQ", "Emotional Intelligence", "Financial literacy"], "a": 2, "d": "emotional_intelligence", "e": "EI enables teamwork, empathy, trust, conflict negotiation, and relationship building. This is a direct exam question.", "b": "recall", "src": "bank"}, {"i": 38, "s": "When information transmitted is interpreted by the receiver in the way it was intended by the sender, this is called:", "c": ["Active listening", "Effective communication", "Assertive communication", "Supportive communication"], "a": 1, "d": "communication", "e": "Effective communication = message received as intended. Active listening = full attention to sender. Different concepts.", "b": "recall", "src": "bank"}, {"i": 39, "s": "A manager chooses email to explain a complex and emotional organizational restructuring plan. What is wrong with this approach?", "c": ["Email is too expensive", "Email is a lean medium inappropriate for complex emotional messages", "Email is only for external communication", "Nothing is wrong with this approach"], "a": 1, "d": "communication", "e": "Complex + emotional = needs rich media (face-to-face). Email is lean, no tone/body language. Classic exam trap question.", "b": "recall", "src": "bank"}, {"i": 40, "s": "Which communication style expresses ideas while listening attentively to others?", "c": ["Aggressive", "Passive", "Passive-Aggressive", "Assertive"], "a": 3, "d": "communication", "e": "Assertive = ideal style. Expresses + listens. Aggressive = forceful/hostile. Passive = won't speak up. Passive-aggressive = hidden messages.", "b": "recall", "src": "bank"}, {"i": 41, "s": "A tentative communication style used by those who are hesitant to speak up describes which communicator?", "c": ["Assertive", "Aggressive", "Passive", "Passive-Aggressive"], "a": 2, "d": "communication", "e": "Passive = hesitant, won't speak up. Passive-Aggressive = speaks up but indirectly with hidden messages.", "b": "recall", "src": "bank"}, {"i": 42, "s": "Which communication style uses hidden messages to express needs and ideas?", "c": ["Assertive", "Aggressive", "Passive", "Passive-Aggressive"], "a": 3, "d": "communication", "e": "Passive-Aggressive = indirect, hidden messages. Not openly hostile (aggressive) but not silent either (passive).", "b": "recall", "src": "bank"}, {"i": 43, "s": "Which is an attribute of supportive communication?", "c": ["Focusing on the person rather than the problem", "Using evaluative rather than descriptive language", "Focusing on the problem rather than the person doing it wrong", "Using general statements rather than specific ones"], "a": 2, "d": "communication", "e": "Supportive communication is problem-oriented (not person-attacking), descriptive, specific, validating, congruent, conjunctive, owned, and supportive.", "b": "recall", "src": "bank"}, {"i": 44, "s": "What is an advantage of written communication?", "c": ["Immediate feedback", "Rich nonverbal cues", "Creates a permanent record that can be reviewed", "Conveys emotion effectively"], "a": 2, "d": "communication", "e": "Written = permanent record, reviewable. Disadvantage = no immediate feedback, can be misinterpreted, lacks nonverbal cues.", "b": "recall", "src": "bank"}, {"i": 45, "s": "Giving the sender full, undisrupted attention with the intention of fully receiving their message is called:", "c": ["Effective communication", "Supportive communication", "Active listening", "Assertive communication"], "a": 2, "d": "communication", "e": "Active listening = full undisrupted attention to fully receive the message. Different from just hearing.", "b": "recall", "src": "bank"}, {"i": 46, "s": "A manager is responsible for four sales departments in different locations and needs to keep all departments updated. Which managerial skill is most needed?", "c": ["Technical", "Communication", "Financial", "Legal"], "a": 1, "d": "communication", "e": "Keeping multiple remote teams updated = communication skills. Technical skills alone won't solve coordination.", "b": "recall", "src": "bank"}, {"i": 47, "s": "A production manager learns a key supplier declared bankruptcy. The manager immediately calls other suppliers. This demonstrates which management function?", "c": ["Planning", "Organizing", "Directing", "Controlling"], "a": 0, "d": "org_functions", "e": "Finding alternative suppliers = planning ahead to solve a problem. Organizing = structuring resources. Directing = leading people. Controlling = measuring performance.", "b": "recall", "src": "bank"}, {"i": 48, "s": "Which Big Five personality trait fits best with employees thriving in a competitive finance culture (market type)?", "c": ["Agreeableness", "Neuroticism", "Extraversion", "Openness"], "a": 2, "d": "org_functions", "e": "Market culture = competitive, results-driven. Extraversion = assertive, energetic, sociable. Best fit for competitive environments.", "b": "recall", "src": "bank"}, {"i": 49, "s": "A leader with high emotional intelligence wants to capitalize on this trait while working with social media. How would the leader do so?", "c": ["Post personal opinions frequently", "Use social media as a tool to connect multiple stakeholders", "Avoid social media entirely", "Delegate all social media to subordinates"], "a": 1, "d": "leadership", "e": "High EI + social media = connecting stakeholders, building relationships digitally. EI = relationship management.", "b": "recall", "src": "bank"}, {"i": 50, "s": "Which set of attributes reflects a hierarchy culture within the Competing Values Framework?", "c": ["Innovation, risk-taking, creativity", "Collaboration, mentoring, employee development", "Competition, results, productivity", "Structure, control, efficiency, formal rules"], "a": 3, "d": "org_functions", "e": "Hierarchy = structured, controlled, efficient, formal. Internal focus + stability. Think bureaucracy, military chain of command.", "b": "recall", "src": "bank"}, {"i": 51, "s": "What is Corporate Social Responsibility (CSR)?", "c": ["A legal requirement for all businesses", "A company voluntarily engaging in practices that benefit society beyond profit", "A government regulation about employee benefits", "A management function focused on controlling costs"], "a": 1, "d": "ethics", "e": "CSR = voluntary (not legally required). Companies do good beyond just making money. Examples: community programs, environmental initiatives.", "b": "recall", "src": "bank"}, {"i": 52, "s": "Organizational ethics are defined as:", "c": ["The personal beliefs of the CEO", "Rules, principles, and standards for deciding what is morally right or wrong when doing business", "Government regulations about workplace safety", "The company's financial policies"], "a": 1, "d": "ethics", "e": "Organizational ethics = business-level rules for right/wrong. Different from personal ethics (individual level) and laws (government level).", "b": "recall", "src": "bank"}, {"i": 53, "s": "An employee who is attached to a group working on a large project directly related to a major corporate goal has which managerial designation?", "c": ["Leader", "Manager", "Team member", "Supervisor"], "a": 2, "d": "leadership", "e": "Working ON a project as part of a group = team member. Not leading, not managing, just contributing.", "b": "recall", "src": "bank"}, {"i": 54, "s": "The Mayer-Salovey-Caruso Test measures which type of intelligence?", "c": ["IQ", "CQ", "EI", "Technical aptitude"], "a": 2, "d": "emotional_intelligence", "e": "MSCEIT = Emotional Intelligence test using emotion-based problem-solving. Wechsler/Stanford-Binet = IQ.", "b": "recall", "src": "bank"}, {"i": 55, "s": "A system used to define a hierarchy within an organization is called:", "c": ["Organizational ethics", "Organizational structure", "Organizational culture", "Corporate social responsibility"], "a": 1, "d": "org_functions", "e": "Organizational structure = framework defining hierarchy and chain of command. Culture = shared values/norms. Ethics = right/wrong rules.", "b": "recall", "src": "bank"}, {"i": 56, "s": "What are the three interrelated processes by which employees join and leave organizations according to the A-S-A model?", "c": ["Hiring, training, firing", "Attraction, selection, attrition", "Recruitment, retention, retirement", "Interview, onboarding, evaluation"], "a": 1, "d": "org_functions", "e": "A-S-A: Attraction (drawn to similar orgs), Selection (orgs pick similar people), Attrition (misfits leave). Self-reinforcing cycle.", "b": "recall", "src": "bank"}, {"i": 57, "s": "Which type of leadership assumes employees have their own desires and will not be motivated without extrinsic rewards?", "c": ["Transformational", "Transactional", "Servant", "Laissez-faire"], "a": 1, "d": "leadership", "e": "Transactional = extrinsic rewards (bonuses, raises). Assumes workers need external motivation. Transformational = intrinsic motivation.", "b": "recall", "src": "bank"}, {"i": 58, "s": "Social competencies in emotional intelligence relate to:", "c": ["Self-awareness and self-regulation", "Empathy and social skills", "Technical knowledge and abilities", "Planning and organizing"], "a": 1, "d": "emotional_intelligence", "e": "Social competencies = empathy + social skills (others-focused). Personal competencies = self-awareness + self-regulation + motivation (self-focused).", "b": "recall", "src": "bank"}, {"i": 59, "s": "What is a characteristic of people with strong moral identity?", "c": ["They prioritize profits over ethics", "They consistently align their behavior with their ethical values", "They follow orders without questioning", "They avoid difficult ethical decisions"], "a": 1, "d": "ethics", "e": "Strong moral identity = behavior aligns with values consistently. Not just knowing right from wrong, but acting on it.", "b": "recall", "src": "bank"}];
+
+const DOMAIN_LABELS = {"ethics": "Common Ethical Issues", "org_functions": "Organizational Functions & Values", "communication": "Effective Communication", "emotional_intelligence": "Emotional Intelligence", "leadership": "Leadership & Influence"};
+
+const DOMAIN_COLORS = {"ethics": "#e06c75", "org_functions": "#e5c07b", "communication": "#61afef", "emotional_intelligence": "#c678dd", "leadership": "#98c379"};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function App() {
+  const [mode, setMode] = useState("menu");
+  const [filter, setFilter] = useState("all");
+  const [queue, setQueue] = useState([]);
+  const [current, setCurrent] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [stats, setStats] = useState({ correct: 0, wrong: 0, seen: new Set() });
+  const [examMode, setExamMode] = useState(false);
+  const [examAnswers, setExamAnswers] = useState({});
+  const [examIdx, setExamIdx] = useState(0);
+  const [examQuestions, setExamQuestions] = useState([]);
+  const [examDone, setExamDone] = useState(false);
+  const [examStart, setExamStart] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
+  const timerRef = useRef(null);
+
+  const startDrill = (domain) => {
+    const pool = domain === "all" ? QUESTIONS : QUESTIONS.filter(q => q.d === domain);
+    const shuffled = shuffle(pool);
+    setQueue(shuffled.slice(1));
+    setCurrent(shuffled[0]);
+    setSelected(null);
+    setStats({ correct: 0, wrong: 0, seen: new Set() });
+    setFilter(domain);
+    setMode("drill");
+    setExamMode(false);
+  };
+
+  const startExam = () => {
+    const qs = shuffle(QUESTIONS).slice(0, 30);
+    setExamQuestions(qs);
+    setExamAnswers({});
+    setExamIdx(0);
+    setExamDone(false);
+    setExamStart(Date.now());
+    setMode("exam");
+    setExamMode(true);
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => setElapsed(Date.now()), 1000);
+  };
+
+  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+
+  const handleAnswer = (idx) => {
+    if (selected !== null) return;
+    setSelected(idx);
+    const isCorrect = idx === current.a;
+    setStats(prev => ({
+      correct: prev.correct + (isCorrect ? 1 : 0),
+      wrong: prev.wrong + (isCorrect ? 0 : 1),
+      seen: new Set([...prev.seen, current.i])
+    }));
+  };
+
+  const nextQuestion = () => {
+    if (queue.length === 0) {
+      setMode("done");
+      return;
+    }
+    const isCorrect = selected === current.a;
+    let newQueue = [...queue];
+    if (!isCorrect) {
+      const insertAt = Math.min(3 + Math.floor(Math.random() * 3), newQueue.length);
+      newQueue.splice(insertAt, 0, current);
+    }
+    setCurrent(newQueue[0]);
+    setQueue(newQueue.slice(1));
+    setSelected(null);
+  };
+
+  const handleExamAnswer = (qIdx, aIdx) => {
+    setExamAnswers(prev => ({ ...prev, [qIdx]: aIdx }));
+  };
+
+  const finishExam = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setExamDone(true);
+  };
+
+  const examScore = () => {
+    let correct = 0;
+    examQuestions.forEach((q, i) => { if (examAnswers[i] === q.a) correct++; });
+    return correct;
+  };
+
+  const domainCounts = {};
+  QUESTIONS.forEach(q => { domainCounts[q.d] = (domainCounts[q.d] || 0) + 1; });
+
+  if (mode === "menu") {
+    return (
+      <div style={{ fontFamily: "'JetBrains Mono', 'SF Mono', 'Fira Code', monospace", background: "#1e1e2e", color: "#cdd6f4", minHeight: "100vh", padding: "20px" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 32 }}>
+            <div style={{ fontSize: 13, letterSpacing: 4, color: "#6c7086", marginBottom: 4 }}>WGU D072</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: "#cdd6f4" }}>BIZ CRAM</div>
+            <div style={{ fontSize: 13, color: "#6c7086", marginTop: 4 }}>{QUESTIONS.length} questions / 6 domains</div>
+          </div>
+
+          <button onClick={startExam} style={{ width: "100%", padding: "16px", background: "#f38ba8", color: "#1e1e2e", border: "none", borderRadius: 8, fontSize: 16, fontWeight: 700, cursor: "pointer", marginBottom: 24, fontFamily: "inherit", letterSpacing: 1 }}>
+            PRACTICE OA (30 Qs / 90 min)
+          </button>
+
+          <div style={{ fontSize: 12, color: "#6c7086", marginBottom: 8, letterSpacing: 2 }}>DRILL BY DOMAIN</div>
+
+          <button onClick={() => startDrill("all")} style={{ width: "100%", padding: "14px", background: "#313244", color: "#cdd6f4", border: "1px solid #45475a", borderRadius: 8, fontSize: 14, cursor: "pointer", marginBottom: 8, fontFamily: "inherit", textAlign: "left" }}>
+            <span style={{ fontWeight: 600 }}>ALL DOMAINS</span>
+            <span style={{ float: "right", color: "#6c7086" }}>{QUESTIONS.length}</span>
+          </button>
+
+          {Object.entries(DOMAIN_LABELS).map(([key, label]) => (
+            <button key={key} onClick={() => startDrill(key)} style={{ width: "100%", padding: "14px", background: "#313244", color: "#cdd6f4", border: "1px solid #45475a", borderRadius: 8, fontSize: 14, cursor: "pointer", marginBottom: 8, fontFamily: "inherit", textAlign: "left" }}>
+              <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: DOMAIN_COLORS[key], marginRight: 10 }}/>
+              <span style={{ fontWeight: 600 }}>{label}</span>
+              <span style={{ float: "right", color: "#6c7086" }}>{domainCounts[key] || 0}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "exam") {
+    const q = examQuestions[examIdx];
+    const mins = Math.floor((Date.now() - examStart) / 60000);
+    const secs = Math.floor(((Date.now() - examStart) % 60000) / 1000);
+    const answered = Object.keys(examAnswers).length;
+
+    if (examDone) {
+      const score = examScore();
+      const pct = Math.round((score / 37) * 100);
+      const pass = pct >= 63;
+      const byDomain = {};
+      examQuestions.forEach((q, i) => {
+        if (!byDomain[q.d]) byDomain[q.d] = { correct: 0, total: 0 };
+        byDomain[q.d].total++;
+        if (examAnswers[i] === q.a) byDomain[q.d].correct++;
+      });
+
+      return (
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", background: "#1e1e2e", color: "#cdd6f4", minHeight: "100vh", padding: "20px" }}>
+          <div style={{ maxWidth: 600, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <div style={{ fontSize: 48, fontWeight: 700, color: pass ? "#a6e3a1" : "#f38ba8" }}>{pct}%</div>
+              <div style={{ fontSize: 18, color: pass ? "#a6e3a1" : "#f38ba8", fontWeight: 600 }}>{pass ? "PASS" : "NOT YET"}</div>
+              <div style={{ fontSize: 13, color: "#6c7086", marginTop: 4 }}>{score}/37 correct / {mins}m {secs}s</div>
+            </div>
+
+            {Object.entries(byDomain).map(([d, data]) => (
+              <div key={d} style={{ display: "flex", justifyContent: "space-between", padding: "8px 12px", background: "#313244", borderRadius: 6, marginBottom: 4, fontSize: 13 }}>
+                <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: DOMAIN_COLORS[d], marginRight: 8 }}/>{DOMAIN_LABELS[d]}</span>
+                <span style={{ color: data.correct / data.total >= 0.6 ? "#a6e3a1" : "#f38ba8" }}>{data.correct}/{data.total}</span>
+              </div>
+            ))}
+
+            <div style={{ marginTop: 24, fontSize: 12, color: "#6c7086", marginBottom: 8 }}>MISSED QUESTIONS</div>
+            {examQuestions.map((q, i) => {
+              if (examAnswers[i] === q.a) return null;
+              return (
+                <div key={i} style={{ background: "#313244", borderRadius: 8, padding: 12, marginBottom: 8, fontSize: 13, borderLeft: `3px solid ${DOMAIN_COLORS[q.d]}` }}>
+                  <div style={{ marginBottom: 8 }}>{q.s}</div>
+                  <div style={{ color: "#f38ba8" }}>Your answer: {q.c[examAnswers[i]] || "Skipped"}</div>
+                  <div style={{ color: "#a6e3a1" }}>Correct: {q.c[q.a]}</div>
+                  {q.e && <div style={{ color: "#6c7086", marginTop: 4, fontSize: 12 }}>{q.e}</div>}
+                </div>
+              );
+            })}
+
+            <button onClick={() => setMode("menu")} style={{ width: "100%", padding: 14, background: "#45475a", color: "#cdd6f4", border: "none", borderRadius: 8, fontSize: 14, cursor: "pointer", marginTop: 16, fontFamily: "inherit" }}>BACK TO MENU</button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", background: "#1e1e2e", color: "#cdd6f4", minHeight: "100vh", padding: "20px" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <span style={{ fontSize: 12, color: "#6c7086" }}>Q{examIdx + 1}/37</span>
+            <span style={{ fontSize: 12, color: mins >= 80 ? "#f38ba8" : "#6c7086" }}>{mins}:{String(secs).padStart(2,'0')} / 90:00</span>
+            <span style={{ fontSize: 12, color: "#6c7086" }}>{answered} answered</span>
+          </div>
+
+          <div style={{ width: "100%", height: 3, background: "#313244", borderRadius: 2, marginBottom: 20 }}>
+            <div style={{ width: `${((examIdx + 1) / 37) * 100}%`, height: "100%", background: "#89b4fa", borderRadius: 2, transition: "width 0.3s" }}/>
+          </div>
+
+          <div style={{ fontSize: 12, color: DOMAIN_COLORS[q.d], marginBottom: 8 }}>{DOMAIN_LABELS[q.d]}</div>
+          <div style={{ fontSize: 15, lineHeight: 1.6, marginBottom: 20 }}>{q.s}</div>
+
+          {q.c.map((choice, ci) => (
+            <button key={ci} onClick={() => handleExamAnswer(examIdx, ci)} style={{
+              width: "100%", padding: "12px 14px", marginBottom: 6, background: examAnswers[examIdx] === ci ? "#45475a" : "#313244",
+              color: "#cdd6f4", border: examAnswers[examIdx] === ci ? "1px solid #89b4fa" : "1px solid #45475a",
+              borderRadius: 8, fontSize: 13, cursor: "pointer", fontFamily: "inherit", textAlign: "left", lineHeight: 1.5
+            }}>
+              <span style={{ fontWeight: 600, marginRight: 8, color: "#6c7086" }}>{String.fromCharCode(65 + ci)}</span>{choice}
+            </button>
+          ))}
+
+          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+            <button disabled={examIdx === 0} onClick={() => setExamIdx(examIdx - 1)} style={{ flex: 1, padding: 12, background: "#313244", color: "#cdd6f4", border: "1px solid #45475a", borderRadius: 8, cursor: examIdx === 0 ? "default" : "pointer", opacity: examIdx === 0 ? 0.3 : 1, fontFamily: "inherit", fontSize: 13 }}>PREV</button>
+            {examIdx < 36 ? (
+              <button onClick={() => setExamIdx(examIdx + 1)} style={{ flex: 1, padding: 12, background: "#313244", color: "#cdd6f4", border: "1px solid #45475a", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>NEXT</button>
+            ) : (
+              <button onClick={finishExam} style={{ flex: 1, padding: 12, background: "#a6e3a1", color: "#1e1e2e", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 700 }}>FINISH</button>
+            )}
+          </div>
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 16 }}>
+            {examQuestions.map((_, i) => (
+              <button key={i} onClick={() => setExamIdx(i)} style={{
+                width: 28, height: 28, borderRadius: 4, border: i === examIdx ? "2px solid #89b4fa" : "1px solid #45475a",
+                background: examAnswers[i] !== undefined ? "#45475a" : "#1e1e2e", color: "#6c7086",
+                fontSize: 10, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center"
+              }}>{i + 1}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "drill" && current) {
+    const total = filter === "all" ? QUESTIONS.length : QUESTIONS.filter(q => q.d === filter).length;
+    const remaining = queue.length + 1;
+    const pct = Math.round(((total - remaining) / total) * 100);
+
+    return (
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", background: "#1e1e2e", color: "#cdd6f4", minHeight: "100vh", padding: "20px" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+            <button onClick={() => setMode("menu")} style={{ background: "none", border: "none", color: "#6c7086", cursor: "pointer", fontSize: 12, fontFamily: "inherit" }}>EXIT</button>
+            <div style={{ fontSize: 12, color: "#6c7086" }}>
+              <span style={{ color: "#a6e3a1" }}>{stats.correct}</span> / <span style={{ color: "#f38ba8" }}>{stats.wrong}</span> / {remaining} left
+            </div>
+          </div>
+
+          <div style={{ width: "100%", height: 3, background: "#313244", borderRadius: 2, marginBottom: 20 }}>
+            <div style={{ width: `${pct}%`, height: "100%", background: "#a6e3a1", borderRadius: 2, transition: "width 0.3s" }}/>
+          </div>
+
+          <div style={{ fontSize: 12, color: DOMAIN_COLORS[current.d], marginBottom: 4 }}>{DOMAIN_LABELS[current.d]}</div>
+          <div style={{ fontSize: 10, color: "#6c7086", marginBottom: 12 }}>{current.src === "pa_exemplar" ? "PA QUESTION" : "SYNTHETIC"} / {current.b}</div>
+          <div style={{ fontSize: 15, lineHeight: 1.6, marginBottom: 20 }}>{current.s}</div>
+
+          {current.c.map((choice, ci) => {
+            let bg = "#313244";
+            let border = "1px solid #45475a";
+            if (selected !== null) {
+              if (ci === current.a) { bg = "#1a3a2a"; border = "1px solid #a6e3a1"; }
+              else if (ci === selected && ci !== current.a) { bg = "#3a1a1a"; border = "1px solid #f38ba8"; }
+            }
+            return (
+              <button key={ci} onClick={() => handleAnswer(ci)} style={{
+                width: "100%", padding: "12px 14px", marginBottom: 6, background: bg,
+                color: "#cdd6f4", border, borderRadius: 8, fontSize: 13, cursor: selected !== null ? "default" : "pointer",
+                fontFamily: "inherit", textAlign: "left", lineHeight: 1.5, transition: "all 0.15s"
+              }}>
+                <span style={{ fontWeight: 600, marginRight: 8, color: "#6c7086" }}>{String.fromCharCode(65 + ci)}</span>{choice}
+              </button>
+            );
+          })}
+
+          {selected !== null && (
+            <div>
+              {current.e && <div style={{ fontSize: 12, color: "#a6adc8", background: "#313244", padding: 12, borderRadius: 8, marginTop: 8, lineHeight: 1.5 }}>{current.e}</div>}
+              <button onClick={nextQuestion} style={{ width: "100%", padding: 14, background: "#89b4fa", color: "#1e1e2e", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: "pointer", marginTop: 12, fontFamily: "inherit", letterSpacing: 1 }}>
+                {queue.length === 0 && selected === current.a ? "FINISH" : "NEXT"}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "done") {
+    const total = stats.correct + stats.wrong;
+    const pct = total > 0 ? Math.round((stats.correct / total) * 100) : 0;
+    return (
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", background: "#1e1e2e", color: "#cdd6f4", minHeight: "100vh", padding: "20px" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center", paddingTop: 60 }}>
+          <div style={{ fontSize: 48, fontWeight: 700, color: "#a6e3a1" }}>{pct}%</div>
+          <div style={{ fontSize: 14, color: "#6c7086", marginTop: 8 }}>{stats.correct} correct / {stats.wrong} wrong / {stats.seen.size} unique questions</div>
+          <div style={{ fontSize: 14, color: "#a6e3a1", marginTop: 16, fontWeight: 600 }}>DECK CLEARED</div>
+          <button onClick={() => setMode("menu")} style={{ padding: "14px 40px", background: "#45475a", color: "#cdd6f4", border: "none", borderRadius: 8, fontSize: 14, cursor: "pointer", marginTop: 24, fontFamily: "inherit" }}>BACK TO MENU</button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(App));
+
+</script>
+</body>
+</html>
