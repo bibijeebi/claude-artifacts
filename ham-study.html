@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>KR4LGO Extra Study</title>
+<meta property="og:title" content="KR4LGO Extra Study - Amateur Extra Exam Prep">
+<meta property="og:description" content="Custom flashcard study tool for the 2024-2028 Amateur Extra class FCC Element 4 question pool. 599 questions with SRS tracking.">
+<meta property="og:url" content="https://niggerfaggot.club/ham-study.html">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;height:100%;font-family:'JetBrains Mono',ui-monospace,'Cascadia Code','Fira Code',monospace;background:#0a0e14;color:#c5c8c6}
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+:root{
+  --bg:#0a0e14;--bg2:#131920;--bg3:#1a2230;--bg4:#222d3a;
+  --green:#50c878;--green-dim:#2a6b40;--red:#e74c3c;--red-dim:#6b2a2a;
+  --amber:#f0a500;--amber-dim:#6b5a00;--cyan:#00d4ff;--cyan-dim:#006b80;
+  --text:#c5c8c6;--text-dim:#666e78;--text-bright:#e8eaed;
+  --border:#2a3440;--accent:#50c878;
+}
+a{color:var(--cyan);text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+.app{display:flex;flex-direction:column;height:100vh;max-width:900px;margin:0 auto}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
+.header h1{font-size:15px;font-weight:600;letter-spacing:1px;color:var(--green)}
+.header .call{font-size:11px;color:var(--text-dim);margin-left:8px}
+.nav{display:flex;gap:4px}
+.nav button{padding:6px 12px;font-size:11px;font-weight:500;background:var(--bg3);color:var(--text-dim);border-radius:4px;letter-spacing:0.5px;text-transform:uppercase;transition:all .15s}
+.nav button:hover{background:var(--bg4);color:var(--text)}
+.nav button.active{background:var(--green-dim);color:var(--green)}
+
+/* Stats bar */
+.stats-bar{display:flex;align-items:center;gap:16px;padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:11px;flex-shrink:0;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:4px}
+.stat-label{color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;font-size:10px}
+.stat-val{font-weight:600;font-size:14px}
+.stat-val.green{color:var(--green)}
+.stat-val.amber{color:var(--amber)}
+.stat-val.cyan{color:var(--cyan)}
+.stat-val.red{color:var(--red)}
+
+/* Filter bar */
+.filter-bar{display:flex;align-items:center;gap:6px;padding:8px 16px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.filter-bar::-webkit-scrollbar{display:none}
+.filter-btn{padding:4px 8px;font-size:10px;font-weight:500;background:var(--bg3);color:var(--text-dim);border-radius:3px;white-space:nowrap;transition:all .15s}
+.filter-btn:hover{background:var(--bg4);color:var(--text)}
+.filter-btn.active{background:var(--accent);color:#000;font-weight:600}
+.filter-btn .count{opacity:.6;margin-left:2px}
+
+/* Main content */
+.content{flex:1;overflow-y:auto;padding:16px}
+
+/* Question card */
+.q-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;overflow:hidden}
+.q-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px}
+.q-id{font-weight:600;color:var(--cyan)}
+.q-tag{padding:2px 8px;border-radius:3px;font-size:10px;font-weight:600;text-transform:uppercase}
+.q-tag.correct{background:var(--green-dim);color:var(--green)}
+.q-tag.incorrect{background:var(--red-dim);color:var(--red)}
+.q-tag.unseen{background:var(--bg3);color:var(--text-dim)}
+.q-body{padding:14px}
+.q-text{font-size:14px;line-height:1.6;color:var(--text-bright);margin-bottom:14px}
+.q-figure{max-width:100%;margin-bottom:14px;border-radius:4px;background:#fff;padding:8px}
+.q-figure img{max-width:100%;height:auto;display:block}
+
+/* Answer options */
+.answers{display:flex;flex-direction:column;gap:6px}
+.answer{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;font-size:13px;line-height:1.5}
+.answer:hover:not(.locked){background:var(--bg4);border-color:var(--text-dim)}
+.answer.locked{cursor:default}
+.answer .letter{font-weight:700;color:var(--text-dim);min-width:18px;flex-shrink:0}
+.answer.selected{border-color:var(--cyan);background:var(--cyan-dim)}
+.answer.correct-reveal{border-color:var(--green);background:var(--green-dim)}
+.answer.correct-reveal .letter{color:var(--green)}
+.answer.incorrect-reveal{border-color:var(--red);background:var(--red-dim);opacity:.7}
+.answer.incorrect-reveal .letter{color:var(--red)}
+.answer.wrong-pick{border-color:var(--red);background:var(--red-dim)}
+.answer.wrong-pick .letter{color:var(--red)}
+
+/* Next button */
+.next-btn{display:block;width:100%;padding:12px;margin-top:12px;background:var(--green);color:#000;font-weight:700;font-size:13px;border-radius:6px;letter-spacing:0.5px;text-transform:uppercase;transition:all .15s}
+.next-btn:hover{background:#5fd888}
+
+/* Stats page */
+.stats-page{padding:0}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center}
+.stat-card .big{font-size:32px;font-weight:700;line-height:1}
+.stat-card .label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-top:6px}
+.sub-grid{display:flex;flex-direction:column;gap:6px}
+.sub-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:12px}
+.sub-row .sub-name{min-width:30px;font-weight:600;color:var(--cyan)}
+.sub-row .sub-desc{flex:1;color:var(--text-dim);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub-row .sub-bar{width:100px;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;flex-shrink:0}
+.sub-row .sub-fill{height:100%;border-radius:3px;transition:width .3s}
+.sub-row .sub-pct{min-width:35px;text-align:right;font-weight:600;font-size:11px}
+
+/* Exam mode */
+.exam-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.exam-timer{font-size:18px;font-weight:700;color:var(--amber);font-variant-numeric:tabular-nums}
+.exam-progress{font-size:12px;color:var(--text-dim)}
+.exam-result{text-align:center;padding:40px 20px}
+.exam-result .score{font-size:64px;font-weight:700;line-height:1;margin-bottom:8px}
+.exam-result .verdict{font-size:18px;font-weight:600;margin-bottom:20px}
+.exam-result .pass{color:var(--green)}
+.exam-result .fail{color:var(--red)}
+.exam-review-btn{padding:10px 24px;background:var(--bg3);color:var(--text);border-radius:6px;font-size:13px;font-weight:500;margin:4px}
+
+/* Progress grid */
+.progress-grid{display:grid;grid-template-columns:repeat(auto-fill,8px);gap:2px;margin-top:12px}
+.pg-cell{width:8px;height:8px;border-radius:1px}
+.pg-cell.unseen{background:var(--bg4)}
+.pg-cell.correct{background:var(--green)}
+.pg-cell.incorrect{background:var(--red)}
+.pg-cell.learning{background:var(--amber)}
+
+/* Reset button */
+.reset-btn{margin-top:20px;padding:8px 16px;background:var(--red-dim);color:var(--red);font-size:11px;border-radius:4px;font-weight:500}
+.reset-btn:hover{background:var(--red);color:#fff}
+
+/* Loading */
+.loading{display:flex;align-items:center;justify-content:center;height:100%;font-size:14px;color:var(--text-dim)}
+.loading .spinner{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-right:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Keyboard hint */
+.kbd-hint{text-align:center;font-size:10px;color:var(--text-dim);margin-top:8px;opacity:.5}
+
+/* Mobile tweaks */
+@media(max-width:600px){
+  .header{padding:10px 12px}
+  .header h1{font-size:13px}
+  .nav button{padding:5px 8px;font-size:10px}
+  .stats-bar{padding:6px 12px;gap:10px}
+  .content{padding:12px}
+  .q-text{font-size:13px}
+  .answer{padding:8px 10px;font-size:12px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .stat-card .big{font-size:24px}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-dim)}
+</style>
+</head>
+<body>
+<div id="app" class="app">
+  <div class="loading"><div class="spinner"></div>Loading question pool...</div>
+</div>
+
+<script>
+const R2 = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file';
+const STORAGE_KEY = 'kr4lgo-extra-study';
+const EXAM_COUNT = 50;
+const PASS_SCORE = 37; // 74% of 50
+
+const SUBELEMENT_NAMES = {
+  E0:'Safety',E1:'Commission Rules',E2:'Operating Procedures',E3:'Radio Wave Propagation',
+  E4:'Amateur Practices',E5:'Electrical Principles',E6:'Circuit Components',
+  E7:'Practical Circuits',E8:'Signals & Emissions',E9:'Antennas & Feed Lines'
+};
+
+let questions = [];
+let progress = {};
+let currentMode = 'study';
+let currentFilter = 'ALL';
+let currentQ = null;
+let answered = false;
+let examState = null;
+
+// Load/save progress
+function loadProgress() {
+  try { progress = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { progress = {}; }
+}
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+function getQProgress(id) {
+  return progress[id] || { seen: 0, correct: 0, streak: 0, lastSeen: 0 };
+}
+function recordAnswer(id, isCorrect) {
+  const p = getQProgress(id);
+  p.seen++;
+  if (isCorrect) { p.correct++; p.streak++; } else { p.streak = 0; }
+  p.lastSeen = Date.now();
+  progress[id] = p;
+  saveProgress();
+}
+
+// Filtered questions
+function getFiltered() {
+  if (currentFilter === 'ALL') return questions;
+  return questions.filter(q => q.id.startsWith(currentFilter));
+}
+
+// SRS-style pick: unseen first, then worst performers, then least recently seen
+function pickNext(pool) {
+  const unseen = pool.filter(q => !progress[q.id] || progress[q.id].seen === 0);
+  if (unseen.length) return unseen[Math.floor(Math.random() * unseen.length)];
+  const scored = pool.map(q => {
+    const p = getQProgress(q.id);
+    const accuracy = p.correct / p.seen;
+    const recency = (Date.now() - p.lastSeen) / 3600000;
+    return { q, score: accuracy * 10 - recency * 0.1 - (1 / (p.streak + 1)) * 5 };
+  }).sort((a, b) => a.score - b.score);
+  // Pick from bottom 20% with some randomness
+  const bottom = Math.max(3, Math.floor(scored.length * 0.2));
+  return scored[Math.floor(Math.random() * bottom)].q;
+}
+
+// Compute stats
+function getStats(pool) {
+  const total = pool.length;
+  let seen = 0, mastered = 0, learning = 0, incorrect = 0;
+  pool.forEach(q => {
+    const p = progress[q.id];
+    if (p && p.seen > 0) {
+      seen++;
+      const acc = p.correct / p.seen;
+      if (acc >= 0.8 && p.streak >= 2) mastered++;
+      else if (acc >= 0.5) learning++;
+      else incorrect++;
+    }
+  });
+  const aptitude = seen > 0 ? Math.round((mastered / total) * 100) : 0;
+  const seenPct = Math.round((seen / total) * 100);
+  return { total, seen, mastered, learning, incorrect, aptitude, seenPct };
+}
+
+// Render
+function render() {
+  const app = document.getElementById('app');
+  const filtered = getFiltered();
+  const stats = getStats(filtered);
+
+  let html = `
+    <div class="header">
+      <div style="display:flex;align-items:baseline">
+        <h1>EXTRA STUDY</h1>
+        <span class="call">KR4LGO</span>
+      </div>
+      <div class="nav">
+        <button class="${currentMode==='study'?'active':''}" onclick="setMode('study')">Study</button>
+        <button class="${currentMode==='exam'?'active':''}" onclick="setMode('exam')">Exam</button>
+        <button class="${currentMode==='stats'?'active':''}" onclick="setMode('stats')">Stats</button>
+      </div>
+    </div>
+  `;
+
+  if (currentMode === 'study') {
+    html += renderStatsBar(stats);
+    html += renderFilterBar(filtered);
+    html += `<div class="content">${renderStudyCard(filtered, stats)}</div>`;
+  } else if (currentMode === 'exam') {
+    html += renderExam();
+  } else {
+    html += `<div class="content">${renderStatsPage()}</div>`;
+  }
+
+  app.innerHTML = html;
+}
+
+function renderStatsBar(stats) {
+  return `<div class="stats-bar">
+    <div class="stat"><span class="stat-label">Aptitude</span><span class="stat-val green">${stats.aptitude}%</span></div>
+    <div class="stat"><span class="stat-label">Seen</span><span class="stat-val cyan">${stats.seenPct}%</span></div>
+    <div class="stat"><span class="stat-label">Mastered</span><span class="stat-val green">${stats.mastered}</span></div>
+    <div class="stat"><span class="stat-label">Learning</span><span class="stat-val amber">${stats.learning}</span></div>
+    <div class="stat"><span class="stat-label">Unseen</span><span class="stat-val">${stats.total - stats.seen}</span></div>
+  </div>`;
+}
+
+function renderFilterBar() {
+  const subs = ['ALL', ...Object.keys(SUBELEMENT_NAMES)];
+  return `<div class="filter-bar">${subs.map(s => {
+    const count = s === 'ALL' ? questions.length : questions.filter(q => q.id.startsWith(s)).length;
+    const active = currentFilter === s ? 'active' : '';
+    const label = s === 'ALL' ? 'All' : s;
+    return `<button class="filter-btn ${active}" onclick="setFilter('${s}')">${label}<span class="count">${count}</span></button>`;
+  }).join('')}</div>`;
+}
+
+function renderStudyCard(filtered, stats) {
+  if (!filtered.length) return '<p style="text-align:center;color:var(--text-dim)">No questions in this filter.</p>';
+
+  if (!currentQ || !filtered.find(q => q.id === currentQ.id)) {
+    currentQ = pickNext(filtered);
+    answered = false;
+  }
+
+  const q = currentQ;
+  const p = getQProgress(q.id);
+  const letters = ['A','B','C','D'];
+  let statusTag = '';
+  if (!p || p.seen === 0) statusTag = '<span class="q-tag unseen">New</span>';
+  else if (p.correct / p.seen >= 0.8 && p.streak >= 2) statusTag = '<span class="q-tag correct">Mastered</span>';
+  else statusTag = `<span class="q-tag incorrect">${Math.round(p.correct/p.seen*100)}%</span>`;
+
+  let answersHtml = q.answers.map((a, i) => {
+    let cls = 'answer';
+    if (answered) {
+      cls += ' locked';
+      if (i === q.correct) cls += ' correct-reveal';
+      else if (i === q._picked && i !== q.correct) cls += ' wrong-pick';
+      else cls += ' incorrect-reveal';
+    }
+    return `<div class="${cls}" onclick="pickAnswer(${i})" data-idx="${i}">
+      <span class="letter">${letters[i]}.</span>
+      <span>${escHtml(a)}</span>
+    </div>`;
+  }).join('');
+
+  let figureHtml = '';
+  if (q.figure) {
+    const imgName = q.figure.replace('.png', '').replace('.jpg', '');
+    figureHtml = `<div class="q-figure"><img src="${R2}/ham-${imgName}.png" alt="${q.figure}" loading="lazy"></div>`;
+  }
+
+  let nextHtml = answered ? `<button class="next-btn" onclick="nextQuestion()">Next Question →</button>` : '';
+  let kbdHtml = !answered ? `<div class="kbd-hint">Press A/B/C/D or 1/2/3/4 to answer</div>` : `<div class="kbd-hint">Press Enter or Space for next</div>`;
+
+  return `<div class="q-card">
+    <div class="q-header">
+      <span class="q-id">${q.id}</span>
+      ${statusTag}
+    </div>
+    <div class="q-body">
+      <div class="q-text">${escHtml(q.question)}</div>
+      ${figureHtml}
+      <div class="answers">${answersHtml}</div>
+      ${nextHtml}
+      ${kbdHtml}
+    </div>
+  </div>`;
+}
+
+function renderExam() {
+  if (!examState) {
+    return `<div class="content" style="text-align:center;padding:40px 20px">
+      <h2 style="color:var(--text-bright);margin-bottom:8px">Practice Exam</h2>
+      <p style="color:var(--text-dim);margin-bottom:20px;font-size:13px">50 questions from the full pool. 37/50 (74%) to pass.</p>
+      <button class="next-btn" style="max-width:300px;margin:0 auto" onclick="startExam()">Start Exam</button>
+    </div>`;
+  }
+
+  if (examState.finished) return renderExamResults();
+
+  const eq = examState.questions[examState.current];
+  const letters = ['A','B','C','D'];
+  const elapsed = Math.floor((Date.now() - examState.startTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+
+  let answersHtml = eq.answers.map((a, i) => {
+    let cls = 'answer';
+    if (examState.answered) {
+      cls += ' locked';
+      if (i === eq.correct) cls += ' correct-reveal';
+      else if (i === examState.picks[examState.current] && i !== eq.correct) cls += ' wrong-pick';
+      else cls += ' incorrect-reveal';
+    } else if (examState.picks[examState.current] === i) {
+      cls += ' selected';
+    }
+    return `<div class="${cls}" onclick="examPick(${i})"><span class="letter">${letters[i]}.</span><span>${escHtml(a)}</span></div>`;
+  }).join('');
+
+  let figureHtml = '';
+  if (eq.figure) {
+    const imgName = eq.figure.replace('.png', '').replace('.jpg', '');
+    figureHtml = `<div class="q-figure"><img src="${R2}/ham-${imgName}.png" alt="${eq.figure}" loading="lazy"></div>`;
+  }
+
+  let btnHtml = '';
+  if (examState.answered) {
+    const isLast = examState.current === examState.questions.length - 1;
+    btnHtml = `<button class="next-btn" onclick="examNext()">${isLast ? 'Finish Exam' : 'Next →'}</button>`;
+  } else if (examState.picks[examState.current] !== undefined) {
+    btnHtml = `<button class="next-btn" onclick="examSubmit()">Submit Answer</button>`;
+  }
+
+  return `<div class="exam-header">
+    <span class="exam-progress">${examState.current + 1} / ${examState.questions.length}</span>
+    <span class="exam-timer">${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}</span>
+  </div>
+  <div class="content">
+    <div class="q-card">
+      <div class="q-header"><span class="q-id">${eq.id}</span></div>
+      <div class="q-body">
+        <div class="q-text">${escHtml(eq.question)}</div>
+        ${figureHtml}
+        <div class="answers">${answersHtml}</div>
+        ${btnHtml}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderExamResults() {
+  const correct = examState.results.filter(r => r).length;
+  const pct = Math.round(correct / examState.questions.length * 100);
+  const passed = correct >= PASS_SCORE;
+  const elapsed = Math.floor((examState.endTime - examState.startTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+
+  let reviewHtml = '';
+  if (examState.showReview) {
+    reviewHtml = examState.questions.map((q, i) => {
+      const picked = examState.picks[i];
+      const isCorrect = examState.results[i];
+      const letters = ['A','B','C','D'];
+      return `<div class="q-card" style="border-color:${isCorrect ? 'var(--green-dim)' : 'var(--red-dim)'}">
+        <div class="q-header">
+          <span class="q-id">${q.id}</span>
+          <span class="q-tag ${isCorrect?'correct':'incorrect'}">${isCorrect?'Correct':'Wrong'}</span>
+        </div>
+        <div class="q-body">
+          <div class="q-text" style="font-size:12px">${escHtml(q.question)}</div>
+          <div style="font-size:12px;margin-top:6px">
+            ${!isCorrect ? `<div style="color:var(--red)">Your answer: ${letters[picked]}. ${escHtml(q.answers[picked])}</div>` : ''}
+            <div style="color:var(--green)">Correct: ${letters[q.correct]}. ${escHtml(q.answers[q.correct])}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  return `<div class="content">
+    <div class="exam-result">
+      <div class="score ${passed?'pass':'fail'}">${correct}/${examState.questions.length}</div>
+      <div class="verdict ${passed?'pass':'fail'}">${passed ? 'PASSED' : 'FAILED'} (${pct}%)</div>
+      <div style="color:var(--text-dim);font-size:13px;margin-bottom:16px">Time: ${mins}m ${secs}s</div>
+      <button class="exam-review-btn" onclick="toggleReview()">${examState.showReview ? 'Hide' : 'Show'} Review</button>
+      <button class="exam-review-btn" onclick="examState=null;render()">New Exam</button>
+    </div>
+    ${reviewHtml}
+  </div>`;
+}
+
+function renderStatsPage() {
+  const allStats = getStats(questions);
+  let subRows = Object.keys(SUBELEMENT_NAMES).map(sub => {
+    const pool = questions.filter(q => q.id.startsWith(sub));
+    const s = getStats(pool);
+    const pct = s.seenPct;
+    const aptPct = s.aptitude;
+    const color = aptPct >= 80 ? 'var(--green)' : aptPct >= 40 ? 'var(--amber)' : aptPct > 0 ? 'var(--red)' : 'var(--bg4)';
+    return `<div class="sub-row">
+      <span class="sub-name">${sub}</span>
+      <span class="sub-desc">${SUBELEMENT_NAMES[sub]}</span>
+      <div class="sub-bar"><div class="sub-fill" style="width:${pct}%;background:${color}"></div></div>
+      <span class="sub-pct" style="color:${color}">${aptPct}%</span>
+    </div>`;
+  }).join('');
+
+  // Progress grid
+  let gridCells = questions.map(q => {
+    const p = progress[q.id];
+    let cls = 'unseen';
+    if (p && p.seen > 0) {
+      const acc = p.correct / p.seen;
+      if (acc >= 0.8 && p.streak >= 2) cls = 'correct';
+      else if (acc >= 0.5) cls = 'learning';
+      else cls = 'incorrect';
+    }
+    return `<div class="pg-cell ${cls}" title="${q.id}"></div>`;
+  }).join('');
+
+  return `
+    <div class="stats-grid">
+      <div class="stat-card"><div class="big green">${allStats.aptitude}%</div><div class="label">Aptitude</div></div>
+      <div class="stat-card"><div class="big cyan">${allStats.seenPct}%</div><div class="label">Seen</div></div>
+      <div class="stat-card"><div class="big green">${allStats.mastered}</div><div class="label">Mastered</div></div>
+      <div class="stat-card"><div class="big amber">${allStats.learning}</div><div class="label">Learning</div></div>
+    </div>
+    <h3 style="font-size:12px;color:var(--text-dim);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Subelements</h3>
+    <div class="sub-grid">${subRows}</div>
+    <h3 style="font-size:12px;color:var(--text-dim);margin:16px 0 4px;text-transform:uppercase;letter-spacing:1px">Progress Map <span style="font-weight:400">(${allStats.total} questions)</span></h3>
+    <div style="display:flex;gap:12px;font-size:10px;color:var(--text-dim);margin-bottom:6px">
+      <span><span class="pg-cell correct" style="display:inline-block;vertical-align:middle"></span> Mastered</span>
+      <span><span class="pg-cell learning" style="display:inline-block;vertical-align:middle"></span> Learning</span>
+      <span><span class="pg-cell incorrect" style="display:inline-block;vertical-align:middle"></span> Weak</span>
+      <span><span class="pg-cell unseen" style="display:inline-block;vertical-align:middle"></span> Unseen</span>
+    </div>
+    <div class="progress-grid">${gridCells}</div>
+    <button class="reset-btn" onclick="if(confirm('Reset ALL progress? This cannot be undone.')){progress={};saveProgress();render();}">Reset All Progress</button>
+  `;
+}
+
+// Actions
+function setMode(m) { currentMode = m; currentQ = null; answered = false; render(); }
+function setFilter(f) { currentFilter = f; currentQ = null; answered = false; render(); }
+
+function pickAnswer(idx) {
+  if (answered) return;
+  answered = true;
+  currentQ._picked = idx;
+  const isCorrect = idx === currentQ.correct;
+  recordAnswer(currentQ.id, isCorrect);
+  render();
+}
+
+function nextQuestion() {
+  const filtered = getFiltered();
+  currentQ = pickNext(filtered);
+  answered = false;
+  render();
+  // Scroll to top
+  document.querySelector('.content')?.scrollTo(0, 0);
+}
+
+function startExam() {
+  const shuffled = [...questions].sort(() => Math.random() - 0.5).slice(0, EXAM_COUNT);
+  examState = {
+    questions: shuffled, current: 0, picks: {}, results: [],
+    answered: false, finished: false, showReview: false,
+    startTime: Date.now(), endTime: null
+  };
+  render();
+  // Start timer update
+  if (window._examTimer) clearInterval(window._examTimer);
+  window._examTimer = setInterval(() => {
+    if (examState && !examState.finished) {
+      const el = document.querySelector('.exam-timer');
+      if (el) {
+        const elapsed = Math.floor((Date.now() - examState.startTime) / 1000);
+        const mins = Math.floor(elapsed / 60);
+        const secs = elapsed % 60;
+        el.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+      }
+    }
+  }, 1000);
+}
+
+function examPick(idx) {
+  if (examState.answered) return;
+  examState.picks[examState.current] = idx;
+  render();
+}
+
+function examSubmit() {
+  if (examState.picks[examState.current] === undefined) return;
+  examState.answered = true;
+  const q = examState.questions[examState.current];
+  const isCorrect = examState.picks[examState.current] === q.correct;
+  examState.results[examState.current] = isCorrect;
+  recordAnswer(q.id, isCorrect);
+  render();
+}
+
+function examNext() {
+  if (examState.current >= examState.questions.length - 1) {
+    examState.finished = true;
+    examState.endTime = Date.now();
+    if (window._examTimer) clearInterval(window._examTimer);
+    render();
+    return;
+  }
+  examState.current++;
+  examState.answered = false;
+  render();
+  document.querySelector('.content')?.scrollTo(0, 0);
+}
+
+function toggleReview() {
+  examState.showReview = !examState.showReview;
+  render();
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (currentMode === 'study') {
+    if (!answered) {
+      const keyMap = { a:0, b:1, c:2, d:3, '1':0, '2':1, '3':2, '4':3 };
+      const idx = keyMap[e.key.toLowerCase()];
+      if (idx !== undefined) { e.preventDefault(); pickAnswer(idx); }
+    } else {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nextQuestion(); }
+    }
+  } else if (currentMode === 'exam' && examState && !examState.finished) {
+    if (!examState.answered) {
+      const keyMap = { a:0, b:1, c:2, d:3, '1':0, '2':1, '3':2, '4':3 };
+      const idx = keyMap[e.key.toLowerCase()];
+      if (idx !== undefined) { e.preventDefault(); examPick(idx); }
+      if (e.key === 'Enter' && examState.picks[examState.current] !== undefined) { e.preventDefault(); examSubmit(); }
+    } else {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); examNext(); }
+    }
+  }
+});
+
+// Init
+async function init() {
+  loadProgress();
+  try {
+    const res = await fetch(`${R2}/ham-extra-pool.json`);
+    questions = await res.json();
+    render();
+  } catch (err) {
+    document.getElementById('app').innerHTML = `<div class="loading" style="color:var(--red)">Failed to load question pool: ${err.message}</div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
