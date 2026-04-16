@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cram</title>
+<meta name="description" content="HamStudy-style cram engine for exams">
+<style>
+html, body { overflow-x: hidden; margin: 0; padding: 0; }
+* { box-sizing: border-box; }
+body { font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', monospace; background: #1e1e2e; color: #cdd6f4; }
+#root { min-height: 100vh; }
+.spinner { display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #6c7086; font-size: 13px; letter-spacing: 2px; }
+.err { padding: 40px 20px; color: #f38ba8; text-align: center; font-size: 14px; }
+.err a { color: #89b4fa; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+<div id="root"><div class="spinner">LOADING</div></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef, useMemo } = React;
+
+// ─── CONFIG FROM URL ───────────────────────────────────────────
+const PARAMS = new URLSearchParams(window.location.search);
+const SUBJECT_ID = PARAMS.get("subject") || window.location.pathname.split("/").filter(Boolean).pop();
+
+// ─── STORAGE ───────────────────────────────────────────────────
+const STORAGE_KEY = `cram-v2-${SUBJECT_ID}`;
+const loadProgress = () => {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+  catch { return {}; }
+};
+const saveProgress = (p) => {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch {}
+};
+
+// ─── UTIL ──────────────────────────────────────────────────────
+const shuffle = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+// Shuffle choices and remap answer index
+const shuffleChoices = (q) => {
+  const indexed = q.choices.map((c, i) => ({ c, i }));
+  const shuf = shuffle(indexed);
+  return {
+    ...q,
+    choices: shuf.map(x => x.c),
+    answer: shuf.findIndex(x => x.i === q.answer),
+  };
+};
+
+// ─── APP ───────────────────────────────────────────────────────
+function App() {
+  const [bank, setBank] = useState(null);
+  const [loadErr, setLoadErr] = useState(null);
+  const [mode, setMode] = useState("menu");
+  const [filter, setFilter] = useState("all");
+  const [queue, setQueue] = useState([]);
+  const [current, setCurrent] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [stats, setStats] = useState({ correct: 0, wrong: 0, seen: new Set(), mastered: new Set() });
+  const [examQuestions, setExamQuestions] = useState([]);
+  const [examAnswers, setExamAnswers] = useState({});
+  const [examIdx, setExamIdx] = useState(0);
+  const [examDone, setExamDone] = useState(false);
+  const [examStart, setExamStart] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [progress, setProgress] = useState(loadProgress());
+  const [showExplain, setShowExplain] = useState(true);
+  const timerRef = useRef(null);
+
+  // ─── LOAD BANK ──
+  useEffect(() => {
+    if (!SUBJECT_ID) {
+      setLoadErr("No subject specified. Append ?subject=d072 or visit the cram hub.");
+      return;
+    }
+    fetch(`/cram/banks/${SUBJECT_ID}.json`)
+      .then(r => { if (!r.ok) throw new Error(`Bank not found: ${SUBJECT_ID}`); return r.json(); })
+      .then(b => { setBank(b); document.title = `${b.code} Cram`; })
+      .catch(e => setLoadErr(e.message));
+  }, []);
+
+  // ─── HELPERS ──
+  const DOMAIN_MAP = useMemo(() => {
+    if (!bank) return {};
+    const m = {};
+    bank.domains.forEach(d => { m[d.id] = d; });
+    return m;
+  }, [bank]);
+
+  const domainCounts = useMemo(() => {
+    if (!bank) return {};
+    const c = {};
+    bank.questions.forEach(q => { c[q.domain] = (c[q.domain] || 0) + 1; });
+    return c;
+  }, [bank]);
+
+  // ─── DRILL (HAMSTUDY FUNNEL) ──
+  const startDrill = (domain) => {
+    const pool = domain === "all" ? bank.questions : bank.questions.filter(q => q.domain === domain);
+    const shuffled = shuffle(pool).map(shuffleChoices);
+    setQueue(shuffled.slice(1));
+    setCurrent(shuffled[0]);
+    setSelected(null);
+    setStats({ correct: 0, wrong: 0, seen: new Set(), mastered: new Set() });
+    setFilter(domain);
+    setMode("drill");
+  };
+
+  const handleAnswer = (idx) => {
+    if (selected !== null) return;
+    setSelected(idx);
+    const isCorrect = idx === current.answer;
+    const baseId = current.id;
+    setStats(prev => {
+      const newMastered = new Set(prev.mastered);
+      if (isCorrect && prev.seen.has(baseId)) newMastered.add(baseId);
+      return {
+        correct: prev.correct + (isCorrect ? 1 : 0),
+        wrong: prev.wrong + (isCorrect ? 0 : 1),
+        seen: new Set([...prev.seen, baseId]),
+        mastered: newMastered,
+      };
+    });
+    // Persistent progress: miss count per question
+    setProgress(prev => {
+      const p = { ...prev };
+      p.attempts = p.attempts || {};
+      p.attempts[baseId] = p.attempts[baseId] || { r: 0, w: 0 };
+      if (isCorrect) p.attempts[baseId].r++;
+      else p.attempts[baseId].w++;
+      p.lastSeen = Date.now();
+      saveProgress(p);
+      return p;
+    });
+  };
+
+  const nextQuestion = () => {
+    const isCorrect = selected === current.answer;
+    let newQueue = [...queue];
+    if (!isCorrect) {
+      // HamStudy-style: re-insert 3-5 positions later
+      const insertAt = Math.min(3 + Math.floor(Math.random() * 3), newQueue.length);
+      newQueue.splice(insertAt, 0, current);
+    }
+    if (newQueue.length === 0) {
+      setMode("done");
+      return;
+    }
+    setCurrent(shuffleChoices(newQueue[0]));
+    setQueue(newQueue.slice(1));
+    setSelected(null);
+  };
+
+  // ─── EXAM SIM ──
+  const startExam = () => {
+    const n = bank.exam?.questions || Math.min(60, bank.questions.length);
+    // Domain-weighted sample (proportional to bank distribution)
+    const qs = shuffle(bank.questions).slice(0, n).map(shuffleChoices);
+    setExamQuestions(qs);
+    setExamAnswers({});
+    setExamIdx(0);
+    setExamDone(false);
+    setExamStart(Date.now());
+    setMode("exam");
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => setElapsed(Date.now()), 1000);
+  };
+
+  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+
+  const finishExam = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setExamDone(true);
+  };
+
+  const examScore = () => {
+    let correct = 0;
+    examQuestions.forEach((q, i) => { if (examAnswers[i] === q.answer) correct++; });
+    return correct;
+  };
+
+  // ─── WEAK AREAS (from persistent progress) ──
+  const weakQuestions = useMemo(() => {
+    if (!bank || !progress.attempts) return [];
+    return bank.questions
+      .map(q => {
+        const a = progress.attempts[q.id];
+        if (!a) return { q, ratio: 0, wrong: 0 };
+        return { q, ratio: a.w / (a.r + a.w), wrong: a.w };
+      })
+      .filter(x => x.wrong > 0)
+      .sort((a,b) => b.ratio - a.ratio || b.wrong - a.wrong)
+      .slice(0, 30);
+  }, [bank, progress]);
+
+  const startWeakDrill = () => {
+    if (weakQuestions.length === 0) return;
+    const pool = shuffle(weakQuestions.map(x => x.q)).map(shuffleChoices);
+    setQueue(pool.slice(1));
+    setCurrent(pool[0]);
+    setSelected(null);
+    setStats({ correct: 0, wrong: 0, seen: new Set(), mastered: new Set() });
+    setFilter("weak");
+    setMode("drill");
+  };
+
+  // ─── LOADING / ERROR ──
+  if (loadErr) return (
+    <div className="err">
+      <div style={{fontSize:18, marginBottom:8}}>⚠ {loadErr}</div>
+      <a href="/cram/">← back to cram hub</a>
+    </div>
+  );
+  if (!bank) return <div className="spinner">LOADING {SUBJECT_ID?.toUpperCase()}</div>;
+
+  const theme = {
+    bg: "#1e1e2e", surface: "#313244", border: "#45475a",
+    text: "#cdd6f4", dim: "#6c7086", dim2: "#bac2de",
+    pink: "#f5c2e7", red: "#f38ba8", green: "#a6e3a1",
+    blue: "#89b4fa", yellow: "#f9e2af",
+  };
+
+  // ─── MENU ──
+  if (mode === "menu") {
+    const totalAttempts = Object.values(progress.attempts || {}).reduce((s,a) => s + a.r + a.w, 0);
+    return (
+      <div style={{ fontFamily: "inherit", background: theme.bg, color: theme.text, minHeight: "100vh", padding: "20px" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <a href="/cram/" style={{ color: theme.dim, fontSize: 12, textDecoration: "none", letterSpacing: 2 }}>← HUB</a>
+          <div style={{ textAlign: "center", margin: "24px 0 32px" }}>
+            <div style={{ fontSize: 13, letterSpacing: 4, color: theme.dim, marginBottom: 4 }}>{bank.category} {bank.code}</div>
+            <div style={{ fontSize: 26, fontWeight: 700, color: theme.text }}>{bank.title.toUpperCase()}</div>
+            <div style={{ fontSize: 13, color: theme.dim, marginTop: 4 }}>
+              {bank.questions.length} questions / {bank.domains.length} domain{bank.domains.length !== 1 ? "s" : ""}
+              {totalAttempts > 0 && ` · ${totalAttempts} attempts logged`}
+            </div>
+          </div>
+
+          <button onClick={startExam} style={{ width: "100%", padding: "16px", background: theme.red, color: theme.bg, border: "none", borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 10, fontFamily: "inherit", letterSpacing: 1 }}>
+            PRACTICE OA ({bank.exam?.questions || 60} Qs / {bank.exam?.minutes || 90} min)
+          </button>
+
+          {weakQuestions.length > 0 && (
+            <button onClick={startWeakDrill} style={{ width: "100%", padding: "14px", background: theme.yellow, color: theme.bg, border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 24, fontFamily: "inherit", letterSpacing: 1 }}>
+              DRILL {weakQuestions.length} WEAK {weakQuestions.length === 1 ? "QUESTION" : "QUESTIONS"}
+            </button>
+          )}
+
+          <div style={{ fontSize: 12, color: theme.dim, marginBottom: 8, letterSpacing: 2 }}>DRILL BY DOMAIN</div>
+
+          <button onClick={() => startDrill("all")} style={{ width: "100%", padding: "14px", background: theme.surface, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: 8, fontSize: 14, cursor: "pointer", marginBottom: 8, fontFamily: "inherit", textAlign: "left" }}>
+            <span style={{ fontWeight: 600 }}>ALL DOMAINS</span>
+            <span style={{ float: "right", color: theme.dim }}>{bank.questions.length}</span>
+          </button>
+
+          {bank.domains.map(d => (
+            <button key={d.id} onClick={() => startDrill(d.id)} style={{ width: "100%", padding: "14px", background: theme.surface, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: 8, fontSize: 14, cursor: "pointer", marginBottom: 8, fontFamily: "inherit", textAlign: "left" }}>
+              <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: d.color, marginRight: 10 }}/>
+              <span style={{ fontWeight: 600 }}>{d.label}</span>
+              <span style={{ float: "right", color: theme.dim }}>{domainCounts[d.id] || 0}</span>
+            </button>
+          ))}
+
+          {Object.keys(progress.attempts || {}).length > 0 && (
+            <button onClick={() => { if (confirm("Clear all saved progress for this subject?")) { localStorage.removeItem(STORAGE_KEY); setProgress({}); } }}
+              style={{ width: "100%", padding: "10px", background: "transparent", color: theme.dim, border: `1px solid ${theme.border}`, borderRadius: 8, fontSize: 11, cursor: "pointer", marginTop: 24, fontFamily: "inherit", letterSpacing: 2 }}>
+              RESET PROGRESS
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ─── EXAM ──
+  if (mode === "exam") {
+    const mins = Math.floor((Date.now() - examStart) / 60000);
+    const secs = Math.floor(((Date.now() - examStart) % 60000) / 1000);
+    const answered = Object.keys(examAnswers).length;
+    const totalMin = bank.exam?.minutes || 90;
+
+    if (examDone) {
+      const score = examScore();
+      const total = examQuestions.length;
+      const pct = Math.round((score / total) * 100);
+      const passPct = bank.exam?.passingPct || 65;
+      const pass = pct >= passPct;
+      const byDomain = {};
+      examQuestions.forEach((q, i) => {
+        if (!byDomain[q.domain]) byDomain[q.domain] = { correct: 0, total: 0 };
+        byDomain[q.domain].total++;
+        if (examAnswers[i] === q.answer) byDomain[q.domain].correct++;
+      });
+
+      return (
+        <div style={{ fontFamily: "inherit", background: theme.bg, color: theme.text, minHeight: "100vh", padding: "20px" }}>
+          <div style={{ maxWidth: 600, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <div style={{ fontSize: 48, fontWeight: 700, color: pass ? theme.green : theme.red }}>{pct}%</div>
+              <div style={{ fontSize: 13, color: theme.dim, letterSpacing: 2 }}>{score} / {total} · {pass ? "PASS" : "FAIL"} (need {passPct}%)</div>
+            </div>
+            <div style={{ fontSize: 12, color: theme.dim, marginBottom: 12, letterSpacing: 2 }}>BY DOMAIN</div>
+            {Object.entries(byDomain).map(([d, data]) => {
+              const dom = DOMAIN_MAP[d] || { label: d, color: theme.dim };
+              return (
+                <div key={d} style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", background: theme.surface, borderRadius: 6, marginBottom: 6, fontSize: 13, borderLeft: `3px solid ${dom.color}` }}>
+                  <span>{dom.label}</span>
+                  <span style={{ color: data.correct / data.total >= passPct/100 ? theme.green : theme.red }}>{data.correct}/{data.total}</span>
+                </div>
+              );
+            })}
+            <div style={{ marginTop: 24, fontSize: 12, color: theme.dim, marginBottom: 8, letterSpacing: 2 }}>MISSED QUESTIONS</div>
+            {examQuestions.map((q, i) => {
+              if (examAnswers[i] === q.answer) return null;
+              const dom = DOMAIN_MAP[q.domain] || {};
+              return (
+                <div key={i} style={{ background: theme.surface, borderRadius: 8, padding: 12, marginBottom: 8, fontSize: 13, borderLeft: `3px solid ${dom.color}` }}>
+                  <div style={{ fontSize: 10, color: dom.color, letterSpacing: 1, marginBottom: 4 }}>{dom.label}</div>
+                  <div style={{ marginBottom: 8 }}>{q.q}</div>
+                  <div style={{ color: theme.red, fontSize: 12 }}>✗ Your answer: {examAnswers[i] !== undefined ? q.choices[examAnswers[i]] : "(blank)"}</div>
+                  <div style={{ color: theme.green, fontSize: 12 }}>✓ Correct: {q.choices[q.answer]}</div>
+                  {q.explanation && <div style={{ marginTop: 8, fontSize: 12, color: theme.dim2, fontStyle: "italic" }}>{q.explanation}</div>}
+                </div>
+              );
+            })}
+            <button onClick={() => setMode("menu")} style={{ width: "100%", padding: 14, background: theme.surface, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: 8, marginTop: 24, cursor: "pointer", fontFamily: "inherit" }}>BACK TO MENU</button>
+          </div>
+        </div>
+      );
+    }
+
+    const q = examQuestions[examIdx];
+    const dom = DOMAIN_MAP[q.domain] || {};
+    return (
+      <div style={{ fontFamily: "inherit", background: theme.bg, color: theme.text, minHeight: "100vh", padding: "20px" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: theme.dim, marginBottom: 16, letterSpacing: 1 }}>
+            <span>{examIdx + 1} / {examQuestions.length}</span>
+            <span>{answered} answered</span>
+            <span style={{ color: mins >= totalMin ? theme.red : theme.dim }}>{mins}:{String(secs).padStart(2,"0")}</span>
+          </div>
+          <div style={{ fontSize: 10, color: dom.color, letterSpacing: 2, marginBottom: 8 }}>{dom.label}</div>
+          <div style={{ fontSize: 15, lineHeight: 1.5, marginBottom: 20 }}>{q.q}</div>
+          {q.choices.map((c, i) => {
+            const picked = examAnswers[examIdx] === i;
+            return (
+              <button key={i} onClick={() => setExamAnswers(prev => ({ ...prev, [examIdx]: i }))}
+                style={{ display: "block", width: "100%", textAlign: "left", padding: 12, marginBottom: 6, background: picked ? theme.blue : theme.surface, color: picked ? theme.bg : theme.text, border: `1px solid ${picked ? theme.blue : theme.border}`, borderRadius: 6, fontFamily: "inherit", fontSize: 13, cursor: "pointer" }}>
+                <span style={{ fontWeight: 700, marginRight: 10 }}>{String.fromCharCode(65+i)}</span>{c}
+              </button>
+            );
+          })}
+          <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
+            <button onClick={() => setExamIdx(Math.max(0, examIdx-1))} disabled={examIdx === 0}
+              style={{ flex: 1, padding: 12, background: theme.surface, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: 6, fontFamily: "inherit", cursor: "pointer", opacity: examIdx === 0 ? 0.4 : 1 }}>← PREV</button>
+            {examIdx < examQuestions.length - 1 ? (
+              <button onClick={() => setExamIdx(examIdx+1)}
+                style={{ flex: 1, padding: 12, background: theme.surface, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: 6, fontFamily: "inherit", cursor: "pointer" }}>NEXT →</button>
+            ) : (
+              <button onClick={finishExam}
+                style={{ flex: 1, padding: 12, background: theme.green, color: theme.bg, border: "none", borderRadius: 6, fontFamily: "inherit", fontWeight: 700, cursor: "pointer" }}>SUBMIT</button>
+            )}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 20 }}>
+            {examQuestions.map((_, i) => (
+              <button key={i} onClick={() => setExamIdx(i)}
+                style={{ width: 26, height: 26, padding: 0, background: examAnswers[i] !== undefined ? theme.blue : theme.surface, color: i === examIdx ? theme.yellow : (examAnswers[i] !== undefined ? theme.bg : theme.dim), border: `1px solid ${i === examIdx ? theme.yellow : theme.border}`, borderRadius: 4, fontSize: 10, fontFamily: "inherit", cursor: "pointer" }}>{i+1}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── DRILL ──
+  if (mode === "drill") {
+    const dom = DOMAIN_MAP[current.domain] || {};
+    const pct = stats.seen.size + queue.length > 0 ? Math.round((stats.seen.size / (stats.seen.size + queue.length + 1)) * 100) : 0;
+    return (
+      <div style={{ fontFamily: "inherit", background: theme.bg, color: theme.text, minHeight: "100vh", padding: "20px" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: theme.dim, marginBottom: 12, letterSpacing: 1 }}>
+            <span style={{ cursor: "pointer" }} onClick={() => setMode("menu")}>← MENU</span>
+            <span>{queue.length} left · <span style={{ color: theme.green }}>{stats.correct}✓</span> <span style={{ color: theme.red }}>{stats.wrong}✗</span></span>
+          </div>
+          <div style={{ height: 3, background: theme.surface, borderRadius: 3, marginBottom: 20, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${pct}%`, background: theme.green, transition: "width 0.3s" }}/>
+          </div>
+          <div style={{ fontSize: 10, color: dom.color, letterSpacing: 2, marginBottom: 8 }}>{dom.label}</div>
+          <div style={{ fontSize: 15, lineHeight: 1.5, marginBottom: 20 }}>{current.q}</div>
+          {current.choices.map((c, i) => {
+            let bg = theme.surface, border = theme.border, color = theme.text;
+            if (selected !== null) {
+              if (i === current.answer) { bg = theme.green; color = theme.bg; border = theme.green; }
+              else if (i === selected) { bg = theme.red; color = theme.bg; border = theme.red; }
+            }
+            return (
+              <button key={i} onClick={() => handleAnswer(i)} disabled={selected !== null}
+                style={{ display: "block", width: "100%", textAlign: "left", padding: 12, marginBottom: 6, background: bg, color, border: `1px solid ${border}`, borderRadius: 6, fontFamily: "inherit", fontSize: 13, cursor: selected === null ? "pointer" : "default" }}>
+                <span style={{ fontWeight: 700, marginRight: 10 }}>{String.fromCharCode(65+i)}</span>{c}
+              </button>
+            );
+          })}
+          {selected !== null && (
+            <>
+              {current.explanation && showExplain && (
+                <div style={{ background: theme.surface, borderLeft: `3px solid ${dom.color}`, padding: 12, borderRadius: 6, marginTop: 12, fontSize: 13, color: theme.dim2, lineHeight: 1.5 }}>
+                  {current.explanation}
+                </div>
+              )}
+              <button onClick={nextQuestion}
+                style={{ width: "100%", padding: 14, background: theme.blue, color: theme.bg, border: "none", borderRadius: 6, marginTop: 12, fontFamily: "inherit", fontWeight: 700, cursor: "pointer", letterSpacing: 1 }}>
+                {queue.length === 0 ? "FINISH" : "NEXT →"}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ─── DONE ──
+  if (mode === "done") {
+    const total = stats.correct + stats.wrong;
+    const pct = total > 0 ? Math.round((stats.correct / total) * 100) : 0;
+    return (
+      <div style={{ fontFamily: "inherit", background: theme.bg, color: theme.text, minHeight: "100vh", padding: "20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ maxWidth: 400, textAlign: "center" }}>
+          <div style={{ fontSize: 48, fontWeight: 700, color: theme.green, marginBottom: 8 }}>DONE</div>
+          <div style={{ fontSize: 36, fontWeight: 700, color: theme.text, marginBottom: 4 }}>{pct}%</div>
+          <div style={{ fontSize: 13, color: theme.dim, marginBottom: 4 }}>{stats.correct} correct / {stats.wrong} wrong</div>
+          <div style={{ fontSize: 13, color: theme.dim, marginBottom: 24 }}>{stats.seen.size} unique questions</div>
+          <button onClick={() => setMode("menu")} style={{ padding: "12px 32px", background: theme.surface, color: theme.text, border: `1px solid ${theme.border}`, borderRadius: 8, cursor: "pointer", fontFamily: "inherit", letterSpacing: 2 }}>MENU</button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
