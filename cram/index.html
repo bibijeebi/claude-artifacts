@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WGU Cram | Exam Prep</title>
+<title>Cram | Exam Prep</title>
+<meta name="description" content="HamStudy-style adaptive cram engine for exams, certifications, and courses">
 <style>
 html, body { overflow-x: hidden; margin: 0; padding: 0; }
 * { box-sizing: border-box; }
@@ -13,7 +14,6 @@ body {
   color: #cdd6f4;
   min-height: 100vh;
 }
-
 .header {
   padding: 48px 24px 36px;
   text-align: center;
@@ -22,217 +22,226 @@ body {
 .header h1 {
   font-size: 36px;
   font-weight: 800;
-  letter-spacing: 4px;
-  color: #cdd6f4;
   margin: 0;
+  letter-spacing: 6px;
+  color: #cdd6f4;
 }
-.header .sub {
-  font-size: 13px;
+.sub {
+  font-size: 12px;
   color: #6c7086;
-  margin-top: 8px;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
+  margin-top: 6px;
 }
 .stats-row {
   display: flex;
   justify-content: center;
-  gap: 40px;
-  margin-top: 20px;
+  gap: 48px;
+  margin-top: 28px;
 }
 .stat { text-align: center; }
 .stat-val {
   font-size: 28px;
   font-weight: 700;
-  color: #f5c2e7;
+  color: #a6e3a1;
 }
 .stat-lbl {
   font-size: 10px;
+  letter-spacing: 2px;
   color: #6c7086;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
   margin-top: 2px;
 }
-
-.grid {
-  max-width: 720px;
-  margin: 32px auto;
-  padding: 0 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 20px 8px;
 }
-
+.section-title {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: #6c7086;
+  margin-bottom: 16px;
+}
+.grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px 32px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
 .card {
-  display: block;
-  background: #181825;
-  border: 1px solid #313244;
-  border-radius: 12px;
-  padding: 24px;
+  background: #313244;
+  border: 1px solid #45475a;
+  border-radius: 10px;
+  padding: 20px;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s, transform 0.15s;
-  cursor: pointer;
+  transition: all 0.15s;
+  display: block;
 }
 .card:hover {
-  border-color: #f5c2e7;
+  border-color: #89b4fa;
   transform: translateY(-2px);
 }
 .card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 .card-code {
-  font-size: 12px;
+  font-size: 11px;
+  letter-spacing: 3px;
   color: #6c7086;
-  letter-spacing: 2px;
 }
 .card-status {
-  font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-weight: 600;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
   letter-spacing: 1px;
+  font-weight: 600;
 }
-.status-passed {
-  background: rgba(166, 227, 161, 0.15);
-  color: #a6e3a1;
-}
-.status-active {
-  background: rgba(245, 194, 231, 0.15);
-  color: #f5c2e7;
-}
-.status-upcoming {
-  background: rgba(108, 112, 134, 0.15);
-  color: #6c7086;
-}
+.status-passed { background: rgba(166, 227, 161, 0.15); color: #a6e3a1; }
+.status-active { background: rgba(245, 194, 231, 0.15); color: #f5c2e7; }
+.status-upcoming { background: rgba(108, 112, 134, 0.15); color: #6c7086; }
+.status-planned { background: rgba(137, 180, 250, 0.15); color: #89b4fa; }
 .card-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+  line-height: 1.3;
 }
 .card-meta {
   display: flex;
-  gap: 24px;
-  font-size: 12px;
+  gap: 16px;
+  font-size: 11px;
   color: #6c7086;
+  letter-spacing: 0.5px;
+  flex-wrap: wrap;
 }
-.card-meta span { letter-spacing: 0.5px; }
 .meta-val { color: #bac2de; font-weight: 600; }
-
 .domains {
   display: flex;
-  gap: 6px;
-  margin-top: 14px;
+  gap: 4px;
+  margin-top: 12px;
   flex-wrap: wrap;
 }
 .domain-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
 }
-
+.empty {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px 32px;
+  font-size: 12px;
+  color: #45475a;
+  font-style: italic;
+}
 .footer {
   text-align: center;
-  padding: 40px 20px;
-  font-size: 11px;
+  padding: 40px 20px 60px;
+  font-size: 10px;
   color: #45475a;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+}
+.err {
+  max-width: 600px;
+  margin: 80px auto;
+  padding: 40px;
+  color: #f38ba8;
+  text-align: center;
 }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>WGU CRAM</h1>
+  <h1>CRAM</h1>
   <div class="sub">HAMSTUDY-STYLE EXAM PREP</div>
-  <div class="stats-row">
-    <div class="stat">
-      <div class="stat-val">305</div>
-      <div class="stat-lbl">Questions</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val">3</div>
-      <div class="stat-lbl">Courses</div>
-    </div>
-    <div class="stat">
-      <div class="stat-val">21</div>
-      <div class="stat-lbl">Domains</div>
-    </div>
-  </div>
+  <div class="stats-row" id="stats"></div>
 </div>
 
-<div class="grid">
+<div id="content"></div>
 
-  <a class="card" href="/cram/c715">
-    <div class="card-top">
-      <span class="card-code">C715</span>
-      <span class="card-status status-passed">PASSED</span>
-    </div>
-    <div class="card-title">Organizational Behavior</div>
-    <div class="card-meta">
-      <span><span class="meta-val">173</span> questions</span>
-      <span><span class="meta-val">6</span> domains</span>
-      <span><span class="meta-val">3</span> CU</span>
-    </div>
-    <div class="domains">
-      <div class="domain-dot" style="background:#e06c75" title="Behavioral Influences"></div>
-      <div class="domain-dot" style="background:#e5c07b" title="Group Development"></div>
-      <div class="domain-dot" style="background:#61afef" title="Teams & Team Building"></div>
-      <div class="domain-dot" style="background:#c678dd" title="Organizational Culture"></div>
-      <div class="domain-dot" style="background:#98c379" title="Leadership"></div>
-      <div class="domain-dot" style="background:#56b6c2" title="Performance Evaluation"></div>
-    </div>
-  </a>
+<div class="footer">BENNY FOREMAN &middot; /cram/?subject=&lt;id&gt; for direct links</div>
 
-  <a class="card" href="/cram/d072">
-    <div class="card-top">
-      <span class="card-code">D072</span>
-      <span class="card-status status-active">ACTIVE</span>
-    </div>
-    <div class="card-title">Fundamentals for Success in Business</div>
-    <div class="card-meta">
-      <span><span class="meta-val">60</span> questions</span>
-      <span><span class="meta-val">5</span> domains</span>
-      <span><span class="meta-val">3</span> CU</span>
-    </div>
-    <div class="domains">
-      <div class="domain-dot" style="background:#e06c75" title="Common Ethical Issues"></div>
-      <div class="domain-dot" style="background:#e5c07b" title="Organizational Functions & Values"></div>
-      <div class="domain-dot" style="background:#61afef" title="Effective Communication"></div>
-      <div class="domain-dot" style="background:#c678dd" title="Emotional Intelligence"></div>
-      <div class="domain-dot" style="background:#98c379" title="Leadership & Influence"></div>
-    </div>
-  </a>
+<script>
+const CATEGORY_ORDER = ["WGU", "HAM", "CERT", "LANG", "NATCA", "OTHER"];
+const CATEGORY_LABELS = {
+  WGU: "WGU COURSES",
+  HAM: "AMATEUR RADIO",
+  CERT: "CERTIFICATIONS",
+  LANG: "LANGUAGES",
+  NATCA: "ATC / NATCA",
+  OTHER: "OTHER",
+};
 
-  <a class="card" href="/cram/c720">
-    <div class="card-top">
-      <span class="card-code">C720</span>
-      <span class="card-status status-active">ACTIVE</span>
-    </div>
-    <div class="card-title">Operations and Supply Chain Management</div>
-    <div class="card-meta">
-      <span><span class="meta-val">72</span> questions</span>
-      <span><span class="meta-val">10</span> domains</span>
-      <span><span class="meta-val">3</span> CU</span>
-    </div>
-    <div class="domains">
-      <div class="domain-dot" style="background:#e06c75" title="Quality Management"></div>
-      <div class="domain-dot" style="background:#e5c07b" title="Capacity Planning"></div>
-      <div class="domain-dot" style="background:#61afef" title="Process Design"></div>
-      <div class="domain-dot" style="background:#c678dd" title="Forecasting"></div>
-      <div class="domain-dot" style="background:#98c379" title="ERP & Lean"></div>
-      <div class="domain-dot" style="background:#56b6c2" title="Bottlenecks"></div>
-      <div class="domain-dot" style="background:#d19a66" title="Supply Chain"></div>
-      <div class="domain-dot" style="background:#be5046" title="Ethics & Sustainability"></div>
-      <div class="domain-dot" style="background:#abb2bf" title="Strategy"></div>
-      <div class="domain-dot" style="background:#c678dd" title="Inventory Management"></div>
-    </div>
-  </a>
+fetch("/cram/banks/manifest.json")
+  .then(r => r.json())
+  .then(manifest => {
+    // Stats
+    const totalQs = manifest.reduce((s, b) => s + b.questions, 0);
+    const totalDomains = manifest.reduce((s, b) => s + b.domains.length, 0);
+    document.getElementById("stats").innerHTML = `
+      <div class="stat"><div class="stat-val">${totalQs}</div><div class="stat-lbl">Questions</div></div>
+      <div class="stat"><div class="stat-val">${manifest.length}</div><div class="stat-lbl">Subjects</div></div>
+      <div class="stat"><div class="stat-val">${totalDomains}</div><div class="stat-lbl">Domains</div></div>
+    `;
 
-</div>
+    // Group by category
+    const byCategory = {};
+    manifest.forEach(b => {
+      const cat = b.category || "OTHER";
+      if (!byCategory[cat]) byCategory[cat] = [];
+      byCategory[cat].push(b);
+    });
 
-<div class="footer">BENNY FOREMAN &middot; WGU B.S. IT MANAGEMENT &middot; TERM 1</div>
+    // Status sort: active > upcoming > passed > planned
+    const statusRank = { active: 0, upcoming: 1, passed: 2, planned: 3 };
+    Object.values(byCategory).forEach(arr =>
+      arr.sort((a, b) => (statusRank[a.status] ?? 9) - (statusRank[b.status] ?? 9))
+    );
+
+    // Render
+    let html = "";
+    CATEGORY_ORDER.forEach(cat => {
+      const items = byCategory[cat];
+      if (!items || items.length === 0) return;
+      html += `<div class="section"><div class="section-title">${CATEGORY_LABELS[cat]}</div></div>`;
+      html += `<div class="grid">`;
+      items.forEach(b => {
+        const metaParts = [
+          `<span><span class="meta-val">${b.questions}</span> Qs</span>`,
+          `<span><span class="meta-val">${b.domains.length}</span> domains</span>`,
+        ];
+        if (b.meta?.CU) metaParts.push(`<span><span class="meta-val">${b.meta.CU}</span> CU</span>`);
+        if (b.meta?.valid_through) metaParts.push(`<span>valid ${b.meta.valid_through}</span>`);
+        const dots = b.domains.slice(0, 12).map(d =>
+          `<div class="domain-dot" style="background:${d.color}" title="${d.label}"></div>`
+        ).join("");
+        html += `
+          <a class="card" href="/cram/?subject=${b.id}">
+            <div class="card-top">
+              <span class="card-code">${b.code}</span>
+              <span class="card-status status-${b.status}">${b.status.toUpperCase()}</span>
+            </div>
+            <div class="card-title">${b.title}</div>
+            <div class="card-meta">${metaParts.join("")}</div>
+            <div class="domains">${dots}</div>
+          </a>
+        `;
+      });
+      html += `</div>`;
+    });
+    document.getElementById("content").innerHTML = html;
+  })
+  .catch(e => {
+    document.getElementById("content").innerHTML =
+      `<div class="err">Failed to load manifest: ${e.message}</div>`;
+  });
+</script>
 
 </body>
 </html>
