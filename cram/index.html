@@ -131,6 +131,40 @@ body {
   height: 7px;
   border-radius: 50%;
 }
+
+/* Collapsible passed section */
+.passed-toggle {
+  max-width: 1100px;
+  margin: 8px auto 0;
+  padding: 0 20px;
+}
+.passed-toggle summary {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: #6c7086;
+  cursor: pointer;
+  padding: 14px 0;
+  border-top: 1px solid #313244;
+  list-style: none;
+  user-select: none;
+  transition: color 0.15s;
+}
+.passed-toggle summary::-webkit-details-marker { display: none; }
+.passed-toggle summary::before {
+  content: "▸ ";
+  display: inline-block;
+  margin-right: 4px;
+  transition: transform 0.15s;
+}
+.passed-toggle[open] summary::before {
+  transform: rotate(90deg);
+}
+.passed-toggle summary:hover { color: #a6e3a1; }
+.passed-toggle .count {
+  color: #a6e3a1;
+  margin-left: 6px;
+  letter-spacing: 1px;
+}
 .empty {
   max-width: 1100px;
   margin: 0 auto;
@@ -182,12 +216,13 @@ fetch("/cram/banks/manifest.json")
   .then(r => r.json())
   .then(manifest => {
     // Stats
-    const totalQs = manifest.reduce((s, b) => s + b.questions, 0);
-    const totalDomains = manifest.reduce((s, b) => s + b.domains.length, 0);
+    const activeSubjects = manifest.filter(m => m.status !== "passed");
+    const passedSubjects = manifest.filter(m => m.status === "passed");
+    const totalActiveQs = activeSubjects.reduce((s, b) => s + b.questions, 0);
     document.getElementById("stats").innerHTML = `
-      <div class="stat"><div class="stat-val">${totalQs}</div><div class="stat-lbl">Questions</div></div>
-      <div class="stat"><div class="stat-val">${manifest.length}</div><div class="stat-lbl">Subjects</div></div>
-      <div class="stat"><div class="stat-val">${totalDomains}</div><div class="stat-lbl">Domains</div></div>
+      <div class="stat"><div class="stat-val">${totalActiveQs}</div><div class="stat-lbl">Active Qs</div></div>
+      <div class="stat"><div class="stat-val">${activeSubjects.length}</div><div class="stat-lbl">Active</div></div>
+      <div class="stat"><div class="stat-val" style="color:#a6e3a1">${passedSubjects.length}</div><div class="stat-lbl">Passed</div></div>
     `;
 
     // Group by category
@@ -204,36 +239,50 @@ fetch("/cram/banks/manifest.json")
       arr.sort((a, b) => (statusRank[a.status] ?? 9) - (statusRank[b.status] ?? 9))
     );
 
+    // Render card HTML helper
+    function cardHTML(b) {
+      const metaParts = [
+        `<span><span class="meta-val">${b.questions}</span> Qs</span>`,
+        `<span><span class="meta-val">${b.domains.length}</span> domains</span>`,
+      ];
+      if (b.meta?.CU) metaParts.push(`<span><span class="meta-val">${b.meta.CU}</span> CU</span>`);
+      if (b.meta?.valid_through) metaParts.push(`<span>valid ${b.meta.valid_through}</span>`);
+      const dots = b.domains.slice(0, 12).map(d =>
+        `<div class="domain-dot" style="background:${d.color}" title="${d.label}"></div>`
+      ).join("");
+      return `
+        <a class="card" href="/cram/app.html?subject=${b.id}">
+          <div class="card-top">
+            <span class="card-code">${b.code}</span>
+            <span class="card-status status-${b.status}">${b.status.toUpperCase()}</span>
+          </div>
+          <div class="card-title">${b.title}</div>
+          <div class="card-meta">${metaParts.join("")}</div>
+          <div class="domains">${dots}</div>
+        </a>
+      `;
+    }
+
     // Render
     let html = "";
     CATEGORY_ORDER.forEach(cat => {
       const items = byCategory[cat];
       if (!items || items.length === 0) return;
+      const active = items.filter(b => b.status !== "passed");
+      const passed = items.filter(b => b.status === "passed");
+
       html += `<div class="section"><div class="section-title">${CATEGORY_LABELS[cat]}</div></div>`;
-      html += `<div class="grid">`;
-      items.forEach(b => {
-        const metaParts = [
-          `<span><span class="meta-val">${b.questions}</span> Qs</span>`,
-          `<span><span class="meta-val">${b.domains.length}</span> domains</span>`,
-        ];
-        if (b.meta?.CU) metaParts.push(`<span><span class="meta-val">${b.meta.CU}</span> CU</span>`);
-        if (b.meta?.valid_through) metaParts.push(`<span>valid ${b.meta.valid_through}</span>`);
-        const dots = b.domains.slice(0, 12).map(d =>
-          `<div class="domain-dot" style="background:${d.color}" title="${d.label}"></div>`
-        ).join("");
+      if (active.length > 0) {
+        html += `<div class="grid">${active.map(cardHTML).join("")}</div>`;
+      }
+      if (passed.length > 0) {
         html += `
-          <a class="card" href="/cram/app.html?subject=${b.id}">
-            <div class="card-top">
-              <span class="card-code">${b.code}</span>
-              <span class="card-status status-${b.status}">${b.status.toUpperCase()}</span>
-            </div>
-            <div class="card-title">${b.title}</div>
-            <div class="card-meta">${metaParts.join("")}</div>
-            <div class="domains">${dots}</div>
-          </a>
+          <details class="passed-toggle">
+            <summary>SHOW ${passed.length} PASSED<span class="count">✓</span></summary>
+            <div class="grid" style="padding-top:14px">${passed.map(cardHTML).join("")}</div>
+          </details>
         `;
-      });
-      html += `</div>`;
+      }
     });
     document.getElementById("content").innerHTML = html;
   })
