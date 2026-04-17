@@ -8,7 +8,8 @@
     "CU": 3,
     "term": 1,
     "platform": "MyEducator Excel Add-in",
-    "time_limit_min": 180
+    "time_limit_min": 180,
+    "reference": "/cram/ivv1/"
   },
   "exam": {
     "questions": 50,
@@ -60,6 +61,31 @@
       "id": "errors",
       "label": "Errors & Troubleshooting",
       "color": "#e06c75"
+    },
+    {
+      "id": "lookup",
+      "label": "VLOOKUP / XLOOKUP",
+      "color": "#eba0ac"
+    },
+    {
+      "id": "logical",
+      "label": "IF / Nested IF / AND / OR",
+      "color": "#fab387"
+    },
+    {
+      "id": "cond_fmt",
+      "label": "Conditional Formatting",
+      "color": "#f5c2e7"
+    },
+    {
+      "id": "text",
+      "label": "Text Functions",
+      "color": "#cba6f7"
+    },
+    {
+      "id": "wa_pivots",
+      "label": "Washington County Pivot Qs",
+      "color": "#89b4fa"
     }
   ],
   "questions": [
@@ -1063,6 +1089,682 @@
       ],
       "answer": 0,
       "explanation": "Named ranges: bare name, no quotes or @. Define via Formulas \u2192 Define Name or type in Name Box. Makes formulas self-documenting."
+    },
+    {
+      "id": "ivv1-078",
+      "domain": "lookup",
+      "q": "The correct VLOOKUP syntax is:",
+      "choices": [
+        "=VLOOKUP(table, value, column, match_type)",
+        "=VLOOKUP(lookup_value, table_array, col_index_num, [range_lookup])",
+        "=VLOOKUP(column, row, value)",
+        "=VLOOKUP(lookup_value, col_index, table_array)"
+      ],
+      "answer": 1,
+      "explanation": "VLOOKUP(what_to_find, where_to_look, which_column, exact_or_approx). The lookup value must be in the FIRST column of the table_array."
+    },
+    {
+      "id": "ivv1-079",
+      "domain": "lookup",
+      "q": "In VLOOKUP, the fourth argument (range_lookup) should be FALSE or 0 when:",
+      "choices": [
+        "You want approximate matching",
+        "You want exact matching",
+        "The data is sorted",
+        "You don't care"
+      ],
+      "answer": 1,
+      "explanation": "FALSE/0 = exact match (use 99% of the time). TRUE/1 = approximate match, requires sorted data."
+    },
+    {
+      "id": "ivv1-080",
+      "domain": "lookup",
+      "q": "=VLOOKUP(\"Metro\", B2:D50, 3, FALSE) returns:",
+      "choices": [
+        "The value in column C where B column = \"Metro\"",
+        "The value in column D where B column = \"Metro\"",
+        "The third row of the table",
+        "An error because Metro isn't sorted"
+      ],
+      "answer": 1,
+      "explanation": "col_index_num = 3 means the 3rd column of the range B:D, which is D."
+    },
+    {
+      "id": "ivv1-081",
+      "domain": "lookup",
+      "q": "Why does VLOOKUP FAIL when you need to look up a value and return something from a column to the LEFT of the lookup column?",
+      "choices": [
+        "It doesn't fail, VLOOKUP works in any direction",
+        "VLOOKUP only searches right of the first column \u2014 use INDEX/MATCH or XLOOKUP instead",
+        "You need to sort the data",
+        "VLOOKUP requires adjacent columns"
+      ],
+      "answer": 1,
+      "explanation": "VLOOKUP only returns values from columns to the RIGHT of the lookup column. XLOOKUP and INDEX/MATCH work in any direction."
+    },
+    {
+      "id": "ivv1-082",
+      "domain": "lookup",
+      "q": "The XLOOKUP syntax is:",
+      "choices": [
+        "=XLOOKUP(lookup_value, lookup_array, return_array, [if_not_found])",
+        "=XLOOKUP(table, column, value)",
+        "=XLOOKUP(range, criteria, result)",
+        "=XLOOKUP(value, table_array, col_index)"
+      ],
+      "answer": 0,
+      "explanation": "XLOOKUP takes lookup_value, the range to search IN, the range to return FROM. Way cleaner than VLOOKUP."
+    },
+    {
+      "id": "ivv1-083",
+      "domain": "lookup",
+      "q": "A key advantage of XLOOKUP over VLOOKUP:",
+      "choices": [
+        "Shorter function name",
+        "Works in both directions (left OR right) and doesn't need column indices",
+        "Only available in Excel 2016",
+        "Can only do exact matches"
+      ],
+      "answer": 1,
+      "explanation": "XLOOKUP works regardless of direction, has built-in not-found handling, and doesn't break if columns are inserted/deleted."
+    },
+    {
+      "id": "ivv1-084",
+      "domain": "lookup",
+      "q": "=XLOOKUP(\"King\", A:A, C:C, \"Not found\") does what if \"King\" isn't in column A?",
+      "choices": [
+        "Returns #N/A",
+        "Returns \"Not found\"",
+        "Returns 0",
+        "Crashes Excel"
+      ],
+      "answer": 1,
+      "explanation": "The 4th arg is the fallback when no match. VLOOKUP requires IFERROR wrapper to achieve the same."
+    },
+    {
+      "id": "ivv1-085",
+      "domain": "lookup",
+      "q": "INDEX/MATCH combination is traditionally used because:",
+      "choices": [
+        "It's faster than VLOOKUP",
+        "It works bidirectionally (unlike VLOOKUP) and survives column inserts",
+        "It's shorter to type",
+        "It handles text better"
+      ],
+      "answer": 1,
+      "explanation": "=INDEX(return_range, MATCH(lookup_value, lookup_range, 0)). Both INDEX/MATCH and XLOOKUP solve VLOOKUP's directional limitation."
+    },
+    {
+      "id": "ivv1-086",
+      "domain": "logical",
+      "q": "=IF(A1>=60, \"Pass\", \"Fail\") returns:",
+      "choices": [
+        "Always \"Pass\"",
+        "\"Pass\" if A1 \u2265 60, otherwise \"Fail\"",
+        "TRUE or FALSE",
+        "The value in A1"
+      ],
+      "answer": 1,
+      "explanation": "IF(test, value_if_true, value_if_false). Text values in quotes."
+    },
+    {
+      "id": "ivv1-087",
+      "domain": "logical",
+      "q": "Nested IF for letter grades (90+=A, 80+=B, 70+=C, else F):",
+      "choices": [
+        "=IF(A1>=90,\"A\",IF(A1>=80,\"B\",IF(A1>=70,\"C\",\"F\")))",
+        "=IF(A1>=90,\"A\"),IF(A1>=80,\"B\")",
+        "=IF(A1>=70,\"C\",IF(A1>=80,\"B\",IF(A1>=90,\"A\",\"F\")))",
+        "=IF(A1>=90,\"A\"); IF(A1>=80,\"B\"); \"F\""
+      ],
+      "answer": 0,
+      "explanation": "Nested IFs go from HIGHEST condition first. Each false branch becomes the next IF."
+    },
+    {
+      "id": "ivv1-088",
+      "domain": "logical",
+      "q": "Order matters in nested IF. Which is WRONG?",
+      "choices": [
+        "=IF(A1>=90,\"A\",IF(A1>=80,\"B\",\"F\")) \u2014 top-down correct",
+        "=IF(A1>=80,\"B\",IF(A1>=90,\"A\",\"F\")) \u2014 scores of 95 return \"B\"",
+        "=IF(A1>=70,\"C\",IF(A1>=80,\"B\",\"F\")) \u2014 85 returns \"C\" incorrectly",
+        "Both B and C"
+      ],
+      "answer": 3,
+      "explanation": "Nested IF stops at first TRUE. Low thresholds first = everyone above 70 shows \"C\" and never reaches the higher grades. Always check highest threshold first."
+    },
+    {
+      "id": "ivv1-089",
+      "domain": "logical",
+      "q": "=AND(A1>50, B1<100) returns:",
+      "choices": [
+        "TRUE if either condition is true",
+        "TRUE only if BOTH conditions are true",
+        "The sum of A1 and B1",
+        "#VALUE! error"
+      ],
+      "answer": 1,
+      "explanation": "AND requires ALL conditions TRUE. OR requires ANY condition TRUE. NOT inverts."
+    },
+    {
+      "id": "ivv1-090",
+      "domain": "logical",
+      "q": "=OR(A1=\"Metro\", A1=\"Urban\") returns:",
+      "choices": [
+        "TRUE if A1 equals \"Metro\" AND \"Urban\"",
+        "TRUE if A1 equals either \"Metro\" OR \"Urban\"",
+        "The longer of the two strings",
+        "An error"
+      ],
+      "answer": 1,
+      "explanation": "OR = at least one is TRUE. Useful for 'does this match any of N categories'."
+    },
+    {
+      "id": "ivv1-091",
+      "domain": "logical",
+      "q": "=IF(AND(A1>50, B1<100), \"Yes\", \"No\") returns \"Yes\" when:",
+      "choices": [
+        "Either A1>50 or B1<100",
+        "Both A1>50 AND B1<100",
+        "A1 equals B1",
+        "Only when both are false"
+      ],
+      "answer": 1,
+      "explanation": "Combine IF with AND: only TRUE branch runs when all AND conditions are met."
+    },
+    {
+      "id": "ivv1-092",
+      "domain": "logical",
+      "q": "=NOT(A1=\"Metro\") returns:",
+      "choices": [
+        "TRUE if A1 equals \"Metro\"",
+        "TRUE if A1 does NOT equal \"Metro\"",
+        "The string \"not Metro\"",
+        "FALSE always"
+      ],
+      "answer": 1,
+      "explanation": "NOT inverts: TRUE becomes FALSE, FALSE becomes TRUE."
+    },
+    {
+      "id": "ivv1-093",
+      "domain": "logical",
+      "q": "=IFS(A1>=90,\"A\", A1>=80,\"B\", A1>=70,\"C\", TRUE,\"F\") is:",
+      "choices": [
+        "An error",
+        "Excel 2019+ replacement for nested IFs \u2014 cleaner syntax",
+        "Same as OR()",
+        "Only works with numbers"
+      ],
+      "answer": 1,
+      "explanation": "IFS evaluates pairs in order. Use TRUE as the final catch-all. Much cleaner than deep nesting."
+    },
+    {
+      "id": "ivv1-094",
+      "domain": "charts",
+      "q": "To create a chart, you typically:",
+      "choices": [
+        "Type the data and Excel auto-creates a chart",
+        "Select the data range, go to Insert tab, pick a chart type",
+        "Right-click the worksheet tab",
+        "Use the Data tab"
+      ],
+      "answer": 1,
+      "explanation": "Select data \u2192 Insert \u2192 choose chart from the Charts group."
+    },
+    {
+      "id": "ivv1-095",
+      "domain": "charts",
+      "q": "For comparing DISCRETE CATEGORIES (populations of different counties), the best chart type is:",
+      "choices": [
+        "Pie chart",
+        "Line chart",
+        "Column (or bar) chart",
+        "Scatter plot"
+      ],
+      "answer": 2,
+      "explanation": "Column/bar charts compare values across categories. Pie = parts of a whole. Line = trends over time."
+    },
+    {
+      "id": "ivv1-096",
+      "domain": "charts",
+      "q": "For showing a TREND OVER TIME (population year by year), the best chart is:",
+      "choices": [
+        "Pie chart",
+        "Line chart",
+        "Column chart",
+        "Doughnut"
+      ],
+      "answer": 1,
+      "explanation": "Line charts are designed for continuous data over intervals, especially time."
+    },
+    {
+      "id": "ivv1-097",
+      "domain": "charts",
+      "q": "For showing how categories make up a WHOLE (region shares of state population), the best chart is:",
+      "choices": [
+        "Column chart",
+        "Line chart",
+        "Pie chart",
+        "Scatter plot"
+      ],
+      "answer": 2,
+      "explanation": "Pie chart = parts of a whole, typically works best with 5 or fewer slices."
+    },
+    {
+      "id": "ivv1-098",
+      "domain": "charts",
+      "q": "For showing the RELATIONSHIP between two numeric variables (poverty % vs unemployment rate), the best chart is:",
+      "choices": [
+        "Pie chart",
+        "Column chart",
+        "Scatter plot (XY)",
+        "Doughnut"
+      ],
+      "answer": 2,
+      "explanation": "Scatter = correlation between two numeric variables. Each point is one observation."
+    },
+    {
+      "id": "ivv1-099",
+      "domain": "charts",
+      "q": "To change a chart from column to line after creating it:",
+      "choices": [
+        "Delete and start over",
+        "Right-click the chart \u2192 Change Chart Type",
+        "Edit the underlying data",
+        "Only possible with VBA"
+      ],
+      "answer": 1,
+      "explanation": "Change Chart Type dialog lets you switch freely without rebuilding."
+    },
+    {
+      "id": "ivv1-100",
+      "domain": "charts",
+      "q": "Chart titles, axis labels, and legends are added via:",
+      "choices": [
+        "The Data tab",
+        "The Chart Design tab (appears when chart selected) \u2192 Add Chart Element",
+        "The Insert tab only",
+        "Right-click the chart background"
+      ],
+      "answer": 1,
+      "explanation": "Chart Design \u2192 Add Chart Element \u2192 Chart Title / Axis Titles / Legend / Data Labels / etc."
+    },
+    {
+      "id": "ivv1-101",
+      "domain": "charts",
+      "q": "A pie chart with 20 tiny slices is typically a problem because:",
+      "choices": [
+        "Pie charts don't support that many values",
+        "It's hard to read \u2014 too many slices with similar sizes blur together",
+        "Excel errors at 11+ slices",
+        "Pie charts aren't on the Insert tab"
+      ],
+      "answer": 1,
+      "explanation": "Best practice: pie charts work well with 2-5 slices. More = use column chart."
+    },
+    {
+      "id": "ivv1-102",
+      "domain": "cond_fmt",
+      "q": "Conditional Formatting is found under:",
+      "choices": [
+        "Insert tab",
+        "Home tab \u2192 Conditional Formatting",
+        "Data tab \u2192 Filter",
+        "Format tab"
+      ],
+      "answer": 1,
+      "explanation": "Home \u2192 Conditional Formatting. Rules, data bars, color scales, icon sets all live here."
+    },
+    {
+      "id": "ivv1-103",
+      "domain": "cond_fmt",
+      "q": "To highlight all cells in a column greater than 10,000:",
+      "choices": [
+        "Conditional Formatting \u2192 Highlight Cells Rules \u2192 Greater Than \u2192 enter 10000",
+        "Filter the data",
+        "Sort by color",
+        "Use IF to change text"
+      ],
+      "answer": 0,
+      "explanation": "Highlight Cells Rules has presets for >, <, between, equal to, text contains, etc."
+    },
+    {
+      "id": "ivv1-104",
+      "domain": "cond_fmt",
+      "q": "A 'data bar' conditional format:",
+      "choices": [
+        "Highlights cells with a color",
+        "Draws a horizontal bar inside the cell proportional to its value",
+        "Adds borders",
+        "Inserts a sparkline"
+      ],
+      "answer": 1,
+      "explanation": "Data bars visualize magnitude within the cell itself \u2014 like a mini bar chart per row."
+    },
+    {
+      "id": "ivv1-105",
+      "domain": "cond_fmt",
+      "q": "To highlight the TOP 10 values in a column automatically:",
+      "choices": [
+        "Sort descending and manually color",
+        "Conditional Formatting \u2192 Top/Bottom Rules \u2192 Top 10 Items",
+        "Use IF with rank",
+        "Not possible in Excel"
+      ],
+      "answer": 1,
+      "explanation": "Top/Bottom Rules has presets for Top N, Bottom N, Above/Below Average, etc. Configurable number."
+    },
+    {
+      "id": "ivv1-106",
+      "domain": "cond_fmt",
+      "q": "A 3-color scale conditional format:",
+      "choices": [
+        "Requires three separate rules",
+        "Applies a gradient from low-to-mid-to-high value automatically",
+        "Only works with text",
+        "Is the same as data bars"
+      ],
+      "answer": 1,
+      "explanation": "Color Scales grade cells on a red-yellow-green (or other) gradient. Great for heatmaps."
+    },
+    {
+      "id": "ivv1-107",
+      "domain": "text",
+      "q": "=LEFT(\"Washington\", 4) returns:",
+      "choices": [
+        "\"Wash\"",
+        "\"ton\"",
+        "\"Was\"",
+        "10"
+      ],
+      "answer": 0,
+      "explanation": "LEFT(text, num_chars) \u2014 extracts from the left. 4 chars from 'Washington' = 'Wash'."
+    },
+    {
+      "id": "ivv1-108",
+      "domain": "text",
+      "q": "=RIGHT(\"County-101\", 3) returns:",
+      "choices": [
+        "\"101\"",
+        "\"-10\"",
+        "\"Cou\"",
+        "\"-101\""
+      ],
+      "answer": 0,
+      "explanation": "RIGHT(text, num_chars) \u2014 extracts from the right. 3 chars = '101'."
+    },
+    {
+      "id": "ivv1-109",
+      "domain": "text",
+      "q": "=MID(\"Metro-King-50\", 7, 4) returns:",
+      "choices": [
+        "\"King\"",
+        "\"Metro\"",
+        "\"-King\"",
+        "\"King-\""
+      ],
+      "answer": 0,
+      "explanation": "MID(text, start_num, num_chars) \u2014 start at position 7, take 4 characters. 'M-e-t-r-o---K-i-n-g' \u2192 position 7 is K, 4 chars = 'King'."
+    },
+    {
+      "id": "ivv1-110",
+      "domain": "text",
+      "q": "=LEN(\"King County\") returns:",
+      "choices": [
+        "10",
+        "11",
+        "12",
+        "2"
+      ],
+      "answer": 1,
+      "explanation": "LEN counts all characters including spaces. 'King County' = 4 + 1 + 6 = 11."
+    },
+    {
+      "id": "ivv1-111",
+      "domain": "text",
+      "q": "=TRIM(\"  King  County  \") returns:",
+      "choices": [
+        "\"  King  County  \"",
+        "\"King County\"",
+        "\"KingCounty\"",
+        "\"King  County\""
+      ],
+      "answer": 1,
+      "explanation": "TRIM removes leading/trailing spaces AND collapses multiple internal spaces to single spaces."
+    },
+    {
+      "id": "ivv1-112",
+      "domain": "text",
+      "q": "=UPPER(\"washington\"), =LOWER(\"WASHINGTON\"), =PROPER(\"washington\") return:",
+      "choices": [
+        "\"WASHINGTON\", \"washington\", \"Washington\"",
+        "\"washington\", \"WASHINGTON\", \"washington\"",
+        "\"Washington\", \"washington\", \"WASHINGTON\"",
+        "All return the original text"
+      ],
+      "answer": 0,
+      "explanation": "UPPER \u2192 all caps. LOWER \u2192 all lowercase. PROPER \u2192 first letter of each word capitalized."
+    },
+    {
+      "id": "ivv1-113",
+      "domain": "text",
+      "q": "=A1 & \" - \" & B1 where A1=\"King\" and B1=\"Metro\" returns:",
+      "choices": [
+        "\"KingMetro\"",
+        "\"King - Metro\"",
+        "\"King  -  Metro\"",
+        "\"King\"-\"Metro\""
+      ],
+      "answer": 1,
+      "explanation": "& is the concatenation operator. Joins literal strings (in quotes) with cell references."
+    },
+    {
+      "id": "ivv1-114",
+      "domain": "errors",
+      "q": "#DIV/0! appears when:",
+      "choices": [
+        "A cell reference is invalid",
+        "You divide by zero or an empty cell",
+        "A function doesn't recognize text",
+        "A value is not found in a lookup"
+      ],
+      "answer": 1,
+      "explanation": "Division by zero. Common fix: =IFERROR(A1/B1, 0) or =IF(B1=0, 0, A1/B1)."
+    },
+    {
+      "id": "ivv1-115",
+      "domain": "errors",
+      "q": "#REF! means:",
+      "choices": [
+        "A formula refers to a cell that no longer exists (e.g. deleted row/column)",
+        "Number divided by zero",
+        "Wrong data type in function",
+        "No match found in VLOOKUP"
+      ],
+      "answer": 0,
+      "explanation": "Reference error \u2014 you deleted a cell that a formula was pointing to."
+    },
+    {
+      "id": "ivv1-116",
+      "domain": "errors",
+      "q": "#VALUE! means:",
+      "choices": [
+        "Missing reference",
+        "Wrong data type (text where number expected, etc.)",
+        "Not found in lookup",
+        "Division by zero"
+      ],
+      "answer": 1,
+      "explanation": "Type mismatch. E.g. =\"abc\"*5 or SUM on a range with unexpected text."
+    },
+    {
+      "id": "ivv1-117",
+      "domain": "errors",
+      "q": "#N/A in a VLOOKUP usually means:",
+      "choices": [
+        "The lookup value wasn't found",
+        "Division by zero",
+        "Wrong data type",
+        "The workbook is corrupt"
+      ],
+      "answer": 0,
+      "explanation": "Not Available. Wrap in IFERROR or IFNA for graceful handling: =IFERROR(VLOOKUP(...), \"Not found\")"
+    },
+    {
+      "id": "ivv1-118",
+      "domain": "errors",
+      "q": "#NAME? error typically means:",
+      "choices": [
+        "You typed a function name wrong (e.g. =SUUM) or referenced a named range that doesn't exist",
+        "A cell is blank",
+        "Division by zero",
+        "Wrong data type"
+      ],
+      "answer": 0,
+      "explanation": "Excel doesn't recognize the name. Common cause: typo in function name."
+    },
+    {
+      "id": "ivv1-119",
+      "domain": "errors",
+      "q": "=IFERROR(VLOOKUP(A1, B:D, 3, FALSE), \"Not found\") does:",
+      "choices": [
+        "Always returns \"Not found\"",
+        "Returns the VLOOKUP result if successful, or \"Not found\" if the VLOOKUP errors",
+        "Returns both the value and the text",
+        "Breaks Excel"
+      ],
+      "answer": 1,
+      "explanation": "IFERROR(value, value_if_error) \u2014 gracefully handles #N/A, #VALUE!, etc."
+    },
+    {
+      "id": "ivv1-120",
+      "domain": "errors",
+      "q": "Data Validation is accessed via:",
+      "choices": [
+        "Data tab \u2192 Data Validation",
+        "Review tab \u2192 Spell Check",
+        "Home tab \u2192 Format",
+        "Insert tab \u2192 Sheet"
+      ],
+      "answer": 0,
+      "explanation": "Data \u2192 Data Validation. Restricts allowed values: list (dropdown), whole number, decimal, date, text length, custom formula."
+    },
+    {
+      "id": "ivv1-121",
+      "domain": "errors",
+      "q": "To create a dropdown list in a cell limited to values \"Metro\" and \"Non-Metro\":",
+      "choices": [
+        "Use a formula",
+        "Data \u2192 Data Validation \u2192 Allow: List \u2192 Source: Metro,Non-Metro",
+        "Conditional formatting",
+        "Filter the column"
+      ],
+      "answer": 1,
+      "explanation": "Data Validation with 'List' type. Source can be typed values comma-separated or a cell range."
+    },
+    {
+      "id": "ivv1-122",
+      "domain": "wa_pivots",
+      "q": "A Washington state pivot with Region in Rows and Count of County in Values shows South Puget Sound. How do you find how many counties are in that region?",
+      "choices": [
+        "Count the rows of the pivot",
+        "Look at the value in the Count of County column for the South Puget Sound row",
+        "Add up all the values",
+        "Use COUNTIF"
+      ],
+      "answer": 1,
+      "explanation": "Pivot tables show the answer directly. Find the row label, read the value."
+    },
+    {
+      "id": "ivv1-123",
+      "domain": "wa_pivots",
+      "q": "A pivot has Region in Rows, Metro/Non-Metro in Columns, Count of County in Values. To find how many Metro counties are in the Northeast region:",
+      "choices": [
+        "Find the cell at the intersection of Northeast row and Metro column",
+        "Sum all the Metro values",
+        "Count how many Northeast entries",
+        "Use VLOOKUP"
+      ],
+      "answer": 0,
+      "explanation": "Matrix pivots: find intersection of row + column. Cell at (Northeast, Metro) gives the count."
+    },
+    {
+      "id": "ivv1-124",
+      "domain": "wa_pivots",
+      "q": "A pivot has Region in Rows and Average of Unemployment Rate in Values. To find which region has the HIGHEST average unemployment:",
+      "choices": [
+        "Pick the shortest row",
+        "Scan the Average column, identify the LARGEST value, read its region label",
+        "Sum the values",
+        "Sort the underlying data"
+      ],
+      "answer": 1,
+      "explanation": "Scan the value column for the largest number. Read the row label for that value."
+    },
+    {
+      "id": "ivv1-125",
+      "domain": "wa_pivots",
+      "q": "A pivot currently shows Sum of Population but you need Average. How?",
+      "choices": [
+        "Right-click a value cell \u2192 Summarize Values By \u2192 Average",
+        "Rebuild the pivot",
+        "Edit the source data",
+        "Use a formula"
+      ],
+      "answer": 0,
+      "explanation": "Right-click \u2192 Summarize Values By \u2192 pick Average. Or drag the field setting."
+    },
+    {
+      "id": "ivv1-126",
+      "domain": "wa_pivots",
+      "q": "Washington state has 39 counties. A pivot with Region in Rows shows counts summing to 39. This confirms:",
+      "choices": [
+        "Missing data somewhere",
+        "The pivot captured every county exactly once",
+        "Too many rows",
+        "The data is incorrect"
+      ],
+      "answer": 1,
+      "explanation": "Grand total in a Count pivot = total record count. If it matches the known 39, your pivot is complete."
+    },
+    {
+      "id": "ivv1-127",
+      "domain": "wa_pivots",
+      "q": "The 'County Growth' rate column calculation uses population growth between 2017 and 2018. The most likely formula is:",
+      "choices": [
+        "=(2018_pop - 2017_pop) / 2017_pop",
+        "=2018_pop - 2017_pop",
+        "=2018_pop / 2017_pop",
+        "=(2017_pop - 2018_pop) / 2018_pop"
+      ],
+      "answer": 0,
+      "explanation": "Growth rate = (new - old) / old. Always divide by the starting/old value."
+    },
+    {
+      "id": "ivv1-128",
+      "domain": "wa_pivots",
+      "q": "For the 'Individual 2019 Population' column using each county's OWN growth rate from column G (not the state-wide $C$2), the formula in H5 should be:",
+      "choices": [
+        "=F5*(1+$C$2)",
+        "=F5*(1+G5)",
+        "=F5*(1+$G$5)",
+        "=F5*(1+G$5)"
+      ],
+      "answer": 1,
+      "explanation": "Use the county's own growth rate G5 (relative \u2014 changes per row). Not the state-wide $C$2."
+    },
+    {
+      "id": "ivv1-129",
+      "domain": "wa_pivots",
+      "q": "The 'Simple 2019' column uses the state growth rate in C2 (1.5%), applied to every county. Formula in G5:",
+      "choices": [
+        "=F5*(1+C2)",
+        "=F5*(1+$C$2)",
+        "=F5*(1+C$2)",
+        "Any of the absolute-reference versions works"
+      ],
+      "answer": 3,
+      "explanation": "Since C2 must NOT move when dragged down, lock at least the row. $C$2, C$2 both work for column drag."
     }
   ]
 }
