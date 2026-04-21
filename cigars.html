@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Benny's Cigar Log</title>
+<meta name="description" content="Personal cigar tracker: tasting log, humidor, preferences, and recommendations.">
+
+<meta property="og:title" content="Benny's Cigar Log">
+<meta property="og:description" content="Personal cigar tasting log, humidor contents, locked-in preferences, and next-purchase recommendations.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/cigar-log-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/cigars.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/cigar-log-og.jpg">
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  background:#1a120b;
+  color:#e8d8b7;
+  line-height:1.5;
+  min-height:100vh;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+:root{
+  --bg:#1a120b;
+  --bg-card:#2a1f16;
+  --bg-input:#3a2d20;
+  --border:#4a3a2a;
+  --amber:#d4a054;
+  --amber-hi:#f0c070;
+  --ember:#e8734a;
+  --text:#e8d8b7;
+  --text-dim:#9a8870;
+  --green:#6ba25a;
+  --red:#c85a4a;
+  --shadow:0 2px 8px rgba(0,0,0,0.4);
+}
+.container{max-width:1100px;margin:0 auto;padding:1rem}
+header{text-align:center;padding:1.5rem 0 1rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+h1{font-size:1.75rem;color:var(--amber);letter-spacing:0.5px;font-weight:700}
+.subtitle{color:var(--text-dim);font-size:0.85rem;margin-top:0.25rem}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:0.5rem;margin-bottom:1rem}
+.stat{background:var(--bg-card);padding:0.75rem;border-radius:8px;border:1px solid var(--border);text-align:center}
+.stat-val{font-size:1.4rem;color:var(--amber-hi);font-weight:700}
+.stat-lbl{font-size:0.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-top:0.1rem}
+
+.tabs{display:flex;gap:0.25rem;margin-bottom:1rem;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:0.25rem}
+.tab{background:var(--bg-card);color:var(--text-dim);border:1px solid var(--border);padding:0.6rem 1rem;border-radius:6px;cursor:pointer;font-size:0.85rem;white-space:nowrap;font-weight:500;transition:all 0.15s}
+.tab.active{background:var(--amber);color:var(--bg);border-color:var(--amber)}
+.tab:hover:not(.active){background:var(--bg-input);color:var(--text)}
+
+.panel{display:none}
+.panel.active{display:block}
+
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;box-shadow:var(--shadow)}
+.card h3{color:var(--amber);font-size:1.05rem;margin-bottom:0.5rem;font-weight:600}
+.card h4{color:var(--amber-hi);font-size:0.95rem;margin-top:0.5rem;margin-bottom:0.35rem;font-weight:600}
+
+.meta{display:flex;flex-wrap:wrap;gap:0.4rem;margin:0.5rem 0;font-size:0.75rem}
+.tag{background:var(--bg-input);color:var(--text-dim);padding:0.2rem 0.55rem;border-radius:10px;border:1px solid var(--border)}
+.tag.good{color:var(--green);border-color:var(--green)}
+.tag.bad{color:var(--red);border-color:var(--red)}
+.tag.star{color:var(--amber-hi);border-color:var(--amber)}
+
+.rating-row{display:flex;gap:0.75rem;flex-wrap:wrap;margin:0.5rem 0;font-size:0.8rem}
+.rating-row span{color:var(--text-dim)}
+.rating-row b{color:var(--amber-hi)}
+
+.notes{font-size:0.85rem;color:var(--text);margin-top:0.5rem;line-height:1.45}
+.notes-dim{color:var(--text-dim);font-style:italic;font-size:0.8rem}
+
+form{display:grid;gap:0.6rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem}
+@media(max-width:500px){.form-row,.form-row-3{grid-template-columns:1fr}}
+label{display:block;font-size:0.75rem;color:var(--text-dim);margin-bottom:0.2rem;text-transform:uppercase;letter-spacing:0.5px}
+input,select,textarea{width:100%;background:var(--bg-input);border:1px solid var(--border);color:var(--text);padding:0.55rem 0.75rem;border-radius:6px;font-size:0.9rem;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--amber)}
+textarea{resize:vertical;min-height:60px}
+
+button{background:var(--amber);color:var(--bg);border:none;padding:0.7rem 1rem;border-radius:6px;cursor:pointer;font-size:0.9rem;font-weight:600;letter-spacing:0.3px}
+button:hover{background:var(--amber-hi)}
+button.secondary{background:var(--bg-input);color:var(--text);border:1px solid var(--border)}
+button.secondary:hover{background:var(--border)}
+button.danger{background:var(--red);color:white}
+button.small{padding:0.35rem 0.7rem;font-size:0.75rem}
+
+.controls{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.controls select{width:auto;min-width:120px}
+
+.pref-list{list-style:none;padding:0}
+.pref-list li{padding:0.5rem 0;border-bottom:1px solid var(--border);font-size:0.9rem}
+.pref-list li:last-child{border-bottom:none}
+.pref-list b{color:var(--amber-hi)}
+
+details{background:var(--bg-input);border:1px solid var(--border);border-radius:6px;padding:0.5rem 0.75rem;margin-top:0.5rem}
+details summary{cursor:pointer;color:var(--amber);font-size:0.85rem;font-weight:500}
+details[open] summary{margin-bottom:0.5rem}
+
+.script-box{background:var(--bg-input);border-left:3px solid var(--amber);padding:0.75rem;border-radius:4px;font-style:italic;color:var(--text);font-size:0.9rem;margin:0.5rem 0}
+
+.actions{display:flex;gap:0.4rem;margin-top:0.5rem;flex-wrap:wrap}
+
+.empty{text-align:center;padding:2rem 1rem;color:var(--text-dim);font-style:italic}
+
+.nic-scale{display:inline-flex;gap:2px}
+.nic-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.nic-dot.on{background:var(--ember)}
+
+hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
+
+.warn{background:rgba(200,90,74,0.15);border:1px solid var(--red);color:var(--text);padding:0.6rem 0.8rem;border-radius:6px;font-size:0.85rem;margin-bottom:0.75rem}
+
+@media(max-width:500px){
+  h1{font-size:1.4rem}
+  .container{padding:0.75rem}
+  .stat-val{font-size:1.2rem}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Benny's Cigar Log</h1>
+  <div class="subtitle">Tasting journal, humidor, and rec list</div>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="log">Log</div>
+  <div class="tab" data-tab="humidor">Humidor</div>
+  <div class="tab" data-tab="prefs">Preferences</div>
+  <div class="tab" data-tab="recs">Next Buys</div>
+  <div class="tab" data-tab="add">+ Add</div>
+</div>
+
+<!-- LOG PANEL -->
+<div class="panel active" id="panel-log">
+  <div class="controls">
+    <label style="margin:0;">Sort:
+      <select id="sortBy">
+        <option value="date-desc">Newest first</option>
+        <option value="date-asc">Oldest first</option>
+        <option value="overall-desc">Highest rated</option>
+        <option value="price-asc">Cheapest first</option>
+        <option value="price-desc">Priciest first</option>
+      </select>
+    </label>
+    <label style="margin:0;">Filter:
+      <select id="filterBy">
+        <option value="all">All</option>
+        <option value="rebuy">Would rebuy</option>
+        <option value="star">Favorites</option>
+        <option value="infused">Infused</option>
+        <option value="traditional">Traditional</option>
+      </select>
+    </label>
+  </div>
+  <div id="logList"></div>
+</div>
+
+<!-- HUMIDOR PANEL -->
+<div class="panel" id="panel-humidor">
+  <div class="card">
+    <h3>On Deck</h3>
+    <div class="notes-dim">Cigars you own but haven't smoked yet. Smoke order based on palate calibration logic.</div>
+  </div>
+  <div id="humidorList"></div>
+  <div class="card">
+    <h4 style="margin-top:0;">+ Add to humidor</h4>
+    <form id="humidorForm">
+      <input type="text" id="hName" placeholder="Cigar name" required>
+      <div class="form-row-3">
+        <input type="text" id="hSize" placeholder='Size (e.g. 4.5"x44)'>
+        <input type="number" id="hPrice" placeholder="Price" step="0.01">
+        <input type="text" id="hShop" placeholder="Shop">
+      </div>
+      <textarea id="hNotes" placeholder="Expected flavor / notes"></textarea>
+      <button type="submit">Add to humidor</button>
+    </form>
+  </div>
+</div>
+
+<!-- PREFERENCES PANEL -->
+<div class="panel" id="panel-prefs">
+  <div class="card">
+    <h3>Locked-in preferences</h3>
+    <ul class="pref-list">
+      <li><b>1. Traditional tobacco only.</b> No infused/flavored. Hard rule.</li>
+      <li><b>2. Nic hit matters.</b> More is better within cigar physics. Positive vector.</li>
+      <li><b>3. Flavor direction:</b> creamy, cedar, nutty preferred. Pepper fine but not target.</li>
+      <li><b>4. Body not the driver.</b> Mild to full all OK.</li>
+      <li><b>5. Construction matters.</b> Must light and burn clean.</li>
+      <li><b>6. Smoke time ~1 hour or less.</b> Petit corona, corona, short robusto, petit robusto. Robusto borderline. Toro+ too long.</li>
+      <li><b>7. Budget:</b> $8-14 per stick at Cigar Barn.</li>
+      <li><b>8. Size = smoke time, not ring gauge.</b> Chunky short formats fine.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Vitola reference (smoke time cheat sheet)</h3>
+    <ul class="pref-list">
+      <li><b>Petit corona</b> ~4.5"x42 - 30-40 min ✓</li>
+      <li><b>Corona</b> ~5.5"x42-44 - 45-55 min ✓</li>
+      <li><b>Short robusto / petit robusto</b> 4-4.5"x50-52 - 35-50 min ✓</li>
+      <li><b>Robusto</b> 5"x50 - 45-60 min ✓ borderline</li>
+      <li><b>Toro</b> 6"x50-52 - 60-90 min ✗ too long</li>
+      <li><b>Churchill</b> 7"x47 - 75-90 min ✗</li>
+      <li><b>Double corona / Gordo</b> 7"+x54+ - 90+ min ✗</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Nic tolerance baseline</h3>
+    <div class="notes">
+      Heavy vape/pouch history (Juul menthol, gas station disposables, pouches, gum). Expects higher nic than cigars can physically deliver. Cigar nic = slow mouth absorption, not lung hit. Ceiling is lower than vape by design. Chase flavor AND nic hit together, not one or the other.
+    </div>
+  </div>
+</div>
+
+<!-- RECOMMENDATIONS PANEL -->
+<div class="panel" id="panel-recs">
+  <div class="card">
+    <h3>Cigar Barn script for Logan</h3>
+    <div class="script-box">"Traditional tobacco only, no infused. I liked the Fuente Chateau Natural and the Espinosa Habano Toro, preferred the Fuente's flavor but liked the Espinosa's stronger nic hit. Creamy/cedar/nutty is my favorite direction but peppery is fine too. Looking for petit coronas, coronas, short robustos, or petit robustos, anything I can smoke in an hour. Want good nic hit if possible. Budget $8-14."</div>
+  </div>
+  <div class="card">
+    <h3>Target cigars (prioritized)</h3>
+    <ul class="pref-list">
+      <li><b>Arturo Fuente Hemingway Short Story</b> - 4"x49 perfecto, ~35-45 min. Same DNA as your Chateau favorite, petit format. ★ top pick.</li>
+      <li><b>My Father Le Bijou 1922 Petit Robusto</b> - 4.5"x50, ~40-50 min. Pepin Garcia build, nic hit, rich not pepper-bomb.</li>
+      <li><b>Tatuaje Havana VI Nobles</b> - ~5.25"x46 corona, ~45-55 min. Pepin, Cuban-style, nic-forward, not overly peppery.</li>
+      <li><b>My Father No. 4</b> - 4.5"x44 petit corona, ~35-45 min. Creamy Pepin build, short format.</li>
+      <li><b>Arturo Fuente Don Carlos No. 4</b> - 4⅜"x44, ~35-45 min. Refined, cedar, nut, petit format, Fuente family.</li>
+      <li><b>Padron 1964 Anniversary Exclusivo</b> - 5.5"x50 robusto, ~50-60 min. Splurge, creamy/nutty/refined, solid nic.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Avoid / less-priority</h3>
+    <ul class="pref-list">
+      <li><b>Anything infused</b> - Tabak, Gurkha Bourbon, Java Maduro, CAO Bourbon, Drew Estate Kentucky Fire Cured. Confirmed dislike.</li>
+      <li><b>Toro and larger</b> - 60+ min doesn't fit your sit time.</li>
+      <li><b>Pure pepper bombs</b> - Camacho Triple Maduro, full-ligero Nicaraguans. Not your target profile.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ADD PANEL -->
+<div class="panel" id="panel-add">
+  <div class="card">
+    <h3>Log a smoked cigar</h3>
+    <form id="cigarForm">
+      <div>
+        <label>Cigar name *</label>
+        <input type="text" id="name" required>
+      </div>
+      <div class="form-row-3">
+        <div>
+          <label>Size</label>
+          <input type="text" id="size" placeholder='e.g. 4.5"x44'>
+        </div>
+        <div>
+          <label>Price ($)</label>
+          <input type="number" id="price" step="0.01">
+        </div>
+        <div>
+          <label>Date</label>
+          <input type="date" id="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Shop</label>
+          <input type="text" id="shop" placeholder="Cigar Barn, etc">
+        </div>
+        <div>
+          <label>Employee</label>
+          <input type="text" id="employee">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Wrapper</label>
+          <input type="text" id="wrapper" placeholder="e.g. Ecuadorian Sumatra">
+        </div>
+        <div>
+          <label>Country</label>
+          <input type="text" id="country" placeholder="e.g. Dominican">
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div>
+          <label>Body</label>
+          <select id="body">
+            <option value="">--</option>
+            <option>mild</option>
+            <option>mild-medium</option>
+            <option>medium</option>
+            <option>medium-full</option>
+            <option>full</option>
+          </select>
+        </div>
+        <div>
+          <label>Nic hit (1-5)</label>
+          <select id="nicHit">
+            <option value="">--</option>
+            <option value="1">1 - barely</option>
+            <option value="2">2 - mild</option>
+            <option value="3">3 - moderate</option>
+            <option value="4">4 - strong</option>
+            <option value="5">5 - on your back</option>
+          </select>
+        </div>
+        <div>
+          <label>Overall (1-10)</label>
+          <input type="number" id="overall" min="1" max="10">
+        </div>
+      </div>
+      <div>
+        <label>Flavor notes</label>
+        <input type="text" id="flavors" placeholder="creamy, cedar, pepper, chocolate...">
+      </div>
+      <div>
+        <label>Notes</label>
+        <textarea id="notes" placeholder="Paired with, context, anything else"></textarea>
+      </div>
+      <div class="form-row-3">
+        <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;font-size:0.85rem;color:var(--text);">
+          <input type="checkbox" id="rebuy" style="width:auto;"> Would rebuy
+        </label>
+        <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;font-size:0.85rem;color:var(--text);">
+          <input type="checkbox" id="star" style="width:auto;"> Favorite ★
+        </label>
+        <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;font-size:0.85rem;color:var(--text);">
+          <input type="checkbox" id="infused" style="width:auto;"> Infused
+        </label>
+      </div>
+      <input type="hidden" id="fromHumidorId">
+      <button type="submit">Save entry</button>
+    </form>
+  </div>
+</div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'benny_cigar_log_v1';
+
+const seedData = {
+  smoked: [
+    {
+      id: 'seed-1',
+      name: 'Arturo Fuente Chateau Fuente Natural',
+      size: '4⅝"x50',
+      price: 11.25,
+      shop: 'Cigar Barn',
+      employee: 'Cody',
+      wrapper: 'Ecuadorian Sumatra',
+      country: 'Dominican',
+      body: 'mild',
+      nicHit: 2,
+      overall: 8,
+      flavors: 'creamy, cedar, slight sweet, smooth',
+      rebuy: true,
+      star: true,
+      infused: false,
+      date: '2026-03-14',
+      notes: 'First cigar. Liked the flavor profile, not just because it was mild. Sets the baseline for "what I actually like."'
+    },
+    {
+      id: 'seed-2',
+      name: 'Espinosa Habano Toro BP',
+      size: '6"x52 (box-pressed)',
+      price: 13.00,
+      shop: 'Cigar Barn',
+      employee: 'Cody',
+      wrapper: 'Ecuadorian Habano',
+      country: 'Nicaraguan',
+      body: 'medium',
+      nicHit: 3,
+      overall: 7,
+      flavors: 'peppery, earthy',
+      rebuy: true,
+      star: false,
+      infused: false,
+      date: '2026-03-15',
+      notes: 'Second cigar. Liked it. Higher nic hit than Fuente (positive). Body/pepper noticeable but neutral, did not add or subtract. Preferred Fuente flavor but this was not a dislike.'
+    },
+    {
+      id: 'seed-3',
+      name: 'Tabak Especial Toro Dulce',
+      size: '6"x52',
+      price: 0,
+      shop: 'Gift',
+      employee: 'Neighbor',
+      wrapper: 'Connecticut Shade',
+      country: 'Nicaraguan (Drew Estate)',
+      body: 'mild',
+      nicHit: 1,
+      overall: 3,
+      flavors: 'coffee-infused, sweet',
+      rebuy: false,
+      star: false,
+      infused: true,
+      date: '2026-04-15',
+      notes: 'DISLIKED. Coffee-infused, hard to light, tasted less like actual tobacco, basically no nic hit. Three strikes. Confirmed rule: no infused cigars going forward.'
+    }
+  ],
+  humidor: [
+    {
+      id: 'hum-1',
+      name: 'Liga Privada Unico Papas Fritas',
+      size: '4.5"x44 petit corona',
+      price: 8.65,
+      shop: 'Cigar Barn',
+      employee: 'Logan',
+      dateAcquired: '2026-04-21',
+      smokeOrder: 1,
+      notes: 'Full body, chocolate/espresso/cocoa/earth, ~30-40 min. Made from Liga Privada No. 9 + T52 offcuts. Smoke first for palate calibration on rich vs peppery full body.'
+    },
+    {
+      id: 'hum-2',
+      name: 'LFD Colorado Oscuro No. 3',
+      size: '~5.625"x44 corona',
+      price: 11.15,
+      shop: 'Cigar Barn',
+      employee: 'Logan',
+      dateAcquired: '2026-04-21',
+      smokeOrder: 2,
+      notes: 'Medium-full to full. LFD house style is pepper-forward. Ecuadorian Habano Oscuro wrapper, cedar/cocoa/leather. ~45-55 min, fits smoke time window.'
+    },
+    {
+      id: 'hum-3',
+      name: 'Espinosa 601 Green Label La Fuerza',
+      size: '5.5"x54 robusto',
+      price: 13.85,
+      shop: 'Cigar Barn',
+      employee: 'Logan',
+      dateAcquired: '2026-04-21',
+      smokeOrder: 3,
+      notes: 'Full body. Earthy, peppery, leathery, coffee. Biggest nic hit of the three. 60-75 min - borderline on smoke time. Plan for a day with the full hour+.'
+    },
+    {
+      id: 'hum-4',
+      name: 'Gurkha Bourbon Collection Toro',
+      size: '6"x50 toro',
+      price: 0,
+      shop: 'Gift',
+      employee: 'Neighbor',
+      dateAcquired: '2026-04-21',
+      smokeOrder: 99,
+      notes: 'Bourbon-infused (Hartfield & Co.), Connecticut Shade, wax-dipped glass tube. ⚠ Infused - per locked-in preferences, expect to dislike. Smoke only if curious or gift to someone else.'
+    }
+  ]
+};
+
+let data = loadData();
+
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try { return JSON.parse(raw); } catch(e) {}
+  }
+  return structuredClone(seedData);
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function uid() {
+  return 'c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,7);
+}
+
+function renderStats() {
+  const s = data.smoked;
+  const total = s.length;
+  const avg = total ? (s.reduce((a,c) => a + (c.overall||0), 0) / total).toFixed(1) : '-';
+  const rebuyCount = s.filter(c => c.rebuy).length;
+  const spent = s.reduce((a,c) => a + (+c.price||0), 0).toFixed(2);
+  const humidor = data.humidor.length;
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="stat-val">${total}</div><div class="stat-lbl">Smoked</div></div>
+    <div class="stat"><div class="stat-val">${avg}</div><div class="stat-lbl">Avg rating</div></div>
+    <div class="stat"><div class="stat-val">${rebuyCount}</div><div class="stat-lbl">Would rebuy</div></div>
+    <div class="stat"><div class="stat-val">$${spent}</div><div class="stat-lbl">Spent</div></div>
+    <div class="stat"><div class="stat-val">${humidor}</div><div class="stat-lbl">In humidor</div></div>
+  `;
+}
+
+function nicDots(n) {
+  n = +n || 0;
+  let html = '<span class="nic-scale">';
+  for (let i=1; i<=5; i++) html += `<span class="nic-dot ${i<=n?'on':''}"></span>`;
+  return html + '</span>';
+}
+
+function renderLog() {
+  const sortBy = document.getElementById('sortBy').value;
+  const filterBy = document.getElementById('filterBy').value;
+  let list = [...data.smoked];
+  if (filterBy === 'rebuy') list = list.filter(c => c.rebuy);
+  if (filterBy === 'star') list = list.filter(c => c.star);
+  if (filterBy === 'infused') list = list.filter(c => c.infused);
+  if (filterBy === 'traditional') list = list.filter(c => !c.infused);
+  list.sort((a,b) => {
+    if (sortBy === 'date-desc') return (b.date||'').localeCompare(a.date||'');
+    if (sortBy === 'date-asc') return (a.date||'').localeCompare(b.date||'');
+    if (sortBy === 'overall-desc') return (b.overall||0) - (a.overall||0);
+    if (sortBy === 'price-asc') return (+a.price||0) - (+b.price||0);
+    if (sortBy === 'price-desc') return (+b.price||0) - (+a.price||0);
+    return 0;
+  });
+  const el = document.getElementById('logList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty">No entries match. Smoke something or adjust filter.</div>';
+    return;
+  }
+  el.innerHTML = list.map(c => `
+    <div class="card">
+      <h3>${c.star ? '★ ' : ''}${escape(c.name)}</h3>
+      <div class="meta">
+        ${c.date ? `<span class="tag">${escape(c.date)}</span>` : ''}
+        ${c.size ? `<span class="tag">${escape(c.size)}</span>` : ''}
+        ${c.price ? `<span class="tag">$${(+c.price).toFixed(2)}</span>` : ''}
+        ${c.shop ? `<span class="tag">${escape(c.shop)}${c.employee?' / '+escape(c.employee):''}</span>` : ''}
+        ${c.wrapper ? `<span class="tag">${escape(c.wrapper)}</span>` : ''}
+        ${c.body ? `<span class="tag">${escape(c.body)}</span>` : ''}
+        ${c.infused ? `<span class="tag bad">infused</span>` : `<span class="tag good">traditional</span>`}
+        ${c.rebuy ? `<span class="tag good">rebuy ✓</span>` : `<span class="tag bad">no rebuy</span>`}
+      </div>
+      <div class="rating-row">
+        <span>Nic: ${nicDots(c.nicHit)}</span>
+        <span>Overall: <b>${c.overall ? c.overall+'/10' : '-'}</b></span>
+      </div>
+      ${c.flavors ? `<div class="notes"><b style="color:var(--amber)">Flavor:</b> ${escape(c.flavors)}</div>` : ''}
+      ${c.notes ? `<div class="notes">${escape(c.notes)}</div>` : ''}
+      <div class="actions">
+        <button class="secondary small" onclick="editEntry('${c.id}')">Edit</button>
+        <button class="danger small" onclick="deleteEntry('${c.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderHumidor() {
+  const list = [...data.humidor].sort((a,b) => (a.smokeOrder||99) - (b.smokeOrder||99));
+  const el = document.getElementById('humidorList');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty">Humidor is empty. Add cigars below.</div>';
+    return;
+  }
+  el.innerHTML = list.map(h => `
+    <div class="card">
+      <h3>${h.smokeOrder && h.smokeOrder<99 ? `#${h.smokeOrder} ` : ''}${escape(h.name)}</h3>
+      <div class="meta">
+        ${h.size ? `<span class="tag">${escape(h.size)}</span>` : ''}
+        ${h.price ? `<span class="tag">$${(+h.price).toFixed(2)}</span>` : ''}
+        ${h.shop ? `<span class="tag">${escape(h.shop)}${h.employee?' / '+escape(h.employee):''}</span>` : ''}
+        ${h.dateAcquired ? `<span class="tag">got ${escape(h.dateAcquired)}</span>` : ''}
+      </div>
+      ${h.notes ? `<div class="notes">${escape(h.notes)}</div>` : ''}
+      <div class="actions">
+        <button class="small" onclick="smokeFromHumidor('${h.id}')">Smoke it → log</button>
+        <button class="danger small" onclick="removeFromHumidor('${h.id}')">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escape(s) {
+  return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function editEntry(id) {
+  const c = data.smoked.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('name').value = c.name || '';
+  document.getElementById('size').value = c.size || '';
+  document.getElementById('price').value = c.price || '';
+  document.getElementById('date').value = c.date || '';
+  document.getElementById('shop').value = c.shop || '';
+  document.getElementById('employee').value = c.employee || '';
+  document.getElementById('wrapper').value = c.wrapper || '';
+  document.getElementById('country').value = c.country || '';
+  document.getElementById('body').value = c.body || '';
+  document.getElementById('nicHit').value = c.nicHit || '';
+  document.getElementById('overall').value = c.overall || '';
+  document.getElementById('flavors').value = c.flavors || '';
+  document.getElementById('notes').value = c.notes || '';
+  document.getElementById('rebuy').checked = !!c.rebuy;
+  document.getElementById('star').checked = !!c.star;
+  document.getElementById('infused').checked = !!c.infused;
+  document.getElementById('fromHumidorId').value = 'edit:' + id;
+  switchTab('add');
+  window.scrollTo(0, 0);
+}
+
+function deleteEntry(id) {
+  if (!confirm('Delete this entry?')) return;
+  data.smoked = data.smoked.filter(c => c.id !== id);
+  saveData();
+  renderAll();
+}
+
+function smokeFromHumidor(id) {
+  const h = data.humidor.find(x => x.id === id);
+  if (!h) return;
+  document.getElementById('name').value = h.name || '';
+  document.getElementById('size').value = h.size || '';
+  document.getElementById('price').value = h.price || '';
+  document.getElementById('date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('shop').value = h.shop || '';
+  document.getElementById('employee').value = h.employee || '';
+  document.getElementById('notes').value = h.notes || '';
+  document.getElementById('fromHumidorId').value = id;
+  switchTab('add');
+  window.scrollTo(0, 0);
+}
+
+function removeFromHumidor(id) {
+  if (!confirm('Remove from humidor without smoking?')) return;
+  data.humidor = data.humidor.filter(h => h.id !== id);
+  saveData();
+  renderAll();
+}
+
+function clearForm() {
+  ['name','size','price','shop','employee','wrapper','country','body','nicHit','overall','flavors','notes','fromHumidorId','date'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  ['rebuy','star','infused'].forEach(id => {
+    document.getElementById(id).checked = false;
+  });
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-'+name));
+}
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => switchTab(t.dataset.tab));
+});
+
+document.getElementById('sortBy').addEventListener('change', renderLog);
+document.getElementById('filterBy').addEventListener('change', renderLog);
+
+document.getElementById('cigarForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const fromId = document.getElementById('fromHumidorId').value;
+  let entry;
+  if (fromId.startsWith('edit:')) {
+    entry = data.smoked.find(c => c.id === fromId.slice(5));
+    if (!entry) return;
+  } else {
+    entry = { id: uid() };
+    data.smoked.push(entry);
+  }
+  entry.name = document.getElementById('name').value.trim();
+  entry.size = document.getElementById('size').value.trim();
+  entry.price = +document.getElementById('price').value || 0;
+  entry.date = document.getElementById('date').value || new Date().toISOString().slice(0,10);
+  entry.shop = document.getElementById('shop').value.trim();
+  entry.employee = document.getElementById('employee').value.trim();
+  entry.wrapper = document.getElementById('wrapper').value.trim();
+  entry.country = document.getElementById('country').value.trim();
+  entry.body = document.getElementById('body').value;
+  entry.nicHit = +document.getElementById('nicHit').value || 0;
+  entry.overall = +document.getElementById('overall').value || 0;
+  entry.flavors = document.getElementById('flavors').value.trim();
+  entry.notes = document.getElementById('notes').value.trim();
+  entry.rebuy = document.getElementById('rebuy').checked;
+  entry.star = document.getElementById('star').checked;
+  entry.infused = document.getElementById('infused').checked;
+  if (fromId && !fromId.startsWith('edit:')) {
+    data.humidor = data.humidor.filter(h => h.id !== fromId);
+  }
+  saveData();
+  clearForm();
+  renderAll();
+  switchTab('log');
+});
+
+document.getElementById('humidorForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const entry = {
+    id: uid(),
+    name: document.getElementById('hName').value.trim(),
+    size: document.getElementById('hSize').value.trim(),
+    price: +document.getElementById('hPrice').value || 0,
+    shop: document.getElementById('hShop').value.trim(),
+    dateAcquired: new Date().toISOString().slice(0,10),
+    smokeOrder: 99,
+    notes: document.getElementById('hNotes').value.trim()
+  };
+  data.humidor.push(entry);
+  saveData();
+  ['hName','hSize','hPrice','hShop','hNotes'].forEach(id => document.getElementById(id).value = '');
+  renderAll();
+});
+
+function renderAll() {
+  renderStats();
+  renderLog();
+  renderHumidor();
+}
+
+renderAll();
+</script>
+</body>
+</html>
