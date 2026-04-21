@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benny's Cigar Log</title>
+<meta property="og:title" content="Benny's Cigar Log">
+<meta property="og:description" content="Personal cigar tasting log and humidor tracker">
+<meta property="og:url" content="https://niggerfaggot.club/cigars/">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-cigars.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-cigars.jpg">
+<style>
+  :root {
+    --bg: #1a1410;
+    --bg-card: #241c17;
+    --bg-elev: #2e2420;
+    --border: #3a2f28;
+    --accent: #c4925a;
+    --accent-dim: #8a6640;
+    --text: #e8dcc8;
+    --text-dim: #a89680;
+    --text-faint: #70604c;
+    --good: #7ab87a;
+    --bad: #c07070;
+    --warn: #d4a85a;
+    --danger: #8a3a2e;
+  }
+  * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(180deg, #2a1f18 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .subtitle {
+    color: var(--text-faint);
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+  }
+  nav {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+  nav button {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  nav button:hover { color: var(--text); border-color: var(--accent-dim); }
+  nav button.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  main { padding: 1rem; max-width: 900px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+  h2 { color: var(--accent); font-size: 1.1rem; margin: 1.5rem 0 0.75rem; }
+  h2:first-child { margin-top: 0; }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .card-title {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 1rem;
+  }
+  .card-brand { color: var(--text-dim); font-size: 0.85rem; }
+  .card-meta {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-top: 0.5rem;
+  }
+  .card-meta strong { color: var(--text-dim); font-weight: 500; }
+  .card-notes {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    white-space: pre-wrap;
+  }
+  .tag {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .tag-good { background: rgba(122, 184, 122, 0.15); color: var(--good); }
+  .tag-bad { background: rgba(192, 112, 112, 0.15); color: var(--bad); }
+  .tag-warn { background: rgba(212, 168, 90, 0.15); color: var(--warn); }
+  .tag-neutral { background: var(--bg-elev); color: var(--text-dim); }
+  .score {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .score-bar {
+    display: inline-flex;
+    gap: 2px;
+  }
+  .score-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .score-dot.filled { background: var(--accent); }
+  form { display: flex; flex-direction: column; gap: 0.75rem; }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 0.25rem;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+  }
+  @media (max-width: 500px) {
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+  }
+  button.primary {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button.primary:hover { background: #d4a46b; }
+  button.secondary {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button.secondary:hover { border-color: var(--accent-dim); color: var(--text); }
+  button.danger {
+    background: transparent;
+    color: var(--bad);
+    border: 1px solid var(--danger);
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .filters select, .filters input {
+    width: auto;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+  .empty {
+    text-align: center;
+    color: var(--text-faint);
+    padding: 3rem 1rem;
+    font-size: 0.9rem;
+  }
+  .pref-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .pref-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .pref-list li:last-child { border-bottom: none; }
+  .pref-num {
+    background: var(--accent);
+    color: var(--bg);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  details {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+  details[open] { padding-bottom: 1rem; }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--accent);
+    user-select: none;
+  }
+  .script-box {
+    background: var(--bg-elev);
+    padding: 0.85rem;
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 0.88rem;
+    margin-top: 0.75rem;
+    line-height: 1.55;
+    font-style: italic;
+    color: var(--text);
+  }
+  .action-bar {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+  }
+  .cigar-name { display: flex; flex-direction: column; }
+  .rebuy-yes { color: var(--good); }
+  .rebuy-no { color: var(--bad); }
+  .rebuy-maybe { color: var(--warn); }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .pill {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    background: var(--bg-elev);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+  .mono {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 0.82rem;
+    background: var(--bg-elev);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent);
+    color: var(--bg);
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .quick-log-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 0.5rem 1rem;
+    display: none;
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🚬 Benny's Cigar Log</h1>
+  <div class="subtitle">Tasting log, humidor, wishlist</div>
+  <nav>
+    <button data-tab="smoked" class="active">Smoked</button>
+    <button data-tab="humidor">Humidor</button>
+    <button data-tab="wishlist">Wishlist</button>
+    <button data-tab="log">+ Log</button>
+    <button data-tab="prefs">Prefs</button>
+    <button data-tab="data">Data</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- SMOKED -->
+<section id="smoked" class="section active">
+  <div class="stats-grid" id="stats"></div>
+  <div class="filters">
+    <select id="filter-rebuy">
+      <option value="">All rebuy status</option>
+      <option value="yes">Would rebuy</option>
+      <option value="no">Would not rebuy</option>
+      <option value="maybe">Maybe</option>
+    </select>
+    <select id="sort-by">
+      <option value="date-desc">Newest first</option>
+      <option value="date-asc">Oldest first</option>
+      <option value="overall-desc">Highest rated</option>
+      <option value="overall-asc">Lowest rated</option>
+      <option value="nic-desc">Highest nic</option>
+      <option value="price-desc">Most expensive</option>
+    </select>
+    <input type="search" id="search" placeholder="Search...">
+  </div>
+  <div id="smoked-list"></div>
+</section>
+
+<!-- HUMIDOR -->
+<section id="humidor" class="section">
+  <h2>On Deck (to smoke)</h2>
+  <div id="humidor-list"></div>
+  <button class="secondary" onclick="addHumidor()">+ Add to humidor</button>
+</section>
+
+<!-- WISHLIST -->
+<section id="wishlist" class="section">
+  <h2>Want to try</h2>
+  <div id="wishlist-list"></div>
+  <button class="secondary" onclick="addWishlist()">+ Add to wishlist</button>
+</section>
+
+<!-- LOG NEW -->
+<section id="log" class="section">
+  <h2 id="form-title">Log a smoke</h2>
+  <form id="log-form">
+    <input type="hidden" id="f-id">
+    <div class="form-row">
+      <div>
+        <label>Cigar name</label>
+        <input type="text" id="f-name" required placeholder="e.g. Fuente Chateau Fuente Natural">
+      </div>
+      <div>
+        <label>Brand</label>
+        <input type="text" id="f-brand" placeholder="e.g. Arturo Fuente">
+      </div>
+    </div>
+    <div class="form-row-3">
+      <div>
+        <label>Date</label>
+        <input type="date" id="f-date" required>
+      </div>
+      <div>
+        <label>Size/format</label>
+        <input type="text" id="f-size" placeholder="e.g. 4.5x50 petit robusto">
+      </div>
+      <div>
+        <label>Wrapper</label>
+        <input type="text" id="f-wrapper" placeholder="e.g. Ecuadorian Sumatra">
+      </div>
+    </div>
+    <div class="form-row-3">
+      <div>
+        <label>Price ($)</label>
+        <input type="number" step="0.01" id="f-price" placeholder="11.25">
+      </div>
+      <div>
+        <label>Shop</label>
+        <input type="text" id="f-shop" placeholder="Cigar Barn">
+      </div>
+      <div>
+        <label>Body</label>
+        <select id="f-body">
+          <option value="">—</option>
+          <option>mild</option>
+          <option>mild-medium</option>
+          <option>medium</option>
+          <option>medium-full</option>
+          <option>full</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row-3">
+      <div>
+        <label>Nic hit (1–5)</label>
+        <select id="f-nic">
+          <option value="">—</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+        </select>
+      </div>
+      <div>
+        <label>Overall (1–10)</label>
+        <select id="f-overall">
+          <option value="">—</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+          <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+        </select>
+      </div>
+      <div>
+        <label>Would rebuy?</label>
+        <select id="f-rebuy">
+          <option value="">—</option>
+          <option value="yes">Yes</option>
+          <option value="maybe">Maybe</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div>
+        <label>Infused / flavored?</label>
+        <select id="f-infused">
+          <option value="no">No (traditional tobacco)</option>
+          <option value="yes">Yes (infused/flavored)</option>
+        </select>
+      </div>
+      <div>
+        <label>Paired with</label>
+        <input type="text" id="f-paired" placeholder="bourbon, coffee, nothing...">
+      </div>
+    </div>
+    <div>
+      <label>Flavor notes (first third / middle / last third)</label>
+      <textarea id="f-flavor" placeholder="cedar, cream, slight sweet → nut, cedar → leather, espresso"></textarea>
+    </div>
+    <div>
+      <label>Other notes (construction, burn, draw, retrohale, context)</label>
+      <textarea id="f-notes" placeholder="burned clean, easy draw, retrohale worth it..."></textarea>
+    </div>
+    <div class="action-bar">
+      <button type="button" class="secondary" onclick="resetForm()">Clear</button>
+      <button type="submit" class="primary" id="submit-btn">Save</button>
+    </div>
+  </form>
+</section>
+
+<!-- PREFS -->
+<section id="prefs" class="section">
+  <h2>Locked-in preferences</h2>
+  <ol class="pref-list">
+    <li><span class="pref-num">1</span><div><strong>Traditional tobacco only.</strong> No infused/flavored cigars. Hard rule.</div></li>
+    <li><span class="pref-num">2</span><div><strong>Nic hit matters, more is better</strong> (within cigar physics). Vape/pouch baseline is higher than any cigar can match, but still prefer more over less.</div></li>
+    <li><span class="pref-num">3</span><div><strong>Flavor profile: creamy/cedar/nutty preferred.</strong> Peppery is fine, just not the target.</div></li>
+    <li><span class="pref-num">4</span><div><strong>Body isn't the driver.</strong> Mild through full all acceptable.</div></li>
+    <li><span class="pref-num">5</span><div><strong>Construction matters.</strong> Must light and burn clean.</div></li>
+    <li><span class="pref-num">6</span><div><strong>~1 hour or less smoke time.</strong> Petit corona, corona, short/petit robusto, robusto. Toro and up too long.</div></li>
+    <li><span class="pref-num">7</span><div><strong>Budget: $8–14/stick</strong> at Cigar Barn.</div></li>
+    <li><span class="pref-num">8</span><div><strong>Size = smoke time, not ring gauge.</strong> Chunky short cigars are fine.</div></li>
+  </ol>
+
+  <h2>Cigar Barn script (for Logan/Cody)</h2>
+  <div class="script-box">
+    "Traditional tobacco only, no infused. I liked the Fuente Chateau Natural and the Espinosa Habano Toro, preferred the Fuente's flavor but liked the Espinosa's stronger nic hit. Creamy/cedar/nutty is my favorite direction but peppery is fine too. Looking for petit coronas, coronas, short robustos, or petit robustos — anything I can smoke in an hour. Want good nic hit if possible. Budget $8–14."
+  </div>
+
+  <h2>Nic tolerance baseline</h2>
+  <p style="color: var(--text-dim); font-size: 0.9rem;">
+    Heavy vape/pouch history (Juul menthol, gas station disposables, pouches, gum). Cigars physically can't match vape nic delivery because you don't inhale, nic absorbs through mouth lining over 45–90 min. "Full body" ≠ "more nic punch," it means more intense FLAVOR. Stop chasing nic, chase flavor.
+  </p>
+
+  <h2>Storage rules</h2>
+  <ul style="color: var(--text-dim); font-size: 0.9rem; padding-left: 1.2rem;">
+    <li>Target 65–68% RH. 72%+ = hard to light, muted flavor.</li>
+    <li>Boveda 69% packs + sealed container (tupperdor) works fine.</li>
+    <li>Rest sticks 1–2 weeks after purchase before smoking (shop humidity often high).</li>
+    <li>Exception: wax-sealed tubes (Gurkha Bourbon etc) don't need resting.</li>
+  </ul>
+</section>
+
+<!-- DATA -->
+<section id="data" class="section">
+  <h2>Import / Export</h2>
+  <div class="card">
+    <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 0;">All data lives in browser localStorage. Back it up before clearing browser data.</p>
+    <div class="action-bar" style="justify-content: flex-start;">
+      <button class="secondary" onclick="exportData()">Export JSON</button>
+      <button class="secondary" onclick="document.getElementById('import-file').click()">Import JSON</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="danger" onclick="clearAll()">Clear all data</button>
+    </div>
+  </div>
+
+  <h2>Raw data</h2>
+  <details>
+    <summary>View JSON (read-only)</summary>
+    <pre id="raw-data" style="font-size: 0.75rem; color: var(--text-dim); max-height: 400px; overflow: auto; margin-top: 0.75rem;"></pre>
+  </details>
+</section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ---------- STORAGE ----------
+const STORAGE_KEY = 'benny-cigars-v1';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { console.error(e); }
+  return getSeedData();
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  renderAll();
+}
+
+function getSeedData() {
+  return {
+    smoked: [
+      {
+        id: 's1',
+        name: 'Chateau Fuente Natural',
+        brand: 'Arturo Fuente',
+        date: '2026-03-14',
+        size: '4⅝"x50 robusto',
+        wrapper: 'Ecuadorian Sumatra',
+        price: 11.25,
+        shop: 'Cigar Barn (Cody)',
+        body: 'mild',
+        nic: 2,
+        overall: 8,
+        rebuy: 'yes',
+        infused: 'no',
+        paired: 'fishing trip',
+        flavor: 'creamy, cedar, slightly sweet, smooth throughout',
+        notes: 'Liked the taste the most of all tried so far. First cigar. Smoked while fishing.'
+      },
+      {
+        id: 's2',
+        name: 'Espinosa Habano Toro BP',
+        brand: 'Espinosa',
+        date: '2026-03-15',
+        size: '6"x52 toro (box-pressed)',
+        wrapper: 'Ecuadorian Habano',
+        price: 13.00,
+        shop: 'Cigar Barn (Cody)',
+        body: 'medium',
+        nic: 3,
+        overall: 7,
+        rebuy: 'maybe',
+        infused: 'no',
+        paired: '',
+        flavor: 'peppery, some earth, medium body',
+        notes: 'Noticed pepper and fuller body but neutral — didn\'t add or subtract. Liked the higher nic hit vs Fuente. Overall solid, just preferred Fuente flavor profile.'
+      },
+      {
+        id: 's3',
+        name: 'Tabak Especial Dulce Toro',
+        brand: 'Drew Estate',
+        date: '2026-04-20',
+        size: '6"x52 toro',
+        wrapper: 'Connecticut Shade',
+        price: 0,
+        shop: 'Gifted by neighbor',
+        body: 'mild',
+        nic: 1,
+        overall: 4,
+        rebuy: 'no',
+        infused: 'yes',
+        paired: '',
+        flavor: 'sweet coffee infusion, barely any tobacco flavor',
+        notes: 'Coffee-infused. Hard to light. Tasted less like actual tobacco. Basically no nic hit. Disliked infusion flavor + low nic + poor burn. Confirms: no infused cigars going forward.'
+      }
+    ],
+    humidor: [
+      {
+        id: 'h1',
+        name: 'Liga Privada Unico Papas Fritas',
+        brand: 'Drew Estate',
+        size: '4.5"x44 petit corona',
+        wrapper: 'Brazilian Mata Fina',
+        price: 8.65,
+        shop: 'Cigar Barn (Logan)',
+        notes: 'Full body, chocolate/espresso/cocoa/earth. Not pepper-forward. ~30-40 min smoke. SMOKE FIRST — palate calibration for rich-sweet full body direction.',
+        priority: 1
+      },
+      {
+        id: 'h2',
+        name: 'LFD Colorado Oscuro No. 3',
+        brand: 'La Flor Dominicana',
+        size: '~5⅝"x44 corona',
+        wrapper: 'Ecuadorian Habano Oscuro',
+        price: 11.15,
+        shop: 'Cigar Barn (Logan)',
+        notes: 'Medium-full to full, big pepper up front, cedar/cocoa/leather. LFD house style = aggressive. Tests pepper tolerance vs Espinosa baseline. ~45-55 min.',
+        priority: 2
+      },
+      {
+        id: 'h3',
+        name: 'Espinosa 601 Green Label La Fuerza',
+        brand: 'Espinosa',
+        size: '5.5"x54 robusto',
+        wrapper: 'Ecuadorian Habano Oscuro',
+        price: 13.85,
+        shop: 'Cigar Barn (Logan)',
+        notes: 'Full body, earthy/peppery/leathery/coffee. Fullest Espinosa blend. ~60-75 min — longer than target. Save for Saturday with time. Biggest nic hit of the three.',
+        priority: 3
+      },
+      {
+        id: 'h4',
+        name: 'Gurkha Bourbon Collection Toro',
+        brand: 'Gurkha',
+        size: '6"x52 toro',
+        wrapper: 'Connecticut Shade',
+        price: 0,
+        shop: 'Gifted by neighbor',
+        notes: 'Bourbon-infused (Hartfield & Co. collab). Wax-dipped glass tube. Given dislike of Tabak infusion, likely to hit the same way. Consider gifting.',
+        priority: 4
+      }
+    ],
+    wishlist: [
+      { id: 'w1', name: 'Arturo Fuente Hemingway Short Story', notes: '4"x49 perfecto, ~35-45 min. Same DNA as Chateau Fuente but petit format.', priority: 1 },
+      { id: 'w2', name: 'My Father Le Bijou 1922 Petit Robusto', notes: '4.5"x50, ~40-50 min. Pepin Garcia, nic hit, rich not pepper bomb.', priority: 2 },
+      { id: 'w3', name: 'Tatuaje Havana VI Nobles', notes: 'Corona ~5.25"x46, ~45-55 min. Pepin, Cuban-style, nic-forward, not overly peppery.', priority: 3 },
+      { id: 'w4', name: 'Padron 1964 Anniversary Exclusivo', notes: '5.5"x50 robusto, ~50-60 min. Splurge. Creamy/nutty/refined, solid nic.', priority: 4 },
+      { id: 'w5', name: 'My Father No. 4', notes: '4.5"x44 petit corona, ~35-45 min. Creamy Pepin build, short format.', priority: 5 },
+      { id: 'w6', name: 'Arturo Fuente Don Carlos No. 4', notes: '4⅜"x44, ~35-45 min. Refined, cedar, nut, petit format, Fuente family.', priority: 6 }
+    ]
+  };
+}
+
+let data = loadData();
+
+// ---------- UTILITIES ----------
+function uid() { return 'x' + Math.random().toString(36).slice(2, 9); }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ---------- TABS ----------
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    window.scrollTo(0, 0);
+  });
+});
+
+// ---------- SMOKED RENDER ----------
+function renderStats() {
+  const s = data.smoked;
+  const rebuys = s.filter(x => x.rebuy === 'yes').length;
+  const avgOverall = s.length ? (s.reduce((a, x) => a + (Number(x.overall) || 0), 0) / s.length).toFixed(1) : '—';
+  const totalSpent = s.reduce((a, x) => a + (Number(x.price) || 0), 0).toFixed(2);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="stat-value">${s.length}</div><div class="stat-label">Smoked</div></div>
+    <div class="stat"><div class="stat-value">${avgOverall}</div><div class="stat-label">Avg rating</div></div>
+    <div class="stat"><div class="stat-value">${rebuys}</div><div class="stat-label">Rebuys</div></div>
+    <div class="stat"><div class="stat-value">$${totalSpent}</div><div class="stat-label">Spent</div></div>
+  `;
+}
+
+function renderSmoked() {
+  renderStats();
+  const filterRebuy = document.getElementById('filter-rebuy').value;
+  const sortBy = document.getElementById('sort-by').value;
+  const search = document.getElementById('search').value.toLowerCase();
+  let list = [...data.smoked];
+  if (filterRebuy) list = list.filter(x => x.rebuy === filterRebuy);
+  if (search) list = list.filter(x => (x.name + ' ' + x.brand + ' ' + x.flavor + ' ' + x.notes).toLowerCase().includes(search));
+  list.sort((a, b) => {
+    switch (sortBy) {
+      case 'date-asc': return (a.date || '').localeCompare(b.date || '');
+      case 'overall-desc': return (Number(b.overall) || 0) - (Number(a.overall) || 0);
+      case 'overall-asc': return (Number(a.overall) || 0) - (Number(b.overall) || 0);
+      case 'nic-desc': return (Number(b.nic) || 0) - (Number(a.nic) || 0);
+      case 'price-desc': return (Number(b.price) || 0) - (Number(a.price) || 0);
+      default: return (b.date || '').localeCompare(a.date || '');
+    }
+  });
+
+  const host = document.getElementById('smoked-list');
+  if (!list.length) {
+    host.innerHTML = '<div class="empty">No cigars logged yet. Hit "+ Log" to add one.</div>';
+    return;
+  }
+  host.innerHTML = list.map(c => {
+    const nicDots = [1,2,3,4,5].map(n => `<span class="score-dot ${n <= (c.nic||0) ? 'filled' : ''}"></span>`).join('');
+    const rebuyCls = c.rebuy === 'yes' ? 'rebuy-yes' : c.rebuy === 'no' ? 'rebuy-no' : 'rebuy-maybe';
+    const rebuyLabel = c.rebuy === 'yes' ? '✓ Rebuy' : c.rebuy === 'no' ? '✗ Pass' : '~ Maybe';
+    const infusedTag = c.infused === 'yes' ? `<span class="tag tag-warn">Infused</span>` : '';
+    return `
+      <div class="card">
+        <div class="card-header">
+          <div class="cigar-name">
+            <span class="card-title">${escapeHtml(c.name)}</span>
+            <span class="card-brand">${escapeHtml(c.brand || '')}</span>
+          </div>
+          <div style="text-align: right;">
+            ${c.overall ? `<div class="score">${c.overall}<span style="color:var(--text-faint); font-size:0.8rem">/10</span></div>` : ''}
+            <div class="${rebuyCls}" style="font-size: 0.75rem; font-weight: 600;">${rebuyLabel}</div>
+          </div>
+        </div>
+        <div class="card-meta">
+          ${c.date ? `<span><strong>${fmtDate(c.date)}</strong></span>` : ''}
+          ${c.size ? `<span>${escapeHtml(c.size)}</span>` : ''}
+          ${c.wrapper ? `<span>${escapeHtml(c.wrapper)}</span>` : ''}
+          ${c.body ? `<span class="pill">${c.body}</span>` : ''}
+          ${c.nic ? `<span>Nic: <span class="score-bar">${nicDots}</span></span>` : ''}
+          ${c.price ? `<span>$${Number(c.price).toFixed(2)}</span>` : ''}
+          ${c.shop ? `<span>${escapeHtml(c.shop)}</span>` : ''}
+          ${infusedTag}
+        </div>
+        ${c.flavor ? `<div class="card-notes"><strong style="color:var(--accent-dim)">Flavor:</strong> ${escapeHtml(c.flavor)}</div>` : ''}
+        ${c.notes ? `<div class="card-notes">${escapeHtml(c.notes)}</div>` : ''}
+        <div class="action-bar">
+          <button class="secondary" onclick="editSmoked('${c.id}')">Edit</button>
+          <button class="danger" onclick="deleteSmoked('${c.id}')">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ---------- HUMIDOR ----------
+function renderHumidor() {
+  const host = document.getElementById('humidor-list');
+  const list = [...data.humidor].sort((a, b) => (a.priority || 99) - (b.priority || 99));
+  if (!list.length) {
+    host.innerHTML = '<div class="empty">Humidor is empty.</div>';
+    return;
+  }
+  host.innerHTML = list.map(c => `
+    <div class="card">
+      <div class="card-header">
+        <div class="cigar-name">
+          <span class="card-title">${escapeHtml(c.name)}</span>
+          <span class="card-brand">${escapeHtml(c.brand || '')}</span>
+        </div>
+        <span class="pill">#${c.priority || '?'}</span>
+      </div>
+      <div class="card-meta">
+        ${c.size ? `<span>${escapeHtml(c.size)}</span>` : ''}
+        ${c.wrapper ? `<span>${escapeHtml(c.wrapper)}</span>` : ''}
+        ${c.price ? `<span>$${Number(c.price).toFixed(2)}</span>` : ''}
+        ${c.shop ? `<span>${escapeHtml(c.shop)}</span>` : ''}
+      </div>
+      ${c.notes ? `<div class="card-notes">${escapeHtml(c.notes)}</div>` : ''}
+      <div class="action-bar">
+        <button class="secondary" onclick="smokeFromHumidor('${c.id}')">Smoke it (log)</button>
+        <button class="secondary" onclick="editHumidor('${c.id}')">Edit</button>
+        <button class="danger" onclick="deleteHumidor('${c.id}')">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ---------- WISHLIST ----------
+function renderWishlist() {
+  const host = document.getElementById('wishlist-list');
+  const list = [...data.wishlist].sort((a, b) => (a.priority || 99) - (b.priority || 99));
+  if (!list.length) {
+    host.innerHTML = '<div class="empty">Wishlist is empty.</div>';
+    return;
+  }
+  host.innerHTML = list.map(c => `
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">${escapeHtml(c.name)}</span>
+        <span class="pill">#${c.priority || '?'}</span>
+      </div>
+      ${c.notes ? `<div class="card-notes" style="border-top:none; padding-top:0">${escapeHtml(c.notes)}</div>` : ''}
+      <div class="action-bar">
+        <button class="secondary" onclick="moveWishlistToHumidor('${c.id}')">Bought it → Humidor</button>
+        <button class="secondary" onclick="editWishlist('${c.id}')">Edit</button>
+        <button class="danger" onclick="deleteWishlist('${c.id}')">Remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ---------- FORM ----------
+function setTab(name) {
+  document.querySelector(`nav button[data-tab="${name}"]`).click();
+}
+
+function resetForm() {
+  document.getElementById('log-form').reset();
+  document.getElementById('f-id').value = '';
+  document.getElementById('f-date').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('form-title').textContent = 'Log a smoke';
+  document.getElementById('submit-btn').textContent = 'Save';
+}
+
+function editSmoked(id) {
+  const c = data.smoked.find(x => x.id === id);
+  if (!c) return;
+  setTab('log');
+  document.getElementById('f-id').value = c.id;
+  document.getElementById('f-name').value = c.name || '';
+  document.getElementById('f-brand').value = c.brand || '';
+  document.getElementById('f-date').value = c.date || '';
+  document.getElementById('f-size').value = c.size || '';
+  document.getElementById('f-wrapper').value = c.wrapper || '';
+  document.getElementById('f-price').value = c.price || '';
+  document.getElementById('f-shop').value = c.shop || '';
+  document.getElementById('f-body').value = c.body || '';
+  document.getElementById('f-nic').value = c.nic || '';
+  document.getElementById('f-overall').value = c.overall || '';
+  document.getElementById('f-rebuy').value = c.rebuy || '';
+  document.getElementById('f-infused').value = c.infused || 'no';
+  document.getElementById('f-paired').value = c.paired || '';
+  document.getElementById('f-flavor').value = c.flavor || '';
+  document.getElementById('f-notes').value = c.notes || '';
+  document.getElementById('form-title').textContent = 'Edit smoke';
+  document.getElementById('submit-btn').textContent = 'Update';
+}
+
+document.getElementById('log-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const id = document.getElementById('f-id').value;
+  const entry = {
+    id: id || uid(),
+    name: document.getElementById('f-name').value.trim(),
+    brand: document.getElementById('f-brand').value.trim(),
+    date: document.getElementById('f-date').value,
+    size: document.getElementById('f-size').value.trim(),
+    wrapper: document.getElementById('f-wrapper').value.trim(),
+    price: parseFloat(document.getElementById('f-price').value) || 0,
+    shop: document.getElementById('f-shop').value.trim(),
+    body: document.getElementById('f-body').value,
+    nic: parseInt(document.getElementById('f-nic').value) || 0,
+    overall: parseInt(document.getElementById('f-overall').value) || 0,
+    rebuy: document.getElementById('f-rebuy').value,
+    infused: document.getElementById('f-infused').value,
+    paired: document.getElementById('f-paired').value.trim(),
+    flavor: document.getElementById('f-flavor').value.trim(),
+    notes: document.getElementById('f-notes').value.trim()
+  };
+  if (id) {
+    const i = data.smoked.findIndex(x => x.id === id);
+    data.smoked[i] = entry;
+    toast('Updated');
+  } else {
+    data.smoked.push(entry);
+    toast('Logged');
+  }
+  saveData();
+  resetForm();
+  setTab('smoked');
+});
+
+function deleteSmoked(id) {
+  if (!confirm('Delete this log entry?')) return;
+  data.smoked = data.smoked.filter(x => x.id !== id);
+  saveData();
+  toast('Deleted');
+}
+
+// ---------- HUMIDOR/WISHLIST OPS ----------
+function addHumidor() {
+  const name = prompt('Cigar name:');
+  if (!name) return;
+  const notes = prompt('Notes (optional):') || '';
+  const priority = (data.humidor.length + 1);
+  data.humidor.push({ id: uid(), name, notes, priority });
+  saveData();
+  toast('Added to humidor');
+}
+function editHumidor(id) {
+  const c = data.humidor.find(x => x.id === id);
+  if (!c) return;
+  const name = prompt('Name:', c.name); if (name == null) return;
+  const notes = prompt('Notes:', c.notes || '');
+  const priority = parseInt(prompt('Priority (# order to smoke):', c.priority || 99)) || 99;
+  Object.assign(c, { name, notes, priority });
+  saveData();
+  toast('Updated');
+}
+function deleteHumidor(id) {
+  if (!confirm('Remove from humidor?')) return;
+  data.humidor = data.humidor.filter(x => x.id !== id);
+  saveData();
+}
+function smokeFromHumidor(id) {
+  const c = data.humidor.find(x => x.id === id);
+  if (!c) return;
+  setTab('log');
+  resetForm();
+  document.getElementById('f-name').value = c.name || '';
+  document.getElementById('f-brand').value = c.brand || '';
+  document.getElementById('f-size').value = c.size || '';
+  document.getElementById('f-wrapper').value = c.wrapper || '';
+  document.getElementById('f-price').value = c.price || '';
+  document.getElementById('f-shop').value = c.shop || '';
+  document.getElementById('f-notes').value = c.notes || '';
+  toast('Pre-filled from humidor — fill in tasting & save');
+  // stash id to remove on save
+  window._fromHumidorId = id;
+}
+
+function addWishlist() {
+  const name = prompt('Cigar name:');
+  if (!name) return;
+  const notes = prompt('Notes (optional):') || '';
+  const priority = (data.wishlist.length + 1);
+  data.wishlist.push({ id: uid(), name, notes, priority });
+  saveData();
+  toast('Added to wishlist');
+}
+function editWishlist(id) {
+  const c = data.wishlist.find(x => x.id === id);
+  if (!c) return;
+  const name = prompt('Name:', c.name); if (name == null) return;
+  const notes = prompt('Notes:', c.notes || '');
+  const priority = parseInt(prompt('Priority:', c.priority || 99)) || 99;
+  Object.assign(c, { name, notes, priority });
+  saveData();
+}
+function deleteWishlist(id) {
+  if (!confirm('Remove from wishlist?')) return;
+  data.wishlist = data.wishlist.filter(x => x.id !== id);
+  saveData();
+}
+function moveWishlistToHumidor(id) {
+  const c = data.wishlist.find(x => x.id === id);
+  if (!c) return;
+  data.humidor.push({ id: uid(), name: c.name, notes: c.notes, priority: (data.humidor.length + 1) });
+  data.wishlist = data.wishlist.filter(x => x.id !== id);
+  saveData();
+  toast('Moved to humidor');
+}
+
+// ---------- DATA OPS ----------
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `cigar-log-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importData(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const imported = JSON.parse(r.result);
+      if (!confirm('Replace all current data with imported data?')) return;
+      data = imported;
+      saveData();
+      toast('Imported');
+    } catch (err) {
+      alert('Invalid JSON: ' + err.message);
+    }
+  };
+  r.readAsText(f);
+}
+function clearAll() {
+  if (!confirm('Clear ALL data? This cannot be undone.')) return;
+  if (!confirm('Really? Everything will be gone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  data = { smoked: [], humidor: [], wishlist: [] };
+  saveData();
+  toast('Cleared');
+}
+
+// ---------- RENDER ALL ----------
+function renderAll() {
+  renderSmoked();
+  renderHumidor();
+  renderWishlist();
+  document.getElementById('raw-data').textContent = JSON.stringify(data, null, 2);
+}
+
+// On smoke-from-humidor save: remove from humidor
+const origSubmit = document.getElementById('log-form').onsubmit;
+document.getElementById('log-form').addEventListener('submit', () => {
+  if (window._fromHumidorId) {
+    data.humidor = data.humidor.filter(x => x.id !== window._fromHumidorId);
+    window._fromHumidorId = null;
+    saveData();
+  }
+});
+
+// Filter/sort listeners
+document.getElementById('filter-rebuy').addEventListener('change', renderSmoked);
+document.getElementById('sort-by').addEventListener('change', renderSmoked);
+document.getElementById('search').addEventListener('input', renderSmoked);
+
+// Init
+resetForm();
+renderAll();
+</script>
+</body>
+</html>
