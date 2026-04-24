@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fishing Knot Strength Chart - Berkley Machine Data</title>
+<meta name="description" content="Sortable chart of 22 fishing knots tested on mono, fluoro, and braid using Berkley's knot strength machine. Filter by line type to find the strongest knot for your setup.">
+<meta property="og:title" content="Fishing Knot Strength Chart">
+<meta property="og:description" content="22 knots tested on mono/fluoro/braid. Berkley machine data from North American Fishing's Knot War series. Sort by line type to find the strongest knot for your rig.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/knots-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/knots/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/knots-og.jpg">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{overflow-x:hidden;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:#0f1419;color:#e4e4e7;line-height:1.5;padding:0 1rem 3rem}
+.wrap{max-width:1200px;margin:0 auto}
+header{padding:2rem 0 1rem;border-bottom:1px solid #27272a;margin-bottom:1.5rem}
+h1{font-size:clamp(1.5rem,4vw,2.25rem);margin:0 0 .25rem;font-weight:700;letter-spacing:-.02em}
+.sub{color:#a1a1aa;font-size:.95rem;margin:0}
+.meta{color:#71717a;font-size:.8rem;margin-top:.5rem}
+.meta a{color:#60a5fa;text-decoration:none}
+.meta a:hover{text-decoration:underline}
+.tldr{background:#1a1f2e;border-left:3px solid #f59e0b;padding:1rem 1.25rem;margin:1.5rem 0;border-radius:4px}
+.tldr strong{color:#fbbf24}
+.filters{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.5rem 0 1rem;align-items:center}
+.filters label{font-size:.85rem;color:#a1a1aa;margin-right:.5rem}
+.filters button{background:#1f2937;color:#e4e4e7;border:1px solid #374151;padding:.45rem .9rem;border-radius:6px;font-size:.85rem;cursor:pointer;transition:all .15s;font-weight:500}
+.filters button:hover{background:#374151;border-color:#4b5563}
+.filters button.active{background:#f59e0b;border-color:#f59e0b;color:#0f1419}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid #27272a;background:#151a23}
+table{width:100%;min-width:640px;border-collapse:collapse;font-size:.88rem}
+th{background:#1f2937;color:#d1d5db;text-align:left;padding:.75rem .65rem;font-weight:600;border-bottom:1px solid #374151;position:sticky;top:0;cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{background:#2a3546}
+th.sorted{color:#fbbf24}
+th .arrow{opacity:.5;margin-left:.2rem;font-size:.75rem}
+th.sorted .arrow{opacity:1}
+td{padding:.65rem;border-bottom:1px solid #1f2937}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#1a2030}
+td.rank{color:#71717a;font-weight:600;width:2.5rem;text-align:center}
+td.knot{font-weight:600;color:#fafafa;min-width:170px}
+td.knot a{color:inherit;text-decoration:none;border-bottom:1px dotted #52525b}
+td.knot a:hover{color:#fbbf24;border-color:#fbbf24}
+td.type{color:#a1a1aa;font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+td.num{font-variant-numeric:tabular-nums;text-align:right;font-weight:500}
+td.avg{font-weight:700;color:#fafafa}
+.excellent{color:#34d399}
+.good{color:#a3e635}
+.ok{color:#fbbf24}
+.weak{color:#fb923c}
+.bad{color:#ef4444}
+.section{margin:2.5rem 0 1rem}
+.section h2{font-size:1.35rem;margin:0 0 .75rem;color:#fafafa;letter-spacing:-.01em}
+.section p,.section li{color:#d4d4d8;font-size:.95rem}
+.section strong{color:#fbbf24}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin:1rem 0}
+.card{background:#151a23;border:1px solid #27272a;border-radius:8px;padding:1rem}
+.card h3{margin:0 0 .5rem;font-size:1rem;color:#fbbf24}
+.card ol{margin:0;padding-left:1.2rem;font-size:.9rem}
+.card li{margin-bottom:.3rem;color:#d4d4d8}
+.card li em{color:#a1a1aa;font-style:normal;font-size:.85rem}
+.footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid #27272a;color:#71717a;font-size:.8rem}
+.footer a{color:#60a5fa;text-decoration:none}
+.missing{background:#1a1f2e;border-left:3px solid #60a5fa;padding:1rem 1.25rem;margin:1rem 0;border-radius:4px;font-size:.9rem}
+.missing strong{color:#93c5fd}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;font-size:.8rem;color:#a1a1aa;margin:.75rem 0}
+.legend span{display:inline-flex;align-items:center;gap:.3rem}
+.legend .dot{width:.7rem;height:.7rem;border-radius:50%;display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>Fishing Knot Strength Chart</h1>
+<p class="sub">22 knots tested on mono, fluoro, and braid. Berkley machine data.</p>
+<p class="meta">Source: North American Fishing's Knot War series via <a href="https://www.knotsforfishing.com/knot-strength-chart/" target="_blank" rel="noopener">knotsforfishing.com</a>. Test lines: 15 lb Trilene mono, 15 lb Berkley Pro fluoro, 14 lb Berkley Fireline braid. Values &gt;100% mean the line broke before the knot did.</p>
+</header>
+
+<div class="tldr">
+<strong>Bottom line up front:</strong> The San Diego Jam is tier 2 (#6), not #1. Fish N Fool is the sleeper winner on braid at 138.9%. Improved Clinch is a death trap on braid (51.6%). Fluoro punishes almost every knot. The doubled-line version of most of these tests separately and isn't in this dataset.
+</div>
+
+<div class="legend">
+<span><span class="dot" style="background:#34d399"></span>&ge;120% excellent</span>
+<span><span class="dot" style="background:#a3e635"></span>100-119% good</span>
+<span><span class="dot" style="background:#fbbf24"></span>85-99% ok</span>
+<span><span class="dot" style="background:#fb923c"></span>60-84% weak</span>
+<span><span class="dot" style="background:#ef4444"></span>&lt;60% dangerous</span>
+</div>
+
+<div class="filters">
+<label>Sort by:</label>
+<button data-sort="rank" class="active">Overall</button>
+<button data-sort="mono">Mono</button>
+<button data-sort="fluoro">Fluoro</button>
+<button data-sort="braid">Braid</button>
+<button data-sort="avg">Average</button>
+</div>
+
+<div class="tablewrap">
+<table id="knots">
+<thead>
+<tr>
+<th data-sort="rank" class="sorted">#<span class="arrow">▲</span></th>
+<th data-sort="knot">Knot</th>
+<th data-sort="type">Type</th>
+<th data-sort="mono" class="num">Mono<span class="arrow"></span></th>
+<th data-sort="fluoro" class="num">Fluoro<span class="arrow"></span></th>
+<th data-sort="braid" class="num">Braid<span class="arrow"></span></th>
+<th data-sort="avg" class="num">Avg<span class="arrow"></span></th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<div class="section">
+<h2>Practical rankings by use case</h2>
+<div class="cards">
+<div class="card">
+<h3>Braid → hook/lure/swivel</h3>
+<ol>
+<li><strong>Fish N Fool</strong> <em>138.9% — uni knot +1 wrap</em></li>
+<li><strong>Reverse Improved Clinch</strong> <em>135.4%</em></li>
+<li><strong>Burke</strong> <em>133.0%</em></li>
+<li><strong>San Diego Jam</strong> <em>127.4%</em></li>
+<li><strong>Palomar</strong> <em>124.0% — fastest to tie</em></li>
+</ol>
+</div>
+<div class="card">
+<h3>Mono → hook/lure/swivel</h3>
+<ol>
+<li><strong>Fish N Fool</strong> <em>136.9%</em></li>
+<li><strong>Miller</strong> <em>134.2%</em></li>
+<li><strong>Porter</strong> <em>132.6%</em></li>
+<li><strong>Berkley Braid</strong> <em>132.1%</em></li>
+<li><strong>Burke</strong> <em>128.8%</em></li>
+</ol>
+</div>
+<div class="card">
+<h3>Fluoro leader → hook/lure</h3>
+<ol>
+<li><strong>Triple Loop</strong> <em>131.6%</em></li>
+<li><strong>Berkley Braid</strong> <em>131.3%</em></li>
+<li><strong>Porter</strong> <em>125.1%</em></li>
+<li><strong>King Sling Loop</strong> <em>116.8%</em></li>
+<li><strong>Burke</strong> <em>109.9%</em></li>
+</ol>
+</div>
+</div>
+</div>
+
+<div class="section">
+<h2>Key takeaways</h2>
+<p><strong>Fish N Fool is OP on braid.</strong> #2 overall, 138.9% on braid. It's a uni knot with one extra wrap through the eyelet. If you tie a uni, you can tie this in 10 seconds. Should probably be your default braid terminal knot over Palomar.</p>
+<p><strong>Improved Clinch on braid is a fish-losing habit.</strong> 51.6% efficiency. Your 30 lb braid breaks at 15 lb. Widespread beginner knot, actively dangerous with modern slick braid.</p>
+<p><strong>Palomar is fine, not elite.</strong> #8 overall. Fish N Fool and Burke both beat it by 10%+ on braid for similar tying effort.</p>
+<p><strong>Fluoro drops almost every knot 15-30%.</strong> Brittle, hates sharp bends. If you're fishing fluoro leader, knot choice matters more than mono.</p>
+<p><strong>Loop knots trade strength for lure action.</strong> Single-line architecture means they test lower, but you run them for jig/topwater action, not raw strength.</p>
+<p><strong>San Diego Jam is tier 2.</strong> #6 average, 115.8%. Solid but not king. The <em>doubled</em> version (line run through the eye twice before wrapping) likely climbs this chart but wasn't tested separately in this dataset.</p>
+</div>
+
+<div class="missing">
+<strong>What's missing:</strong> Double San Diego Jam, FG knot (line-to-line, different category), Alberto, Bimini Twist, PR/GT knots (big-game connections), J knot, Micah knot (Fred Hall contest winners). These are all separate categories or require doubled-line prep.
+</div>
+
+<div class="section">
+<h2>Caveats</h2>
+<p>Single-line lab pulls with slow tension. Real-world shock loads from a striking fish can break knots that hold fine on a machine. John Merwin (Field &amp; Stream) acknowledged this and planned a shock-tower rig but died in 2013 before completing it.</p>
+<p>The strongest knot is the one you tie perfectly every time. A 100% knot tied sloppy breaks at 60%. Wet it, cinch slow, seat gradual. Retie after every fish.</p>
+</div>
+
+<div class="footer">
+Data: <a href="https://www.knotsforfishing.com/knot-strength-chart/" target="_blank" rel="noopener">knotsforfishing.com</a> &middot; North American Fishing Knot War series &middot; Testing on Berkley knot strength machine &middot; Click column headers to sort
+</div>
+</div>
+
+<script>
+const data=[
+{rank:1,knot:"Berkley Braid",slug:"berkley-braid-knot",type:"Hitch",mono:132.1,fluoro:131.3,braid:124.0,avg:129.1},
+{rank:2,knot:"Fish N Fool",slug:"fish-n-fool-knot",type:"Hitch",mono:136.9,fluoro:101.4,braid:138.9,avg:125.7},
+{rank:3,knot:"Burke",slug:"burke-knot",type:"Hitch",mono:128.8,fluoro:109.9,braid:133.0,avg:123.9},
+{rank:4,knot:"Triple Loop",slug:"triple-loop-knot",type:"Hitch",mono:123.3,fluoro:131.6,braid:114.8,avg:123.2},
+{rank:5,knot:"Reverse Improved Clinch",slug:"reverse-improved-clinch-knot",type:"Hitch",mono:117.8,fluoro:109.7,braid:135.4,avg:121.0},
+{rank:6,knot:"San Diego Jam",slug:"san-diego-jam-knot",type:"Hitch",mono:118.4,fluoro:101.7,braid:127.4,avg:115.8},
+{rank:7,knot:"Miller",slug:"miller-knot",type:"Hitch",mono:134.2,fluoro:99.6,braid:111.9,avg:115.2},
+{rank:8,knot:"Palomar",slug:"palomar-knot",type:"Hitch",mono:115.8,fluoro:100.7,braid:124.0,avg:113.5},
+{rank:9,knot:"Grinner (Uni)",slug:"grinner-knot",type:"Hitch",mono:114.0,fluoro:99.3,braid:125.0,avg:112.8},
+{rank:10,knot:"Porter",slug:"porter-knot",type:"Hitch",mono:132.6,fluoro:125.1,braid:77.6,avg:111.8},
+{rank:11,knot:"Cheek",slug:"cheek-knot",type:"Hitch",mono:128.5,fluoro:106.5,braid:99.6,avg:111.5},
+{rank:12,knot:"Eugene Bend",slug:"eugene-bend-knot",type:"Hitch",mono:118.5,fluoro:97.6,braid:112.1,avg:109.4},
+{rank:13,knot:"King Sling",slug:"king-sling-knot",type:"Loop",mono:94.7,fluoro:116.8,braid:112.6,avg:108.0},
+{rank:14,knot:"Trilene",slug:"trilene-knot",type:"Hitch",mono:117.2,fluoro:99.8,braid:102.3,avg:106.4},
+{rank:15,knot:"Gryp",slug:"gryp-knot",type:"Hitch",mono:118.7,fluoro:95.3,braid:104.9,avg:106.3},
+{rank:16,knot:"Three G",slug:"three-g-knot",type:"Hitch",mono:125.5,fluoro:104.9,braid:69.4,avg:99.9},
+{rank:17,knot:"McNally Loop",slug:"mcnally-loop",type:"Loop",mono:102.1,fluoro:84.7,braid:100.4,avg:95.8},
+{rank:18,knot:"Compound Loop",slug:"compound-loop",type:"Loop",mono:106.1,fluoro:79.5,braid:77.4,avg:87.7},
+{rank:19,knot:"Improved Clinch",slug:"improved-clinch-knot",type:"Hitch",mono:107.5,fluoro:93.4,braid:51.6,avg:84.1},
+{rank:20,knot:"No-Name Homemade",slug:"no-name-homemade-knot",type:"Hitch",mono:114.1,fluoro:99.4,braid:37.3,avg:83.6},
+{rank:21,knot:"Hangman's",slug:"hangmans-knot",type:"Loop",mono:101.8,fluoro:99.2,braid:35.0,avg:78.7},
+{rank:22,knot:"Homer Rhode Loop",slug:"homer-rhode-loop-knot",type:"Loop",mono:88.3,fluoro:70.4,braid:56.2,avg:71.6}
+];
+const colorFor=v=>v>=120?"excellent":v>=100?"good":v>=85?"ok":v>=60?"weak":"bad";
+const fmt=v=>v.toFixed(1)+"%";
+const tbody=document.querySelector("#knots tbody");
+let sortKey="rank",sortDir=1;
+function render(){
+  const sorted=[...data].sort((a,b)=>{
+    const av=a[sortKey],bv=b[sortKey];
+    if(typeof av==="string")return sortDir*av.localeCompare(bv);
+    return sortDir*(av-bv);
+  });
+  tbody.innerHTML=sorted.map(d=>`
+    <tr>
+      <td class="rank">${d.rank}</td>
+      <td class="knot"><a href="https://www.knotsforfishing.com/${d.slug}/" target="_blank" rel="noopener">${d.knot}</a></td>
+      <td class="type">${d.type}</td>
+      <td class="num ${colorFor(d.mono)}">${fmt(d.mono)}</td>
+      <td class="num ${colorFor(d.fluoro)}">${fmt(d.fluoro)}</td>
+      <td class="num ${colorFor(d.braid)}">${fmt(d.braid)}</td>
+      <td class="num avg ${colorFor(d.avg)}">${fmt(d.avg)}</td>
+    </tr>
+  `).join("");
+  document.querySelectorAll("th").forEach(th=>{
+    th.classList.toggle("sorted",th.dataset.sort===sortKey);
+    const arrow=th.querySelector(".arrow");
+    if(arrow)arrow.textContent=th.dataset.sort===sortKey?(sortDir===1?"▲":"▼"):"";
+  });
+}
+document.querySelectorAll("th[data-sort]").forEach(th=>{
+  th.addEventListener("click",()=>{
+    const k=th.dataset.sort;
+    if(sortKey===k)sortDir*=-1;
+    else{sortKey=k;sortDir=k==="rank"||k==="knot"||k==="type"?1:-1}
+    render();
+  });
+});
+document.querySelectorAll(".filters button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filters button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    sortKey=btn.dataset.sort;
+    sortDir=sortKey==="rank"?1:-1;
+    render();
+  });
+});
+render();
+</script>
+</body>
+</html>
