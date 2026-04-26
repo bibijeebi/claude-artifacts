@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GN311 Final — Practice Problems</title>
+<style>
+  html, body { overflow-x: hidden; margin: 0; }
+  :root {
+    --bg: #0e0f12;
+    --panel: #16181d;
+    --panel2: #1b1e24;
+    --border: #2a2d35;
+    --border2: #3e4250;
+    --text: #e7e9ee;
+    --muted: #9aa0ab;
+    --dim: #6e7480;
+    --accent: #6da9ff;
+    --good: #22c55e;
+    --warn: #fbbf24;
+    --answer-bg: #0f2d1e;
+    --answer-border: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding-bottom: 60px;
+  }
+  header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    position: sticky; top: 0; z-index: 30;
+  }
+  .htop {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: center; justify-content: space-between;
+  }
+  header h1 { margin: 0; font-size: 17px; font-weight: 600; }
+  .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 16px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 16px; padding: 10px 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .controls label { font-size: 12px; color: var(--muted); align-self: center; }
+  select, button {
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  button:hover, select:hover { border-color: var(--border2); }
+  button.primary { background: var(--accent); color: #0a1a36; border-color: var(--accent); font-weight: 600; }
+  button.primary:hover { background: #8ebaff; }
+  button.secondary { background: var(--panel2); color: var(--accent); border-color: var(--border2); font-weight: 600; }
+
+  .controls-spacer { flex: 1; }
+
+  .prob {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+  .prob-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .prob-num {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .prob-num .title {
+    color: var(--text);
+    font-weight: 500;
+    margin-left: 8px;
+    font-size: 15px;
+  }
+  .prob-tag {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .prob-body p { margin: 8px 0; }
+  .prob-body b { color: var(--text); }
+
+  table.data {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  table.data th, table.data td {
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    text-align: center;
+  }
+  table.data th {
+    background: var(--panel2);
+    font-weight: 600;
+    color: var(--text);
+  }
+  table.data td {
+    color: var(--text);
+  }
+
+  pre.seq {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 12.5px;
+    color: #cfd6e0;
+    white-space: pre;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .actions {
+    margin: 14px 0 4px 0;
+    display: flex;
+    gap: 8px;
+  }
+
+  .answer {
+    margin-top: 14px;
+    background: var(--answer-bg);
+    border: 1px solid var(--answer-border);
+    border-left: 3px solid var(--answer-border);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .answer-label {
+    color: var(--good);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .answer p { margin: 8px 0; color: #d6e9d6; font-size: 14px; }
+  .answer b.ans {
+    background: rgba(34, 197, 94, 0.18);
+    color: #aef0c4;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .answer table.data {
+    background: rgba(0,0,0,0.2);
+  }
+  .answer table.data th { background: rgba(0,0,0,0.3); }
+  .answer pre.seq { background: rgba(0,0,0,0.25); }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  footer {
+    padding: 18px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="htop">
+    <div>
+      <h1>GN311 Final — Practice Problems</h1>
+      <div class="sub">Same format as the review key. Try first, reveal answers when ready.</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="controls">
+    <label>Filter:</label>
+    <select id="filterType">
+      <option value="all">All types</option>
+    </select>
+    <div class="controls-spacer"></div>
+    <button id="revealAll" class="secondary">Reveal all answers</button>
+    <button id="hideAll">Hide all answers</button>
+  </div>
+
+  <div id="probArea"></div>
+</main>
+
+<footer>GN311 · 18 practice problems · progress saved locally</footer>
+
+<script id="P_DATA" type="application/json">[{"id":1,"num":1,"type":"Migration","title":"LDH allele frequencies + migration","problem":"\n<p>You are given the data below for the LDH locus (two codominant alleles A and B) in a population of frogs:</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>AA</th><th>AB</th><th>BB</th><th>Total</th></tr>\n<tr><th>Number Observed</th><td>95</td><td>130</td><td>25</td><td>250</td></tr>\n</table>\n\n<p><b>a.</b> What is the frequency of the A allele?</p>\n<p><b>b.</b> Now assume that 80 individuals migrate into this population. The frequency of the A allele in the immigrants is 0.45. What is the frequency of the A allele in the population after migration occurred?</p>\n","answer":"\n<p><b>a.</b> f(A) = [2(95) + 130] / [2(250)] = 320/500 = <b class=\"ans\">0.6400</b></p>\n\n<p><b>b.</b> m = 80 / (250 + 80) = 80/330 = 0.2424<br>\n(1 − m) = 0.7576, p = 0.64, P = 0.45<br>\np' = (1 − m)·p + m·P<br>\np' = (0.7576)(0.64) + (0.2424)(0.45)<br>\np' = 0.4849 + 0.1091 = <b class=\"ans\">0.5940</b></p>\n"},{"id":2,"num":2,"type":"Migration","title":"Sea turtle migration (multi-part)","problem":"\n<p>An island population of 500 sea turtles has the following genotype distribution at a locus with two codominant alleles R and r:</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>RR</th><th>Rr</th><th>rr</th><th>Total</th></tr>\n<tr><th>Number Observed</th><td>180</td><td>240</td><td>80</td><td>500</td></tr>\n</table>\n\n<p>A storm carries 100 turtles from a different beach to this island. On the source beach, f(R) = 0.40.</p>\n\n<p><b>a.</b> What is the initial frequency of R on the island?</p>\n<p><b>b.</b> What is the migration rate m?</p>\n<p><b>c.</b> What is the frequency of R after migration?</p>\n","answer":"\n<p><b>a.</b> f(R) = [2(180) + 240] / [2(500)] = 600/1000 = <b class=\"ans\">0.6000</b></p>\n\n<p><b>b.</b> m = 100 / (500 + 100) = 100/600 = <b class=\"ans\">0.1667</b></p>\n\n<p><b>c.</b> p' = (1 − m)·p + m·P<br>\np' = (0.8333)(0.60) + (0.1667)(0.40)<br>\np' = 0.5000 + 0.0667 = <b class=\"ans\">0.5667</b></p>\n"},{"id":3,"num":3,"type":"Migration","title":"Lizard migration (allele freq + genotype freq after migration)","problem":"\n<p>A small island has 200 lizards with the following genotypes: 50 AA, 100 Aa, 50 aa.</p>\n\n<p>A hurricane brings 75 lizards from the mainland. The mainland has these genotype frequencies: 60% AA, 30% Aa, 10% aa.</p>\n\n<p><b>a.</b> What is f(A) on the island initially?</p>\n<p><b>b.</b> What is f(A) on the mainland?</p>\n<p><b>c.</b> Calculate m.</p>\n<p><b>d.</b> What are the genotype frequencies on the island AFTER migration?</p>\n<p><b>e.</b> What is f(A) on the island after migration?</p>\n<p><b>f.</b> Is the post-migration island population in HWE?</p>\n","answer":"\n<p><b>a.</b> Island freqs: 50/200 = 0.25 AA, 100/200 = 0.50 Aa, 50/200 = 0.25 aa<br>\nf(A)_island = 0.25 + ½(0.50) = <b class=\"ans\">0.5000</b></p>\n\n<p><b>b.</b> f(A)_mainland = 0.60 + ½(0.30) = <b class=\"ans\">0.7500</b></p>\n\n<p><b>c.</b> m = 75 / (200 + 75) = 75/275 = <b class=\"ans\">0.2727</b><br>\n(1 − m) = 0.7273</p>\n\n<p><b>d.</b> Apply migration formula to each genotype:<br>\nf(AA)' = (0.7273)(0.25) + (0.2727)(0.60) = 0.1818 + 0.1636 = <b class=\"ans\">0.3455</b><br>\nf(Aa)' = (0.7273)(0.50) + (0.2727)(0.30) = 0.3636 + 0.0818 = <b class=\"ans\">0.4455</b><br>\nf(aa)' = (0.7273)(0.25) + (0.2727)(0.10) = 0.1818 + 0.0273 = <b class=\"ans\">0.2091</b><br>\n(Check: 0.3455 + 0.4455 + 0.2091 = 1.0001 ✓ rounding)</p>\n\n<p><b>e.</b> f(A)' = (0.7273)(0.50) + (0.2727)(0.75) = 0.3636 + 0.2045 = <b class=\"ans\">0.5682</b><br>\n(Or from genotype freqs: 0.3455 + ½(0.4455) = 0.5682 ✓)</p>\n\n<p><b>f.</b> NO. After migration, allele freqs are 0.5682 / 0.4318. Expected HWE freqs would be:<br>\np² = 0.3229, 2pq = 0.4906, q² = 0.1865 — these do NOT match observed (0.3455 / 0.4455 / 0.2091).<br>\n<b class=\"ans\">Need ONE generation of random mating to return to HWE.</b></p>\n"},{"id":4,"num":4,"type":"Selection","title":"Mouse coat color selection","problem":"\n<p>Coat color in mice is controlled by codominant alleles. Black (BB) is most fit. Brown (Bb) is 70% as fit (predators sometimes spot them). White (bb) is only 10% as fit (very visible to predators).</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>BB</th><th>Bb</th><th>bb</th></tr>\n<tr><th>Phenotype</th><td>Black</td><td>Brown</td><td>White</td></tr>\n<tr><th>Initial Frequency</th><td>0.30</td><td>0.50</td><td>0.20</td></tr>\n<tr><th>Relative Fitness</th><td>1.0</td><td>0.7</td><td>0.1</td></tr>\n<tr><th>Unadjusted Survivors</th><td colspan=\"3\" style=\"color:#9aa0ab\">(fill in)</td></tr>\n<tr><th>Corrected Genotypic Frequencies</th><td colspan=\"3\" style=\"color:#9aa0ab\">(fill in)</td></tr>\n</table>\n\n<p><b>a.</b> Calculate the unadjusted survivor frequencies.</p>\n<p><b>b.</b> What is the average fitness W̄?</p>\n<p><b>c.</b> Calculate the corrected genotype frequencies.</p>\n<p><b>d.</b> What is the frequency of the B allele in the next generation (no further selection, HWE assumptions met)?</p>\n","answer":"\n<p><b>a.</b> Unadjusted survivors = (initial freq) × (fitness):<br>\nBB: (0.30)(1.0) = <b class=\"ans\">0.3000</b><br>\nBb: (0.50)(0.7) = <b class=\"ans\">0.3500</b><br>\nbb: (0.20)(0.1) = <b class=\"ans\">0.0200</b></p>\n\n<p><b>b.</b> W̄ = sum of unadjusted survivors<br>\nW̄ = 0.30 + 0.35 + 0.02 = <b class=\"ans\">0.6700</b></p>\n\n<p><b>c.</b> Corrected freq = unadjusted / W̄:<br>\nf(BB) = 0.30/0.67 = <b class=\"ans\">0.4478</b><br>\nf(Bb) = 0.35/0.67 = <b class=\"ans\">0.5224</b><br>\nf(bb) = 0.02/0.67 = <b class=\"ans\">0.0299</b><br>\n(check sum ≈ 1.0001)</p>\n\n<p><b>d.</b> f(B) = f(BB) + ½·f(Bb)<br>\nf(B) = 0.4478 + ½(0.5224)<br>\nf(B) = 0.4478 + 0.2612 = <b class=\"ans\">0.7090</b></p>\n"},{"id":5,"num":5,"type":"Selection","title":"Recessive lethal allele","problem":"\n<p>A genetic disorder is caused by a recessive lethal allele. A population at HWE has p = 0.6 (normal) and q = 0.4 (lethal):</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>AA</th><th>Aa</th><th>aa</th></tr>\n<tr><th>Initial Frequency</th><td>0.36</td><td>0.48</td><td>0.16</td></tr>\n<tr><th>Relative Fitness</th><td>1.0</td><td>1.0</td><td>0.0</td></tr>\n</table>\n\n<p><b>a.</b> What is the average fitness W̄?</p>\n<p><b>b.</b> What is f(a) after one generation of selection?</p>\n<p><b>c.</b> Will the lethal allele eventually be eliminated? Why or why not?</p>\n","answer":"\n<p><b>a.</b> Unadjusted: AA: (0.36)(1.0) = 0.36; Aa: (0.48)(1.0) = 0.48; aa: (0.16)(0) = 0<br>\nW̄ = 0.36 + 0.48 + 0 = <b class=\"ans\">0.84</b></p>\n\n<p><b>b.</b> Corrected: f(AA) = 0.36/0.84 = 0.4286; f(Aa) = 0.48/0.84 = 0.5714; f(aa) = 0<br>\nf(a) = 0 + ½(0.5714) = <b class=\"ans\">0.2857</b><br>\n(decreased from 0.40 to 0.286 in one generation)</p>\n\n<p><b>c.</b> NO. The allele can persist in heterozygotes (Aa is fully fit). It can only be eliminated very slowly because each homozygous recessive (aa) takes 2 a alleles out of the pool, but heterozygotes hide the rest. <b class=\"ans\">As q gets small, q² gets very small, so fewer aa form each generation — selection becomes increasingly inefficient.</b></p>\n"},{"id":6,"num":6,"type":"Selection","title":"Heterozygote advantage (overdominance)","problem":"\n<p>In a population, the heterozygote is most fit (overdominance). Initial frequencies are at HWE with p = 0.5, q = 0.5:</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>AA</th><th>Aa</th><th>aa</th></tr>\n<tr><th>Initial Frequency</th><td>0.25</td><td>0.50</td><td>0.25</td></tr>\n<tr><th>Fitness</th><td>0.6</td><td>1.0</td><td>0.4</td></tr>\n</table>\n\n<p><b>a.</b> Calculate W̄.</p>\n<p><b>b.</b> Calculate f(A) after one generation of selection.</p>\n<p><b>c.</b> What type of selection is operating?</p>\n","answer":"\n<p><b>a.</b> Unadjusted: AA: 0.25(0.6) = 0.150; Aa: 0.50(1.0) = 0.500; aa: 0.25(0.4) = 0.100<br>\nW̄ = 0.150 + 0.500 + 0.100 = <b class=\"ans\">0.7500</b></p>\n\n<p><b>b.</b> Corrected: f(AA) = 0.150/0.750 = 0.2000; f(Aa) = 0.500/0.750 = 0.6667; f(aa) = 0.100/0.750 = 0.1333<br>\nf(A) = 0.2000 + ½(0.6667) = <b class=\"ans\">0.5333</b><br>\n(A increased slightly because AA fitness 0.6 > aa fitness 0.4)</p>\n\n<p><b>c.</b> <b class=\"ans\">Overdominance</b> (heterozygote advantage) = stabilizing/balancing selection. Both alleles are maintained in the population. The system reaches an equilibrium allele frequency, not fixation.</p>\n"},{"id":7,"num":7,"type":"UPGMA","title":"UPGMA from distance matrix (4 species)","problem":"\n<p>You are given a distance matrix (×1000) for four bird species:</p>\n\n<table class=\"data\">\n<tr><th></th><th>Sp1</th><th>Sp2</th><th>Sp3</th><th>Sp4</th></tr>\n<tr><th>Sp1</th><td>--</td><td>--</td><td>--</td><td>--</td></tr>\n<tr><th>Sp2</th><td>240</td><td>--</td><td>--</td><td>--</td></tr>\n<tr><th>Sp3</th><td>380</td><td>360</td><td>--</td><td>--</td></tr>\n<tr><th>Sp4</th><td>460</td><td>480</td><td>220</td><td>--</td></tr>\n</table>\n\n<p>Build the UPGMA tree showing all merge points and branch lengths.</p>\n","answer":"\n<p><b>Step 1.</b> Smallest distance = Sp3-Sp4 = 220. Merge Sp3 and Sp4 first.<br>\nBranch length to each tip = 220/2 = <b class=\"ans\">110</b></p>\n\n<p><b>Step 2.</b> Recompute distances to (Sp3,Sp4) cluster as arithmetic mean:<br>\nSp1-(Sp3,Sp4) = (380 + 460)/2 = 420<br>\nSp2-(Sp3,Sp4) = (360 + 480)/2 = 420</p>\n\n<p>New matrix:</p>\n<table class=\"data\">\n<tr><th></th><th>Sp1</th><th>Sp2</th><th>(Sp3,Sp4)</th></tr>\n<tr><th>Sp1</th><td>--</td><td>--</td><td>--</td></tr>\n<tr><th>Sp2</th><td>240</td><td>--</td><td>--</td></tr>\n<tr><th>(Sp3,Sp4)</th><td>420</td><td>420</td><td>--</td></tr>\n</table>\n\n<p><b>Step 3.</b> Smallest = Sp1-Sp2 = 240. Merge.<br>\nBranch length = 240/2 = <b class=\"ans\">120</b></p>\n\n<p><b>Step 4.</b> Final merge: (Sp1,Sp2) and (Sp3,Sp4).<br>\nDistance = (380 + 460 + 360 + 480)/4 = 1680/4 = 420<br>\nTotal height = 420/2 = 210<br>\nBranch from root down to (Sp1,Sp2) node = 210 − 120 = <b class=\"ans\">90</b><br>\nBranch from root down to (Sp3,Sp4) node = 210 − 110 = <b class=\"ans\">100</b></p>\n\n<p><b>Tree summary:</b><br>\nSp1 :120 ─┐<br>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ :90 ─┐<br>\nSp2 :120 ─┘&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── ROOT (depth 210)<br>\nSp3 :110 ─┐&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ :100 ┘<br>\nSp4 :110 ─┘</p>\n"},{"id":8,"num":8,"type":"UPGMA","title":"UPGMA from sequence data (3 species)","problem":"\n<p>Three species, each sequenced at the same 10 nucleotides:</p>\n\n<pre class=\"seq\">\nSpecies A:  A T T G C A A A T C\nSpecies B:  A T T G C G A C T G\nSpecies C:  A T G C C A A A T C\n</pre>\n\n<p><b>a.</b> Calculate pairwise distances (× 1000) between all three species.</p>\n<p><b>b.</b> Build the UPGMA tree.</p>\n","answer":"\n<p><b>a.</b> Compare each pair position by position:</p>\n\n<p><i>A vs B:</i> Differences at positions 6 (A→G), 8 (A→C), 10 (C→G) = 3 differences<br>\nDistance = (3/10) × 1000 = <b class=\"ans\">300</b></p>\n\n<p><i>A vs C:</i> Differences at positions 3 (T→G), 4 (G→C) = 2 differences<br>\nDistance = (2/10) × 1000 = <b class=\"ans\">200</b></p>\n\n<p><i>B vs C:</i> Differences at positions 3, 4, 6, 8, 10 = 5 differences<br>\nDistance = (5/10) × 1000 = <b class=\"ans\">500</b></p>\n\n<table class=\"data\">\n<tr><th></th><th>A</th><th>B</th><th>C</th></tr>\n<tr><th>A</th><td>--</td><td>--</td><td>--</td></tr>\n<tr><th>B</th><td>300</td><td>--</td><td>--</td></tr>\n<tr><th>C</th><td>200</td><td>500</td><td>--</td></tr>\n</table>\n\n<p><b>b.</b> Smallest = A-C = 200. Merge first.<br>\nBranch length = 200/2 = <b class=\"ans\">100</b></p>\n\n<p>Recompute distance to B: (A,C)-B = (300 + 500)/2 = 400<br>\nFinal merge depth = 400/2 = 200<br>\nBranch from root to (A,C) node = 200 − 100 = <b class=\"ans\">100</b><br>\nBranch from root to B = <b class=\"ans\">200</b></p>\n"},{"id":9,"num":9,"type":"Mass Selection","title":"Dairy cow milk yield","problem":"\n<p>You want to increase milk production in dairy cows. The herd has a mean production of 8500 kg/year with a variance of 600,000 kg². You select cows averaging 9800 kg/year as parents. The next generation averages 8950 kg/year.</p>\n\n<p><b>a.</b> Calculate the selection differential S.</p>\n<p><b>b.</b> Calculate the response to selection R.</p>\n<p><b>c.</b> Calculate the realized heritability h².</p>\n<p><b>d.</b> What was the selection intensity I in this experiment?</p>\n","answer":"\n<p><b>a.</b> S = X̄s − X̄₀ = 9800 − 8500 = <b class=\"ans\">1300 kg</b></p>\n\n<p><b>b.</b> R = X̄₁ − X̄₀ = 8950 − 8500 = <b class=\"ans\">450 kg</b></p>\n\n<p><b>c.</b> h² = R/S = 450/1300 = <b class=\"ans\">0.3462</b> (no units)</p>\n\n<p><b>d.</b> First find σ:<br>\nσ = √variance = √600,000 = 774.6 kg<br>\nFrom R = h²·I·σ, solving for I:<br>\nI = R / (h²·σ)<br>\nI = 450 / (0.3462 × 774.6)<br>\nI = 450 / 268.18 = <b class=\"ans\">1.6780</b> (no units)</p>\n"},{"id":10,"num":10,"type":"Mass Selection","title":"Corn yield with truncation","problem":"\n<p>A corn breeder wants to increase yield. The current population has mean = 150 bushels/acre, σ = 12 bushels/acre, and h² = 0.55. The breeder selects the top 10% of plants (p = 0.10).</p>\n\n<p>Z and I table:<br>\np = 0.10 → Z = 1.282, I = 1.755</p>\n\n<p><b>a.</b> What is the truncation point XT?</p>\n<p><b>b.</b> What is the selection differential S?</p>\n<p><b>c.</b> What is the response R?</p>\n<p><b>d.</b> What is the predicted offspring mean?</p>\n","answer":"\n<p><b>a.</b> XT = µ + Z·σ<br>\nXT = 150 + (1.282)(12)<br>\nXT = 150 + 15.384 = <b class=\"ans\">165.38 bushels/acre</b></p>\n\n<p><b>b.</b> S = I·σ = (1.755)(12) = <b class=\"ans\">21.06 bushels/acre</b></p>\n\n<p><b>c.</b> R = h²·S = (0.55)(21.06) = <b class=\"ans\">11.58 bushels/acre</b></p>\n\n<p><b>d.</b> X̄₁ = µ + R = 150 + 11.58 = <b class=\"ans\">161.58 bushels/acre</b></p>\n"},{"id":11,"num":11,"type":"Mass Selection","title":"Decreasing maze run time (left tail)","problem":"\n<p>You want to DECREASE the time mice take to run a maze. Current population mean = 45 sec, σ = 6 sec, h² = 0.40. You select the fastest 5% (lowest times).</p>\n\n<p>Z and I table:<br>\np = 0.05 → Z = 1.645, I = 2.063<br>\n(NOTE: when selecting the LEFT tail, use NEGATIVE Z and I)</p>\n\n<p><b>a.</b> What is XT (the time you must beat to be selected)?</p>\n<p><b>b.</b> Calculate S.</p>\n<p><b>c.</b> Calculate R.</p>\n<p><b>d.</b> What is the predicted offspring mean run time?</p>\n","answer":"\n<p>Selecting LEFT tail → Z = −1.645, I = −2.063</p>\n\n<p><b>a.</b> XT = µ + Z·σ<br>\nXT = 45 + (−1.645)(6)<br>\nXT = 45 − 9.87 = <b class=\"ans\">35.13 sec</b><br>\n(must run faster than 35.13 sec to be selected)</p>\n\n<p><b>b.</b> S = I·σ = (−2.063)(6) = <b class=\"ans\">−12.38 sec</b><br>\n(negative because trait decreased)</p>\n\n<p><b>c.</b> R = h²·S = (0.40)(−12.38) = <b class=\"ans\">−4.95 sec</b></p>\n\n<p><b>d.</b> X̄₁ = µ + R = 45 + (−4.95) = <b class=\"ans\">40.05 sec</b><br>\n(offspring run faster on average)</p>\n"},{"id":12,"num":12,"type":"Mass Selection","title":"Egg-laying response (predicting next gen)","problem":"\n<p>Egg-laying rate in chickens has h² = 0.30. The flock mean is 220 eggs/year. You select hens averaging 280 eggs/year as parents.</p>\n\n<p><b>a.</b> Calculate S.</p>\n<p><b>b.</b> Calculate the predicted R.</p>\n<p><b>c.</b> What will be the mean of the next generation?</p>\n<p><b>d.</b> If the actual offspring mean turns out to be 234 eggs/year, what is the realized heritability?</p>\n","answer":"\n<p><b>a.</b> S = 280 − 220 = <b class=\"ans\">60 eggs/year</b></p>\n\n<p><b>b.</b> R = h²·S = (0.30)(60) = <b class=\"ans\">18 eggs/year</b></p>\n\n<p><b>c.</b> X̄₁ = X̄₀ + R = 220 + 18 = <b class=\"ans\">238 eggs/year</b></p>\n\n<p><b>d.</b> Realized R = 234 − 220 = 14<br>\nRealized h² = R/S = 14/60 = <b class=\"ans\">0.2333</b><br>\n(actual heritability was a bit lower than predicted)</p>\n"},{"id":13,"num":13,"type":"Plasmids","title":"pUC-style recombinant plasmid","problem":"\n<p>Vector pUC19 (2700 bp) contains a polylinker within the lacZ gene. The polylinker has these unique restriction sites at these positions (within polylinker):</p>\n\n<p>EcoRI (100) — SmaI (200) — BamHI (300) — HindIII (400)</p>\n\n<p>You also have mouse DNA fragment with this map (linear, distances in bp between adjacent sites):</p>\n<pre class=\"seq\">| Start | 600 | EcoRI | 1200 | BamHI | 800 | HindIII | 500 | End |</pre>\n\n<p>You want to insert a fragment from the mouse DNA into pUC19 for blue-white screening.</p>\n\n<p><b>a.</b> Which TWO restriction enzymes should you use?</p>\n<p><b>b.</b> What is the size of the recombinant plasmid?</p>\n","answer":"\n<p><b>a.</b> Need enzymes that:<br>\n&nbsp;• Cut INSIDE the polylinker (so insert disrupts lacZ)<br>\n&nbsp;• Cut the mouse DNA flanking the desired fragment<br>\nAvailable in BOTH: EcoRI, BamHI, HindIII<br><br>\n\nThe cleanest choice is <b class=\"ans\">EcoRI and BamHI</b> (or EcoRI + HindIII works too, but uses a longer mouse fragment).<br>\nSmaI is NOT in the mouse DNA so it can't be used.</p>\n\n<p><b>b.</b> Using EcoRI and BamHI:<br>\n&nbsp;• Bp lost from vector = polylinker BamHI(300) − EcoRI(100) = 200 bp<br>\n&nbsp;• Bp gained from mouse insert = EcoRI to BamHI = 1200 bp<br>\n&nbsp;• Recombinant size = 2700 − 200 + 1200 = <b class=\"ans\">3700 bp</b></p>\n"},{"id":14,"num":14,"type":"Plasmids","title":"Recombinant size with given enzymes","problem":"\n<p>You cut a 4500 bp plasmid vector with EcoRI and HindIII. The polylinker segment between these two cuts is 250 bp.</p>\n\n<p>The same enzymes cut a piece of foreign DNA, releasing a 1850 bp insert.</p>\n\n<p><b>a.</b> What is the size of the recombinant plasmid after ligation?</p>\n","answer":"\n<p><b>a.</b> Recombinant size = vector − lost + gained<br>\n= 4500 − 250 + 1850<br>\n= <b class=\"ans\">6100 bp</b></p>\n"},{"id":15,"num":15,"type":"Chi-Square HWE","title":"Test for HWE in finch population","problem":"\n<p>You sample 400 finches and observe these genotypes at a polymorphic locus:</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>AA</th><th>Aa</th><th>aa</th><th>Total</th></tr>\n<tr><th>Number Observed</th><td>148</td><td>180</td><td>72</td><td>400</td></tr>\n</table>\n\n<p><b>a.</b> Calculate the allele frequencies.</p>\n<p><b>b.</b> Calculate the expected genotype frequencies under HWE.</p>\n<p><b>c.</b> Test whether the population is in HWE at α = 0.05. (df = 1, critical χ² = 3.84)</p>\n","answer":"\n<p><b>a.</b> p = [2(148) + 180] / [2(400)] = 476/800 = <b class=\"ans\">0.5950</b><br>\nq = 1 − 0.5950 = <b class=\"ans\">0.4050</b></p>\n\n<p><b>b.</b> Expected freqs (HWE):<br>\np² = (0.5950)² = 0.3540 → 0.3540 × 400 = <b class=\"ans\">141.6 AA</b><br>\n2pq = 2(0.5950)(0.4050) = 0.4820 → 0.4820 × 400 = <b class=\"ans\">192.8 Aa</b><br>\nq² = (0.4050)² = 0.1640 → 0.1640 × 400 = <b class=\"ans\">65.6 aa</b></p>\n\n<p><b>c.</b> χ² = Σ (O − E)² / E<br>\nAA: (148 − 141.6)² / 141.6 = 40.96/141.6 = 0.2893<br>\nAa: (180 − 192.8)² / 192.8 = 163.84/192.8 = 0.8497<br>\naa: (72 − 65.6)² / 65.6 = 40.96/65.6 = 0.6244<br>\nχ² = 0.2893 + 0.8497 + 0.6244 = <b class=\"ans\">1.7634</b></p>\n\n<p>1.7634 < 3.84 → <b class=\"ans\">Fail to reject H0. Population is consistent with HWE.</b></p>\n"},{"id":16,"num":16,"type":"Carrier Freq","title":"PKU carrier frequency","problem":"\n<p>Phenylketonuria (PKU) is autosomal recessive and affects 1 in 14,000 newborns in the United States.</p>\n\n<p><b>a.</b> What is q (the frequency of the disease allele)?</p>\n<p><b>b.</b> What is p?</p>\n<p><b>c.</b> What is the frequency of carriers in the population?</p>\n","answer":"\n<p><b>a.</b> Disease frequency = q² = 1/14,000 = 0.0000714<br>\nq = √0.0000714 = <b class=\"ans\">0.00845</b></p>\n\n<p><b>b.</b> p = 1 − q = 1 − 0.00845 = <b class=\"ans\">0.99155</b></p>\n\n<p><b>c.</b> Carrier freq = 2pq = 2(0.99155)(0.00845) = <b class=\"ans\">0.01676</b><br>\nAbout 1 in 60 people are carriers.</p>\n"},{"id":17,"num":17,"type":"Heritability","title":"Tomato plant heritability","problem":"\n<p>You measure plant height variance in tomato breeding generations:</p>\n\n<table class=\"data\">\n<tr><th>Generation</th><th>Variance</th></tr>\n<tr><td>P1 (inbred)</td><td>1.5</td></tr>\n<tr><td>P2 (inbred)</td><td>2.5</td></tr>\n<tr><td>F1</td><td>4.0</td></tr>\n<tr><td>F2</td><td>18</td></tr>\n<tr><td>B1 (F1 × P1)</td><td>14</td></tr>\n<tr><td>B2 (F1 × P2)</td><td>11</td></tr>\n</table>\n\n<p><b>a.</b> Calculate VE.</p>\n<p><b>b.</b> Calculate VG.</p>\n<p><b>c.</b> Calculate H² (broad-sense heritability).</p>\n<p><b>d.</b> Calculate VA.</p>\n<p><b>e.</b> Calculate h² (narrow-sense heritability).</p>\n","answer":"\n<p><b>a.</b> VE = [V(P1) + V(P2) + V(F1)] / 3<br>\nVE = (1.5 + 2.5 + 4.0) / 3<br>\nVE = 8/3 = <b class=\"ans\">2.67</b></p>\n\n<p><b>b.</b> VG = V(F2) − VE<br>\nVG = 18 − 2.67 = <b class=\"ans\">15.33</b></p>\n\n<p><b>c.</b> H² = VG / VP, where VP = V(F2)<br>\nH² = 15.33 / 18 = <b class=\"ans\">0.852</b></p>\n\n<p><b>d.</b> VA = 2·V(F2) − [V(B1) + V(B2)]<br>\nVA = 2(18) − (14 + 11)<br>\nVA = 36 − 25 = <b class=\"ans\">11.0</b></p>\n\n<p><b>e.</b> h² = VA / VP<br>\nh² = 11 / 18 = <b class=\"ans\">0.611</b></p>\n"},{"id":18,"num":18,"type":"Inbreeding","title":"Inbreeding coefficient F","problem":"\n<p>A population shows the following genotype frequencies after several generations of self-fertilization:</p>\n\n<p>AA = 0.45, Aa = 0.30, aa = 0.25</p>\n\n<p><b>a.</b> Calculate the allele frequencies (p and q).</p>\n<p><b>b.</b> Calculate F (inbreeding coefficient).</p>\n","answer":"\n<p><b>a.</b> p = f(AA) + ½f(Aa) = 0.45 + ½(0.30) = <b class=\"ans\">0.60</b><br>\nq = 1 − p = <b class=\"ans\">0.40</b></p>\n\n<p><b>b.</b> Use modified HWE: f(AA) = p² + Fpq<br>\n0.45 = (0.60)² + F(0.60)(0.40)<br>\n0.45 = 0.36 + 0.24F<br>\n0.24F = 0.09<br>\nF = 0.09 / 0.24 = <b class=\"ans\">0.375</b></p>\n"}]</script>
+
+<script>
+const PROBS = JSON.parse(document.getElementById('P_DATA').textContent);
+const STORE = 'gn311_prac_v1';
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE) || '{}');
+    return { revealed: s.revealed || {}, filter: s.filter || 'all' };
+  } catch (e) { return { revealed: {}, filter: 'all' }; }
+}
+function saveState() { localStorage.setItem(STORE, JSON.stringify(state)); }
+const state = loadState();
+
+// Populate filter
+const types = [...new Set(PROBS.map(p => p.type))];
+const filterEl = document.getElementById('filterType');
+types.forEach(t => {
+  const o = document.createElement('option');
+  o.value = t; o.textContent = t;
+  filterEl.appendChild(o);
+});
+filterEl.value = state.filter;
+
+function render() {
+  const list = state.filter === 'all'
+    ? PROBS
+    : PROBS.filter(p => p.type === state.filter);
+
+  document.getElementById('probArea').innerHTML = list.map(p => {
+    const open = !!state.revealed[p.id];
+    return `
+      <div class="prob" id="prob-${p.id}">
+        <div class="prob-head">
+          <div class="prob-num"># ${p.num}<span class="title">${p.title}</span></div>
+          <div class="prob-tag">${p.type}</div>
+        </div>
+        <div class="prob-body">${p.problem}</div>
+        <div class="actions">
+          <button class="primary" data-toggle="${p.id}">${open ? 'Hide answer' : 'Show answer key'}</button>
+        </div>
+        ${open ? `
+          <div class="answer">
+            <div class="answer-label">ANSWER KEY</div>
+            ${p.answer}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+
+  document.querySelectorAll('button[data-toggle]').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = parseInt(b.dataset.toggle);
+      if (state.revealed[id]) delete state.revealed[id];
+      else state.revealed[id] = true;
+      saveState(); render();
+    });
+  });
+
+  // Wrap any tables in horizontal scroll for mobile
+  document.querySelectorAll('table.data').forEach(t => {
+    if (t.parentElement.classList.contains('table-wrap')) return;
+    const w = document.createElement('div');
+    w.className = 'table-wrap';
+    t.parentNode.insertBefore(w, t);
+    w.appendChild(t);
+  });
+}
+
+filterEl.addEventListener('change', e => {
+  state.filter = e.target.value; saveState(); render();
+});
+document.getElementById('revealAll').addEventListener('click', () => {
+  PROBS.forEach(p => state.revealed[p.id] = true);
+  saveState(); render();
+});
+document.getElementById('hideAll').addEventListener('click', () => {
+  state.revealed = {}; saveState(); render();
+});
+
+render();
+</script>
+</body>
+</html>
