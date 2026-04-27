@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GN311: Selection Tables &amp; Mass Selection</title>
+<style>
+  html, body { overflow-x: hidden; margin: 0; }
+  :root {
+    --bg: #0e0f12;
+    --panel: #16181d;
+    --panel2: #1b1e24;
+    --border: #2a2d35;
+    --border2: #3e4250;
+    --text: #e7e9ee;
+    --muted: #9aa0ab;
+    --dim: #6e7480;
+    --accent: #6da9ff;
+    --good: #22c55e;
+    --warn: #fbbf24;
+    --answer-bg: #0f2d1e;
+    --answer-border: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding-bottom: 60px;
+  }
+  header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    position: sticky; top: 0; z-index: 30;
+  }
+  .htop {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    align-items: center; justify-content: space-between;
+  }
+  header h1 { margin: 0; font-size: 17px; font-weight: 600; }
+  .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 16px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 16px; padding: 10px 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .controls label { font-size: 12px; color: var(--muted); align-self: center; }
+  select, button {
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  button:hover, select:hover { border-color: var(--border2); }
+  button.primary { background: var(--accent); color: #0a1a36; border-color: var(--accent); font-weight: 600; }
+  button.primary:hover { background: #8ebaff; }
+  button.secondary { background: var(--panel2); color: var(--accent); border-color: var(--border2); font-weight: 600; }
+
+  .controls-spacer { flex: 1; }
+
+  .prob {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+  .prob-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .prob-num {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .prob-num .title {
+    color: var(--text);
+    font-weight: 500;
+    margin-left: 8px;
+    font-size: 15px;
+  }
+  .prob-tag {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .prob-body p { margin: 8px 0; }
+  .prob-body b { color: var(--text); }
+
+  table.data {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  table.data th, table.data td {
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    text-align: center;
+  }
+  table.data th {
+    background: var(--panel2);
+    font-weight: 600;
+    color: var(--text);
+  }
+  table.data td {
+    color: var(--text);
+  }
+
+  pre.seq {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 10px 0;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 12.5px;
+    color: #cfd6e0;
+    white-space: pre;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .actions {
+    margin: 14px 0 4px 0;
+    display: flex;
+    gap: 8px;
+  }
+
+  .answer {
+    margin-top: 14px;
+    background: var(--answer-bg);
+    border: 1px solid var(--answer-border);
+    border-left: 3px solid var(--answer-border);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .answer-label {
+    color: var(--good);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .answer p { margin: 8px 0; color: #d6e9d6; font-size: 14px; }
+  .answer b.ans {
+    background: rgba(34, 197, 94, 0.18);
+    color: #aef0c4;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .answer table.data {
+    background: rgba(0,0,0,0.2);
+  }
+  .answer table.data th { background: rgba(0,0,0,0.3); }
+  .answer pre.seq { background: rgba(0,0,0,0.25); }
+
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  footer {
+    padding: 18px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="htop">
+    <div>
+      <h1>GN311: Selection Tables &amp; Mass Selection</h1>
+      <div class="sub">Focused practice on the equation-heavy problems — selection tables and mass selection.</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="controls">
+    <label>Filter:</label>
+    <select id="filterType">
+      <option value="all">All types</option>
+    </select>
+    <div class="controls-spacer"></div>
+    <button id="revealAll" class="secondary">Reveal all answers</button>
+    <button id="hideAll">Hide all answers</button>
+  </div>
+
+  <div id="probArea"></div>
+</main>
+
+<footer>GN311 · 15 practice problems · progress saved locally</footer>
+
+<script id="P_DATA" type="application/json">[{"id":1,"num":1,"type":"Selection Table","title":"Heterozygote advantage (overdominance)","problem":"<p>A population is in HWE with p = 0.3 and q = 0.7. The heterozygous type is most fit. The AA is 90% as fit as Aa, and aa is 50% as fit as Aa. Fill in the table.</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>AA</th><th>Aa</th><th>aa</th></tr>\n<tr><th>Initial Frequency</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Fitness</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Unadjusted Survivors</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Frequency after Selection</th><td>?</td><td>?</td><td>?</td></tr>\n</table>\n\n<p><b>a.</b> What is the average fitness W̄?</p>\n<p><b>b.</b> What is f(A) after selection?</p>\n","answer":"<p><b>Initial frequencies (HWE with p=0.3, q=0.7):</b><br>\nAA: p² = (0.3)² = <b class=\"ans\">0.09</b><br>\nAa: 2pq = 2(0.3)(0.7) = <b class=\"ans\">0.42</b><br>\naa: q² = (0.7)² = <b class=\"ans\">0.49</b></p>\n\n<p><b>Fitnesses (Aa = most fit = 1.0):</b><br>\nwAA = <b class=\"ans\">0.9</b>, wAa = <b class=\"ans\">1.0</b>, waa = <b class=\"ans\">0.5</b></p>\n\n<p><b>Unadjusted survivors = freq × fitness:</b><br>\nAA: 0.09 × 0.9 = <b class=\"ans\">0.081</b><br>\nAa: 0.42 × 1.0 = <b class=\"ans\">0.420</b><br>\naa: 0.49 × 0.5 = <b class=\"ans\">0.245</b></p>\n\n<p><b>a.</b> W̄ = sum of unadjusted survivors<br>\nW̄ = 0.081 + 0.420 + 0.245 = <b class=\"ans\">0.746</b></p>\n\n<p><b>Corrected (post-selection) frequencies = unadjusted / W̄:</b><br>\nf(AA) = 0.081 / 0.746 = <b class=\"ans\">0.1086</b><br>\nf(Aa) = 0.420 / 0.746 = <b class=\"ans\">0.5630</b><br>\nf(aa) = 0.245 / 0.746 = <b class=\"ans\">0.3284</b></p>\n\n<p><b>b.</b> f(A) = f(AA) + ½ f(Aa)<br>\nf(A) = 0.1086 + ½(0.5630)<br>\nf(A) = 0.1086 + 0.2815 = <b class=\"ans\">0.3901</b><br>\n(A increased slightly from 0.3 → 0.39 because heterozygote advantage protects A)</p>\n"},{"id":2,"num":2,"type":"Selection Table","title":"Snake coat color (review key #2 style)","problem":"<p>Two codominant alleles control scale color. Brown is most fit. Green is 80% as fit as brown. Red is 40% as fit as brown.</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>GG</th><th>Gg</th><th>gg</th></tr>\n<tr><th>Phenotype</th><td>Green</td><td>Brown</td><td>Red</td></tr>\n<tr><th>Initial Frequency</th><td>0.60</td><td>0.25</td><td>0.15</td></tr>\n<tr><th>Relative Fitness</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Unadjusted Survivors</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Corrected Frequencies</th><td>?</td><td>?</td><td>?</td></tr>\n</table>\n\n<p><b>a.</b> What is W̄?</p>\n<p><b>b.</b> What is f(G) in the next generation?</p>\n","answer":"<p><b>Fitnesses (brown is most fit = 1.0):</b><br>\nwGG (green) = <b class=\"ans\">0.8</b><br>\nwGg (brown) = <b class=\"ans\">1.0</b><br>\nwgg (red) = <b class=\"ans\">0.4</b></p>\n\n<p><b>Unadjusted survivors:</b><br>\nGG: (0.60)(0.8) = <b class=\"ans\">0.48</b><br>\nGg: (0.25)(1.0) = <b class=\"ans\">0.25</b><br>\ngg: (0.15)(0.4) = <b class=\"ans\">0.06</b></p>\n\n<p><b>a.</b> W̄ = 0.48 + 0.25 + 0.06 = <b class=\"ans\">0.79</b></p>\n\n<p><b>Corrected frequencies = unadjusted / 0.79:</b><br>\nf(GG) = 0.48 / 0.79 = <b class=\"ans\">0.6076</b><br>\nf(Gg) = 0.25 / 0.79 = <b class=\"ans\">0.3165</b><br>\nf(gg) = 0.06 / 0.79 = <b class=\"ans\">0.0759</b></p>\n\n<p><b>b.</b> f(G) = f(GG) + ½ f(Gg)<br>\nf(G) = 0.6076 + ½(0.3165)<br>\nf(G) = 0.6076 + 0.1582 = <b class=\"ans\">0.7658</b></p>\n"},{"id":3,"num":3,"type":"Selection Table","title":"Recessive lethal allele","problem":"<p>A genetic disorder is caused by a recessive lethal allele. The population is at HWE with p = 0.6 (normal A) and q = 0.4 (lethal a).</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>AA</th><th>Aa</th><th>aa</th></tr>\n<tr><th>Initial Frequency</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Fitness</th><td>1.0</td><td>1.0</td><td>0.0</td></tr>\n<tr><th>Unadjusted Survivors</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Frequency after Selection</th><td>?</td><td>?</td><td>?</td></tr>\n</table>\n\n<p><b>a.</b> What is W̄?</p>\n<p><b>b.</b> What is f(a) after one generation of selection?</p>\n","answer":"<p><b>Initial frequencies (HWE):</b><br>\nAA: p² = (0.6)² = <b class=\"ans\">0.36</b><br>\nAa: 2pq = 2(0.6)(0.4) = <b class=\"ans\">0.48</b><br>\naa: q² = (0.4)² = <b class=\"ans\">0.16</b></p>\n\n<p><b>Unadjusted survivors:</b><br>\nAA: 0.36 × 1.0 = <b class=\"ans\">0.36</b><br>\nAa: 0.48 × 1.0 = <b class=\"ans\">0.48</b><br>\naa: 0.16 × 0.0 = <b class=\"ans\">0.00</b></p>\n\n<p><b>a.</b> W̄ = 0.36 + 0.48 + 0 = <b class=\"ans\">0.84</b></p>\n\n<p><b>Corrected frequencies:</b><br>\nf(AA) = 0.36 / 0.84 = <b class=\"ans\">0.4286</b><br>\nf(Aa) = 0.48 / 0.84 = <b class=\"ans\">0.5714</b><br>\nf(aa) = 0 / 0.84 = <b class=\"ans\">0.0000</b></p>\n\n<p><b>b.</b> f(a) = f(aa) + ½ f(Aa)<br>\nf(a) = 0 + ½(0.5714) = <b class=\"ans\">0.2857</b><br>\n(decreased from 0.40 → 0.286, but a allele is NOT eliminated — it persists in heterozygotes)</p>\n"},{"id":4,"num":4,"type":"Selection Table","title":"Directional selection (against recessive)","problem":"<p>A population is in HWE with p = 0.5 and q = 0.5. AA and Aa are equally fit. aa has reduced fitness.</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>AA</th><th>Aa</th><th>aa</th></tr>\n<tr><th>Initial Frequency</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Fitness</th><td>1.0</td><td>1.0</td><td>0.6</td></tr>\n<tr><th>Unadjusted Survivors</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Frequency after Selection</th><td>?</td><td>?</td><td>?</td></tr>\n</table>\n\n<p><b>a.</b> What is W̄?</p>\n<p><b>b.</b> What is f(A) after selection?</p>\n","answer":"<p><b>Initial (HWE):</b><br>\nAA: 0.25, Aa: 0.50, aa: <b class=\"ans\">0.25</b></p>\n\n<p><b>Unadjusted survivors:</b><br>\nAA: 0.25 × 1.0 = <b class=\"ans\">0.250</b><br>\nAa: 0.50 × 1.0 = <b class=\"ans\">0.500</b><br>\naa: 0.25 × 0.6 = <b class=\"ans\">0.150</b></p>\n\n<p><b>a.</b> W̄ = 0.250 + 0.500 + 0.150 = <b class=\"ans\">0.900</b></p>\n\n<p><b>Corrected:</b><br>\nf(AA) = 0.250 / 0.900 = <b class=\"ans\">0.2778</b><br>\nf(Aa) = 0.500 / 0.900 = <b class=\"ans\">0.5556</b><br>\nf(aa) = 0.150 / 0.900 = <b class=\"ans\">0.1667</b></p>\n\n<p><b>b.</b> f(A) = 0.2778 + ½(0.5556)<br>\nf(A) = 0.2778 + 0.2778 = <b class=\"ans\">0.5556</b><br>\n(A increased from 0.5 → 0.556 because aa is being selected against)</p>\n"},{"id":5,"num":5,"type":"Selection Table","title":"Underdominance (heterozygote disadvantage)","problem":"<p>A population starts with: 0.40 AA + 0.40 Aa + 0.20 aa. Both homozygotes are fit, but heterozygotes are less fit.</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>AA</th><th>Aa</th><th>aa</th></tr>\n<tr><th>Initial Frequency</th><td>0.40</td><td>0.40</td><td>0.20</td></tr>\n<tr><th>Fitness</th><td>1.0</td><td>0.5</td><td>0.8</td></tr>\n<tr><th>Unadjusted Survivors</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Frequency after Selection</th><td>?</td><td>?</td><td>?</td></tr>\n</table>\n\n<p><b>a.</b> What is W̄?</p>\n<p><b>b.</b> What is f(A) after selection?</p>\n<p><b>c.</b> What type of selection is this?</p>\n","answer":"<p><b>Note:</b> The initial frequencies given are NOT in HWE (HWE would expect different freqs based on allele frequencies). That's fine — just use the given frequencies directly.</p>\n\n<p><b>Unadjusted survivors:</b><br>\nAA: 0.40 × 1.0 = <b class=\"ans\">0.400</b><br>\nAa: 0.40 × 0.5 = <b class=\"ans\">0.200</b><br>\naa: 0.20 × 0.8 = <b class=\"ans\">0.160</b></p>\n\n<p><b>a.</b> W̄ = 0.400 + 0.200 + 0.160 = <b class=\"ans\">0.760</b></p>\n\n<p><b>Corrected:</b><br>\nf(AA) = 0.400 / 0.760 = <b class=\"ans\">0.5263</b><br>\nf(Aa) = 0.200 / 0.760 = <b class=\"ans\">0.2632</b><br>\nf(aa) = 0.160 / 0.760 = <b class=\"ans\">0.2105</b></p>\n\n<p><b>b.</b> f(A) = 0.5263 + ½(0.2632)<br>\nf(A) = 0.5263 + 0.1316 = <b class=\"ans\">0.6579</b></p>\n\n<p><b>c.</b> <b class=\"ans\">Underdominance</b> (heterozygote disadvantage) — leads to disruptive selection / bimodal distribution. Both homozygotes are favored over the heterozygote.</p>\n"},{"id":6,"num":6,"type":"Selection Table","title":"Wing color in butterflies","problem":"<p>A butterfly population at HWE has p = 0.4 (B = blue) and q = 0.6 (b = brown). BB butterflies are bright blue and easy targets for birds. Bb are intermediate. bb match tree bark perfectly.</p>\n\n<table class=\"data\">\n<tr><th>Genotype</th><th>BB</th><th>Bb</th><th>bb</th></tr>\n<tr><th>Initial Frequency</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Fitness</th><td>0.3</td><td>0.7</td><td>1.0</td></tr>\n<tr><th>Unadjusted Survivors</th><td>?</td><td>?</td><td>?</td></tr>\n<tr><th>Frequency after Selection</th><td>?</td><td>?</td><td>?</td></tr>\n</table>\n\n<p><b>a.</b> What is W̄?</p>\n<p><b>b.</b> What is f(B) and f(b) after selection?</p>\n","answer":"<p><b>Initial (HWE):</b><br>\nBB: (0.4)² = <b class=\"ans\">0.16</b><br>\nBb: 2(0.4)(0.6) = <b class=\"ans\">0.48</b><br>\nbb: (0.6)² = <b class=\"ans\">0.36</b></p>\n\n<p><b>Unadjusted survivors:</b><br>\nBB: 0.16 × 0.3 = <b class=\"ans\">0.048</b><br>\nBb: 0.48 × 0.7 = <b class=\"ans\">0.336</b><br>\nbb: 0.36 × 1.0 = <b class=\"ans\">0.360</b></p>\n\n<p><b>a.</b> W̄ = 0.048 + 0.336 + 0.360 = <b class=\"ans\">0.744</b></p>\n\n<p><b>Corrected:</b><br>\nf(BB) = 0.048 / 0.744 = <b class=\"ans\">0.0645</b><br>\nf(Bb) = 0.336 / 0.744 = <b class=\"ans\">0.4516</b><br>\nf(bb) = 0.360 / 0.744 = <b class=\"ans\">0.4839</b></p>\n\n<p><b>b.</b> f(B) = 0.0645 + ½(0.4516) = <b class=\"ans\">0.2903</b><br>\nf(b) = 0.4839 + ½(0.4516) = <b class=\"ans\">0.7097</b><br>\n(B decreased from 0.4 → 0.29, b increased — directional selection toward camouflage)</p>\n"},{"id":7,"num":7,"type":"Mass Selection","title":"Increasing wool production (calculating h²)","problem":"<p>A rancher's flock averages 22 kg of wool per sheep per year. She picks 10 of the highest-producing sheep — those selected average 30 kg/year. The progeny generation averages 28 kg/year.</p>\n\n<p><b>a.</b> Calculate the selection differential S.</p>\n<p><b>b.</b> Calculate the response to selection R.</p>\n<p><b>c.</b> Calculate the realized narrow-sense heritability h².</p>\n","answer":"<p><b>a.</b> S = X̄s − X̄₀ = 30 − 22 = <b class=\"ans\">8 kg</b></p>\n\n<p><b>b.</b> R = X̄₁ − X̄₀ = 28 − 22 = <b class=\"ans\">6 kg</b></p>\n\n<p><b>c.</b> h² = R / S = 6 / 8 = <b class=\"ans\">0.75</b><br>\n(no units)</p>\n"},{"id":8,"num":8,"type":"Mass Selection","title":"Predict offspring petal size","problem":"<p>A plant population has mean petal size of 5.5 cm. The largest plants (mean = 6.4 cm) are selected as parents. Heritability for petal size in this population is h² = 0.74.</p>\n\n<p><b>a.</b> What is S?</p>\n<p><b>b.</b> What is R?</p>\n<p><b>c.</b> What is the predicted offspring mean (X̄₁)?</p>\n","answer":"<p><b>a.</b> S = X̄s − X̄₀ = 6.4 − 5.5 = <b class=\"ans\">0.9 cm</b></p>\n\n<p><b>b.</b> R = h² × S = (0.74)(0.9) = <b class=\"ans\">0.666 cm</b></p>\n\n<p><b>c.</b> X̄₁ = X̄₀ + R = 5.5 + 0.666 = <b class=\"ans\">6.166 cm  (≈ 6.2 cm)</b></p>\n"},{"id":9,"num":9,"type":"Mass Selection","title":"Mouse tail length (review key #4 style)","problem":"<p>A strain of mice has mean tail length 10.8 cm with variance 0.36 cm². Selected parents have mean tail length 13.7 cm. Progeny mean = 12.1 cm.</p>\n\n<p><b>a.</b> Calculate S.</p>\n<p><b>b.</b> Calculate R.</p>\n<p><b>c.</b> Calculate the realized heritability h².</p>\n<p><b>d.</b> What was the selection intensity I?</p>\n","answer":"<p><b>a.</b> S = X̄s − X̄₀ = 13.7 − 10.8 = <b class=\"ans\">2.9 cm</b></p>\n\n<p><b>b.</b> R = X̄₁ − X̄₀ = 12.1 − 10.8 = <b class=\"ans\">1.3 cm</b></p>\n\n<p><b>c.</b> h² = R / S = 1.3 / 2.9 = <b class=\"ans\">0.4483</b> (no units)</p>\n\n<p><b>d.</b> First find σ:<br>\nσ = √variance = √0.36 = <b class=\"ans\">0.6 cm</b></p>\n\n<p>From R = h²·I·σ, solve for I:<br>\nI = R / (h²·σ)<br>\nI = 1.3 / (0.4483 × 0.6)<br>\nI = 1.3 / 0.26898<br>\nI = <b class=\"ans\">4.8331</b> (no units)</p>\n"},{"id":10,"num":10,"type":"Mass Selection","title":"Increase running speed (LEFT TAIL — negative I, Z)","problem":"<p>You want to DECREASE running times in lab rats (faster = lower time). Mean = 87.9 sec, σ = 5.8 sec. You select the fastest 5% (lowest times).</p>\n\n<p>Z and I table:</p>\n<table class=\"data\">\n<tr><th>p</th><td>0.5</td><td>0.25</td><td>0.10</td><td>0.05</td><td>0.01</td></tr>\n<tr><th>I</th><td>0.798</td><td>1.271</td><td>1.755</td><td>2.063</td><td>2.665</td></tr>\n<tr><th>Z</th><td>0</td><td>0.674</td><td>1.282</td><td>1.645</td><td>2.326</td></tr>\n</table>\n\n<p><b>a.</b> Find the truncation point XT.</p>\n<p><b>b.</b> What is the mean of the selected parents X̄s?</p>\n<p><b>c.</b> Why are Z and I negative here?</p>\n","answer":"<p><b>WHY NEGATIVE:</b> we're selecting the LEFT tail (lower values = faster times). Going left of the mean → both Z and I become NEGATIVE.</p>\n\n<p>From table at p = 0.05: Z = 1.645, I = 2.063<br>\nBut we use NEGATIVE: <b>Z = −1.645</b>, <b>I = −2.063</b></p>\n\n<p><b>a.</b> XT = µ + Z·σ<br>\nXT = 87.9 + (−1.645)(5.8)<br>\nXT = 87.9 − 9.541<br>\nXT = <b class=\"ans\">78.359 sec</b><br>\n(must run faster than 78.36 sec to be selected)</p>\n\n<p><b>b.</b> X̄s = µ + S = µ + I·σ<br>\nX̄s = 87.9 + (−2.063)(5.8)<br>\nX̄s = 87.9 − 11.965<br>\nX̄s = <b class=\"ans\">75.935 sec</b><br>\n(the selected parents averaged 75.94 sec)</p>\n\n<p><b>c.</b> <b class=\"ans\">Z and I are negative because we're selecting from the LEFT tail of the distribution</b> (smaller values). Selecting the right tail (larger values) uses positive Z and I.</p>\n"},{"id":11,"num":11,"type":"Mass Selection","title":"Tomato fruit weight (using table)","problem":"<p>A tomato strain has mean fruit weight 7.8 oz with σ = 0.8 oz. Narrow-sense heritability h² = 0.35. The grower selects the top 5% of plants and interbreeds them.</p>\n\n<p>Z and I table:</p>\n<table class=\"data\">\n<tr><th>p</th><td>0.5</td><td>0.25</td><td>0.10</td><td>0.05</td><td>0.01</td></tr>\n<tr><th>I</th><td>0.798</td><td>1.271</td><td>1.755</td><td>2.063</td><td>2.665</td></tr>\n<tr><th>Z</th><td>0</td><td>0.674</td><td>1.282</td><td>1.645</td><td>2.326</td></tr>\n</table>\n\n<p><b>a.</b> Find the truncation point XT.</p>\n<p><b>b.</b> What is the predicted mean of the next generation?</p>\n","answer":"<p>From table at p = 0.05: Z = 1.645, I = 2.063 (positive — selecting the upper tail = bigger fruit)</p>\n\n<p><b>a.</b> XT = µ + Z·σ<br>\nXT = 7.8 + (1.645)(0.8)<br>\nXT = 7.8 + 1.316<br>\nXT = <b class=\"ans\">9.116 oz</b><br>\n(plants must produce fruit ≥ 9.116 oz to be selected)</p>\n\n<p><b>b.</b> X̄₁ = µ + R = µ + h²·I·σ<br>\nX̄₁ = 7.8 + (0.35)(2.063)(0.8)<br>\nX̄₁ = 7.8 + 0.578<br>\nX̄₁ = <b class=\"ans\">8.3776 oz  (≈ 8.38 oz)</b></p>\n"},{"id":12,"num":12,"type":"Mass Selection","title":"Corn yield (top 10%)","problem":"<p>A corn population has mean yield 150 bushels/acre, σ = 12 bu/ac, h² = 0.55. Breeder selects top 10%.</p>\n\n<p>Z and I table:</p>\n<table class=\"data\">\n<tr><th>p</th><td>0.5</td><td>0.25</td><td>0.10</td><td>0.05</td><td>0.01</td></tr>\n<tr><th>I</th><td>0.798</td><td>1.271</td><td>1.755</td><td>2.063</td><td>2.665</td></tr>\n<tr><th>Z</th><td>0</td><td>0.674</td><td>1.282</td><td>1.645</td><td>2.326</td></tr>\n</table>\n\n<p><b>a.</b> Truncation point XT?</p>\n<p><b>b.</b> Selection differential S?</p>\n<p><b>c.</b> Response R?</p>\n<p><b>d.</b> Offspring mean?</p>\n","answer":"<p>From table at p = 0.10: Z = 1.282, I = 1.755</p>\n\n<p><b>a.</b> XT = µ + Z·σ = 150 + (1.282)(12) = 150 + 15.384 = <b class=\"ans\">165.38 bu/ac</b></p>\n\n<p><b>b.</b> S = I·σ = (1.755)(12) = <b class=\"ans\">21.06 bu/ac</b></p>\n\n<p><b>c.</b> R = h²·S = (0.55)(21.06) = <b class=\"ans\">11.58 bu/ac</b><br>\n(or R = h²·I·σ = 0.55 × 1.755 × 12 = 11.58)</p>\n\n<p><b>d.</b> X̄₁ = µ + R = 150 + 11.58 = <b class=\"ans\">161.58 bu/ac</b></p>\n"},{"id":13,"num":13,"type":"Mass Selection","title":"Egg production (predicting next gen)","problem":"<p>Chickens lay an average of 220 eggs/year. Selected hens average 280 eggs/year. h² for egg production = 0.30.</p>\n\n<p><b>a.</b> Calculate S.</p>\n<p><b>b.</b> Calculate R.</p>\n<p><b>c.</b> What will the next generation average?</p>\n<p><b>d.</b> If the actual next gen averages 234 eggs, what is the realized h²?</p>\n","answer":"<p><b>a.</b> S = 280 − 220 = <b class=\"ans\">60 eggs/year</b></p>\n\n<p><b>b.</b> R = h²·S = (0.30)(60) = <b class=\"ans\">18 eggs/year</b></p>\n\n<p><b>c.</b> X̄₁ = X̄₀ + R = 220 + 18 = <b class=\"ans\">238 eggs/year</b></p>\n\n<p><b>d.</b> Actual R = 234 − 220 = 14 eggs<br>\nRealized h² = R/S = 14/60 = <b class=\"ans\">0.2333</b><br>\n(actual h² was lower than predicted)</p>\n"},{"id":14,"num":14,"type":"Mass Selection","title":"Two-trait selection (rabbits, h² and VA from VP)","problem":"<p>Narrow-sense heritability of ear length in Reno rabbits is 0.4. Phenotypic variance VP = 0.8. Environmental variance VE = 0.2.</p>\n\n<p><b>a.</b> What is the additive genetic variance VA?</p>\n<p><b>b.</b> What is the genetic variance VG?</p>\n<p><b>c.</b> What is the dominance variance VD?</p>\n<p><b>d.</b> What is the broad-sense heritability H²?</p>\n","answer":"<p><b>a.</b> h² = VA / VP, so VA = h² × VP<br>\nVA = (0.4)(0.8) = <b class=\"ans\">0.32</b></p>\n\n<p><b>b.</b> VG = VP − VE<br>\nVG = 0.8 − 0.2 = <b class=\"ans\">0.60</b></p>\n\n<p><b>c.</b> VG = VA + VD, so VD = VG − VA<br>\nVD = 0.60 − 0.32 = <b class=\"ans\">0.28</b></p>\n\n<p><b>d.</b> H² = VG / VP<br>\nH² = 0.60 / 0.80 = <b class=\"ans\">0.75</b></p>\n"},{"id":15,"num":15,"type":"Mass Selection","title":"Calculate I from given S and σ","problem":"<p>You select a group of plants with X̄s = 25 cm from a population with mean = 20 cm, σ = 2 cm.</p>\n\n<p><b>a.</b> What is S?</p>\n<p><b>b.</b> What is the selection intensity I?</p>\n<p><b>c.</b> If h² = 0.5, what is R?</p>\n","answer":"<p><b>a.</b> S = X̄s − X̄₀ = 25 − 20 = <b class=\"ans\">5 cm</b></p>\n\n<p><b>b.</b> S = I·σ, so I = S/σ<br>\nI = 5 / 2 = <b class=\"ans\">2.5</b> (no units)</p>\n\n<p><b>c.</b> R = h²·S = (0.5)(5) = <b class=\"ans\">2.5 cm</b><br>\n(or R = h²·I·σ = 0.5 × 2.5 × 2 = 2.5)</p>\n"}]</script>
+
+<script>
+const PROBS = JSON.parse(document.getElementById('P_DATA').textContent);
+const STORE = 'gn311_tables_v1';
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE) || '{}');
+    return { revealed: s.revealed || {}, filter: s.filter || 'all' };
+  } catch (e) { return { revealed: {}, filter: 'all' }; }
+}
+function saveState() { localStorage.setItem(STORE, JSON.stringify(state)); }
+const state = loadState();
+
+// Populate filter
+const types = [...new Set(PROBS.map(p => p.type))];
+const filterEl = document.getElementById('filterType');
+types.forEach(t => {
+  const o = document.createElement('option');
+  o.value = t; o.textContent = t;
+  filterEl.appendChild(o);
+});
+filterEl.value = state.filter;
+
+function render() {
+  const list = state.filter === 'all'
+    ? PROBS
+    : PROBS.filter(p => p.type === state.filter);
+
+  document.getElementById('probArea').innerHTML = list.map(p => {
+    const open = !!state.revealed[p.id];
+    return `
+      <div class="prob" id="prob-${p.id}">
+        <div class="prob-head">
+          <div class="prob-num"># ${p.num}<span class="title">${p.title}</span></div>
+          <div class="prob-tag">${p.type}</div>
+        </div>
+        <div class="prob-body">${p.problem}</div>
+        <div class="actions">
+          <button class="primary" data-toggle="${p.id}">${open ? 'Hide answer' : 'Show answer key'}</button>
+        </div>
+        ${open ? `
+          <div class="answer">
+            <div class="answer-label">ANSWER KEY</div>
+            ${p.answer}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+
+  document.querySelectorAll('button[data-toggle]').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = parseInt(b.dataset.toggle);
+      if (state.revealed[id]) delete state.revealed[id];
+      else state.revealed[id] = true;
+      saveState(); render();
+    });
+  });
+
+  // Wrap any tables in horizontal scroll for mobile
+  document.querySelectorAll('table.data').forEach(t => {
+    if (t.parentElement.classList.contains('table-wrap')) return;
+    const w = document.createElement('div');
+    w.className = 'table-wrap';
+    t.parentNode.insertBefore(w, t);
+    w.appendChild(t);
+  });
+}
+
+filterEl.addEventListener('change', e => {
+  state.filter = e.target.value; saveState(); render();
+});
+document.getElementById('revealAll').addEventListener('click', () => {
+  PROBS.forEach(p => state.revealed[p.id] = true);
+  saveState(); render();
+});
+document.getElementById('hideAll').addEventListener('click', () => {
+  state.revealed = {}; saveState(); render();
+});
+
+render();
+</script>
+</body>
+</html>
