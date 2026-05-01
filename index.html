@@ -1,715 +1,1161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>muh shit</title>
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="https://niggerfaggot.club">
-    <meta property="og:title" content="muh shit">
-    <meta property="og:description" content="Collection of Claude-generated web artifacts. Guides, tools, apps, and explainers.">
-    <meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-index.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="muh shit">
-    <meta name="twitter:description" content="Collection of Claude-generated web artifacts. Guides, tools, apps, and explainers.">
-    <meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-index.png">
-    
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #16213e 100%);
-            min-height: 100vh;
-            color: #e0e0e0;
-            padding: 2rem;
-        }
-        
-        header { text-align: center; margin-bottom: 2rem; }
-        
-        h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stats { color: #888; font-size: 0.9rem; margin-bottom: 0.25rem; }
-        .stats span { color: #667eea; font-weight: 600; transition: all 0.3s; }
-        .stats .loading { color: #555; }
-        
-        .last-refresh { color: #555; font-size: 0.75rem; }
-        
-        nav {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        
-        nav a {
-            padding: 0.6rem 1.5rem;
-            border: 1px solid #333;
-            border-radius: 25px;
-            color: #888;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-        nav a:hover { border-color: #667eea; color: #667eea; }
-        nav a.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-color: transparent;
-            color: #fff;
-        }
-        
-        .controls {
-            max-width: 800px;
-            margin: 0 auto 1.5rem;
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        #search {
-            flex: 1;
-            min-width: 200px;
-            max-width: 400px;
-            padding: 0.75rem 1rem;
-            border: 1px solid #333;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            color: #fff;
-            font-size: 0.95rem;
-        }
-        #search:focus { outline: none; border-color: #667eea; }
-        #search::placeholder { color: #666; }
-        
-        .tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; }
-        
-        .tab {
-            padding: 0.5rem 1rem;
-            border: 1px solid #333;
-            border-radius: 8px;
-            background: transparent;
-            color: #888;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: all 0.2s;
-        }
-        .tab:hover { border-color: #667eea; color: #667eea; }
-        .tab.active {
-            background: rgba(102, 126, 234, 0.2);
-            border-color: #667eea;
-            color: #667eea;
-        }
-        .tab .count { margin-left: 0.3rem; opacity: 0.7; }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 1.25rem;
-            transition: all 0.3s;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .card.app-card {
-            border-color: rgba(16, 185, 129, 0.3);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent);
-        }
-        .card.app-card:hover {
-            border-color: rgba(16, 185, 129, 0.6);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
-        }
-        .card.service-card {
-            border-color: rgba(251, 146, 60, 0.3);
-            background: linear-gradient(135deg, rgba(251, 146, 60, 0.05), transparent);
-        }
-        .card.service-card:hover {
-            border-color: rgba(251, 146, 60, 0.6);
-            box-shadow: 0 10px 30px rgba(251, 146, 60, 0.2);
-        }
-        .card.service-card .card-file { color: #fb923c; }
-        
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 0.3rem;
-        }
-        
-        .card-file {
-            font-size: 0.8rem;
-            color: #667eea;
-            font-family: monospace;
-            margin-bottom: 0.75rem;
-            word-break: break-all;
-        }
-        .card.app-card .card-file { color: #10b981; }
-        
-        .card-desc {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 0.75rem;
-            line-height: 1.4;
-        }
-        
-        .card-meta { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-        
-        .badge {
-            font-size: 0.7rem;
-            padding: 0.25rem 0.6rem;
-            border-radius: 6px;
-        }
-        .badge.site { background: rgba(102, 126, 234, 0.15); color: #667eea; }
-        .badge.pdf { background: rgba(234, 102, 102, 0.15); color: #ea6666; }
-        .badge.app { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-        .badge.service { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
-        .badge.size { background: rgba(255,255,255,0.1); color: #888; }
-        
-        .refresh-btn {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            padding: 0.75rem 1.25rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border: none;
-            border-radius: 25px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-        .refresh-btn:hover { transform: scale(1.05); }
-        
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #666;
-            grid-column: 1 / -1;
-        }
-        
-        /* Loading skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 12px;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .skeleton-card {
-            height: 140px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        
-        .loading-status {
-            text-align: center;
-            padding: 1rem;
-            color: #666;
-            font-size: 0.85rem;
-            grid-column: 1 / -1;
-        }
-        .loading-status .spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid #333;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .source-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin: 0 8px;
-            padding: 4px 10px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 12px;
-            font-size: 0.75rem;
-        }
-        .source-status.loaded { color: #10b981; }
-        .source-status.loading { color: #667eea; }
-        .source-status.error { color: #ea6666; }
-        .dot { width: 6px; height: 6px; border-radius: 50%; }
-        .dot.loaded { background: #10b981; }
-        .dot.loading { background: #667eea; animation: pulse 1s infinite; }
-        .dot.error { background: #ea6666; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0c">
+<title>muh shit / index</title>
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://niggerfaggot.club">
+<meta property="og:title" content="muh shit / index">
+<meta property="og:description" content="Personal index of Claude-generated apps, services, pages, and PDFs.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-index.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="muh shit / index">
+<meta name="twitter:description" content="Personal index of Claude-generated apps, services, pages, and PDFs.">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-index.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --bg:#0a0a0c;
+  --bg-elev:#101013;
+  --panel:rgba(255,255,255,.025);
+  --panel-hover:rgba(255,255,255,.045);
+  --border:rgba(255,255,255,.07);
+  --border-strong:rgba(255,255,255,.14);
+  --text:#fafafa;
+  --mute:#a1a1aa;
+  --dim:#6b6b73;
+  --app:#f59e0b;
+  --app-soft:rgba(245,158,11,.10);
+  --svc:#22c55e;
+  --svc-soft:rgba(34,197,94,.10);
+  --lib:#60a5fa;
+  --lib-soft:rgba(96,165,250,.10);
+  --pdf:#f87171;
+  --pdf-soft:rgba(248,113,113,.10);
+  --pin:#eab308;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden}
+
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(circle at 12% -10%,rgba(245,158,11,.06),transparent 40%),
+    radial-gradient(circle at 88% 110%,rgba(96,165,250,.05),transparent 40%);
+  background-attachment:fixed;
+}
+
+.mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+
+main{max-width:1400px;margin:0 auto;padding:1.25rem 1.25rem 6rem}
+@media(max-width:640px){main{padding:.85rem .85rem 6rem}}
+
+/* === HEADER === */
+header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:1rem;
+  margin:.5rem 0 1.5rem;
+  padding-bottom:1.25rem;
+  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.brand{display:flex;flex-direction:column;gap:.15rem}
+.brand h1{
+  font-family:'JetBrains Mono',monospace;
+  font-size:1.4rem;
+  font-weight:600;
+  letter-spacing:-.02em;
+  color:var(--text);
+}
+.brand h1 .slash{color:var(--app)}
+.brand h1 .sub{color:var(--mute);font-weight:400}
+.tagline{color:var(--dim);font-size:.78rem;font-family:'JetBrains Mono',monospace}
+
+.status-bar{
+  display:flex;
+  gap:1rem;
+  flex-wrap:wrap;
+  align-items:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.75rem;
+}
+.stat{display:flex;align-items:center;gap:.4rem;color:var(--dim)}
+.stat b{color:var(--text);font-weight:500}
+.stat.app b{color:var(--app)}
+.stat.svc b{color:var(--svc)}
+.stat.lib b{color:var(--lib)}
+.stat.pdf b{color:var(--pdf)}
+.stat .pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--dim)}
+.stat .pulse.live{background:var(--svc);animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* === SEARCH BAR === */
+.search-row{
+  display:flex;
+  gap:.6rem;
+  align-items:center;
+  margin-bottom:1.5rem;
+  flex-wrap:wrap;
+}
+.search-wrap{
+  position:relative;
+  flex:1;
+  min-width:240px;
+  max-width:480px;
+}
+.search-wrap svg{
+  position:absolute;
+  left:.85rem;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--dim);
+  pointer-events:none;
+}
+#search{
+  width:100%;
+  padding:.7rem 5rem .7rem 2.4rem;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-size:.92rem;
+  font-family:inherit;
+  transition:border-color .15s,background .15s;
+}
+#search:focus{outline:none;border-color:var(--border-strong);background:var(--panel-hover)}
+#search::placeholder{color:var(--dim)}
+.kbd{
+  position:absolute;
+  right:.6rem;
+  top:50%;
+  transform:translateY(-50%);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  color:var(--dim);
+  border:1px solid var(--border);
+  border-radius:5px;
+  padding:.15rem .4rem;
+  background:var(--bg-elev);
+}
+
+.chips{display:flex;gap:.35rem;flex-wrap:wrap}
+.chip{
+  padding:.45rem .8rem;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:transparent;
+  color:var(--mute);
+  cursor:pointer;
+  font-size:.78rem;
+  font-family:inherit;
+  font-weight:500;
+  transition:all .15s;
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+}
+.chip:hover{border-color:var(--border-strong);color:var(--text)}
+.chip.active{background:rgba(255,255,255,.06);border-color:var(--border-strong);color:var(--text)}
+.chip .n{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  color:var(--dim);
+  padding:.05rem .35rem;
+  background:rgba(255,255,255,.04);
+  border-radius:4px;
+}
+.chip.active .n{color:var(--text)}
+
+/* === SECTION TITLES === */
+.section{margin-bottom:2.25rem}
+.section.hidden{display:none}
+.section-head{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:1rem;
+  margin-bottom:.85rem;
+  padding-bottom:.45rem;
+  border-bottom:1px dashed var(--border);
+}
+.section-title{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;
+  font-weight:600;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--mute);
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+}
+.section-title .badge-dot{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--app);
+}
+.section-title.svc .badge-dot{background:var(--svc)}
+.section-title.lib .badge-dot{background:var(--lib)}
+.section-title.pin .badge-dot{background:var(--pin)}
+.section-title .ct{color:var(--dim);font-weight:400;letter-spacing:0;text-transform:none}
+.section-actions{display:flex;gap:.5rem;align-items:center}
+.section-actions .toggle{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  color:var(--dim);
+  background:transparent;
+  border:none;
+  cursor:pointer;
+  padding:.25rem .5rem;
+  border-radius:5px;
+}
+.section-actions .toggle:hover{background:var(--panel);color:var(--text)}
+
+/* === APPS GRID (HERO) === */
+.apps-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:.75rem;
+}
+@media(max-width:480px){
+  .apps-grid{grid-template-columns:repeat(2,1fr);gap:.6rem}
+}
+
+.app-tile{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  gap:.5rem;
+  padding:1rem;
+  background:linear-gradient(135deg,var(--app-soft),transparent 60%),var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  text-decoration:none;
+  color:inherit;
+  transition:all .2s;
+  overflow:hidden;
+  min-height:118px;
+}
+.app-tile::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at top right,rgba(245,158,11,.12),transparent 50%);
+  opacity:0;
+  transition:opacity .25s;
+}
+.app-tile:hover{
+  border-color:rgba(245,158,11,.5);
+  transform:translateY(-2px);
+  box-shadow:0 6px 22px rgba(245,158,11,.10);
+}
+.app-tile:hover::before{opacity:1}
+.app-tile > *{position:relative;z-index:1}
+.app-tile .icon{
+  font-size:1.6rem;
+  line-height:1;
+  filter:saturate(1.15);
+}
+.app-tile .ttl{
+  font-size:.98rem;
+  font-weight:600;
+  color:var(--text);
+}
+.app-tile .desc{
+  font-size:.78rem;
+  color:var(--mute);
+  line-height:1.4;
+  flex:1;
+}
+.app-tile .url{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  color:var(--app);
+  opacity:.7;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.app-tile .pin-btn{
+  position:absolute;
+  top:.4rem;
+  right:.4rem;
+  background:transparent;
+  border:none;
+  color:var(--dim);
+  font-size:.85rem;
+  cursor:pointer;
+  padding:.2rem .35rem;
+  border-radius:5px;
+  z-index:2;
+  opacity:0;
+  transition:opacity .15s,color .15s,background .15s;
+}
+.app-tile:hover .pin-btn{opacity:1}
+.app-tile .pin-btn:hover{color:var(--pin);background:rgba(255,255,255,.06)}
+.app-tile .pin-btn.pinned{color:var(--pin);opacity:1}
+
+/* === SERVICES STRIP === */
+.svc-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:.5rem;
+}
+@media(max-width:480px){
+  .svc-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+.svc-tile{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  padding:.6rem .75rem;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-left:3px solid var(--svc);
+  border-radius:8px;
+  text-decoration:none;
+  color:inherit;
+  transition:all .15s;
+  min-height:48px;
+}
+.svc-tile:hover{
+  background:var(--panel-hover);
+  border-color:var(--border-strong);
+  border-left-color:var(--svc);
+}
+.svc-tile .icon{font-size:1.05rem;line-height:1}
+.svc-tile .info{flex:1;min-width:0}
+.svc-tile .name{font-size:.85rem;font-weight:600;color:var(--text)}
+.svc-tile .host{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;
+  color:var(--dim);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.svc-tile .arrow{color:var(--dim);font-size:.85rem}
+
+/* === LIBRARY GRID === */
+.cat-bar{
+  display:flex;
+  gap:.3rem;
+  flex-wrap:wrap;
+  margin-bottom:.85rem;
+  padding-bottom:.5rem;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;
+}
+.cat-chip{
+  padding:.3rem .65rem;
+  border-radius:6px;
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--mute);
+  font-size:.72rem;
+  font-family:'JetBrains Mono',monospace;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:all .15s;
+}
+.cat-chip:hover{border-color:var(--border-strong);color:var(--text)}
+.cat-chip.active{
+  background:var(--lib-soft);
+  border-color:rgba(96,165,250,.4);
+  color:var(--lib);
+}
+.cat-chip .n{color:var(--dim);margin-left:.3rem}
+.cat-chip.active .n{color:var(--lib);opacity:.7}
+
+.lib-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:.55rem;
+}
+@media(max-width:480px){
+  .lib-grid{grid-template-columns:1fr;gap:.5rem}
+}
+
+.lib-card{
+  position:relative;
+  display:block;
+  padding:.75rem .9rem;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:9px;
+  text-decoration:none;
+  color:inherit;
+  transition:all .15s;
+}
+.lib-card:hover{
+  background:var(--panel-hover);
+  border-color:rgba(96,165,250,.35);
+  transform:translateY(-1px);
+}
+.lib-card.pdf{border-left:2px solid var(--pdf)}
+.lib-card.site{border-left:2px solid var(--lib)}
+.lib-card .ttl{
+  font-size:.86rem;
+  font-weight:500;
+  color:var(--text);
+  margin-bottom:.15rem;
+}
+.lib-card .file{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.68rem;
+  color:var(--dim);
+  word-break:break-all;
+  margin-bottom:.25rem;
+}
+.lib-card.pdf .file{color:var(--pdf);opacity:.75}
+.lib-card.site .file{color:var(--lib);opacity:.75}
+.lib-card .desc{
+  font-size:.75rem;
+  color:var(--mute);
+  line-height:1.4;
+  margin-bottom:.3rem;
+}
+.lib-card .meta{
+  display:flex;
+  gap:.5rem;
+  align-items:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.66rem;
+  color:var(--dim);
+}
+.lib-card .meta .ext{
+  text-transform:uppercase;
+  font-weight:600;
+  letter-spacing:.05em;
+}
+.lib-card.pdf .meta .ext{color:var(--pdf)}
+.lib-card.site .meta .ext{color:var(--lib)}
+.lib-card .new-tag{
+  position:absolute;
+  top:.55rem;
+  right:.55rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;
+  color:var(--app);
+  background:var(--app-soft);
+  padding:.1rem .35rem;
+  border-radius:4px;
+  font-weight:600;
+  letter-spacing:.05em;
+}
+.lib-card .pin-btn{
+  position:absolute;
+  top:.4rem;
+  right:.4rem;
+  background:transparent;
+  border:none;
+  color:var(--dim);
+  font-size:.7rem;
+  cursor:pointer;
+  padding:.15rem .3rem;
+  border-radius:4px;
+  opacity:0;
+  transition:opacity .15s,color .15s;
+}
+.lib-card:hover .pin-btn{opacity:1}
+.lib-card .pin-btn.pinned{color:var(--pin);opacity:1}
+.lib-card .pin-btn:hover{color:var(--pin)}
+.lib-card .new-tag + .pin-btn{top:1.85rem}
+
+/* === EMPTY / SKELETON === */
+.empty{
+  text-align:center;
+  padding:2.5rem 1rem;
+  color:var(--dim);
+  font-size:.85rem;
+  font-family:'JetBrains Mono',monospace;
+}
+.skeleton{
+  background:linear-gradient(90deg,rgba(255,255,255,.025) 25%,rgba(255,255,255,.06) 50%,rgba(255,255,255,.025) 75%);
+  background-size:200% 100%;
+  animation:shim 1.5s infinite;
+  border-radius:9px;
+  border:1px solid var(--border);
+}
+.skeleton.app{height:118px}
+.skeleton.svc{height:48px}
+.skeleton.lib{height:80px}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* === REFRESH / CMD-K HINT === */
+.refresh{
+  position:fixed;
+  bottom:1.25rem;
+  right:1.25rem;
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+  padding:.6rem 1rem;
+  background:var(--bg-elev);
+  border:1px solid var(--border-strong);
+  border-radius:999px;
+  color:var(--mute);
+  cursor:pointer;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.75rem;
+  transition:all .15s;
+  backdrop-filter:blur(8px);
+  z-index:50;
+}
+.refresh:hover{border-color:var(--app);color:var(--app)}
+.refresh.spinning svg{animation:rot 1s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* === FOOTER === */
+footer{
+  margin-top:3rem;
+  padding-top:1rem;
+  border-top:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem;
+  color:var(--dim);
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:.5rem;
+}
+footer a{color:var(--mute);text-decoration:none}
+footer a:hover{color:var(--text)}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--mute)}
+</style>
 </head>
 <body>
-    <header>
-        <h1>muh shit</h1>
-        <div class="stats">Apps: <span id="app-count" class="loading">-</span> · Services: <span id="service-count" class="loading">-</span> · Pages: <span id="site-count" class="loading">-</span> · PDFs: <span id="pdf-count" class="loading">-</span></div>
-        <div class="last-refresh">Last refreshed: <span id="refresh-time">-</span></div>
-    </header>
-    
-    <div class="controls">
-        <input type="text" id="search" placeholder="Search artifacts...">
-        <div class="tabs">
-            <button class="tab active" data-filter="all">All<span class="count" id="count-all"></span></button>
-            <button class="tab" data-filter="app">Apps<span class="count" id="count-app"></span></button>
-            <button class="tab" data-filter="service">Services<span class="count" id="count-service"></span></button>
-            <button class="tab" data-filter="site">Pages<span class="count" id="count-site"></span></button>
-            <button class="tab" data-filter="pdf">PDFs<span class="count" id="count-pdf"></span></button>
+
+<main>
+
+<header>
+  <div class="brand">
+    <h1>muh<span class="slash">/</span><span class="sub">shit</span></h1>
+    <div class="tagline">// personal artifact index</div>
+  </div>
+  <div class="status-bar">
+    <div class="stat"><span class="pulse live"></span><b id="last-sync">syncing</b></div>
+    <div class="stat app"><b id="ct-app">·</b>apps</div>
+    <div class="stat svc"><b id="ct-svc">·</b>services</div>
+    <div class="stat lib"><b id="ct-lib">·</b>pages</div>
+    <div class="stat pdf"><b id="ct-pdf">·</b>pdfs</div>
+  </div>
+</header>
+
+<div class="search-row">
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" id="search" placeholder="Search apps, services, pages, pdfs…" autocomplete="off" spellcheck="false">
+    <span class="kbd">/</span>
+  </div>
+  <div class="chips">
+    <button class="chip active" data-filter="all">All</button>
+    <button class="chip" data-filter="app">Apps</button>
+    <button class="chip" data-filter="service">Services</button>
+    <button class="chip" data-filter="site">Pages</button>
+    <button class="chip" data-filter="pdf">PDFs</button>
+  </div>
+</div>
+
+<!-- pinned -->
+<section class="section hidden" id="pinned-section">
+  <div class="section-head">
+    <div class="section-title pin"><span class="badge-dot"></span>Pinned <span class="ct" id="pinned-ct"></span></div>
+    <div class="section-actions">
+      <button class="toggle" onclick="clearPins()">clear</button>
+    </div>
+  </div>
+  <div class="apps-grid" id="pinned-grid"></div>
+</section>
+
+<!-- apps -->
+<section class="section" id="apps-section">
+  <div class="section-head">
+    <div class="section-title"><span class="badge-dot"></span>Apps <span class="ct" id="apps-ct"></span></div>
+  </div>
+  <div class="apps-grid" id="apps-grid">
+    <div class="skeleton app"></div><div class="skeleton app"></div><div class="skeleton app"></div><div class="skeleton app"></div>
+  </div>
+</section>
+
+<!-- services -->
+<section class="section" id="svc-section">
+  <div class="section-head">
+    <div class="section-title svc"><span class="badge-dot"></span>Home Services <span class="ct" id="svc-ct"></span></div>
+  </div>
+  <div class="svc-grid" id="svc-grid">
+    <div class="skeleton svc"></div><div class="skeleton svc"></div><div class="skeleton svc"></div><div class="skeleton svc"></div>
+  </div>
+</section>
+
+<!-- library -->
+<section class="section" id="lib-section">
+  <div class="section-head">
+    <div class="section-title lib"><span class="badge-dot"></span>Library <span class="ct" id="lib-ct"></span></div>
+    <div class="section-actions">
+      <button class="toggle" id="sort-toggle" data-sort="recent">sort: recent</button>
+    </div>
+  </div>
+  <div class="cat-bar" id="cat-bar"></div>
+  <div class="lib-grid" id="lib-grid">
+    <div class="skeleton lib"></div><div class="skeleton lib"></div><div class="skeleton lib"></div>
+    <div class="skeleton lib"></div><div class="skeleton lib"></div><div class="skeleton lib"></div>
+  </div>
+</section>
+
+<footer>
+  <span>built by Benny + Claude · <a href="https://github.com/bibijeebi/claude-artifacts" target="_blank">github</a></span>
+  <span id="footer-stats">—</span>
+</footer>
+
+</main>
+
+<button class="refresh" onclick="refresh()" title="Refresh (R)">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.05-6.74L21 8"/><path d="M21 3v5h-5"/></svg>
+  refresh
+</button>
+
+<script>
+//============================================================
+// CONFIG
+//============================================================
+const PAGES_BASE = 'https://niggerfaggot.club/';
+const R2_BASE    = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
+const R2_LIST    = 'https://claude-deploy.bennyforeman1.workers.dev/r2/list';
+const GH_API     = 'https://api.github.com/repos/bibijeebi/claude-artifacts';
+const CACHE_KEY  = 'muh-shit-cache-v3';
+const CACHE_TTL  = 5 * 60 * 1000;
+const PIN_KEY    = 'muh-shit-pins-v3';
+
+//============================================================
+// APPS (custom-built tools, hero treatment)
+//============================================================
+const APPS = [
+  {id:'health',  icon:'🏃',  title:'Health',         url:'https://health.niggerfaggot.club',         desc:'Weight, intake, exercise. VO₂max + body comp.'},
+  {id:'bar',     icon:'🥃',  title:'Foreman Bar',    url:'https://drinks.niggerfaggot.club',         desc:'Home bar inventory. What you can make right now.'},
+  {id:'things',  icon:'✓',   title:'Things',         url:'https://things.niggerfaggot.club',         desc:'Kanban: backlog · todo · doing · done.'},
+  {id:'list',    icon:'🛒',  title:'Shopping List',  url:'https://list.niggerfaggot.club',           desc:'Shared with Bekah. Categories + batch add.'},
+  {id:'nature',  icon:'🦅',  title:'NatureDex',      url:'https://nature.niggerfaggot.club',         desc:'Pokédex for birds, plants, wildlife.'},
+  {id:'cram',    icon:'🧠',  title:'Cram',           url:'https://cram.niggerfaggot.club',           desc:'Exam prep: WGU, ASCS, ham, Spanish.'},
+  {id:'spanky',  icon:'📚',  title:'Spanky SRS',     url:'https://niggerfaggot.club/spanky.html',    desc:'Spaced repetition. Spanish + ham + WGU.'},
+  {id:'fishcast',icon:'🎣',  title:'FishCast',       url:'https://niggerfaggot.club/fishcast/',      desc:'Bite forecast for local NC waters.'},
+  {id:'spots',   icon:'🗺️',  title:'Fishing Spots',  url:'https://niggerfaggot.club/fishing-spots/', desc:'Catalog of NC + national access points.'},
+  {id:'solunar', icon:'🌙',  title:'Solunar',        url:'https://niggerfaggot.club/solunar/',       desc:'Hunt + fish solunar windows.'},
+  {id:'proposals',icon:'📋', title:'Proposals',      url:'https://niggerfaggot.club/proposals/',     desc:'Build proposals + project specs hub.'},
+  {id:'mowmap',  icon:'🚜',  title:'Mow Mapper',     url:'https://niggerfaggot.club/mow-mapper.html',desc:'Optimal mow paths for the yard.'},
+  {id:'baby',    icon:'👶',  title:'Baby Names',     url:'https://niggerfaggot.club/baby-names.html',desc:'ELO-style name ranking with Bekah.'},
+  {id:'lookbook',icon:'👔',  title:'Lookbook',       url:'https://niggerfaggot.club/lookbook.html',  desc:'Style + outfit reference.'},
+  {id:'market',  icon:'🏷️',  title:'Marketplace',    url:'https://niggerfaggot.club/marketplace.html',desc:'FB Marketplace finds, archived.'},
+  {id:'lab',     icon:'🧪',  title:'Learning Lab',   url:'https://niggerfaggot.club/learning-lab.html',desc:'Active study modules.'},
+  {id:'gallery', icon:'🖼️',  title:'Gallery',        url:'https://niggerfaggot.club/gallery.html',   desc:'Image archive.'},
+];
+
+//============================================================
+// SERVICES (homelab, behind tunnel)
+//============================================================
+const SERVICES = [
+  {icon:'🎬', title:'Jellyseerr', host:'tv.niggerfaggot.club',      url:'https://tv.niggerfaggot.club'},
+  {icon:'📺', title:'Jellyfin',   host:'watch.niggerfaggot.club',   url:'https://watch.niggerfaggot.club'},
+  {icon:'🎞️', title:'Radarr',     host:'radarr.niggerfaggot.club',  url:'https://radarr.niggerfaggot.club'},
+  {icon:'📡', title:'Sonarr',     host:'sonarr.niggerfaggot.club',  url:'https://sonarr.niggerfaggot.club'},
+  {icon:'🔍', title:'Prowlarr',   host:'prowlarr.niggerfaggot.club',url:'https://prowlarr.niggerfaggot.club'},
+  {icon:'💬', title:'Bazarr',     host:'subs.niggerfaggot.club',    url:'https://subs.niggerfaggot.club'},
+  {icon:'⬇️', title:'qBittorrent',host:'dl.niggerfaggot.club',      url:'https://dl.niggerfaggot.club'},
+];
+
+//============================================================
+// CATEGORIES (filename pattern -> bucket)
+// applied in declaration order; first match wins
+//============================================================
+const CATS = [
+  ['proposals',  /^proposal[-_]/i],
+  ['af-news',    /^af-newspaper/i],
+  ['profiles',   /^p-[a-z]+\.html$/i],
+  ['wgu',        /^(gn311|bch351|wgu-)/i],
+  ['fishing',    /(fish|trout|bass|knot|lake-|tackle|tippet)/i],
+  ['hunting',    /(hunt|archery|ballistic|bow|firearm|sight|garand|rifle|airrifle|squirrel|nc-pest|aar-|deer|turkey|ammo)/i],
+  ['food',       /(cookie|deviled|recipe|jam|salsa|coffee|espresso|boba|mac-and-cheese|frozen-dessert|root-beer|sassafras|lard|peach|jalapeno|seltzer|cigar|distillation|chocolate|mango|cheese|broth|jerky|bread|kimchi|pickle|smoke|sourdough|bb-broth|brisket|bucees|costco|peptaura|raw-milk|liquid-gold|nano-banana|nc-raw-milk|trumprx|reta-|retatrutide)/i],
+  ['heritage',   /(irish|scottish|colonial|doyle|omoore|family-estate|walnut|heritage|highland|clan-|ancestry|bates_county|housing_analysis|ancient-civilizations|family-guide|kim-chairs)/i],
+  ['military',   /(navy|marine|nbct|veteran|military|p-davis|p-fuentes|midnight-hammer|midnight|operation-|nuke-|kushner|nord-stream|iran|israel|jewish-hollywood|tiktok-israel|dk-ai|black-israelites|trump-account|tucker-huckabee|p-aarvoll|p-bap|p-enoch|p-green|p-jfg|p-johnson|p-rousseau|p-woods)/i],
+  ['tech',       /(claude|infra|theta2|switch-explainer|sim|codec|wgu-slurp|llm|api|preference|ham-study|hammer|coding|payment|distillation|cantillon|cli_)/i],
+  ['outdoors',   /(garden|tree|seed|bird|squirrel|sassafras|trail|hike|camp|landnav|highland-game|cycle-guide|treadmill|marathon|mow-|home-improvement|deck|hutch|cottage|rabbit|dog)/i],
+  ['health',     /(glp|medical|migraine|sleep|cycle|injection|reta|sibo|peptide|vasectomy|operation-210|muscle-guide|macros|treadmill|marathon|vday)/i],
+  ['family',     /(bekah|kong|jenny|baby|wedding|vday|p-|dogmoms|kim-chairs)/i],
+  ['travel',     /(china|asia|wisconsin|madison|south-of-the-border|csu|trip|walkabout|vday2026|costco|jamboree)/i],
+  ['recipes',    /(recipe|deviled|frozen-dessert|root-beer|cookie|salsa|jam|cheese|broth|boba|cigar|seltzer|mac-and-cheese)/i],
+];
+
+const CAT_LABEL = {
+  'all':       'all',
+  'proposals': 'proposals',
+  'af-news':   'newspapers',
+  'profiles':  'profiles',
+  'wgu':       'WGU',
+  'fishing':   'fishing',
+  'hunting':   'hunting',
+  'food':      'food',
+  'heritage':  'heritage',
+  'military':  'mil/news',
+  'tech':      'tech',
+  'outdoors':  'outdoors',
+  'health':    'health',
+  'family':    'family',
+  'travel':    'travel',
+  'recipes':   'recipes',
+  'other':     'other',
+};
+
+// Pre-computed file mod dates (refreshed at deploy). Files not in this map
+// won't have a "NEW" badge or date sort weight - older files we don't bother.
+const FILE_DATES = {"lookbook.html":"2026-04-28T18:15:52Z","clubhouse.html":"2026-04-28T16:33:32Z","yuppie.html":"2026-04-28T16:29:52Z","gn311-tables.html":"2026-04-27T00:35:44Z","gn311-practice.html":"2026-04-26T21:16:36Z","gn311-math.html":"2026-04-26T20:56:36Z","gn311-final.html":"2026-04-24T23:16:30Z","co2.html":"2026-04-23T23:07:31Z","gn311-mcq.html":"2026-04-22T13:44:58Z","cigars.html":"2026-04-22T00:31:01Z","proposal-kill-tally-decals.html":"2026-04-20T19:33:25Z","proposals.html":"2026-04-20T19:33:24Z","proposal-rx-polarized-sunglasses.html":"2026-04-18T02:28:15Z","fishing-knots.html":"2026-04-18T01:34:25Z","proposal-seltzer-on-tap.html":"2026-04-14T14:10:24Z","ham-study.html":"2026-04-14T13:15:28Z","c715-cram.html":"2026-04-13T17:44:22Z","wgu-slurp.html":"2026-04-05T03:08:37Z","mandarin-phonetics.html":"2026-04-02T02:01:23Z","reta-proposal.html":"2026-03-31T16:15:53Z","peptaura.html":"2026-03-31T16:06:29Z","fishcast.html":"2026-03-30T16:23:18Z","solunar.html":"2026-03-30T13:19:02Z","mow-path.html":"2026-03-30T01:52:23Z","mow-mapper.html":"2026-03-30T01:48:04Z","learning-lab.html":"2026-03-29T14:31:51Z","retatrutide-pk.html":"2026-03-27T22:06:14Z","military-benefits.html":"2026-03-27T20:59:23Z","marathon.html":"2026-03-23T14:42:05Z","af-newspaper-20260305.html":"2026-03-22T23:32:27Z","proposal-tesla-tint.html":"2026-03-22T15:08:36Z","lard-guide.html":"2026-03-22T03:19:37Z","china-trip.html":"2026-03-22T00:24:39Z","preference-elicitation.html":"2026-03-20T16:24:33Z","collage-calibrator.html":"2026-03-20T16:14:04Z","cantillon-effect.html":"2026-03-20T15:21:56Z","infra.html":"2026-03-20T14:59:48Z","proposal-accord-subwoofer.html":"2026-03-20T02:48:46Z","fishing-spots.html":"2026-03-19T17:10:06Z","frozen-desserts.html":"2026-03-19T03:11:41Z","proposal-operation-shitbox-rally.html":"2026-03-18T18:23:23Z","proposal-darton-viper-setup.html":"2026-03-18T18:11:07Z","proposal-deck-overhaul.html":"2026-03-17T20:28:23Z","proposal-dehumidifier.html":"2026-03-17T20:28:22Z","proposal-garage-attic.html":"2026-03-17T20:28:21Z"};
+
+const DESCRIPTIONS = {
+  // PDFs
+  'air-rifle-guide.pdf':'PCP/CO₂ air rifles for weak shoulders.',
+  'american_colonial_heritage_report-3.pdf':'Colonial American genealogy + heritage.',
+  'anki-infographic-3.pdf':'Spaced repetition + Anki workflow visual.',
+  'asia-travel-guide.pdf':'SE Asia travel planning + itinerary.',
+  'bates_county_report.pdf':'Missouri county relocation analysis.',
+  'bekah-harmonica-guide-2.pdf':'Harmonica learning guide for Bekah.',
+  'bekah-raleigh-opportunities.pdf':'Raleigh-area career opps for Marine vets.',
+  'big_cats_reality-2.pdf':'Reality check on private big-cat ownership.',
+  'birdhouse-plans.pdf':'DIY birdhouse construction plans.',
+  'blade-guide-2.pdf':'Knife steel + blade geometry reference.',
+  'cli_argument_parsing.pdf':'CLI argument parsing patterns + libraries.',
+};
+
+//============================================================
+// STATE
+//============================================================
+let DATA = {apps:[], services:[], sites:[], pdfs:[]};
+let COMMITS = {};      // filename -> ISO date
+let PINS = loadPins();
+let activeFilter = 'all';
+let activeCat = 'all';
+let sortMode = 'recent';
+let searchQ = '';
+
+//============================================================
+// HELPERS
+//============================================================
+function loadPins(){try{return JSON.parse(localStorage.getItem(PIN_KEY))||{}}catch{return{}}}
+function savePins(){try{localStorage.setItem(PIN_KEY,JSON.stringify(PINS))}catch{}}
+function isPinned(id){return !!PINS[id]}
+function togglePin(id,e){
+  if(e){e.preventDefault();e.stopPropagation()}
+  if(PINS[id])delete PINS[id];else PINS[id]=Date.now();
+  savePins();render();
+}
+function clearPins(){PINS={};savePins();render()}
+
+function titleCase(s){
+  return s.replace(/[-_]/g,' ')
+    .replace(/\.(html|pdf)$/i,'')
+    .replace(/(\d)+$/,'')
+    .trim()
+    .replace(/\b\w/g,c=>c.toUpperCase());
+}
+
+function fmtSize(b){
+  if(!b)return null;
+  if(b<1024)return b+' B';
+  if(b<1048576)return(b/1024).toFixed(0)+'K';
+  return(b/1048576).toFixed(1)+'M';
+}
+
+function fmtAgo(iso){
+  if(!iso)return null;
+  const d=Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+  if(d<1)return'today';
+  if(d<2)return'1d ago';
+  if(d<31)return d+'d ago';
+  const m=Math.floor(d/30);
+  if(m<12)return m+'mo ago';
+  return Math.floor(m/12)+'y ago';
+}
+
+function categorize(name){
+  for(const [cat,re] of CATS){
+    if(re.test(name))return cat;
+  }
+  return 'other';
+}
+
+function isRecent(iso){
+  if(!iso)return false;
+  return (Date.now()-new Date(iso).getTime()) < 7*86400000;
+}
+
+function matchSearch(item,q){
+  if(!q)return true;
+  q=q.toLowerCase();
+  return (item.title||'').toLowerCase().includes(q)
+    || (item.file||'').toLowerCase().includes(q)
+    || (item.host||'').toLowerCase().includes(q)
+    || (item.desc||item.description||'').toLowerCase().includes(q)
+    || (item.url||'').toLowerCase().includes(q);
+}
+
+//============================================================
+// RENDER: APPS
+//============================================================
+function renderApps(){
+  const grid = document.getElementById('apps-grid');
+  let apps = DATA.apps.filter(a => matchSearch(a,searchQ));
+  if(activeFilter!=='all' && activeFilter!=='app'){
+    document.getElementById('apps-section').classList.add('hidden');
+    return;
+  }
+  document.getElementById('apps-section').classList.remove('hidden');
+  if(apps.length === 0){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">no apps match</div>`;
+    return;
+  }
+  grid.innerHTML = apps.map(a => `
+    <a href="${a.url}" target="_blank" class="app-tile" data-id="${a.id}">
+      <button class="pin-btn ${isPinned('app:'+a.id)?'pinned':''}" onclick="togglePin('app:${a.id}',event)" title="Pin">${isPinned('app:'+a.id)?'★':'☆'}</button>
+      <div class="icon">${a.icon||'·'}</div>
+      <div class="ttl">${a.title}</div>
+      <div class="desc">${a.desc||''}</div>
+      <div class="url">${a.url.replace(/^https?:\/\//,'')}</div>
+    </a>
+  `).join('');
+}
+
+//============================================================
+// RENDER: SERVICES
+//============================================================
+function renderServices(){
+  const grid = document.getElementById('svc-grid');
+  let svcs = DATA.services.filter(s => matchSearch(s,searchQ));
+  if(activeFilter!=='all' && activeFilter!=='service'){
+    document.getElementById('svc-section').classList.add('hidden');
+    return;
+  }
+  document.getElementById('svc-section').classList.remove('hidden');
+  if(svcs.length === 0){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">no services match</div>`;
+    return;
+  }
+  grid.innerHTML = svcs.map(s => `
+    <a href="${s.url}" target="_blank" class="svc-tile">
+      <div class="icon">${s.icon||'·'}</div>
+      <div class="info">
+        <div class="name">${s.title}</div>
+        <div class="host">${s.host}</div>
+      </div>
+      <div class="arrow">→</div>
+    </a>
+  `).join('');
+}
+
+//============================================================
+// RENDER: LIBRARY (sites + pdfs combined)
+//============================================================
+function buildCatCounts(items){
+  const counts = {all:items.length};
+  for(const it of items){
+    counts[it.cat] = (counts[it.cat]||0)+1;
+  }
+  return counts;
+}
+
+function renderCategories(items){
+  const bar = document.getElementById('cat-bar');
+  if(activeFilter !== 'all' && activeFilter !== 'site' && activeFilter !== 'pdf'){
+    bar.innerHTML='';
+    return;
+  }
+  const counts = buildCatCounts(items);
+  // Sort categories by count, but keep 'all' first and 'other' last
+  const cats = Object.keys(counts).filter(c => c!=='all' && c!=='other')
+    .sort((a,b) => counts[b]-counts[a]);
+  if(counts.other) cats.push('other');
+  cats.unshift('all');
+
+  bar.innerHTML = cats.map(c => `
+    <button class="cat-chip ${activeCat===c?'active':''}" data-cat="${c}">
+      ${CAT_LABEL[c]||c}<span class="n">${counts[c]||0}</span>
+    </button>
+  `).join('');
+
+  bar.querySelectorAll('.cat-chip').forEach(b => {
+    b.onclick = () => { activeCat = b.dataset.cat; render(); };
+  });
+}
+
+function renderLibrary(){
+  const grid = document.getElementById('lib-grid');
+  if(activeFilter !== 'all' && activeFilter !== 'site' && activeFilter !== 'pdf'){
+    document.getElementById('lib-section').classList.add('hidden');
+    return;
+  }
+  document.getElementById('lib-section').classList.remove('hidden');
+
+  // Filter by type
+  let items = [...DATA.sites, ...DATA.pdfs];
+  if(activeFilter==='site') items = DATA.sites;
+  if(activeFilter==='pdf')  items = DATA.pdfs;
+
+  // Build cat chips off the type-filtered set
+  renderCategories(items);
+
+  // Apply category + search
+  let shown = items;
+  if(activeCat !== 'all') shown = shown.filter(it => it.cat === activeCat);
+  shown = shown.filter(it => matchSearch(it,searchQ));
+
+  // Sort
+  if(sortMode === 'recent'){
+    shown.sort((a,b) => (b.mod||'').localeCompare(a.mod||''));
+  } else if(sortMode === 'alpha'){
+    shown.sort((a,b) => a.title.localeCompare(b.title));
+  } else if(sortMode === 'size'){
+    shown.sort((a,b) => (b.size||0)-(a.size||0));
+  }
+
+  if(shown.length === 0){
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">nothing here</div>`;
+    return;
+  }
+
+  grid.innerHTML = shown.map(it => {
+    const recent = isRecent(it.mod);
+    const pid = it.type+':'+it.file;
+    return `
+      <a href="${it.url}" target="_blank" class="lib-card ${it.type}" data-id="${pid}">
+        ${recent?`<span class="new-tag">NEW</span>`:''}
+        <button class="pin-btn ${isPinned(pid)?'pinned':''}" onclick="togglePin('${pid}',event)" title="Pin">${isPinned(pid)?'★':'☆'}</button>
+        <div class="ttl">${it.title}</div>
+        <div class="file">${it.file}</div>
+        ${it.desc?`<div class="desc">${it.desc}</div>`:''}
+        <div class="meta">
+          <span class="ext">${it.type==='pdf'?'PDF':'HTML'}</span>
+          ${it.size?`<span>${fmtSize(it.size)}</span>`:''}
+          ${it.mod?`<span>${fmtAgo(it.mod)}</span>`:''}
+          <span style="color:var(--dim);opacity:.6">·</span>
+          <span style="color:var(--dim);opacity:.7">${it.cat}</span>
         </div>
-    </div>
-    
-    <div id="loading-status" class="loading-status">
-        <span class="source-status loading" id="status-apps"><span class="dot loading"></span>Apps</span>
-        <span class="source-status loading" id="status-sites"><span class="dot loading"></span>Sites</span>
-        <span class="source-status loading" id="status-pdfs"><span class="dot loading"></span>PDFs</span>
-    </div>
-    
-    <div class="grid" id="grid">
-        <div class="skeleton skeleton-card"></div>
-        <div class="skeleton skeleton-card"></div>
-        <div class="skeleton skeleton-card"></div>
-        <div class="skeleton skeleton-card"></div>
-        <div class="skeleton skeleton-card"></div>
-        <div class="skeleton skeleton-card"></div>
-    </div>
-    
-    <button class="refresh-btn" onclick="loadAll(true)">↻ Refresh</button>
-    
-    <script>
-        const PAGES_BASE = 'https://niggerfaggot.club/';
-        const R2_BASE = 'https://claude-deploy.bennyforeman1.workers.dev/r2/file/';
-        const CACHE_KEY = 'claude-artifacts-cache';
-        const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-        
-        const DESCRIPTIONS = {
-            // PDFs
-            'air-rifle-guide.pdf': 'PCP and CO₂ air rifles for weak shoulders. Umarex Komplete NCR recommendation.',
-            'american_colonial_heritage_report-3.pdf': 'Colonial American genealogy and heritage research.',
-            'anki-infographic-3.pdf': 'Visual guide to spaced repetition and Anki workflow.',
-            'asia-travel-guide.pdf': 'Southeast Asia travel planning and itinerary guide.',
-            'bates_county_report.pdf': 'Missouri county analysis for relocation research.',
-            'bekah-harmonica-guide-2.pdf': 'Harmonica learning guide for Bekah.',
-            'bekah-raleigh-opportunities.pdf': 'Raleigh-area career opportunities for Marine Corps veterans.',
-            'big_cats_reality-2.pdf': 'Reality check on private big cat ownership.',
-            'birdhouse-plans.pdf': 'DIY birdhouse construction plans.',
-            'blade-guide-2.pdf': 'Knife steel and blade geometry reference.',
-            'cli_argument_parsing.pdf': 'Command-line argument parsing patterns and libraries.',
-            'dubai_chocolate_investigation.pdf': 'Investigation into Dubai chocolate trend.',
-            'duct-cleaning-simulator-spec-3.pdf': 'Carolina Quality Air training simulator specification.',
-            'frozen-desserts-guide.pdf': 'Ice cream, gelato, and frozen dessert techniques.',
-            'glp1-comprehensive-review-2.pdf': 'GLP-1 agonists (Ozempic, etc.) comprehensive review.',
-            'housing_analysis.pdf': 'Housing market analysis for relocation planning.',
-            'how_to_have_tiger.pdf': 'Legal requirements for exotic cat ownership.',
-            'kong-grooming-guide-5.pdf': 'Saint Bernard grooming and coat maintenance guide.',
-            'llm_eval_prompts.pdf': 'LLM evaluation prompts and testing methodology.',
-            'madison-area-guide-2.pdf': 'Madison, WI area guide for vet school relocation.',
-            'navy_nuke_guide-3.pdf': 'Navy Nuclear Program overview and career guide.',
-            'nbct-guide-3.pdf': 'National Board Certification for Teachers guide.',
-            'omoore_irish_heritage_report-5.pdf': 'O\'Moore Irish clan heritage research.',
-            'operation-210-4.pdf': 'Operation 210 cutting phase protocol.',
-            'operation-210-beyond-the-cut.pdf': 'Post-cut bulking protocol. Injury-adjusted power rack program to 210 lbs.',
-            'ostrich_cull_presentation.pdf': 'Texas ostrich population management presentation.',
-            'packers_acquisition_strategy-2.pdf': 'Green Bay Packers stock and ownership analysis.',
-            'payment_systems.pdf': 'Payment processing systems overview.',
-            'pico-ble-keyboard-proposal.pdf': 'Raspberry Pi Pico BLE keyboard project proposal.',
-            'radio-fundamentals.pdf': 'Amateur radio fundamentals and licensing.',
-            'radio_guide.pdf': 'Radio communication guide and equipment.',
-            'scottish_heritage_report-7.pdf': 'Scottish clan heritage research (Clan Stewart).',
-            'weight_tracker_proposal-2.pdf': 'Weight tracking app technical specification.',
-            'wisconsin-guide.pdf': 'Wisconsin relocation guide for vet school.',
-            // Sites
-            'accelerationism.html': 'Philosophy overview: e/acc, effective accelerationism, and related movements.',
-            'archery-calculator.html': 'Arrow spine calculator and bow setup tool.',
-            'ballistics.html': 'Ballistics calculator and trajectory analysis.',
-            'birdseed.html': 'Bird feed types and regional recommendations.',
-            'bow-guide.html': 'Compound bow selection and setup guide.',
-            'claude-shit-stack.html': 'Claude deployment infrastructure documentation.',
-            'cmp-garand.html': 'Civilian Marksmanship Program M1 Garand guide.',
-            'deviled-eggs.html': 'Deviled eggs recipe variations.',
-            'dishwasher.html': 'Dishwasher optimization and loading guide.',
-            'dna-guide.html': 'DNA testing services comparison and guide.',
-            'does-it-matter.html': 'Philosophical exploration.',
-            'garden.html': 'Garden planning and planting guide.',
-            'germany-energy.html': 'German energy policy analysis.',
-            'jar-opener.html': 'Jar opener product comparison.',
-            'jewish-hollywood.html': 'Hollywood industry demographics analysis.',
-            'liquid-gold.html': 'Raw milk and dairy guide.',
-            'lost-in-translation.html': 'Movie analysis: Lost in Translation.',
-            'melamine-foam.html': 'Melamine foam (Magic Eraser) uses and science.',
-            'nano-banana.html': 'Banana ripening science explainer.',
-            'nc-raw-milk-guide.html': 'North Carolina raw milk sourcing guide.',
-            'nk-defectors.html': 'North Korean defector stories and analysis.',
-            'nord-stream.html': 'Nord Stream pipeline incident analysis.',
-            'oiia-shrine.html': 'OIIA cat meme shrine.',
-            'raw-milk-ice-cream.html': 'Raw milk ice cream recipes.',
-            'root-beer-guide.html': 'Root beer brands and homemade recipes.',
-            'soap-dish-guide.html': 'Soap dish selection guide.',
-            'south-of-the-border.html': 'South of the Border roadside attraction guide.',
-            'switch-explainer.html': 'Nintendo Switch modding explainer.',
-            'theta2.html': 'Theta2 engine technical documentation.',
-            'tiktok-israel-infographic.html': 'TikTok content moderation analysis.',
-            'va-scam.html': 'VA benefits scam awareness guide.',
-            'vet-schools.html': 'Veterinary school comparison and admissions.',
-            'white-sim-card.html': 'SIM card and mobile carrier guide.',
-        };
-        
-        const APPS = [
-            {
-                title: 'Health Tracker',
-                file: 'health.niggerfaggot.club',
-                url: 'https://health.niggerfaggot.club',
-                description: 'Weight tracking with real-time interpolation, body composition, exercise logging, and VO₂ max.',
-                type: 'app'
-            },
-            {
-                title: 'Foreman Bar',
-                file: 'drinks.niggerfaggot.club',
-                url: 'https://drinks.niggerfaggot.club',
-                description: 'Home cocktail menu - tracks inventory, shows what you can make, includes ratings.',
-                type: 'app'
-            },
-            {
-                title: 'Benny Things',
-                file: 'things.niggerfaggot.club',
-                url: 'https://things.niggerfaggot.club',
-                description: 'Kanban-style task board - backlog, todo, doing, done. Track what needs doing.',
-                type: 'app'
-            },
-            {
-                title: 'NatureDex',
-                file: 'nature.niggerfaggot.club',
-                url: 'https://nature.niggerfaggot.club',
-                description: 'Pokédex for nature - track birds, plants, insects, and wildlife you encounter.',
-                type: 'app'
-            },
-            {
-                title: 'Shopping List',
-                file: 'list.niggerfaggot.club',
-                url: 'https://list.niggerfaggot.club',
-                description: 'Shared household shopping list with categories, batch add, and real-time sync.',
-                type: 'app'
-            },
-            {
-                title: 'Jellyseerr',
-                file: 'tv.niggerfaggot.club',
-                url: 'https://tv.niggerfaggot.club',
-                description: 'Media request portal - search and request movies/shows. Auto-downloads via Radarr/Sonarr.',
-                type: 'service'
-            },
-            {
-                title: 'Jellyfin',
-                file: 'watch.niggerfaggot.club',
-                url: 'https://watch.niggerfaggot.club',
-                description: 'Media server - stream movies and TV shows from the home library.',
-                type: 'service'
-            },
-            {
-                title: 'Radarr',
-                file: 'radarr.niggerfaggot.club',
-                url: 'https://radarr.niggerfaggot.club',
-                description: 'Movie automation - monitors, grabs, and organizes movie downloads.',
-                type: 'service'
-            },
-            {
-                title: 'Sonarr',
-                file: 'sonarr.niggerfaggot.club',
-                url: 'https://sonarr.niggerfaggot.club',
-                description: 'TV automation - monitors, grabs, and organizes TV show downloads.',
-                type: 'service'
-            },
-            {
-                title: 'Prowlarr',
-                file: 'prowlarr.niggerfaggot.club',
-                url: 'https://prowlarr.niggerfaggot.club',
-                description: 'Indexer manager - feeds torrent search results to Radarr and Sonarr.',
-                type: 'service'
-            },
-            {
-                title: 'Bazarr',
-                file: 'subs.niggerfaggot.club',
-                url: 'https://subs.niggerfaggot.club',
-                description: 'Subtitle automation - auto-downloads subtitles for movies and TV shows.',
-                type: 'service'
-            },
-            {
-                title: 'Downloads',
-                file: 'dl.niggerfaggot.club',
-                url: 'https://dl.niggerfaggot.club',
-                description: 'qBittorrent web UI - torrent client management.',
-                type: 'service'
-            }
-        ];
-        
-        let artifacts = { apps: [], sites: [], pdfs: [] };
-        let loadingState = { apps: 'loading', sites: 'loading', pdfs: 'loading' };
-        
-        function formatSize(bytes) {
-            if (!bytes) return null;
-            if (bytes < 1024) return bytes + ' B';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-        }
-        
-        function titleCase(str) {
-            return str.replace(/[-_]/g, ' ').replace(/\.(html|pdf)$/i, '').replace(/\d+$/, '').trim().replace(/\b\w/g, c => c.toUpperCase());
-        }
-        
-        function updateStatus(source, status) {
-            loadingState[source] = status;
-            const el = document.getElementById(`status-${source}`);
-            el.className = `source-status ${status}`;
-            el.innerHTML = `<span class="dot ${status}"></span>${source.charAt(0).toUpperCase() + source.slice(1)}`;
-            
-            // Hide loading status when all done
-            if (Object.values(loadingState).every(s => s !== 'loading')) {
-                setTimeout(() => {
-                    document.getElementById('loading-status').style.display = 'none';
-                }, 500);
-            }
-        }
-        
-        function updateCounts() {
-            const appCount = artifacts.apps.filter(a => a.type === 'app').length;
-            const serviceCount = artifacts.apps.filter(a => a.type === 'service').length;
-            const siteCount = artifacts.sites.length;
-            const pdfCount = artifacts.pdfs.length;
-            const total = artifacts.apps.length + siteCount + pdfCount;
-            
-            document.getElementById('app-count').textContent = appCount;
-            document.getElementById('app-count').classList.remove('loading');
-            document.getElementById('service-count').textContent = serviceCount;
-            document.getElementById('service-count').classList.remove('loading');
-            document.getElementById('site-count').textContent = siteCount;
-            document.getElementById('site-count').classList.remove('loading');
-            document.getElementById('pdf-count').textContent = pdfCount;
-            document.getElementById('pdf-count').classList.remove('loading');
-            document.getElementById('count-all').textContent = total;
-            document.getElementById('count-app').textContent = appCount;
-            document.getElementById('count-service').textContent = serviceCount;
-            document.getElementById('count-site').textContent = siteCount;
-            document.getElementById('count-pdf').textContent = pdfCount;
-            document.getElementById('refresh-time').textContent = new Date().toLocaleTimeString();
-        }
-        
-        function renderCards() {
-            const search = document.getElementById('search').value.toLowerCase();
-            const activeFilter = document.querySelector('.tab.active').dataset.filter;
-            
-            let all = [...artifacts.apps, ...artifacts.sites, ...artifacts.pdfs].sort((a, b) => {
-                const order = { app: 0, service: 1, site: 2, pdf: 3 };
-                if (order[a.type] !== order[b.type]) return order[a.type] - order[b.type];
-                return a.title.localeCompare(b.title);
-            });
-            
-            if (activeFilter !== 'all') {
-                all = all.filter(a => a.type === activeFilter);
-            }
-            
-            if (search) {
-                all = all.filter(a => 
-                    a.title.toLowerCase().includes(search) || 
-                    a.file.toLowerCase().includes(search) ||
-                    (a.description && a.description.toLowerCase().includes(search))
-                );
-            }
-            
-            const grid = document.getElementById('grid');
-            
-            if (all.length === 0 && Object.values(loadingState).every(s => s !== 'loading')) {
-                grid.innerHTML = '<div class="empty-state">No artifacts found</div>';
-                return;
-            }
-            
-            if (all.length === 0) {
-                return; // Still loading, keep skeletons
-            }
-            
-            grid.innerHTML = all.map(artifact => `
-                <a href="${artifact.url}" target="_blank" class="card ${artifact.type === 'app' ? 'app-card' : artifact.type === 'service' ? 'service-card' : ''}">
-                    <div class="card-title">${artifact.title}</div>
-                    <div class="card-file">${artifact.file}</div>
-                    ${artifact.description ? `<div class="card-desc">${artifact.description}</div>` : ''}
-                    <div class="card-meta">
-                        <span class="badge ${artifact.type}">${artifact.type === 'site' ? 'page' : artifact.type}</span>
-                        ${artifact.size ? `<span class="badge size">${formatSize(artifact.size)}</span>` : ''}
-                    </div>
-                </a>
-            `).join('');
-        }
-        
-        async function loadApps() {
-            artifacts.apps = APPS;
-            updateStatus('apps', 'loaded');
-            updateCounts();
-            renderCards();
-        }
-        
-        async function loadSites() {
-            try {
-                const res = await fetch('https://api.github.com/repos/bibijeebi/claude-artifacts/contents');
-                const files = await res.json();
-                artifacts.sites = files
-                    .filter(f => f.name.endsWith('.html') && f.name !== 'index.html' && f.name !== 'gallery.html')
-                    .map(f => ({
-                        title: titleCase(f.name),
-                        file: f.name,
-                        url: PAGES_BASE + f.name,
-                        size: f.size,
-                        description: DESCRIPTIONS[f.name] || null,
-                        type: 'site'
-                    }));
-                updateStatus('sites', 'loaded');
-            } catch (e) {
-                console.error('GitHub fetch failed:', e);
-                updateStatus('sites', 'error');
-            }
-            updateCounts();
-            renderCards();
-        }
-        
-        async function loadPDFs() {
-            try {
-                const res = await fetch('https://claude-deploy.bennyforeman1.workers.dev/r2/list');
-                const data = await res.json();
-                artifacts.pdfs = data.files
-                    .filter(f => f.key.endsWith('.pdf') && !f.key.startsWith('_'))
-                    .map(f => ({
-                        title: titleCase(f.key),
-                        file: f.key,
-                        url: R2_BASE + f.key,
-                        size: f.size,
-                        description: DESCRIPTIONS[f.key] || null,
-                        type: 'pdf'
-                    }));
-                updateStatus('pdfs', 'loaded');
-            } catch (e) {
-                console.error('R2 fetch failed:', e);
-                updateStatus('pdfs', 'error');
-            }
-            updateCounts();
-            renderCards();
-        }
-        
-        function loadFromCache() {
-            try {
-                const cached = localStorage.getItem(CACHE_KEY);
-                if (cached) {
-                    const { data, timestamp } = JSON.parse(cached);
-                    if (Date.now() - timestamp < CACHE_TTL) {
-                        artifacts = data;
-                        updateCounts();
-                        renderCards();
-                        // Still show as loaded
-                        updateStatus('apps', 'loaded');
-                        updateStatus('sites', 'loaded');
-                        updateStatus('pdfs', 'loaded');
-                        return true;
-                    }
-                }
-            } catch (e) {}
-            return false;
-        }
-        
-        function saveToCache() {
-            try {
-                localStorage.setItem(CACHE_KEY, JSON.stringify({
-                    data: artifacts,
-                    timestamp: Date.now()
-                }));
-            } catch (e) {}
-        }
-        
-        async function loadAll(forceRefresh = false) {
-            // Reset state
-            loadingState = { apps: 'loading', sites: 'loading', pdfs: 'loading' };
-            document.getElementById('loading-status').style.display = 'block';
-            
-            // Try cache first (unless force refresh)
-            if (!forceRefresh && loadFromCache()) {
-                console.log('Loaded from cache');
-                return;
-            }
-            
-            // Reset UI for loading
-            document.getElementById('app-count').textContent = '-';
-            document.getElementById('app-count').classList.add('loading');
-            document.getElementById('service-count').textContent = '-';
-            document.getElementById('service-count').classList.add('loading');
-            document.getElementById('site-count').textContent = '-';
-            document.getElementById('site-count').classList.add('loading');
-            document.getElementById('pdf-count').textContent = '-';
-            document.getElementById('pdf-count').classList.add('loading');
-            
-            // Update status indicators
-            ['apps', 'sites', 'pdfs'].forEach(s => updateStatus(s, 'loading'));
-            
-            // Show skeletons
-            document.getElementById('grid').innerHTML = `
-                <div class="skeleton skeleton-card"></div>
-                <div class="skeleton skeleton-card"></div>
-                <div class="skeleton skeleton-card"></div>
-                <div class="skeleton skeleton-card"></div>
-                <div class="skeleton skeleton-card"></div>
-                <div class="skeleton skeleton-card"></div>
-            `;
-            
-            // Load all sources in parallel, render as each completes
-            await Promise.all([
-                loadApps(),
-                loadSites(),
-                loadPDFs()
-            ]);
-            
-            // Save to cache
-            saveToCache();
-        }
-        
-        document.getElementById('search').addEventListener('input', renderCards);
-        
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                renderCards();
-            });
-        });
-        
-        // Initial load
-        loadAll();
-    </script>
+      </a>
+    `;
+  }).join('');
+}
+
+//============================================================
+// RENDER: PINNED
+//============================================================
+function renderPinned(){
+  const sec = document.getElementById('pinned-section');
+  const grid = document.getElementById('pinned-grid');
+  const pinIds = Object.keys(PINS).sort((a,b)=>PINS[b]-PINS[a]);
+  if(pinIds.length === 0 || activeFilter!=='all' || searchQ){
+    sec.classList.add('hidden');
+    return;
+  }
+  sec.classList.remove('hidden');
+  document.getElementById('pinned-ct').textContent = pinIds.length;
+
+  const html = pinIds.map(pid => {
+    const [kind,key] = pid.split(':');
+    let item;
+    if(kind==='app')      item = DATA.apps.find(a=>a.id===key);
+    else if(kind==='svc') item = DATA.services.find(s=>s.host===key);
+    else                  item = [...DATA.sites,...DATA.pdfs].find(it=>it.file===key);
+    if(!item) return '';
+
+    if(kind==='app'){
+      return `<a href="${item.url}" target="_blank" class="app-tile">
+        <button class="pin-btn pinned" onclick="togglePin('${pid}',event)">★</button>
+        <div class="icon">${item.icon}</div>
+        <div class="ttl">${item.title}</div>
+        <div class="desc">${item.desc||''}</div>
+        <div class="url">${item.url.replace(/^https?:\/\//,'')}</div>
+      </a>`;
+    }
+    return `<a href="${item.url}" target="_blank" class="app-tile">
+      <button class="pin-btn pinned" onclick="togglePin('${pid}',event)">★</button>
+      <div class="icon">${item.type==='pdf'?'📄':'📑'}</div>
+      <div class="ttl">${item.title}</div>
+      <div class="desc">${item.desc||item.file}</div>
+      <div class="url">${item.file}</div>
+    </a>`;
+  }).join('');
+  grid.innerHTML = html;
+}
+
+//============================================================
+// MAIN RENDER
+//============================================================
+function render(){
+  renderPinned();
+  renderApps();
+  renderServices();
+  renderLibrary();
+  updateCounts();
+}
+
+function updateCounts(){
+  document.getElementById('ct-app').textContent = DATA.apps.length || '·';
+  document.getElementById('ct-svc').textContent = DATA.services.length || '·';
+  document.getElementById('ct-lib').textContent = DATA.sites.length || '·';
+  document.getElementById('ct-pdf').textContent = DATA.pdfs.length || '·';
+  document.getElementById('apps-ct').textContent = DATA.apps.length;
+  document.getElementById('svc-ct').textContent = DATA.services.length;
+  document.getElementById('lib-ct').textContent = DATA.sites.length + DATA.pdfs.length;
+  const total = DATA.apps.length + DATA.services.length + DATA.sites.length + DATA.pdfs.length;
+  document.getElementById('footer-stats').textContent = `${total} artifacts`;
+}
+
+//============================================================
+// LOADERS
+//============================================================
+async function loadSites(){
+  try{
+    const res = await fetch(`${GH_API}/contents`);
+    const files = await res.json();
+    const appPaths = new Set();
+    for(const a of APPS){
+      const m = a.url.match(/niggerfaggot\.club\/([^/]+\.html)$/);
+      if(m) appPaths.add(m[1]);
+    }
+    DATA.sites = files
+      .filter(f => f.name.endsWith('.html')
+        && f.name !== 'index.html'
+        && f.name !== '404.html'
+        && !appPaths.has(f.name))
+      .map(f => ({
+        type:'site',
+        title: titleCase(f.name),
+        file: f.name,
+        url: PAGES_BASE + f.name,
+        size: f.size,
+        mod: FILE_DATES[f.name] || null,
+        desc: DESCRIPTIONS[f.name] || null,
+        cat: categorize(f.name),
+      }));
+  }catch(e){console.error('sites fetch failed',e)}
+}
+
+async function loadPDFs(){
+  try{
+    const res = await fetch(R2_LIST);
+    const data = await res.json();
+    DATA.pdfs = data.files
+      .filter(f => f.key.endsWith('.pdf') && !f.key.startsWith('_'))
+      .map(f => ({
+        type:'pdf',
+        title: titleCase(f.key),
+        file: f.key,
+        url: R2_BASE + f.key,
+        size: f.size,
+        mod: f.lastModified || f.uploaded || null,
+        desc: DESCRIPTIONS[f.key] || null,
+        cat: categorize(f.key),
+      }));
+  }catch(e){console.error('pdf fetch failed',e)}
+}
+
+async function loadAll(force=false){
+  document.querySelector('.refresh').classList.add('spinning');
+
+  if(!force){
+    try{
+      const c = JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+      if(c && Date.now()-c.t < CACHE_TTL){
+        DATA = c.data;
+        document.getElementById('last-sync').textContent = 'cached';
+        render();
+        document.querySelector('.refresh').classList.remove('spinning');
+        // Background refresh
+        setTimeout(()=>loadAll(true),100);
+        return;
+      }
+    }catch{}
+  }
+
+  DATA.apps = APPS;
+  DATA.services = SERVICES;
+
+  // Kick off network loads in parallel
+  await Promise.all([loadSites(), loadPDFs()]);
+
+  document.getElementById('last-sync').textContent = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+  try{
+    localStorage.setItem(CACHE_KEY, JSON.stringify({t:Date.now(),data:DATA}));
+  }catch{}
+
+  render();
+  document.querySelector('.refresh').classList.remove('spinning');
+}
+
+function refresh(){loadAll(true)}
+
+//============================================================
+// EVENT WIRING
+//============================================================
+document.getElementById('search').addEventListener('input', e => {
+  searchQ = e.target.value.trim();
+  render();
+});
+
+document.querySelectorAll('.chips .chip').forEach(c => {
+  c.onclick = () => {
+    document.querySelectorAll('.chips .chip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    activeFilter = c.dataset.filter;
+    activeCat = 'all';
+    render();
+  };
+});
+
+const sortBtn = document.getElementById('sort-toggle');
+sortBtn.onclick = () => {
+  const order = ['recent','alpha','size'];
+  const i = order.indexOf(sortMode);
+  sortMode = order[(i+1)%order.length];
+  sortBtn.textContent = 'sort: '+sortMode;
+  render();
+};
+
+// Keyboard: '/' focuses search, 'r' refreshes, 'Esc' clears search
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT') {
+    if(e.key === 'Escape'){ e.target.blur(); e.target.value=''; searchQ=''; render(); }
+    return;
+  }
+  if(e.key === '/'){ e.preventDefault(); document.getElementById('search').focus(); }
+  if(e.key === 'r' && !e.metaKey && !e.ctrlKey){ refresh(); }
+});
+
+// Initial
+loadAll();
+</script>
+
 </body>
 </html>
-
-
