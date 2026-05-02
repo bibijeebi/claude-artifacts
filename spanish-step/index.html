@@ -82,8 +82,8 @@ const PARTS = [
     title: 'Part I — Elements of a Sentence',
     subtitle: 'Build the foundation: nouns, articles, verbs in present tense.',
     chapters: [
-      {n:1, title:'Nouns, Articles, Adjectives', concepts:['gender of nouns','el/la, los/las','plural rules','adjective agreement'], status:'available', slug:'ch-1'},
-      {n:2, title:'Estar, Ser, Subject Pronouns', concepts:['yo, tú, él, ella','estar (to be)','ser (to be)','when to use which'], status:'available', slug:'ch-2'},
+      {n:1, title:'Nouns, Articles, Adjectives', concepts:['gender of nouns','el/la, los/las','plural rules','adjective agreement'], status:'available', slug:'ch-1', storeKey:'spanish-step-ch1'},
+      {n:2, title:'Estar, Ser, Subject Pronouns', concepts:['yo, tú, él, ella','estar (to be)','ser (to be)','when to use which'], status:'available', slug:'ch-2', storeKey:'spanish-step-ch2'},
       {n:3, title:'Hay, Interrogatives, Days & Months', concepts:['there is / there are','question words','calendar vocabulary','simple prepositions'], status:'soon'},
       {n:4, title:'Numbers, Dates, Time', concepts:['cardinal & ordinal','dates','telling time','time idioms'], status:'soon'},
       {n:5, title:'Regular Verbs (Present)', concepts:['-ar conjugation','-er conjugation','-ir conjugation','everyday verbs'], status:'soon'},
@@ -113,33 +113,24 @@ const PARTS = [
   }
 ];
 
-function getChapterProgress(slug) {
-  // Pull the localStorage keys that Ch 1 (and future chapters) store under
-  // We treat a chapter as "started" if any progress key exists, "complete" if all 4 sections are done
-  const prefix = `${slug}:`;
-  let totalScore = 0, totalQuestions = 0, sectionsTouched = 0;
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith(prefix)) {
-      sectionsTouched++;
-      try {
-        const v = JSON.parse(localStorage.getItem(k));
-        if (typeof v === 'object' && 'correct' in v && 'idx' in v) {
-          totalScore += v.correct || 0;
-          totalQuestions += v.idx || 0;
-        }
-      } catch {}
-    }
+function getChapterProgress(storeKey) {
+  if (!storeKey) return { started: false, completed: false };
+  const raw = localStorage.getItem(storeKey);
+  if (!raw) return { started: false, completed: false };
+  try {
+    const s = JSON.parse(raw);
+    return { started: true, completed: !!s.completed };
+  } catch {
+    return { started: false, completed: false };
   }
-  return { sectionsTouched, totalScore, totalQuestions };
 }
 
-function statusBadge(status, slug) {
-  const prog = slug ? getChapterProgress(slug) : { sectionsTouched: 0 };
+function statusBadge(status, storeKey) {
   if (status === 'soon') return '<span class="badge badge-locked">Coming soon</span>';
-  if (prog.sectionsTouched === 0) return '<span class="badge badge-progress">Available</span>';
-  if (prog.sectionsTouched >= 4) return '<span class="badge badge-done">✓ Complete</span>';
-  return '<span class="badge badge-progress">▶ In progress</span>';
+  const prog = getChapterProgress(storeKey);
+  if (prog.completed) return '<span class="badge badge-done">✓ Complete</span>';
+  if (prog.started) return '<span class="badge badge-progress">▶ In progress</span>';
+  return '<span class="badge badge-progress">Available</span>';
 }
 
 function renderChapters() {
@@ -152,9 +143,8 @@ function renderChapters() {
     html += '<div class="grid sm:grid-cols-2 gap-3 mb-4">';
     for (const ch of part.chapters) {
       const isAvail = ch.status === 'available';
-      const prog = isAvail ? getChapterProgress(ch.slug) : { sectionsTouched: 0 };
-      const isDone = prog.sectionsTouched >= 4;
-      if (isDone) totalDone++;
+      const prog = isAvail ? getChapterProgress(ch.storeKey) : { started: false, completed: false };
+      if (prog.completed) totalDone++;
       const cardClass = isAvail ? 'chapter-card available' : 'chapter-card locked';
       const wrapOpen = isAvail ? `<a href="${ch.slug}/" class="block">` : '<div>';
       const wrapClose = isAvail ? '</a>' : '</div>';
@@ -164,7 +154,7 @@ function renderChapters() {
             <div class="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center font-mono font-bold ${isAvail ? 'text-teal-500' : 'text-gray-600'}">${ch.n}</div>
             <h3 class="font-semibold text-lg ${isAvail ? 'text-white' : 'text-gray-500'}">${ch.title}</h3>
           </div>
-          ${statusBadge(ch.status, ch.slug)}
+          ${statusBadge(ch.status, ch.storeKey)}
         </div>
         <ul class="text-sm text-gray-400 mt-3 space-y-1">
           ${ch.concepts.map(c=>`<li class="flex items-start gap-2"><span class="text-gray-600 mt-1">·</span>${c}</li>`).join('')}
@@ -190,7 +180,7 @@ document.getElementById('reset-all').addEventListener('click', () => {
   const keysToRemove = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
-    if (k && (k.startsWith('ch-') || k.startsWith('ch1:') || k.match(/^ch\d+:/))) keysToRemove.push(k);
+    if (k && k.startsWith('spanish-step-')) keysToRemove.push(k);
   }
   keysToRemove.forEach(k => localStorage.removeItem(k));
   renderChapters();
