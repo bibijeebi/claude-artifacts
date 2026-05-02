@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Spanish Leech Learn</title>
+<meta name="description" content="Quizlet-style adaptive drill for the worst Spanish leech clusters: reflexive twins, irregular participles, stop verbs, connectors, and become verbs.">
+<meta property="og:title" content="Spanish Leech Learn">
+<meta property="og:description" content="Adaptive drill for Spanish leech clusters. MC → reverse → typed → cloze. Same-cluster distractors kill the confusion.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/spanish-leech-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/spanish-leech.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/spanish-leech-og.jpg">
+<meta name="theme-color" content="#667eea">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1e293b;
+  }
+  .container {
+    max-width: 640px;
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    padding: 28px;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.35);
+  }
+  .mode-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #f1f5f9;
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 16px;
+  }
+  .mode-toggle button {
+    padding: 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+  .mode-toggle button.active {
+    background: white;
+    color: #6d28d9;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .progress-bar {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.4s ease;
+  }
+  .progress-text {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .stat {
+    text-align: center;
+    padding: 12px 6px;
+    border-radius: 10px;
+    background: #f8fafc;
+  }
+  .stat-num { font-size: 24px; font-weight: 700; line-height: 1; }
+  .stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px; font-weight: 600; }
+  .stat.new .stat-num { color: #94a3b8; }
+  .stat.learning .stat-num { color: #f59e0b; }
+  .stat.mastered .stat-num { color: #16a34a; }
+  .question-type {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .prompt {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 20px;
+    line-height: 1.35;
+    min-height: 70px;
+  }
+  .prompt.cloze { font-size: 20px; line-height: 1.5; }
+  .prompt .blank {
+    display: inline-block;
+    min-width: 80px;
+    border-bottom: 3px solid #6d28d9;
+    padding: 0 8px;
+    color: #6d28d9;
+  }
+  .hint {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: 14px;
+  }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .options.cloze { grid-template-columns: 1fr; }
+  .option {
+    padding: 14px;
+    background: #f1f5f9;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.15s;
+    text-align: left;
+    color: #1e293b;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+  .option:hover { background: #e2e8f0; border-color: #cbd5e1; }
+  .option:active { transform: scale(0.98); }
+  .option-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    background: #cbd5e1;
+    color: #475569;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .input-answer {
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    font-family: inherit;
+    -webkit-appearance: none;
+  }
+  .input-answer:focus { outline: none; border-color: #667eea; }
+  .submit-btn, .continue-btn, .start-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s;
+  }
+  .submit-btn { background: #667eea; color: white; }
+  .submit-btn:hover, .start-btn:hover { opacity: 0.9; }
+  .continue-btn { background: #1e293b; color: white; }
+  .continue-btn:hover { background: #334155; }
+  .start-btn { background: linear-gradient(90deg, #667eea, #764ba2); color: white; }
+  .feedback {
+    padding: 14px;
+    border-radius: 10px;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+  .feedback.correct { background: #dcfce7; color: #15803d; border-left: 4px solid #16a34a; }
+  .feedback.wrong { background: #fee2e2; color: #991b1b; border-left: 4px solid #dc2626; }
+  .feedback strong { display: block; margin-bottom: 4px; font-size: 18px; }
+  .feedback .said { display: block; font-size: 13px; opacity: 0.85; margin-top: 4px; }
+  .feedback .note { display: block; margin-top: 10px; font-style: italic; opacity: 0.9; padding-top: 10px; border-top: 1px solid rgba(0,0,0,0.1); line-height: 1.5; }
+  .home {
+    text-align: center;
+    padding: 12px 8px;
+  }
+  .home h2 { color: #1e293b; margin-bottom: 10px; font-size: 22px; }
+  .home p { color: #64748b; margin-bottom: 18px; font-size: 14px; line-height: 1.5; }
+  .restart-btn {
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid #cbd5e1;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-top: 12px;
+    font-family: inherit;
+  }
+  .restart-btn:hover { background: #f1f5f9; }
+  .cluster-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+    justify-content: center;
+  }
+  .cluster-pill {
+    padding: 6px 11px;
+    border-radius: 20px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .cluster-pill.active {
+    background: #ede9fe;
+    color: #6d28d9;
+    border-color: #c4b5fd;
+  }
+  @media (max-width: 480px) {
+    body { padding: 10px; }
+    .container { padding: 18px; border-radius: 14px; }
+    .prompt { font-size: 20px; min-height: 60px; }
+    .prompt.cloze { font-size: 18px; }
+    .options { grid-template-columns: 1fr; }
+    .stat-num { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+<script>
+const VOCAB_CARDS = [
+  // Reflexive twins
+  { id: 'sentir', prompt: 'to feel (a thing — I feel the cold)', answer: 'sentir', cluster: 'reflexive', note: 'Plain sentir = feel a noun. "Siento el frío."' },
+  { id: 'sentirse', prompt: 'to feel (a way — I feel sad)', answer: 'sentirse', cluster: 'reflexive', note: 'Reflexive = feel an emotion/state. "Me siento triste."' },
+  { id: 'encontrar', prompt: 'to find (locate something)', answer: 'encontrar', cluster: 'reflexive', note: '"Encontré las llaves."' },
+  { id: 'encontrarse', prompt: 'to meet up / to feel (state)', answer: 'encontrarse', cluster: 'reflexive', note: '"Me encuentro bien." / "Nos encontramos en el bar."' },
+  { id: 'poner', prompt: 'to put (place an object)', answer: 'poner', cluster: 'reflexive', note: '"Pongo el libro en la mesa."' },
+  { id: 'ponerse', prompt: 'to put on / to become (sudden state)', answer: 'ponerse', cluster: 'reflexive', note: '"Me pongo la chaqueta." / "Se puso rojo."' },
+  { id: 'reir', prompt: 'to laugh', answer: 'reír', cluster: 'reflexive', note: '"Ella ríe mucho."' },
+  { id: 'reirse', prompt: 'to laugh AT (mock, with "de")', answer: 'reírse', cluster: 'reflexive', note: 'Always with "de". "Se ríe de mí."' },
+  { id: 'vestir', prompt: 'to dress (someone else)', answer: 'vestir', cluster: 'reflexive', note: '"Visto al bebé."' },
+  { id: 'vestirse', prompt: 'to get dressed (yourself)', answer: 'vestirse', cluster: 'reflexive', note: '"Me visto rápido."' },
+
+  // Irregular past participles
+  { id: 'abierto', prompt: 'opened (irregular past participle)', answer: 'abierto', cluster: 'participle', note: 'From abrir. "La puerta está abierta."' },
+  { id: 'visto', prompt: 'seen (irregular past participle)', answer: 'visto', cluster: 'participle', note: 'From ver. "He visto la película."' },
+  { id: 'vuelto', prompt: 'returned (irregular past participle)', answer: 'vuelto', cluster: 'participle', note: 'From volver. "Ha vuelto a casa."' },
+  { id: 'escrito', prompt: 'written (irregular past participle)', answer: 'escrito', cluster: 'participle', note: 'From escribir. "He escrito una carta."' },
+  { id: 'dicho', prompt: 'said (irregular past participle)', answer: 'dicho', cluster: 'participle', note: 'From decir. "He dicho la verdad."' },
+  { id: 'hecho', prompt: 'done / made (irregular past participle)', answer: 'hecho', cluster: 'participle', note: 'From hacer. "He hecho la tarea."' },
+  { id: 'puesto', prompt: 'put / placed (irregular past participle)', answer: 'puesto', cluster: 'participle', note: 'From poner. "He puesto la mesa."' },
+  { id: 'cubierto', prompt: 'covered (irregular past participle)', answer: 'cubierto', cluster: 'participle', note: 'From cubrir. "Cubierto de nieve."' },
+  { id: 'ido', prompt: 'gone (irregular past participle)', answer: 'ido', cluster: 'participle', note: 'From ir. "Ha ido al mercado."' },
+  { id: 'roto', prompt: 'broken (irregular past participle)', answer: 'roto', cluster: 'participle', note: 'From romper. "El vaso está roto."' },
+
+  // Stop / leave / give up verbs
+  { id: 'dejar', prompt: 'to leave (something) behind / to let', answer: 'dejar', cluster: 'stop', note: '"Dejé las llaves en casa."' },
+  { id: 'dejar-de', prompt: 'to stop doing / to quit (an activity)', answer: 'dejar de', cluster: 'stop', note: '"Dejé de fumar." (I quit smoking)' },
+  { id: 'detenerse', prompt: 'to stop (physically halt motion)', answer: 'detenerse', cluster: 'stop', note: '"El coche se detuvo."' },
+  { id: 'quedarse', prompt: 'to stay / to remain', answer: 'quedarse', cluster: 'stop', note: '"Me quedé en casa."' },
+  { id: 'rendirse', prompt: 'to give up / to surrender', answer: 'rendirse', cluster: 'stop', note: '"No te rindas."' },
+  { id: 'irse', prompt: 'to leave (depart from here)', answer: 'irse', cluster: 'stop', note: '"Me voy ahora."' },
+
+  // Discourse connectors
+  { id: 'ademas', prompt: 'besides / also / moreover', answer: 'además', cluster: 'connector', note: 'Adds an extra point. "Es caro. Además, es feo."' },
+  { id: 'de-hecho', prompt: 'in fact / actually', answer: 'de hecho', cluster: 'connector', note: '"De hecho, ya lo sabía."' },
+  { id: 'en-realidad', prompt: 'actually / really (correcting an assumption)', answer: 'en realidad', cluster: 'connector', note: '"En realidad, no fui yo."' },
+  { id: 'por-supuesto', prompt: 'of course', answer: 'por supuesto', cluster: 'connector', note: '"¿Vienes? Por supuesto."' },
+  { id: 'apenas', prompt: 'barely / hardly / as soon as', answer: 'apenas', cluster: 'connector', note: '"Apenas puedo ver."' },
+  { id: 'de-repente', prompt: 'suddenly', answer: 'de repente', cluster: 'connector', note: '"De repente, llegó."' },
+  { id: 'todavia', prompt: 'still / not yet (ongoing)', answer: 'todavía', cluster: 'connector', note: '"Todavía no he comido." Opposite of ya.' },
+  { id: 'ya', prompt: 'already / now (done)', answer: 'ya', cluster: 'connector', note: '"Ya comí." Opposite of todavía.' },
+  { id: 'asi-que', prompt: 'so / therefore (RESULT follows)', answer: 'así que', cluster: 'connector', note: 'Result follows. "Llovía, así que me quedé."' },
+  { id: 'ya-que', prompt: 'since / given that (CAUSE follows)', answer: 'ya que', cluster: 'connector', note: 'Cause follows. "Ya que estás aquí, ayúdame."' },
+
+  // Become verbs
+  { id: 'volverse', prompt: 'to become (deep transformation, often negative)', answer: 'volverse', cluster: 'become', note: '"Se volvió loco." (he went crazy) Permanent flip.' },
+];
+
+// Cloze cards: sentence with __ blank, answer + 3 distractors
+const CLOZE_CARDS = [
+  // Reflexive twins
+  { id: 'cl-sentirse-1', prompt: 'Hoy __ muy cansada y voy a descansar.', answer: 'me siento', options: ['siento', 'me sento', 'sento'], note: 'sentirse = feel a way. Me + conjugated form.' },
+  { id: 'cl-sentir-1', prompt: '__ el frío en mis manos sin guantes.', answer: 'Siento', options: ['Me siento', 'Sentí', 'Sento'], note: 'sentir (no me) = feel a thing/sensation directly.' },
+  { id: 'cl-vestirse-1', prompt: 'Voy a __ rápido, llego tarde al trabajo.', answer: 'vestirme', options: ['vestir', 'vestirse', 'vestir al'], note: 'vestirse = dress yourself. Infinitive attaches reflexive: vestir + me.' },
+  { id: 'cl-vestir-1', prompt: 'El padre va a __ al niño antes de salir.', answer: 'vestir', options: ['vestirse', 'vestirme', 'vestirlo'], note: 'vestir (transitive) = dress someone else. "al niño" = direct object.' },
+  { id: 'cl-reirse-1', prompt: 'Ella siempre __ de los chistes de su hermano.', answer: 'se ríe', options: ['ríe', 'reír', 'sería'], note: 'reírse de = laugh AT. The "de" is already in the sentence — reflexive required.' },
+  { id: 'cl-encontrarse-1', prompt: 'Vamos a __ en el bar a las 7.', answer: 'encontrarnos', options: ['encontrar', 'encontrarse', 'vernos'], note: 'encontrarse = meet up. "vamos" = nosotros, so reflexive is -nos.' },
+  { id: 'cl-encontrar-1', prompt: 'No puedo __ mis llaves en ningún lado.', answer: 'encontrar', options: ['encontrarme', 'perder', 'dejar'], note: 'encontrar = locate a thing. No reflexive needed.' },
+  { id: 'cl-ponerse-1', prompt: 'Antes de hablar en público, me __ muy nervioso.', answer: 'pongo', options: ['puse', 'hago', 'vuelvo'], note: 'ponerse + adj = sudden state. Present yo = pongo.' },
+  { id: 'cl-poner-1', prompt: 'Voy a __ el plato sucio en el lavavajillas.', answer: 'poner', options: ['ponerme', 'ponerse', 'dejar'], note: 'poner = place an object. No reflexive when putting things.' },
+
+  // Stop / leave verbs
+  { id: 'cl-dejar-de-1', prompt: 'Quiero __ fumar este año.', answer: 'dejar de', options: ['dejar', 'parar', 'detenerme'], note: 'dejar de + inf = quit/stop doing an activity.' },
+  { id: 'cl-detenerse-1', prompt: 'El autobús va a __ en la próxima parada.', answer: 'detenerse', options: ['dejar', 'parar', 'dejar de'], note: 'detenerse = physical halt of motion.' },
+  { id: 'cl-quedarse-1', prompt: 'Anoche __ en casa viendo Netflix.', answer: 'me quedé', options: ['me dejé', 'me detuve', 'me fui'], note: 'quedarse = stay/remain. Preterite yo = me quedé.' },
+  { id: 'cl-rendirse-1', prompt: 'No te __ nunca, sigue luchando.', answer: 'rindas', options: ['dejes', 'detengas', 'vayas'], note: 'rendirse = give up. Negative tú command (subjunctive) = rindas.' },
+  { id: 'cl-dejar-1', prompt: '__ las llaves en la mesa, no las pierdas.', answer: 'Deja', options: ['Detén', 'Quédate', 'Vete'], note: 'dejar = leave a thing behind. Tú command = Deja.' },
+  { id: 'cl-irse-1', prompt: 'Es tarde, voy a __ a casa ahora.', answer: 'irme', options: ['ir', 'dejarme', 'dejar'], note: 'irse = depart. Infinitive with reflexive yo = irme.' },
+
+  // Connectors
+  { id: 'cl-asi-que-1', prompt: 'Llovía mucho, __ no pude salir.', answer: 'así que', options: ['ya que', 'además', 'en realidad'], note: 'así que = result follows. Cause then effect.' },
+  { id: 'cl-ya-que-1', prompt: '__ tienes el coche, podríamos ir al cine.', answer: 'Ya que', options: ['Así que', 'Además', 'Apenas'], note: 'ya que = since/given that. Cause follows, then conclusion.' },
+  { id: 'cl-todavia-1', prompt: '__ no he comido. Tengo mucha hambre.', answer: 'Todavía', options: ['Ya', 'Apenas', 'Recién'], note: 'todavía no = still/not yet. Action is ongoing/incomplete.' },
+  { id: 'cl-ya-1', prompt: '__ comí, no tengo hambre. Gracias.', answer: 'Ya', options: ['Todavía', 'Apenas', 'Recién'], note: 'ya = already (done). Opposite of todavía.' },
+  { id: 'cl-ademas-1', prompt: 'El examen es difícil. __, es muy largo.', answer: 'Además', options: ['En realidad', 'De hecho', 'Ya que'], note: 'además = besides/also. Adds another point in the same direction.' },
+  { id: 'cl-en-realidad-1', prompt: 'Pensé que estaba enojado, pero __ estaba cansado.', answer: 'en realidad', options: ['además', 'así que', 'por supuesto'], note: 'en realidad = actually (correcting a wrong assumption).' },
+  { id: 'cl-apenas-1', prompt: '__ puedo escuchar lo que dice, habla muy bajo.', answer: 'Apenas', options: ['Todavía', 'Casi', 'Ya'], note: 'apenas = barely/hardly. Very small amount.' },
+  { id: 'cl-de-repente-1', prompt: '__, empezó a llover y nos mojamos.', answer: 'De repente', options: ['Apenas', 'Todavía', 'Por supuesto'], note: 'de repente = suddenly. Unexpected event.' },
+
+  // Past participles
+  { id: 'cl-dicho-1', prompt: 'He __ la verdad sobre el accidente.', answer: 'dicho', options: ['decido', 'dito', 'declarado'], note: 'decir → dicho (irregular past participle).' },
+  { id: 'cl-visto-1', prompt: '¿Has __ esa película nueva?', answer: 'visto', options: ['vido', 'vito', 'viendo'], note: 'ver → visto (irregular past participle).' },
+  { id: 'cl-roto-1', prompt: 'El vaso está __ en mil pedazos.', answer: 'roto', options: ['rompido', 'rota', 'rompí'], note: 'romper → roto. As adjective with estar, agrees with vaso (masc).' },
+  { id: 'cl-vuelto-1', prompt: 'Ha __ a su casa después del viaje.', answer: 'vuelto', options: ['volvido', 'volvió', 'volver'], note: 'volver → vuelto (irregular past participle).' },
+
+  // Become verbs
+  { id: 'cl-volverse-1', prompt: 'Después del accidente, se __ una persona diferente.', answer: 'volvió', options: ['puso', 'quedó', 'hizo'], note: 'volverse = deep/permanent transformation.' },
+  { id: 'cl-ponerse-2', prompt: 'Cuando me dieron el premio, me __ rojo.', answer: 'puse', options: ['volví', 'quedé', 'hice'], note: 'ponerse + color/emotion = sudden temporary change.' },
+  { id: 'cl-quedarse-2', prompt: 'Después de la noticia, todos se __ en silencio.', answer: 'quedaron', options: ['pusieron', 'volvieron', 'dejaron'], note: 'quedarse = end up in a state as a result.' },
+];
+
+const CLUSTERS = {
+  all: 'All',
+  reflexive: 'Reflexive',
+  participle: 'Participles',
+  stop: 'Stop/Leave',
+  connector: 'Connectors',
+  become: 'Become',
+};
+
+let state = {
+  mode: 'vocab', // 'vocab' or 'cloze'
+  vocabCards: VOCAB_CARDS.map(c => ({ ...c, level: 0, lastSeen: 0 })),
+  clozeCards: CLOZE_CARDS.map(c => ({ ...c, level: 0, lastSeen: 0 })),
+  round: 0,
+  totalAnswered: 0,
+  currentQuestion: null,
+  queue: [],
+  activeCluster: 'all',
+  keyHandler: null,
+};
+
+function activeCards() {
+  if (state.mode === 'cloze') return state.clozeCards;
+  return state.activeCluster === 'all'
+    ? state.vocabCards
+    : state.vocabCards.filter(c => c.cluster === state.activeCluster);
+}
+
+function maxLevel() { return state.mode === 'cloze' ? 2 : 3; }
+
+function normalize(s) {
+  return s.toLowerCase().trim()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[.,!?;:¿¡]/g, '');
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickRound() {
+  const max = maxLevel();
+  const pool = activeCards().filter(c => c.level < max);
+  if (pool.length === 0) return [];
+  const sorted = [...pool].sort((a, b) => {
+    if (a.level !== b.level) return a.level - b.level;
+    return a.lastSeen - b.lastSeen;
+  });
+  return sorted.slice(0, Math.min(5, sorted.length));
+}
+
+function pickWrongOptions(card, n, fromAnswers = true) {
+  const all = state.vocabCards;
+  const sameCluster = all.filter(c => c.cluster === card.cluster && c.id !== card.id);
+  const others = all.filter(c => c.cluster !== card.cluster && c.id !== card.id);
+  const pool = shuffle([...sameCluster, ...others]);
+  const seen = new Set([fromAnswers ? card.answer : card.prompt]);
+  const out = [];
+  for (const c of pool) {
+    const v = fromAnswers ? c.answer : c.prompt;
+    if (!seen.has(v)) {
+      out.push(v);
+      seen.add(v);
+    }
+    if (out.length === n) break;
+  }
+  return out;
+}
+
+function makeQuestion(card) {
+  if (state.mode === 'cloze') {
+    // Cloze always MC. Both levels same question type, just shuffled.
+    return { type: 'cloze-mc', card, prompt: card.prompt, options: shuffle([card.answer, ...card.options]), correct: card.answer };
+  }
+  if (card.level === 0) {
+    const wrongs = pickWrongOptions(card, 3, true);
+    return { type: 'mc', card, prompt: card.prompt, options: shuffle([card.answer, ...wrongs]), correct: card.answer };
+  } else if (card.level === 1) {
+    const wrongs = pickWrongOptions(card, 3, false);
+    return { type: 'mc-reverse', card, prompt: card.answer, options: shuffle([card.prompt, ...wrongs]), correct: card.prompt };
+  } else {
+    return { type: 'type', card, prompt: card.prompt, correct: card.answer };
+  }
+}
+
+function clearKeyHandler() {
+  if (state.keyHandler) {
+    document.removeEventListener('keydown', state.keyHandler);
+    state.keyHandler = null;
+  }
+}
+
+function render() {
+  clearKeyHandler();
+  if (!state.currentQuestion) renderHome();
+  else renderQuestion();
+}
+
+function renderModeToggle() {
+  return `
+    <div class="mode-toggle">
+      <button class="${state.mode === 'vocab' ? 'active' : ''}" onclick="setMode('vocab')">Vocab Drill</button>
+      <button class="${state.mode === 'cloze' ? 'active' : ''}" onclick="setMode('cloze')">Cloze Drill</button>
+    </div>
+  `;
+}
+
+function renderClusterBar() {
+  if (state.mode === 'cloze') return '';
+  return `<div class="cluster-bar">${Object.entries(CLUSTERS).map(([key, label]) => {
+    const count = key === 'all' ? state.vocabCards.length : state.vocabCards.filter(c => c.cluster === key).length;
+    const mastered = key === 'all'
+      ? state.vocabCards.filter(c => c.level === 3).length
+      : state.vocabCards.filter(c => c.cluster === key && c.level === 3).length;
+    return `<button class="cluster-pill ${state.activeCluster === key ? 'active' : ''}" onclick="setCluster('${key}')">${label} ${mastered}/${count}</button>`;
+  }).join('')}</div>`;
+}
+
+function renderHome() {
+  const cards = activeCards();
+  const max = maxLevel();
+  const total = cards.length;
+  const mastered = cards.filter(c => c.level >= max).length;
+  const learning = cards.filter(c => c.level > 0 && c.level < max).length;
+  const newCount = cards.filter(c => c.level === 0).length;
+  const pct = total > 0 ? (mastered / total) * 100 : 0;
+  const allDone = mastered === total && total > 0;
+
+  document.getElementById('app').innerHTML = `
+    ${renderModeToggle()}
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-text"><span>Round ${state.round}</span><span>${mastered}/${total} mastered</span></div>
+    ${renderClusterBar()}
+    <div class="stats">
+      <div class="stat new"><div class="stat-num">${newCount}</div><div class="stat-label">New</div></div>
+      <div class="stat learning"><div class="stat-num">${learning}</div><div class="stat-label">Learning</div></div>
+      <div class="stat mastered"><div class="stat-num">${mastered}</div><div class="stat-label">Mastered</div></div>
+    </div>
+    <div class="home">
+      ${allDone ? `
+        <h2>🎉 ${state.mode === 'cloze' ? 'Cloze' : 'Cluster'} Mastered!</h2>
+        <p>Switch modes or reset to drill again.</p>
+        <button class="restart-btn" onclick="resetCurrent()">Reset this mode</button>
+      ` : `
+        <h2>${state.round === 0 ? (state.mode === 'cloze' ? '🇪🇸 Cloze Sentences' : '🇪🇸 Spanish Leech Learn') : '✓ Round Complete'}</h2>
+        <p>${state.mode === 'cloze'
+          ? 'Pick the right word for the blank. Same-cluster distractors test your real understanding.'
+          : (state.round === 0 ? 'MC → reverse MC → typed. Same-cluster distractors. Wrong answers come back fast.' : 'Keep going. The next round mixes in your weakest cards.')}</p>
+        <button class="start-btn" onclick="startRound()">${state.round === 0 ? 'Start Learning' : 'Continue'}</button>
+        ${state.round > 0 ? '<button class="restart-btn" onclick="resetCurrent()">Reset this mode</button>' : ''}
+      `}
+    </div>
+  `;
+}
+
+function renderClozePrompt(text) {
+  return escapeHtml(text).replace(/__/g, '<span class="blank">&nbsp;</span>');
+}
+
+function renderQuestion() {
+  const q = state.currentQuestion;
+  const cards = activeCards();
+  const max = maxLevel();
+  const total = cards.length;
+  const mastered = cards.filter(c => c.level >= max).length;
+  const pct = total > 0 ? (mastered / total) * 100 : 0;
+
+  let body = '';
+  if (q.type === 'mc') {
+    body = `
+      <div class="question-type">Pick the Spanish</div>
+      <div class="prompt">${escapeHtml(q.prompt)}</div>
+      <div class="options">
+        ${q.options.map((opt, i) => `<button class="option" onclick="answerMC(${i})"><span class="option-num">${i+1}</span>${escapeHtml(opt)}</button>`).join('')}
+      </div>
+    `;
+  } else if (q.type === 'mc-reverse') {
+    body = `
+      <div class="question-type">Pick the meaning</div>
+      <div class="prompt" style="color:#6d28d9">${escapeHtml(q.prompt)}</div>
+      <div class="options">
+        ${q.options.map((opt, i) => `<button class="option" onclick="answerMC(${i})"><span class="option-num">${i+1}</span>${escapeHtml(opt)}</button>`).join('')}
+      </div>
+    `;
+  } else if (q.type === 'cloze-mc') {
+    body = `
+      <div class="question-type">Fill the blank</div>
+      <div class="prompt cloze">${renderClozePrompt(q.prompt)}</div>
+      <div class="options cloze">
+        ${q.options.map((opt, i) => `<button class="option" onclick="answerMC(${i})"><span class="option-num">${i+1}</span>${escapeHtml(opt)}</button>`).join('')}
+      </div>
+    `;
+  } else {
+    body = `
+      <div class="question-type">Type the Spanish</div>
+      <div class="prompt">${escapeHtml(q.prompt)}</div>
+      <div class="hint">Accents and case don't matter.</div>
+      <input type="text" class="input-answer" id="answer-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
+      <button class="submit-btn" onclick="submitTyped()">Check</button>
+    `;
+  }
+
+  document.getElementById('app').innerHTML = `
+    ${renderModeToggle()}
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-text"><span>Round ${state.round}</span><span>${mastered}/${total} mastered</span></div>
+    ${body}
+  `;
+
+  if (q.type === 'mc' || q.type === 'mc-reverse' || q.type === 'cloze-mc') {
+    state.keyHandler = (e) => {
+      const num = parseInt(e.key);
+      if (num >= 1 && num <= q.options.length) {
+        e.preventDefault();
+        answerMC(num - 1);
+      }
+    };
+    document.addEventListener('keydown', state.keyHandler);
+  } else {
+    const input = document.getElementById('answer-input');
+    if (input) {
+      input.focus();
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') submitTyped(); });
+    }
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function answerMC(idx) {
+  clearKeyHandler();
+  const q = state.currentQuestion;
+  const picked = q.options[idx];
+  const correct = picked === q.correct;
+  showFeedback(correct, picked);
+}
+
+function submitTyped() {
+  const input = document.getElementById('answer-input');
+  if (!input) return;
+  const picked = input.value;
+  const q = state.currentQuestion;
+  const correct = normalize(picked) === normalize(q.correct);
+  showFeedback(correct, picked);
+}
+
+function showFeedback(correct, picked) {
+  clearKeyHandler();
+  const q = state.currentQuestion;
+  const max = maxLevel();
+  state.totalAnswered++;
+  q.card.lastSeen = state.totalAnswered;
+
+  if (correct) {
+    q.card.level = Math.min(max, q.card.level + 1);
+  } else {
+    q.card.level = Math.max(0, q.card.level - 1);
+    const insertPos = Math.min(state.queue.length, Math.floor(Math.random() * 3) + 2);
+    state.queue.splice(insertPos, 0, q.card);
+  }
+
+  const cards = activeCards();
+  const total = cards.length;
+  const mastered = cards.filter(c => c.level >= max).length;
+  const pct = total > 0 ? (mastered / total) * 100 : 0;
+
+  const promptDisplay = q.type === 'cloze-mc' ? renderClozePrompt(q.prompt) : escapeHtml(q.prompt);
+
+  document.getElementById('app').innerHTML = `
+    ${renderModeToggle()}
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-text"><span>Round ${state.round}</span><span>${mastered}/${total} mastered</span></div>
+    <div class="question-type">${correct ? '✓ Correct' : '✗ Not quite'}</div>
+    <div class="prompt ${q.type === 'cloze-mc' ? 'cloze' : ''}">${promptDisplay}</div>
+    <div class="feedback ${correct ? 'correct' : 'wrong'}">
+      <strong>${escapeHtml(q.correct)}</strong>
+      ${!correct ? `<span class="said">You said: ${escapeHtml(picked || '(blank)')}</span>` : ''}
+      <span class="note">${escapeHtml(q.card.note)}</span>
+    </div>
+    <button class="continue-btn" onclick="nextQuestion()">Continue (Enter)</button>
+  `;
+
+  state.keyHandler = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      nextQuestion();
+    }
+  };
+  document.addEventListener('keydown', state.keyHandler);
+}
+
+function nextQuestion() {
+  clearKeyHandler();
+  if (state.queue.length === 0) {
+    state.currentQuestion = null;
+    render();
+  } else {
+    const card = state.queue.shift();
+    state.currentQuestion = makeQuestion(card);
+    render();
+  }
+}
+
+function startRound() {
+  const round = pickRound();
+  if (round.length === 0) {
+    state.currentQuestion = null;
+    render();
+    return;
+  }
+  state.round++;
+  state.queue = shuffle(round);
+  const card = state.queue.shift();
+  state.currentQuestion = makeQuestion(card);
+  render();
+}
+
+function setCluster(key) {
+  state.activeCluster = key;
+  state.currentQuestion = null;
+  state.queue = [];
+  render();
+}
+
+function setMode(m) {
+  if (state.mode === m) return;
+  state.mode = m;
+  state.currentQuestion = null;
+  state.queue = [];
+  state.round = 0;
+  render();
+}
+
+function resetCurrent() {
+  if (!confirm('Reset progress for this mode?')) return;
+  const cards = state.mode === 'cloze' ? state.clozeCards : state.vocabCards;
+  cards.forEach(c => { c.level = 0; c.lastSeen = 0; });
+  state.round = 0;
+  state.currentQuestion = null;
+  state.queue = [];
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
