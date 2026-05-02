@@ -3,7 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Easy Spanish Step-by-Step · Ch 1</title>
+<title>Spanish Step · 15 Chapters</title>
+
+<meta property="og:title" content="Spanish Step · Interactive Spanish Course">
+<meta property="og:description" content="15 chapters of Spanish grammar with interactive drills, original readings, and instant feedback. Built for learners who want to actually pass an exam.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/spanish-step-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/spanish-step/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/spanish-step-og.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,433 +28,175 @@ tailwind.config = {
 <style>
 html,body{overflow-x:hidden}
 body{font-family:'Inter',system-ui,sans-serif;background:#0a0e14;color:#e5e7eb}
-.card-flip{perspective:1000px}
-.card-flip-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
-.card-flip.flipped .card-flip-inner{transform:rotateY(180deg)}
-.card-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:.75rem;padding:1rem}
-.card-back{transform:rotateY(180deg)}
-.shake{animation:shake .3s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.glossary-word{cursor:help;border-bottom:1px dotted #14b8a6;position:relative}
-.glossary-word:hover{color:#14b8a6}
-.glossary-word .tip{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#1f2937;color:#f59e0b;padding:.25rem .5rem;border-radius:.25rem;font-size:.75rem;white-space:nowrap;z-index:10;margin-bottom:.25rem;border:1px solid #374151}
-.glossary-word:hover .tip{display:block}
-input[type=text]{background:#1f2937;border:1px solid #374151;color:#e5e7eb;border-radius:.5rem;padding:.5rem .75rem;font-family:inherit}
-input[type=text]:focus{outline:none;border-color:#14b8a6;box-shadow:0 0 0 2px rgba(20,184,166,.2)}
-.btn{padding:.5rem 1rem;border-radius:.5rem;font-weight:500;transition:all .15s;cursor:pointer;border:none;font-family:inherit}
-.btn-primary{background:#14b8a6;color:#0a0e14}
-.btn-primary:hover{background:#0d9488}
-.btn-ghost{background:#1f2937;color:#e5e7eb;border:1px solid #374151}
-.btn-ghost:hover{background:#374151}
-.progress-ring{transform:rotate(-90deg)}
-details summary{cursor:pointer;list-style:none}
-details summary::-webkit-details-marker{display:none}
-.chip{display:inline-flex;align-items:center;gap:.25rem;padding:.125rem .5rem;border-radius:9999px;font-size:.75rem;font-weight:500}
-.chip-m{background:rgba(20,184,166,.15);color:#5eead4;border:1px solid rgba(20,184,166,.3)}
-.chip-f{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3)}
-.section-anchor{scroll-margin-top:1rem}
+.chapter-card{transition:all .2s;border:1px solid #1f2937}
+.chapter-card.available{border-color:#14b8a6}
+.chapter-card.available:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(20,184,166,.15);border-color:#0d9488}
+.chapter-card.locked{opacity:.5}
+.part-divider{display:flex;align-items:center;gap:1rem;margin:2.5rem 0 1.5rem 0}
+.part-divider::after{content:'';flex:1;height:1px;background:linear-gradient(to right,#374151,transparent)}
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.125rem .625rem;border-radius:9999px;font-size:.7rem;font-weight:600;letter-spacing:.025em;text-transform:uppercase}
+.badge-done{background:rgba(20,184,166,.15);color:#5eead4;border:1px solid rgba(20,184,166,.3)}
+.badge-progress{background:rgba(245,158,11,.15);color:#fcd34d;border:1px solid rgba(245,158,11,.3)}
+.badge-locked{background:#1f2937;color:#6b7280;border:1px solid #374151}
+.progress-track{height:8px;background:#1f2937;border-radius:9999px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(to right,#14b8a6,#0d9488);transition:width .5s}
 </style>
 </head>
 <body class="min-h-screen">
 
-<div class="max-w-3xl mx-auto px-4 py-8 sm:py-12">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
 
-<!-- HERO -->
+<!-- Hero -->
 <header class="mb-12">
-  <div class="flex items-center justify-between mb-3">
-    <span class="text-xs uppercase tracking-widest text-teal-500 font-semibold">Easy Spanish · Step by Step</span>
-    <span id="chapter-badge" class="chip chip-m">Chapter 1 of 15</span>
-  </div>
-  <h1 class="text-4xl sm:text-5xl font-extrabold mb-3 leading-tight">Nouns, Articles, &amp; Agreement</h1>
-  <p class="text-gray-400 text-lg leading-relaxed">Every Spanish noun has a gender. Every article and adjective bends to match. Lock in the rules here and the rest of the language clicks into place.</p>
-  <div class="mt-6 flex items-center gap-3 text-sm">
-    <div class="flex-1 bg-gray-800 rounded-full h-2 overflow-hidden">
-      <div id="overall-progress" class="bg-teal-500 h-full transition-all" style="width:0%"></div>
+  <div class="text-xs font-semibold tracking-widest text-teal-500 uppercase mb-3">Spanish · Beginner to Intermediate</div>
+  <h1 class="text-4xl sm:text-6xl font-extrabold mb-4 leading-tight">Spanish Step</h1>
+  <p class="text-lg sm:text-xl text-gray-400 mb-8 max-w-2xl">15 chapters of grammar, original readings, and instant-feedback drills. No accounts, no fluff. Tap a chapter and start.</p>
+
+  <!-- Overall progress -->
+  <div class="bg-gray-900/50 border border-gray-800 rounded-xl p-5 max-w-xl">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-sm font-medium text-gray-300">Course progress</span>
+      <span class="text-sm font-mono text-teal-500" id="progress-text">0 / 15 chapters</span>
     </div>
-    <span id="overall-pct" class="text-gray-500 font-mono text-xs">0%</span>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-bar" style="width:0%"></div>
+    </div>
+    <div class="text-xs text-gray-500 mt-2" id="progress-detail">Start with Chapter 1</div>
   </div>
 </header>
 
-<!-- NAV -->
-<nav class="mb-12 flex flex-wrap gap-2 text-sm">
-  <a href="#concept" class="btn btn-ghost">Concept</a>
-  <a href="#vocab" class="btn btn-ghost">Vocab</a>
-  <a href="#gender" class="btn btn-ghost">Gender quiz</a>
-  <a href="#plural" class="btn btn-ghost">Plurals</a>
-  <a href="#adj" class="btn btn-ghost">Agreement</a>
-  <a href="#reading" class="btn btn-ghost">Reading</a>
-</nav>
+<!-- Chapter list -->
+<main id="chapters"></main>
 
-<!-- CONCEPT -->
-<section id="concept" class="section-anchor mb-16">
-  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2"><span class="text-teal-500">§1</span> The concept in plain English</h2>
-  <div class="space-y-4 text-gray-300 leading-relaxed">
-    <p>Spanish has two grammatical genders: <b class="text-teal-500">masculine</b> and <b class="text-amber-500">feminine</b>. Every noun is one or the other, even objects with no biological sex. <i>El libro</i> (the book) is masculine. <i>La mesa</i> (the table) is feminine.</p>
-    <p>Quick heuristic: words ending in <span class="font-mono text-teal-500">-o</span> are usually masculine, words ending in <span class="font-mono text-amber-500">-a</span> are usually feminine. Words ending in <span class="font-mono">-ción, -dad, -tad, -tud</span> are feminine. Words from Greek ending in <span class="font-mono">-ma</span> (problema, sistema, clima) are masculine. Memorize the irregulars: <i>el día, la mano, el mapa, la foto, la moto</i>.</p>
-    <p>The articles bend to match:</p>
-    <div style="overflow-x:auto">
-    <table class="w-full text-sm border border-gray-800 rounded-lg overflow-hidden">
-      <thead class="bg-gray-900 text-gray-400">
-        <tr><th class="p-2 text-left">&nbsp;</th><th class="p-2 text-left">Masculine</th><th class="p-2 text-left">Feminine</th></tr>
-      </thead>
-      <tbody class="divide-y divide-gray-800">
-        <tr><td class="p-2 text-gray-500">Definite (the)</td><td class="p-2"><span class="text-teal-500">el</span> / <span class="text-teal-500">los</span></td><td class="p-2"><span class="text-amber-500">la</span> / <span class="text-amber-500">las</span></td></tr>
-        <tr><td class="p-2 text-gray-500">Indefinite (a/some)</td><td class="p-2"><span class="text-teal-500">un</span> / <span class="text-teal-500">unos</span></td><td class="p-2"><span class="text-amber-500">una</span> / <span class="text-amber-500">unas</span></td></tr>
-      </tbody>
-    </table>
-    </div>
-    <p>Plurals: add <span class="font-mono">-s</span> after a vowel (<i>libro → libros</i>), <span class="font-mono">-es</span> after a consonant (<i>ciudad → ciudades</i>), and <span class="font-mono">-z → -ces</span> (<i>lápiz → lápices</i>). Words ending in <span class="font-mono">-ión</span> drop the accent in plural (<i>lección → lecciones</i>).</p>
-    <p>Adjectives agree in <b>both</b> gender and number. <i>El gato negro / la gata negra / los gatos negros / las gatas negras</i>. Adjectives ending in <span class="font-mono">-e</span> or a consonant don't change for gender, only for number: <i>la casa grande, las casas grandes</i>.</p>
-  </div>
-</section>
-
-<!-- VOCAB -->
-<section id="vocab" class="section-anchor mb-16">
-  <div class="flex items-end justify-between mb-4">
-    <h2 class="text-2xl font-bold flex items-center gap-2"><span class="text-teal-500">§2</span> Vocab cards</h2>
-    <span class="text-xs text-gray-500">tap to flip · speaker for audio</span>
-  </div>
-  <div id="vocab-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
-</section>
-
-<!-- GENDER QUIZ -->
-<section id="gender" class="section-anchor mb-16">
-  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2"><span class="text-teal-500">§3</span> Gender quiz</h2>
-  <div id="gender-quiz" class="bg-gray-900 border border-gray-800 rounded-xl p-6"></div>
-</section>
-
-<!-- PLURAL DRILL -->
-<section id="plural" class="section-anchor mb-16">
-  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2"><span class="text-teal-500">§4</span> Plural drill</h2>
-  <div id="plural-drill" class="bg-gray-900 border border-gray-800 rounded-xl p-6"></div>
-</section>
-
-<!-- ADJ DRILL -->
-<section id="adj" class="section-anchor mb-16">
-  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2"><span class="text-teal-500">§5</span> Adjective agreement</h2>
-  <div id="adj-drill" class="bg-gray-900 border border-gray-800 rounded-xl p-6"></div>
-</section>
-
-<!-- READING -->
-<section id="reading" class="section-anchor mb-16">
-  <h2 class="text-2xl font-bold mb-4 flex items-center gap-2"><span class="text-teal-500">§6</span> Mini reading</h2>
-  <div id="reading-block" class="bg-gray-900 border border-gray-800 rounded-xl p-6"></div>
-</section>
-
-<!-- FOOTER -->
-<footer class="border-t border-gray-800 pt-6 text-xs text-gray-500 flex flex-wrap justify-between gap-3">
-  <span>Original content. Curriculum scaffold inspired by <i>Easy Spanish Step-by-Step</i> (Bregstein, McGraw-Hill).</span>
-  <button id="reset-btn" class="text-amber-500 hover:underline">Reset progress</button>
+<!-- Footer -->
+<footer class="mt-16 pt-8 border-t border-gray-800 text-sm text-gray-500">
+  <p class="mb-2">Original content · Pedagogy inspired by Bregstein's <i>Easy Spanish Step-by-Step</i>.</p>
+  <p>Built with the Anthropic API. <button id="reset-all" class="text-amber-500 hover:underline">Reset all progress</button></p>
 </footer>
 
 </div>
 
 <script>
-const DATA = {"vocab": [{"es": "el libro", "en": "the book", "gender": "m", "note": ""}, {"es": "la mesa", "en": "the table", "gender": "f", "note": ""}, {"es": "el perro", "en": "the dog", "gender": "m", "note": ""}, {"es": "la gata", "en": "the cat (female)", "gender": "f", "note": ""}, {"es": "el día", "en": "the day", "gender": "m", "note": "irregular: ends in -a but masculine"}, {"es": "la mano", "en": "the hand", "gender": "f", "note": "irregular: ends in -o but feminine"}, {"es": "el problema", "en": "the problem", "gender": "m", "note": "Greek origin: -ma words are masculine"}, {"es": "el mapa", "en": "the map", "gender": "m", "note": "Greek origin: masculine despite -a ending"}, {"es": "el agua", "en": "the water", "gender": "f", "note": "feminine but uses el before singular for phonetics"}, {"es": "el sistema", "en": "the system", "gender": "m", "note": "Greek origin: -ma words are masculine"}, {"es": "el clima", "en": "the climate", "gender": "m", "note": "Greek origin: -ma words are masculine"}, {"es": "la foto", "en": "the photo", "gender": "f", "note": "shortened from la fotografía"}, {"es": "la moto", "en": "the motorcycle", "gender": "f", "note": "shortened from la motocicleta"}, {"es": "el sofá", "en": "the sofa", "gender": "m", "note": ""}, {"es": "la casa", "en": "the house", "gender": "f", "note": ""}, {"es": "el cuaderno", "en": "the notebook", "gender": "m", "note": ""}, {"es": "la silla", "en": "the chair", "gender": "f", "note": ""}, {"es": "el lápiz", "en": "the pencil", "gender": "m", "note": ""}, {"es": "la ciudad", "en": "the city", "gender": "f", "note": "-dad endings are feminine"}, {"es": "la lección", "en": "the lesson", "gender": "f", "note": "-ión endings are feminine"}, {"es": "el hermano", "en": "the brother", "gender": "m", "note": ""}, {"es": "la hermana", "en": "the sister", "gender": "f", "note": ""}, {"es": "el padre", "en": "the father", "gender": "m", "note": ""}, {"es": "la madre", "en": "the mother", "gender": "f", "note": ""}, {"es": "el abuelo", "en": "the grandfather", "gender": "m", "note": ""}, {"es": "la abuela", "en": "the grandmother", "gender": "f", "note": ""}, {"es": "el pez", "en": "the fish", "gender": "m", "note": "plural: los peces"}, {"es": "la nariz", "en": "the nose", "gender": "f", "note": "plural: las narices"}, {"es": "el jardín", "en": "the garden", "gender": "m", "note": "accent shifts in plural: los jardines"}, {"es": "la libertad", "en": "the freedom", "gender": "f", "note": "-tad endings are feminine"}, {"es": "el ojo", "en": "the eye", "gender": "m", "note": ""}, {"es": "la boca", "en": "the mouth", "gender": "f", "note": ""}, {"es": "el brazo", "en": "the arm", "gender": "m", "note": ""}, {"es": "la pierna", "en": "the leg", "gender": "f", "note": ""}, {"es": "el gato", "en": "the cat (male)", "gender": "m", "note": ""}, {"es": "la ventana", "en": "the window", "gender": "f", "note": ""}, {"es": "el techo", "en": "the roof/ceiling", "gender": "m", "note": ""}, {"es": "la cocina", "en": "the kitchen", "gender": "f", "note": ""}, {"es": "el poema", "en": "the poem", "gender": "m", "note": "Greek origin: -ma words are masculine"}, {"es": "la canción", "en": "the song", "gender": "f", "note": "-ión endings are feminine"}], "gender_quiz": [{"noun": "libro", "answer": "el", "hint": "ends in -o, typically masculine"}, {"noun": "mesa", "answer": "la", "hint": "ends in -a, typically feminine"}, {"noun": "día", "answer": "el", "hint": "irregular: masculine despite -a ending"}, {"noun": "mano", "answer": "la", "hint": "irregular: feminine despite -o ending"}, {"noun": "problema", "answer": "el", "hint": "Greek -ma ending: masculine"}, {"noun": "ciudad", "answer": "la", "hint": "-dad endings are feminine"}, {"noun": "lección", "answer": "la", "hint": "-ión endings are feminine"}, {"noun": "mapa", "answer": "el", "hint": "Greek origin: masculine despite -a ending"}, {"noun": "foto", "answer": "la", "hint": "shortened from fotografía, keeps feminine"}, {"noun": "moto", "answer": "la", "hint": "shortened from motocicleta, keeps feminine"}, {"noun": "sistema", "answer": "el", "hint": "Greek -ma ending: masculine"}, {"noun": "clima", "answer": "el", "hint": "Greek -ma ending: masculine"}, {"noun": "libertad", "answer": "la", "hint": "-tad endings are feminine"}, {"noun": "sofá", "answer": "el", "hint": "typical masculine noun"}, {"noun": "poema", "answer": "el", "hint": "Greek -ma ending: masculine"}, {"noun": "canción", "answer": "la", "hint": "-ión endings are feminine"}, {"noun": "nariz", "answer": "la", "hint": "body part, feminine"}, {"noun": "pez", "answer": "el", "hint": "masculine noun ending in consonant"}, {"noun": "agua", "answer": "el", "hint": "feminine but uses el in singular for sound"}, {"noun": "jardín", "answer": "el", "hint": "masculine noun ending in consonant"}], "plural_drill": [{"singular": "el libro", "plural": "los libros", "rule": "add -s to vowel ending"}, {"singular": "la mesa", "plural": "las mesas", "rule": "add -s to vowel ending"}, {"singular": "el perro", "plural": "los perros", "rule": "add -s to vowel ending"}, {"singular": "la ciudad", "plural": "las ciudades", "rule": "add -es to consonant ending"}, {"singular": "el lápiz", "plural": "los lápices", "rule": "-z changes to -ces"}, {"singular": "el pez", "plural": "los peces", "rule": "-z changes to -ces"}, {"singular": "la nariz", "plural": "las narices", "rule": "-z changes to -ces"}, {"singular": "la lección", "plural": "las lecciones", "rule": "add -es, accent drops"}, {"singular": "la canción", "plural": "las canciones", "rule": "add -es, accent drops"}, {"singular": "el jardín", "plural": "los jardines", "rule": "add -es, accent drops"}, {"singular": "el sofá", "plural": "los sofás", "rule": "add -s to stressed vowel"}, {"singular": "la silla", "plural": "las sillas", "rule": "add -s to vowel ending"}, {"singular": "el hermano", "plural": "los hermanos", "rule": "add -s to vowel ending"}, {"singular": "la madre", "plural": "las madres", "rule": "add -s to vowel ending"}, {"singular": "el examen", "plural": "los exámenes", "rule": "add -es, accent shifts"}], "adj_drill": [{"prompt": "la casa ___ (blanco)", "answer": "blanca", "explain": "feminine singular: -o changes to -a"}, {"prompt": "el perro ___ (negro)", "answer": "negro", "explain": "masculine singular: -o stays -o"}, {"prompt": "los libros ___ (rojo)", "answer": "rojos", "explain": "masculine plural: add -s to -o"}, {"prompt": "las mesas ___ (pequeño)", "answer": "pequeñas", "explain": "feminine plural: -o changes to -a, add -s"}, {"prompt": "la flor ___ (grande)", "answer": "grande", "explain": "-e adjectives stay same for gender"}, {"prompt": "el coche ___ (verde)", "answer": "verde", "explain": "-e adjectives stay same for gender"}, {"prompt": "los árboles ___ (verde)", "answer": "verdes", "explain": "-e adjectives: add -s for plural"}, {"prompt": "las casas ___ (grande)", "answer": "grandes", "explain": "-e adjectives: add -s for plural"}, {"prompt": "el cielo ___ (azul)", "answer": "azul", "explain": "consonant ending: no change for m/f singular"}, {"prompt": "la camisa ___ (azul)", "answer": "azul", "explain": "consonant ending: no change for m/f singular"}, {"prompt": "los ojos ___ (azul)", "answer": "azules", "explain": "consonant ending: add -es for plural"}, {"prompt": "las flores ___ (azul)", "answer": "azules", "explain": "consonant ending: add -es for plural"}, {"prompt": "el hombre ___ (trabajador)", "answer": "trabajador", "explain": "-or adjective: masculine has no -a"}, {"prompt": "la mujer ___ (trabajador)", "answer": "trabajadora", "explain": "-or adjective: add -a for feminine"}, {"prompt": "los chicos ___ (joven)", "answer": "jóvenes", "explain": "add -es for plural, accent appears"}], "reading": {"title": "Mi familia", "body": "Mi familia es grande. Tengo un padre alto y una madre simpática. Los hermanos son tres: dos hermanos y una hermana. El hermano mayor es moreno y la hermana pequeña es rubia. En la casa hay un perro negro y una gata blanca. Los animales son muy amables. La casa tiene ventanas grandes y un jardín bonito.", "glossary": [{"es": "familia", "en": "family"}, {"es": "grande", "en": "big"}, {"es": "tengo", "en": "I have"}, {"es": "padre", "en": "father"}, {"es": "alto", "en": "tall"}, {"es": "madre", "en": "mother"}, {"es": "simpática", "en": "nice/friendly"}, {"es": "hermanos", "en": "siblings/brothers"}, {"es": "tres", "en": "three"}, {"es": "dos", "en": "two"}, {"es": "hermana", "en": "sister"}, {"es": "mayor", "en": "older"}, {"es": "moreno", "en": "dark-haired"}, {"es": "pequeña", "en": "small/younger"}, {"es": "rubia", "en": "blonde"}, {"es": "casa", "en": "house"}, {"es": "hay", "en": "there is/there are"}, {"es": "perro", "en": "dog"}, {"es": "negro", "en": "black"}, {"es": "gata", "en": "cat (female)"}, {"es": "blanca", "en": "white"}, {"es": "animales", "en": "animals"}, {"es": "muy", "en": "very"}, {"es": "amables", "en": "friendly/kind"}, {"es": "tiene", "en": "has"}, {"es": "ventanas", "en": "windows"}, {"es": "grandes", "en": "big"}, {"es": "jardín", "en": "garden"}, {"es": "bonito", "en": "pretty"}], "question": "How many siblings does the narrator have, and what are their genders?", "answer": "The narrator has three siblings: two brothers and one sister."}};
-const STORE_KEY = 'spanish-step-ch1';
-const state = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
-const save = () => localStorage.setItem(STORE_KEY, JSON.stringify(state));
-state.gender ??= {correct:0, attempts:0, idx:0};
-state.plural ??= {correct:0, attempts:0, idx:0};
-state.adj ??= {correct:0, attempts:0, idx:0};
-state.reading ??= {answered:false, correct:false};
-state.flipped ??= {};
-
-// TTS
-function speak(text){
-  if(!('speechSynthesis' in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'es-MX';
-  u.rate = 0.9;
-  speechSynthesis.speak(u);
-}
-
-// VOCAB
-function renderVocab(){
-  const grid = document.getElementById('vocab-grid');
-  grid.innerHTML = DATA.vocab.map((v,i)=>{
-    const flipped = state.flipped[i];
-    const chipCls = v.gender==='m' ? 'chip-m' : 'chip-f';
-    const chipLabel = v.gender==='m' ? 'm' : 'f';
-    return `<div class="card-flip ${flipped?'flipped':''} h-28 cursor-pointer" data-vocab="${i}">
-      <div class="card-flip-inner">
-        <div class="card-face bg-gray-900 border border-gray-800 hover:border-teal-500/50 text-center">
-          <span class="chip ${chipCls} mb-2">${chipLabel}</span>
-          <div class="font-semibold text-base sm:text-lg">${v.es}</div>
-          <button class="speak-btn mt-2 text-teal-500 hover:text-teal-400 text-sm" data-speak="${v.es.replace(/"/g,'&quot;')}">▶ play</button>
-        </div>
-        <div class="card-face card-back bg-teal-500/10 border border-teal-500/30 text-center">
-          <div class="font-medium text-base">${v.en}</div>
-          ${v.note ? `<div class="text-xs text-gray-400 mt-1 px-1">${v.note}</div>` : ''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  grid.querySelectorAll('[data-vocab]').forEach(el=>{
-    el.addEventListener('click', e=>{
-      if(e.target.closest('.speak-btn')) return;
-      const i = el.dataset.vocab;
-      state.flipped[i] = !state.flipped[i];
-      save();
-      el.classList.toggle('flipped');
-    });
-  });
-  grid.querySelectorAll('.speak-btn').forEach(b=>{
-    b.addEventListener('click', e=>{
-      e.stopPropagation();
-      speak(b.dataset.speak);
-    });
-  });
-}
-
-// GENERIC SCORE BADGE
-function scoreBadge(s){
-  return `<div class="flex items-center justify-between mb-4 text-sm">
-    <span class="text-gray-400">Score: <span class="text-teal-500 font-mono font-semibold">${s.correct}/${s.attempts}</span></span>
-    <button class="text-xs text-gray-500 hover:text-amber-500" data-reset>Reset section</button>
-  </div>`;
-}
-
-// GENDER QUIZ
-function renderGender(){
-  const root = document.getElementById('gender-quiz');
-  const s = state.gender;
-  if(s.idx >= DATA.gender_quiz.length){
-    root.innerHTML = scoreBadge(s) + `<div class="text-center py-6">
-      <div class="text-3xl mb-2">✓</div>
-      <div class="text-lg font-semibold mb-1">Section complete</div>
-      <div class="text-gray-400 text-sm">Final score: ${s.correct}/${DATA.gender_quiz.length}</div>
-    </div>`;
-    bindReset(root, 'gender', renderGender);
-    updateProgress();
-    return;
+const PARTS = [
+  {
+    title: 'Part I — Elements of a Sentence',
+    subtitle: 'Build the foundation: nouns, articles, verbs in present tense.',
+    chapters: [
+      {n:1, title:'Nouns, Articles, Adjectives', concepts:['gender of nouns','el/la, los/las','plural rules','adjective agreement'], status:'available', slug:'ch-1'},
+      {n:2, title:'Estar, Ser, Subject Pronouns', concepts:['yo, tú, él, ella','estar (to be)','ser (to be)','when to use which'], status:'available', slug:'ch-2'},
+      {n:3, title:'Hay, Interrogatives, Days & Months', concepts:['there is / there are','question words','calendar vocabulary','simple prepositions'], status:'soon'},
+      {n:4, title:'Numbers, Dates, Time', concepts:['cardinal & ordinal','dates','telling time','time idioms'], status:'soon'},
+      {n:5, title:'Regular Verbs (Present)', concepts:['-ar conjugation','-er conjugation','-ir conjugation','everyday verbs'], status:'soon'},
+      {n:6, title:'Irregular Verbs (Present)', concepts:['stem-changing verbs','common irregulars','yo-only changes','high-frequency forms'], status:'soon'},
+      {n:7, title:'Ir and the Future', concepts:['ir (to go)','ir + a + infinitive','tener idioms','que and para'], status:'soon'},
+      {n:8, title:'Adjectives and Adverbs', concepts:['possessive (mi/tu/su)','demonstrative (este/ese)','comparative & superlative','-mente adverbs'], status:'soon'},
+      {n:9, title:'Negatives and Prepositions', concepts:['no, nunca, nadie','double negatives','por vs para','common prepositions'], status:'soon'}
+    ]
+  },
+  {
+    title: 'Part II — Objects, Reflexives, Subjunctive',
+    subtitle: 'Pronouns and the mood that breaks beginners.',
+    chapters: [
+      {n:10, title:'The Indirect Object', concepts:['gustar','me/te/le/nos/les','verbs like gustar','position rules'], status:'soon'},
+      {n:11, title:'The Direct Object', concepts:['personal a','lo/la/los/las','position rules','people vs things'], status:'soon'},
+      {n:12, title:'Reflexive Verbs', concepts:['me/te/se pronouns','daily routine','emotion & movement','to become'], status:'soon'},
+      {n:13, title:'The Present Subjunctive', concepts:['formation','irregulars','triggers (ojalá, quizás)','dependent clauses'], status:'soon'}
+    ]
+  },
+  {
+    title: 'Part III — Past Tenses, Double Objects',
+    subtitle: 'Talk about what happened.',
+    chapters: [
+      {n:14, title:'The Preterit', concepts:['completed past actions','regular & irregular forms','orthographic changes','special meanings'], status:'soon'},
+      {n:15, title:'The Imperfect', concepts:['habitual past','imperfect vs preterit','querer/poder/saber','double object pronouns'], status:'soon'}
+    ]
   }
-  const q = DATA.gender_quiz[s.idx];
-  root.innerHTML = scoreBadge(s) + `
-    <div class="text-center mb-6">
-      <div class="text-xs text-gray-500 mb-2">Question ${s.idx+1} of ${DATA.gender_quiz.length}</div>
-      <div class="text-3xl font-semibold mb-1"><span class="text-gray-600">___</span> ${q.noun}</div>
-      <div class="text-xs text-gray-500 mt-3" id="hint-${s.idx}" style="display:none">${q.hint}</div>
-    </div>
-    <div class="flex gap-3 justify-center mb-3">
-      <button class="btn btn-ghost text-lg px-8" data-answer="el">el</button>
-      <button class="btn btn-ghost text-lg px-8" data-answer="la">la</button>
-    </div>
-    <div class="text-center">
-      <button class="text-xs text-gray-500 hover:text-amber-500" id="show-hint">show hint</button>
-    </div>
-    <div id="gender-feedback" class="mt-4 text-center font-medium"></div>`;
-  document.getElementById('show-hint').onclick = ()=> document.getElementById('hint-'+s.idx).style.display='block';
-  root.querySelectorAll('[data-answer]').forEach(b=>{
-    b.onclick = ()=>{
-      const correct = b.dataset.answer === q.answer;
-      s.attempts++;
-      if(correct) s.correct++;
-      save();
-      const fb = document.getElementById('gender-feedback');
-      fb.innerHTML = correct
-        ? `<span class="text-teal-500">✓ correct — <i>${q.answer} ${q.noun}</i></span>`
-        : `<span class="text-red-400">✗ <i>${q.answer} ${q.noun}</i> — ${q.hint}</span>`;
-      root.querySelectorAll('[data-answer]').forEach(x=>x.disabled=true);
-      setTimeout(()=>{
-        s.idx++;
-        save();
-        renderGender();
-      }, correct ? 800 : 1800);
-    };
-  });
-  bindReset(root, 'gender', renderGender);
-  updateProgress();
-}
+];
 
-// NORMALIZE for text comparisons (accent-insensitive optional? — keep strict)
-function normalize(s){ return (s||'').trim().toLowerCase().replace(/\s+/g,' '); }
-
-// PLURAL DRILL
-function renderPlural(){
-  const root = document.getElementById('plural-drill');
-  const s = state.plural;
-  if(s.idx >= DATA.plural_drill.length){
-    root.innerHTML = scoreBadge(s) + `<div class="text-center py-6">
-      <div class="text-3xl mb-2">✓</div>
-      <div class="text-lg font-semibold">Section complete</div>
-      <div class="text-gray-400 text-sm mt-1">Final score: ${s.correct}/${DATA.plural_drill.length}</div>
-    </div>`;
-    bindReset(root, 'plural', renderPlural);
-    updateProgress();
-    return;
-  }
-  const q = DATA.plural_drill[s.idx];
-  root.innerHTML = scoreBadge(s) + `
-    <div class="mb-4">
-      <div class="text-xs text-gray-500 mb-2">Question ${s.idx+1} of ${DATA.plural_drill.length}</div>
-      <div class="text-gray-400 text-sm mb-1">Make plural:</div>
-      <div class="text-2xl font-semibold mb-3">${q.singular}</div>
-      <input type="text" id="plural-input" placeholder="type the plural..." class="w-full" autocomplete="off" autocapitalize="off" spellcheck="false">
-    </div>
-    <div class="flex gap-2">
-      <button class="btn btn-primary" id="plural-submit">Check</button>
-      <button class="btn btn-ghost" id="plural-skip">Skip</button>
-    </div>
-    <div id="plural-feedback" class="mt-4 font-medium"></div>`;
-  const inp = document.getElementById('plural-input');
-  inp.focus();
-  const submit = ()=>{
-    const v = inp.value;
-    if(!v.trim()) return;
-    const correct = normalize(v) === normalize(q.plural);
-    s.attempts++;
-    if(correct) s.correct++;
-    save();
-    const fb = document.getElementById('plural-feedback');
-    fb.innerHTML = correct
-      ? `<span class="text-teal-500">✓ correct</span> <span class="text-gray-500 text-sm ml-2">${q.rule}</span>`
-      : `<span class="text-red-400">✗ answer: <i>${q.plural}</i></span> <span class="text-gray-500 text-sm ml-2">${q.rule}</span>`;
-    document.getElementById('plural-submit').disabled = true;
-    inp.disabled = true;
-    setTimeout(()=>{ s.idx++; save(); renderPlural(); }, correct ? 900 : 2200);
-  };
-  document.getElementById('plural-submit').onclick = submit;
-  document.getElementById('plural-skip').onclick = ()=>{
-    s.attempts++; save();
-    document.getElementById('plural-feedback').innerHTML = `<span class="text-amber-500">— skipped — answer: <i>${q.plural}</i></span> <span class="text-gray-500 text-sm ml-2">${q.rule}</span>`;
-    inp.disabled = true;
-    document.getElementById('plural-submit').disabled = true;
-    setTimeout(()=>{ s.idx++; save(); renderPlural(); }, 1800);
-  };
-  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') submit(); });
-  bindReset(root, 'plural', renderPlural);
-  updateProgress();
-}
-
-// ADJ DRILL
-function renderAdj(){
-  const root = document.getElementById('adj-drill');
-  const s = state.adj;
-  if(s.idx >= DATA.adj_drill.length){
-    root.innerHTML = scoreBadge(s) + `<div class="text-center py-6">
-      <div class="text-3xl mb-2">✓</div>
-      <div class="text-lg font-semibold">Section complete</div>
-      <div class="text-gray-400 text-sm mt-1">Final score: ${s.correct}/${DATA.adj_drill.length}</div>
-    </div>`;
-    bindReset(root, 'adj', renderAdj);
-    updateProgress();
-    return;
-  }
-  const q = DATA.adj_drill[s.idx];
-  root.innerHTML = scoreBadge(s) + `
-    <div class="mb-4">
-      <div class="text-xs text-gray-500 mb-2">Question ${s.idx+1} of ${DATA.adj_drill.length}</div>
-      <div class="text-gray-400 text-sm mb-1">Fill in the agreed form:</div>
-      <div class="text-xl mb-3">${q.prompt}</div>
-      <input type="text" id="adj-input" placeholder="agreed form..." class="w-full" autocomplete="off" autocapitalize="off" spellcheck="false">
-    </div>
-    <div class="flex gap-2">
-      <button class="btn btn-primary" id="adj-submit">Check</button>
-      <button class="btn btn-ghost" id="adj-skip">Skip</button>
-    </div>
-    <div id="adj-feedback" class="mt-4 font-medium"></div>`;
-  const inp = document.getElementById('adj-input');
-  inp.focus();
-  const submit = ()=>{
-    const v = inp.value;
-    if(!v.trim()) return;
-    const correct = normalize(v) === normalize(q.answer);
-    s.attempts++;
-    if(correct) s.correct++;
-    save();
-    const fb = document.getElementById('adj-feedback');
-    fb.innerHTML = correct
-      ? `<span class="text-teal-500">✓ correct</span> <span class="text-gray-500 text-sm ml-2">${q.explain}</span>`
-      : `<span class="text-red-400">✗ answer: <i>${q.answer}</i></span> <span class="text-gray-500 text-sm ml-2">${q.explain}</span>`;
-    inp.disabled = true;
-    document.getElementById('adj-submit').disabled = true;
-    setTimeout(()=>{ s.idx++; save(); renderAdj(); }, correct ? 900 : 2400);
-  };
-  document.getElementById('adj-submit').onclick = submit;
-  document.getElementById('adj-skip').onclick = ()=>{
-    s.attempts++; save();
-    document.getElementById('adj-feedback').innerHTML = `<span class="text-amber-500">— skipped — answer: <i>${q.answer}</i></span>`;
-    inp.disabled = true;
-    document.getElementById('adj-submit').disabled = true;
-    setTimeout(()=>{ s.idx++; save(); renderAdj(); }, 1800);
-  };
-  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') submit(); });
-  bindReset(root, 'adj', renderAdj);
-  updateProgress();
-}
-
-// READING
-function renderReading(){
-  const root = document.getElementById('reading-block');
-  const r = DATA.reading;
-  const gloss = Object.fromEntries(r.glossary.map(g=>[g.es.toLowerCase(), g.en]));
-  const tokens = r.body.split(/(\s+|[.,;:¿?¡!])/).map(tok=>{
-    const clean = tok.toLowerCase().replace(/[.,;:¿?¡!]/g,'');
-    if(gloss[clean]){
-      return `<span class="glossary-word" data-speak="${tok.replace(/"/g,'&quot;')}">${tok}<span class="tip">${gloss[clean]}</span></span>`;
+function getChapterProgress(slug) {
+  // Pull the localStorage keys that Ch 1 (and future chapters) store under
+  // We treat a chapter as "started" if any progress key exists, "complete" if all 4 sections are done
+  const prefix = `${slug}:`;
+  let totalScore = 0, totalQuestions = 0, sectionsTouched = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(prefix)) {
+      sectionsTouched++;
+      try {
+        const v = JSON.parse(localStorage.getItem(k));
+        if (typeof v === 'object' && 'correct' in v && 'idx' in v) {
+          totalScore += v.correct || 0;
+          totalQuestions += v.idx || 0;
+        }
+      } catch {}
     }
-    return tok;
-  }).join('');
-  root.innerHTML = `
-    <h3 class="text-xl font-bold mb-3 text-amber-500">${r.title}</h3>
-    <p class="text-lg leading-loose mb-4">${tokens}</p>
-    <div class="flex gap-2 mb-6">
-      <button class="btn btn-ghost text-sm" id="speak-reading">▶ play full reading</button>
-    </div>
-    <div class="border-t border-gray-800 pt-4">
-      <div class="text-xs text-gray-500 mb-2">Comprehension</div>
-      <div class="font-medium mb-3">${r.question}</div>
-      <textarea id="reading-answer" rows="2" class="w-full p-2 text-sm" style="background:#1f2937;border:1px solid #374151;color:#e5e7eb;border-radius:.5rem;font-family:inherit" placeholder="your answer in english..."></textarea>
-      <div class="flex gap-2 mt-2">
-        <button class="btn btn-primary text-sm" id="reading-submit">Reveal answer</button>
-      </div>
-      <div id="reading-feedback" class="mt-3 text-sm"></div>
-    </div>`;
-  document.getElementById('speak-reading').onclick = ()=> speak(r.body);
-  document.getElementById('reading-submit').onclick = ()=>{
-    const fb = document.getElementById('reading-feedback');
-    fb.innerHTML = `<div class="text-teal-500 font-medium">Suggested answer:</div><div class="text-gray-300 mt-1">${r.answer}</div>`;
-    state.reading.answered = true;
-    save();
-    updateProgress();
-  };
-  root.querySelectorAll('.glossary-word').forEach(el=>{
-    el.addEventListener('click', ()=> speak(el.dataset.speak.replace(/[.,;:¿?¡!]/g,'')));
-  });
+  }
+  return { sectionsTouched, totalScore, totalQuestions };
 }
 
-function bindReset(root, key, rerender){
-  const btn = root.querySelector('[data-reset]');
-  if(!btn) return;
-  btn.onclick = ()=>{
-    state[key] = {correct:0, attempts:0, idx:0};
-    save();
-    rerender();
-  };
+function statusBadge(status, slug) {
+  const prog = slug ? getChapterProgress(slug) : { sectionsTouched: 0 };
+  if (status === 'soon') return '<span class="badge badge-locked">Coming soon</span>';
+  if (prog.sectionsTouched === 0) return '<span class="badge badge-progress">Available</span>';
+  if (prog.sectionsTouched >= 4) return '<span class="badge badge-done">✓ Complete</span>';
+  return '<span class="badge badge-progress">▶ In progress</span>';
 }
 
-function updateProgress(){
-  const total = DATA.gender_quiz.length + DATA.plural_drill.length + DATA.adj_drill.length + 1;
-  const done = state.gender.idx + state.plural.idx + state.adj.idx + (state.reading.answered ? 1 : 0);
-  const pct = Math.round(done/total*100);
-  document.getElementById('overall-progress').style.width = pct+'%';
-  document.getElementById('overall-pct').textContent = pct+'%';
+function renderChapters() {
+  const root = document.getElementById('chapters');
+  let totalDone = 0;
+  let html = '';
+  for (const part of PARTS) {
+    html += `<div class="part-divider"><h2 class="text-xs font-bold tracking-widest uppercase text-gray-500 whitespace-nowrap">${part.title}</h2></div>`;
+    html += `<p class="text-sm text-gray-500 mb-4 -mt-2">${part.subtitle}</p>`;
+    html += '<div class="grid sm:grid-cols-2 gap-3 mb-4">';
+    for (const ch of part.chapters) {
+      const isAvail = ch.status === 'available';
+      const prog = isAvail ? getChapterProgress(ch.slug) : { sectionsTouched: 0 };
+      const isDone = prog.sectionsTouched >= 4;
+      if (isDone) totalDone++;
+      const cardClass = isAvail ? 'chapter-card available' : 'chapter-card locked';
+      const wrapOpen = isAvail ? `<a href="${ch.slug}/" class="block">` : '<div>';
+      const wrapClose = isAvail ? '</a>' : '</div>';
+      html += `${wrapOpen}<div class="${cardClass} bg-gray-900/30 rounded-xl p-5">
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center font-mono font-bold ${isAvail ? 'text-teal-500' : 'text-gray-600'}">${ch.n}</div>
+            <h3 class="font-semibold text-lg ${isAvail ? 'text-white' : 'text-gray-500'}">${ch.title}</h3>
+          </div>
+          ${statusBadge(ch.status, ch.slug)}
+        </div>
+        <ul class="text-sm text-gray-400 mt-3 space-y-1">
+          ${ch.concepts.map(c=>`<li class="flex items-start gap-2"><span class="text-gray-600 mt-1">·</span>${c}</li>`).join('')}
+        </ul>
+      </div>${wrapClose}`;
+    }
+    html += '</div>';
+  }
+  root.innerHTML = html;
+
+  // Update progress bar
+  const pct = Math.round((totalDone / 15) * 100);
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${totalDone} / 15 chapters`;
+  const detail = document.getElementById('progress-detail');
+  if (totalDone === 0) detail.textContent = 'Start with Chapter 1';
+  else if (totalDone === 15) detail.textContent = '🎉 Course complete';
+  else detail.textContent = `Next up: Chapter ${totalDone + 1}`;
 }
 
-document.getElementById('reset-btn').onclick = ()=>{
-  if(!confirm('Reset all progress for Chapter 1?')) return;
-  localStorage.removeItem(STORE_KEY);
-  location.reload();
-};
+document.getElementById('reset-all').addEventListener('click', () => {
+  if (!confirm('Reset all progress for all chapters?')) return;
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && (k.startsWith('ch-') || k.startsWith('ch1:') || k.match(/^ch\d+:/))) keysToRemove.push(k);
+  }
+  keysToRemove.forEach(k => localStorage.removeItem(k));
+  renderChapters();
+});
 
-renderVocab();
-renderGender();
-renderPlural();
-renderAdj();
-renderReading();
-updateProgress();
+renderChapters();
 </script>
 </body>
 </html>
