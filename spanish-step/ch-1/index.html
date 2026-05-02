@@ -150,6 +150,19 @@ state.plural ??= {correct:0, attempts:0, idx:0};
 state.adj ??= {correct:0, attempts:0, idx:0};
 state.reading ??= {answered:false, correct:false};
 state.flipped ??= {};
+state.completed ??= false;
+
+function checkComplete() {
+  const allDone = state.gender.idx >= DATA.gender_quiz.length
+    && state.plural.idx >= DATA.plural_drill.length
+    && state.adj.idx >= DATA.adj_drill.length
+    && state.reading.answered;
+  if (allDone && !state.completed) {
+    state.completed = true;
+    save();
+    checkComplete();
+  }
+}
 
 // TTS
 function speak(text){
@@ -188,6 +201,7 @@ function renderVocab(){
       const i = el.dataset.vocab;
       state.flipped[i] = !state.flipped[i];
       save();
+      checkComplete();
       el.classList.toggle('flipped');
     });
   });
@@ -243,6 +257,7 @@ function renderGender(){
       s.attempts++;
       if(correct) s.correct++;
       save();
+      checkComplete();
       const fb = document.getElementById('gender-feedback');
       fb.innerHTML = correct
         ? `<span class="text-teal-500">✓ correct — <i>${q.answer} ${q.noun}</i></span>`
@@ -251,6 +266,7 @@ function renderGender(){
       setTimeout(()=>{
         s.idx++;
         save();
+        checkComplete();
         renderGender();
       }, correct ? 800 : 1800);
     };
@@ -298,6 +314,7 @@ function renderPlural(){
     s.attempts++;
     if(correct) s.correct++;
     save();
+    checkComplete();
     const fb = document.getElementById('plural-feedback');
     fb.innerHTML = correct
       ? `<span class="text-teal-500">✓ correct</span> <span class="text-gray-500 text-sm ml-2">${q.rule}</span>`
@@ -355,6 +372,7 @@ function renderAdj(){
     s.attempts++;
     if(correct) s.correct++;
     save();
+    checkComplete();
     const fb = document.getElementById('adj-feedback');
     fb.innerHTML = correct
       ? `<span class="text-teal-500">✓ correct</span> <span class="text-gray-500 text-sm ml-2">${q.explain}</span>`
@@ -409,6 +427,7 @@ function renderReading(){
     fb.innerHTML = `<div class="text-teal-500 font-medium">Suggested answer:</div><div class="text-gray-300 mt-1">${r.answer}</div>`;
     state.reading.answered = true;
     save();
+    checkComplete();
     updateProgress();
   };
   root.querySelectorAll('.glossary-word').forEach(el=>{
@@ -422,6 +441,7 @@ function bindReset(root, key, rerender){
   btn.onclick = ()=>{
     state[key] = {correct:0, attempts:0, idx:0};
     save();
+    checkComplete();
     rerender();
   };
 }
@@ -445,6 +465,7 @@ renderGender();
 renderPlural();
 renderAdj();
 renderReading();
+checkComplete();
 updateProgress();
 </script>
 </body>
