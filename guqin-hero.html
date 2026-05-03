@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guqin Hero — Requirements Proposal</title>
+
+<meta name="description" content="A rhythm game for the 7-string Chinese guqin. Pitch detection, scrolling note highway, no MIDI hardware required.">
+<meta property="og:title" content="Guqin Hero — Requirements Proposal">
+<meta property="og:description" content="A rhythm game for Bekah's 7-string Chinese zither. Pitch-detect plucks via mic, render Guitar Hero-style note highway, ship in two weekends.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/guqin-hero/og-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/guqin-hero.html">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/guqin-hero/og-wide.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+SC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e0d;
+    --bg-2: #11161a;
+    --ink: #e8ece8;
+    --mute: #8a948c;
+    --lime: #d4ff3a;
+    --crimson: #e63946;
+    --gold: #d4af37;
+    --line: #1f2521;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 400;
+    line-height: 1.55;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 48px 28px 96px; }
+
+  /* HERO */
+  .hero { border-bottom: 1px solid var(--line); padding-bottom: 36px; margin-bottom: 36px; }
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: clamp(44px, 7vw, 76px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    margin-bottom: 12px;
+  }
+  h1 .cn {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 900;
+    color: var(--crimson);
+    font-size: 0.85em;
+    margin-right: 0.15em;
+  }
+  .subtitle {
+    font-size: 19px;
+    color: var(--mute);
+    font-style: italic;
+    max-width: 640px;
+  }
+
+  /* HERO IMAGE */
+  .hero-img {
+    margin: 32px 0 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    position: relative;
+    aspect-ratio: 16/9;
+    background: #000;
+  }
+  .hero-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero-img .caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+    padding: 28px 22px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--lime);
+  }
+
+  /* BLUF */
+  .bluf {
+    background: linear-gradient(135deg, rgba(212,255,58,0.08), rgba(212,255,58,0.02));
+    border-left: 3px solid var(--lime);
+    padding: 22px 24px;
+    margin: 32px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .bluf .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--lime);
+    margin-bottom: 8px;
+  }
+  .bluf p { font-size: 17px; }
+  .bluf strong { color: var(--ink); font-weight: 600; }
+
+  /* SECTIONS */
+  section { margin: 56px 0; }
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 32px;
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  h2 .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--lime);
+    font-weight: 600;
+  }
+  h2 + .lede {
+    color: var(--mute);
+    font-style: italic;
+    margin-bottom: 24px;
+    font-size: 16px;
+  }
+  h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 21px;
+    margin: 28px 0 10px;
+    letter-spacing: -0.01em;
+  }
+  p { margin-bottom: 14px; }
+  p + p { margin-top: 0; }
+  strong { font-weight: 600; color: #fff; }
+  em { color: var(--lime); font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
+
+  /* SECTION IMAGE */
+  .section-img {
+    margin: 22px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    aspect-ratio: 16/9;
+    background: #000;
+    position: relative;
+  }
+  .section-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .section-img .tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(10,14,13,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--lime);
+  }
+
+  /* AESTHETIC GALLERY */
+  .gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 22px 0;
+  }
+  .gallery > figure {
+    margin: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: #000;
+    position: relative;
+    aspect-ratio: 16/9;
+  }
+  .gallery img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gallery figcaption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
+    padding: 22px 14px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--lime);
+  }
+  .gallery figcaption .name { display: block; color: #fff; font-size: 13px; font-family: 'Fraunces', serif; font-style: italic; letter-spacing: 0; text-transform: none; margin-top: 3px; }
+
+  /* TABLES */
+  .scrollbox { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 18px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    min-width: 540px;
+  }
+  th, td {
+    text-align: left;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--lime);
+    font-weight: 600;
+  }
+  td:first-child { font-weight: 600; color: #fff; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+
+  /* CALLOUTS */
+  .callout {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 20px 0;
+  }
+  .callout.warn { border-left: 3px solid var(--crimson); }
+  .callout.tip { border-left: 3px solid var(--gold); }
+  .callout .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .callout.warn .tag { color: var(--crimson); }
+  .callout.tip .tag { color: var(--gold); }
+
+  /* CODE */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.88em;
+    background: var(--bg-2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--lime);
+  }
+  pre {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 16px 18px;
+    margin: 16px 0;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  pre code { background: none; padding: 0; color: var(--ink); }
+  pre .c { color: var(--mute); font-style: italic; }
+  pre .k { color: var(--lime); }
+
+  /* PHASES */
+  .phase {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 14px 0;
+    background: var(--bg-2);
+  }
+  .phase h4 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .phase .title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .phase .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--mute);
+    margin-bottom: 12px;
+  }
+  .phase ul { margin-left: 18px; font-size: 15px; }
+  .phase li { margin-bottom: 4px; }
+
+  /* DECISIONS */
+  .decision {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    margin: 14px 0;
+    padding: 14px 16px;
+    background: var(--bg-2);
+    border-radius: 6px;
+    border-left: 3px solid var(--lime);
+  }
+  .decision .q {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--lime);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .decision strong { display: block; margin-bottom: 4px; font-size: 16px; }
+  .decision em { display: block; color: var(--mute); font-family: 'Fraunces', serif; font-size: 14px; font-style: italic; margin-top: 4px; }
+
+  /* FOOTER */
+  footer {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    color: var(--mute);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 600px) {
+    .wrap { padding: 32px 18px 64px; }
+    .gallery { grid-template-columns: 1fr; }
+    h2 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="kicker">REQUIREMENTS PROPOSAL · v0.1</div>
+  <h1><span class="cn">古琴</span>Guqin<br>Hero</h1>
+  <p class="subtitle">A rhythm game for Bekah's 7-string Chinese zither. Pluck the right string at the right time, get points, learn songs.</p>
+
+  <div class="hero-img">
+    <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/guqin-hero/img5-clean.webp" alt="Guqin Hero gameplay mockup with 7 colored lanes labeled C2 D2 F2 G2 A2 C3 D3">
+    <div class="caption">▸ MOCKUP · CORE GAMEPLAY · 7 LANES MAPPED TO STRING FUNDAMENTALS</div>
+  </div>
+</div>
+
+<!-- BLUF -->
+<div class="bluf">
+  <div class="label">▸ BOTTOM LINE</div>
+  <p><strong>Yes, this is buildable.</strong> The trick is skipping MIDI hardware entirely and using <strong>real-time audio pitch detection</strong> on a USB mic placed near her actual guqin. The 7 open strings are tuned to widely-spaced pitches (C2 through D3) that an autocorrelation algorithm can discriminate in &lt;20ms. Render a 7-lane Guitar Hero-style note highway in a browser, plug your laptop into the TV, ship it. <strong>~2 weekends to MVP, ~1 month to "Bekah actually plays it."</strong></p>
+</div>
+
+<!-- 1. CONCEPT -->
+<section>
+  <h2><span class="num">01</span> Concept</h2>
+  <p class="lede">What we're actually building.</p>
+
+  <p>A rhythm game where notes scroll down 7 lanes, each lane mapped to one of the guqin's open strings. When a note hits the strike zone, Bekah plucks that string on her real guqin. A microphone listens, identifies which string was plucked and when, and scores the hit. No buttons, no plastic guitar, no MIDI cable — she plays her actual instrument.</p>
+
+  <div class="section-img">
+    <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/guqin-hero/img3-pov.webp" alt="Player at a wooden table with a real guqin and USB microphone, watching Guqin Hero on a wall-mounted TV">
+    <div class="tag">▸ PLAY ENVIRONMENT</div>
+  </div>
+
+  <p>Why this works for guqin specifically: it's a <strong>monophonic, plucked, slow-attack instrument with widely-spaced fundamental pitches</strong>. Every property that makes pitch detection hard for piano or guitar (polyphony, sustain overlap, narrow intervals) is absent here. The guqin is basically the easiest stringed instrument on earth for a computer to listen to.</p>
+
+  <div class="callout tip">
+    <div class="tag">▸ ANGLE</div>
+    <p>This doubles as a <strong>practice tool</strong>, not just a game. Beginner guqin is brutal because traditional notation (jianzipu, 减字谱) is opaque and there are almost no English tutorials. A 7-lane chart is dead-simple visual notation that lets her learn songs by sight-reading falling notes the way millions of kids learned guitar from Guitar Hero.</p>
+  </div>
+</section>
+
+<!-- 2. THE INSTRUMENT -->
+<section>
+  <h2><span class="num">02</span> The instrument as a machine input</h2>
+  <p class="lede">Bekah's Fu Xi style guqin from Sound of Mountain Music, restated in engineering terms.</p>
+
+  <p>Standard tuning is <em>zhengdiao</em> (正调): a pentatonic scale across two octaves. The 7 open strings are well-separated in frequency, which is the whole reason this project is feasible.</p>
+
+  <div class="scrollbox">
+  <table>
+    <thead><tr><th>String</th><th>Note</th><th>Freq (Hz)</th><th>Lane color</th><th>Δ to next</th></tr></thead>
+    <tbody>
+      <tr><td>1 (thickest)</td><td>C2</td><td>65.41</td><td>Crimson</td><td>+12.2%</td></tr>
+      <tr><td>2</td><td>D2</td><td>73.42</td><td>Amber</td><td>+18.9%</td></tr>
+      <tr><td>3</td><td>F2</td><td>87.31</td><td>Gold</td><td>+12.2%</td></tr>
+      <tr><td>4</td><td>G2</td><td>98.00</td><td>Lime</td><td>+12.2%</td></tr>
+      <tr><td>5</td><td>A2</td><td>110.00</td><td>Teal</td><td>+18.9%</td></tr>
+      <tr><td>6</td><td>C3</td><td>130.81</td><td>Indigo</td><td>+12.2%</td></tr>
+      <tr><td>7 (thinnest)</td><td>D3</td><td>146.83</td><td>Magenta</td><td>—</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>The minimum gap between adjacent strings is ~12% (a whole tone). Human just-noticeable-difference for pitch is ~0.5%. A YIN or autocorrelation pitch tracker has roughly an order of magnitude more discrimination than we need.</p>
+
+  <div class="callout warn">
+    <div class="tag">▸ COMPLICATION</div>
+    <p>Guqin technique includes <strong>three sound types</strong>: open plucks (<em>sanyin</em>, 散音), pressed notes (<em>anyin</em>, 按音, left hand on string), and harmonics (<em>fanyin</em>, 泛音, light touch over the 13 hui markers). MVP only handles open plucks. Pressed and harmonic notes are V2 — they require detecting arbitrary pitches between strings, which crepe/SPICE handles but adds chart complexity.</p>
+  </div>
+</section>
+
+<!-- 3. ARCHITECTURE -->
+<section>
+  <h2><span class="num">03</span> Technical architecture</h2>
+  <p class="lede">Browser-first. Web Audio API does the heavy lifting.</p>
+
+  <pre><code><span class="c">┌─────────────────────────────────────────────────────────────┐</span>
+<span class="c">│  USB MIC near guqin                                          │</span>
+<span class="c">│         │                                                    │</span>
+<span class="c">│         ▼                                                    │</span>
+<span class="c">│  </span><span class="k">getUserMedia()</span><span class="c"> ──▶ </span><span class="k">AudioWorklet</span><span class="c"> (256-sample chunks)     │</span>
+<span class="c">│                              │                               │</span>
+<span class="c">│                              ▼                               │</span>
+<span class="c">│                  </span><span class="k">Onset detector</span><span class="c"> (energy + spectral flux)   │</span>
+<span class="c">│                              │ trigger                       │</span>
+<span class="c">│                              ▼                               │</span>
+<span class="c">│                  </span><span class="k">YIN pitch tracker</span><span class="c"> (WASM, ~4ms)            │</span>
+<span class="c">│                              │ {freq, t}                     │</span>
+<span class="c">│                              ▼                               │</span>
+<span class="c">│                  </span><span class="k">String classifier</span><span class="c"> (nearest of 7 fundamentals)│</span>
+<span class="c">│                              │ {string: 4, t}                │</span>
+<span class="c">│                              ▼                               │</span>
+<span class="c">│  </span><span class="k">Game loop</span><span class="c"> (60 fps, requestAnimationFrame)                 │</span>
+<span class="c">│       ├─ scrolling note highway (Canvas2D or PixiJS)         │</span>
+<span class="c">│       ├─ hit detection (chart_t vs input_t, ±50ms window)    │</span>
+<span class="c">│       └─ score / combo / FX                                  │</span>
+<span class="c">│                              │                               │</span>
+<span class="c">│                              ▼                               │</span>
+<span class="c">│  HDMI / AirPlay / Chromecast ──▶ TV                          │</span>
+<span class="c">└─────────────────────────────────────────────────────────────┘</span></code></pre>
+
+  <h3>Stack</h3>
+  <div class="scrollbox">
+  <table>
+    <thead><tr><th>Layer</th><th>Choice</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Runtime</td><td>Browser (Chrome/Safari)</td><td>Web Audio is genuinely fast, distribution is one URL, casts to TV trivially</td></tr>
+      <tr><td>Audio</td><td>AudioWorklet + WASM YIN</td><td>~4ms processing per buffer in WASM vs ~35ms in plain JS</td></tr>
+      <tr><td>Rendering</td><td>Canvas2D (MVP) → PixiJS (V2)</td><td>7 falling rectangles is not a graphics problem; PixiJS only if FX get fancy</td></tr>
+      <tr><td>Charts</td><td>JSON files</td><td><code>{bpm, offset, notes: [{t, string, dur}]}</code> — version-controllable</td></tr>
+      <tr><td>Hosting</td><td>Cloudflare Pages</td><td>Your existing infra, free, instant</td></tr>
+      <tr><td>Charting tool</td><td>Python + librosa</td><td>Auto-extract melody from MIDI files of Chinese folk songs, snap to nearest of 7 strings</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 4. INPUT DETECTION -->
+<section>
+  <h2><span class="num">04</span> Input detection — the hard part</h2>
+  <p class="lede">Five ways to capture plucks. Picking #1 for MVP, #2 if #1 disappoints.</p>
+
+  <div class="scrollbox">
+  <table>
+    <thead><tr><th>Approach</th><th>Latency</th><th>Cost</th><th>Hardware mod</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>1. Single mic + YIN</td><td>~30ms</td><td>$60</td><td>None</td><td><strong>MVP pick</strong></td></tr>
+      <tr><td>2. Piezo per string</td><td>~5ms</td><td>$80 + soldering</td><td>Velcro to bridge</td><td>Fallback if mic struggles</td></tr>
+      <tr><td>3. Contact mic on body</td><td>~15ms</td><td>$40</td><td>Stick-on</td><td>Better SNR than air mic, same logic</td></tr>
+      <tr><td>4. Computer vision</td><td>~80ms</td><td>$0 (laptop cam)</td><td>None</td><td>Too laggy, plucks happen in 50ms</td></tr>
+      <tr><td>5. Electronic guqin</td><td>~2ms</td><td>$1500+</td><td>New instrument</td><td>Defeats the point</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Why MVP = single mic + YIN</h3>
+  <p>Real-time pitch detection in the browser is a solved problem. Chris Wilson's autocorrelation demo from 2015 still works. <a href="https://github.com/cwilso/PitchDetect" style="color:var(--lime)">cwilso/PitchDetect</a> is the reference implementation. Modern WASM ports of YIN hit ~4ms processing per 1024-sample buffer. With a 256-sample hop at 48kHz, total input-to-classification latency is ~25ms. Add ~16ms for the next render frame and the TV's display lag (~30ms in game mode), worst case is ~70ms end-to-end. Guitar Hero on a CRT was ~50ms. Beat Saber tolerates 80ms. We're in the band.</p>
+
+  <h3>The pluck classifier</h3>
+  <p>Each detected pitch gets snapped to the nearest of 7 string fundamentals (in cents, on a log scale). If the detected pitch is within ±50 cents of a string, it's that string. If it's farther, it's likely a pressed note (V2) or noise (ignore).</p>
+
+  <pre><code><span class="c">// pseudocode</span>
+<span class="k">const</span> STRINGS_HZ = [65.41, 73.42, 87.31, 98.00, 110.00, 130.81, 146.83];
+
+<span class="k">function</span> classify(detectedHz) {
+  <span class="k">const</span> cents = STRINGS_HZ.map(f =&gt; 1200 * Math.log2(detectedHz / f));
+  <span class="k">const</span> idx = cents.findIndex(c =&gt; Math.abs(c) &lt; 50);
+  <span class="k">return</span> idx === -1 ? <span class="k">null</span> : idx;
+}</code></pre>
+
+  <div class="callout tip">
+    <div class="tag">▸ PRO TIP</div>
+    <p>Plucked strings have a sharp transient followed by a settled fundamental. Run pitch detection on the <strong>second 50ms window</strong>, not the first — the attack is rich in noise and harmonics that can fool autocorrelation. Use the first 10ms to <em>trigger</em> via onset detection, then analyze pitch on the body of the note.</p>
+  </div>
+</section>
+
+<!-- 5. GAME DESIGN -->
+<section>
+  <h2><span class="num">05</span> Game design</h2>
+  <p class="lede">7 lanes, falling notes, hit zone at the bottom. Couple of guqin-specific twists.</p>
+
+  <h3>Visual language — three directions on the table</h3>
+  <p>Three legitimate aesthetic directions, each appropriate for a different audience. Probably ship one base theme and unlock others. The <strong>traditional ink-wash</strong> direction is the most "this is a guqin app", the <strong>cyberpunk</strong> direction is the one that goes viral, the <strong>fever-mode maximalism</strong> direction is what triggers when you're holding a 200+ combo.</p>
+
+  <div class="gallery">
+    <figure>
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/guqin-hero/img4-traditional.webp" alt="Traditional Chinese ink-wash aesthetic mockup">
+      <figcaption>▸ THEME A · INK-WASH<span class="name">水墨 · contemplative · default</span></figcaption>
+    </figure>
+    <figure>
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/guqin-hero/img2-cyberpunk.webp" alt="Neon cyberpunk Chinese aesthetic mockup">
+      <figcaption>▸ THEME B · NEO-CYBERPUNK<span class="name">大風 · electric · unlock</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="section-img">
+    <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/guqin-hero/img1-fever.webp" alt="Maximalist fever mode combo finish mockup">
+    <div class="tag">▸ FEVER MODE · 200+ COMBO STATE</div>
+  </div>
+
+  <h3>Note types (MVP → V2)</h3>
+  <ul style="margin-left:22px">
+    <li><strong>Pluck</strong> — single tap. The 95% case.</li>
+    <li><strong>Held tone</strong> — plucked then sustained while a "tail" scrolls. Encourages letting strings ring.</li>
+    <li><strong>V2: Slide</strong> — pluck string N, slide left hand. Detected via post-pluck pitch drift. Maps to <em>roufa</em> (vibrato) and <em>chuofa</em> (slide-up) techniques.</li>
+    <li><strong>V2: Harmonic</strong> — special note, pluck while left hand lightly touches a hui marker. Detect by the doubled-frequency overtone signature.</li>
+  </ul>
+
+  <h3>Scoring</h3>
+  <p>Standard rhythm game timing windows: <em>Perfect</em> (±25ms), <em>Good</em> (±50ms), <em>OK</em> (±100ms), <em>Miss</em>. Combo multiplier ramps to 4x at 30 streak. Wrong-string hits break combo. Skipped notes break combo. End-of-song grade S/A/B/C/F based on accuracy %.</p>
+
+  <h3>Modes</h3>
+  <ul style="margin-left:22px">
+    <li><strong>Practice</strong> — tempo slider 0.5x–1.0x, no scoring, infinite retries on missed notes</li>
+    <li><strong>Performance</strong> — full-speed, scored, no retries</li>
+    <li><strong>Free play</strong> — no chart, no scoring, just visualizes what string she's playing in real time (great for ear training and finding strings by sound)</li>
+  </ul>
+</section>
+
+<!-- 6. CHARTING -->
+<section>
+  <h2><span class="num">06</span> Charting &amp; song library</h2>
+  <p class="lede">The hardest <em>ongoing</em> problem. Bootstrapping plus authoring.</p>
+
+  <p>A rhythm game lives or dies on its song library. Three paths in priority order:</p>
+
+  <h3>1. Auto-convert from MIDI</h3>
+  <p>Plenty of Chinese folk songs (<em>Mo Li Hua</em>, <em>Liang Zhu</em>, <em>Yangguan San Die</em>) exist as MIDI on archives like ichinesemusic.com and individual collector sites. A Python script reads the melody track, transposes to fit C2–D3, and snaps each note to the nearest of the 7 strings. Output: chart JSON. <strong>Bootstraps the library to ~30 songs in a weekend.</strong></p>
+
+  <pre><code><span class="c"># charter.py — uv script with inline deps</span>
+<span class="c"># /// script</span>
+<span class="c"># dependencies = ["mido", "pydantic"]</span>
+<span class="c"># ///</span>
+<span class="k">import</span> mido
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+STRINGS_HZ = [65.41, 73.42, 87.31, 98.00, 110.00, 130.81, 146.83]
+
+<span class="k">def</span> midi_to_string(midi_note: <span class="k">int</span>) -&gt; <span class="k">int</span> | <span class="k">None</span>:
+    hz = 440 * 2 ** ((midi_note - 69) / 12)
+    cents = [1200 * (hz / s).bit_length() <span class="k">for</span> s <span class="k">in</span> STRINGS_HZ]
+    closest = min(range(7), key=<span class="k">lambda</span> i: <span class="k">abs</span>(cents[i]))
+    <span class="k">return</span> closest <span class="k">if</span> <span class="k">abs</span>(cents[closest]) &lt; 50 <span class="k">else</span> <span class="k">None</span>
+
+<span class="c"># [...full implementation in repo]</span></code></pre>
+
+  <h3>2. Hand-authoring tool</h3>
+  <p>A web-based chart editor: load an MP3, scrub through, click lanes to place notes. Same DOM as the game, just in edit mode. ~1 weekend to build, makes original arrangements possible.</p>
+
+  <h3>3. Listen-and-learn</h3>
+  <p>V3 stretch goal: she plays a song into the mic, system records the sequence, becomes a chart. Closes the loop completely.</p>
+
+  <div class="callout tip">
+    <div class="tag">▸ STARTING SONG LIST</div>
+    <p>Aim for <strong>10 songs at MVP</strong>, all in zhengdiao tuning, all using only open strings. Candidates: <em>Mo Li Hua</em> (茉莉花), <em>Tian Mi Mi</em> (甜蜜蜜), <em>Cai Yun Zhui Yue</em> (彩云追月), <em>Chun Jiang Hua Yue Ye</em> (春江花月夜) — the last one is literally a guqin/pipa standard. Plus a couple meme picks: <em>Smoke on the Water</em> mapped to strings, the Tetris theme, etc.</p>
+  </div>
+</section>
+
+<!-- 7. BOM -->
+<section>
+  <h2><span class="num">07</span> Bill of materials</h2>
+  <p class="lede">What you actually buy.</p>
+
+  <div class="scrollbox">
+  <table>
+    <thead><tr><th>Item</th><th>Recommendation</th><th>Cost</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>USB mic</td><td>Audio-Technica AT2020USB+ or Blue Yeti</td><td>$80–130</td><td>Cardioid pattern, point at soundboard, 6–12" away</td></tr>
+      <tr><td>Mic stand</td><td>Any boom arm or short tripod</td><td>$25</td><td>Tabletop tripod is fine — guqin sits on a table anyway</td></tr>
+      <tr><td>Display</td><td>Existing TV</td><td>$0</td><td>Enable Game Mode in TV settings to cut display lag</td></tr>
+      <tr><td>Compute</td><td>Her laptop / your Mac</td><td>$0</td><td>Web app, no install</td></tr>
+      <tr><td>Connection</td><td>USB-C → HDMI dongle</td><td>$15</td><td>Or AirPlay/Chromecast if her TV supports it</td></tr>
+      <tr><td>Hosting</td><td>Cloudflare Pages</td><td>$0</td><td>Slot it under <code>guqin.niggerfaggot.club</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p><strong>Total all-in: ~$120–170</strong> assuming you have a TV and a computer. If the AT2020USB+ is too pricey, a $40 Fifine K669B is a credible budget pick — pitch detection cares about pitch, not audiophile fidelity.</p>
+</section>
+
+<!-- 8. PHASES -->
+<section>
+  <h2><span class="num">08</span> Phased build plan</h2>
+  <p class="lede">Each phase is independently shippable and provides value alone.</p>
+
+  <div class="phase">
+    <h4>Phase 0 — Spike</h4>
+    <div class="title">Prove pitch detection works on the actual guqin</div>
+    <div class="meta">~3 hours · No game logic</div>
+    <ul>
+      <li>Web page with mic permission, live frequency readout</li>
+      <li>Bekah plucks each of 7 strings, log detected Hz</li>
+      <li>Verify all 7 are reliably classifiable, measure noise floor</li>
+      <li><strong>Kill criterion:</strong> if classifier accuracy &lt;95% on open plucks, fall back to piezo plan</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <h4>Phase 1 — MVP game</h4>
+    <div class="title">Playable single-song demo</div>
+    <div class="meta">~2 weekends · 1 song, 1 mode</div>
+    <ul>
+      <li>7-lane Canvas highway, scrolling notes, hit zone</li>
+      <li>Onset + YIN detection wired to scoring</li>
+      <li>One hand-charted song (suggest: <em>Mo Li Hua</em>, well-known, monophonic, mostly open strings)</li>
+      <li>Score / combo / final grade screen</li>
+      <li>Deploy to Cloudflare Pages</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <h4>Phase 2 — Library + polish</h4>
+    <div class="title">Actually replayable</div>
+    <div class="meta">~1 weekend</div>
+    <ul>
+      <li>MIDI-to-chart converter script</li>
+      <li>Convert 10–20 Chinese folk standards</li>
+      <li>Song select screen, difficulty tiers (Easy = 60% notes, Hard = 100%)</li>
+      <li>Practice mode with tempo slider</li>
+      <li>Held notes, basic FX (note explosions, screen shake on combo break)</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <h4>Phase 3 — Authoring + advanced techniques</h4>
+    <div class="title">Bekah-shaped tool, not just a game</div>
+    <div class="meta">~2 weekends</div>
+    <ul>
+      <li>Web-based chart editor</li>
+      <li>Pressed-note (anyin) detection — full pitch tracking, not just open-string classification</li>
+      <li>Harmonic (fanyin) detection</li>
+      <li>"Free play" mode that records what she plays and offers to save it as a chart</li>
+    </ul>
+  </div>
+
+  <div class="phase">
+    <h4>Phase 4 — Stretch</h4>
+    <div class="title">If this becomes a thing</div>
+    <div class="meta">When the mood strikes</div>
+    <ul>
+      <li>Multiplayer / leaderboards (Cloudflare D1)</li>
+      <li>Steam release as a Godot port — there is genuinely no Guqin Hero on Steam</li>
+      <li>Gamepad support so non-guqin-owners can play with a controller</li>
+      <li>Generative chart maker: input any audio, output a playable chart via melody extraction</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 9. RISKS -->
+<section>
+  <h2><span class="num">09</span> Risks &amp; what could kill it</h2>
+
+  <div class="scrollbox">
+  <table>
+    <thead><tr><th>Risk</th><th>Likelihood</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Ambient noise (Kong barking, AC, etc.) confuses the mic</td><td>Medium</td><td>Onset detection threshold + spectral whitening; cardioid mic close to instrument</td></tr>
+      <tr><td>String 1 (C2, 65 Hz) is too low for autocorrelation in small buffers</td><td>Medium</td><td>Use 4096-sample buffer (~85ms window) for low strings only; YIN handles low fundamentals well</td></tr>
+      <tr><td>Bluetooth audio (AirPods etc.) destroys latency</td><td>High if used</td><td>Wired output to TV mandatory; document this clearly</td></tr>
+      <tr><td>Bekah finds it gimmicky and doesn't use it</td><td>Real</td><td>Build the "free play" pitch visualizer first — that's useful even without the game</td></tr>
+      <tr><td>Charting is too tedious to maintain</td><td>High</td><td>MIDI auto-converter is non-negotiable; manual charting alone won't scale</td></tr>
+      <tr><td>Pressed notes / harmonics never get implemented</td><td>High</td><td>That's fine. MVP is great with open strings only. V2 features can wait years.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 10. DECISIONS -->
+<section>
+  <h2><span class="num">10</span> Decisions you need to make</h2>
+  <p class="lede">Pick before code starts.</p>
+
+  <div class="decision">
+    <div class="q">Q1</div>
+    <div>
+      <strong>Web app or native (Godot)?</strong>
+      Web is faster to ship, easier to update, casts to TV trivially. Godot wins on latency and would slot into your existing duct-cleaning-sim ambitions.
+      <em>Recommendation: web for MVP, port to Godot only if you decide to ship on Steam.</em>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="q">Q2</div>
+    <div>
+      <strong>Mic placement: above the soundboard, or contact mic on the body?</strong>
+      Above is simpler and non-invasive. Contact mic has dramatically better SNR but means sticking something to her instrument.
+      <em>Recommendation: try above-mic first. It will probably be enough.</em>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="q">Q3</div>
+    <div>
+      <strong>First song?</strong>
+      Mo Li Hua is the safe, recognizable, mostly-open-string pick. Chun Jiang Hua Yue Ye is a real guqin standard but harder. Tetris theme is funny but will trigger arguments about whether this is a serious project.
+      <em>Recommendation: Mo Li Hua. BIAR will weigh in.</em>
+    </div>
+  </div>
+
+  <div class="decision">
+    <div class="q">Q4</div>
+    <div>
+      <strong>Default visual theme?</strong>
+      Ink-wash (Theme A) is the most "this is a guqin app", appropriate, period-correct. Cyberpunk (Theme B) is louder and more video-game-y. The fever-mode maximalism is a unlockable state, not a default.
+      <em>Recommendation: Ink-wash default, cyberpunk skin unlocked at Phase 2.</em>
+    </div>
+  </div>
+</section>
+
+<footer>
+  古琴英雄 · v0.1 · Generated for Benny &amp; Bekah Foreman
+</footer>
+
+</div>
+</body>
+</html>
