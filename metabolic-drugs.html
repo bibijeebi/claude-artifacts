@@ -33,8 +33,23 @@
   --text: #1a1f2e;
   --text-dim: #4a5468;
   --text-mute: #8a93a3;
-  --warn: #b56a13;
-  --good: #2d6a4f;
+
+  /* Expanded vintage scientific palette */
+  --teal: #1d6e6a;
+  --teal-soft: #4a9690;
+  --ochre: #c89211;
+  --ochre-soft: #d9a93f;
+  --forest: #2d6a4f;
+  --forest-soft: #5a8c70;
+  --indigo: #2454a4;
+  --indigo-soft: #5476b8;
+  --burgundy: #6b1d2e;
+  --rose: #c47a8a;
+  --plum: #5a3a7e;
+  --amber: #b56a13;
+
+  --warn: var(--ochre);
+  --good: var(--forest);
   --lime: var(--accent);
   --lime-dim: var(--accent-dim);
 }
@@ -64,6 +79,9 @@ body {
   padding: 5rem 1.25rem 3.5rem;
   border-bottom: 3px double var(--border-bright);
   background:
+    radial-gradient(ellipse at top right, rgba(36, 84, 164, 0.06), transparent 50%),
+    radial-gradient(ellipse at bottom left, rgba(139, 35, 49, 0.05), transparent 50%),
+    radial-gradient(ellipse at center, rgba(200, 146, 17, 0.03), transparent 60%),
     linear-gradient(180deg, var(--bg-paper) 0%, var(--bg) 100%);
   position: relative;
 }
@@ -75,7 +93,7 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: var(--accent);
+  background: linear-gradient(90deg, var(--accent) 0%, var(--ochre) 25%, var(--teal) 50%, var(--indigo) 75%, var(--plum) 100%);
 }
 
 .hero-inner { max-width: 1100px; margin: 0 auto; }
@@ -178,6 +196,15 @@ h2 .num {
   letter-spacing: 0.05em;
 }
 
+/* Color-rotate top-level section number badges */
+section#bluf h2 .num { color: var(--primary); }
+section#practical h2 .num { color: var(--accent); }
+section#compare h2 .num { color: var(--ochre); }
+section#timeline h2 .num { color: var(--teal); }
+section#mechanisms h2 .num { color: var(--indigo); }
+section#drug-catalog h2 .num { color: var(--forest); }
+section#sources h2 .num { color: var(--plum); }
+
 h3 {
   font-family: 'Fraunces', serif;
   font-weight: 600;
@@ -216,6 +243,7 @@ strong { color: var(--accent); font-weight: 600; }
   -webkit-overflow-scrolling: touch;
   margin: 1.5rem 0;
   border: 1px solid var(--border);
+  border-top: 3px solid var(--primary);
   border-radius: 4px;
   background: var(--bg-card);
   box-shadow: 0 1px 2px rgba(28, 58, 94, 0.04);
@@ -239,12 +267,12 @@ th {
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-dim);
+  color: var(--primary);
   font-weight: 600;
-  background: var(--bg-paper);
+  background: linear-gradient(180deg, var(--bg-paper) 0%, var(--bg-card) 100%);
   position: sticky;
   top: 0;
-  border-bottom: 2px solid var(--border-bright);
+  border-bottom: 2px solid var(--primary);
 }
 
 td {
@@ -258,6 +286,17 @@ td:first-child { color: var(--primary); font-weight: 600; font-family: 'Fraunces
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--bg-paper); }
 
+/* Color-code rows by drug name for visual scanning */
+tbody tr:nth-child(1) td:first-child { color: var(--accent); }
+tbody tr:nth-child(2) td:first-child { color: var(--plum); }
+tbody tr:nth-child(3) td:first-child { color: var(--indigo); }
+tbody tr:nth-child(4) td:first-child { color: var(--teal); }
+tbody tr:nth-child(5) td:first-child { color: var(--ochre); }
+tbody tr:nth-child(6) td:first-child { color: var(--primary); }
+tbody tr:nth-child(7) td:first-child { color: var(--forest); }
+tbody tr:nth-child(8) td:first-child { color: var(--burgundy); }
+tbody tr:nth-child(9) td:first-child { color: var(--rose); }
+
 .pill {
   display: inline-block;
   font-family: 'JetBrains Mono', monospace;
@@ -269,10 +308,29 @@ tr:hover td { background: var(--bg-paper); }
   letter-spacing: 0.06em;
   font-weight: 500;
 }
-.pill.approved { background: rgba(45, 106, 79, 0.08); color: var(--good); border-color: rgba(45, 106, 79, 0.3); }
-.pill.phase3 { background: rgba(28, 58, 94, 0.08); color: var(--primary); border-color: rgba(28, 58, 94, 0.25); }
-.pill.phase2 { background: rgba(181, 106, 19, 0.08); color: var(--warn); border-color: rgba(181, 106, 19, 0.3); }
+.pill.approved { background: rgba(45, 106, 79, 0.12); color: var(--forest); border-color: rgba(45, 106, 79, 0.4); }
+.pill.phase3 { background: rgba(36, 84, 164, 0.1); color: var(--indigo); border-color: rgba(36, 84, 164, 0.35); }
+.pill.phase2 { background: rgba(200, 146, 17, 0.12); color: var(--amber); border-color: rgba(200, 146, 17, 0.4); }
 .pill.phase1 { color: var(--text-mute); background: var(--bg-paper); }
+
+/* Color-coded drug class section themes
+ * Each class gets its own vintage scientific accent color */
+section[id="glp1"] { --section-color: var(--primary); }
+section[id="dual-gip"] { --section-color: var(--teal); }
+section[id="dual-glucagon"] { --section-color: var(--ochre); }
+section[id="triple"] { --section-color: var(--accent); }
+section[id="amylin"] { --section-color: var(--plum); }
+section[id="oral"] { --section-color: var(--forest); }
+section[id="myostatin"] { --section-color: var(--indigo); }
+section[id="sarms"] { --section-color: var(--burgundy); }
+section[id="adjacent"] { --section-color: var(--rose); }
+
+section[id] h2 .num { color: var(--section-color, var(--accent)); }
+section[id] .card { border-top-color: var(--section-color, var(--primary)); }
+section[id] .card:hover { border-top-color: var(--section-color, var(--accent)); filter: saturate(1.05); }
+section[id] .card-mech { color: var(--section-color, var(--accent)); }
+section[id] .card-name { color: var(--section-color, var(--primary)); }
+section[id] .card-row .label { color: color-mix(in srgb, var(--section-color, var(--primary)) 60%, var(--text-mute)); }
 
 /* Drug cards */
 .cards {
@@ -364,11 +422,21 @@ tr:hover td { background: var(--bg-paper); }
 
 /* Callout */
 .callout {
-  background: var(--bg-paper);
+  background: linear-gradient(135deg, rgba(139, 35, 49, 0.04), rgba(36, 84, 164, 0.04));
   border-left: 3px solid var(--accent);
   padding: 1.25rem 1.5rem;
   border-radius: 0 3px 3px 0;
   margin: 1.5rem 0;
+  position: relative;
+}
+.callout::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--ochre) 33%, var(--teal) 66%, var(--indigo) 100%);
 }
 .callout-title {
   font-family: 'JetBrains Mono', monospace;
@@ -385,11 +453,23 @@ tr:hover td { background: var(--bg-paper); }
 .bluf {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--primary);
+  border-left: 5px solid var(--primary);
   border-radius: 2px;
   padding: 1.5rem 1.75rem;
   margin: 1.5rem 0 2rem;
   box-shadow: 0 1px 3px rgba(28, 58, 94, 0.06);
+  position: relative;
+  background-image:
+    linear-gradient(90deg, rgba(28, 58, 94, 0.02) 0%, transparent 30%);
+}
+.bluf::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--primary) 0%, var(--teal) 50%, var(--accent) 100%);
 }
 .bluf-title {
   font-family: 'JetBrains Mono', monospace;
@@ -407,19 +487,29 @@ tr:hover td { background: var(--bg-paper); }
   margin: 2rem 0;
   border-left: 2px solid var(--border-bright);
   padding-left: 1.75rem;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--ochre) 25%, var(--teal) 50%, var(--indigo) 75%, var(--plum) 100%);
+  background-clip: border-box;
+  border-image: linear-gradient(180deg, var(--accent) 0%, var(--ochre) 25%, var(--teal) 50%, var(--indigo) 75%, var(--plum) 100%) 1;
+  border-left-width: 3px;
+  border-left-style: solid;
 }
 .timeline-item { position: relative; padding-bottom: 1.5rem; }
 .timeline-item::before {
   content: '';
   position: absolute;
-  left: -1.85rem;
+  left: -1.95rem;
   top: 0.45rem;
-  width: 9px;
-  height: 9px;
-  background: var(--accent);
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   box-shadow: 0 0 0 4px var(--bg);
 }
+.timeline-item:nth-child(6n+1)::before { background: var(--accent); }
+.timeline-item:nth-child(6n+2)::before { background: var(--ochre); }
+.timeline-item:nth-child(6n+3)::before { background: var(--teal); }
+.timeline-item:nth-child(6n+4)::before { background: var(--forest); }
+.timeline-item:nth-child(6n+5)::before { background: var(--indigo); }
+.timeline-item:nth-child(6n+6)::before { background: var(--plum); }
 .timeline-date {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.74rem;
@@ -429,6 +519,11 @@ tr:hover td { background: var(--bg-paper); }
   text-transform: uppercase;
   font-weight: 600;
 }
+.timeline-item:nth-child(6n+2) .timeline-date { color: var(--ochre); }
+.timeline-item:nth-child(6n+3) .timeline-date { color: var(--teal); }
+.timeline-item:nth-child(6n+4) .timeline-date { color: var(--forest); }
+.timeline-item:nth-child(6n+5) .timeline-date { color: var(--indigo); }
+.timeline-item:nth-child(6n+6) .timeline-date { color: var(--plum); }
 .timeline-event { font-size: 1rem; color: var(--text); font-family: 'Fraunces', serif; }
 
 /* Sidebar / footnotes */
@@ -541,7 +636,12 @@ ul.clean li::marker { color: var(--accent); }
 }
 
 /* Drug catalog section */
-.catalog-intro { background: var(--bg-paper); border-top: 1px solid var(--border-bright); }
+.catalog-intro {
+  background:
+    linear-gradient(135deg, rgba(45, 106, 79, 0.04) 0%, rgba(36, 84, 164, 0.03) 100%),
+    var(--bg-paper);
+  border-top: 1px solid var(--border-bright);
+}
 .catalog-nav {
   display: flex;
   flex-wrap: wrap;
@@ -553,18 +653,30 @@ ul.clean li::marker { color: var(--accent); }
   font-size: 0.78rem;
   text-decoration: none;
   background: var(--bg-card);
-  color: var(--primary);
-  padding: 0.5rem 0.85rem;
+  padding: 0.5rem 0.9rem;
   border: 1px solid var(--border-bright);
+  border-bottom: 3px solid var(--cat-color, var(--primary));
   border-radius: 2px;
   transition: all 0.15s;
   letter-spacing: 0.02em;
+  color: var(--cat-color, var(--primary));
+  font-weight: 500;
 }
 .catalog-nav a:hover {
-  background: var(--primary);
+  background: var(--cat-color, var(--primary));
   color: var(--bg-card);
-  border-color: var(--primary);
+  border-color: var(--cat-color, var(--primary));
+  transform: translateY(-1px);
 }
+.catalog-nav a:nth-child(1) { --cat-color: var(--primary); }
+.catalog-nav a:nth-child(2) { --cat-color: var(--teal); }
+.catalog-nav a:nth-child(3) { --cat-color: var(--ochre); }
+.catalog-nav a:nth-child(4) { --cat-color: var(--accent); }
+.catalog-nav a:nth-child(5) { --cat-color: var(--plum); }
+.catalog-nav a:nth-child(6) { --cat-color: var(--forest); }
+.catalog-nav a:nth-child(7) { --cat-color: var(--indigo); }
+.catalog-nav a:nth-child(8) { --cat-color: var(--burgundy); }
+.catalog-nav a:nth-child(9) { --cat-color: var(--rose); }
 </style>
 </head>
 <body>
@@ -579,7 +691,7 @@ ul.clean li::marker { color: var(--accent); }
         <p class="lede">A field guide to the obesity and muscle pharmacology landscape. GLP-1s are the appetizer. The rest of this decade belongs to multi-agonists, oral pills, and the muscle-sparing drugs that stack on top of them.</p>
       </div>
       <figure class="hero-fig">
-        <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-hero.webp" alt="Peptide helix illustration" loading="eager">
+        <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-hero-color.webp" alt="Peptide helix illustration with multi-color watercolor washes" loading="eager">
       </figure>
     </div>
   </div>
@@ -614,6 +726,11 @@ ul.clean li::marker { color: var(--accent); }
       <li><strong>Gen 3:</strong> triple agonists (GLP-1, GIP, glucagon) and dual GLP-1 with glucagon, 17 to 29% depending on dose and population</li>
       <li><strong>Gen 4 (combinations):</strong> GLP-1 plus amylin co-formulations, GLP-1 plus muscle-sparing antibody add-ons</li>
     </ul>
+
+    <figure class="fig-block">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-evolution.webp" alt="Four progressively more complex peptide structures showing the evolution from single GLP-1 to multi-agonists" loading="lazy">
+      <figcaption>The four generations, illustrated. Each successive molecule layers more receptor targets onto the same incretin scaffold, climbing the efficacy curve as it goes.</figcaption>
+    </figure>
   </div>
 </section>
 
@@ -997,8 +1114,8 @@ ul.clean li::marker { color: var(--accent); }
     <p class="section-sub">The muscle-sparing add-on class. None approved yet, all designed to stack with GLP-1s.</p>
 
     <figure class="fig-block">
-      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-muscle.webp" alt="Skeletal muscle fiber cross-section" loading="lazy">
-      <figcaption>Figure 2. Skeletal muscle fascicle cross-section. The therapeutic target is preservation of these fibers during rapid GLP-1-induced weight loss.</figcaption>
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-pathway.webp" alt="Skeletal muscle fiber bundle with surrounding antibody and chemical structures" loading="lazy">
+      <figcaption>Figure 2. Skeletal muscle fascicle with floating antibody and ligand structures. The therapeutic strategy: monoclonal antibodies (Y-shapes) intercept myostatin and activin ligands before they can dock with type II activin receptors on the muscle fiber.</figcaption>
     </figure>
 
     <p>This is the class to watch through 2026 and 2027. The strategy across all candidates is the same: stack on top of a GLP-1 to keep total weight loss high while shifting the composition of that loss away from lean mass and toward fat. The historical track record of myostatin inhibitors in muscular dystrophy was disappointing, but obesity is a different problem (you don't need new functional muscle, you just need to not lose existing muscle) and early data is far more encouraging.</p>
