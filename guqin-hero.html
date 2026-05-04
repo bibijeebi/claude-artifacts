@@ -356,7 +356,7 @@
 
 <!-- HERO -->
 <div class="hero">
-  <div class="kicker">REQUIREMENTS PROPOSAL · v0.1</div>
+  <div class="kicker">REQUIREMENTS PROPOSAL · v0.2</div>
   <h1><span class="cn">古琴</span>Guqin<br>Hero</h1>
   <p class="subtitle">A rhythm game for Bekah's 7-string Chinese zither. Pluck the right string at the right time, get points, learn songs.</p>
 
@@ -369,7 +369,7 @@
 <!-- BLUF -->
 <div class="bluf">
   <div class="label">▸ BOTTOM LINE</div>
-  <p><strong>Yes, this is buildable.</strong> The trick is skipping MIDI hardware entirely and using <strong>real-time audio pitch detection</strong> on a USB mic placed near her actual guqin. The 7 open strings are tuned to widely-spaced pitches (C2 through D3) that an autocorrelation algorithm can discriminate in &lt;20ms. Render a 7-lane Guitar Hero-style note highway in a browser, plug your laptop into the TV, ship it. <strong>~2 weekends to MVP, ~1 month to "Bekah actually plays it."</strong></p>
+  <p><strong>Yes, this is buildable.</strong> Original plan was a single mic + pitch detection. Benchmarking showed that strategy chokes on real eighth-note play because guqin notes ring 5+ seconds and overlap. <strong>The right move is piezo-per-string</strong>: 7 cheap piezo discs at the bridge feed an 8-channel USB audio interface. Each string is its own audio channel — no pitch tracking needed, just per-channel onset detection. Latency: ~5-10ms. Total cost: <strong>~$275 used</strong>. <a href="/guqin-bom" style="color:var(--lime)">Full BOM →</a></p>
 </div>
 
 <!-- 1. CONCEPT -->
@@ -470,41 +470,54 @@
 
 <!-- 4. INPUT DETECTION -->
 <section>
-  <h2><span class="num">04</span> Input detection — the hard part</h2>
-  <p class="lede">Five ways to capture plucks. Picking #1 for MVP, #2 if #1 disappoints.</p>
+  <h2><span class="num">04</span> Input detection — piezo per string</h2>
+  <p class="lede">The hard part, solved by hardware instead of signal processing voodoo.</p>
 
+  <h3>What we tried first, and why it didn't survive contact</h3>
+  <p>Original plan: single USB mic + YIN pitch detection. Benchmarked it. Result: passable for sustained tones but <strong>fails on real eighth-note playing</strong>. The guqin's defining acoustic feature — strings that ring for 5+ seconds — means consecutive plucks overlap in the air. Pitch trackers see the overlap as noise and either misclassify the new note or lock onto the previous one. By note 8 of a 120 BPM run, cumulative timing error was ~700ms. The same issue plagues Rocksmith's Microphone Mode for acoustic guitars (which is why Rocksmith ships a direct-pickup cable and treats microphone input as the asterisked fallback).</p>
+
+  <h3>The right move</h3>
+  <p>Skip pitch detection entirely. Mount a piezo disc <em>per string</em> at the bridge. Each disc only "hears" its own string because mechanical coupling is local. Feed all 7 piezos into an 8-channel USB audio interface. The browser sees 7 audio channels in parallel. <strong>The channel that fires brightest IS the string that was plucked.</strong> No pitch detection. No FFT. No autocorrelation. Just per-channel RMS onset detection.</p>
+
+  <pre><code><span class="c">// pseudocode — total software footprint for input detection</span>
+<span class="k">const</span> THRESH = 0.02;
+<span class="k">const</span> DEBOUNCE_MS = 50;
+<span class="k">const</span> lastFireTime = [0,0,0,0,0,0,0];
+
+<span class="k">function</span> processFrame(channelBuffers, t) {
+  <span class="k">const</span> rms = channelBuffers.map(buf =&gt;
+    Math.sqrt(buf.reduce((s, x) =&gt; s + x*x, 0) / buf.length)
+  );
+  <span class="k">const</span> loudest = rms.indexOf(Math.max(...rms));
+  <span class="k">if</span> (rms[loudest] &gt; THRESH &amp;&amp; t - lastFireTime[loudest] &gt; DEBOUNCE_MS) {
+    lastFireTime[loudest] = t;
+    <span class="k">return</span> { string: loudest, time: t };
+  }
+  <span class="k">return</span> <span class="k">null</span>;
+}</code></pre>
+
+  <h3>Latency budget</h3>
   <div class="scrollbox">
   <table>
-    <thead><tr><th>Approach</th><th>Latency</th><th>Cost</th><th>Hardware mod</th><th>Verdict</th></tr></thead>
+    <thead><tr><th>Stage</th><th>Time</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>1. Single mic + YIN</td><td>~30ms</td><td>$60</td><td>None</td><td><strong>MVP pick</strong></td></tr>
-      <tr><td>2. Piezo per string</td><td>~5ms</td><td>$80 + soldering</td><td>Velcro to bridge</td><td>Fallback if mic struggles</td></tr>
-      <tr><td>3. Contact mic on body</td><td>~15ms</td><td>$40</td><td>Stick-on</td><td>Better SNR than air mic, same logic</td></tr>
-      <tr><td>4. Computer vision</td><td>~80ms</td><td>$0 (laptop cam)</td><td>None</td><td>Too laggy, plucks happen in 50ms</td></tr>
-      <tr><td>5. Electronic guqin</td><td>~2ms</td><td>$1500+</td><td>New instrument</td><td>Defeats the point</td></tr>
+      <tr><td>Pluck → piezo voltage</td><td>~0ms</td><td>Mechanical, instantaneous</td></tr>
+      <tr><td>Piezo → ADC sample</td><td>~2ms</td><td>UMC1820 hardware buffer</td></tr>
+      <tr><td>USB transit + driver</td><td>~3ms</td><td>Class-compliant, no driver overhead</td></tr>
+      <tr><td>AudioWorklet processing</td><td>~5ms</td><td>RMS calc on 7 channels, 256-sample hop</td></tr>
+      <tr><td>Game loop dispatch</td><td>~16ms</td><td>Next requestAnimationFrame</td></tr>
+      <tr><td><strong>Total input → score</strong></td><td><strong>~25ms</strong></td><td>Comfortably below human perception of lag</td></tr>
     </tbody>
   </table>
   </div>
 
-  <h3>Why MVP = single mic + YIN</h3>
-  <p>Real-time pitch detection in the browser is a solved problem. Chris Wilson's autocorrelation demo from 2015 still works. <a href="https://github.com/cwilso/PitchDetect" style="color:var(--lime)">cwilso/PitchDetect</a> is the reference implementation. Modern WASM ports of YIN hit ~4ms processing per 1024-sample buffer. With a 256-sample hop at 48kHz, total input-to-classification latency is ~25ms. Add ~16ms for the next render frame and the TV's display lag (~30ms in game mode), worst case is ~70ms end-to-end. Guitar Hero on a CRT was ~50ms. Beat Saber tolerates 80ms. We're in the band.</p>
-
-  <h3>The pluck classifier</h3>
-  <p>Each detected pitch gets snapped to the nearest of 7 string fundamentals (in cents, on a log scale). If the detected pitch is within ±50 cents of a string, it's that string. If it's farther, it's likely a pressed note (V2) or noise (ignore).</p>
-
-  <pre><code><span class="c">// pseudocode</span>
-<span class="k">const</span> STRINGS_HZ = [65.41, 73.42, 87.31, 98.00, 110.00, 130.81, 146.83];
-
-<span class="k">function</span> classify(detectedHz) {
-  <span class="k">const</span> cents = STRINGS_HZ.map(f =&gt; 1200 * Math.log2(detectedHz / f));
-  <span class="k">const</span> idx = cents.findIndex(c =&gt; Math.abs(c) &lt; 50);
-  <span class="k">return</span> idx === -1 ? <span class="k">null</span> : idx;
-}</code></pre>
-
   <div class="callout tip">
-    <div class="tag">▸ PRO TIP</div>
-    <p>Plucked strings have a sharp transient followed by a settled fundamental. Run pitch detection on the <strong>second 50ms window</strong>, not the first — the attack is rich in noise and harmonics that can fool autocorrelation. Use the first 10ms to <em>trigger</em> via onset detection, then analyze pitch on the body of the note.</p>
+    <div class="tag">▸ CROSSTALK HANDLING</div>
+    <p>String 4 picks up some signal from string 3 vibrating because they share a soundboard. The fix is the foam pad isolation under each piezo (mechanical) plus the <code>argmax</code> in the code above (logical). Adjacent strings will produce 6-12 dB lower RMS than the actually-plucked string. Picking the loudest channel resolves it cleanly. If crosstalk turns out to be worse than expected, increase the foam thickness or add a 3 dB threshold on margin-of-victory.</p>
   </div>
+
+  <h3>Bonus: pressed notes (anyin) become trivial later</h3>
+  <p>For V2, when Bekah does an <em>anyin</em> (pressing a string with the left hand to change its pitch), the piezo on that specific string still fires — we know which string she's pressing without any pitch detection at all. Add a single FFT per channel only after onset, and you get the pressed-note pitch on top. This is the elegance of the per-string approach: it makes the V2 problem an <em>extension</em>, not a <em>rewrite</em>.</p>
 </section>
 
 <!-- 5. GAME DESIGN -->
@@ -592,23 +605,32 @@ STRINGS_HZ = [65.41, 73.42, 87.31, 98.00, 110.00, 130.81, 146.83]
 <!-- 7. BOM -->
 <section>
   <h2><span class="num">07</span> Bill of materials</h2>
-  <p class="lede">What you actually buy.</p>
+  <p class="lede">What you actually buy. <a href="/guqin-bom" style="color:var(--lime)">Full BOM page with order links →</a></p>
 
   <div class="scrollbox">
   <table>
     <thead><tr><th>Item</th><th>Recommendation</th><th>Cost</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>USB mic</td><td>Audio-Technica AT2020USB+ or Blue Yeti</td><td>$80–130</td><td>Cardioid pattern, point at soundboard, 6–12" away</td></tr>
-      <tr><td>Mic stand</td><td>Any boom arm or short tripod</td><td>$25</td><td>Tabletop tripod is fine — guqin sits on a table anyway</td></tr>
-      <tr><td>Display</td><td>Existing TV</td><td>$0</td><td>Enable Game Mode in TV settings to cut display lag</td></tr>
-      <tr><td>Compute</td><td>Her laptop / your Mac</td><td>$0</td><td>Web app, no install</td></tr>
-      <tr><td>Connection</td><td>USB-C → HDMI dongle</td><td>$15</td><td>Or AirPlay/Chromecast if her TV supports it</td></tr>
-      <tr><td>Hosting</td><td>Cloudflare Pages</td><td>$0</td><td>Slot it under <code>guqin.niggerfaggot.club</code></td></tr>
+      <tr><td>Piezo discs</td><td>27mm prewired, 15-pack</td><td>$10</td><td>Need 7, buy 15 for spares</td></tr>
+      <tr><td>Audio interface</td><td>Behringer UMC1820 (used)</td><td>$200</td><td>8 Hi-Z inputs, USB class-compliant</td></tr>
+      <tr><td>1/4" TS cables</td><td>6-pack instrument cable</td><td>$25</td><td>Short cables — high-impedance source loses signal over distance</td></tr>
+      <tr><td>Foam weatherstripping</td><td>1/4" thick adhesive</td><td>$8</td><td>Mounts piezos under bridge, reversible</td></tr>
+      <tr><td>Painter's tape</td><td>3M ScotchBlue</td><td>$6</td><td>Holds foam-piezo sandwich, no residue</td></tr>
+      <tr><td>USB-C → USB-B cable</td><td>6-foot</td><td>$10</td><td>For M1 MacBook</td></tr>
+      <tr><td>USB-C → HDMI dongle</td><td>If you don't have one</td><td>$15</td><td>Wired to TV, lower latency than AirPlay</td></tr>
+      <tr><td>Display</td><td>Existing TV</td><td>$0</td><td>Enable Game Mode</td></tr>
+      <tr><td>Compute</td><td>M1 MacBook Air</td><td>$0</td><td>Web app, no install</td></tr>
+      <tr><td>Hosting</td><td>Cloudflare Pages</td><td>$0</td><td>Slot under <code>guqin-hero.niggerfaggot.club</code></td></tr>
     </tbody>
   </table>
   </div>
 
-  <p><strong>Total all-in: ~$120–170</strong> assuming you have a TV and a computer. If the AT2020USB+ is too pricey, a $40 Fifine K669B is a credible budget pick — pitch detection cares about pitch, not audiophile fidelity.</p>
+  <p><strong>Total all-in: ~$275 used / ~$355 new.</strong> The big variable is the UMC1820 — used market is healthy. Reverb and eBay regularly have them at $150-200. New is ~$280 from Sweetwater.</p>
+
+  <div class="callout tip">
+    <div class="tag">▸ WHY THIS BEATS THE ORIGINAL "JUST USE A MIC" PLAN</div>
+    <p>The original budget was $120-170 for a USB mic and pitch tracking. We saved on hardware and lost on the actual <em>working game</em>. The piezo plan adds ~$150 in hardware but gives you (1) 5-10ms latency instead of 25-70ms, (2) zero pitch detection failures, (3) inherent immunity to room noise and the dog barking, (4) a clean V2 path for pressed notes. Hardware cost is a one-time tax. Detection failure is a permanent tax on every play session.</p>
+  </div>
 </section>
 
 <!-- 8. PHASES -->
@@ -618,13 +640,16 @@ STRINGS_HZ = [65.41, 73.42, 87.31, 98.00, 110.00, 130.81, 146.83]
 
   <div class="phase">
     <h4>Phase 0 — Spike</h4>
-    <div class="title">Prove pitch detection works on the actual guqin</div>
-    <div class="meta">~3 hours · No game logic</div>
+    <div class="title">Validate the piezo rig</div>
+    <div class="meta">~3 hours after parts arrive · No game logic</div>
     <ul>
-      <li>Web page with mic permission, live frequency readout</li>
-      <li>Bekah plucks each of 7 strings, log detected Hz</li>
-      <li>Verify all 7 are reliably classifiable, measure noise floor</li>
-      <li><strong>Kill criterion:</strong> if classifier accuracy &lt;95% on open plucks, fall back to piezo plan</li>
+      <li>Mount all 7 piezos under the bridge with foam pads + painter's tape</li>
+      <li>Wire each to its UMC1820 channel, set channels to instrument-Hi-Z</li>
+      <li>Web page reads aggregate device, displays per-channel RMS bars in real time</li>
+      <li>Bekah plucks each string. Verify the right channel lights up, others stay quiet</li>
+      <li>Measure crosstalk: when she plucks string 4, what's the amplitude on strings 3 and 5?</li>
+      <li><strong>Pass criterion:</strong> plucked string is &gt;6 dB louder than any neighbor on every plunk</li>
+      <li><strong>Failure mode:</strong> if crosstalk is too high, swap to thicker foam or move piezos closer to bridge</li>
     </ul>
   </div>
 
@@ -687,12 +712,13 @@ STRINGS_HZ = [65.41, 73.42, 87.31, 98.00, 110.00, 130.81, 146.83]
   <table>
     <thead><tr><th>Risk</th><th>Likelihood</th><th>Mitigation</th></tr></thead>
     <tbody>
-      <tr><td>Ambient noise (Kong barking, AC, etc.) confuses the mic</td><td>Medium</td><td>Onset detection threshold + spectral whitening; cardioid mic close to instrument</td></tr>
-      <tr><td>String 1 (C2, 65 Hz) is too low for autocorrelation in small buffers</td><td>Medium</td><td>Use 4096-sample buffer (~85ms window) for low strings only; YIN handles low fundamentals well</td></tr>
-      <tr><td>Bluetooth audio (AirPods etc.) destroys latency</td><td>High if used</td><td>Wired output to TV mandatory; document this clearly</td></tr>
-      <tr><td>Bekah finds it gimmicky and doesn't use it</td><td>Real</td><td>Build the "free play" pitch visualizer first — that's useful even without the game</td></tr>
-      <tr><td>Charting is too tedious to maintain</td><td>High</td><td>MIDI auto-converter is non-negotiable; manual charting alone won't scale</td></tr>
-      <tr><td>Pressed notes / harmonics never get implemented</td><td>High</td><td>That's fine. MVP is great with open strings only. V2 features can wait years.</td></tr>
+      <tr><td>Crosstalk between adjacent strings exceeds threshold</td><td>Medium</td><td>Thicker foam pads; move piezos individually closer to each string's bridge contact point; per-channel calibration</td></tr>
+      <tr><td>Piezo signal too weak — UMC1820 inputs underdriven</td><td>Low</td><td>Use Hi-Z mode on all 8 inputs; bump per-channel gain; add a $5 JFET buffer per channel if needed</td></tr>
+      <tr><td>Piezo + tape damages lacquer over time</td><td>Low</td><td>Painter's tape is rated for low-tack removal; foam never touches tape; remove between sessions if paranoid</td></tr>
+      <tr><td>UMC1820 driver issues on macOS</td><td>Low</td><td>It's class-compliant — no driver install. Falls back gracefully if Apple changes audio stack.</td></tr>
+      <tr><td>Bekah finds the rig intrusive and won't keep it on</td><td>Medium</td><td>Whole rig sets up in 60 seconds — the piezos live on a strip of cardstock, set into place under the bridge as a single unit. Removable in seconds.</td></tr>
+      <tr><td>Charting tedium kills the song library</td><td>High</td><td>MIDI auto-converter is non-negotiable; manual charting alone won't scale</td></tr>
+      <tr><td>Pressed notes / harmonics never get implemented</td><td>High</td><td>Fine. MVP is great with open strings only. V2 features wait years if needed.</td></tr>
     </tbody>
   </table>
   </div>
@@ -715,9 +741,9 @@ STRINGS_HZ = [65.41, 73.42, 87.31, 98.00, 110.00, 130.81, 146.83]
   <div class="decision">
     <div class="q">Q2</div>
     <div>
-      <strong>Mic placement: above the soundboard, or contact mic on the body?</strong>
-      Above is simpler and non-invasive. Contact mic has dramatically better SNR but means sticking something to her instrument.
-      <em>Recommendation: try above-mic first. It will probably be enough.</em>
+      <strong>UMC1820 used or new?</strong>
+      Used saves ~$80, hardware is identical, drivers and warranty don't matter for our use case (it's class-compliant on Mac). New comes from Sweetwater with a return window if it shows up DOA.
+      <em>Recommendation: used from Reverb if you can wait 5-7 days for shipping. New from Sweetwater if you want it tomorrow.</em>
     </div>
   </div>
 
@@ -741,7 +767,7 @@ STRINGS_HZ = [65.41, 73.42, 87.31, 98.00, 110.00, 130.81, 146.83]
 </section>
 
 <footer>
-  古琴英雄 · v0.1 · Generated for Benny &amp; Bekah Foreman
+  古琴英雄 · v0.2 · piezo-per-string approach · <a href="/guqin-bom" style="color:var(--lime)">BOM</a>
 </footer>
 
 </div>
