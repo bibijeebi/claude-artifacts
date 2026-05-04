@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guqin Hero — Phase 0 Spike</title>
+<meta name="description" content="Pitch detection spike for the Guqin Hero project. Pluck strings, see what gets detected.">
+<meta property="og:title" content="Guqin Hero — Pitch Detection Spike">
+<meta property="og:description" content="Phase 0: prove pitch detection works on the actual guqin before building the game.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/guqin-hero/og-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/guqin-spike">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/guqin-hero/og-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;600&family=Noto+Serif+SC:wght@600;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e0d;
+    --bg-2: #11161a;
+    --ink: #e8ece8;
+    --mute: #8a948c;
+    --lime: #d4ff3a;
+    --crimson: #e63946;
+    --gold: #d4af37;
+    --line: #1f2521;
+    --c1: #e63946;
+    --c2: #f4a261;
+    --c3: #e9c46a;
+    --c4: #d4ff3a;
+    --c5: #2a9d8f;
+    --c6: #6a4c93;
+    --c7: #d63384;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow-x: hidden; background: var(--bg); }
+  body {
+    color: var(--ink);
+    font-family: 'Fraunces', Georgia, serif;
+    line-height: 1.5;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 48px; }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 800;
+    font-size: 32px;
+    letter-spacing: -0.02em;
+  }
+  h1 .cn {
+    font-family: 'Noto Serif SC', serif;
+    color: var(--crimson);
+    font-weight: 900;
+    margin-right: 0.2em;
+  }
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--lime);
+    border: 1px solid var(--line);
+    padding: 4px 10px;
+    border-radius: 4px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  button {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    padding: 10px 18px;
+    background: var(--bg-2);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  button:hover { border-color: var(--lime); color: var(--lime); }
+  button.primary { background: var(--lime); color: var(--bg); border-color: var(--lime); font-weight: 600; }
+  button.primary:hover { background: #b8e833; }
+  button.danger { border-color: var(--crimson); color: var(--crimson); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  select {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 9px 12px;
+    background: var(--bg-2);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .card h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  /* LIVE FREQUENCY DISPLAY */
+  .freq-display {
+    text-align: center;
+    padding: 18px 0;
+  }
+  .freq-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 56px;
+    font-weight: 600;
+    color: var(--lime);
+    letter-spacing: -0.02em;
+  }
+  .freq-num.muted { color: var(--mute); }
+  .freq-unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    color: var(--mute);
+    margin-left: 6px;
+  }
+  .freq-note {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--mute);
+    font-size: 14px;
+    margin-top: 6px;
+  }
+  .freq-note.detected { color: var(--ink); font-style: normal; }
+  .cents-bar {
+    margin-top: 14px;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cents-bar::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--mute);
+  }
+  .cents-bar .indicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--lime);
+    border-radius: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 0.05s linear;
+  }
+  .cents-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--mute);
+    margin-top: 4px;
+  }
+
+  /* VOLUME METER */
+  .meter {
+    height: 8px;
+    background: var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px 0 4px;
+  }
+  .meter .fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--c5), var(--lime), var(--gold), var(--crimson));
+    width: 0%;
+    transition: width 0.05s linear;
+  }
+  .meter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--mute);
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* STRING LANES */
+  .lanes {
+    margin-top: 16px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .lanes h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .lane-row {
+    display: grid;
+    grid-template-columns: 60px 70px 1fr 100px 80px;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    transition: background 0.12s;
+  }
+  .lane-row:last-child { border-bottom: none; }
+  .lane-row.active {
+    background: rgba(212, 255, 58, 0.12);
+    border-radius: 4px;
+  }
+  .lane-num {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .lane-color {
+    width: 100%;
+    height: 14px;
+    border-radius: 3px;
+  }
+  .lane-color[data-string="1"] { background: var(--c1); }
+  .lane-color[data-string="2"] { background: var(--c2); }
+  .lane-color[data-string="3"] { background: var(--c3); }
+  .lane-color[data-string="4"] { background: var(--c4); }
+  .lane-color[data-string="5"] { background: var(--c5); }
+  .lane-color[data-string="6"] { background: var(--c6); }
+  .lane-color[data-string="7"] { background: var(--c7); }
+  .lane-bar {
+    height: 14px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .lane-bar .fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+  .lane-row[data-string="1"] .lane-bar .fill { background: var(--c1); }
+  .lane-row[data-string="2"] .lane-bar .fill { background: var(--c2); }
+  .lane-row[data-string="3"] .lane-bar .fill { background: var(--c3); }
+  .lane-row[data-string="4"] .lane-bar .fill { background: var(--c4); }
+  .lane-row[data-string="5"] .lane-bar .fill { background: var(--c5); }
+  .lane-row[data-string="6"] .lane-bar .fill { background: var(--c6); }
+  .lane-row[data-string="7"] .lane-bar .fill { background: var(--c7); }
+  .lane-hits {
+    text-align: right;
+    color: var(--mute);
+    font-size: 12px;
+  }
+  .lane-hits .count { color: var(--ink); font-weight: 600; }
+
+  /* CALIBRATION TABLE */
+  .calib-table {
+    width: 100%;
+    margin-top: 12px;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .calib-table th {
+    text-align: left;
+    padding: 6px 8px;
+    color: var(--mute);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+  }
+  .calib-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .calib-table tr:last-child td { border-bottom: none; }
+  .calib-table .ok { color: var(--lime); }
+  .calib-table .bad { color: var(--crimson); }
+  .calib-table .pending { color: var(--mute); }
+
+  /* LOG */
+  .log {
+    background: #000;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    height: 220px;
+    overflow-y: auto;
+    color: var(--ink);
+  }
+  .log .entry { padding: 2px 0; }
+  .log .ts { color: var(--mute); margin-right: 8px; }
+  .log .lvl-info { color: var(--ink); }
+  .log .lvl-hit { color: var(--lime); }
+  .log .lvl-warn { color: var(--gold); }
+  .log .lvl-err { color: var(--crimson); }
+
+  /* STATUS BANNER */
+  .status {
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-bottom: 18px;
+    border-left: 3px solid var(--mute);
+    background: var(--bg-2);
+    font-size: 14px;
+  }
+  .status.ok { border-left-color: var(--lime); }
+  .status.warn { border-left-color: var(--gold); }
+  .status.err { border-left-color: var(--crimson); }
+  .status .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 4px;
+  }
+  .status.warn .label { color: var(--gold); }
+  .status.err .label { color: var(--crimson); }
+
+  /* INSTRUCTIONS */
+  .instructions {
+    margin-top: 18px;
+    padding: 18px 20px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .instructions h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--lime);
+    margin-bottom: 10px;
+  }
+  .instructions ol {
+    margin-left: 20px;
+  }
+  .instructions li { margin-bottom: 6px; }
+
+  footer {
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    color: var(--mute);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  footer a { color: var(--lime); text-decoration: none; }
+
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; color: var(--lime); background: var(--bg); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1><span class="cn">古琴</span>Hero — Spike</h1>
+  <span class="badge">PHASE 0 · PITCH DETECTION</span>
+</header>
+
+<div class="status" id="status">
+  <div class="label">▸ READY</div>
+  <div id="status-msg">Click <strong>Start Listening</strong> and grant mic access. Pluck each string a few times. Watch the lanes light up.</div>
+</div>
+
+<div class="controls">
+  <button class="primary" id="btn-start">▶ Start Listening</button>
+  <button class="danger" id="btn-stop" disabled>■ Stop</button>
+  <select id="mic-select" disabled><option value="">— select mic after start —</option></select>
+  <button id="btn-calibrate" disabled>⊕ Calibrate</button>
+  <button id="btn-export" disabled>↓ Export Log</button>
+  <button id="btn-clear" disabled>⌫ Clear</button>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>▸ Live Frequency</h2>
+    <div class="freq-display">
+      <span class="freq-num muted" id="freq">—</span><span class="freq-unit">Hz</span>
+      <div class="freq-note" id="note-name">no signal</div>
+      <div class="cents-bar"><div class="indicator" id="cents-indicator"></div></div>
+      <div class="cents-label"><span>-50¢</span><span id="cents-num">—</span><span>+50¢</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>▸ Mic Level &amp; Health</h2>
+    <div class="meter"><div class="fill" id="vol-fill"></div></div>
+    <div class="meter-label"><span>RMS</span><span id="vol-num">— dB</span></div>
+    <div style="margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;">
+      <div>Sample rate: <span id="sr">—</span> Hz</div>
+      <div>Buffer size: <span id="bs">—</span> samples</div>
+      <div>Detection latency: <span id="lat">—</span> ms</div>
+      <div>Onsets / sec: <span id="ops">0.0</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="lanes">
+  <h2>▸ String Detection — Live</h2>
+  <div id="lanes-container"></div>
+</div>
+
+<div class="grid" style="margin-top:16px">
+  <div class="card">
+    <h2>▸ Calibration</h2>
+    <div style="font-size:13px;color:var(--mute);margin-bottom:8px">
+      Click Calibrate, then pluck each string 5 times when prompted. Detected pitches get measured against expected fundamentals.
+    </div>
+    <table class="calib-table" id="calib-table">
+      <thead><tr><th>Str</th><th>Note</th><th>Target Hz</th><th>Detected</th><th>Δ cents</th><th>Status</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>▸ Event Log</h2>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<div class="instructions">
+  <h3>▸ How to use this</h3>
+  <ol>
+    <li>Set Bekah's guqin on a sturdy table. Place a USB mic 6–12 inches above the soundboard, pointing down at the strings.</li>
+    <li>Click <strong>Start Listening</strong> and pick the right mic from the dropdown if it doesn't auto-pick.</li>
+    <li>Pluck each open string a few times. Watch the lane bars light up. Verify each string maps to its correct lane (1=C2 thickest → 7=D3 thinnest).</li>
+    <li>Click <strong>Calibrate</strong> to run the formal accuracy test. Pluck each string 5 times when prompted.</li>
+    <li>Pass criterion: <code>≥95%</code> of plucks classified to the correct string within ±50¢. If below, switch mics or move closer.</li>
+    <li>Click <strong>Export Log</strong> to send Claude the full detection record for analysis.</li>
+  </ol>
+</div>
+
+<footer>
+  古琴英雄 · phase 0 spike · <a href="/guqin-hero">back to proposal</a>
+</footer>
+
+</div>
+
+<script>
+// ============================================================
+// GUQIN HERO — PHASE 0 PITCH DETECTION SPIKE
+// ============================================================
+
+const STRINGS = [
+  { n: 1, note: 'C2', hz: 65.41 },
+  { n: 2, note: 'D2', hz: 73.42 },
+  { n: 3, note: 'F2', hz: 87.31 },
+  { n: 4, note: 'G2', hz: 98.00 },
+  { n: 5, note: 'A2', hz: 110.00 },
+  { n: 6, note: 'C3', hz: 130.81 },
+  { n: 7, note: 'D3', hz: 146.83 },
+];
+
+const MIN_HZ = 50;   // below this, ignore (noise)
+const MAX_HZ = 400;  // above this, ignore (harmonics, not fundamentals)
+const RMS_THRESHOLD = 0.012;  // onset detection threshold
+const PITCH_TOLERANCE_CENTS = 50;
+const MIN_ONSET_GAP_MS = 120;  // debounce successive plucks
+
+// ============================================================
+// STATE
+// ============================================================
+let audioCtx = null;
+let micStream = null;
+let analyser = null;
+let dataBuf = null;
+let running = false;
+let lastOnsetTime = 0;
+let onsetCount = 0;
+let onsetWindowStart = 0;
+let calibrating = false;
+let calibStringIdx = 0;
+let calibSamples = [];
+const hits = [0, 0, 0, 0, 0, 0, 0];
+const eventLog = [];
+const calibResults = STRINGS.map(s => ({ ...s, samples: [], avg: null, cents: null, ok: null }));
+
+// ============================================================
+// DOM REFS
+// ============================================================
+const $ = id => document.getElementById(id);
+const statusEl = $('status'), statusMsg = $('status-msg');
+const btnStart = $('btn-start'), btnStop = $('btn-stop');
+const btnCalib = $('btn-calibrate'), btnExport = $('btn-export'), btnClear = $('btn-clear');
+const micSelect = $('mic-select');
+const freqEl = $('freq'), noteEl = $('note-name'), centsInd = $('cents-indicator'), centsNum = $('cents-num');
+const volFill = $('vol-fill'), volNum = $('vol-num');
+const srEl = $('sr'), bsEl = $('bs'), latEl = $('lat'), opsEl = $('ops');
+const logEl = $('log');
+const lanesContainer = $('lanes-container');
+const calibTbody = $('calib-table').querySelector('tbody');
+
+// ============================================================
+// UI BUILD
+// ============================================================
+function buildLanes() {
+  lanesContainer.innerHTML = '';
+  STRINGS.forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'lane-row';
+    row.dataset.string = s.n;
+    row.innerHTML = `
+      <div class="lane-num">${s.n}</div>
+      <div>${s.note}<br><span style="font-size:10px;color:var(--mute)">${s.hz}Hz</span></div>
+      <div class="lane-bar"><div class="fill"></div></div>
+      <div class="lane-color" data-string="${s.n}"></div>
+      <div class="lane-hits"><span class="count" id="hits-${s.n}">0</span> hits</div>
+    `;
+    lanesContainer.appendChild(row);
+  });
+}
+function buildCalibTable() {
+  calibTbody.innerHTML = STRINGS.map((s, i) => `
+    <tr id="calib-row-${i}">
+      <td>${s.n}</td><td>${s.note}</td><td>${s.hz.toFixed(2)}</td>
+      <td class="pending">—</td><td class="pending">—</td><td class="pending">·</td>
+    </tr>
+  `).join('');
+}
+buildLanes();
+buildCalibTable();
+
+// ============================================================
+// LOGGING
+// ============================================================
+function log(level, msg) {
+  const ts = new Date().toISOString().slice(11, 23);
+  eventLog.push({ ts, level, msg });
+  const div = document.createElement('div');
+  div.className = 'entry';
+  div.innerHTML = `<span class="ts">${ts}</span><span class="lvl-${level}">${msg}</span>`;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+  if (eventLog.length > 5000) eventLog.shift();
+}
+function setStatus(level, label, msg) {
+  statusEl.className = 'status ' + (level === 'info' ? 'ok' : level);
+  statusEl.querySelector('.label').textContent = '▸ ' + label;
+  statusMsg.innerHTML = msg;
+}
+
+// ============================================================
+// PITCH DETECTION — YIN ALGORITHM
+// ============================================================
+// Reference: de Cheveigné & Kawahara, "YIN, a fundamental frequency
+// estimator for speech and music" (2002). Compact JS implementation.
+function detectPitchYIN(buf, sampleRate) {
+  const threshold = 0.10;
+  const bufSize = buf.length;
+  const halfSize = Math.floor(bufSize / 2);
+  const yin = new Float32Array(halfSize);
+
+  // Step 1: difference function
+  for (let tau = 0; tau < halfSize; tau++) {
+    let sum = 0;
+    for (let i = 0; i < halfSize; i++) {
+      const delta = buf[i] - buf[i + tau];
+      sum += delta * delta;
+    }
+    yin[tau] = sum;
+  }
+
+  // Step 2: cumulative mean normalized difference
+  yin[0] = 1;
+  let runningSum = 0;
+  for (let tau = 1; tau < halfSize; tau++) {
+    runningSum += yin[tau];
+    yin[tau] = yin[tau] * tau / runningSum;
+  }
+
+  // Step 3: absolute threshold
+  let tauEst = -1;
+  const minTau = Math.floor(sampleRate / MAX_HZ);
+  const maxTau = Math.floor(sampleRate / MIN_HZ);
+  for (let tau = minTau; tau < Math.min(maxTau, halfSize); tau++) {
+    if (yin[tau] < threshold) {
+      while (tau + 1 < halfSize && yin[tau + 1] < yin[tau]) tau++;
+      tauEst = tau;
+      break;
+    }
+  }
+  if (tauEst === -1) return null;
+
+  // Step 4: parabolic interpolation
+  const x0 = tauEst > 0 ? tauEst - 1 : tauEst;
+  const x2 = tauEst + 1 < halfSize ? tauEst + 1 : tauEst;
+  let betterTau = tauEst;
+  if (x0 !== tauEst && x2 !== tauEst) {
+    const s0 = yin[x0], s1 = yin[tauEst], s2 = yin[x2];
+    betterTau = tauEst + (s2 - s0) / (2 * (2 * s1 - s2 - s0));
+  }
+  return sampleRate / betterTau;
+}
+
+// ============================================================
+// STRING CLASSIFICATION
+// ============================================================
+function classifyPitch(hz) {
+  if (!hz || hz < MIN_HZ || hz > MAX_HZ) return null;
+  // Allow octave wrap: detected pitch may be octave-up if YIN missed fundamental
+  for (let octShift of [0, -1, 1]) {
+    const adjustedHz = hz * Math.pow(2, octShift);
+    let bestIdx = -1, bestCents = Infinity;
+    for (let i = 0; i < STRINGS.length; i++) {
+      const cents = 1200 * Math.log2(adjustedHz / STRINGS[i].hz);
+      if (Math.abs(cents) < Math.abs(bestCents)) {
+        bestCents = cents;
+        bestIdx = i;
+      }
+    }
+    if (Math.abs(bestCents) < PITCH_TOLERANCE_CENTS) {
+      return { idx: bestIdx, cents: bestCents, octShift, hz: adjustedHz };
+    }
+  }
+  return null;
+}
+
+function hzToNoteName(hz) {
+  if (!hz) return '—';
+  const A4 = 440;
+  const semitones = 12 * Math.log2(hz / A4);
+  const midiNum = Math.round(semitones + 69);
+  const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  const name = names[midiNum % 12];
+  const octave = Math.floor(midiNum / 12) - 1;
+  const exactSemi = semitones + 69;
+  const cents = (exactSemi - midiNum) * 100;
+  return `${name}${octave} ${cents >= 0 ? '+' : ''}${cents.toFixed(0)}¢`;
+}
+
+// ============================================================
+// AUDIO PIPELINE
+// ============================================================
+async function listMics() {
+  try {
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    const mics = devs.filter(d => d.kind === 'audioinput');
+    micSelect.innerHTML = mics.map(m =>
+      `<option value="${m.deviceId}">${m.label || 'Mic ' + m.deviceId.slice(0, 6)}</option>`
+    ).join('');
+    micSelect.disabled = false;
+  } catch (e) {
+    log('warn', 'Could not enumerate mics: ' + e.message);
+  }
+}
+
+async function start() {
+  try {
+    setStatus('info', 'STARTING', 'Requesting mic access…');
+    const constraints = {
+      audio: {
+        deviceId: micSelect.value || undefined,
+        echoCancellation: false,
+        noiseSuppression: false,
+        autoGainControl: false,
+      }
+    };
+    micStream = await navigator.mediaDevices.getUserMedia(constraints);
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
+    const source = audioCtx.createMediaStreamSource(micStream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 4096;  // 85ms window @48k — handles low strings
+    analyser.smoothingTimeConstant = 0;
+    source.connect(analyser);
+    dataBuf = new Float32Array(analyser.fftSize);
+
+    srEl.textContent = audioCtx.sampleRate;
+    bsEl.textContent = analyser.fftSize;
+
+    await listMics();  // refresh with labels now that perm is granted
+
+    running = true;
+    btnStart.disabled = true;
+    btnStop.disabled = false;
+    btnCalib.disabled = false;
+    btnExport.disabled = false;
+    btnClear.disabled = false;
+
+    setStatus('ok', 'LISTENING', `Pluck a string. <code>${audioCtx.sampleRate}</code> Hz · ${analyser.fftSize}-sample buffer`);
+    log('info', `Audio context started @ ${audioCtx.sampleRate}Hz, fftSize=${analyser.fftSize}`);
+    onsetWindowStart = performance.now();
+    requestAnimationFrame(loop);
+  } catch (e) {
+    setStatus('err', 'FAILED', 'Could not access mic: ' + e.message);
+    log('err', e.message);
+  }
+}
+
+function stop() {
+  running = false;
+  if (micStream) micStream.getTracks().forEach(t => t.stop());
+  if (audioCtx) audioCtx.close();
+  micStream = null;
+  audioCtx = null;
+  btnStart.disabled = false;
+  btnStop.disabled = true;
+  btnCalib.disabled = true;
+  setStatus('info', 'STOPPED', 'Audio stopped. Click Start to resume.');
+  log('info', 'Audio context closed');
+}
+
+// ============================================================
+// MAIN LOOP
+// ============================================================
+function loop() {
+  if (!running) return;
+  const tStart = performance.now();
+
+  analyser.getFloatTimeDomainData(dataBuf);
+
+  // RMS volume
+  let sumSq = 0;
+  for (let i = 0; i < dataBuf.length; i++) sumSq += dataBuf[i] * dataBuf[i];
+  const rms = Math.sqrt(sumSq / dataBuf.length);
+  const dB = 20 * Math.log10(Math.max(rms, 1e-6));
+  volFill.style.width = Math.min(100, Math.max(0, (dB + 60) * 1.6)) + '%';
+  volNum.textContent = dB.toFixed(1) + ' dB';
+
+  // Onset detection: signal above threshold + debounce
+  const now = performance.now();
+  let pitch = null, classified = null;
+  if (rms > RMS_THRESHOLD && (now - lastOnsetTime) > MIN_ONSET_GAP_MS) {
+    pitch = detectPitchYIN(dataBuf, audioCtx.sampleRate);
+    if (pitch) {
+      classified = classifyPitch(pitch);
+      if (classified) {
+        lastOnsetTime = now;
+        onsetCount++;
+        onPluck(classified, pitch);
+      }
+    }
+  } else if (rms > RMS_THRESHOLD * 0.7) {
+    // Continuous tracking display (no scoring) for free play feel
+    pitch = detectPitchYIN(dataBuf, audioCtx.sampleRate);
+  }
+
+  // Update display
+  if (pitch && pitch >= MIN_HZ && pitch <= MAX_HZ) {
+    freqEl.textContent = pitch.toFixed(1);
+    freqEl.classList.remove('muted');
+    noteEl.textContent = hzToNoteName(pitch);
+    noteEl.classList.add('detected');
+    if (classified) {
+      centsInd.style.left = (50 + classified.cents) + '%';
+      centsNum.textContent = (classified.cents >= 0 ? '+' : '') + classified.cents.toFixed(0) + '¢';
+    }
+  } else {
+    freqEl.classList.add('muted');
+    noteEl.classList.remove('detected');
+  }
+
+  // Onsets/sec rolling window
+  if (now - onsetWindowStart > 1000) {
+    opsEl.textContent = (onsetCount * 1000 / (now - onsetWindowStart)).toFixed(1);
+    onsetWindowStart = now;
+    onsetCount = 0;
+  }
+
+  latEl.textContent = (performance.now() - tStart).toFixed(1);
+  requestAnimationFrame(loop);
+}
+
+// ============================================================
+// PLUCK HANDLER
+// ============================================================
+function onPluck(c, rawHz) {
+  const s = STRINGS[c.idx];
+  hits[c.idx]++;
+  $('hits-' + s.n).textContent = hits[c.idx];
+
+  // Light up the lane
+  const row = lanesContainer.querySelector(`.lane-row[data-string="${s.n}"]`);
+  row.classList.add('active');
+  const fill = row.querySelector('.lane-bar .fill');
+  fill.style.width = '100%';
+  setTimeout(() => { fill.style.width = '0%'; }, 180);
+  setTimeout(() => row.classList.remove('active'), 240);
+
+  const octNote = c.octShift ? ` (oct ${c.octShift > 0 ? '+' : ''}${c.octShift})` : '';
+  log('hit', `String ${s.n} (${s.note}) · raw=${rawHz.toFixed(1)}Hz · adj=${c.hz.toFixed(1)}Hz · ${c.cents >= 0 ? '+' : ''}${c.cents.toFixed(1)}¢${octNote}`);
+
+  // Calibration capture
+  if (calibrating) {
+    if (c.idx === calibStringIdx) {
+      calibSamples.push({ hz: c.hz, cents: c.cents, raw: rawHz });
+      updateCalibProgress();
+    } else {
+      log('warn', `Calib expected string ${calibStringIdx + 1}, got ${s.n}`);
+    }
+  }
+}
+
+// ============================================================
+// CALIBRATION FLOW
+// ============================================================
+function startCalibration() {
+  calibrating = true;
+  calibStringIdx = 0;
+  calibSamples = [];
+  calibResults.forEach(r => { r.samples = []; r.avg = null; r.cents = null; r.ok = null; });
+  buildCalibTable();
+  promptNextString();
+}
+
+function promptNextString() {
+  if (calibStringIdx >= STRINGS.length) {
+    finishCalibration();
+    return;
+  }
+  const s = STRINGS[calibStringIdx];
+  setStatus('warn', `CALIBRATE STRING ${s.n}`, `Pluck the <strong>${s.note}</strong> string (string ${s.n}, ${s.n === 1 ? 'thickest' : s.n === 7 ? 'thinnest' : ''}) — <strong>5 times</strong>. <span id="calib-progress">0/5</span>`);
+  log('info', `Calibration: pluck string ${s.n} (${s.note}) 5 times`);
+}
+
+function updateCalibProgress() {
+  const p = document.getElementById('calib-progress');
+  if (p) p.textContent = calibSamples.length + '/5';
+  if (calibSamples.length >= 5) {
+    const avg = calibSamples.reduce((a, b) => a + b.hz, 0) / calibSamples.length;
+    const cents = 1200 * Math.log2(avg / STRINGS[calibStringIdx].hz);
+    const ok = Math.abs(cents) < PITCH_TOLERANCE_CENTS;
+    calibResults[calibStringIdx] = {
+      ...calibResults[calibStringIdx],
+      samples: [...calibSamples], avg, cents, ok
+    };
+    const row = document.getElementById('calib-row-' + calibStringIdx);
+    row.children[3].textContent = avg.toFixed(2);
+    row.children[3].className = '';
+    row.children[4].textContent = (cents >= 0 ? '+' : '') + cents.toFixed(1) + '¢';
+    row.children[4].className = ok ? 'ok' : 'bad';
+    row.children[5].textContent = ok ? '✓' : '✗';
+    row.children[5].className = ok ? 'ok' : 'bad';
+
+    log('info', `String ${calibStringIdx + 1} avg=${avg.toFixed(2)}Hz Δ=${cents.toFixed(1)}¢ ${ok ? '✓' : '✗'}`);
+
+    calibStringIdx++;
+    calibSamples = [];
+    setTimeout(promptNextString, 800);
+  }
+}
+
+function finishCalibration() {
+  calibrating = false;
+  const passed = calibResults.filter(r => r.ok).length;
+  const pct = (passed / STRINGS.length * 100).toFixed(0);
+  const verdict = passed === STRINGS.length ? 'PASS' : passed >= 6 ? 'MOSTLY OK' : 'FAIL';
+  const lvl = passed === STRINGS.length ? 'ok' : passed >= 6 ? 'warn' : 'err';
+  setStatus(lvl, 'CALIBRATION ' + verdict, `${passed}/7 strings classified within ±50¢ (${pct}%). ${
+    passed === STRINGS.length ? 'Pitch detection is viable. Ready to build Phase 1.' :
+    passed >= 6 ? 'Close. Try a different mic or move closer to the soundboard.' :
+    'Significant problems. Consider piezo pickups or contact mic.'
+  }`);
+  log('info', `=== CALIBRATION ${verdict}: ${passed}/7 strings (${pct}%) ===`);
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportLog() {
+  const data = {
+    timestamp: new Date().toISOString(),
+    sampleRate: audioCtx ? audioCtx.sampleRate : null,
+    fftSize: analyser ? analyser.fftSize : null,
+    hits: STRINGS.map((s, i) => ({ string: s.n, note: s.note, count: hits[i] })),
+    calibration: calibResults.map(r => ({
+      string: r.n, note: r.note, target: r.hz,
+      samples: r.samples, avg: r.avg, cents: r.cents, ok: r.ok
+    })),
+    events: eventLog,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `guqin-spike-${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  log('info', 'Log exported');
+}
+
+function clearAll() {
+  hits.fill(0);
+  STRINGS.forEach(s => { $('hits-' + s.n).textContent = '0'; });
+  eventLog.length = 0;
+  logEl.innerHTML = '';
+  calibResults.forEach(r => { r.samples = []; r.avg = null; r.cents = null; r.ok = null; });
+  buildCalibTable();
+  log('info', 'Cleared');
+}
+
+// ============================================================
+// WIRE UP
+// ============================================================
+btnStart.addEventListener('click', start);
+btnStop.addEventListener('click', stop);
+btnCalib.addEventListener('click', startCalibration);
+btnExport.addEventListener('click', exportLog);
+btnClear.addEventListener('click', clearAll);
+
+// Initial state
+log('info', 'Spike loaded. Click Start Listening to begin.');
+</script>
+</body>
+</html>
