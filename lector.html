@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lector — Spanish Reading Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e0d;
+  --bg-2: #141816;
+  --bg-3: #1c2220;
+  --text: #ececec;
+  --dim: #888;
+  --dim-2: #555;
+  --accent: #d4ff3a;
+  --accent-dim: #98b821;
+  --new: rgba(239, 108, 108, 0.22);
+  --new-border: rgba(239, 108, 108, 0.55);
+  --learning: rgba(212, 255, 58, 0.18);
+  --learning-border: rgba(212, 255, 58, 0.5);
+  --known: transparent;
+  --serif: 'Fraunces', Georgia, serif;
+  --mono: 'JetBrains Mono', 'Menlo', monospace;
+}
+* { box-sizing: border-box; }
+html, body { overflow-x: hidden; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--bg-3);
+  background: var(--bg-2);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 22px;
+  margin: 0;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+h1 .sub { color: var(--dim); font-weight: 400; font-size: 13px; margin-left: 8px; }
+.stats {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--dim);
+}
+.stats b { color: var(--text); font-weight: 500; }
+.actions { display: flex; gap: 6px; }
+button {
+  background: var(--bg-3);
+  color: var(--text);
+  border: 1px solid var(--bg-3);
+  padding: 7px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.12s;
+}
+button:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 700; }
+button.primary:hover { background: var(--accent-dim); border-color: var(--accent-dim); }
+button.ghost { background: transparent; }
+button.ghost:hover { background: var(--bg-3); color: var(--accent); border-color: var(--bg-3); }
+
+/* Layout */
+main {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 0;
+  min-height: calc(100vh - 60px);
+}
+@media (max-width: 900px) {
+  main { grid-template-columns: 1fr; }
+  aside { border-left: none !important; border-top: 1px solid var(--bg-3); }
+}
+
+/* Reader pane */
+.reader-pane {
+  padding: 28px 38px 80px;
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
+}
+.input-area { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+textarea, input[type=text] {
+  background: var(--bg-2);
+  color: var(--text);
+  border: 1px solid var(--bg-3);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 3px;
+  width: 100%;
+  resize: vertical;
+}
+textarea:focus, input[type=text]:focus { outline: none; border-color: var(--accent); }
+textarea { min-height: 120px; }
+.input-row { display: flex; gap: 8px; align-items: center; }
+.input-row input { flex: 1; }
+.samples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.samples button { font-size: 11px; padding: 5px 9px; }
+
+#text-content {
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.75;
+  color: var(--text);
+  font-weight: 400;
+}
+#text-content p { margin: 0 0 1.1em 0; }
+#text-content .title {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.5em;
+  color: var(--text);
+}
+#text-content .source {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  margin-bottom: 1.5em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Word states */
+.word {
+  cursor: pointer;
+  padding: 1px 1px;
+  border-radius: 2px;
+  transition: background 0.1s;
+  border-bottom: 1px solid transparent;
+}
+.word.new {
+  background: var(--new);
+  border-bottom-color: var(--new-border);
+}
+.word.learning {
+  background: var(--learning);
+  border-bottom-color: var(--learning-border);
+}
+.word.known {
+  background: var(--known);
+  border-bottom-color: transparent;
+}
+.word:hover { background: var(--accent); color: var(--bg); border-bottom-color: var(--accent); }
+.word.loading { background: var(--bg-3); animation: pulse 1s infinite; }
+@keyframes pulse { 50% { opacity: 0.5; } }
+
+/* Vocab sidebar */
+aside {
+  background: var(--bg-2);
+  border-left: 1px solid var(--bg-3);
+  padding: 22px 18px;
+  font-size: 13px;
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+aside h2 {
+  font-family: var(--serif);
+  margin: 0 0 14px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.vocab-filters { display: flex; gap: 4px; margin-bottom: 12px; }
+.vocab-filters button { font-size: 11px; padding: 4px 8px; flex: 1; }
+.vocab-filters button.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.vocab-search { width: 100%; margin-bottom: 12px; font-size: 12px; padding: 6px 10px; }
+.vocab-list { display: flex; flex-direction: column; gap: 6px; }
+.vocab-item {
+  background: var(--bg-3);
+  padding: 8px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+}
+.vocab-item.learning { border-left-color: var(--learning-border); }
+.vocab-item.known { border-left-color: var(--dim-2); opacity: 0.65; }
+.vocab-item .w { font-weight: 700; color: var(--text); font-family: var(--serif); font-size: 15px; }
+.vocab-item .pos { color: var(--dim); font-size: 10px; margin-left: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.vocab-item .t { color: var(--accent); margin-top: 2px; font-size: 12px; }
+.vocab-item .meta { color: var(--dim); font-size: 10px; margin-top: 3px; }
+.vocab-empty { color: var(--dim); font-style: italic; padding: 14px 0; text-align: center; }
+
+/* Popup */
+#popup {
+  position: absolute;
+  background: var(--bg-2);
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  padding: 14px 16px;
+  min-width: 280px;
+  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  z-index: 100;
+  font-family: var(--mono);
+}
+#popup .pop-word {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+#popup .pop-lemma { color: var(--dim); font-size: 11px; margin-bottom: 8px; }
+#popup .pop-lemma b { color: var(--text); font-weight: 500; font-style: italic; }
+#popup .pop-trans {
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+#popup .pop-alt {
+  font-size: 11px;
+  color: var(--dim);
+  margin-bottom: 10px;
+}
+#popup .pop-example {
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg-3);
+  padding: 8px 10px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+  border-left: 2px solid var(--accent);
+}
+#popup .pop-example-trans { font-size: 12px; color: var(--dim); margin-bottom: 10px; }
+#popup .pop-note { font-size: 11px; color: var(--dim); font-style: italic; margin-bottom: 10px; }
+#popup .pop-actions { display: flex; gap: 6px; }
+#popup .pop-actions button { flex: 1; font-size: 11px; }
+#popup .pop-loading { color: var(--dim); font-style: italic; padding: 8px 0; }
+#popup.hidden { display: none; }
+
+.hidden { display: none !important; }
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: var(--bg);
+  padding: 10px 18px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 12px;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+#toast.show { opacity: 1; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--dim-2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Lector <span class="sub">spanish reader</span></h1>
+  </div>
+  <div class="stats">
+    <span><b id="stat-known">0</b> known</span>
+    <span><b id="stat-learning">0</b> learning</span>
+    <span><b id="stat-total">0</b> total</span>
+  </div>
+  <div class="actions">
+    <button class="ghost" onclick="toggleInput()">📝 New text</button>
+    <button class="ghost" onclick="exportCsv()">⬇ Export CSV</button>
+    <button class="ghost" onclick="resetAll()" title="Wipe all vocab + saved state">🗑</button>
+  </div>
+</header>
+
+<main>
+  <section class="reader-pane">
+    <div id="input-pane" class="input-area">
+      <textarea id="text-input" placeholder="Paste any Spanish text here…"></textarea>
+      <div class="input-row">
+        <input type="text" id="url-input" placeholder="…or paste a URL (BBC Mundo, El País, NPR Latino, etc)">
+        <button class="primary" onclick="loadFromUrl()">Fetch</button>
+      </div>
+      <div class="input-row">
+        <button class="primary" onclick="loadFromText()">Load text →</button>
+        <span style="color: var(--dim); font-size: 11px;">click any word for translation · ⌘+click to mark known · drag-select to translate phrase</span>
+      </div>
+      <div class="samples">
+        <span style="color: var(--dim); font-size: 11px; margin-right: 4px;">samples:</span>
+        <button onclick="loadSample('news')">news</button>
+        <button onclick="loadSample('jobsite')">jobsite spanish</button>
+        <button onclick="loadSample('story')">short story</button>
+        <button onclick="loadSample('hvac')">hvac vocab</button>
+      </div>
+    </div>
+    <div id="text-content"></div>
+  </section>
+
+  <aside>
+    <h2>Vocabulario</h2>
+    <input type="text" id="vocab-search" class="vocab-search" placeholder="search vocab…" oninput="renderVocab()">
+    <div class="vocab-filters">
+      <button class="active" data-filter="all" onclick="setFilter('all')">all</button>
+      <button data-filter="learning" onclick="setFilter('learning')">learning</button>
+      <button data-filter="known" onclick="setFilter('known')">known</button>
+    </div>
+    <div id="vocab-list" class="vocab-list"></div>
+  </aside>
+</main>
+
+<div id="popup" class="hidden"></div>
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG — change WORKER_URL after you deploy the worker
+// ============================================================
+const WORKER_URL = 'https://lector-api.bennyforeman1.workers.dev';
+const TARGET_LANG = 'Spanish';
+const NATIVE_LANG = 'English';
+const STORAGE_KEY = 'lector_vocab_v1';
+const STATE_KEY = 'lector_state_v1';
+
+// ============================================================
+// Storage
+// ============================================================
+let vocab = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+let state = JSON.parse(localStorage.getItem(STATE_KEY) || '{"text":"","title":"","source":""}');
+let currentFilter = 'all';
+
+function saveVocab() { localStorage.setItem(STORAGE_KEY, JSON.stringify(vocab)); updateStats(); }
+function saveState() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+
+function updateStats() {
+  const entries = Object.values(vocab);
+  document.getElementById('stat-total').textContent = entries.length;
+  document.getElementById('stat-known').textContent = entries.filter(v => v.status === 'known').length;
+  document.getElementById('stat-learning').textContent = entries.filter(v => v.status === 'learning').length;
+}
+
+// ============================================================
+// Sample texts
+// ============================================================
+const SAMPLES = {
+  news: {
+    title: 'Las temperaturas extremas continúan afectando a varios estados',
+    source: 'sample · news',
+    text: `Las autoridades meteorológicas advirtieron este domingo que la ola de calor que afecta a varios estados del sur podría extenderse durante toda la semana. Se han registrado temperaturas superiores a los cuarenta grados en zonas rurales, lo que ha provocado preocupación entre los agricultores y trabajadores al aire libre.
+
+El gobernador anunció medidas urgentes para proteger a las poblaciones más vulnerables, incluyendo la apertura de centros de enfriamiento en bibliotecas públicas y centros comunitarios. "Es fundamental que la gente se mantenga hidratada y evite la exposición prolongada al sol", declaró durante una conferencia de prensa.
+
+Los hospitales locales han reportado un aumento significativo en casos de golpe de calor, especialmente entre personas mayores y niños. Las autoridades recomiendan revisar regularmente a los vecinos que viven solos.`
+  },
+  jobsite: {
+    title: 'Seguridad en la obra',
+    source: 'sample · construction',
+    text: `Antes de empezar el trabajo, todos los obreros deben usar el equipo de protección personal. Esto incluye casco, gafas de seguridad, guantes y botas con punta de acero. El supervisor revisará el equipo cada mañana.
+
+Si ves un peligro, dilo inmediatamente. No subas a una escalera sin asegurarla primero. Cuando trabajes en altura, siempre usa el arnés. Si necesitas ayuda con una herramienta o no entiendes una instrucción, pregunta. Es mejor preguntar dos veces que tener un accidente.
+
+Las pausas son importantes. Toma agua cada quince minutos cuando hace calor. Reporta cualquier lesión, por pequeña que sea, al jefe de obra. La seguridad de todos depende de cada uno.`
+  },
+  hvac: {
+    title: 'El sistema de ventilación',
+    source: 'sample · hvac',
+    text: `El sistema de aire acondicionado tiene varios componentes principales: el compresor, el condensador, el evaporador y los conductos. Si el aire no enfría bien, primero hay que revisar el filtro. Un filtro sucio reduce el flujo de aire y obliga al sistema a trabajar más.
+
+Los conductos deben limpiarse cada tres o cinco años, dependiendo del uso. El polvo, los pelos de mascotas y la humedad pueden acumularse adentro y afectar la calidad del aire. La limpieza profesional incluye cepillos rotativos y aspiradoras de alta potencia.
+
+Cuando el termostato no responde, revisa primero las baterías y luego los cables. Muchas veces el problema es simple. Si el problema persiste, llama a un técnico certificado.`
+  },
+  story: {
+    title: 'El zorro y las uvas',
+    source: 'fábula · Esopo',
+    text: `Un zorro hambriento caminaba por el bosque cuando vio un racimo de uvas que colgaba de una parra muy alta. Se le hizo agua la boca al verlas tan maduras y brillantes.
+
+"Tengo que comerlas", pensó. Saltó una vez, dos veces, tres veces. Pero las uvas estaban demasiado altas. Por más que saltaba, no podía alcanzarlas.
+
+Cansado y frustrado, el zorro se sentó en la hierba. Miró las uvas una última vez y dijo en voz alta: "En realidad, ni siquiera están maduras. Seguro que están ácidas". Y se fue caminando, fingiendo que no le importaban.
+
+Moraleja: es fácil despreciar lo que no podemos conseguir.`
+  }
+};
+
+function loadSample(key) {
+  const s = SAMPLES[key];
+  state = { text: s.text, title: s.title, source: s.source };
+  saveState();
+  renderText();
+  toast('loaded sample: ' + key);
+}
+
+// ============================================================
+// Tokenization & rendering
+// ============================================================
+const segmenter = new Intl.Segmenter('es', { granularity: 'word' });
+
+function renderText() {
+  const container = document.getElementById('text-content');
+  container.innerHTML = '';
+  if (!state.text) {
+    container.innerHTML = '<p style="color: var(--dim); font-style: italic;">paste text above or pick a sample to begin</p>';
+    return;
+  }
+  if (state.title) {
+    const h = document.createElement('div');
+    h.className = 'title';
+    h.textContent = state.title;
+    container.appendChild(h);
+  }
+  if (state.source) {
+    const s = document.createElement('div');
+    s.className = 'source';
+    s.textContent = state.source;
+    container.appendChild(s);
+  }
+  // Split paragraphs
+  const paragraphs = state.text.split(/\n\s*\n/);
+  for (const para of paragraphs) {
+    if (!para.trim()) continue;
+    const p = document.createElement('p');
+    const segments = [...segmenter.segment(para)];
+    for (const seg of segments) {
+      if (seg.isWordLike) {
+        const span = document.createElement('span');
+        span.className = 'word';
+        span.textContent = seg.segment;
+        const key = seg.segment.toLowerCase();
+        const v = vocab[key];
+        if (v) span.classList.add(v.status);
+        else span.classList.add('new');
+        span.dataset.word = seg.segment;
+        p.appendChild(span);
+      } else {
+        p.appendChild(document.createTextNode(seg.segment));
+      }
+    }
+    container.appendChild(p);
+  }
+}
+
+// ============================================================
+// Click handling
+// ============================================================
+document.getElementById('text-content').addEventListener('click', async (e) => {
+  // Phrase selection takes priority
+  const sel = window.getSelection();
+  const selected = sel.toString().trim();
+  if (selected && selected.split(/\s+/).length > 1) {
+    handlePhrase(selected, e);
+    sel.removeAllRanges();
+    return;
+  }
+  if (!e.target.classList.contains('word')) return;
+  const word = e.target.dataset.word;
+  const key = word.toLowerCase();
+  // Cmd/Ctrl click = mark known directly
+  if (e.metaKey || e.ctrlKey) {
+    vocab[key] = { ...(vocab[key] || {}), status: 'known', word, last_seen: Date.now() };
+    saveVocab();
+    document.querySelectorAll(`.word[data-word="${cssEscape(word)}"]`).forEach(el => {
+      el.classList.remove('new', 'learning');
+      el.classList.add('known');
+    });
+    renderVocab();
+    return;
+  }
+  // Otherwise: translate + show popup
+  const sentence = getSentenceContaining(e.target);
+  await showTranslation(word, sentence, e.target);
+});
+
+async function handlePhrase(phrase, e) {
+  const target = { getBoundingClientRect: () => ({
+    left: e.clientX, right: e.clientX, top: e.clientY, bottom: e.clientY + 20
+  })};
+  await showTranslation(phrase, phrase, target, true);
+}
+
+function getSentenceContaining(el) {
+  // Walk back through siblings collecting text until we hit . ! ? or paragraph start
+  const para = el.closest('p');
+  if (!para) return el.textContent;
+  const text = para.textContent;
+  // Find the position of this word
+  const wordText = el.textContent;
+  const wordIdx = [...para.querySelectorAll('.word')].indexOf(el);
+  let charPos = 0, count = 0;
+  for (const seg of [...segmenter.segment(text)]) {
+    if (seg.isWordLike) {
+      if (count === wordIdx) { charPos = seg.index; break; }
+      count++;
+    }
+  }
+  // Find sentence boundaries
+  const before = text.slice(0, charPos);
+  const after = text.slice(charPos);
+  const startMatch = before.match(/[.!?¿¡]\s+[^.!?¿¡]*$/);
+  const start = startMatch ? charPos - startMatch[0].length + startMatch[0].search(/\S\S/) : 0;
+  const endMatch = after.match(/^[^.!?]*[.!?]/);
+  const end = endMatch ? charPos + endMatch[0].length : text.length;
+  return text.slice(start, end).trim();
+}
+
+function cssEscape(s) { return s.replace(/"/g, '\\"'); }
+
+// ============================================================
+// Translation popup
+// ============================================================
+async function showTranslation(word, context, anchorEl, isPhrase = false) {
+  const popup = document.getElementById('popup');
+  const key = word.toLowerCase();
+  const cached = vocab[key];
+
+  // Position popup
+  const rect = anchorEl.getBoundingClientRect();
+  popup.classList.remove('hidden');
+  popup.innerHTML = `<div class="pop-word">${escapeHtml(word)}</div><div class="pop-loading">translating…</div>`;
+  positionPopup(popup, rect);
+  if (anchorEl.classList) anchorEl.classList.add('loading');
+
+  let data;
+  if (cached && cached.translation) {
+    data = cached;
+  } else {
+    try {
+      const r = await fetch(`${WORKER_URL}/translate`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ word, context, target_lang: TARGET_LANG, native_lang: NATIVE_LANG })
+      });
+      if (!r.ok) throw new Error('worker ' + r.status);
+      data = await r.json();
+      if (data.error) throw new Error(data.error);
+    } catch (err) {
+      popup.innerHTML = `<div class="pop-word">${escapeHtml(word)}</div><div class="pop-loading" style="color:#ef6c6c">error: ${escapeHtml(err.message)}</div><div style="margin-top:8px;font-size:11px;color:var(--dim)">check WORKER_URL is set and the worker is deployed</div>`;
+      if (anchorEl.classList) anchorEl.classList.remove('loading');
+      return;
+    }
+  }
+
+  if (anchorEl.classList) anchorEl.classList.remove('loading');
+
+  // Save to vocab
+  vocab[key] = {
+    word,
+    translation: data.translation,
+    lemma: data.lemma,
+    pos: data.pos,
+    gender: data.gender,
+    alt_meanings: data.alt_meanings || [],
+    example: data.example,
+    example_translation: data.example_translation,
+    note: data.note,
+    status: vocab[key]?.status === 'known' ? 'known' : 'learning',
+    is_phrase: isPhrase,
+    count: (vocab[key]?.count || 0) + 1,
+    last_seen: Date.now()
+  };
+  saveVocab();
+
+  // Update word coloring everywhere on page
+  document.querySelectorAll(`.word[data-word="${cssEscape(word)}"]`).forEach(el => {
+    el.classList.remove('new', 'learning', 'known');
+    el.classList.add(vocab[key].status);
+  });
+
+  // Render popup
+  popup.innerHTML = renderPopupContent(word, vocab[key]);
+}
+
+function renderPopupContent(word, v) {
+  const lemmaLine = v.lemma && v.lemma !== word.toLowerCase()
+    ? `<div class="pop-lemma">lemma: <b>${escapeHtml(v.lemma)}</b></div>`
+    : '';
+  const posLine = v.pos
+    ? `<div class="pop-lemma">${escapeHtml(v.pos)}${v.gender && v.gender !== 'null' ? ' · ' + escapeHtml(v.gender) : ''}</div>`
+    : '';
+  const altLine = v.alt_meanings && v.alt_meanings.length
+    ? `<div class="pop-alt">also: ${v.alt_meanings.map(escapeHtml).join(' · ')}</div>`
+    : '';
+  const exampleBlock = v.example
+    ? `<div class="pop-example">${escapeHtml(v.example)}</div><div class="pop-example-trans">${escapeHtml(v.example_translation || '')}</div>`
+    : '';
+  const noteBlock = v.note ? `<div class="pop-note">${escapeHtml(v.note)}</div>` : '';
+  return `
+    <div class="pop-word">${escapeHtml(word)}</div>
+    ${posLine}
+    ${lemmaLine}
+    <div class="pop-trans">${escapeHtml(v.translation || '?')}</div>
+    ${altLine}
+    ${exampleBlock}
+    ${noteBlock}
+    <div class="pop-actions">
+      <button onclick="setStatus('${cssEscape(word.toLowerCase())}','known')">✓ known</button>
+      <button onclick="setStatus('${cssEscape(word.toLowerCase())}','learning')">~ learning</button>
+      <button onclick="hidePopup()">close</button>
+    </div>
+  `;
+}
+
+function positionPopup(popup, rect) {
+  const top = rect.bottom + window.scrollY + 6;
+  let left = rect.left + window.scrollX;
+  // Keep on screen
+  const popupWidth = 360;
+  if (left + popupWidth > window.innerWidth - 20) {
+    left = window.innerWidth - popupWidth - 20;
+  }
+  if (left < 10) left = 10;
+  popup.style.top = top + 'px';
+  popup.style.left = left + 'px';
+}
+
+function hidePopup() {
+  document.getElementById('popup').classList.add('hidden');
+}
+
+function setStatus(key, status) {
+  if (!vocab[key]) return;
+  vocab[key].status = status;
+  saveVocab();
+  document.querySelectorAll('.word').forEach(el => {
+    if (el.dataset.word.toLowerCase() === key) {
+      el.classList.remove('new', 'learning', 'known');
+      el.classList.add(status);
+    }
+  });
+  renderVocab();
+  hidePopup();
+  toast(`marked ${status}`);
+}
+
+// Click outside popup closes it
+document.addEventListener('click', (e) => {
+  const popup = document.getElementById('popup');
+  if (popup.classList.contains('hidden')) return;
+  if (!popup.contains(e.target) && !e.target.classList.contains('word')) {
+    hidePopup();
+  }
+});
+
+// ============================================================
+// Vocab sidebar
+// ============================================================
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.vocab-filters button').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderVocab();
+}
+
+function renderVocab() {
+  const list = document.getElementById('vocab-list');
+  const search = document.getElementById('vocab-search').value.toLowerCase().trim();
+  const entries = Object.entries(vocab)
+    .filter(([k, v]) => {
+      if (currentFilter !== 'all' && v.status !== currentFilter) return false;
+      if (search && !k.includes(search) && !(v.translation || '').toLowerCase().includes(search)) return false;
+      return true;
+    })
+    .sort((a, b) => (b[1].last_seen || 0) - (a[1].last_seen || 0));
+
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="vocab-empty">no vocab yet — click words while reading</div>';
+    return;
+  }
+  list.innerHTML = entries.map(([k, v]) => `
+    <div class="vocab-item ${v.status}" onclick="cycleStatus('${cssEscape(k)}')">
+      <div><span class="w">${escapeHtml(v.word || k)}</span><span class="pos">${escapeHtml(v.pos || '')}</span></div>
+      <div class="t">${escapeHtml(v.translation || '?')}</div>
+      <div class="meta">seen ${v.count || 1}× · ${v.status}</div>
+    </div>
+  `).join('');
+}
+
+function cycleStatus(key) {
+  if (!vocab[key]) return;
+  const cycle = { learning: 'known', known: 'new', new: 'learning' };
+  const newStatus = cycle[vocab[key].status] || 'learning';
+  if (newStatus === 'new') {
+    delete vocab[key];
+  } else {
+    vocab[key].status = newStatus;
+  }
+  saveVocab();
+  renderText();
+  renderVocab();
+}
+
+// ============================================================
+// Input handling
+// ============================================================
+function loadFromText() {
+  const t = document.getElementById('text-input').value.trim();
+  if (!t) { toast('paste some text first'); return; }
+  state = { text: t, title: '', source: 'pasted' };
+  saveState();
+  renderText();
+  document.getElementById('text-input').value = '';
+}
+
+async function loadFromUrl() {
+  const url = document.getElementById('url-input').value.trim();
+  if (!url) { toast('paste a URL first'); return; }
+  toast('fetching…');
+  try {
+    const r = await fetch(`${WORKER_URL}/fetch?url=${encodeURIComponent(url)}`);
+    const data = await r.json();
+    if (data.error) throw new Error(data.error);
+    if (!data.text) throw new Error('no readable text found');
+    state = { text: data.text, title: data.title, source: new URL(url).hostname };
+    saveState();
+    renderText();
+    document.getElementById('url-input').value = '';
+    toast('loaded ' + state.source);
+  } catch (err) {
+    toast('fetch failed: ' + err.message);
+  }
+}
+
+function toggleInput() {
+  document.getElementById('input-pane').classList.toggle('hidden');
+}
+
+// ============================================================
+// Export
+// ============================================================
+function exportCsv() {
+  const entries = Object.values(vocab);
+  if (entries.length === 0) { toast('no vocab to export'); return; }
+  // Anki-friendly: front, back, extra (example), tags
+  const rows = entries.map(v => [
+    v.word,
+    `${v.translation}${v.pos ? ' (' + v.pos + ')' : ''}`,
+    `${v.example || ''}\n${v.example_translation || ''}`.trim(),
+    `lector ${v.status} ${v.is_phrase ? 'phrase' : 'word'}`
+  ]);
+  const csv = rows.map(r =>
+    r.map(c => `"${(c || '').replace(/"/g, '""').replace(/\n/g, '<br>')}"`).join(',')
+  ).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `lector-vocab-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  toast(`exported ${entries.length} cards`);
+}
+
+function resetAll() {
+  if (!confirm('wipe ALL vocab and saved text? cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STATE_KEY);
+  vocab = {};
+  state = { text: '', title: '', source: '' };
+  renderText();
+  renderVocab();
+  updateStats();
+  toast('wiped');
+}
+
+// ============================================================
+// Utils
+// ============================================================
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ============================================================
+// Init
+// ============================================================
+renderText();
+renderVocab();
+updateStats();
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') hidePopup();
+});
+</script>
+</body>
+</html>
