@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>leer · spanish reader</title>
+<meta name="description" content="click-to-translate spanish reader with context-aware AI lookups, vocab deck, and anki export.">
+<meta property="og:title" content="leer · spanish reader">
+<meta property="og:description" content="click any word for instant context-aware translation. build a deck, export to anki.">
+<meta property="og:url" content="https://niggerfaggot.club/leer.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e0d; --bg-soft:#11161a; --bg-elev:#1a2127;
+  --fg:#e8eef2; --fg-dim:#8a96a0; --fg-muted:#5a6670;
+  --lime:#d4ff3a; --lime-dim:#99c020; --learning:#ffd166; --known:#3a4250;
+  --border:#1f262d;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono','SF Mono',monospace;
+}
+html,body{overflow-x:hidden;}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--fg);line-height:1.6;min-height:100vh;}
+.shell{display:grid;grid-template-columns:1fr 340px;min-height:100vh;}
+@media(max-width:900px){.shell{grid-template-columns:1fr;}.side{border-left:none!important;border-top:1px solid var(--border);position:static!important;height:auto!important;max-height:none!important;}}
+.main{padding:32px 48px 96px;max-width:100%;}
+@media(max-width:600px){.main{padding:20px 16px 80px;}}
+.side{border-left:1px solid var(--border);background:var(--bg-soft);padding:24px 20px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+header.top{display:flex;align-items:baseline;gap:14px;margin-bottom:28px;flex-wrap:wrap;}
+h1{font-family:var(--serif);font-weight:800;font-size:42px;margin:0;letter-spacing:-0.02em;line-height:1;}
+.dot{width:9px;height:9px;background:var(--lime);border-radius:50%;display:inline-block;vertical-align:middle;margin-left:6px;box-shadow:0 0 12px var(--lime);}
+.tagline{color:var(--fg-dim);font-size:13px;font-family:var(--mono);}
+.toolbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+button,.btn{background:var(--bg-elev);border:1px solid var(--border);color:var(--fg);padding:8px 14px;font-family:var(--mono);font-size:13px;cursor:pointer;border-radius:6px;transition:all .15s;}
+button:hover,.btn:hover{border-color:var(--lime);color:var(--lime);}
+button.primary{background:var(--lime);color:var(--bg);border-color:var(--lime);font-weight:500;}
+button.primary:hover{background:#c0eb20;color:var(--bg);}
+.input-area{margin-bottom:24px;}
+textarea{width:100%;min-height:160px;background:var(--bg-soft);border:1px solid var(--border);color:var(--fg);padding:16px;font-family:var(--serif);font-size:17px;line-height:1.6;border-radius:8px;resize:vertical;}
+textarea:focus{outline:none;border-color:var(--lime);}
+.reader{font-family:var(--serif);font-size:21px;line-height:1.9;letter-spacing:.005em;max-width:740px;}
+.tok{cursor:pointer;border-bottom:1.5px solid transparent;padding:0 1px;border-radius:2px;transition:background .1s,border-color .1s,color .1s;}
+.tok:hover{background:rgba(212,255,58,.18);}
+.tok.learning{border-bottom-color:var(--learning);}
+.tok.known{color:var(--known);}
+.tok.active{background:var(--lime);color:var(--bg);border-bottom-color:var(--lime);}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;}
+.stat{background:var(--bg);border:1px solid var(--border);padding:10px 6px;border-radius:6px;text-align:center;}
+.stat .num{font-family:var(--mono);font-size:20px;font-weight:500;color:var(--lime);display:block;}
+.stat .label{font-size:10px;color:var(--fg-dim);text-transform:uppercase;letter-spacing:.1em;}
+.side h2{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:var(--fg-dim);margin:20px 0 8px;font-weight:500;}
+.deck-list{list-style:none;padding:0;margin:0;max-height:340px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;background:var(--bg);}
+.deck-list li{padding:9px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:8px;font-size:13px;align-items:baseline;}
+.deck-list li:last-child{border-bottom:none;}
+.deck-list .word{font-family:var(--serif);color:var(--fg);font-weight:500;}
+.deck-list .gloss{color:var(--fg-dim);font-size:12px;text-align:right;}
+.deck-list .empty{color:var(--fg-muted);font-style:italic;padding:18px;text-align:center;justify-content:center;}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal-backdrop.show{display:flex;}
+.modal{background:var(--bg-soft);border:1px solid var(--border);border-radius:14px;padding:26px;max-width:520px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.6);}
+.modal .word-display{font-family:var(--serif);font-size:34px;font-weight:600;color:var(--lime);margin-bottom:2px;line-height:1.1;}
+.modal .lemma{font-family:var(--mono);font-size:11.5px;color:var(--fg-dim);margin-bottom:16px;text-transform:lowercase;}
+.modal .translation{font-size:18px;margin-bottom:16px;font-family:var(--serif);color:var(--fg);}
+.modal .sentence{background:var(--bg);border-left:3px solid var(--lime);padding:11px 14px;font-style:italic;margin-bottom:8px;font-size:14px;color:var(--fg-dim);font-family:var(--serif);border-radius:0 6px 6px 0;}
+.modal .sentence-trans{font-size:13px;color:var(--fg-muted);margin-bottom:14px;padding:0 4px;}
+.modal .note{font-size:13px;color:var(--fg-dim);background:var(--bg);padding:10px 12px;border-radius:6px;margin-bottom:16px;border:1px solid var(--border);}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--lime);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elev);border:1px solid var(--lime);color:var(--lime);padding:10px 16px;border-radius:6px;font-family:var(--mono);font-size:12px;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;}
+.toast.show{opacity:1;}
+.legend{font-family:var(--mono);font-size:11px;color:var(--fg-muted);margin-bottom:18px;display:flex;gap:14px;flex-wrap:wrap;}
+.legend span{display:inline-flex;align-items:center;gap:5px;}
+.legend .swatch{width:10px;height:2px;display:inline-block;}
+.swatch.lrn{background:var(--learning);}
+.swatch.knw{background:var(--known);height:10px;border-radius:50%;}
+.kbd{font-family:var(--mono);font-size:10px;background:var(--bg);border:1px solid var(--border);padding:1px 5px;border-radius:3px;color:var(--fg-dim);}
+.tip{color:var(--fg-muted);font-size:12px;margin-top:10px;font-family:var(--mono);}
+</style>
+</head>
+<body>
+<div class="shell">
+  <main class="main">
+    <header class="top">
+      <h1>leer<span class="dot"></span></h1>
+      <span class="tagline">spanish · click any word</span>
+    </header>
+
+    <div id="setup" class="input-area">
+      <textarea id="text-input" placeholder="paste spanish text here · article · book chapter · subtitles · anything"></textarea>
+      <div class="toolbar">
+        <button class="primary" onclick="loadText()">read it →</button>
+        <button onclick="loadSample('news')">news</button>
+        <button onclick="loadSample('story')">short story</button>
+        <button onclick="loadSample('construction')">job site</button>
+        <button onclick="loadSample('ddlc')">doki doki</button>
+      </div>
+      <div class="tip">tip · use <span class="kbd">esc</span> to close popups · double-click word for sentence translation</div>
+    </div>
+
+    <div id="reader" class="reader" style="display:none"></div>
+  </main>
+
+  <aside class="side">
+    <div class="stat-grid">
+      <div class="stat"><span class="num" id="stat-total">0</span><span class="label">in text</span></div>
+      <div class="stat"><span class="num" id="stat-learning" style="color:var(--learning)">0</span><span class="label">learning</span></div>
+      <div class="stat"><span class="num" id="stat-known" style="color:var(--fg-dim)">0</span><span class="label">known</span></div>
+    </div>
+
+    <div class="legend">
+      <span><span class="swatch lrn"></span>learning</span>
+      <span><span class="swatch knw"></span>known</span>
+    </div>
+
+    <h2>deck · <span id="deck-count">0</span></h2>
+    <ul class="deck-list" id="deck"><li class="empty">click a word to start</li></ul>
+
+    <h2>actions</h2>
+    <div class="toolbar">
+      <button onclick="copyAnki()">copy anki</button>
+      <button onclick="exportTSV()">download tsv</button>
+      <button onclick="resetText()">new text</button>
+      <button onclick="clearDeck()">reset</button>
+    </div>
+
+    <h2>format</h2>
+    <div class="tip">anki/spanky import: <br>lemma · translation · sentence · sentence_translation · note</div>
+  </aside>
+</div>
+
+<div class="modal-backdrop" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="word-display" id="m-word">—</div>
+    <div class="lemma" id="m-lemma"></div>
+    <div class="translation" id="m-trans"><span class="spinner"></span></div>
+    <div class="sentence" id="m-sentence"></div>
+    <div class="sentence-trans" id="m-sentence-trans"></div>
+    <div class="note" id="m-note" style="display:none"></div>
+    <div class="modal-actions">
+      <button class="primary" onclick="markLearning()">save to deck</button>
+      <button onclick="markKnown()">i know this</button>
+      <button onclick="closeModal()">close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API='https://leer-api.bennyforeman1.workers.dev';
+const STORAGE_KEY='leer.es-en';
+const CACHE_KEY='leer.cache.es-en';
+let store=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{"states":{},"deck":[]}');
+let cache=JSON.parse(localStorage.getItem(CACHE_KEY)||'{}');
+let tokens=[],sentences=[],activeIdx=-1,activeData=null;
+
+const SAMPLES={
+  news:`Bogotá. La capital colombiana enfrenta un nuevo desafío después de las lluvias torrenciales que azotaron la ciudad durante el fin de semana. Los habitantes del sur de la ciudad reportaron inundaciones en varias avenidas principales, lo que generó retrasos significativos en el transporte público. El alcalde anunció medidas urgentes para mejorar el sistema de drenaje, pero los expertos advierten que el problema es estructural y requerirá inversión a largo plazo. Mientras tanto, los vecinos del barrio La Candelaria organizaron brigadas voluntarias para limpiar las calles y ayudar a las familias más afectadas.`,
+  story:`Era una mañana fría de noviembre cuando el viejo Joaquín salió de su casa en busca de su gato. Hacía tres días que el animal no aparecía, y el hombre, ya cansado de los años, sentía que algo no estaba bien. Caminó por las calles vacías del pueblo, llamando suavemente: "Misifú, Misifú". El silencio le respondía con su peso habitual, ese silencio que solo se siente en los pueblos pequeños cuando todos duermen todavía. De pronto, escuchó un maullido débil que venía del fondo del jardín de doña Marta.`,
+  construction:`Buenos días, compañeros. Hoy vamos a trabajar en el segundo piso del edificio. Necesito que José se encargue de la ventilación principal, y que Carlos revise los conductos de retorno. Tenemos que limpiar todos los registros antes del mediodía. No olviden los equipos de protección personal: gafas, guantes y mascarillas. Si encuentran moho o daño en el aislamiento, avísenme inmediatamente. La presión negativa debe estar lista a las diez. La aspiradora HEPA está en la camioneta. ¿Alguna pregunta antes de empezar?`,
+  ddlc:`Bienvenido al Club de Literatura. Soy Monika, la presidenta del club. Estoy muy emocionada de que hayas decidido unirte a nosotros. Cada uno de los miembros tiene una personalidad muy distinta y todos compartimos el amor por la lectura y la escritura. Sayori es alegre y siempre intenta animar a los demás, aunque a veces parece distraída. Natsuki escribe poemas cortos pero llenos de emoción. Yuri prefiere las novelas largas y los temas oscuros. ¿Qué tipo de literatura te gusta a ti?`,
+};
+
+function tokenize(text){
+  const re=/(\p{L}+(?:[''']\p{L}+)?|\s+|[^\p{L}\s]+)/gu;
+  const out=[];let i=0;
+  for(const m of text.matchAll(re)){
+    let type='punct';
+    if(/^\s+$/.test(m[0]))type='space';
+    else if(/^\p{L}/u.test(m[0]))type='word';
+    out.push({type,text:m[0],idx:i++});
+  }
+  return out;
+}
+
+function detectSentences(toks){
+  let sIdx=0;const stext=[''];
+  for(const t of toks){
+    t.sIdx=sIdx;
+    stext[sIdx]=(stext[sIdx]||'')+t.text;
+    if(t.type==='punct'&&/[.!?]/.test(t.text)){sIdx++;stext[sIdx]='';}
+  }
+  return stext.map(s=>s.trim()).filter(Boolean);
+}
+
+function loadText(){
+  const text=document.getElementById('text-input').value.trim();
+  if(!text)return;
+  renderText(text);
+}
+
+function loadSample(key){
+  document.getElementById('text-input').value=SAMPLES[key];
+  loadText();
+}
+
+function renderText(text){
+  document.getElementById('setup').style.display='none';
+  tokens=tokenize(text);
+  sentences=detectSentences(tokens);
+  const reader=document.getElementById('reader');
+  reader.style.display='block';
+  reader.innerHTML='';
+  for(const t of tokens){
+    if(t.type==='word'){
+      const span=document.createElement('span');
+      const norm=t.text.toLowerCase();
+      span.className='tok';
+      const state=store.states[norm];
+      if(state)span.classList.add(state);
+      span.dataset.idx=t.idx;
+      span.dataset.norm=norm;
+      span.textContent=t.text;
+      span.addEventListener('click',()=>openWord(t.idx));
+      reader.appendChild(span);
+    }else{
+      reader.appendChild(document.createTextNode(t.text));
+    }
+  }
+  updateStats();
+}
+
+function getSentenceFor(tokIdx){
+  const tok=tokens[tokIdx];
+  return sentences[tok.sIdx]||tok.text;
+}
+
+async function openWord(idx){
+  document.querySelectorAll('.tok.active').forEach(e=>e.classList.remove('active'));
+  const tok=tokens[idx];
+  const span=document.querySelector(`[data-idx="${idx}"]`);
+  if(span)span.classList.add('active');
+  activeIdx=idx;
+  const word=tok.text;
+  const sentence=getSentenceFor(idx);
+  const cacheKey=word.toLowerCase()+'|'+sentence;
+  document.getElementById('m-word').textContent=word;
+  document.getElementById('m-lemma').textContent='';
+  document.getElementById('m-trans').innerHTML='<span class="spinner"></span>';
+  document.getElementById('m-sentence').textContent=sentence;
+  document.getElementById('m-sentence-trans').textContent='';
+  document.getElementById('m-note').style.display='none';
+  document.getElementById('modal-bg').classList.add('show');
+  let data=cache[cacheKey];
+  if(!data){
+    try{
+      const res=await fetch(API,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({word,sentence,sourceLang:'Spanish',targetLang:'English'}),
+      });
+      data=await res.json();
+      if(data.error)throw new Error(data.error);
+      cache[cacheKey]=data;
+      localStorage.setItem(CACHE_KEY,JSON.stringify(cache));
+    }catch(e){
+      data={translation:'(error)',sentence_translation:'',lemma:word,note:String(e.message||e)};
+    }
+  }
+  activeData={...data,word,sentence};
+  document.getElementById('m-trans').textContent=data.translation||'—';
+  document.getElementById('m-lemma').textContent=data.lemma?data.lemma+(data.pos?' · '+data.pos:''):'';
+  document.getElementById('m-sentence-trans').textContent=data.sentence_translation||'';
+  if(data.note){
+    document.getElementById('m-note').style.display='block';
+    document.getElementById('m-note').textContent=data.note;
+  }
+}
+
+function closeModal(){
+  document.getElementById('modal-bg').classList.remove('show');
+  document.querySelectorAll('.tok.active').forEach(e=>e.classList.remove('active'));
+}
+
+function markLearning(){
+  if(!activeData)return;
+  const norm=activeData.word.toLowerCase();
+  store.states[norm]='learning';
+  const lemma=(activeData.lemma||norm).toLowerCase();
+  if(!store.deck.find(d=>d.lemma===lemma)){
+    store.deck.push({
+      word:activeData.word,lemma,pos:activeData.pos||'',
+      translation:activeData.translation||'',
+      sentence:activeData.sentence,
+      sentence_trans:activeData.sentence_translation||'',
+      note:activeData.note||'',added:Date.now(),
+    });
+  }
+  saveStore();refreshTokens(norm);
+  toast('saved · '+store.deck.length+' in deck');closeModal();
+}
+
+function markKnown(){
+  if(!activeData)return;
+  const norm=activeData.word.toLowerCase();
+  store.states[norm]='known';
+  saveStore();refreshTokens(norm);
+  toast('marked known');closeModal();
+}
+
+function refreshTokens(norm){
+  document.querySelectorAll(`.tok[data-norm="${norm}"]`).forEach(el=>{
+    el.classList.remove('learning','known');
+    if(store.states[norm])el.classList.add(store.states[norm]);
+  });
+  updateStats();
+}
+
+function saveStore(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(store));
+  renderDeck();
+}
+
+function updateStats(){
+  const total=tokens.filter(t=>t.type==='word').length;
+  const learning=Object.values(store.states).filter(s=>s==='learning').length;
+  const known=Object.values(store.states).filter(s=>s==='known').length;
+  document.getElementById('stat-total').textContent=total;
+  document.getElementById('stat-learning').textContent=learning;
+  document.getElementById('stat-known').textContent=known;
+  renderDeck();
+}
+
+function renderDeck(){
+  const list=document.getElementById('deck');
+  document.getElementById('deck-count').textContent=store.deck.length;
+  if(!store.deck.length){list.innerHTML='<li class="empty">click a word to start</li>';return;}
+  list.innerHTML='';
+  for(const item of [...store.deck].reverse()){
+    const li=document.createElement('li');
+    li.innerHTML=`<span class="word">${item.lemma}</span><span class="gloss">${item.translation}</span>`;
+    list.appendChild(li);
+  }
+}
+
+function tsv(){
+  return store.deck.map(d=>
+    [d.lemma,d.translation,d.sentence,d.sentence_trans,d.note]
+      .map(s=>(s||'').replace(/\t/g,' ').replace(/\n/g,' ')).join('\t')
+  ).join('\n');
+}
+
+function exportTSV(){
+  if(!store.deck.length){toast('deck empty');return;}
+  const blob=new Blob([tsv()],{type:'text/tab-separated-values'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='leer-deck-'+new Date().toISOString().slice(0,10)+'.tsv';
+  a.click();
+  toast('exported · '+store.deck.length+' cards');
+}
+
+async function copyAnki(){
+  if(!store.deck.length){toast('deck empty');return;}
+  await navigator.clipboard.writeText(tsv());
+  toast('copied · paste in anki import');
+}
+
+function resetText(){
+  document.getElementById('reader').style.display='none';
+  document.getElementById('setup').style.display='block';
+  document.getElementById('text-input').value='';
+  tokens=[];sentences=[];updateStats();
+}
+
+function clearDeck(){
+  if(!confirm('clear all saved words and word states? (deck + known/learning markers)'))return;
+  store={states:{},deck:[]};
+  saveStore();
+  document.querySelectorAll('.tok').forEach(el=>el.classList.remove('learning','known'));
+  updateStats();
+  toast('cleared');
+}
+
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),1800);
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+renderDeck();updateStats();
+</script>
+</body>
+</html>
