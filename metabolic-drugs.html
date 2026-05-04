@@ -597,8 +597,8 @@ ul.clean li::marker { color: var(--accent); }
 }
 @media (min-width: 880px) {
   .hero-grid {
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 3.5rem;
+    grid-template-columns: 1.4fr 0.6fr;
+    gap: 3rem;
   }
 }
 
@@ -615,14 +615,17 @@ ul.clean li::marker { color: var(--accent); }
   filter: contrast(1.02);
 }
 
-/* Figure blocks inside sections */
+/* Figure blocks - floated alongside text rather than full-width breaks */
 .fig-block {
-  margin: 2rem 0;
+  margin: 0.25rem 0 1.25rem 1.5rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 2px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(28, 58, 94, 0.06);
+  box-shadow: 0 2px 8px rgba(28, 58, 94, 0.07);
+  float: right;
+  max-width: 380px;
+  width: 42%;
 }
 .fig-block img {
   width: 100%;
@@ -630,14 +633,35 @@ ul.clean li::marker { color: var(--accent); }
   display: block;
 }
 .fig-block figcaption {
-  padding: 0.85rem 1.25rem;
+  padding: 0.65rem 0.85rem;
   background: var(--bg-paper);
   border-top: 1px solid var(--border);
   font-family: 'Fraunces', serif;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--text-dim);
   font-style: italic;
-  line-height: 1.45;
+  line-height: 1.4;
+}
+
+/* Variant for figures that should still go full-width if explicitly desired */
+.fig-block.full {
+  float: none;
+  width: 100%;
+  max-width: 100%;
+  margin: 2rem 0;
+}
+
+/* Contain floats inside section content */
+.section-inner { display: flow-root; }
+
+/* Mobile: figures go full-width again */
+@media (max-width: 720px) {
+  .fig-block {
+    float: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 1.25rem 0;
+  }
 }
 
 /* Drug catalog section */
@@ -724,6 +748,11 @@ ul.clean li::marker { color: var(--accent); }
       <p>The single-target GLP-1 era is closing. The next 18 months bring three things: triple agonists pushing weight loss past 28%, amylin co-formulations finalizing for FDA review, and the first oral small-molecule GLP-1 hitting the market. The class that follows is muscle-sparing add-ons, myostatin and activin pathway inhibitors, designed to stack with GLP-1s and prevent the lean mass loss that comes with rapid fat loss.</p>
     </div>
 
+    <figure class="fig-block">
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-evolution.webp" alt="Four progressively more complex peptide structures" loading="lazy">
+      <figcaption>Four generations, illustrated. Each successive molecule layers more receptor targets onto the same incretin scaffold.</figcaption>
+    </figure>
+
     <h4>The generation map</h4>
     <ul class="clean">
       <li><strong>Gen 1:</strong> single GLP-1 receptor agonists, around 15 to 17% mean weight loss</li>
@@ -731,11 +760,6 @@ ul.clean li::marker { color: var(--accent); }
       <li><strong>Gen 3:</strong> triple agonists (GLP-1, GIP, glucagon) and dual GLP-1 with glucagon, 17 to 29% depending on dose and population</li>
       <li><strong>Gen 4 (combinations):</strong> GLP-1 plus amylin co-formulations, GLP-1 plus muscle-sparing antibody add-ons</li>
     </ul>
-
-    <figure class="fig-block">
-      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-evolution.webp" alt="Four progressively more complex peptide structures showing the evolution from single GLP-1 to multi-agonists" loading="lazy">
-      <figcaption>The four generations, illustrated. Each successive molecule layers more receptor targets onto the same incretin scaffold, climbing the efficacy curve as it goes.</figcaption>
-    </figure>
   </div>
 </section>
 
@@ -875,7 +899,7 @@ ul.clean li::marker { color: var(--accent); }
 
     <figure class="fig-block">
       <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-mechanism.webp" alt="Gut-brain-pancreas hormone signaling axis" loading="lazy">
-      <figcaption>Figure 1. The gut-brain-pancreas signaling axis. Incretin and counter-regulatory hormones cross-talk between digestive organs and the central nervous system, the substrate for every drug in this guide.</figcaption>
+      <figcaption>Figure 1. Gut-brain-pancreas signaling axis. Incretin and counter-regulatory hormones cross-talk between digestive organs and the central nervous system.</figcaption>
     </figure>
 
     <h3>The incretin axis</h3>
@@ -1119,8 +1143,8 @@ ul.clean li::marker { color: var(--accent); }
     <p class="section-sub">The muscle-sparing add-on class. None approved yet, all designed to stack with GLP-1s.</p>
 
     <figure class="fig-block">
-      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-pathway.webp" alt="Skeletal muscle fiber bundle with surrounding antibody and chemical structures" loading="lazy">
-      <figcaption>Figure 2. Skeletal muscle fascicle with floating antibody and ligand structures. The therapeutic strategy: monoclonal antibodies (Y-shapes) intercept myostatin and activin ligands before they can dock with type II activin receptors on the muscle fiber.</figcaption>
+      <img src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/fig-pathway.webp" alt="Skeletal muscle fiber bundle with antibody and ligand structures" loading="lazy">
+      <figcaption>Figure 2. Antibodies (Y-shapes) intercept myostatin and activin ligands before they can dock with type II activin receptors on the muscle fiber.</figcaption>
     </figure>
 
     <p>This is the class to watch through 2026 and 2027. The strategy across all candidates is the same: stack on top of a GLP-1 to keep total weight loss high while shifting the composition of that loss away from lean mass and toward fat. The historical track record of myostatin inhibitors in muscular dystrophy was disappointing, but obesity is a different problem (you don't need new functional muscle, you just need to not lose existing muscle) and early data is far more encouraging.</p>
