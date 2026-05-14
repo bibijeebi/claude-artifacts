@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bekah's Wake Tech Degree Tracker</title>
 <meta property="og:title" content="Bekah's Wake Tech Degree Tracker">
-<meta property="og:description" content="AAS Criminal Justice Technology — 4-semester plan with BAH optimization. Track progress, flag in-person classes, count down to graduation.">
+<meta property="og:description" content="AAS Criminal Justice Technology — 5-term plan with BAH optimization. Track progress, flag in-person classes, count down to graduation.">
 <meta property="og:image" content="https://niggerfaggot.club/og-default.jpg">
 <meta property="og:url" content="https://niggerfaggot.club/bekah-degree.html">
 <meta name="twitter:card" content="summary_large_image">
@@ -19,6 +19,7 @@
   --card-hi: #1a2122;
   --lime: #d4ff3a;
   --green: #4ade80;
+  --orange: #fbbf24;
   --text: #e5e7eb;
   --muted: #6b7280;
   --dim: #4b5563;
@@ -37,7 +38,6 @@ body {
 }
 .container { max-width: 1100px; margin: 0 auto; }
 
-/* Header */
 header { margin-bottom: 32px; }
 h1 {
   font-family: 'Fraunces', serif;
@@ -51,7 +51,6 @@ h1 .accent { color: var(--lime); }
 .subtitle { color: var(--muted); font-size: 15px; }
 .subtitle strong { color: var(--text); }
 
-/* Stats grid */
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -80,7 +79,6 @@ h1 .accent { color: var(--lime); }
 }
 .stat-unit { font-size: 13px; color: var(--muted); margin-left: 4px; }
 
-/* Progress bar */
 .progress-wrap { margin-bottom: 24px; }
 .progress-label {
   display: flex; justify-content: space-between;
@@ -102,13 +100,12 @@ h1 .accent { color: var(--lime); }
   transition: width 0.4s ease;
 }
 
-/* BAH alert */
 .alert {
   background: linear-gradient(135deg, rgba(212,255,58,0.06), rgba(74,222,128,0.04));
   border: 1px solid rgba(212,255,58,0.3);
   border-radius: 12px;
   padding: 16px 18px;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   display: flex;
   gap: 14px;
   align-items: flex-start;
@@ -123,8 +120,13 @@ h1 .accent { color: var(--lime); }
   border-radius: 4px;
   font-size: 12px;
 }
+.alert.warn {
+  background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(251,191,36,0.03));
+  border-color: rgba(251,191,36,0.35);
+  margin-bottom: 32px;
+}
+.alert.warn strong { color: var(--orange); }
 
-/* Section heading */
 .section-title {
   font-family: 'Fraunces', serif;
   font-weight: 700;
@@ -133,7 +135,6 @@ h1 .accent { color: var(--lime); }
   letter-spacing: -0.01em;
 }
 
-/* Semester cards */
 .semester {
   background: var(--card);
   border: 1px solid var(--border);
@@ -143,6 +144,10 @@ h1 .accent { color: var(--lime); }
   transition: border-color 0.2s;
 }
 .semester:hover { border-color: var(--dim); }
+.semester.current {
+  border-color: rgba(212,255,58,0.4);
+  box-shadow: 0 0 0 1px rgba(212,255,58,0.15);
+}
 .sem-head {
   display: flex;
   justify-content: space-between;
@@ -165,7 +170,6 @@ h1 .accent { color: var(--lime); }
 }
 .sem-meta .credits { color: var(--lime); font-weight: 600; }
 
-/* Course rows */
 .course {
   display: grid;
   grid-template-columns: 24px 1fr auto;
@@ -210,6 +214,8 @@ h1 .accent { color: var(--lime); }
   font-weight: 600;
 }
 .course-name { font-size: 14px; margin-top: 2px; }
+.course-meta { font-size: 11px; color: var(--muted); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+.course-meta .pin { color: var(--lime); }
 .course-tag {
   font-size: 10px;
   text-transform: uppercase;
@@ -231,13 +237,13 @@ h1 .accent { color: var(--lime); }
   border: 1px solid var(--border);
 }
 
-/* In-person flag at top of semester */
 .inperson-status {
   font-size: 12px;
   font-family: 'JetBrains Mono', monospace;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  margin-top: 4px;
 }
 .inperson-status .dot {
   width: 8px; height: 8px; border-radius: 50%;
@@ -255,8 +261,11 @@ h1 .accent { color: var(--lime); }
   font-weight: 600;
   font-family: 'JetBrains Mono', monospace;
 }
+.bah-pill.partial {
+  background: rgba(251,191,36,0.12);
+  color: var(--orange);
+}
 
-/* Completed (transcript) section */
 details.transcript {
   background: var(--card);
   border: 1px solid var(--border);
@@ -292,7 +301,6 @@ details.transcript .tlist {
 }
 .tlist span { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
 
-/* Tips */
 .tips {
   background: var(--card);
   border: 1px solid var(--border);
@@ -312,8 +320,15 @@ details.transcript .tlist {
 .tips ol li::marker { color: var(--lime); font-weight: 700; }
 .tips strong { color: var(--lime); }
 .tips a { color: var(--lime); }
+.tips code {
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(0,0,0,0.4);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--text);
+}
 
-/* Footer / reset */
 .footer-bar {
   margin-top: 40px;
   display: flex;
@@ -349,7 +364,7 @@ details.transcript .tlist {
 
 <header>
   <h1>Bekah's Wake Tech <span class="accent">Degree Plan</span></h1>
-  <p class="subtitle"><strong>AAS Criminal Justice Technology</strong> · A55180 · Catalog 2026 · Target: <strong>May 2028</strong></p>
+  <p class="subtitle"><strong>AAS Criminal Justice Technology</strong> · A55180 · Catalog 2026 · Target: <strong>December 2027</strong></p>
 </header>
 
 <div class="stats">
@@ -362,8 +377,8 @@ details.transcript .tlist {
     <div class="stat-value" id="stat-left">57</div>
   </div>
   <div class="stat">
-    <div class="stat-label">Semesters Left</div>
-    <div class="stat-value" id="stat-sem">4</div>
+    <div class="stat-label">Terms Left</div>
+    <div class="stat-value" id="stat-sem">5</div>
   </div>
   <div class="stat">
     <div class="stat-label">Days to Grad</div>
@@ -382,13 +397,56 @@ details.transcript .tlist {
 <div class="alert">
   <div class="alert-icon">⭐</div>
   <div class="alert-body">
-    <strong>BAH Optimization Rule:</strong> Each semester needs <code>≥12 credits</code> + <code>≥1 in-person class</code> to unlock the full Raleigh-zip MHA rate. All-online = ~$1,169/mo. With one in-person = ~$2,000+/mo (E-5 w/ deps). Hybrid classes (any in-person component) count.
+    <strong>BAH Optimization Rule:</strong> Each semester needs <code>≥12 credits</code> + <code>≥1 in-person class</code> to unlock the full Raleigh-zip MHA rate. All-online = ~$1,169/mo. With one in-person = ~$2,000+/mo (E-5 w/ deps). Hybrid classes count.
   </div>
 </div>
 
-<h2 class="section-title">Plan</h2>
+<div class="alert warn">
+  <div class="alert-icon">⚡</div>
+  <div class="alert-body">
+    <strong>Summer 2026 Hot Start:</strong> Taking 9 credits this summer accelerates graduation by ~5 months (May 2028 → Dec 2027). Summer = partial BAH (~50-75% based on credit load), but Captain Binns' hybrid section still unlocks the in-person rate.
+  </div>
+</div>
 
-<!-- SEMESTER 1: FALL 2026 -->
+<h2 class="section-title">Plan · 5 terms · Graduate Dec 2027</h2>
+
+<div class="semester current" data-sem="sum26">
+  <div class="sem-head">
+    <div>
+      <div class="sem-name">Summer 2026 · <span style="color:var(--lime);font-size:13px;font-family:'JetBrains Mono',monospace">CURRENT</span></div>
+      <div class="inperson-status"><span class="dot"></span> <span class="bah-pill partial">Partial BAH (in-person rate)</span></div>
+    </div>
+    <div class="sem-meta">May 18 - Jul 27 · <span class="credits">9 credits</span> · 1 hybrid</div>
+  </div>
+  <div class="course" data-id="cjc111" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body">
+      <div class="course-code">CJC-111</div>
+      <div class="course-name">Intro to Criminal Justice</div>
+      <div class="course-meta"><span class="pin">📍</span> Capt. Joe Binns (Garner PD) · Mon 9-11 AM · Southern Wake A-143</div>
+    </div>
+    <div class="course-tag tag-inperson">Hybrid ⭐</div>
+  </div>
+  <div class="course" data-id="cjc112" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body">
+      <div class="course-code">CJC-112</div>
+      <div class="course-name">Criminology</div>
+      <div class="course-meta">Aim for: Allen, Davis, or Asfari</div>
+    </div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc131" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body">
+      <div class="course-code">CJC-131</div>
+      <div class="course-name">Criminal Law</div>
+      <div class="course-meta">Chapman (J.D.) likely instructor</div>
+    </div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+</div>
+
 <div class="semester" data-sem="fall26">
   <div class="sem-head">
     <div>
@@ -397,19 +455,19 @@ details.transcript .tlist {
     </div>
     <div class="sem-meta"><span class="credits">15 credits</span> · 1 in-person</div>
   </div>
-  <div class="course" data-id="cjc111" data-credits="3">
+  <div class="course" data-id="cjc121" data-credits="3">
     <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-111</div><div class="course-name">Intro to Criminal Justice</div></div>
+    <div class="course-body"><div class="course-code">CJC-121</div><div class="course-name">Law Enforcement Operations</div><div class="course-meta">Practical/uniform — networking gold for LE track</div></div>
     <div class="course-tag tag-inperson">In-Person ⭐</div>
   </div>
-  <div class="course" data-id="cjc112" data-credits="3">
+  <div class="course" data-id="cjc113" data-credits="3">
     <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-112</div><div class="course-name">Criminology</div></div>
+    <div class="course-body"><div class="course-code">CJC-113</div><div class="course-name">Juvenile Justice</div></div>
     <div class="course-tag tag-online">Online</div>
   </div>
-  <div class="course" data-id="cjc131" data-credits="3">
+  <div class="course" data-id="cjc231" data-credits="3">
     <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-131</div><div class="course-name">Criminal Law</div></div>
+    <div class="course-body"><div class="course-code">CJC-231</div><div class="course-name">Constitutional Law</div><div class="course-meta">Prereq CJC-131 done in summer ✓</div></div>
     <div class="course-tag tag-online">Online</div>
   </div>
   <div class="course" data-id="psy118" data-credits="3">
@@ -424,7 +482,6 @@ details.transcript .tlist {
   </div>
 </div>
 
-<!-- SEMESTER 2: SPRING 2027 -->
 <div class="semester" data-sem="spr27">
   <div class="sem-head">
     <div>
@@ -433,24 +490,24 @@ details.transcript .tlist {
     </div>
     <div class="sem-meta"><span class="credits">15 credits</span> · 1 in-person</div>
   </div>
-  <div class="course" data-id="cjc121" data-credits="3">
+  <div class="course" data-id="cjc221" data-credits="3">
     <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-121</div><div class="course-name">Law Enforcement Operations</div></div>
+    <div class="course-body"><div class="course-code">CJC-221</div><div class="course-name">Investigative Principles</div><div class="course-meta">Hands-on crime scene work — must be in person</div></div>
     <div class="course-tag tag-inperson">In-Person ⭐</div>
   </div>
-  <div class="course" data-id="cjc113" data-credits="3">
+  <div class="course" data-id="cjc132" data-credits="3">
     <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-113</div><div class="course-name">Juvenile Justice</div></div>
-    <div class="course-tag tag-online">Online</div>
-  </div>
-  <div class="course" data-id="cjc231" data-credits="3">
-    <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-231</div><div class="course-name">Constitutional Law</div></div>
+    <div class="course-body"><div class="course-code">CJC-132</div><div class="course-name">Court Procedure &amp; Evidence</div></div>
     <div class="course-tag tag-online">Online</div>
   </div>
   <div class="course" data-id="cjc141" data-credits="3">
     <div class="checkbox"></div>
     <div class="course-body"><div class="course-code">CJC-141</div><div class="course-name">Corrections</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc212" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-212</div><div class="course-name">Ethics &amp; Comm Relations</div></div>
     <div class="course-tag tag-online">Online</div>
   </div>
   <div class="course" data-id="mat143" data-credits="3">
@@ -460,54 +517,37 @@ details.transcript .tlist {
   </div>
 </div>
 
-<!-- SEMESTER 3: FALL 2027 -->
-<div class="semester" data-sem="fall27">
+<div class="semester" data-sem="sum27">
   <div class="sem-head">
     <div>
-      <div class="sem-name">Fall 2027</div>
-      <div class="inperson-status"><span class="dot"></span> <span class="bah-pill">Full BAH ✓</span></div>
+      <div class="sem-name">Summer 2027</div>
+      <div class="inperson-status"><span class="bah-pill partial">Partial BAH (online rate)</span></div>
     </div>
-    <div class="sem-meta"><span class="credits">15 credits</span> · 1 in-person</div>
-  </div>
-  <div class="course" data-id="cjc221" data-credits="3">
-    <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-221</div><div class="course-name">Investigative Principles</div></div>
-    <div class="course-tag tag-inperson">In-Person ⭐</div>
-  </div>
-  <div class="course" data-id="cjc132" data-credits="3">
-    <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-132</div><div class="course-name">Court Procedure &amp; Evidence</div></div>
-    <div class="course-tag tag-online">Online</div>
-  </div>
-  <div class="course" data-id="cjc212" data-credits="3">
-    <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-212</div><div class="course-name">Ethics &amp; Comm Relations</div></div>
-    <div class="course-tag tag-online">Online</div>
-  </div>
-  <div class="course" data-id="cjc122" data-credits="3">
-    <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-122</div><div class="course-name">Community Policing</div></div>
-    <div class="course-tag tag-online">Online</div>
+    <div class="sem-meta"><span class="credits">6 credits</span> · electives only</div>
   </div>
   <div class="course" data-id="cjc120" data-credits="3">
     <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-120</div><div class="course-name">Interviews/Interrogations · Elective</div></div>
+    <div class="course-body"><div class="course-code">CJC-120</div><div class="course-name">Interviews/Interrogations · Elective</div><div class="course-meta">Pairs with CJC-221 from spring</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc170" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-170</div><div class="course-name">Critical Incident Mgmt · Elective</div></div>
     <div class="course-tag tag-online">Online</div>
   </div>
 </div>
 
-<!-- SEMESTER 4: SPRING 2028 -->
-<div class="semester" data-sem="spr28">
+<div class="semester" data-sem="fall27">
   <div class="sem-head">
     <div>
-      <div class="sem-name">Spring 2028 · Final</div>
+      <div class="sem-name">Fall 2027 · Final 🎓</div>
       <div class="inperson-status"><span class="dot"></span> <span class="bah-pill">Full BAH ✓</span></div>
     </div>
     <div class="sem-meta"><span class="credits">12 credits</span> · 1 in-person</div>
   </div>
   <div class="course" data-id="cjc225" data-credits="3">
     <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-225</div><div class="course-name">Crisis Intervention</div></div>
+    <div class="course-body"><div class="course-code">CJC-225</div><div class="course-name">Crisis Intervention</div><div class="course-meta">Role-play scenarios — directly applicable to LE work</div></div>
     <div class="course-tag tag-inperson">In-Person ⭐</div>
   </div>
   <div class="course" data-id="cjc255" data-credits="3">
@@ -515,9 +555,9 @@ details.transcript .tlist {
     <div class="course-body"><div class="course-code">CJC-255</div><div class="course-name">Issues in Crim Justice · Capstone</div></div>
     <div class="course-tag tag-online">Online</div>
   </div>
-  <div class="course" data-id="cjc170" data-credits="3">
+  <div class="course" data-id="cjc122" data-credits="3">
     <div class="checkbox"></div>
-    <div class="course-body"><div class="course-code">CJC-170</div><div class="course-name">Critical Incident Mgmt · Elective</div></div>
+    <div class="course-body"><div class="course-code">CJC-122</div><div class="course-name">Community Policing</div></div>
     <div class="course-tag tag-online">Online</div>
   </div>
   <div class="course" data-id="cjc232" data-credits="3">
@@ -555,14 +595,16 @@ details.transcript .tlist {
 <div class="tips">
   <h2 class="section-title" style="margin-top:0">Pro tips</h2>
   <ol>
-    <li><strong>Petition MAT-143 substitution.</strong> You already finished MAT-263 (Brief Calc) with a B. Email CJC dept chair + registrar requesting MAT-263 sub for MAT-143. Saves a full class.</li>
-    <li><strong>Register early.</strong> In-person CJC sections fill within hours, especially CJC-111 and CJC-221. Set a calendar alarm for the day registration opens.</li>
-    <li><strong>WAVE (Wake Tech Veterans).</strong> Building H, main campus. They handle 22-1995, enrollment cert every semester, VA red tape. Hit them up before each registration.</li>
-    <li><strong>Hybrid = in-person for BAH.</strong> If a class meets even once a month physically, it qualifies. Look for hybrid sections — flexibility + full MHA.</li>
-    <li><strong>The four in-person picks are strategic.</strong> CJC-111 (instructors are LEOs, networking from day 1), CJC-121 (LE ops practical), CJC-221 (must be hands-on, crime scene), CJC-225 (role-play scenarios you'll use on the job).</li>
-    <li><strong>Sequencing.</strong> CJC-131 (Criminal Law) before CJC-231 (Constitutional Law). CJC-111 first. CJC-255 capstone always last.</li>
-    <li><strong>Most CJC classes run at PSEC</strong> (Public Safety Education Campus) and Southern Wake Campus. Garner → PSEC is the closest drive.</li>
-    <li><strong>VA paperwork every semester:</strong> certify enrollment with VA after registration, before classes start. Otherwise MHA payments are delayed.</li>
+    <li><strong>Submit Form 816 every semester</strong> after registering. The Wake Tech online form at <code>waketech.edu/student-services/military-veterans/education-benefits/apply</code> is what triggers the SCO to certify your enrollment to VA. No appointment needed.</li>
+    <li><strong>Monthly verification at VA.gov</strong> (or via text after opting in). Required since Jan 2026. Miss two months = housing payments paused.</li>
+    <li><strong>Capt. Binns is the strategic pick.</strong> 25-year Garner PD veteran, FBI National Academy graduate, state-certified instructor since 2003. Sit front row, talk to him after class about your LE goals. He's a Wake County LE network in one person.</li>
+    <li><strong>Petition MAT-143 substitution.</strong> You already finished MAT-263 (Brief Calc) with a B. Email CJC dept chair + registrar requesting MAT-263 sub for MAT-143. Saves a whole class.</li>
+    <li><strong>Summer 2026 BAH math:</strong> 9 credits in a 10-week summer term puts you above 50% rate of pursuit, so MHA flows. Binns being hybrid unlocks the in-person rate. Expect roughly $1,500-1,800/mo for the term.</li>
+    <li><strong>Register early.</strong> In-person CJC sections fill within hours, especially CJC-121, CJC-221, and CJC-225. Calendar alarm the day registration opens.</li>
+    <li><strong>Hybrid = in-person for BAH.</strong> If a class meets even once a month physically, it qualifies. Binns' section is the textbook example.</li>
+    <li><strong>Sequencing:</strong> CJC-131 (summer) before CJC-231 (fall) ✓. CJC-111 first ✓. CJC-255 capstone always last ✓. CJC-221 before CJC-120 ✓.</li>
+    <li><strong>Most CJC classes run at PSEC</strong> (Public Safety Education Campus) or Southern Wake. Both closer to Willow Spring than Northern Wake.</li>
+    <li><strong>WAVE office (Wake Tech vets)</strong> for any VA red tape. Building H, main campus. Email-first if you don't want to drive in.</li>
   </ol>
 </div>
 
@@ -574,8 +616,8 @@ details.transcript .tlist {
 </div>
 
 <script>
-const STORAGE_KEY = 'bekah-degree-v1';
-const GRAD_DATE = new Date('2028-05-15');
+const STORAGE_KEY = 'bekah-degree-v2';
+const GRAD_DATE = new Date('2027-12-15');
 const TOTAL_CREDITS = 57;
 
 function loadState() {
