@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bekah's Wake Tech Degree Tracker</title>
+<meta property="og:title" content="Bekah's Wake Tech Degree Tracker">
+<meta property="og:description" content="AAS Criminal Justice Technology — 4-semester plan with BAH optimization. Track progress, flag in-person classes, count down to graduation.">
+<meta property="og:image" content="https://niggerfaggot.club/og-default.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/bekah-degree.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e0d;
+  --card: #14191a;
+  --card-hi: #1a2122;
+  --lime: #d4ff3a;
+  --green: #4ade80;
+  --text: #e5e7eb;
+  --muted: #6b7280;
+  --dim: #4b5563;
+  --border: #1f2937;
+  --red: #ef4444;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 24px 16px 80px;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+
+/* Header */
+header { margin-bottom: 32px; }
+h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+h1 .accent { color: var(--lime); }
+.subtitle { color: var(--muted); font-size: 15px; }
+.subtitle strong { color: var(--text); }
+
+/* Stats grid */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--lime);
+  line-height: 1;
+}
+.stat-unit { font-size: 13px; color: var(--muted); margin-left: 4px; }
+
+/* Progress bar */
+.progress-wrap { margin-bottom: 24px; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: 12px; color: var(--muted);
+  margin-bottom: 8px;
+}
+.progress-label .pct { color: var(--lime); font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+.progress-bar {
+  height: 10px;
+  background: var(--card);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--lime), var(--green));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* BAH alert */
+.alert {
+  background: linear-gradient(135deg, rgba(212,255,58,0.06), rgba(74,222,128,0.04));
+  border: 1px solid rgba(212,255,58,0.3);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 32px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.alert-icon { font-size: 22px; flex-shrink: 0; }
+.alert-body { font-size: 14px; line-height: 1.55; }
+.alert-body strong { color: var(--lime); }
+.alert-body code {
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(0,0,0,0.4);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Section heading */
+.section-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin: 32px 0 12px;
+  letter-spacing: -0.01em;
+}
+
+/* Semester cards */
+.semester {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.semester:hover { border-color: var(--dim); }
+.sem-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sem-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 20px;
+}
+.sem-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+.sem-meta .credits { color: var(--lime); font-weight: 600; }
+
+/* Course rows */
+.course {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.course:hover { background: var(--card-hi); }
+.course.done { opacity: 0.55; }
+.course.done .course-name { text-decoration: line-through; }
+.checkbox {
+  width: 20px; height: 20px;
+  border: 2px solid var(--dim);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.course.done .checkbox {
+  background: var(--green);
+  border-color: var(--green);
+}
+.checkbox::after {
+  content: '✓';
+  color: var(--bg);
+  font-weight: 900;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.course.done .checkbox::after { opacity: 1; }
+.course-body { min-width: 0; }
+.course-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.course-name { font-size: 14px; margin-top: 2px; }
+.course-tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+.tag-inperson {
+  background: rgba(212,255,58,0.12);
+  color: var(--lime);
+  border: 1px solid rgba(212,255,58,0.35);
+}
+.tag-online {
+  background: var(--card-hi);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* In-person flag at top of semester */
+.inperson-status {
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.inperson-status .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 8px var(--lime);
+}
+.bah-pill {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(212,255,58,0.15);
+  color: var(--lime);
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Completed (transcript) section */
+details.transcript {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 12px 0;
+}
+details.transcript summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+details.transcript summary::after {
+  content: '+';
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--muted);
+  font-size: 18px;
+}
+details.transcript[open] summary::after { content: '−'; }
+details.transcript .tlist {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.tlist span { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+/* Tips */
+.tips {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-top: 24px;
+}
+.tips ol {
+  margin-top: 12px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.tips ol li::marker { color: var(--lime); font-weight: 700; }
+.tips strong { color: var(--lime); }
+.tips a { color: var(--lime); }
+
+/* Footer / reset */
+.footer-bar {
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.btn-reset {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-reset:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Bekah's Wake Tech <span class="accent">Degree Plan</span></h1>
+  <p class="subtitle"><strong>AAS Criminal Justice Technology</strong> · A55180 · Catalog 2026 · Target: <strong>May 2028</strong></p>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-label">Credits Done</div>
+    <div class="stat-value" id="stat-done">0<span class="stat-unit">/57</span></div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Remaining</div>
+    <div class="stat-value" id="stat-left">57</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Semesters Left</div>
+    <div class="stat-value" id="stat-sem">4</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Days to Grad</div>
+    <div class="stat-value" id="stat-days">—</div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span>Degree progress</span>
+    <span class="pct" id="pct">0%</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="fill" style="width:0%"></div></div>
+</div>
+
+<div class="alert">
+  <div class="alert-icon">⭐</div>
+  <div class="alert-body">
+    <strong>BAH Optimization Rule:</strong> Each semester needs <code>≥12 credits</code> + <code>≥1 in-person class</code> to unlock the full Raleigh-zip MHA rate. All-online = ~$1,169/mo. With one in-person = ~$2,000+/mo (E-5 w/ deps). Hybrid classes (any in-person component) count.
+  </div>
+</div>
+
+<h2 class="section-title">Plan</h2>
+
+<!-- SEMESTER 1: FALL 2026 -->
+<div class="semester" data-sem="fall26">
+  <div class="sem-head">
+    <div>
+      <div class="sem-name">Fall 2026</div>
+      <div class="inperson-status"><span class="dot"></span> <span class="bah-pill">Full BAH ✓</span></div>
+    </div>
+    <div class="sem-meta"><span class="credits">15 credits</span> · 1 in-person</div>
+  </div>
+  <div class="course" data-id="cjc111" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-111</div><div class="course-name">Intro to Criminal Justice</div></div>
+    <div class="course-tag tag-inperson">In-Person ⭐</div>
+  </div>
+  <div class="course" data-id="cjc112" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-112</div><div class="course-name">Criminology</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc131" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-131</div><div class="course-name">Criminal Law</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="psy118" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">PSY-118</div><div class="course-name">Interpersonal Psychology · Gen Ed</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="hum115" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">HUM-115</div><div class="course-name">Critical Thinking · Gen Ed</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+</div>
+
+<!-- SEMESTER 2: SPRING 2027 -->
+<div class="semester" data-sem="spr27">
+  <div class="sem-head">
+    <div>
+      <div class="sem-name">Spring 2027</div>
+      <div class="inperson-status"><span class="dot"></span> <span class="bah-pill">Full BAH ✓</span></div>
+    </div>
+    <div class="sem-meta"><span class="credits">15 credits</span> · 1 in-person</div>
+  </div>
+  <div class="course" data-id="cjc121" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-121</div><div class="course-name">Law Enforcement Operations</div></div>
+    <div class="course-tag tag-inperson">In-Person ⭐</div>
+  </div>
+  <div class="course" data-id="cjc113" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-113</div><div class="course-name">Juvenile Justice</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc231" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-231</div><div class="course-name">Constitutional Law</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc141" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-141</div><div class="course-name">Corrections</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="mat143" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">MAT-143</div><div class="course-name">Quantitative Literacy · Gen Ed <span style="color:var(--lime);font-size:11px">(try waiver: MAT-263)</span></div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+</div>
+
+<!-- SEMESTER 3: FALL 2027 -->
+<div class="semester" data-sem="fall27">
+  <div class="sem-head">
+    <div>
+      <div class="sem-name">Fall 2027</div>
+      <div class="inperson-status"><span class="dot"></span> <span class="bah-pill">Full BAH ✓</span></div>
+    </div>
+    <div class="sem-meta"><span class="credits">15 credits</span> · 1 in-person</div>
+  </div>
+  <div class="course" data-id="cjc221" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-221</div><div class="course-name">Investigative Principles</div></div>
+    <div class="course-tag tag-inperson">In-Person ⭐</div>
+  </div>
+  <div class="course" data-id="cjc132" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-132</div><div class="course-name">Court Procedure &amp; Evidence</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc212" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-212</div><div class="course-name">Ethics &amp; Comm Relations</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc122" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-122</div><div class="course-name">Community Policing</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc120" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-120</div><div class="course-name">Interviews/Interrogations · Elective</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+</div>
+
+<!-- SEMESTER 4: SPRING 2028 -->
+<div class="semester" data-sem="spr28">
+  <div class="sem-head">
+    <div>
+      <div class="sem-name">Spring 2028 · Final</div>
+      <div class="inperson-status"><span class="dot"></span> <span class="bah-pill">Full BAH ✓</span></div>
+    </div>
+    <div class="sem-meta"><span class="credits">12 credits</span> · 1 in-person</div>
+  </div>
+  <div class="course" data-id="cjc225" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-225</div><div class="course-name">Crisis Intervention</div></div>
+    <div class="course-tag tag-inperson">In-Person ⭐</div>
+  </div>
+  <div class="course" data-id="cjc255" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-255</div><div class="course-name">Issues in Crim Justice · Capstone</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc170" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-170</div><div class="course-name">Critical Incident Mgmt · Elective</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+  <div class="course" data-id="cjc232" data-credits="3">
+    <div class="checkbox"></div>
+    <div class="course-body"><div class="course-code">CJC-232</div><div class="course-name">Civil Liability · Elective</div></div>
+    <div class="course-tag tag-online">Online</div>
+  </div>
+</div>
+
+<details class="transcript">
+  <summary>Already completed (transcript) · 67 credits banked</summary>
+  <div class="tlist">
+    <div>CHM-131 Intro Chemistry <span>· A · 3cr</span></div>
+    <div>BIO-111 General Biology I <span>· A · 4cr</span></div>
+    <div>BIO-112 General Biology II <span>· A · 4cr</span></div>
+    <div>BIO-168 Anatomy &amp; Physiology I <span>· B · 4cr</span></div>
+    <div>ANT-210 General Anthropology <span>· A · 3cr</span></div>
+    <div>PSY-150 General Psychology <span>· B · 3cr</span></div>
+    <div>MAT-171 Precalculus Algebra <span>· B · 4cr</span></div>
+    <div>MAT-263 Brief Calculus <span>· B · 4cr</span></div>
+    <div>CIS-110 Intro to Computers <span>· A · 3cr</span></div>
+    <div>COM-120 Interpersonal Comm <span>· A · 3cr</span></div>
+    <div>HIS-111 World Civilizations I <span>· A · 3cr</span></div>
+    <div>PHI-215 Philosophical Issues <span>· A · 3cr</span></div>
+    <div>ACA-122 College Transfer Success <span>· A · 1cr</span></div>
+    <div>BUS-110 Intro to Business <span>· A · 3cr</span></div>
+    <div>ECO-251 Microeconomics <span>· TA · 3cr</span></div>
+    <div>ECO-252 Macroeconomics <span>· TA · 3cr</span></div>
+    <div>CHM-251 Organic Chemistry I <span>· TC · 4cr</span></div>
+    <div>MAT-1XX Statistics sub <span>· · 3cr</span></div>
+    <div>ENG-111 + ENG Elective <span>· · 6cr</span></div>
+  </div>
+</details>
+
+<div class="tips">
+  <h2 class="section-title" style="margin-top:0">Pro tips</h2>
+  <ol>
+    <li><strong>Petition MAT-143 substitution.</strong> You already finished MAT-263 (Brief Calc) with a B. Email CJC dept chair + registrar requesting MAT-263 sub for MAT-143. Saves a full class.</li>
+    <li><strong>Register early.</strong> In-person CJC sections fill within hours, especially CJC-111 and CJC-221. Set a calendar alarm for the day registration opens.</li>
+    <li><strong>WAVE (Wake Tech Veterans).</strong> Building H, main campus. They handle 22-1995, enrollment cert every semester, VA red tape. Hit them up before each registration.</li>
+    <li><strong>Hybrid = in-person for BAH.</strong> If a class meets even once a month physically, it qualifies. Look for hybrid sections — flexibility + full MHA.</li>
+    <li><strong>The four in-person picks are strategic.</strong> CJC-111 (instructors are LEOs, networking from day 1), CJC-121 (LE ops practical), CJC-221 (must be hands-on, crime scene), CJC-225 (role-play scenarios you'll use on the job).</li>
+    <li><strong>Sequencing.</strong> CJC-131 (Criminal Law) before CJC-231 (Constitutional Law). CJC-111 first. CJC-255 capstone always last.</li>
+    <li><strong>Most CJC classes run at PSEC</strong> (Public Safety Education Campus) and Southern Wake Campus. Garner → PSEC is the closest drive.</li>
+    <li><strong>VA paperwork every semester:</strong> certify enrollment with VA after registration, before classes start. Otherwise MHA payments are delayed.</li>
+  </ol>
+</div>
+
+<div class="footer-bar">
+  <div>Saves locally · niggerfaggot.club/bekah-degree</div>
+  <button class="btn-reset" id="reset">Reset progress</button>
+</div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'bekah-degree-v1';
+const GRAD_DATE = new Date('2028-05-15');
+const TOTAL_CREDITS = 57;
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+  catch { return {}; }
+}
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function render() {
+  const state = loadState();
+  let doneCredits = 0;
+  let semestersLeft = 0;
+
+  document.querySelectorAll('.semester').forEach(sem => {
+    const courses = sem.querySelectorAll('.course');
+    let allDone = true;
+    courses.forEach(c => {
+      const id = c.dataset.id;
+      const cr = parseInt(c.dataset.credits, 10);
+      if (state[id]) {
+        c.classList.add('done');
+        doneCredits += cr;
+      } else {
+        c.classList.remove('done');
+        allDone = false;
+      }
+    });
+    if (!allDone) semestersLeft++;
+  });
+
+  const remaining = TOTAL_CREDITS - doneCredits;
+  const pct = Math.round((doneCredits / TOTAL_CREDITS) * 100);
+
+  document.getElementById('stat-done').innerHTML = `${doneCredits}<span class="stat-unit">/57</span>`;
+  document.getElementById('stat-left').textContent = remaining;
+  document.getElementById('stat-sem').textContent = semestersLeft;
+  document.getElementById('pct').textContent = pct + '%';
+  document.getElementById('fill').style.width = pct + '%';
+
+  const now = new Date();
+  const days = Math.max(0, Math.ceil((GRAD_DATE - now) / (1000 * 60 * 60 * 24)));
+  document.getElementById('stat-days').textContent = days;
+}
+
+document.querySelectorAll('.course').forEach(c => {
+  c.addEventListener('click', () => {
+    const state = loadState();
+    const id = c.dataset.id;
+    state[id] = !state[id];
+    saveState(state);
+    render();
+  });
+});
+
+document.getElementById('reset').addEventListener('click', () => {
+  if (confirm('Reset all progress?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
