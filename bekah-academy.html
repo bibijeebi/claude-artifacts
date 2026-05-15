@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bekah's Academy Prep · 32-Week Tracker</title>
+<meta property="og:title" content="Bekah's Academy Prep">
+<meta property="og:description" content="32-week NCWLEO Academy training plan with push-up GTG counter, max test logger, and run pace tracker.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0e0d;
+  --card: #14191a;
+  --card-hi: #1a2122;
+  --lime: #d4ff3a;
+  --green: #4ade80;
+  --orange: #fbbf24;
+  --blue: #60a5fa;
+  --text: #e5e7eb;
+  --muted: #6b7280;
+  --dim: #4b5563;
+  --border: #1f2937;
+  --red: #ef4444;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.55;
+  min-height: 100vh;
+  padding: 20px 14px 80px;
+}
+.container { max-width: 980px; margin: 0 auto; }
+
+header { margin-bottom: 20px; }
+h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 900;
+  font-size: clamp(24px, 5vw, 40px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+h1 .accent { color: var(--lime); }
+.subtitle { color: var(--muted); font-size: 13px; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  margin-bottom: -1px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--lime); border-bottom-color: var(--lime); }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* GTG section */
+.gtg-card {
+  background: linear-gradient(135deg, rgba(212,255,58,0.08), rgba(74,222,128,0.04));
+  border: 1px solid rgba(212,255,58,0.35);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.gtg-card h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+.gtg-date {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.gtg-prompt {
+  font-size: 14px;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+.gtg-prompt strong {
+  color: var(--lime);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+}
+.gtg-circles {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 16px 0;
+}
+.gtg-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.gtg-circle:hover { border-color: var(--dim); }
+.gtg-circle.done {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--bg);
+  transform: scale(1.05);
+}
+.gtg-status {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+.gtg-status .done-text { color: var(--lime); font-weight: 600; }
+
+/* Stat grid */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--lime);
+  line-height: 1;
+}
+.stat-unit { font-size: 12px; color: var(--muted); margin-left: 3px; }
+.stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* Settings/inputs */
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.input-row label {
+  font-size: 13px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.input-row input {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  width: 80px;
+}
+.input-row input:focus {
+  outline: none;
+  border-color: var(--lime);
+}
+.btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:hover { border-color: var(--lime); color: var(--lime); }
+.btn.primary {
+  background: var(--lime);
+  color: var(--bg);
+  font-weight: 600;
+  border-color: var(--lime);
+}
+.btn.primary:hover { background: var(--green); border-color: var(--green); color: var(--bg); }
+
+/* Sections */
+.section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.section h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 17px;
+  margin-bottom: 12px;
+  color: var(--lime);
+}
+
+/* Chart */
+.chart-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.chart-wrap h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+canvas { max-width: 100%; height: 220px; }
+
+/* Week cards */
+.week {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.week.current {
+  border-color: rgba(212,255,58,0.4);
+  box-shadow: 0 0 0 1px rgba(212,255,58,0.15);
+}
+.week-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.week-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 16px;
+}
+.week-phase {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.phase-base { background: rgba(96,165,250,0.12); color: var(--blue); border: 1px solid rgba(96,165,250,0.3); }
+.phase-build { background: rgba(251,191,36,0.12); color: var(--orange); border: 1px solid rgba(251,191,36,0.3); }
+.phase-spec { background: rgba(212,255,58,0.12); color: var(--lime); border: 1px solid rgba(212,255,58,0.3); }
+.phase-peak { background: rgba(74,222,128,0.12); color: var(--green); border: 1px solid rgba(74,222,128,0.3); }
+.week-dates { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+.week-content { font-size: 13px; color: var(--text); }
+.day-workout {
+  display: grid;
+  grid-template-columns: 50px 1fr 24px;
+  gap: 8px;
+  padding: 6px 0;
+  align-items: center;
+  border-bottom: 1px dashed var(--border);
+  cursor: pointer;
+}
+.day-workout:last-child { border-bottom: none; }
+.day-workout:hover { background: var(--card-hi); }
+.day-workout.done .desc { opacity: 0.4; text-decoration: line-through; }
+.day-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.day-desc { font-size: 13px; }
+.day-check {
+  width: 18px; height: 18px;
+  border: 2px solid var(--dim);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.day-workout.done .day-check {
+  background: var(--green);
+  border-color: var(--green);
+}
+.day-workout.done .day-check::after {
+  content: '✓';
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* Reference cards */
+.ref-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+}
+.ref-card h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: var(--lime);
+}
+.ref-card ol { margin: 8px 0 0 20px; }
+.ref-card li { margin-bottom: 6px; font-size: 14px; }
+.ref-card strong { color: var(--lime); }
+
+/* Log table */
+.log-list {
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+}
+.log-row {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+.log-row:nth-child(even) { background: var(--card-hi); }
+.log-row .date { color: var(--muted); }
+.log-row .val { color: var(--lime); font-weight: 600; }
+.log-row .del {
+  color: var(--red);
+  cursor: pointer;
+  opacity: 0.5;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0 6px;
+}
+.log-row .del:hover { opacity: 1; }
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.footer-bar {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+.btn-danger {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: pointer;
+}
+.btn-danger:hover { border-color: var(--red); color: var(--red); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Academy <span class="accent">Prep</span></h1>
+  <p class="subtitle">32-week NCWLEO bootcamp prep · Start May 15, 2026 · Target academy Dec/Jan 2027</p>
+</header>
+
+<div class="tabs">
+  <button class="tab active" data-tab="today">🏠 Today</button>
+  <button class="tab" data-tab="plan">📅 32-Week Plan</button>
+  <button class="tab" data-tab="track">📊 Track</button>
+  <button class="tab" data-tab="ref">📖 Reference</button>
+</div>
+
+<!-- ============================== TODAY TAB ============================== -->
+<div class="panel active" id="today">
+
+<div class="gtg-card">
+  <h2>Daily Push-Up GTG</h2>
+  <div class="gtg-date" id="today-date"></div>
+  <div class="gtg-prompt">
+    Reps per set: <strong id="rep-display">—</strong> · Tap each circle when done
+  </div>
+  <div class="gtg-circles" id="gtg-circles">
+    <div class="gtg-circle" data-set="0">1</div>
+    <div class="gtg-circle" data-set="1">2</div>
+    <div class="gtg-circle" data-set="2">3</div>
+    <div class="gtg-circle" data-set="3">4</div>
+    <div class="gtg-circle" data-set="4">5</div>
+  </div>
+  <div class="gtg-status" id="gtg-status">0 / 5 sets complete</div>
+</div>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-label">Current Max</div>
+    <div class="stat-value" id="stat-max">—</div>
+    <div class="stat-sub" id="stat-max-date">no test yet</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">GTG Streak</div>
+    <div class="stat-value" id="stat-streak">0<span class="stat-unit">days</span></div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Last Run Pace</div>
+    <div class="stat-value" id="stat-pace">—</div>
+    <div class="stat-sub" id="stat-pace-target">target 9:00/mi</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Days to Academy</div>
+    <div class="stat-value" id="stat-days">—</div>
+    <div class="stat-sub">Jan 1, 2027</div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Set your max</h3>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:12px">
+    Test your max push-ups every 2 weeks. Update here. Daily rep = 40-50% of max (rounded down). Don't lie to yourself.
+  </p>
+  <div class="input-row">
+    <label for="max-input">Max push-ups today:</label>
+    <input type="number" id="max-input" min="0" max="200" placeholder="e.g. 8">
+    <button class="btn primary" id="log-max">Log Max Test</button>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Today's workout</h3>
+  <div id="today-workout" style="font-size:14px;line-height:1.6"></div>
+</div>
+
+</div>
+
+<!-- ============================== PLAN TAB ============================== -->
+<div class="panel" id="plan">
+  <div id="week-list"></div>
+</div>
+
+<!-- ============================== TRACK TAB ============================== -->
+<div class="panel" id="track">
+
+<div class="chart-wrap">
+  <h3>Max push-ups over time</h3>
+  <canvas id="chart-max"></canvas>
+</div>
+
+<div class="section">
+  <h3>Log a run</h3>
+  <div class="input-row">
+    <label>Distance (mi):</label>
+    <input type="number" id="run-dist" step="0.1" min="0" max="20" placeholder="3.0">
+    <label>Time (min):</label>
+    <input type="number" id="run-time" step="0.1" min="0" max="200" placeholder="27.5">
+    <button class="btn primary" id="log-run">Log Run</button>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:10px;font-family:'JetBrains Mono',monospace">
+    Pace auto-calculates. Goal pace: 9:00/mi for 5 miles by week 32.
+  </p>
+</div>
+
+<div class="chart-wrap">
+  <h3>Run pace (min/mi) over time</h3>
+  <canvas id="chart-pace"></canvas>
+</div>
+
+<div class="section">
+  <h3>Recent runs</h3>
+  <div class="log-list" id="run-log"></div>
+</div>
+
+<div class="section">
+  <h3>Max push-up history</h3>
+  <div class="log-list" id="max-log"></div>
+</div>
+
+</div>
+
+<!-- ============================== REFERENCE TAB ============================== -->
+<div class="panel" id="ref">
+
+<div class="ref-card">
+  <h4>McGill Big 3 — Spine Protection Core</h4>
+  <p style="font-size:13px;margin-bottom:10px">Do every strength day. Order matters.</p>
+  <ol>
+    <li><strong>McGill Curl-Up:</strong> 3 × 5 reps, 10-sec holds. Lie on back, one knee bent, one straight. Hands flat UNDER low back. Lift head/shoulders 1 inch only. Chin tucked.</li>
+    <li><strong>Side Plank:</strong> 3 × 15-30 sec each side. Body straight from head to heels. Drop bottom knee if needed.</li>
+    <li><strong>Bird Dog:</strong> 3 × 5 each side, 10-sec hold. All fours, neutral spine. Opposite arm + leg extends slowly. Draw a small square at return.</li>
+    <li><strong>Dead Bug (bonus):</strong> 3 × 10 each side. On back, knees over hips, arms up. Lower opposite arm/leg without arching low back.</li>
+  </ol>
+</div>
+
+<div class="ref-card">
+  <h4>Push-Up Form Checklist</h4>
+  <ol>
+    <li>Hands shoulder-width, fingers forward</li>
+    <li>Elbows track ~45° from torso (NOT flared 90°)</li>
+    <li>Chest to floor at bottom (not nose, not belly)</li>
+    <li>Body in plank — no sagging hips, no piked butt</li>
+    <li>Full lockout at top</li>
+    <li>Better to do 5 perfect than 15 sloppy</li>
+  </ol>
+</div>
+
+<div class="ref-card">
+  <h4>GTG Rules</h4>
+  <ol>
+    <li>Test max every 2 weeks, update daily rep number</li>
+    <li>Daily rep = 40-50% of max, rounded down</li>
+    <li>5 sets per day, spaced 30+ min apart</li>
+    <li>NEVER go to failure on GTG sets</li>
+    <li>Form perfect every rep — sloppy reps train sloppy patterns</li>
+    <li>On max test days, skip GTG (max effort needs recovery)</li>
+    <li>Sick/traveling? 1 set of 1 rep counts. Streak matters.</li>
+  </ol>
+</div>
+
+<div class="ref-card">
+  <h4>Running Rules</h4>
+  <ol>
+    <li>80% of runs at <strong>conversational pace</strong> — can talk in full sentences</li>
+    <li>20% at tempo or threshold (Phase 2+)</li>
+    <li>SOLE F80 treadmill at 1-2% incline simulates outdoor running</li>
+    <li>If you feel pain (sharp, not sore): STOP. Walk home.</li>
+    <li>Goal: 5 miles @ 9:00 pace by week 32</li>
+    <li>Don't time runs in Phase 1. Just finish them.</li>
+  </ol>
+</div>
+
+<div class="ref-card">
+  <h4>Recovery Non-Negotiables</h4>
+  <ol>
+    <li><strong>8 hours of sleep</strong> minimum. Recovery happens here.</li>
+    <li><strong>100-125g protein/day</strong> (your bodyweight in grams)</li>
+    <li>Hydrate: half your bodyweight in ounces of water</li>
+    <li>1 full rest day per week minimum (no cardio, no lifting)</li>
+    <li>Soreness = fine. Sharp pain = injury — see someone.</li>
+    <li>If exhausted 3+ days in a row, take an extra rest day</li>
+  </ol>
+</div>
+
+<div class="ref-card">
+  <h4>Phase Goals at a Glance</h4>
+  <ol>
+    <li><strong>Phase 1 — BASE (wk 1-8):</strong> 40 min easy run continuous. 15 push-ups max. Bulletproof spine.</li>
+    <li><strong>Phase 2 — BUILD (wk 9-16):</strong> 5 mi continuous. 25 push-ups max. Real strength (squat, deadlift, bench, pull-up). Add rucking.</li>
+    <li><strong>Phase 3 — SPECIFICITY (wk 17-24):</strong> 5 mi at 10:00. 35 push-ups max. Academy-style circuits. 25-lb rucks.</li>
+    <li><strong>Phase 4 — PEAK (wk 25-32):</strong> 5 mi at 9:00. 50 push-ups max. Taper last 2 weeks. Arrive fresh.</li>
+  </ol>
+</div>
+
+</div>
+
+<div class="footer-bar">
+  <div>Saves locally · bekah-academy.niggerfaggot.club</div>
+  <button class="btn-danger" id="reset-all">Reset all data</button>
+</div>
+
+</div>
+
+<script>
+// ============================================================
+// CONSTANTS & STATE
+// ============================================================
+const START_DATE = new Date('2026-05-15');
+const ACADEMY_DATE = new Date('2027-01-01');
+const STORAGE_KEY = 'bekah-academy-v1';
+
+const WEEKS = [
+  // Phase 1 — BASE (1-8)
+  { n:1, phase:'base', label:'BASE', mon:'25 min: 4 run / 1 walk × 5', tue:'Strength A + Big 3 core', thu:'25 min: 4 run / 1 walk × 5', fri:'Strength B + Big 3 core' },
+  { n:2, phase:'base', label:'BASE', mon:'25 min: 5 run / 1 walk', tue:'Strength A + Big 3 core', thu:'25 min: 5 run / 1 walk', fri:'Strength B + Big 3 core' },
+  { n:3, phase:'base', label:'BASE', mon:'25 min continuous easy', tue:'Strength A + Big 3 core', thu:'25 min continuous easy', fri:'Strength B + Big 3 core' },
+  { n:4, phase:'base', label:'BASE', mon:'30 min continuous easy', tue:'Strength A + Big 3 core', thu:'30 min continuous easy', fri:'Strength B + Big 3 core' },
+  { n:5, phase:'base', label:'BASE', mon:'30 min easy + ladder push-ups', tue:'Strength A + Big 3 core', thu:'30 min easy + AMRAP push-ups', fri:'Strength B + Big 3 core' },
+  { n:6, phase:'base', label:'BASE', mon:'35 min easy', tue:'Strength A + Big 3 core', thu:'35 min easy', fri:'Strength B + Big 3 core' },
+  { n:7, phase:'base', label:'BASE', mon:'35 min easy', tue:'Strength A + Big 3 core', thu:'35 min easy', fri:'Strength B + Big 3 core' },
+  { n:8, phase:'base', label:'BASE', mon:'40 min continuous (~3 mi)', tue:'Strength A + Big 3 core', thu:'40 min continuous', fri:'Strength B + Big 3 core' },
+  // Phase 2 — BUILD (9-16)
+  { n:9, phase:'build', label:'BUILD', mon:'10 warmup + 15 tempo + 5 cool', tue:'Heavy lower (squat, RDL)', thu:'45 min easy continuous', fri:'Heavy upper + pull-up assist' },
+  { n:10, phase:'build', label:'BUILD', mon:'10 + 18 tempo + 5 cool', tue:'Heavy lower', thu:'4 miles easy', fri:'Heavy upper' },
+  { n:11, phase:'build', label:'BUILD', mon:'10 + 20 tempo + 5 cool', tue:'Heavy lower', thu:'4 miles easy', fri:'Heavy upper' },
+  { n:12, phase:'build', label:'BUILD', mon:'Tempo intervals: 4 × 5 min hard', tue:'Heavy lower + Big 3', thu:'4.5 miles easy', fri:'Heavy upper + suitcase carries' },
+  { n:13, phase:'build', label:'BUILD', mon:'Tempo 20 min', tue:'Heavy lower', thu:'5 miles easy', fri:'Heavy upper' },
+  { n:14, phase:'build', label:'BUILD', mon:'Tempo 22 min', tue:'Heavy lower', thu:'5 miles easy', fri:'Heavy upper' },
+  { n:15, phase:'build', label:'BUILD', mon:'Tempo 25 min', tue:'Heavy lower + ruck 15 lb × 2 mi Sat', thu:'5 miles easy', fri:'Heavy upper' },
+  { n:16, phase:'build', label:'BUILD', mon:'Tempo 25 min', tue:'Heavy lower + ruck 20 lb × 2.5 mi Sat', thu:'5 miles easy', fri:'Heavy upper' },
+  // Phase 3 — SPECIFICITY (17-24)
+  { n:17, phase:'spec', label:'SPEC', mon:'5 × 400m @ 10:00 pace', tue:'Strength + Big 3', thu:'5 mi @ 10:30 pace', fri:'Strength + carries' },
+  { n:18, phase:'spec', label:'SPEC', mon:'6 × 400m @ 10:00 pace', tue:'Strength', thu:'5 mi @ 10:15 pace', fri:'Strength + Sat ruck 25 lb × 3 mi' },
+  { n:19, phase:'spec', label:'SPEC', mon:'6 × 400m @ 9:45 pace', tue:'Strength', thu:'5 mi @ 10:00 pace', fri:'Strength' },
+  { n:20, phase:'spec', label:'SPEC', mon:'Academy sim: 1mi/20pu/30sit × 3', tue:'Strength', thu:'5 mi @ 10:00 pace', fri:'Strength + Sat ruck 25 lb × 4 mi' },
+  { n:21, phase:'spec', label:'SPEC', mon:'8 × 400m @ 9:30 pace', tue:'Strength', thu:'5 mi @ 9:45 pace', fri:'Strength' },
+  { n:22, phase:'spec', label:'SPEC', mon:'Academy sim ×4 rounds', tue:'Strength', thu:'5 mi @ 9:30 pace', fri:'Strength + Sat ruck 30 lb × 4 mi' },
+  { n:23, phase:'spec', label:'SPEC', mon:'10 × 400m @ 9:30 pace', tue:'Strength', thu:'5 mi @ 9:30 pace', fri:'Strength' },
+  { n:24, phase:'spec', label:'SPEC', mon:'Academy sim ×4 rounds', tue:'Strength', thu:'5 mi @ 9:15 pace', fri:'Strength + Sat ruck 30 lb × 5 mi' },
+  // Phase 4 — PEAK (25-32)
+  { n:25, phase:'peak', label:'PEAK', mon:'5 × 800m @ 9:00 pace', tue:'Strength (lighter)', thu:'5 mi @ 9:15 pace', fri:'Strength + Sat ruck 35 lb × 4 mi' },
+  { n:26, phase:'peak', label:'PEAK', mon:'6 × 800m @ 9:00 pace', tue:'Strength', thu:'5 mi @ 9:00 pace test', fri:'Strength' },
+  { n:27, phase:'peak', label:'PEAK', mon:'Academy sim ×5 rounds', tue:'Strength', thu:'5 mi @ 9:00 pace', fri:'Strength + Sat ruck 35 lb × 5 mi' },
+  { n:28, phase:'peak', label:'PEAK', mon:'4 × 1 mi @ 9:00 pace', tue:'Strength', thu:'5 mi @ 9:00 pace', fri:'Strength' },
+  { n:29, phase:'peak', label:'PEAK', mon:'Academy sim ×5 rounds', tue:'Strength', thu:'5 mi @ 9:00 pace', fri:'Strength + Sat ruck 35 lb × 5 mi' },
+  { n:30, phase:'peak', label:'TAPER', mon:'TAPER: 30 min easy', tue:'Strength (lighter)', thu:'4 mi @ 9:00 pace', fri:'Strength' },
+  { n:31, phase:'peak', label:'TAPER', mon:'TAPER: 25 min easy', tue:'Strength (light)', thu:'3 mi @ 9:00 pace', fri:'Strength (light)' },
+  { n:32, phase:'peak', label:'PEAK', mon:'20 min easy shake-out', tue:'Light mobility only', thu:'5 mi @ 9:00 pace FINAL TEST', fri:'REST. Sleep. Pack bags.' },
+];
+
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+  catch { return {}; }
+}
+function saveState(s) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+}
+let state = loadState();
+state.gtg = state.gtg || {};
+state.maxLog = state.maxLog || [];
+state.runLog = state.runLog || [];
+state.workouts = state.workouts || {};
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+}
+function fmtPace(min) {
+  const m = Math.floor(min);
+  const s = Math.round((min - m) * 60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+function getCurrentWeek() {
+  const now = new Date();
+  const diffMs = now - START_DATE;
+  const diffWeeks = Math.floor(diffMs / (1000*60*60*24*7));
+  return Math.max(1, Math.min(32, diffWeeks + 1));
+}
+function getRepNumber(max) {
+  if (!max || max < 2) return 1;
+  return Math.max(1, Math.floor(max * 0.45));
+}
+function getCurrentMax() {
+  if (state.maxLog.length === 0) return null;
+  return state.maxLog[state.maxLog.length - 1];
+}
+function gtgStreak() {
+  // Count consecutive days backwards from today where all 5 sets done
+  let streak = 0;
+  const d = new Date();
+  while (true) {
+    const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const day = state.gtg[k];
+    if (day && day.length === 5 && day.every(v => v)) {
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else if (k === todayKey()) {
+      // today doesn't break streak — check yesterday
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+// ============================================================
+// TODAY TAB RENDER
+// ============================================================
+function renderToday() {
+  const tk = todayKey();
+  document.getElementById('today-date').textContent = fmtDate(new Date());
+
+  const maxEntry = getCurrentMax();
+  const max = maxEntry ? maxEntry.value : null;
+  const rep = getRepNumber(max);
+  document.getElementById('rep-display').textContent = max ? `${rep} reps` : 'set max first';
+
+  // GTG circles
+  state.gtg[tk] = state.gtg[tk] || [false,false,false,false,false];
+  const circles = document.querySelectorAll('.gtg-circle');
+  circles.forEach((c, i) => {
+    c.classList.toggle('done', state.gtg[tk][i]);
+  });
+  const doneCount = state.gtg[tk].filter(v=>v).length;
+  const statusEl = document.getElementById('gtg-status');
+  if (doneCount === 5) {
+    statusEl.innerHTML = '<span class="done-text">✓ All 5 sets done — locked in</span>';
+  } else {
+    statusEl.textContent = `${doneCount} / 5 sets complete`;
+  }
+
+  // Stats
+  document.getElementById('stat-max').textContent = max || '—';
+  document.getElementById('stat-max-date').textContent = maxEntry ? 'last tested ' + new Date(maxEntry.date).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'no test yet';
+  document.getElementById('stat-streak').innerHTML = gtgStreak() + '<span class="stat-unit">days</span>';
+
+  const lastRun = state.runLog[state.runLog.length - 1];
+  if (lastRun) {
+    const pace = lastRun.time / lastRun.dist;
+    document.getElementById('stat-pace').textContent = fmtPace(pace);
+  } else {
+    document.getElementById('stat-pace').textContent = '—';
+  }
+
+  const daysToAcademy = Math.max(0, Math.ceil((ACADEMY_DATE - new Date()) / (1000*60*60*24)));
+  document.getElementById('stat-days').textContent = daysToAcademy;
+
+  // Today's workout
+  const wkIdx = getCurrentWeek() - 1;
+  const wk = WEEKS[wkIdx] || WEEKS[WEEKS.length-1];
+  const day = new Date().getDay(); // 0=Sun, 1=Mon
+  const dayMap = { 1:wk.mon, 2:wk.tue, 4:wk.thu, 5:wk.fri };
+  const workout = dayMap[day];
+  if (workout) {
+    document.getElementById('today-workout').innerHTML =
+      `<strong style="color:var(--lime)">Week ${wk.n} — ${wk.label}</strong><br>${workout}<br><br>` +
+      `<span style="color:var(--muted);font-size:12px">Plus your daily GTG push-ups above.</span>`;
+  } else {
+    document.getElementById('today-workout').innerHTML =
+      `<strong style="color:var(--green)">Rest day.</strong><br><span style="color:var(--muted)">Just GTG push-ups today. Optional: 30-min walk or mobility.</span>`;
+  }
+}
+
+// GTG circle handler
+document.querySelectorAll('.gtg-circle').forEach(c => {
+  c.addEventListener('click', () => {
+    const tk = todayKey();
+    const i = parseInt(c.dataset.set);
+    state.gtg[tk] = state.gtg[tk] || [false,false,false,false,false];
+    state.gtg[tk][i] = !state.gtg[tk][i];
+    saveState(state);
+    renderToday();
+  });
+});
+
+// Max test handler
+document.getElementById('log-max').addEventListener('click', () => {
+  const val = parseInt(document.getElementById('max-input').value);
+  if (isNaN(val) || val < 1) return;
+  state.maxLog.push({ date: new Date().toISOString(), value: val });
+  saveState(state);
+  document.getElementById('max-input').value = '';
+  renderToday();
+  renderTrack();
+});
+
+// Run log handler
+document.getElementById('log-run').addEventListener('click', () => {
+  const dist = parseFloat(document.getElementById('run-dist').value);
+  const time = parseFloat(document.getElementById('run-time').value);
+  if (isNaN(dist) || isNaN(time) || dist <= 0 || time <= 0) return;
+  state.runLog.push({ date: new Date().toISOString(), dist, time });
+  saveState(state);
+  document.getElementById('run-dist').value = '';
+  document.getElementById('run-time').value = '';
+  renderToday();
+  renderTrack();
+});
+
+// ============================================================
+// PLAN TAB
+// ============================================================
+function renderPlan() {
+  const cur = getCurrentWeek();
+  const list = document.getElementById('week-list');
+  list.innerHTML = WEEKS.map(w => {
+    const phaseClass = `phase-${w.phase}`;
+    const isCurrent = w.n === cur;
+    const startDay = new Date(START_DATE);
+    startDay.setDate(startDay.getDate() + (w.n - 1) * 7);
+    const endDay = new Date(startDay);
+    endDay.setDate(endDay.getDate() + 6);
+    const dateStr = `${startDay.toLocaleDateString('en-US',{month:'short',day:'numeric'})} - ${endDay.toLocaleDateString('en-US',{month:'short',day:'numeric'})}`;
+    return `
+      <div class="week ${isCurrent?'current':''}">
+        <div class="week-head">
+          <div>
+            <span class="week-name">Week ${w.n}</span>
+            <span class="week-phase ${phaseClass}" style="margin-left:8px">${w.label}</span>
+            ${isCurrent ? '<span style="color:var(--lime);font-family:JetBrains Mono,monospace;font-size:11px;margin-left:8px">← CURRENT</span>' : ''}
+          </div>
+          <div class="week-dates">${dateStr}</div>
+        </div>
+        <div class="week-content">
+          ${dayRow(w.n, 'mon', 'MON', w.mon)}
+          ${dayRow(w.n, 'tue', 'TUE', w.tue)}
+          ${dayRow(w.n, 'thu', 'THU', w.thu)}
+          ${dayRow(w.n, 'fri', 'FRI', w.fri)}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.querySelectorAll('.day-workout').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.dataset.key;
+      state.workouts[key] = !state.workouts[key];
+      saveState(state);
+      el.classList.toggle('done', state.workouts[key]);
+    });
+  });
+}
+function dayRow(weekN, dayKey, label, desc) {
+  const key = `w${weekN}-${dayKey}`;
+  const done = state.workouts[key] ? 'done' : '';
+  return `
+    <div class="day-workout ${done}" data-key="${key}">
+      <div class="day-label">${label}</div>
+      <div class="day-desc desc">${desc}</div>
+      <div class="day-check"></div>
+    </div>
+  `;
+}
+
+// ============================================================
+// TRACK TAB — CHARTS + LOGS
+// ============================================================
+function drawChart(canvas, data, label, color) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = canvas.offsetWidth * 2;
+  const H = canvas.height = 220 * 2;
+  ctx.scale(2, 2);
+  const w = W/2, h = H/2;
+  ctx.clearRect(0,0,w,h);
+
+  if (data.length === 0) {
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '12px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText('No data yet — log your first entry', w/2, h/2);
+    return;
+  }
+
+  const pad = 36;
+  const xs = data.map((_,i) => pad + (i / Math.max(1, data.length - 1)) * (w - pad*2));
+  const vals = data.map(d => d.y);
+  const minV = Math.min(...vals);
+  const maxV = Math.max(...vals);
+  const range = maxV - minV || 1;
+  const ys = vals.map(v => h - pad - ((v - minV) / range) * (h - pad*2));
+
+  // Grid
+  ctx.strokeStyle = '#1f2937';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad + (i/4) * (h - pad*2);
+    ctx.beginPath();
+    ctx.moveTo(pad, y);
+    ctx.lineTo(w - pad, y);
+    ctx.stroke();
+    const labelV = maxV - (i/4) * range;
+    ctx.fillStyle = '#6b7280';
+    ctx.font = '10px JetBrains Mono';
+    ctx.textAlign = 'right';
+    ctx.fillText(labelV.toFixed(label==='pace'?1:0), pad - 6, y + 3);
+  }
+
+  // Line
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  xs.forEach((x, i) => {
+    if (i === 0) ctx.moveTo(x, ys[i]);
+    else ctx.lineTo(x, ys[i]);
+  });
+  ctx.stroke();
+
+  // Points
+  ctx.fillStyle = color;
+  xs.forEach((x, i) => {
+    ctx.beginPath();
+    ctx.arc(x, ys[i], 4, 0, Math.PI*2);
+    ctx.fill();
+  });
+}
+
+function renderTrack() {
+  // Max chart
+  const maxData = state.maxLog.map((e, i) => ({ x: i, y: e.value }));
+  drawChart(document.getElementById('chart-max'), maxData, 'max', '#d4ff3a');
+
+  // Pace chart
+  const paceData = state.runLog.map((e, i) => ({ x: i, y: e.time / e.dist }));
+  drawChart(document.getElementById('chart-pace'), paceData, 'pace', '#60a5fa');
+
+  // Run log
+  const runLogEl = document.getElementById('run-log');
+  if (state.runLog.length === 0) {
+    runLogEl.innerHTML = '<div class="empty">No runs logged yet</div>';
+  } else {
+    runLogEl.innerHTML = [...state.runLog].reverse().map((e, ri) => {
+      const realIdx = state.runLog.length - 1 - ri;
+      const pace = e.time / e.dist;
+      const dateStr = new Date(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      return `
+        <div class="log-row">
+          <div class="date">${dateStr}</div>
+          <div>${e.dist} mi · ${e.time} min · <span class="val">${fmtPace(pace)}/mi</span></div>
+          <button class="del" data-type="run" data-idx="${realIdx}">×</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Max log
+  const maxLogEl = document.getElementById('max-log');
+  if (state.maxLog.length === 0) {
+    maxLogEl.innerHTML = '<div class="empty">No max tests logged yet</div>';
+  } else {
+    maxLogEl.innerHTML = [...state.maxLog].reverse().map((e, ri) => {
+      const realIdx = state.maxLog.length - 1 - ri;
+      const dateStr = new Date(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      return `
+        <div class="log-row">
+          <div class="date">${dateStr}</div>
+          <div><span class="val">${e.value}</span> push-ups</div>
+          <button class="del" data-type="max" data-idx="${realIdx}">×</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.querySelectorAll('.del').forEach(b => {
+    b.addEventListener('click', () => {
+      const type = b.dataset.type;
+      const idx = parseInt(b.dataset.idx);
+      if (type === 'run') state.runLog.splice(idx, 1);
+      if (type === 'max') state.maxLog.splice(idx, 1);
+      saveState(state);
+      renderToday();
+      renderTrack();
+    });
+  });
+}
+
+// ============================================================
+// TABS
+// ============================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'track') renderTrack();
+    if (tab.dataset.tab === 'plan') renderPlan();
+  });
+});
+
+// Reset
+document.getElementById('reset-all').addEventListener('click', () => {
+  if (confirm('Reset ALL data? This deletes GTG history, max tests, run log, workout checkmarks.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    state = { gtg:{}, maxLog:[], runLog:[], workouts:{} };
+    renderToday();
+    renderPlan();
+    renderTrack();
+  }
+});
+
+// Initial render
+renderToday();
+renderPlan();
+renderTrack();
+window.addEventListener('resize', () => renderTrack());
+</script>
+</body>
+</html>
