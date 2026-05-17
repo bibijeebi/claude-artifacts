@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: openpilot Port for 2017 Accord</title>
+<meta property="og:title" content="Proposal: openpilot Port for 2017 Accord EX Sensing">
+<meta property="og:description" content="Reverse-engineer the 9th-gen Accord's custom steering CAN protocol, write the missing car port, and make this car drive itself. AI-assisted. Ambitious as hell.">
+<meta property="og:url" content="https://niggerfaggot.club/proposal-accord-openpilot.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+html, body { overflow-x: hidden; }
+:root {
+  --bark: #2C1810;
+  --loam: #3D2914;
+  --timber: #4A3320;
+  --fence: #5C4033;
+  --wire: #8B7355;
+  --hay: #D4A843;
+  --straw: #E8C878;
+  --cream: #F5F0E1;
+  --milk: #FDF8EF;
+  --grass: #4A7C3F;
+  --grass-light: #6BAF5B;
+  --rust: #A0522D;
+  --sky: #87CEEB;
+  --danger: #C0392B;
+  --info: #2980B9;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background: var(--milk);
+  color: var(--bark);
+  line-height: 1.75;
+  font-size: 17px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--fence);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.back-link:hover { color: var(--hay); }
+
+.hero {
+  position: relative;
+  padding: 4rem 1.5rem 3rem;
+  background: linear-gradient(135deg, var(--loam) 0%, var(--timber) 50%, var(--fence) 100%);
+  color: var(--cream);
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0px,
+    transparent 20px,
+    rgba(255,255,255,0.015) 20px,
+    rgba(255,255,255,0.015) 22px
+  );
+}
+.hero-inner {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.badge {
+  display: inline-block;
+  background: var(--hay);
+  color: var(--bark);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+.hero .subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--straw);
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+.meta-item { display: flex; flex-direction: column; gap: 2px; }
+.meta-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--wire);
+}
+.meta-value {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--cream);
+}
+.meta-value.cost { color: var(--hay); }
+.meta-value.warning { color: var(--rust); }
+
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.section { margin-bottom: 2.5rem; }
+.section h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bark);
+  margin-bottom: 0.75rem;
+}
+.section h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--timber);
+  margin: 1.25rem 0 0.5rem;
+}
+.section p {
+  color: var(--timber);
+  margin-bottom: 0.75rem;
+}
+.section p:last-child { margin-bottom: 0; }
+
+.phase-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.25rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--grass);
+}
+.phase-card.phase-2 { border-left-color: var(--info); }
+.phase-card.phase-3 { border-left-color: var(--hay); }
+.phase-card.phase-4 { border-left-color: var(--rust); }
+.phase-card.phase-5 { border-left-color: var(--danger); }
+.phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.75rem;
+  gap: 1rem;
+}
+.phase-name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.phase-duration {
+  color: var(--wire);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.phase-desc { color: var(--fence); font-size: 0.95rem; }
+
+.materials-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+.materials-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--wire);
+  padding: 8px 10px;
+  border-bottom: 2px solid #e8e0d0;
+}
+.materials-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0ebe0;
+  color: var(--timber);
+}
+.materials-table tr:last-child td { border-bottom: none; }
+.materials-table .price { font-weight: 600; color: var(--grass); text-align: right; white-space: nowrap; }
+.materials-table .price.owned { color: var(--wire); text-decoration: line-through; }
+.materials-table .subtotal td {
+  border-top: 2px solid #e8e0d0;
+  font-weight: 600;
+}
+div.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.callout {
+  background: #FFF8E7;
+  border-left: 3px solid var(--hay);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.95rem;
+}
+.callout.info { background: #EFF6FF; border-left-color: var(--info); }
+.callout.warn { background: #FEF2F2; border-left-color: var(--danger); }
+.callout strong { color: var(--bark); }
+
+.diagram {
+  background: white;
+  border: 1px solid #e8e0d0;
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin: 1.25rem 0;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--fence);
+}
+
+code {
+  font-family: 'Source Code Pro', monospace;
+  background: #F5F0E1;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+  color: var(--loam);
+}
+
+.actor-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--hay);
+}
+.actor-card h4 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bark);
+  margin-bottom: 0.25rem;
+}
+.actor-card .actor-detail {
+  font-size: 0.9rem;
+  color: var(--fence);
+  margin-bottom: 0.15rem;
+}
+.actor-card .actor-highlight {
+  font-size: 0.85rem;
+  color: var(--grass);
+  font-weight: 500;
+  margin-top: 0.4rem;
+}
+
+.risk-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+.risk-item {
+  background: white;
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  border-left: 3px solid var(--rust);
+}
+.risk-item .risk-name {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  color: var(--bark);
+  margin-bottom: 0.25rem;
+}
+.risk-item .risk-mitigation {
+  font-size: 0.88rem;
+  color: var(--fence);
+}
+
+@media (max-width: 600px) {
+  .meta-bar { gap: 1rem; }
+  .phase-header { flex-direction: column; gap: 0.25rem; }
+  .hero { padding: 3rem 1.25rem 2rem; }
+  .content { padding: 2rem 1.25rem 3rem; }
+}
+</style>
+</head>
+<body>
+
+<a href="/proposals" class="back-link">&larr; All Proposals</a>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="badge">Proposal #013</span>
+    <h1>openpilot Port: 2017 Accord EX Sensing</h1>
+    <p class="subtitle">The car already has the steering, braking, and ACC hardware. Honda Sensing was just never given to comma.ai by the community for the 9th gen Accord. Reverse-engineer the custom steering CAN protocol, build the port, slap a comma four under the windshield, drive itself to work. AI-assisted from CAN dumps to Python code.</p>
+    <div class="meta-bar">
+      <div class="meta-item">
+        <span class="meta-label">Hardware Cost</span>
+        <span class="meta-value cost">$1,100&ndash;$1,800</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Difficulty</span>
+        <span class="meta-value warning">5/5</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Time</span>
+        <span class="meta-value">3&ndash;9 months</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Category</span>
+        <span class="meta-value">Automotive</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Status</span>
+        <span class="meta-value">Proposed</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="section">
+    <h2>The Goal</h2>
+    <p>Take a 2017 Accord EX Sensing (currently with a non-functional Honda Sensing ADAS because the front camera is uncalibrated after a windshield replacement) and turn it into a self-driving car. Specifically: install a comma four device under the rearview mirror, port the openpilot software stack to recognize and control this specific year/trim, and have the car execute lane-centering, adaptive cruise control with stop-and-go, automatic lane change, and navigation-aware highway driving. Same capability as a 2018+ Accord that came with openpilot support out of the box.</p>
+    <p>This is not a kit install. The 9th-gen Accord has never been successfully ported to openpilot. The community has tried since 2017 (literally GitHub issue #153 on the commaai/openpilot repo) and never finished. This proposal is to be the person who finally does it, using AI as the primary research tool to reverse engineer the missing CAN protocol pieces.</p>
+
+    <div class="callout info">
+      <strong>Why this car is the right target:</strong> The Honda Sensing camera is already broken and uncalibrated. The factory ADAS is dead either way. Either pay King's Auto Service in Raleigh ~$230 to diagnose and ~$400 to calibrate the OEM camera, or skip that entirely and replace the camera with the comma device. The broken front camera is not an obstacle, it's a green light.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>What openpilot Actually Is</h2>
+    <p>openpilot is an open-source SAE Level 2 driver assistance system built by comma.ai. It runs on a dedicated device that mounts under the rearview mirror, sees the road through its own camera, and sends steering torque, throttle, and brake commands to the car through CAN bus messages. It does not replace the car's safety systems. It piggybacks on the car's existing electric power steering (EPS), braking system, and adaptive cruise control hardware. If the car can be controlled electronically (and the 2017 Accord can, because it shipped with Honda Sensing), openpilot can drive it once the messages are decoded.</p>
+    <p>The software stack includes a neural network that processes the dashcam feed and predicts a driving path, a controller that turns the path into torque/brake/throttle commands, a safety layer that clamps those commands to safe limits, and a car-specific port that translates the generic commands into the specific CAN messages your car expects. The first three parts work on any supported car. The car-specific port is what's missing for the 9th-gen Accord.</p>
+  </div>
+
+  <div class="section">
+    <h2>Why the 9th Gen Has Never Been Ported</h2>
+    <p>Honda Nidec cars (the 9th-gen Accord, older Civics, older CR-Vs, etc.) all use a standardized openpilot car interface. Steering is controlled by sending message <code>0xE4</code> on the powertrain CAN bus with a specific torque value. This works on every Honda Nidec car openpilot supports. Except the 9th-gen Accord.</p>
+    <p>The 9th-gen Accord uses a custom steering CAN protocol that differs from all other Honda Nidec vehicles. <code>0xE4</code> does not control steering on this car. Nobody in the open-source community has identified which message ID does. Developer <strong>@mvl-boston</strong> contributed a partial DBC file for the 9th-gen Accord to the sunnypilot/opendbc repo (released in sunnypilot v2026.001.000) that decodes most of the powertrain CAN traffic, but the steering control message remains an open question. Older forks by <strong>billy2kool</strong> and <strong>webnizam/nzpilot</strong> got further on some pieces but never landed a working port.</p>
+    <p>The work to do is identify the right message and torque encoding. Once that one message is figured out, the rest of the port (gas, brake, ACC, fingerprint, safety limits) is mostly mechanical work that mirrors the standard Nidec template.</p>
+
+    <div class="diagram">openpilot Architecture (Honda Nidec, simplified)
+
+  ┌────────────────────┐      ┌─────────────────────┐
+  │   comma four       │ USB  │   Red Panda /       │
+  │   (camera + brain) │◄────►│   Black Panda       │  ← talks CAN to car
+  └─────────┬──────────┘      └─────────┬───────────┘
+            │                           │
+            │  USES MISSING PIECE       │  CAR-SPECIFIC PORT
+            │  ┌─────────────────────────────────┐
+            ▼  │  carcontroller.py               │
+       ┌───────┤   - send steering torque        │
+       │       │   - send brake/gas              │
+       │ port  │   - send ACC commands           │
+       │       │  values.py (fingerprint, DBC)   │
+       │       │  carstate.py (read sensors)     │
+       │       └─────────────────────────────────┘
+       │                           │
+       └────────────┐              ▼
+                    │       0xE4 ?  ← which message ID? (UNKNOWN)
+                    ▼       torque encoding? (UNKNOWN)
+              ┌──────────────────────────┐
+              │   2017 Accord CAN bus    │  ← this is what you sniff
+              │  (powertrain + chassis)  │
+              └──────────────────────────┘
+                           │
+                  ┌────────┴────────┐
+                  ▼                 ▼
+              EPS (steering)   Brakes / Gas / ACC    </div>
+  </div>
+
+  <div class="section">
+    <h2>The 5-Phase Plan</h2>
+
+    <div class="phase-card">
+      <div class="phase-header">
+        <span class="phase-name">Phase 1: CAN Sniffing &amp; Data Capture</span>
+        <span class="phase-duration">2-4 weeks</span>
+      </div>
+      <p class="phase-desc">Plug a Red Panda into the OBD-II port and capture every CAN message the car broadcasts. Drive in scripted scenarios: cruise control on/off, lane keep on/off, steering wheel turned manually at various torques, brake pedal pressed at various pressures, throttle pressed at various positions. Each scenario isolates the messages associated with that subsystem. Output is hours of CAN bus recordings in Cabana format.</p>
+      <p class="phase-desc">Tools: Red Panda ($99), Cabana (free, runs in browser), comma cabana cloud upload (free). Time investment: 20-30 hours of driving with the panda attached, then weeks of offline analysis.</p>
+    </div>
+
+    <div class="phase-card phase-2">
+      <div class="phase-header">
+        <span class="phase-name">Phase 2: DBC File &amp; Fingerprint Creation</span>
+        <span class="phase-duration">4-8 weeks</span>
+      </div>
+      <p class="phase-desc">A DBC file is the codebook that says "message ID 0x158 is the wheel speed, bits 0-15 are the front-left speed in 0.01 km/h." Build one for the 2017 Accord by combining @mvl-boston's existing partial DBC with new findings from Phase 1 captures. The "fingerprint" is a unique combination of message IDs that openpilot uses to identify the car automatically when the device boots up.</p>
+      <p class="phase-desc">This is the phase where AI does the heaviest lifting. Feed Claude or GPT 5-hour CAN dumps in CSV/MAT format alongside the @mvl-boston DBC. Ask the model to identify which message IDs change when the steering wheel is turned, which change when brake is pressed, which encode wheel speed, etc. Cross-reference against the official Honda Nidec DBC from commaai/opendbc. The AI will not be perfect but it will narrow a search space of ~200 messages down to 5-10 candidates per signal.</p>
+      <p class="phase-desc">Output: a complete 2017 Accord DBC submitted as a PR to commaai/opendbc, plus the fingerprint dictionary entry.</p>
+    </div>
+
+    <div class="phase-card phase-3">
+      <div class="phase-header">
+        <span class="phase-name">Phase 3: Identify the Steering Control Message</span>
+        <span class="phase-duration">2-6 weeks (the hard part)</span>
+      </div>
+      <p class="phase-desc">This is the unique 9th-gen problem. The standard <code>0xE4</code> message does not work. To find the actual steering control message, use the existing Ocelot hardware (you own 3 of these) as a CAN gateway. Set up a man-in-the-middle config where the Ocelot can inject test messages onto the EPS CAN bus while the car is parked with the ignition on. Probe message IDs in the suspected range (0xE4, 0xE5, 0x18F, 0x294, and other Honda-typical IDs) with various torque payloads and observe the steering wheel.</p>
+      <p class="phase-desc">If the wheel twitches in response to a message, you've found it. Then characterize the encoding: torque range, sign convention, message frequency requirement, watchdog timer, fault conditions. This is dangerous work and is done with the car on jack stands or in an empty parking lot at 0 mph.</p>
+      <p class="phase-desc">Backup approach: replicate billy2kool's older fork code (steering control via different message), see if any of his proposed message IDs cause a wheel response. Worst case, sniff the same message bus when the factory LKAS is briefly turned on (you'd need to recalibrate the factory camera first to do this, or simulate the camera with a CAN message replay).</p>
+
+      <div class="callout warn">
+        <strong>This phase has real safety risk.</strong> Injecting CAN messages onto a live powertrain bus can cause unintended steering inputs, brake activations, or throttle commands. Always test with the car parked, ignition on but engine off, wheels off the ground or in an empty lot, and never with the car in gear. Have a kill switch (unplug the Ocelot) within reach at all times.
+      </div>
+    </div>
+
+    <div class="phase-card phase-4">
+      <div class="phase-header">
+        <span class="phase-name">Phase 4: Write the Car Port</span>
+        <span class="phase-duration">2-4 weeks</span>
+      </div>
+      <p class="phase-desc">Once you have the DBC and the steering control message, the actual code is mostly mechanical. Three Python files: <code>values.py</code> (fingerprint, CAN message rates, steering limits), <code>carcontroller.py</code> (assembles outbound CAN messages from openpilot's control commands), and <code>carstate.py</code> (parses inbound CAN messages into openpilot's state struct).</p>
+      <p class="phase-desc">Use the existing <code>honda_nidec</code> car port as the template. Most of the file content is shared across all Honda Nidec cars. Substitute in the 2017 Accord steering message ID and encoding. Set conservative torque limits (Honda EPS hardware enforces ~3.5 Nm peak anyway, but software limit should be 2.5 Nm to start). Set the lateral acceleration limit to 1.8 m/s² (Honda Nidec standard).</p>
+      <p class="phase-desc">AI lifts heavy here too: feed Claude the existing honda_nidec files plus your phase-3 findings, ask it to generate the modified files for the 2017 Accord. Review every line, but expect the model to do 80%+ of the code correctly on first pass.</p>
+    </div>
+
+    <div class="phase-card phase-5">
+      <div class="phase-header">
+        <span class="phase-name">Phase 5: Bench Test, Jack Stands, Then Drive</span>
+        <span class="phase-duration">2-4 weeks</span>
+      </div>
+      <p class="phase-desc">Test in escalating tiers. First, with car parked and ignition on, verify openpilot reads all sensors correctly (speed, steering angle, brake pressure, throttle, gear). Then with car on jack stands, engage openpilot at 0 mph and command small steering torques. Confirm wheel responds correctly, fault conditions trigger correctly, kill switch works.</p>
+      <p class="phase-desc">Then empty parking lot at 5-10 mph, monitor steering behavior. Then low-traffic suburban roads at 25 mph with hand hovering over the wheel. Then highway at 45-55 mph with full attention. Each tier exposes different failure modes. Most failures at this stage are tuning issues (wheel oscillates, overcorrects on curves, drifts on crowned roads), not safety issues.</p>
+      <p class="phase-desc">Finally, submit the port as a PR to sunnypilot first (which is more permissive with experimental ports), then upstream to commaai/openpilot once it has thousands of road-test miles logged. Community wins.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Hardware Shopping List</h2>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <tr><th>Item</th><th>Purpose</th><th style="text-align:right">Cost</th></tr>
+      <tr><td>Ocelot CAN gateway x3</td><td>OWNED (massive head start)</td><td class="price owned">$0</td></tr>
+      <tr><td>Red Panda</td><td>CAN sniffing (Phase 1)</td><td class="price">$99</td></tr>
+      <tr><td>comma four device</td><td>Production runtime (Phase 5)</td><td class="price">$999</td></tr>
+      <tr><td>Honda Nidec harness</td><td>Plugs comma four into the car</td><td class="price">$199</td></tr>
+      <tr><td>OBD-II to USB cable</td><td>Phase 1 data capture connection</td><td class="price">$25</td></tr>
+      <tr><td>Logic analyzer (Saleae clone)</td><td>Optional debugging, Phase 3</td><td class="price">$50</td></tr>
+      <tr class="subtotal"><td><strong>Minimum viable</strong></td><td>Phases 1-2 only</td><td class="price">$124</td></tr>
+      <tr class="subtotal"><td><strong>Full project all-in</strong></td><td>Phases 1-5 complete</td><td class="price">$1,372</td></tr>
+    </table>
+    </div>
+
+    <div class="callout">
+      <strong>Buying advice:</strong> Order the Red Panda alone first. Phases 1-2 take 6-12 weeks and don't need the comma four. By the time you're ready for Phase 4-5, comma may have released the comma four production version (it's been announced but not yet shipping in volume as of mid-2026). Wait on the $999 spend until you actually need it.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>AI as Force Multiplier</h2>
+    <p>This project is the most ambitious AI-assisted reverse engineering project on the table for a normal person right now. Three places where Claude or GPT meaningfully accelerate the work:</p>
+
+    <h3>1. CAN Message Identification</h3>
+    <p>Feed an AI a 30-minute CAN dump in CSV format along with a synchronized log of driving actions ("steering wheel turned right at 15 seconds, brake pressed at 22 seconds"). Ask it to correlate message changes with actions. The AI cannot perfectly identify every signal, but it can narrow a 200-message search space to 5-10 candidates per signal. Repeat per subsystem.</p>
+
+    <h3>2. DBC Generation</h3>
+    <p>Once message IDs are identified, the AI can generate the DBC file syntax mechanically. Provide the existing Honda Nidec DBC as a template, the new signal mappings, and the AI writes the DBC. Saves hours of manual byte-position math.</p>
+
+    <h3>3. Python Port Code</h3>
+    <p>The carcontroller.py, carstate.py, and values.py files for the 2017 Accord can be generated by AI given the existing honda_nidec template plus the new signal mappings. Expect 80% correct on first pass, then iterate. This used to be days of work, now it's a few hours of careful prompting and review.</p>
+
+    <p>What AI cannot do: validate that the port is safe to use on a real car at highway speeds. That part is still human work with a real car and a real risk-of-injury. AI is a research accelerator, not a safety engineer.</p>
+  </div>
+
+  <div class="section">
+    <h2>Key People &amp; Resources</h2>
+
+    <div class="actor-card">
+      <h4>@mvl-boston</h4>
+      <p class="actor-detail">sunnypilot contributor, 9th-gen Accord DBC author</p>
+      <p class="actor-detail">Published a partial DBC for the 9th-gen Accord in sunnypilot v2026.001.000. This is the foundation to build on. His DBC decodes most powertrain CAN traffic but does not include the steering control message ID (which is the unknown piece you'd be solving).</p>
+      <p class="actor-highlight">Reach out via sunnypilot Discord or the commaai Slack. Ask if he wants collaboration on finishing the port.</p>
+    </div>
+
+    <div class="actor-card">
+      <h4>billy2kool</h4>
+      <p class="actor-detail">Original 9th-gen Accord port attempt (~2018)</p>
+      <p class="actor-detail">Got further than anyone else on Phase 3 (steering control message identification) before the project died. His old fork is archived on GitHub and contains proposed message IDs that may still be valid. Worth replaying his test sequences as a starting point.</p>
+    </div>
+
+    <div class="actor-card">
+      <h4>webnizam / nzpilot</h4>
+      <p class="actor-detail">Another 9th-gen attempt, also archived</p>
+      <p class="actor-detail">Made progress on Honda Nidec base port modifications. Less complete than billy2kool but has unique notes on the brake CAN messages. Both forks together cover more ground than either alone.</p>
+    </div>
+
+    <div class="actor-card">
+      <h4>comma.ai Discord (formerly Slack)</h4>
+      <p class="actor-detail">Direct line to vanillagorillaa (George Hotz) and the core team</p>
+      <p class="actor-detail">Honda channel has hundreds of active developers. Post Phase 1 captures here and someone WILL look at them. The community is genuinely excited about new ports. Honda Sensing 9th-gen has been a long-standing community gap.</p>
+      <p class="actor-highlight">Join immediately, regardless of project phase. Read-only at first.</p>
+    </div>
+
+    <div class="actor-card">
+      <h4>RetroPilot Discord</h4>
+      <p class="actor-detail">Hardware retrofit specialists (Ocelot, harnesses, gateways)</p>
+      <p class="actor-detail">Smaller community than commaai but more focused on exactly this kind of custom port. The people here have done dozens of unsupported-car ports through Ocelot. If anyone has 9th-gen Accord steering message ideas, it's them.</p>
+    </div>
+
+    <div class="actor-card">
+      <h4>commaai/opendbc on GitHub</h4>
+      <p class="actor-detail">The canonical car protocol database</p>
+      <p class="actor-detail">Study honda_nidec.dbc, honda_civic_touring_2016_can.dbc, and acura_ilx_2016_can.dbc as reference implementations. The 9th-gen Accord port DBC will live here as a new file once submitted.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Risks &amp; Mitigations</h2>
+    <div class="risk-grid">
+      <div class="risk-item">
+        <div class="risk-name">Bricking the EPS module</div>
+        <div class="risk-mitigation">Injecting malformed CAN messages can put the EPS in a fault state requiring dealer reset. Mitigation: only inject during Phase 3 testing on jack stands, with the OEM EPS firmware untouched. Honda dealers can clear fault codes via HDS for ~$120.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-name">Accident liability</div>
+        <div class="risk-mitigation">No insurance company covers openpilot use. Any accident while engaged is on you. Mitigation: keep hands on wheel always, treat openpilot as Tesla Autopilot equivalent (assistance, not autonomy), and disengage on weather/traffic uncertainty. Drive defensively.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-name">Project time blowout</div>
+        <div class="risk-mitigation">3-9 months is optimistic. Could easily be 18 months between life, work, and unrelated rabbit holes. Mitigation: set a hard checkpoint at Phase 3. If the steering message hasn't been identified after 3 months of dedicated effort, declare the port infeasible and revert to using the 2017 Accord as a regular car. Sell the comma four to a 10th-gen Accord owner. Recoup most of the spend.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-name">Honda dealer warranty drama</div>
+        <div class="risk-mitigation">2017 Accord is out of factory warranty. Any extended warranty might be voided by aftermarket CAN injection. Mitigation: remove the comma four and Red Panda before any dealer visit. The OBD-II and harness leave no permanent modification.</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-name">Camera calibration loss</div>
+        <div class="risk-mitigation">The factory Honda Sensing camera is already uncalibrated. If you decide later to pay the ~$400 for King's Auto Service to recalibrate it (in case you want to sell the car with working ADAS), do that BEFORE removing the camera and installing the comma device. Otherwise, the camera stays out and the comma device replaces it.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>The First Move</h2>
+    <p>Buy a Red Panda. $99 on comma.ai. Plugs into the OBD-II port. Comes with cable and Cabana software. Don't buy anything else yet.</p>
+    <p>Drive the Accord for 2-3 weeks with the panda plugged in, doing scripted scenarios (highway with cruise on, parking lot with steering wheel turns, brake pressing sequences, etc.). Upload captures to Cabana's free cloud tier. By the end of the first month, you have hours of CAN data to analyze with AI.</p>
+    <p>Concurrent: pull @mvl-boston's DBC from the sunnypilot/opendbc repo. Study it. Join the comma.ai Discord. Lurk in the Honda channel for two weeks. Read the existing honda_nidec.dbc and the carcontroller.py code for a supported Nidec car (2016 Civic is a clean reference).</p>
+    <p>By month 2, you know the codebase, you have data, and you can start Phase 2 (AI-assisted message ID work). Total spend at that point: $99 and 60 hours.</p>
+  </div>
+
+  <div class="section">
+    <h2>Decision Point</h2>
+    <p>This is the most ambitious project on the proposals board. Difficulty 5/5. Time horizon 3-9 months minimum. Real safety risk in Phase 3 if not done carefully. Real chance the project dies at Phase 3 with the steering message never identified, and the time is sunk.</p>
+    <p>But it's also the single project on the board with the highest potential upside. A working 9th-gen Accord openpilot port:</p>
+    <ul style="margin-left: 1.5rem; color: var(--timber);">
+      <li>Makes the daily commute hands-off on the highway</li>
+      <li>Adds adaptive cruise control with stop-and-go (currently broken with the uncalibrated camera anyway)</li>
+      <li>Replaces the broken Honda Sensing system with something far more capable</li>
+      <li>Contributes a port to the open-source community that thousands of 9th-gen Accord owners would use</li>
+      <li>Is the most legitimate AI-assisted reverse engineering project a normal person can attempt in 2026</li>
+    </ul>
+    <p style="margin-top: 0.75rem;">Phase 1 (Red Panda + data capture) is cheap, reversible, and educational regardless of whether the full project finishes. Even if the port never lands, the CAN sniffing knowledge transfers to any future automotive project. The $99 first step is hard to argue against.</p>
+
+    <div class="callout">
+      <strong>Pairs with Proposal #012:</strong> The head unit replacement is independent of this project. Run them in parallel. A Belsee 12.3" Tesla-style head unit (Path 3 of Proposal #012) on the dash plus a comma four mounted to the windshield is the most pimped-out a 2017 Accord can possibly be. Total combined hardware budget: ~$2,100.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
