@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: Tesla Model Y Fog Light Repair</title>
+<meta property="og:title" content="Proposal: Tesla Model Y Fog Light Repair">
+<meta property="og:description" content="Driver-side front fog light pushed in after a deer strike on the 2023 Model Y. Decision tree from free reseat to pod replacement. Never pay for a bumper cover.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-tesla-foglight-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/proposal-tesla-fog-light.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-tesla-foglight-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { overflow-x: hidden; }
+:root {
+  --bark: #2C1810;
+  --loam: #3D2914;
+  --timber: #4A3320;
+  --fence: #5C4033;
+  --wire: #8B7355;
+  --hay: #D4A843;
+  --straw: #E8C878;
+  --cream: #F5F0E1;
+  --milk: #FDF8EF;
+  --grass: #4A7C3F;
+  --grass-light: #6BAF5B;
+  --rust: #A0522D;
+  --sky: #87CEEB;
+  --danger: #C0392B;
+  --info: #2980B9;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background: var(--milk);
+  color: var(--bark);
+  line-height: 1.75;
+  font-size: 17px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--fence);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.back-link:hover { color: var(--hay); }
+
+.hero {
+  position: relative;
+  padding: 4rem 1.5rem 3rem;
+  background: linear-gradient(135deg, var(--loam) 0%, var(--timber) 50%, var(--fence) 100%);
+  color: var(--cream);
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(-45deg, transparent 0px, transparent 20px, rgba(255,255,255,0.015) 20px, rgba(255,255,255,0.015) 22px);
+}
+.hero-inner { position: relative; max-width: 800px; margin: 0 auto; }
+.badge {
+  display: inline-block;
+  background: var(--hay);
+  color: var(--bark);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+.hero .subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--straw);
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+.meta-item { display: flex; flex-direction: column; gap: 2px; }
+.meta-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--wire);
+}
+.meta-value {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--cream);
+}
+.meta-value.cost { color: var(--hay); }
+
+.content { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.section { margin-bottom: 2.5rem; }
+.section h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bark);
+  margin-bottom: 0.75rem;
+}
+.section h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--timber);
+  margin: 1.25rem 0 0.5rem;
+}
+.section p { color: var(--timber); margin-bottom: 0.75rem; }
+.section p:last-child { margin-bottom: 0; }
+
+.bluf {
+  background: var(--bark);
+  color: var(--cream);
+  border-radius: 8px;
+  padding: 1.5rem 1.75rem;
+  margin: 0 0 2.5rem;
+}
+.bluf h2 { color: var(--straw); font-family: 'Fraunces', serif; font-size: 1.15rem; margin-bottom: 0.5rem; }
+.bluf p { color: var(--cream); font-size: 0.97rem; }
+.bluf strong { color: var(--hay); }
+
+/* ---- Flowchart ---- */
+.flow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 1.5rem 0;
+}
+.node {
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.node .node-kicker {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 2px;
+  opacity: 0.85;
+}
+.node .node-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.02rem; }
+.node .node-sub { font-size: 0.83rem; line-height: 1.45; margin-top: 3px; }
+.node.start { background: var(--bark); color: var(--cream); }
+.node.start .node-kicker { color: var(--straw); }
+.node.decision { background: #FFF8E7; border: 2px solid var(--hay); color: var(--bark); }
+.node.decision .node-kicker { color: var(--rust); }
+.node.good { background: #E8F3E4; border: 2px solid var(--grass); color: var(--loam); }
+.node.good .node-kicker { color: var(--grass); }
+.node.mod { background: #FDF1DC; border: 2px solid var(--rust); color: var(--loam); }
+.node.mod .node-kicker { color: var(--rust); }
+.node.bad { background: #FBEBEA; border: 2px solid var(--danger); color: #6e1f17; }
+.node.bad .node-kicker { color: var(--danger); }
+
+.connector { width: 2px; height: 22px; background: var(--wire); margin: 0 auto; }
+.branch {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+.branch > .lane { flex: 1; display: flex; flex-direction: column; align-items: stretch; }
+.branch-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 4px 0;
+  color: var(--fence);
+}
+.branch-label.yes { color: var(--grass); }
+.branch-label.no { color: var(--danger); }
+.cost-tag {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-top: 4px;
+}
+
+.path-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.25rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--grass);
+}
+.path-card.mod { border-left-color: var(--rust); }
+.path-card.bad { border-left-color: var(--danger); }
+.path-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.path-name { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 700; }
+.path-cost { color: var(--grass); font-size: 1.1rem; font-weight: 600; }
+.path-card.mod .path-cost { color: var(--rust); }
+.path-card.bad .path-cost { color: var(--danger); }
+.path-desc { color: var(--fence); font-size: 0.95rem; }
+.steps { margin: 0.75rem 0 0; padding-left: 1.25rem; }
+.steps li { color: var(--timber); font-size: 0.92rem; margin-bottom: 0.3rem; }
+
+.materials-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+.materials-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--wire);
+  padding: 8px 10px;
+  border-bottom: 2px solid #e8e0d0;
+}
+.materials-table td { padding: 8px 10px; border-bottom: 1px solid #f0ebe0; color: var(--timber); }
+.materials-table tr:last-child td { border-bottom: none; }
+.materials-table .price { font-weight: 600; color: var(--grass); text-align: right; white-space: nowrap; }
+.materials-table .price.bad { color: var(--danger); }
+div.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.callout {
+  background: #FFF8E7;
+  border-left: 3px solid var(--hay);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.95rem;
+}
+.callout.info { background: #EFF6FF; border-left-color: var(--info); }
+.callout.warn { background: #FEF2F2; border-left-color: var(--danger); }
+.callout strong { color: var(--bark); }
+.callout a { color: var(--info); }
+
+.shop-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--hay);
+}
+.shop-card h4 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bark);
+  margin-bottom: 0.25rem;
+}
+.shop-card .shop-detail { font-size: 0.9rem; color: var(--fence); margin-bottom: 0.15rem; }
+.shop-card .shop-detail a { color: var(--info); }
+.shop-card .shop-highlight { font-size: 0.85rem; color: var(--grass); font-weight: 500; margin-top: 0.4rem; }
+
+@media (max-width: 600px) {
+  .meta-bar { gap: 1rem; }
+  .path-header { flex-direction: column; }
+  .hero { padding: 3rem 1.25rem 2rem; }
+  .content { padding: 2rem 1.25rem 3rem; }
+  .branch { flex-direction: column; gap: 0; }
+  .branch > .lane { margin-bottom: 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<a href="/proposals" class="back-link">&larr; All Proposals</a>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="badge">Proposal #014</span>
+    <h1>Tesla Model Y Fog Light Repair</h1>
+    <p class="subtitle">Driver-side front fog light pushed in after a deer strike on Bekah's 2023 Long Range. One deer, three possible fixes, and a four-figure trap to avoid.</p>
+    <div class="meta-bar">
+      <div class="meta-item">
+        <span class="meta-label">Total Cost</span>
+        <span class="meta-value cost">$0&ndash;$90</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Difficulty</span>
+        <span class="meta-value">1&ndash;2/5</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Time</span>
+        <span class="meta-value">5&ndash;30 min</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Category</span>
+        <span class="meta-value">Automotive</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Status</span>
+        <span class="meta-value">Proposed</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="bluf">
+    <h2>Bottom Line Up Front</h2>
+    <p>The light is the <strong>driver-side front fog lamp</strong>, a small LED pod set into the lower bumper fascia. Do the <strong>push test</strong> first. Roughly half the time a deer tap just pops the clips loose and it snaps right back for <strong>$0</strong>. If the clips snapped, it is almost always a <strong>$40&ndash;$90 used-OEM pod swap</strong> you can do yourself in under 30 minutes. The only expensive outcome is a shop talking you into a <strong>$1,000+ bumper cover replacement</strong>. Do not let that happen.</p>
+  </div>
+
+  <div class="section">
+    <h2>The Problem</h2>
+    <p>Benny hit a deer. The driver-side fog light, the small light below the main headlight, got pushed inward. The lens is not cracked, it is just sitting recessed and crooked. That tells us the impact was light and the damage is mechanical, not a shattered unit.</p>
+    <p>The fog pod is held into the bumper cover by 3 plastic mounting tabs, and the pod is also screwed to the fascia from behind with 3 screws. A knock like this breaks one of two things: the tabs on the pod, or the tabs on the bumper cover opening. Which one decides the fix and the cost. Everything below is a decision tree to figure out which path you are on.</p>
+  </div>
+
+  <div class="section">
+    <h2>The Decision Tree</h2>
+    <p>Work top to bottom. Each diamond is a test you run on the car, in the driveway, with your hands.</p>
+
+    <div class="flow">
+
+      <div class="node start">
+        <span class="node-kicker">Start</span>
+        <span class="node-title">Driver fog light pushed in</span>
+        <span class="node-sub">Lens intact, just recessed after the deer strike</span>
+      </div>
+      <div class="connector"></div>
+
+      <div class="node decision">
+        <span class="node-kicker">Test 1 &mdash; The Push Test</span>
+        <span class="node-title">Push the pod flush with your fingers, then let go</span>
+        <span class="node-sub">Does it stay put with a click?</span>
+      </div>
+      <div class="connector"></div>
+
+      <div class="branch">
+        <div class="lane">
+          <div class="branch-label yes">Yes &mdash; it clicks &amp; holds</div>
+          <div class="node good">
+            <span class="node-kicker">Path A</span>
+            <span class="node-title">Reseat &amp; done</span>
+            <span class="node-sub">Clips intact, it just popped loose. Press the whole perimeter until every tab engages.</span>
+            <div class="cost-tag">$0 &middot; 5 min</div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="branch-label no">No &mdash; it flops back loose</div>
+          <div class="node decision">
+            <span class="node-kicker">Tabs are broken</span>
+            <span class="node-title">Go to Test 2</span>
+            <span class="node-sub">Something snapped. Now find out what.</span>
+          </div>
+        </div>
+      </div>
+      <div class="connector"></div>
+
+      <div class="node decision">
+        <span class="node-kicker">Test 2 &mdash; Inspect the Tabs</span>
+        <span class="node-title">Fold back the wheel-well liner and look behind the fascia</span>
+        <span class="node-sub">Which set of tabs broke?</span>
+      </div>
+      <div class="connector"></div>
+
+      <div class="branch">
+        <div class="lane">
+          <div class="branch-label">Tabs on the FOG POD broke</div>
+          <div class="node mod">
+            <span class="node-kicker">Path B &mdash; most common</span>
+            <span class="node-title">Replace the pod</span>
+            <span class="node-sub">Used OEM driver-side pod, 3 screws, one connector. The bumper cover is fine.</span>
+            <div class="cost-tag">$40&ndash;$90 &middot; 20&ndash;30 min</div>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="branch-label">Tabs on the BUMPER COVER broke</div>
+          <div class="node bad">
+            <span class="node-kicker">Path C &mdash; rare</span>
+            <span class="node-title">Epoxy the pod in</span>
+            <span class="node-sub">Good pod, but nothing in the cover to grab. Bond it directly into the opening.</span>
+            <div class="cost-tag">~$8 &middot; 30 min + cure</div>
+          </div>
+        </div>
+      </div>
+      <div class="connector"></div>
+
+      <div class="node bad">
+        <span class="node-kicker">The Trap &mdash; Avoid</span>
+        <span class="node-title">Shop quotes a full bumper cover R&amp;R + repaint</span>
+        <span class="node-sub">This is the upsell when cover tabs break. Path C does the same job for $8. Walk away from this quote.</span>
+        <div class="cost-tag">$1,000&ndash;$1,800</div>
+      </div>
+
+    </div>
+
+    <div class="callout info">
+      <strong>Run this in parallel:</strong> turn the fog lights on during Test 1. If the pod still lights up, the electronics are fine and Path A or C is on the table. If it is dead or flickers, the pod itself is damaged and you are buying a new one regardless, which forces Path B.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>The Three Paths in Detail</h2>
+
+    <div class="path-card">
+      <div class="path-header">
+        <span class="path-name">Path A &mdash; Reseat</span>
+        <span class="path-cost">$0</span>
+      </div>
+      <p class="path-desc">The clips never broke. The deer just knocked the pod off its detents and it is hanging loose in the opening.</p>
+      <ol class="steps">
+        <li>Press the pod evenly back into the opening until you hear it click.</li>
+        <li>Push all the way around the perimeter so every one of the 3 tabs engages.</li>
+        <li>Do not force it. If it will not click and hold, you are actually on Path B or C.</li>
+        <li>Confirm it sits flush with the surrounding fascia. Done. No teardown, no parts.</li>
+      </ol>
+    </div>
+
+    <div class="path-card mod">
+      <div class="path-header">
+        <span class="path-name">Path B &mdash; Replace the Pod</span>
+        <span class="path-cost">$40&ndash;$90</span>
+      </div>
+      <p class="path-desc">The 3 plastic tabs on the fog pod snapped. The pod floats loose but the bumper cover opening is undamaged. This is the most common deer-tap outcome. No need to pull the whole bumper, you work through the wheel well.</p>
+      <ol class="steps">
+        <li>Turn the wheel for clearance and chock the car.</li>
+        <li>Release the 3 push clips holding the front of the wheel-arch liner to the fascia (pry the center pin, then pull the clip).</li>
+        <li>Release the 4 clips on the front fender garnish where it meets the wheel arch.</li>
+        <li>Fold the liner back, reach up behind the fascia to the back of the fog pod.</li>
+        <li>Unplug the harness: lift the red locking tab, then pull the connector.</li>
+        <li>Remove the 3 screws holding the pod to the fascia, pull the old pod out the front.</li>
+        <li>Read the white sticker on the back of the old pod for the exact part number.</li>
+        <li>Fit the new pod, reuse the 3 screws, reconnect the harness until the red tab clicks down.</li>
+        <li>Reseat the liner clips and fender garnish. Install is the reverse of removal.</li>
+      </ol>
+    </div>
+
+    <div class="path-card bad">
+      <div class="path-header">
+        <span class="path-name">Path C &mdash; Epoxy Mount</span>
+        <span class="path-cost">~$8</span>
+      </div>
+      <p class="path-desc">The tabs that broke are on the <em>bumper cover</em>, not the pod. The pod is good but has nothing to clip into. A shop will use this to sell a whole new bumper cover plus paint. Skip that. Bond the pod directly into the opening instead.</p>
+      <ol class="steps">
+        <li>Confirm the pod itself is intact and still lights up.</li>
+        <li>Clean both mating surfaces with isopropyl alcohol so the bond holds.</li>
+        <li>Apply 2-part epoxy (JB Weld or similar) to the pod's mounting flange.</li>
+        <li>Seat the pod flush in the opening, hold or tape it square while the epoxy cures.</li>
+        <li>Let it cure fully before driving. Ugly from behind, invisible from the front, saves four figures.</li>
+      </ol>
+      <p class="path-desc">Permanent-ish: a future pod swap means cutting the bond. Acceptable trade for not repainting a bumper.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Cost Breakdown</h2>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <thead>
+        <tr><th>Path</th><th>Scenario</th><th>Parts</th><th>Total</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>A &mdash; Reseat</td><td>Clips intact, pod popped loose</td><td>None</td><td class="price">$0</td></tr>
+        <tr><td>B &mdash; Replace (DIY)</td><td>Fog pod tabs broken</td><td>Used OEM pod</td><td class="price">$40&ndash;$90</td></tr>
+        <tr><td>B &mdash; Replace (new aftermarket)</td><td>Want new, not used</td><td>Aftermarket LED pod</td><td class="price">$90&ndash;$130</td></tr>
+        <tr><td>B &mdash; Replace (shop labor)</td><td>Pay someone to swap it</td><td>Pod + ~$50&ndash;$100 labor</td><td class="price">$90&ndash;$190</td></tr>
+        <tr><td>C &mdash; Epoxy mount</td><td>Bumper cover tabs broken</td><td>2-part epoxy</td><td class="price">~$8</td></tr>
+        <tr><td>X &mdash; Bumper cover R&amp;R</td><td>The shop upsell. Avoid.</td><td>Cover + paint + labor</td><td class="price bad">$1,000&ndash;$1,800</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>The Part (if Path B)</h2>
+    <p>This is the driver/left-hand front fog lamp for a 2023 Model Y Long Range. The lamp is shared across Model 3 and Model Y from roughly 2021 on, so listings will say "Model 3/Y" and span "2017&ndash;2023". That fitment is real, just match the exact part number.</p>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <thead><tr><th>Side</th><th>Part Number</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Driver / LH</td><td>1507930-00-C or 1507930-00-D</td><td>3-pin connector, LED, 24W</td></tr>
+        <tr><td>Passenger / RH</td><td>1507931-00-C or 1507931-00-D</td><td>For reference, not this job</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="callout warn">
+      <strong>Verify before buying.</strong> The trailing letter (-B / -C / -D) is a revision code and it must match. Pull the old pod, read the white sticker on the back, and order off <em>that</em> number. A 2023 build could be C or D depending on production date. Do not order off the table above alone.
+    </div>
+    <p>Used OEM listings, driver side:</p>
+    <div class="shop-card">
+      <h4>eBay &mdash; used OEM 1507930</h4>
+      <p class="shop-detail">~$50, free shipping: <a href="https://www.ebay.com/itm/387379692469">ebay.com/itm/387379692469</a></p>
+      <p class="shop-detail">Multi-seller listing page, ~$39&ndash;$60: <a href="https://www.ebay.com/p/6050996033">ebay.com/p/6050996033</a></p>
+      <p class="shop-highlight">Read the condition notes. Some are sold "missing bracket" or with scratched lenses. Buy one with clean tabs and a clear lens.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Tools &amp; Materials</h2>
+    <p>For Path A: nothing, just your hands. For Path B: a plastic trim/pry tool for the liner clips, and a screwdriver or socket for the 3 pod screws. For Path C: isopropyl alcohol, 2-part epoxy, painter's tape to hold the pod square while it cures.</p>
+  </div>
+
+  <div class="section">
+    <h2>Recommendation</h2>
+    <p>Run the push test today before spending a dollar or ordering a part. If it clicks and holds, this proposal closes at $0. If it does not, fold back the liner and inspect: pod tabs broken means a sub-$90 DIY swap, cover tabs broken means an $8 epoxy job. Either way this is a driveway repair, not a body shop ticket. The single rule: if anyone quotes a bumper cover replacement, this proposal becomes Path C and they get nothing.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
