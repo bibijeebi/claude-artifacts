@@ -12,6 +12,7 @@
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/abc-hunt-og.jpg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   html, body { overflow-x:hidden; }
   :root{
@@ -25,76 +26,77 @@
   label.pick{display:block;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin-bottom:5px;}
   select{width:100%;background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:11px 12px;font-size:15px;-webkit-appearance:none;appearance:none;}
   .selwrap{position:relative;margin-bottom:6px;}
-  .selwrap::after{content:"▾";position:absolute;right:14px;top:11px;color:var(--accent);pointer-events:none;}
-  #binfo{background:var(--panel);border-left:3px solid var(--accent);border-radius:8px;padding:9px 12px;font-size:13px;margin:8px 0 14px;min-height:20px;}
+  .selwrap::after{content:"\25BE";position:absolute;right:14px;top:11px;color:var(--accent);pointer-events:none;}
+  #binfo{background:var(--panel);border-left:3px solid var(--accent);border-radius:8px;padding:9px 12px;font-size:13px;margin:8px 0 12px;min-height:20px;}
   #binfo b{color:var(--accent);}
-  .mapwrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px;}
-  svg{display:block;width:100%;height:auto;}
-  .pinhit{cursor:pointer;}
-  .plabel{font:600 12px -apple-system,sans-serif;fill:var(--txt);}
-  .pcount{font:700 11px -apple-system,sans-serif;fill:var(--bg);}
-  .glow{filter:drop-shadow(0 0 5px var(--accent));}
-  .legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin:14px 2px;font-size:12px;color:var(--dim);}
+  #map{height:440px;border:1px solid var(--line);border-radius:12px;background:#0a0d12;}
+  .leaflet-container{background:#0a0d12;font:inherit;}
+  .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--panel);color:var(--txt);}
+  .leaflet-popup-content{margin:9px 12px;font-size:13px;}
+  .mlbl{background:rgba(14,17,22,.82);border:none;color:var(--txt);font:600 11px -apple-system,sans-serif;
+        box-shadow:none;padding:1px 5px;border-radius:4px;}
+  .mlbl::before{display:none;}
+  .legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin:13px 2px;font-size:12px;color:var(--dim);}
   .legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px;}
   #detail{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;}
   #detail h2{font-size:17px;}
   #detail .addr{color:var(--dim);font-size:13px;margin:2px 0 10px;}
   .stockrow{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-top:1px solid var(--line);}
   .stockrow:first-of-type{border-top:none;}
-  .stockrow .q{color:var(--accent);font-weight:700;}
+  .stockrow .q{color:var(--accent);font-weight:700;white-space:nowrap;}
   .tag{display:inline-block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:2px 6px;border-radius:4px;margin-left:6px;}
   .tag.go{background:rgba(63,185,80,.18);color:var(--go);}
   .tag.maybe{background:rgba(210,153,34,.18);color:var(--maybe);}
   .hint{color:var(--dim);font-size:13px;font-style:italic;}
   .dead{background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:11px 13px;margin-top:12px;font-size:12px;color:var(--dim);}
   .dead b{color:var(--no);}
-  a{color:var(--home);}
 </style>
 </head>
 <body>
 
 <h1>ABC Hunt Map</h1>
-<div class="sub">Wake County ABC live stock, pulled May 22 2026. Tap a store pin for its inventory. Pick a bottle to light up where it lives. All stores 11–9 (Fri/Sat 10–9), closed Sunday.</div>
+<div class="sub">Wake County ABC live stock, pulled May 22 2026. Tap a store for its inventory. Pick a bottle to light up where it lives. All stores 11&ndash;9 (Fri/Sat 10&ndash;9), closed Sunday.</div>
 
 <label class="pick">Show me where to get</label>
 <div class="selwrap"><select id="bottleSel"></select></div>
 <div id="binfo">Showing all stores. Pick a bottle above, or tap a pin.</div>
 
-<div class="mapwrap"><svg id="map" viewBox="0 0 660 760"></svg></div>
+<div id="map"></div>
 
 <div class="legend">
   <span><i style="background:var(--home)"></i>Your home (Willow Spring)</span>
   <span><i style="background:var(--accent)"></i>Carries selected bottle</span>
-  <span><i style="background:var(--dim)"></i>Store (tap for stock)</span>
+  <span><i style="background:var(--dim)"></i>Nearby store</span>
   <span><i style="background:var(--maybe)"></i>Special-trip store</span>
 </div>
 
-<div id="detail"><span class="hint">Tap any store pin on the map to see which recommended bottles it has in stock, with counts and the drive distance from home.</span></div>
+<div id="detail"><span class="hint">Tap any store on the map to see which recommended bottles it has in stock, with counts and the drive distance from home.</span></div>
 
 <div class="dead">
 <b>Dead ends</b> (not on map, can't get them right now): <b>Probitas</b> carried but out at all 27 stores. <b>Plantation 3 Stars / OFTD</b> not carried by Wake County ABC at all. <b>Appleton Estate 8Y</b> out everywhere, Appleton Rare Blend is a stocked substitute. <b>El Dorado 3Y White</b> lives only at the Davis Circle store in Raleigh (not mapped).
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const STORES = [
-  {k:"gar", name:"Garner",        addr:"200 New Rand Rd, Garner",        lat:35.7017, lon:-78.6023, far:false},
-  {k:"fv",  name:"Fuquay Varina", addr:"1940 Cinema Dr, Fuquay-Varina",  lat:35.6018, lon:-78.7532, far:false},
+  {k:"gar", name:"Garner",        addr:"200 New Rand Rd, Garner",            lat:35.7017, lon:-78.6023, far:false},
+  {k:"fv",  name:"Fuquay Varina", addr:"1940 Cinema Dr, Fuquay-Varina",      lat:35.6018, lon:-78.7532, far:false},
   {k:"hs",  name:"Holly Springs", addr:"100 Village Walk Dr, Holly Springs", lat:35.6410, lon:-78.8403, far:false},
-  {k:"apx", name:"Apex",          addr:"1793 W Williams St, Apex",       lat:35.7594, lon:-78.8765, far:false},
-  {k:"ct",  name:"Cary Towne",    addr:"665 Cary Towne Blvd, Cary",      lat:35.7767, lon:-78.7664, far:false},
-  {k:"ctr", name:"Cary / Tryon",  addr:"6494 Tryon Rd, Cary",            lat:35.7446, lon:-78.7625, far:false},
-  {k:"cp",  name:"SW Cary Pkwy",  addr:"3615 SW Cary Pkwy, Cary",        lat:35.7811, lon:-78.8384, far:true},
-  {k:"sf",  name:"N. Raleigh",    addr:"7200 Sandy Fork Rd, Raleigh",    lat:35.8714, lon:-78.6230, far:true},
+  {k:"apx", name:"Apex",          addr:"1793 W Williams St, Apex",           lat:35.7594, lon:-78.8765, far:false},
+  {k:"ct",  name:"Cary Towne",    addr:"665 Cary Towne Blvd, Cary",          lat:35.7767, lon:-78.7664, far:false},
+  {k:"ctr", name:"Cary / Tryon",  addr:"6494 Tryon Rd, Cary",                lat:35.7446, lon:-78.7625, far:false},
+  {k:"cp",  name:"SW Cary Pkwy",  addr:"3615 SW Cary Pkwy, Cary",            lat:35.7811, lon:-78.8384, far:true},
+  {k:"sf",  name:"N. Raleigh",    addr:"7200 Sandy Fork Rd, Raleigh",        lat:35.8714, lon:-78.6230, far:true},
 ];
 const HOME = {name:"Willow Spring", lat:35.5956, lon:-78.7311};
 
 const BOTTLES = [
-  {id:"all", name:"— All bottles —"},
-  {id:"espolon",    name:"Espolòn Reposado",          price:"$32.95", tier:"go",
+  {id:"all", name:"\u2014 All bottles \u2014"},
+  {id:"espolon",    name:"Espol\u00f3n Reposado",         price:"$32.95", tier:"go",
    what:"Tequila for margaritas and a Mexican mule", stock:{gar:153,ct:150,sf:100,apx:64,hs:54,cp:37,ctr:36,fv:10}},
   {id:"stgermain",  name:"St-Germain",                price:"$32.95", tier:"go",
    what:"Elderflower liqueur, light floral cocktails", stock:{sf:135,ct:121,apx:70,ctr:48,hs:38,cp:22,fv:21,gar:19}},
-  {id:"diplomatico",name:"Diplomático Reserva",       price:"$44.95", tier:"go",
+  {id:"diplomatico",name:"Diplom\u00e1tico Reserva",      price:"$44.95", tier:"go",
    what:"Soft, sweet, vanilla-heavy aged sipping rum", stock:{ct:23,cp:23,sf:17,apx:15,ctr:13,hs:12,fv:11,gar:11}},
   {id:"aberlour",   name:"Aberlour 12",               price:"$59.95", tier:"go",
    what:"Sherry-cask Speyside scotch, rich crossover pick", stock:{cp:20,ctr:15,apx:11,hs:9,ct:6,sf:5,gar:5,fv:3}},
@@ -110,114 +112,94 @@ const BOTTLES = [
    what:"Step up from the 12, splurge sipper", stock:{cp:12}},
 ];
 
-// distance home -> store, miles (haversine)
 function miles(a,b){
-  const R=3959, t=Math.PI/180;
-  const dLat=(b.lat-a.lat)*t, dLon=(b.lon-a.lon)*t;
-  const x=Math.sin(dLat/2)**2 + Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLon/2)**2;
+  const R=3959,t=Math.PI/180;
+  const dLat=(b.lat-a.lat)*t,dLon=(b.lon-a.lon)*t;
+  const x=Math.sin(dLat/2)**2+Math.cos(a.lat*t)*Math.cos(b.lat*t)*Math.sin(dLon/2)**2;
   return R*2*Math.asin(Math.sqrt(x));
 }
 STORES.forEach(s=>s.mi=miles(HOME,s));
 
-// projection
-const LAT_MAX=35.905, LAT_MIN=35.560, LON_MIN=-78.915, LON_MAX=-78.565;
-const VW=660, VH=760, PAD=54;
-function proj(lat,lon){
-  const fx=(lon-LON_MIN)/(LON_MAX-LON_MIN);
-  const fy=(LAT_MAX-lat)/(LAT_MAX-LAT_MIN);
-  return [PAD+fx*(VW-2*PAD), PAD+fy*(VH-2*PAD)];
-}
-
-const svg=document.getElementById("map");
-const NS="http://www.w3.org/2000/svg";
-function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
-
-// faint grid
-for(let i=1;i<6;i++){
-  svg.appendChild(el("line",{x1:0,y1:i*VH/6,x2:VW,y2:i*VH/6,stroke:"#1c232c","stroke-width":1}));
-  svg.appendChild(el("line",{x1:i*VW/6,y1:0,x2:i*VW/6,y2:VH,stroke:"#1c232c","stroke-width":1}));
-}
+const map=L.map('map',{scrollWheelZoom:false}).setView([35.72,-78.74],10);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+  attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19
+}).addTo(map);
 
 // home star
-const [hx,hy]=proj(HOME.lat,HOME.lon);
-const star=el("path",{d:starPath(hx,hy,13,6.5),fill:"var(--home)"});
-svg.appendChild(star);
-svg.appendChild(el("text",{x:hx,y:hy-21,"text-anchor":"middle",class:"plabel",fill:"var(--home)"})).textContent="HOME";
-function starPath(cx,cy,ro,ri){
-  let d="";for(let i=0;i<10;i++){const r=i%2?ri:ro,a=Math.PI/5*i-Math.PI/2;
-  d+=(i?"L":"M")+(cx+r*Math.cos(a)).toFixed(1)+" "+(cy+r*Math.sin(a)).toFixed(1);}
-  return d+"Z";
-}
+const homeIcon=L.divIcon({className:'',iconSize:[26,26],
+  html:'<div style="font-size:24px;line-height:24px;color:#5ac8fa;text-shadow:0 0 4px #000;">\u2605</div>'});
+L.marker([HOME.lat,HOME.lon],{icon:homeIcon}).addTo(map)
+  .bindTooltip("HOME",{permanent:true,direction:'bottom',className:'mlbl',offset:[0,4]});
 
-// store pins
-const pinEls={};
+// store markers
+const markers={};
 STORES.forEach(s=>{
-  const [x,y]=proj(s.lat,s.lon);
-  const g=el("g",{class:"pinhit"});
-  const ring=el("circle",{cx:x,cy:y,r:13,fill:s.far?"var(--maybe)":"var(--dim)",stroke:"var(--bg)","stroke-width":2});
-  const badge=el("text",{x:x,y:y+4,"text-anchor":"middle",class:"pcount"});
-  // label, nudged so it doesn't collide
-  const below=y<VH-60;
-  const lbl=el("text",{x:x,y:below?y+27:y-20,"text-anchor":"middle",class:"plabel"});
-  lbl.textContent=s.name;
-  g.appendChild(ring);g.appendChild(badge);g.appendChild(lbl);
-  g.addEventListener("click",()=>showStore(s.k));
-  svg.appendChild(g);
-  pinEls[s.k]={ring,badge,lbl,x,y};
+  const m=L.circleMarker([s.lat,s.lon],{
+    radius:11,fillColor:s.far?'#d29922':'#9aa5b1',color:'#0e1116',weight:2,fillOpacity:1
+  }).addTo(map);
+  m.bindTooltip(s.name,{permanent:true,direction:'top',className:'mlbl',offset:[0,-9]});
+  m.on('click',()=>showStore(s.k));
+  markers[s.k]=m;
 });
 
+map.fitBounds(L.latLngBounds(
+  STORES.map(s=>[s.lat,s.lon]).concat([[HOME.lat,HOME.lon]])
+),{padding:[35,35]});
+
 // dropdown
-const sel=document.getElementById("bottleSel");
-BOTTLES.forEach(b=>{const o=document.createElement("option");o.value=b.id;o.textContent=b.name+(b.price?"  "+b.price:"");sel.appendChild(o);});
-sel.addEventListener("change",()=>applyBottle(sel.value));
+const sel=document.getElementById('bottleSel');
+BOTTLES.forEach(b=>{const o=document.createElement('option');o.value=b.id;
+  o.textContent=b.name+(b.price?'  '+b.price:'');sel.appendChild(o);});
+sel.addEventListener('change',()=>applyBottle(sel.value));
 
 function applyBottle(id){
   const b=BOTTLES.find(x=>x.id===id);
-  const info=document.getElementById("binfo");
+  const info=document.getElementById('binfo');
   STORES.forEach(s=>{
-    const p=pinEls[s.k];
-    if(id==="all"){
-      p.ring.setAttribute("fill",s.far?"var(--maybe)":"var(--dim)");
-      p.ring.setAttribute("r",13); p.badge.textContent=""; p.ring.classList.remove("glow");
+    const m=markers[s.k];
+    if(id==='all'){
+      m.setStyle({fillColor:s.far?'#d29922':'#9aa5b1',radius:11,fillOpacity:1});
+      m.setTooltipContent(s.name);
     }else{
       const q=b.stock[s.k];
       if(q){
-        p.ring.setAttribute("fill","var(--accent)"); p.ring.setAttribute("r",15);
-        p.badge.textContent=q; p.ring.classList.add("glow");
+        m.setStyle({fillColor:'#d4ff3a',radius:14,fillOpacity:1});
+        m.setTooltipContent(s.name+' \u00b7 '+q);
       }else{
-        p.ring.setAttribute("fill","#3a424d"); p.ring.setAttribute("r",10);
-        p.badge.textContent=""; p.ring.classList.remove("glow");
+        m.setStyle({fillColor:'#3a424d',radius:8,fillOpacity:.85});
+        m.setTooltipContent(s.name);
       }
     }
   });
-  if(id==="all"){ info.innerHTML="Showing all stores. Pick a bottle above, or tap a pin."; return; }
+  if(id==='all'){info.innerHTML='Showing all stores. Pick a bottle above, or tap a pin.';return;}
   const ks=Object.keys(b.stock);
-  if(!ks.length){ info.innerHTML="<b>"+b.name+"</b> "+b.price+" — out at every store."; return; }
+  if(!ks.length){info.innerHTML='<b>'+b.name+'</b> '+b.price+' \u2014 out at every store.';return;}
   const best=ks.map(k=>({s:STORES.find(z=>z.k===k),q:b.stock[k]})).sort((a,c)=>c.q-a.q)[0];
   const closest=ks.map(k=>STORES.find(z=>z.k===k)).sort((a,c)=>a.mi-c.mi)[0];
-  info.innerHTML="<b>"+b.name+"</b> "+b.price+" — "+b.what+".<br>At "+ks.length+
-    " mapped store"+(ks.length>1?"s":"")+". Most stock: <b>"+best.s.name+"</b> ("+best.q+
-    "). Closest to home: <b>"+closest.name+"</b> ("+closest.mi.toFixed(0)+" mi).";
+  info.innerHTML='<b>'+b.name+'</b> '+b.price+' \u2014 '+b.what+'.<br>At '+ks.length+
+    ' mapped store'+(ks.length>1?'s':'')+'. Most stock: <b>'+best.s.name+'</b> ('+best.q+
+    '). Closest to home: <b>'+closest.name+'</b> ('+closest.mi.toFixed(0)+' mi).';
 }
 
 function showStore(k){
   const s=STORES.find(z=>z.k===k);
-  const have=BOTTLES.filter(b=>b.id!=="all"&&b.stock[k]).map(b=>({b,q:b.stock[k]})).sort((a,c)=>c.q-a.q);
-  let html="<h2>"+s.name+(s.far?' <span class="tag maybe">special trip</span>':'')+"</h2>";
-  html+='<div class="addr">'+s.addr+" &middot; "+s.mi.toFixed(0)+" mi from home</div>";
+  const have=BOTTLES.filter(b=>b.id!=='all'&&b.stock[k])
+    .map(b=>({b,q:b.stock[k]})).sort((a,c)=>c.q-a.q);
+  let html='<h2>'+s.name+(s.far?' <span class="tag maybe">special trip</span>':'')+'</h2>';
+  html+='<div class="addr">'+s.addr+' \u00b7 '+s.mi.toFixed(0)+' mi from home</div>';
   if(have.length){
     html+=have.map(x=>'<div class="stockrow"><span>'+x.b.name+
-      ' <span class="tag '+x.b.tier+'">'+x.b.price+'</span></span><span class="q">'+x.q+' in stock</span></div>').join("");
+      ' <span class="tag '+x.b.tier+'">'+x.b.price+'</span></span><span class="q">'+
+      x.q+' in stock</span></div>').join('');
   }else{
     html+='<span class="hint">None of the recommended bottles are in stock here right now.</span>';
   }
-  document.getElementById("detail").innerHTML=html;
-  document.getElementById("detail").scrollIntoView({behavior:"smooth",block:"nearest"});
-  // highlight selected pin briefly
-  STORES.forEach(z=>pinEls[z.k].lbl.setAttribute("fill",z.k===k?"var(--accent)":"var(--txt)"));
+  document.getElementById('detail').innerHTML=html;
+  markers[k].openTooltip();
+  document.getElementById('detail').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
-applyBottle("all");
+applyBottle('all');
 </script>
 </body>
 </html>
