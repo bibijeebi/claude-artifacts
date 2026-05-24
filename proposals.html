@@ -143,8 +143,7 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 0.5rem 1.5rem 4rem;
-  column-width: 280px;
-  column-gap: 1rem;
+  position: relative;
 }
 
 .card {
@@ -156,13 +155,16 @@ body {
   color: inherit;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s, box-shadow 0.2s;
-  break-inside: avoid;
-  margin-bottom: 1rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: top 0.32s cubic-bezier(0.22,0.61,0.36,1), left 0.32s cubic-bezier(0.22,0.61,0.36,1), box-shadow 0.2s ease;
+  will-change: top, left;
 }
+.card.placing { transition: box-shadow 0.2s ease; }
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(44, 24, 16, 0.1);
+  box-shadow: 0 10px 26px rgba(44, 24, 16, 0.14);
+  z-index: 2;
 }
 .card-accent {
   height: 4px;
@@ -304,7 +306,6 @@ body {
 }
 
 .empty-state {
-  column-span: all;
   text-align: center;
   padding: 4rem 2rem;
   color: var(--wire);
@@ -317,7 +318,7 @@ body {
 @media (max-width: 600px) {
   .header { padding: 2rem 1.25rem; }
   .controls { padding: 1rem 1.25rem; }
-  .grid { padding: 0.5rem 1.25rem 3rem; column-width: auto; column-count: 1; }
+  .grid { padding: 0.5rem 1.25rem 3rem; }
   .sort-select { margin-left: 0; }
 }
 </style>
@@ -680,6 +681,48 @@ function cardHTML(p) {
     </a>`;
 }
 
+// --- Masonry layout engine: row-major order, shortest-column placement ---
+function layoutMasonry(grid) {
+  const cards = [...grid.querySelectorAll('.card')];
+  if (cards.length === 0) { grid.style.height = ''; return; }
+
+  const GAP = 16;
+  const gridWidth = grid.clientWidth;
+  const MIN_COL = 280;
+  let cols = Math.max(1, Math.floor((gridWidth + GAP) / (MIN_COL + GAP)));
+  const colWidth = (gridWidth - GAP * (cols - 1)) / cols;
+  const colHeights = new Array(cols).fill(0);
+
+  cards.forEach(card => {
+    card.style.width = colWidth + 'px';
+  });
+
+  // measure after width is set
+  cards.forEach((card, idx) => {
+    let target;
+    if (idx < cols) {
+      // first row: one card per column, strict left-to-right
+      target = idx;
+    } else {
+      // rest: shortest column, ties to leftmost -> keeps row-major feel
+      target = 0;
+      for (let i = 1; i < cols; i++) {
+        if (colHeights[i] < colHeights[target] - 0.5) target = i;
+      }
+    }
+    card.style.left = (target * (colWidth + GAP)) + 'px';
+    card.style.top = colHeights[target] + 'px';
+    colHeights[target] += card.offsetHeight + GAP;
+  });
+
+  grid.style.height = (Math.max(...colHeights) - GAP) + 'px';
+}
+
+function layoutAll() {
+  layoutMasonry(document.getElementById('grid'));
+  layoutMasonry(document.getElementById('doneGrid'));
+}
+
 function renderGrid(proposals) {
   let filtered = activeFilter === 'all' ? proposals : proposals.filter(p => p.category === activeFilter);
   filtered = sortProposals(filtered);
@@ -688,6 +731,7 @@ function renderGrid(proposals) {
   const done = filtered.filter(p => p.status === 'done');
 
   const grid = document.getElementById('grid');
+  grid.style.height = '';
   if (active.length === 0 && done.length === 0) {
     grid.innerHTML = '<div class="empty-state"><p>No proposals in this category yet.</p></div>';
   } else if (active.length === 0) {
@@ -698,6 +742,7 @@ function renderGrid(proposals) {
 
   const doneHead = document.getElementById('doneHead');
   const doneGrid = document.getElementById('doneGrid');
+  doneGrid.style.height = '';
   if (done.length > 0) {
     doneHead.style.display = '';
     document.getElementById('doneCount').textContent = done.length;
@@ -706,6 +751,15 @@ function renderGrid(proposals) {
     doneHead.style.display = 'none';
     doneGrid.innerHTML = '';
   }
+
+  // first paint: place cards without the slide animation, then enable it
+  const fresh = [...grid.querySelectorAll('.card'), ...doneGrid.querySelectorAll('.card')];
+  fresh.forEach(c => c.classList.add('placing'));
+  // wait a frame so fonts/images settle, then lay out
+  requestAnimationFrame(() => {
+    layoutAll();
+    requestAnimationFrame(() => fresh.forEach(c => c.classList.remove('placing')));
+  });
 }
 
 function getFiltered(proposals) {
@@ -718,6 +772,17 @@ function render(proposals) {
   renderControls(proposals);
   renderGrid(proposals);
 }
+
+// re-layout on resize (debounced) and once webfonts have loaded
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(layoutAll, 120);
+});
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(layoutAll);
+}
+
 
 render(PROPOSALS);
 </script>
