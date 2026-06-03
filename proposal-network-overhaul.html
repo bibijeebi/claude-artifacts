@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: iMac, Home Server &amp; 5-Gig Network</title>
+<meta property="og:title" content="Proposal: iMac, Home Server &amp; 5-Gig Network">
+<meta property="og:description" content="Apple on the desk, the hated Windows PC reborn as a silent Linux server, and a UniFi network that actually uses the 5 Gbps symmetric fiber. Phased, DIY-leaning, BIAR-approved for next month.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-network-overhaul-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/proposal-network-overhaul.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-network-overhaul-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { overflow-x: hidden; }
+:root {
+  --bark: #2C1810;
+  --loam: #3D2914;
+  --timber: #4A3320;
+  --fence: #5C4033;
+  --wire: #8B7355;
+  --hay: #D4A843;
+  --straw: #E8C878;
+  --cream: #F5F0E1;
+  --milk: #FDF8EF;
+  --grass: #4A7C3F;
+  --grass-light: #6BAF5B;
+  --rust: #A0522D;
+  --sky: #87CEEB;
+  --danger: #C0392B;
+  --info: #2980B9;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background: var(--milk);
+  color: var(--bark);
+  line-height: 1.75;
+  font-size: 17px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--fence);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.back-link:hover { color: var(--hay); }
+
+.hero {
+  position: relative;
+  padding: 4rem 1.5rem 3rem;
+  background: linear-gradient(135deg, var(--loam) 0%, var(--timber) 50%, var(--fence) 100%);
+  color: var(--cream);
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(-45deg, transparent 0px, transparent 20px, rgba(255,255,255,0.015) 20px, rgba(255,255,255,0.015) 22px);
+}
+.hero-inner { position: relative; max-width: 800px; margin: 0 auto; }
+.badge {
+  display: inline-block;
+  background: var(--hay);
+  color: var(--bark);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+.hero .subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--straw);
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+.meta-item { display: flex; flex-direction: column; gap: 2px; }
+.meta-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--wire);
+}
+.meta-value {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--cream);
+}
+.meta-value.cost { color: var(--hay); }
+
+.content { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.section { margin-bottom: 2.5rem; }
+.section h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bark);
+  margin-bottom: 0.75rem;
+}
+.section h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--timber);
+  margin: 1.25rem 0 0.5rem;
+}
+.section p { color: var(--timber); margin-bottom: 0.75rem; }
+.section p:last-child { margin-bottom: 0; }
+
+.bluf {
+  background: var(--bark);
+  color: var(--cream);
+  border-radius: 8px;
+  padding: 1.5rem 1.75rem;
+  margin: 0 0 2.5rem;
+}
+.bluf h2 { color: var(--straw); font-family: 'Fraunces', serif; font-size: 1.15rem; margin-bottom: 0.5rem; }
+.bluf p { color: var(--cream); font-size: 0.97rem; }
+.bluf strong { color: var(--hay); }
+
+/* ---- Flowchart ---- */
+.flow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 1.5rem 0;
+}
+.node {
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.node .node-kicker {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 2px;
+  opacity: 0.85;
+}
+.node .node-title { display: block; font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.02rem; line-height: 1.3; }
+.node .node-sub { display: block; font-size: 0.83rem; line-height: 1.45; margin-top: 4px; }
+.node.start { background: var(--bark); color: var(--cream); }
+.node.start .node-kicker { color: var(--straw); }
+.node.decision { background: #FFF8E7; border: 2px solid var(--hay); color: var(--bark); }
+.node.decision .node-kicker { color: var(--rust); }
+.node.good { background: #E8F3E4; border: 2px solid var(--grass); color: var(--loam); }
+.node.good .node-kicker { color: var(--grass); }
+.node.mod { background: #FDF1DC; border: 2px solid var(--rust); color: var(--loam); }
+.node.mod .node-kicker { color: var(--rust); }
+.node.bad { background: #FBEBEA; border: 2px solid var(--danger); color: #6e1f17; }
+.node.bad .node-kicker { color: var(--danger); }
+
+.connector { width: 2px; height: 22px; background: var(--wire); margin: 0 auto; }
+.branch {
+  display: flex;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+.branch > .lane { flex: 1; display: flex; flex-direction: column; align-items: stretch; }
+.branch-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 4px 0;
+  color: var(--fence);
+}
+.branch-label.yes { color: var(--grass); }
+.branch-label.no { color: var(--danger); }
+.cost-tag {
+  font-family: 'Fraunces', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-top: 4px;
+}
+
+.path-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.25rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--grass);
+}
+.path-card.mod { border-left-color: var(--rust); }
+.path-card.bad { border-left-color: var(--danger); }
+.path-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.path-name { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 700; }
+.path-cost { color: var(--grass); font-size: 1.1rem; font-weight: 600; }
+.path-card.mod .path-cost { color: var(--rust); }
+.path-card.bad .path-cost { color: var(--danger); }
+.path-desc { color: var(--fence); font-size: 0.95rem; }
+.steps { margin: 0.75rem 0 0; padding-left: 1.25rem; }
+.steps li { color: var(--timber); font-size: 0.92rem; margin-bottom: 0.3rem; }
+
+.materials-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+.materials-table th {
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--wire);
+  padding: 8px 10px;
+  border-bottom: 2px solid #e8e0d0;
+}
+.materials-table td { padding: 8px 10px; border-bottom: 1px solid #f0ebe0; color: var(--timber); }
+.materials-table tr:last-child td { border-bottom: none; }
+.materials-table .price { font-weight: 600; color: var(--grass); text-align: right; white-space: nowrap; }
+.materials-table .price.bad { color: var(--danger); }
+div.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.callout {
+  background: #FFF8E7;
+  border-left: 3px solid var(--hay);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.95rem;
+}
+.callout.info { background: #EFF6FF; border-left-color: var(--info); }
+.callout.warn { background: #FEF2F2; border-left-color: var(--danger); }
+.callout strong { color: var(--bark); }
+.callout a { color: var(--info); }
+
+.shop-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--hay);
+}
+.shop-card h4 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bark);
+  margin-bottom: 0.25rem;
+}
+.shop-card .shop-detail { font-size: 0.9rem; color: var(--fence); margin-bottom: 0.15rem; }
+.shop-card .shop-detail a { color: var(--info); }
+.shop-card .shop-highlight { font-size: 0.85rem; color: var(--grass); font-weight: 500; margin-top: 0.4rem; }
+
+@media (max-width: 600px) {
+  .meta-bar { gap: 1rem; }
+  .path-header { flex-direction: column; }
+  .hero { padding: 3rem 1.25rem 2rem; }
+  .content { padding: 2rem 1.25rem 3rem; }
+  .branch { flex-direction: column; gap: 0; }
+  .branch > .lane { margin-bottom: 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<a href="/proposals" class="back-link">&larr; All Proposals</a>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="badge">Proposal #023</span>
+    <h1>iMac, Home Server &amp; 5-Gig Network</h1>
+    <p class="subtitle">Three things that chain together: put Apple on the desk, turn the hated Windows PC into a silent headless Linux box, and build a network that actually uses the 5&nbsp;Gbps symmetric fiber instead of letting it die at the ISP router.</p>
+    <div class="meta-bar">
+      <div class="meta-item"><span class="meta-label">Total Cost</span><span class="meta-value cost">$1,300&ndash;$4,000</span></div>
+      <div class="meta-item"><span class="meta-label">Difficulty</span><span class="meta-value">3/5</span></div>
+      <div class="meta-item"><span class="meta-label">Time</span><span class="meta-value">Phased, a few weekends</span></div>
+      <div class="meta-item"><span class="meta-label">Category</span><span class="meta-value">Tech</span></div>
+      <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value">Approved (next month)</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="bluf">
+    <h2>Bottom Line Up Front</h2>
+    <p>You're paying for <strong>5&nbsp;Gbps up and 5&nbsp;Gbps down</strong> fiber and strangling it through a router that probably caps at 1&nbsp;gig. This proposal fixes the whole stack in three phases that can be funded one at a time: <strong>(1)</strong> an <strong>M4 iMac</strong> as the daily driver so you're off the Windows box you hate, <strong>(2)</strong> that same PC wiped and reborn as a <strong>headless Linux server</strong> sitting in the corner doing real work, and <strong>(3)</strong> a <strong>UniFi multi-gig network</strong> (gateway, switch, wired drops, indoor + backyard WiFi) that delivers the speed you're already paying for. Lean start is just the iMac (~$1,300); full buildout lands near <strong>$4,000</strong>, spread across months.</p>
+  </div>
+
+  <div class="callout warn">
+    <strong>BIAR &mdash; Bekah's call:</strong> &ldquo;No. We're frugal this month.&rdquo; The plan got the thumbs-up, the <em>timing</em> didn't. So this is <strong>approved and scheduled for next month</strong>, not a today buy. Phase it: iMac first, network core second, cabling and the server last. Nothing here is urgent enough to break a frugal month.
+  </div>
+
+  <div class="section">
+    <h2>The Goal</h2>
+    <p>Right now the fast fiber hits a slow router and most of it evaporates. You want Apple on the desk because you actually like working on it, you want the Windows machine to stop being a Windows machine, and you want the network to reach the whole house and the backyard on wire and good WiFi. This proposal is the clean version of all three at once, built so each piece stands on its own and pays for itself in use.</p>
+    <h3>First thing to confirm</h3>
+    <p>How does the fiber hand off into the house? Most 5&nbsp;Gig plans drop an <strong>ONT</strong> (the fiber-to-Ethernet box) with an RJ45 port, but some hand you a fiber strand you plug straight into an SFP module. This matters because it decides which WAN port on the gateway you use. The gateway below covers both, so either way you're fine, just worth knowing before you order.</p>
+  </div>
+
+  <div class="section">
+    <h2>Phase 1 &mdash; The iMac</h2>
+    <p>The current 24-inch iMac runs the <strong>M4 chip</strong>. The base model is $1,299 (16GB, 256GB, 8-core, two ports). For $200 more the $1,499 version gets you a 10-core chip and four ports, and that's the one to get, the extra ports and GPU cores age better and a desktop refresh is expected later in 2026 so you don't want to stretch for the top trim on a chip that's near end of cycle.</p>
+    <p>Onboard Ethernet on the iMac is gigabit, with a 10&nbsp;GbE upgrade offered as a build-to-order option. Realistically you don't need it, a single machine almost never pulls more than a gig or two, and if you ever want multi-gig to the desk a Thunderbolt 10&nbsp;GbE adapter works on both the iMac and the M1 Air. This becomes your SketchUp machine and your daily driver.</p>
+    <div class="shop-card">
+      <h4>24&Prime; iMac (M4)</h4>
+      <p class="shop-detail">Recommended: 10-core / 4-port, 16GB, 256GB &mdash; <strong>$1,499</strong>. Base 8-core / 2-port &mdash; $1,299.</p>
+      <p class="shop-highlight">Buy the 10-core for the ports, skip the storage upcharge (offload to the Linux server's drives over the network).</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Phase 2 &mdash; PC &rarr; Linux Server</h2>
+    <p>The PC stops being a thing you log into and becomes a thing that just runs. Wipe Windows, install <strong>Proxmox VE</strong> (a free hypervisor), and run everything as containers and VMs on top. Headless in the corner, managed from the iMac's browser. Hardware cost to start is <strong>$0</strong> because you already own the box, the GPU, and the 6TB of storage.</p>
+    <h3>What it runs</h3>
+    <p>A network file share / NAS on the 6TB so the iMac and the Air both offload to it. A media server (<strong>Jellyfin</strong>, free) with the GPU passed through for transcoding. <strong>Tailscale</strong> for remote access from anywhere, which cleanly replaces the Windows remote-access setup. Network-wide ad blocking with <strong>AdGuard Home</strong> or Pi-hole. And your existing desktop-tools stack (yt-dlp, scrapers, the tool server) re-homed into a Linux container where it belongs.</p>
+    <div class="callout">
+      <strong>Honest tradeoff:</strong> your current Windows tool server has to be migrated to Linux, that's an afternoon of work, not a click. Anything that's genuinely Windows-only can keep running in a Windows VM on Proxmox, so you don't lose it, you just stop booting into it.
+    </div>
+    <h3>Optional add-ons</h3>
+    <p>A small <strong>UPS</strong> (~$120) so a power blip doesn't corrupt the array, and a cheap <strong>10&nbsp;GbE NIC</strong> (~$50 used) so big transfers between the server and the rest of the network run at backbone speed instead of gigabit.</p>
+  </div>
+
+  <div class="section">
+    <h2>Phase 3 &mdash; The Network (actually using 5 gig)</h2>
+    <div class="callout info">
+      <strong>Reality check:</strong> no single device is going to pull all 5&nbsp;Gbps. The win is <strong>aggregate</strong>, several things going hard at once, plus a multi-gig backbone so big LAN transfers to the server fly, plus not bottlenecking the WAN at the router. The gateway below does <strong>5&nbsp;Gbps with IDS/IPS on</strong>, which is exactly matched to your plan, no headroom wasted, none missing.
+    </div>
+
+    <div class="flow">
+      <div class="node start">
+        <span class="node-kicker">Fiber In</span>
+        <span class="node-title">ONT (5 Gbps symmetric)</span>
+        <span class="node-sub">RJ45 or fiber-SFP hand-off from the ISP</span>
+      </div>
+      <div class="connector"></div>
+      <div class="node decision">
+        <span class="node-kicker">Brains</span>
+        <span class="node-title">UniFi Cloud Gateway Fiber</span>
+        <span class="node-sub">10G WAN, routing + firewall + IDS/IPS at 5 Gbps, built-in controller</span>
+      </div>
+      <div class="connector"></div>
+      <div class="node good">
+        <span class="node-kicker">Backbone</span>
+        <span class="node-title">Multi-gig switch (2.5G + 10G uplink)</span>
+        <span class="node-sub">Every wired drop and AP hangs off this</span>
+      </div>
+      <div class="connector"></div>
+      <div class="branch">
+        <div class="lane">
+          <div class="branch-label">Indoor</div>
+          <div class="node good"><span class="node-title">U7 Pro AP(s)</span><span class="node-sub">WiFi 7, ceiling-mount, wired back to the switch</span></div>
+        </div>
+        <div class="lane">
+          <div class="branch-label">Backyard</div>
+          <div class="node good"><span class="node-title">U7 Mesh / Pro Outdoor</span><span class="node-sub">All-weather, directional reach to the yard</span></div>
+        </div>
+        <div class="lane">
+          <div class="branch-label">Wired</div>
+          <div class="node good"><span class="node-title">iMac + Linux server</span><span class="node-sub">10G to the server, multi-gig to the desk</span></div>
+        </div>
+      </div>
+    </div>
+
+    <h3>The gear</h3>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <thead><tr><th>Item</th><th>Why</th><th class="price">Price</th></tr></thead>
+      <tbody>
+        <tr><td><strong>UniFi Cloud Gateway Fiber</strong> (UCG-Fiber)</td><td>10G RJ45 WAN + dual 10G SFP+, 5 Gbps IDS/IPS, controller built in. Purpose-built for exactly this.</td><td class="price">$279</td></tr>
+        <tr><td><strong>Multi-gig switch</strong> (e.g. USW Pro Max 16 / Pro XG)</td><td>2.5GbE to every drop + 10G uplinks for the backbone. Pick size by drop count.</td><td class="price">$199&ndash;$499</td></tr>
+        <tr><td><strong>U7 Pro</strong> access point &times;1&ndash;2</td><td>WiFi 7 indoor coverage, wired back to the switch.</td><td class="price">$189 ea</td></tr>
+        <tr><td><strong>U7 Mesh</strong> (backyard)</td><td>All-weather WiFi 7 with directional uplink antennas, injector included. U7 Pro Outdoor if you want the premium AFC 6GHz unit.</td><td class="price">$199</td></tr>
+        <tr><td><strong>Cat6a cable</strong> + keystones, patch panel, tools</td><td>Bulk box for the in-wall runs, plus terminations. The DIY labor lives here.</td><td class="price">$120&ndash;$250</td></tr>
+        <tr><td>SFP+ DAC / transceivers</td><td>For the 10G gateway&ndash;switch&ndash;server links.</td><td class="price">$20&ndash;$40 ea</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>The whole thing is one ecosystem managed from a single screen, which is the reason to go UniFi over a bag of mismatched gear. If you'd rather go fully DIY-router, OPNsense on a small box with a 10G NIC does the same routing for less money and more fiddling, the UniFi path just wins on set-it-and-forget-it.</p>
+  </div>
+
+  <div class="section">
+    <h2>Cost, Phased</h2>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <thead><tr><th>Phase</th><th>What</th><th class="price">Cost</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1 &mdash; iMac</strong></td><td>M4 iMac, the daily driver / SketchUp machine</td><td class="price">$1,300&ndash;$1,500</td></tr>
+        <tr><td><strong>2 &mdash; Server</strong></td><td>Reuse the PC; optional UPS + 10G NIC</td><td class="price">$0&ndash;$200</td></tr>
+        <tr><td><strong>3 &mdash; Network</strong></td><td>Gateway + switch + APs + cabling</td><td class="price">$700&ndash;$1,900</td></tr>
+        <tr><td colspan="2"><strong>All-in range</strong></td><td class="price">$1,300&ndash;$4,000</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>Suggested order: <strong>iMac next month</strong> (the approved part), then the gateway and one switch to uncork the WAN, then pull cable and add APs and the server as time allows. Each phase is useful on its own, so nothing's wasted if you pause between them.</p>
+  </div>
+
+  <div class="section">
+    <h2>DIY to Cut Cost</h2>
+    <p>Pulling your own <strong>Cat6a</strong> is the single biggest saver, a low-voltage installer runs $150&ndash;$300 per drop and you've got the patience to do it yourself. Buy UniFi <strong>direct from store.ui.com</strong> (no reseller markup), terminate your own keystones, and source the server's extra NIC and drives off the used market. The PC reuse means Phase 2 is basically free. Skip anything labeled &ldquo;managed install,&rdquo; none of this needs it.</p>
+  </div>
+
+</div>
+
+</body>
+</html>
