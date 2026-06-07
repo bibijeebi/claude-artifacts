@@ -199,7 +199,7 @@ function floorPlan(){
  m.push(rk(4,90,136,3,'rim','Rim / band joist',R.rim));
  m.push(rk(4,3,136,3,'rim','Rim / band joist',R.rim));
  [8,24,40,56,72,88,104,120,136].forEach(c=>m.push(rk(c-0.75,6,1.5,84,'joist','Floor joist',R.joist)));
- m.push(rk(2,4,140,88,'subfloor','Subfloor (decking)',R.subfloor,{op:0.5}));
+ m.push(rk(2,4,140,88,'subfloor','Subfloor (decking)',R.subfloor,{op:0.32}));
  return m;
 }
 function solidWall(){
@@ -368,6 +368,7 @@ let lvi=0, members=[], armed=null, view=null, lpOn=false;
 const $=id=>document.getElementById(id);
 function px(m){return{x:OX+m.x*S,y:FY-(m.yB+m.h)*S,w:m.w*S,h:m.h*S};}
 function beamPts(m){return{ax:OX+m.x1*S,ay:FY-m.y1*S,bx:OX+m.x2*S,by:FY-m.y2*S,sw:m.thick*S};}
+function fp(m){if(m.shape==='beam'){return Math.hypot(m.x2-m.x1,m.y2-m.y1)*m.thick;}return m.w*m.h;}
 function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
 
 function load(){
@@ -408,8 +409,9 @@ function drawSVG(){
    s+='<text x="'+(OX+144*S/2)+'" y="'+(SVGH-6)+'" fill="'+css('--dim')+'" font-size="9" text-anchor="middle">'+view.oc.label+' \u00b7 '+view.caption+'</text>';
  } else s+='<text x="'+(OX+144*S/2)+'" y="'+(SVGH-6)+'" fill="'+css('--dim')+'" font-size="9" text-anchor="middle">'+view.caption+'</text>';
  s+='<g id="lpg">'+loadPathSVG()+'</g>';
- members.forEach(m=>{ s+=drawMember(m,showL); });
- members.filter(m=>!m.static).forEach(m=>{ s+=hitFor(m); });
+ const drawList=[...members.filter(m=>m.type==='subfloor'),...members.filter(m=>m.type!=='subfloor')];
+ drawList.forEach(m=>{ s+=drawMember(m,showL); });
+ members.filter(m=>!m.static&&!m.built).sort((a,b)=>fp(b)-fp(a)).forEach(m=>{ s+=hitFor(m); });
  s+='</svg>';
  $("svgHost").innerHTML=s;
  $("svgHost").querySelectorAll("[data-hit]").forEach(h=>h.onclick=()=>clickMember(+h.dataset.hit));
