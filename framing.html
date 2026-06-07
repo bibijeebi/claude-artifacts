@@ -144,7 +144,7 @@ text{font-family:'JetBrains Mono',monospace}
       foundation → pressure-treated <b>sill plate</b> (anchor-bolted) → <b>floor</b> joists + subfloor (the platform) → stud <b>walls</b> built flat and tilted up → <b>roof</b>, stick-framed rafters or engineered trusses.<br><br>
       <b>Load runs the other way:</b> roof → walls → floor → foundation → soil.
     </div>
-    <p style="color:var(--dim);font-size:.84rem">Six builds, bottom to top: the floor platform, a solid wall, a window wall, a door wall, a rafter roof, and a truss roof. Place every member yourself.</p>
+    <p style="color:var(--dim);font-size:.84rem">Nine builds, bottom to top: the floor platform, a solid wall, a window wall, a door wall, a corner and partition tee, a rafter roof, a truss roof, a hip and valley roof, and a stair flight. Place every member yourself.</p>
     <button class="btn" id="startBtn">Start framing →</button>
   </div>
 </div>
@@ -176,7 +176,16 @@ const R={
  sheath:"Structural panels over the rafters or chords. It's the shear skin of the roof and the nail base for underlayment and shingles.",
  botc:"The horizontal chord of a truss, in tension, tying the whole triangle together. Because it spans wall to wall, a truss roof needs no interior bearing wall.",
  topc:"The sloped chords of a truss carrying roof load in compression down to the walls.",
- web:"Internal members triangulating the truss and shuttling load between the chords. The triangles make it rigid and let it span far."
+ web:"Internal members triangulating the truss and shuttling load between the chords. The triangles make it rigid and let it span far.",
+ hip:"Hip rafter running from an outside corner up to the end of the ridge, 45 degrees in plan. It's the spine of a hip roof and the longest rafter, cut on compound angles.",
+ valley:"Valley rafter at an inside corner where two roof planes meet. It carries load from both planes and funnels the water, so the flashing there matters.",
+ hipjack:"Hip jack rafter running from the eave to the hip, getting shorter toward the corner. They infill a hip plane in a regular run of lengths.",
+ valleyjack:"Valley jack rafter running from the ridge down to the valley, shortening toward the corner. It fills the plane between ridge and valley.",
+ cornerStud:"Three studs built into the corner so both walls get a solid nailing surface, sheathing outside and drywall inside. The old solid corner wasted lumber and trapped cold.",
+ backing:"Studs in the through-wall that catch the end of a partition and back the drywall on both sides of the tee. A ladder of blocking does the same with less lumber.",
+ stringer:"The sawtooth carriage cut from a 2x12 that treads and risers sit on. Stringers carry the whole stair, and the equal cuts keep every step the same.",
+ tread:"The board you step on. Run plus nosing sets how deep each step is, and code wants it consistent so the stair is safe.",
+ riser:"The vertical board closing the front of each step. Total rise split into equal steps sets the height, and code caps the rise and the variation between steps."
 };
 
 // builders
@@ -239,6 +248,46 @@ function trussRoof(){
  m.push(bm(1,6,71,50.5,1.6,'sheathing','Roof sheathing',R.sheath,{op:0.8}),bm(143,6,73,50.5,1.6,'sheathing','Roof sheathing',R.sheath,{op:0.8}));
  return m;
 }
+function hipValleyRoof(){
+ const st={static:true};
+ const m=[
+  bm(0,0,144,0,1.5,'static','',' ',st),bm(0,0,0,72,1.5,'static','',' ',st),bm(144,0,144,72,1.5,'static','',' ',st),
+  bm(0,72,54,72,1.5,'static','',' ',st),bm(90,72,144,72,1.5,'static','',' ',st),
+  bm(54,72,54,104,1.5,'static','',' ',st),bm(90,72,90,104,1.5,'static','',' ',st),bm(54,104,90,104,1.5,'static','',' ',st)
+ ];
+ m.push(bm(36,36,108,36,3,'ridge','Ridge',R.ridge),bm(72,54,72,104,3,'ridge','Wing ridge',R.ridge));
+ m.push(bm(0,0,36,36,3,'hip','Hip rafter',R.hip),bm(0,72,36,36,3,'hip','Hip rafter',R.hip),
+        bm(144,0,108,36,3,'hip','Hip rafter',R.hip),bm(144,72,108,36,3,'hip','Hip rafter',R.hip));
+ m.push(bm(54,72,72,54,3,'valley','Valley rafter',R.valley),bm(90,72,72,54,3,'valley','Valley rafter',R.valley));
+ m.push(bm(0,36,36,36,2.5,'rafter','Common rafter',R.rafter),bm(144,36,108,36,2.5,'rafter','Common rafter',R.rafter),
+        bm(54,0,54,36,2.5,'rafter','Common rafter',R.rafter),bm(72,0,72,36,2.5,'rafter','Common rafter',R.rafter),
+        bm(90,0,90,36,2.5,'rafter','Common rafter',R.rafter),bm(42,72,42,36,2.5,'rafter','Common rafter',R.rafter),
+        bm(102,72,102,36,2.5,'rafter','Common rafter',R.rafter));
+ m.push(bm(18,0,18,18,2,'hipjack','Hip jack rafter',R.hipjack),bm(18,72,18,54,2,'hipjack','Hip jack rafter',R.hipjack),
+        bm(126,0,126,18,2,'hipjack','Hip jack rafter',R.hipjack),bm(126,72,126,54,2,'hipjack','Hip jack rafter',R.hipjack));
+ m.push(bm(60,36,60,66,2,'valleyjack','Valley jack rafter',R.valleyjack),bm(66,36,66,60,2,'valleyjack','Valley jack rafter',R.valleyjack));
+ return m;
+}
+function cornerPartition(){
+ const st={static:true};
+ const m=[
+  rk(12,0,120,7,'static','',' ',st),rk(12,0,7,70,'static','',' ',st),rk(66,7,7,45,'static','',' ',st)
+ ];
+ m.push(rk(12,0,4,7,'corner','Corner stud',R.cornerStud),rk(19,0,4,7,'corner','Corner stud',R.cornerStud),rk(12,7,7,4,'corner','Corner stud',R.cornerStud));
+ m.push(rk(40,0,4,7,'stud','Common stud',R.common),rk(108,0,4,7,'stud','Common stud',R.common),
+        rk(12,30,7,4,'stud','Common stud',R.common),rk(12,52,7,4,'stud','Common stud',R.common));
+ m.push(rk(61,0,4,7,'backing','Backing stud',R.backing),rk(73,0,4,7,'backing','Backing stud',R.backing),rk(66,7,7,4,'backing','Partition end stud',R.backing));
+ m.push(rk(66,28,7,4,'stud','Common stud',R.common));
+ return m;
+}
+function stairsSection(){
+ const st={static:true};
+ const m=[rk(64,42,30,2.5,'static','',' ',st),rk(64,30,2.5,12,'static','',' ',st)];
+ m.push(bm(0,0,66,42,4,'stringer','Stringer',R.stringer));
+ for(let k=1;k<=6;k++)m.push(rk((k-1)*11,(k-1)*7,2,7,'riser','Riser',R.riser));
+ for(let k=1;k<=6;k++)m.push(rk((k-1)*11-1,k*7-2.5,12,2.5,'tread','Tread',R.tread));
+ return m;
+}
 
 const LEVELS=[
  {short:"Floor",title:"The floor platform",make:floorPlan,
@@ -253,26 +302,43 @@ const LEVELS=[
  {short:"Door",title:"The door wall",make:doorWall,
   desc:"A door opens to the floor. Same kings, jacks and header, but no sill and no cripples below. Notice what changes.",
   view:{caption:"elevation \u00b7 door rough opening",baseLabel:"subfloor",oc:{from:0,to:144,step:16,label:"studs 16\u2033 OC"},loadPath:true}},
+ {short:"Corner",title:"The corner & partition tee",make:cornerPartition,
+  desc:"Looking down on the plates where walls meet. Build a three-stud corner for drywall backing on both sides, and a partition tee with backing studs where an interior wall lands.",
+  view:{caption:"wall junction plan, top-down (looking down on the plates)",baseLabel:"exterior wall",oc:null,loadPath:false}},
  {short:"Rafter roof",title:"The stick-framed roof",make:rafterRoof,
   desc:"Cut rafters on site. Set the ridge, run common rafters to it, tie the rafter feet with ceiling joists so they don't spread the walls, add collar ties, then sheathe it.",
   view:{caption:"gable end \u00b7 8:12 pitch \u00b7 stick-framed",baseLabel:"top of walls",oc:{from:0,to:144,step:24,label:"rafters 24\u2033 OC"},loadPath:true}},
  {short:"Truss roof",title:"The truss roof",make:trussRoof,
   desc:"Engineered triangles. Set the bottom chord, the sloped top chords, and the webs that triangulate it, then sheathe. See why a truss spans with no interior wall.",
-  view:{caption:"gable end \u00b7 8:12 pitch \u00b7 engineered truss",baseLabel:"top of walls",oc:{from:0,to:144,step:24,label:"trusses 24\u2033 OC"},loadPath:true}}
+  view:{caption:"gable end \u00b7 8:12 pitch \u00b7 engineered truss",baseLabel:"top of walls",oc:{from:0,to:144,step:24,label:"trusses 24\u2033 OC"},loadPath:true}},
+ {short:"Hip/valley",title:"The hip & valley roof",make:hipValleyRoof,
+  desc:"Top-down roof plan on an L-shaped house. Run the ridges, drop common rafters, throw hip rafters to the outside corners and a valley rafter at the inside corner, then fill with jacks.",
+  view:{caption:"hip + valley roof plan, top-down \u00b7 L-shaped footprint",baseLabel:"eave line",oc:null,loadPath:false}},
+ {short:"Stairs",title:"The stair flight",make:stairsSection,
+  desc:"Section through a flight. Lay the stringer, then stack equal risers and treads up it. Keep every rise and run the same so the stair is safe and to code.",
+  view:{caption:"stair section \u00b7 6 risers shown",baseLabel:"lower floor",oc:null,loadPath:false}}
 ];
 
 const GROUP={'plate-bottom':'Bottom plate','plate-top':'Top plate (double)','stud':'Studs @ 16\u2033 OC',
  'king':'King studs','jack':'Jack studs','header':'Header','sill':'Rough sill','cripple':'Cripple studs',
  'sill-floor':'Sill plate (PT)','rim':'Rim / band joist','joist':'Floor joists @ 16\u2033 OC','subfloor':'Subfloor',
  'ridge':'Ridge board','rafter':'Common rafters','ceiljoist':'Ceiling joist / tie','collar':'Collar tie','sheathing':'Roof sheathing',
- 'botchord':'Bottom chord','topchord':'Top chords','web':'Webs'};
+ 'botchord':'Bottom chord','topchord':'Top chords','web':'Webs',
+ 'hip':'Hip rafters','valley':'Valley rafters','hipjack':'Hip jack rafters','valleyjack':'Valley jack rafters',
+ 'corner':'Corner studs (3-stud)','backing':'Partition backing studs',
+ 'stringer':'Stair stringers','tread':'Treads','riser':'Risers'};
 const ORDER=['Sill plate (PT)','Rim / band joist','Floor joists @ 16\u2033 OC','Subfloor',
  'Bottom plate','Top plate (double)','Studs @ 16\u2033 OC','King studs','Jack studs','Header','Rough sill','Cripple studs',
- 'Ridge board','Common rafters','Ceiling joist / tie','Collar tie','Bottom chord','Top chords','Webs','Roof sheathing'];
+ 'Corner studs (3-stud)','Partition backing studs',
+ 'Ridge board','Common rafters','Hip rafters','Valley rafters','Hip jack rafters','Valley jack rafters',
+ 'Ceiling joist / tie','Collar tie','Bottom chord','Top chords','Webs','Roof sheathing',
+ 'Stair stringers','Treads','Risers'];
 const COLOR={'plate-bottom':'#bd8d4f','plate-top':'#b07f44','stud':'#cda063','king':'#9ad1c0','jack':'#e0b15a',
  'header':'#8f5f2e','sill':'#cda063','cripple':'#c79a5b','sill-floor':'#9aa86a','rim':'#bd8d4f','joist':'#cda063',
  'subfloor':'#caa86a','ridge':'#8f5f2e','rafter':'#cda063','ceiljoist':'#c0935a','collar':'#d8b06a','sheathing':'#caa86a',
- 'botchord':'#bd8d4f','topchord':'#cda063','web':'#e0b15a','static':'#39413c'};
+ 'botchord':'#bd8d4f','topchord':'#cda063','web':'#e0b15a',
+ 'hip':'#e0b15a','valley':'#9ad1c0','hipjack':'#cda063','valleyjack':'#c0935a',
+ 'corner':'#9ad1c0','backing':'#e0b15a','stringer':'#bd8d4f','tread':'#cda063','riser':'#b07f44','static':'#39413c'};
 const PAL=[
  {key:'sill-floor',label:'Sill plate',types:['sill-floor']},{key:'rim',label:'Rim joist',types:['rim']},
  {key:'joist',label:'Floor joist',types:['joist']},{key:'subfloor',label:'Subfloor',types:['subfloor']},
@@ -283,12 +349,20 @@ const PAL=[
  {key:'ridge',label:'Ridge',types:['ridge']},{key:'rafter',label:'Rafter',types:['rafter']},
  {key:'ceiljoist',label:'Ceiling joist',types:['ceiljoist']},{key:'collar',label:'Collar tie',types:['collar']},
  {key:'botchord',label:'Bottom chord',types:['botchord']},{key:'topchord',label:'Top chord',types:['topchord']},
- {key:'web',label:'Web',types:['web']},{key:'sheathing',label:'Roof sheathing',types:['sheathing']}
+ {key:'web',label:'Web',types:['web']},
+ {key:'hip',label:'Hip rafter',types:['hip']},{key:'valley',label:'Valley rafter',types:['valley']},
+ {key:'hipjack',label:'Hip jack',types:['hipjack']},{key:'valleyjack',label:'Valley jack',types:['valleyjack']},
+ {key:'corner',label:'Corner stud',types:['corner']},{key:'backing',label:'Backing stud',types:['backing']},
+ {key:'stringer',label:'Stringer',types:['stringer']},{key:'tread',label:'Tread',types:['tread']},{key:'riser',label:'Riser',types:['riser']},
+ {key:'sheathing',label:'Roof sheathing',types:['sheathing']}
 ];
 const SWATCH={'sill-floor':COLOR['sill-floor'],rim:COLOR.rim,joist:COLOR.joist,subfloor:COLOR.subfloor,
  plate:COLOR['plate-top'],stud:COLOR.stud,king:COLOR.king,jack:COLOR.jack,header:COLOR.header,sill:COLOR.sill,
  cripple:COLOR.cripple,ridge:COLOR.ridge,rafter:COLOR.rafter,ceiljoist:COLOR.ceiljoist,collar:COLOR.collar,
- botchord:COLOR.botchord,topchord:COLOR.topchord,web:COLOR.web,sheathing:COLOR.sheathing};
+ botchord:COLOR.botchord,topchord:COLOR.topchord,web:COLOR.web,
+ hip:COLOR.hip,valley:COLOR.valley,hipjack:COLOR.hipjack,valleyjack:COLOR.valleyjack,
+ corner:COLOR.corner,backing:COLOR.backing,stringer:COLOR.stringer,tread:COLOR.tread,riser:COLOR.riser,
+ sheathing:COLOR.sheathing};
 
 let lvi=0, members=[], armed=null, view=null, lpOn=false;
 const $=id=>document.getElementById(id);
@@ -438,7 +512,9 @@ function showDone(){
   +'<div class="stack"><b>The frame, top to bottom:</b><br>'
   +'\u2022 <b>Floor:</b> PT sill on the foundation, joists at 16\u2033 OC between rims, decked with subfloor.<br>'
   +'\u2022 <b>Walls:</b> bottom plate, studs at 16\u2033 OC, double top plate. Openings get a header on jacks, with kings, sill and cripples.<br>'
-  +'\u2022 <b>Roof:</b> rafters need a ridge and ties to stop spreading the walls, or a truss does it all in one triangle with no interior bearing wall.<br><br>'
+  +'\u2022 <b>Connections:</b> a three-stud corner and partition backing give drywall a nailing surface on every face.<br>'
+  +'\u2022 <b>Roof:</b> rafters need a ridge and ties so they don\u2019t spread the walls, a truss does it all in one triangle, and hips, valleys and jacks frame the planes where roofs turn corners.<br>'
+  +'\u2022 <b>Stairs:</b> stringers carry equal risers and treads, kept consistent so the run is safe.<br><br>'
   +'<b>Load always runs roof \u2192 wall \u2192 floor \u2192 foundation \u2192 soil.</b> Size headers and joists to their span.</div>'
   +'<button class="btn" onclick="location.reload()">Frame it again \u2192</button></div>';
  document.body.appendChild(ov);
