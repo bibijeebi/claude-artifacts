@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STUD — Framing Trainer</title>
+<meta property="og:title" content="STUD — Learn House Framing by Doing">
+<meta property="og:description" content="Build a floor, three walls, and two roofs piece by piece. Place every stud, header, joist, rafter and truss, then watch the load path run to the foundation.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/framing-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/framing.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/framing-og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e0d;--bg2:#0f1513;--panel:#111816;--ink:#e8efe6;--dim:#8a978c;
+  --lime:#d4ff3a;--amber:#ffb347;--red:#ff5a52;--grn:#7cfc9b;--line:#1d2622;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden}
+body{background:
+  repeating-linear-gradient(0deg,rgba(212,255,58,.035) 0 1px,transparent 1px 30px),
+  repeating-linear-gradient(90deg,rgba(212,255,58,.035) 0 1px,transparent 1px 30px),
+  radial-gradient(1100px 560px at 75% -10%,rgba(212,255,58,.06),transparent 60%),var(--bg);
+  color:var(--ink);font-family:'JetBrains Mono',monospace;line-height:1.5;min-height:100vh;padding:16px}
+.wrap{max-width:1060px;margin:0 auto}
+h1,h2,h3,.fr{font-family:'Fraunces',serif}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.mark{font-family:'Fraunces';font-weight:900;font-size:1.15rem;letter-spacing:.5px}
+.mark b{color:var(--lime)}
+.levelpill{font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
+.lvtitle{font-family:'Fraunces';font-weight:900;font-size:1.5rem;line-height:1.05;margin-top:2px}
+.lvdesc{color:var(--dim);font-size:.84rem;max-width:580px;margin-top:4px}
+.progress{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.pdot{font-size:.58rem;letter-spacing:1px;padding:3px 7px;border:1px solid var(--line);border-radius:20px;color:var(--dim)}
+.pdot.on{background:var(--lime);color:var(--bg);border-color:var(--lime);font-weight:700}
+.pdot.done{color:var(--grn);border-color:rgba(124,252,155,.4)}
+.board{display:grid;grid-template-columns:1.55fr 1fr;gap:14px}
+@media(max-width:780px){.board{grid-template-columns:1fr}}
+.stagebox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;position:relative}
+svg{width:100%;height:auto;display:block;border-radius:8px}
+.side{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h3{font-size:.66rem;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.palette{display:flex;flex-wrap:wrap;gap:7px}
+.pbtn{font-family:inherit;font-size:.75rem;font-weight:700;border:1px solid var(--line);background:var(--bg2);
+  color:var(--ink);border-radius:8px;padding:8px 10px;cursor:pointer;transition:.13s;display:flex;align-items:center;gap:6px}
+.pbtn:hover{border-color:var(--lime)}
+.pbtn.on{background:var(--lime);color:var(--bg);border-color:var(--lime)}
+.sw{width:12px;height:12px;border-radius:3px;border:1px solid rgba(0,0,0,.3)}
+.check{list-style:none;font-size:.8rem}
+.check li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dotted rgba(255,255,255,.05);color:var(--dim)}
+.check li.done{color:var(--grn)}
+.check li .ct{color:var(--ink)}
+.check li.done .ct{color:var(--grn)}
+.check b{font-variant-numeric:tabular-nums}
+.info{font-size:.82rem;min-height:80px}
+.info .nm{font-family:'Fraunces';font-weight:900;font-size:1.05rem;color:var(--lime);display:block;margin-bottom:3px}
+.info.bad .nm{color:var(--red)}
+.info .ro{color:var(--ink)}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.btn{font-family:inherit;font-weight:700;font-size:.82rem;border-radius:9px;padding:10px 15px;cursor:pointer;border:1px solid var(--lime);background:transparent;color:var(--lime);transition:.15s}
+.btn:hover{background:var(--lime);color:var(--bg)}
+.btn[disabled]{opacity:.35;cursor:not-allowed;border-color:var(--dim);color:var(--dim)}
+.btn[disabled]:hover{background:transparent;color:var(--dim)}
+.btn.ghost{border-color:var(--line);color:var(--dim)}
+.btn.ghost:hover{background:var(--line);color:var(--ink)}
+.toggle{font-size:.75rem;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--lime)}
+.banner{margin-top:12px;padding:11px 13px;border-radius:9px;background:rgba(124,252,155,.08);border-left:3px solid var(--grn);font-size:.84rem}
+.banner b{color:var(--grn)}
+.hit{fill:transparent;cursor:pointer}
+.hitline{stroke:transparent;cursor:pointer;fill:none}
+.ghost{fill:rgba(212,255,58,.05);stroke:rgba(212,255,58,.32);stroke-width:1;stroke-dasharray:4 3}
+.ghostline{stroke:rgba(212,255,58,.4);stroke-dasharray:5 4;fill:none}
+.built{stroke:rgba(0,0,0,.35);stroke-width:1}
+.builtline{stroke-linecap:round}
+.flash{animation:pop .4s ease}
+@keyframes pop{0%{opacity:.2}100%{opacity:1}}
+.lp{opacity:0;stroke:var(--lime);stroke-width:2.4;marker-end:url(#ah);fill:none}
+.lp.go{animation:fade .5s ease forwards}
+@keyframes fade{to{opacity:.95}}
+.glow{filter:drop-shadow(0 0 6px var(--lime))}
+text{font-family:'JetBrains Mono',monospace}
+.overlay{position:fixed;inset:0;background:rgba(6,9,8,.96);z-index:50;display:flex;align-items:center;justify-content:center;padding:18px}
+.modal{max-width:600px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px}
+.modal h1{font-size:2rem;font-weight:900;line-height:1}
+.modal h1 .lime{color:var(--lime)}
+.modal p{color:var(--ink);font-size:.9rem;margin:12px 0}
+.stack{font-size:.8rem;color:var(--dim);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px 0;line-height:1.7}
+.stack b{color:var(--ink)}
+.hidden{display:none!important}
+.foot{text-align:center;color:var(--dim);font-size:.66rem;margin:16px 0 2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="mark">STUD <b>·</b> framing trainer</div>
+      <div class="levelpill" id="pill"></div>
+      <div class="lvtitle" id="lvtitle"></div>
+      <div class="lvdesc" id="lvdesc"></div>
+      <div class="progress" id="progress"></div>
+    </div>
+  </div>
+  <div class="board">
+    <div class="stagebox">
+      <div id="svgHost"></div>
+      <div class="ctrls">
+        <label class="toggle"><input type="checkbox" id="labelsTog"> show part labels</label>
+        <button class="btn ghost" id="resetBtn">Reset</button>
+        <button class="btn" id="lpBtn" disabled>Show load path</button>
+        <button class="btn" id="nextBtn" disabled>Next →</button>
+      </div>
+      <div id="banner"></div>
+    </div>
+    <div class="side">
+      <div class="card">
+        <h3>// pick a member, then click the frame</h3>
+        <div class="palette" id="palette"></div>
+      </div>
+      <div class="card">
+        <h3>// part</h3>
+        <div class="info" id="info"></div>
+      </div>
+      <div class="card">
+        <h3>// framing checklist</h3>
+        <ul class="check" id="check"></ul>
+      </div>
+    </div>
+  </div>
+  <div class="foot">Schematic teaching views, nominal dimensions. Verify spans, headers and tie requirements against code span tables.</div>
+</div>
+
+<div class="overlay" id="intro">
+  <div class="modal">
+    <div class="levelpill" style="color:var(--lime)">how a house carries itself</div>
+    <h1>Framing is a <span class="lime">load path</span></h1>
+    <p>A frame's whole job is to carry weight to the ground and stay rigid in wind. Every member is either passing load down or holding the shape.</p>
+    <div class="stack">
+      <b>Platform framing, bottom to top:</b><br>
+      foundation → pressure-treated <b>sill plate</b> (anchor-bolted) → <b>floor</b> joists + subfloor (the platform) → stud <b>walls</b> built flat and tilted up → <b>roof</b>, stick-framed rafters or engineered trusses.<br><br>
+      <b>Load runs the other way:</b> roof → walls → floor → foundation → soil.
+    </div>
+    <p style="color:var(--dim);font-size:.84rem">Six builds, bottom to top: the floor platform, a solid wall, a window wall, a door wall, a rafter roof, and a truss roof. Place every member yourself.</p>
+    <button class="btn" id="startBtn">Start framing →</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+const S=4, OX=66, FY=420, SVGW=66+144*4+24, SVGH=492, STUD=92.625, PL=1.5;
+const TOP1=PL+STUD, TOP2=TOP1+PL;
+
+const R={
+ common:"Vertical 2x4 at 16\u2033 on center carrying wall load straight down. 16\u2033 OC also lands drywall and sheathing edges on solid framing.",
+ end:"The stud at the end of the wall. Its outside face sits flush with the wall's end so the next wall and the sheathing tie in clean.",
+ botp:"The plate the wall stands on. Studs nail into it. Where a plate bears on concrete it becomes a pressure-treated sill plate and gets anchor-bolted.",
+ topp:"Upper of the doubled top plate. The two 2x4s lap each other's joints and lap at corners, tying the walls together and spreading roof and floor load to the studs.",
+ king:"Full-height stud beside an opening, plate to plate. Nailed to the jack, it keeps the opening from racking.",
+ jack:"Trimmer nailed to the king. The header bears on it and it carries that load to the bottom plate. Its height sets the rough opening.",
+ header:"The beam over an opening. It catches the load above and routes it into the jacks. Size it to the span, a typical window header is a doubled 2x8 to 2x10.",
+ sill:"The flat 2x at the bottom of a window's rough opening. Cripples below hold it up and the window sits on it. Doors have no sill.",
+ crup:"Cripple above a header, continuing the 16\u2033 layout up to the top plate and passing load from the plate onto the header.",
+ crdn:"Cripple below a window sill, carrying the sill and keeping the 16\u2033 layout running to the bottom plate.",
+ sillF:"Pressure-treated 2x bolted around the whole foundation. It's the first wood in the house and the anchor bolts tie everything down to the concrete.",
+ rim:"The band joist running along the foundation, capping the ends of the floor joists, holding them upright and closing the floor box.",
+ joist:"Horizontal members at 16\u2033 on center spanning the foundation walls to carry the floor. 16\u2033 OC also lands the subfloor edges on framing. Long spans get a center girder on posts.",
+ subfloor:"Tongue-and-groove plywood or OSB glued and screwed over the joists. It ties them together and becomes the platform you build walls on.",
+ ridge:"The board at the peak the rafters butt against. In a stick roof it sets the line, a truss roof has no ridge board.",
+ rafter:"Sloped framing from the wall plate to the ridge carrying roof load to the walls. It pushes outward at the eave, which is why it needs a tie across the bottom.",
+ ceilj:"Horizontal member tying the feet of opposing rafters so the roof can't push the walls apart. It also carries the ceiling below.",
+ collar:"Board joining opposing rafters in the upper third, resisting ridge separation and uplift.",
+ sheath:"Structural panels over the rafters or chords. It's the shear skin of the roof and the nail base for underlayment and shingles.",
+ botc:"The horizontal chord of a truss, in tension, tying the whole triangle together. Because it spans wall to wall, a truss roof needs no interior bearing wall.",
+ topc:"The sloped chords of a truss carrying roof load in compression down to the walls.",
+ web:"Internal members triangulating the truss and shuttling load between the chords. The triangles make it rigid and let it span far."
+};
+
+// builders
+const rk=(x,yB,w,h,type,name,role,o={})=>({x,yB,w,h,type,name,role,...o});
+const bm=(x1,y1,x2,y2,thick,type,name,role,o={})=>({shape:'beam',x1,y1,x2,y2,thick,type,name,role,...o});
+const rg=(x,yB,w,h,thick,type,name,role,o={})=>({shape:'ring',x,yB,w,h,thick,type,name,role,...o});
+const vstud=(c,yB,h,type,name,role)=>rk(c-0.75,yB,1.5,h,type,name,role);
+
+function floorPlan(){
+ const m=[rg(0,0,144,96,6,'sill-floor','Sill plate (PT)',R.sillF)];
+ m.push(rk(4,90,136,3,'rim','Rim / band joist',R.rim));
+ m.push(rk(4,3,136,3,'rim','Rim / band joist',R.rim));
+ [8,24,40,56,72,88,104,120,136].forEach(c=>m.push(rk(c-0.75,6,1.5,84,'joist','Floor joist',R.joist)));
+ m.push(rk(2,4,140,88,'subfloor','Subfloor (decking)',R.subfloor,{op:0.5}));
+ return m;
+}
+function solidWall(){
+ const m=[rk(0,0,144,PL,'plate-bottom','Bottom plate',R.botp),rk(0,TOP1,144,PL,'plate-top','Top plate (lower)',R.topp),rk(0,TOP2,144,PL,'plate-top','Top plate (upper)',R.topp)];
+ m.push(vstud(0.75,PL,STUD,'stud','End stud',R.end),vstud(143.25,PL,STUD,'stud','End stud',R.end));
+ [16,32,48,64,80,96,112,128].forEach(c=>m.push(vstud(c,PL,STUD,'stud','Common stud',R.common)));
+ return m;
+}
+function windowWall(){
+ const m=[rk(0,0,144,PL,'plate-bottom','Bottom plate',R.botp),rk(0,TOP1,144,PL,'plate-top','Top plate (lower)',R.topp),rk(0,TOP2,144,PL,'plate-top','Top plate (upper)',R.topp)];
+ m.push(vstud(0.75,PL,STUD,'stud','End stud',R.end),vstud(143.25,PL,STUD,'stud','End stud',R.end));
+ [16,32,112,128].forEach(c=>m.push(vstud(c,PL,STUD,'stud','Common stud',R.common)));
+ m.push(vstud(51.75,PL,STUD,'king','King stud',R.king),vstud(90.75,PL,STUD,'king','King stud',R.king));
+ m.push(vstud(53.25,PL,72-PL,'jack','Jack stud',R.jack),vstud(89.25,PL,72-PL,'jack','Jack stud',R.jack));
+ m.push(rk(51,72,42,7.25,'header','Header',R.header));
+ m.push(rk(54,22.5,36,PL,'sill','Rough sill',R.sill));
+ [64,80].forEach(c=>m.push(vstud(c,79.25,TOP1-79.25,'cripple','Cripple (above)',R.crup)));
+ [64,80].forEach(c=>m.push(vstud(c,PL,22.5-PL,'cripple','Cripple (below)',R.crdn)));
+ return m;
+}
+function doorWall(){
+ const m=[rk(0,0,144,PL,'plate-bottom','Bottom plate',R.botp),rk(0,TOP1,144,PL,'plate-top','Top plate (lower)',R.topp),rk(0,TOP2,144,PL,'plate-top','Top plate (upper)',R.topp)];
+ m.push(vstud(0.75,PL,STUD,'stud','End stud',R.end),vstud(143.25,PL,STUD,'stud','End stud',R.end));
+ [16,32,112,128].forEach(c=>m.push(vstud(c,PL,STUD,'stud','Common stud',R.common)));
+ m.push(vstud(51.75,PL,STUD,'king','King stud',R.king),vstud(91.75,PL,STUD,'king','King stud',R.king));
+ m.push(vstud(53.25,PL,82.5-PL,'jack','Jack stud',R.jack),vstud(90.25,PL,82.5-PL,'jack','Jack stud',R.jack));
+ m.push(rk(51,82.5,42,7.25,'header','Header',R.header));
+ [64,80].forEach(c=>m.push(vstud(c,89.75,TOP1-89.75,'cripple','Cripple (above)',R.crup)));
+ return m;
+}
+function rafterRoof(){
+ const m=[rk(0,-3,14,3,'static','',' ',{static:true}),rk(130,-3,14,3,'static','',' ',{static:true})];
+ m.push(rk(71.25,40,1.5,11,'ridge','Ridge board',R.ridge));
+ m.push(bm(2,0,71,49,5.5,'rafter','Common rafter',R.rafter),bm(142,0,73,49,5.5,'rafter','Common rafter',R.rafter));
+ m.push(rk(2,-5.5,140,5.5,'ceiljoist','Ceiling joist / tie',R.ceilj));
+ m.push(rk(46,29,52,1.5,'collar','Collar tie',R.collar));
+ m.push(bm(1,3,70,52,1.6,'sheathing','Roof sheathing',R.sheath,{op:0.8}),bm(143,3,74,52,1.6,'sheathing','Roof sheathing',R.sheath,{op:0.8}));
+ return m;
+}
+function trussRoof(){
+ const m=[rk(0,-3,14,3,'static','',' ',{static:true}),rk(130,-3,14,3,'static','',' ',{static:true})];
+ m.push(rk(2,0,140,3.5,'botchord','Bottom chord',R.botc));
+ m.push(bm(2,3.5,72,48,3.5,'topchord','Top chord',R.topc),bm(142,3.5,72,48,3.5,'topchord','Top chord',R.topc));
+ m.push(bm(72,3.5,72,46,3,'web','Web (king post)',R.web));
+ m.push(bm(72,3.5,37,26,3,'web','Web',R.web),bm(72,3.5,107,26,3,'web','Web',R.web));
+ m.push(bm(1,6,71,50.5,1.6,'sheathing','Roof sheathing',R.sheath,{op:0.8}),bm(143,6,73,50.5,1.6,'sheathing','Roof sheathing',R.sheath,{op:0.8}));
+ return m;
+}
+
+const LEVELS=[
+ {short:"Floor",title:"The floor platform",make:floorPlan,
+  desc:"Top-down framing plan. Set the pressure-treated sill on the foundation, run floor joists at 16\u2033 OC between the rim joists, then deck it with subfloor.",
+  view:{caption:"floor framing plan, top-down \u00b7 12 ft x 8 ft bay",baseLabel:"foundation perimeter",oc:{from:0,to:144,step:16,label:"joists 16\u2033 OC"},loadPath:false}},
+ {short:"Solid wall",title:"The solid wall",make:solidWall,
+  desc:"No openings. Lay the bottom plate, stand studs at 16\u2033 on center with an end stud each end, and cap it with a double top plate.",
+  view:{caption:"elevation \u00b7 12 ft exterior wall",baseLabel:"subfloor",oc:{from:0,to:144,step:16,label:"studs 16\u2033 OC"},loadPath:true}},
+ {short:"Window",title:"The window wall",make:windowWall,
+  desc:"Frame an opening. A window needs king studs, jack studs carrying a header, a rough sill, and cripples above the header and below the sill.",
+  view:{caption:"elevation \u00b7 window rough opening",baseLabel:"subfloor",oc:{from:0,to:144,step:16,label:"studs 16\u2033 OC"},loadPath:true}},
+ {short:"Door",title:"The door wall",make:doorWall,
+  desc:"A door opens to the floor. Same kings, jacks and header, but no sill and no cripples below. Notice what changes.",
+  view:{caption:"elevation \u00b7 door rough opening",baseLabel:"subfloor",oc:{from:0,to:144,step:16,label:"studs 16\u2033 OC"},loadPath:true}},
+ {short:"Rafter roof",title:"The stick-framed roof",make:rafterRoof,
+  desc:"Cut rafters on site. Set the ridge, run common rafters to it, tie the rafter feet with ceiling joists so they don't spread the walls, add collar ties, then sheathe it.",
+  view:{caption:"gable end \u00b7 8:12 pitch \u00b7 stick-framed",baseLabel:"top of walls",oc:{from:0,to:144,step:24,label:"rafters 24\u2033 OC"},loadPath:true}},
+ {short:"Truss roof",title:"The truss roof",make:trussRoof,
+  desc:"Engineered triangles. Set the bottom chord, the sloped top chords, and the webs that triangulate it, then sheathe. See why a truss spans with no interior wall.",
+  view:{caption:"gable end \u00b7 8:12 pitch \u00b7 engineered truss",baseLabel:"top of walls",oc:{from:0,to:144,step:24,label:"trusses 24\u2033 OC"},loadPath:true}}
+];
+
+const GROUP={'plate-bottom':'Bottom plate','plate-top':'Top plate (double)','stud':'Studs @ 16\u2033 OC',
+ 'king':'King studs','jack':'Jack studs','header':'Header','sill':'Rough sill','cripple':'Cripple studs',
+ 'sill-floor':'Sill plate (PT)','rim':'Rim / band joist','joist':'Floor joists @ 16\u2033 OC','subfloor':'Subfloor',
+ 'ridge':'Ridge board','rafter':'Common rafters','ceiljoist':'Ceiling joist / tie','collar':'Collar tie','sheathing':'Roof sheathing',
+ 'botchord':'Bottom chord','topchord':'Top chords','web':'Webs'};
+const ORDER=['Sill plate (PT)','Rim / band joist','Floor joists @ 16\u2033 OC','Subfloor',
+ 'Bottom plate','Top plate (double)','Studs @ 16\u2033 OC','King studs','Jack studs','Header','Rough sill','Cripple studs',
+ 'Ridge board','Common rafters','Ceiling joist / tie','Collar tie','Bottom chord','Top chords','Webs','Roof sheathing'];
+const COLOR={'plate-bottom':'#bd8d4f','plate-top':'#b07f44','stud':'#cda063','king':'#9ad1c0','jack':'#e0b15a',
+ 'header':'#8f5f2e','sill':'#cda063','cripple':'#c79a5b','sill-floor':'#9aa86a','rim':'#bd8d4f','joist':'#cda063',
+ 'subfloor':'#caa86a','ridge':'#8f5f2e','rafter':'#cda063','ceiljoist':'#c0935a','collar':'#d8b06a','sheathing':'#caa86a',
+ 'botchord':'#bd8d4f','topchord':'#cda063','web':'#e0b15a','static':'#39413c'};
+const PAL=[
+ {key:'sill-floor',label:'Sill plate',types:['sill-floor']},{key:'rim',label:'Rim joist',types:['rim']},
+ {key:'joist',label:'Floor joist',types:['joist']},{key:'subfloor',label:'Subfloor',types:['subfloor']},
+ {key:'plate',label:'Plate',types:['plate-bottom','plate-top']},{key:'stud',label:'Stud',types:['stud']},
+ {key:'king',label:'King stud',types:['king']},{key:'jack',label:'Jack stud',types:['jack']},
+ {key:'header',label:'Header',types:['header']},{key:'sill',label:'Rough sill',types:['sill']},
+ {key:'cripple',label:'Cripple',types:['cripple']},
+ {key:'ridge',label:'Ridge',types:['ridge']},{key:'rafter',label:'Rafter',types:['rafter']},
+ {key:'ceiljoist',label:'Ceiling joist',types:['ceiljoist']},{key:'collar',label:'Collar tie',types:['collar']},
+ {key:'botchord',label:'Bottom chord',types:['botchord']},{key:'topchord',label:'Top chord',types:['topchord']},
+ {key:'web',label:'Web',types:['web']},{key:'sheathing',label:'Roof sheathing',types:['sheathing']}
+];
+const SWATCH={'sill-floor':COLOR['sill-floor'],rim:COLOR.rim,joist:COLOR.joist,subfloor:COLOR.subfloor,
+ plate:COLOR['plate-top'],stud:COLOR.stud,king:COLOR.king,jack:COLOR.jack,header:COLOR.header,sill:COLOR.sill,
+ cripple:COLOR.cripple,ridge:COLOR.ridge,rafter:COLOR.rafter,ceiljoist:COLOR.ceiljoist,collar:COLOR.collar,
+ botchord:COLOR.botchord,topchord:COLOR.topchord,web:COLOR.web,sheathing:COLOR.sheathing};
+
+let lvi=0, members=[], armed=null, view=null, lpOn=false;
+const $=id=>document.getElementById(id);
+function px(m){return{x:OX+m.x*S,y:FY-(m.yB+m.h)*S,w:m.w*S,h:m.h*S};}
+function beamPts(m){return{ax:OX+m.x1*S,ay:FY-m.y1*S,bx:OX+m.x2*S,by:FY-m.y2*S,sw:m.thick*S};}
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+function load(){
+ const L=LEVELS[lvi];view=L.view;lpOn=false;
+ members=L.make().map((m,i)=>({...m,i,built:!!m.static}));
+ armed=null;
+ $("pill").textContent="Level "+(lvi+1)+" of "+LEVELS.length;
+ $("lvtitle").textContent=L.title;$("lvdesc").textContent=L.desc;
+ $("banner").innerHTML="";
+ $("lpBtn").disabled=true;$("lpBtn").textContent="Show load path";$("lpBtn").style.display=view.loadPath?"":"none";
+ $("nextBtn").disabled=true;$("nextBtn").textContent=lvi<LEVELS.length-1?"Next →":"Finish";
+ setInfo("Pick a member","Tap a member type on the right, then tap where it goes on the frame. A wrong spot tells you what actually belongs there.");
+ drawProgress();buildPalette();drawSVG();drawCheck();
+}
+function drawProgress(){
+ $("progress").innerHTML=LEVELS.map((L,i)=>{let c="pdot";if(i<lvi)c+=" done";if(i===lvi)c+=" on";return '<span class="'+c+'">'+L.short+'</span>';}).join("");
+}
+function buildPalette(){
+ const types=new Set(members.filter(m=>!m.static).map(m=>m.type));
+ const wanted=PAL.filter(p=>p.types.some(t=>types.has(t)));
+ $("palette").innerHTML=wanted.map(p=>'<button class="pbtn" data-k="'+p.key+'"><span class="sw" style="background:'+SWATCH[p.key]+'"></span>'+p.label+'</button>').join("");
+ $("palette").querySelectorAll(".pbtn").forEach(b=>b.onclick=()=>{
+  const p=PAL.find(x=>x.key===b.dataset.k);
+  armed=(armed&&armed.key===p.key)?null:p;
+  $("palette").querySelectorAll(".pbtn").forEach(x=>x.classList.toggle("on",armed&&x.dataset.k===armed.key));
+ });
+}
+function setInfo(nm,ro,bad){const el=$("info");el.className="info"+(bad?" bad":"");el.innerHTML='<span class="nm">'+nm+'</span><span class="ro">'+ro+'</span>';}
+
+function drawSVG(){
+ const showL=$("labelsTog").checked;
+ let s='<svg viewBox="0 0 '+SVGW+' '+SVGH+'" xmlns="http://www.w3.org/2000/svg"><defs>'
+  +'<marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="'+css('--lime')+'"/></marker></defs>';
+ s+='<line x1="'+(OX-10)+'" y1="'+FY+'" x2="'+(OX+144*S+10)+'" y2="'+FY+'" stroke="'+css('--line')+'" stroke-width="2"/>';
+ if(view.baseLabel)s+='<text x="'+(OX-12)+'" y="'+(FY+14)+'" fill="'+css('--dim')+'" font-size="9" text-anchor="end">'+view.baseLabel+'</text>';
+ if(view.oc){for(let i=view.oc.from;i<=view.oc.to;i+=view.oc.step){const x=OX+i*S;
+   s+='<line x1="'+x+'" y1="'+(FY+2)+'" x2="'+x+'" y2="'+(FY+8)+'" stroke="'+css('--dim')+'" stroke-width="1"/>';}
+   s+='<text x="'+(OX+144*S/2)+'" y="'+(SVGH-6)+'" fill="'+css('--dim')+'" font-size="9" text-anchor="middle">'+view.oc.label+' \u00b7 '+view.caption+'</text>';
+ } else s+='<text x="'+(OX+144*S/2)+'" y="'+(SVGH-6)+'" fill="'+css('--dim')+'" font-size="9" text-anchor="middle">'+view.caption+'</text>';
+ s+='<g id="lpg">'+loadPathSVG()+'</g>';
+ members.forEach(m=>{ s+=drawMember(m,showL); });
+ members.filter(m=>!m.static).forEach(m=>{ s+=hitFor(m); });
+ s+='</svg>';
+ $("svgHost").innerHTML=s;
+ $("svgHost").querySelectorAll("[data-hit]").forEach(h=>h.onclick=()=>clickMember(+h.dataset.hit));
+ $("svgHost").querySelectorAll("[data-built]").forEach(h=>h.onclick=()=>{const m=members[+h.dataset.built];if(m.role.trim())setInfo(m.name,m.role);});
+}
+function drawMember(m,showL){
+ const col=COLOR[m.type]||'#999', op=m.op!=null?m.op:1;
+ if(m.shape==='beam'){
+  const p=beamPts(m);
+  if(m.static)return line(p,col,m.thick*S,'',op);
+  if(m.built){let o=line(p,col,p.sw,'builtline',op,m.i);if(showL)o+=beamLabel(m,p,'#1a120a');return o;}
+  let o='<line class="ghostline" x1="'+p.ax+'" y1="'+p.ay+'" x2="'+p.bx+'" y2="'+p.by+'" stroke-width="'+p.sw+'"/>';
+  if(showL)o+=beamLabel(m,p,css('--dim'));return o;
+ }
+ if(m.shape==='ring'){
+  const r=px(m);
+  if(m.built){let o='<rect x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'" fill="none" stroke="'+col+'" stroke-width="'+(m.thick*S)+'" data-built="'+m.i+'"/>';
+   if(showL)o+='<text x="'+(r.x+r.w/2)+'" y="'+(r.y-4)+'" fill="'+col+'" font-size="9" font-weight="700" text-anchor="middle">'+m.name+'</text>';return o;}
+  let o='<rect class="ghost" x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'" fill="none" stroke-width="'+(m.thick*S)+'"/>';
+  if(showL)o+='<text x="'+(r.x+r.w/2)+'" y="'+(r.y-4)+'" fill="'+css('--dim')+'" font-size="9" text-anchor="middle">'+m.name+'</text>';return o;
+ }
+ const r=px(m);
+ if(m.static)return '<rect x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'" rx="1" fill="'+col+'" opacity="'+op+'"/>';
+ if(m.built){let o='<rect class="built" x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'" rx="1" fill="'+col+'" fill-opacity="'+op+'" data-built="'+m.i+'"/>';
+  if(r.w>3&&r.h>3)o+='<line x1="'+(r.x+1)+'" y1="'+(r.y+1)+'" x2="'+(r.x+r.w-1)+'" y2="'+(r.y+1)+'" stroke="rgba(255,255,255,.22)" stroke-width="1"/>';
+  if(showL)o+=rectLabel(m,r,'#1a120a');return o;}
+ let o='<rect class="ghost" x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'" rx="1"/>';
+ if(showL)o+=rectLabel(m,r,css('--dim'));return o;
+}
+function line(p,col,sw,cls,op,i){return '<line '+(cls?'class="'+cls+'" ':'')+'x1="'+p.ax+'" y1="'+p.ay+'" x2="'+p.bx+'" y2="'+p.by+'" stroke="'+col+'" stroke-width="'+sw+'" stroke-opacity="'+(op==null?1:op)+'"'+(i!=null?' data-built="'+i+'"':'')+'/>';}
+function rectLabel(m,r,col){const horiz=m.w>=m.h;const cx=r.x+r.w/2,cy=r.y+r.h/2;
+ if(horiz)return '<text x="'+cx+'" y="'+(cy+3)+'" fill="'+col+'" font-size="9" font-weight="700" text-anchor="middle">'+m.name+'</text>';
+ return '<text x="'+cx+'" y="'+cy+'" fill="'+col+'" font-size="8" font-weight="700" text-anchor="middle" transform="rotate(-90 '+cx+' '+cy+')">'+m.name+'</text>';}
+function beamLabel(m,p,col){const mx=(p.ax+p.bx)/2,my=(p.ay+p.by)/2;let a=Math.atan2(p.by-p.ay,p.bx-p.ax)*180/Math.PI;if(a>90)a-=180;if(a<-90)a+=180;
+ return '<text x="'+mx+'" y="'+(my-3)+'" fill="'+col+'" font-size="8" font-weight="700" text-anchor="middle" transform="rotate('+a.toFixed(1)+' '+mx+' '+my+')">'+m.name+'</text>';}
+function hitFor(m){
+ if(m.shape==='beam'){const p=beamPts(m);const w=Math.max(p.sw,18);
+  return '<line class="hitline" x1="'+p.ax+'" y1="'+p.ay+'" x2="'+p.bx+'" y2="'+p.by+'" stroke-width="'+w+'" data-hit="'+m.i+'"/>';}
+ if(m.shape==='ring'){const r=px(m);return '<rect class="hitline" x="'+r.x+'" y="'+r.y+'" width="'+r.w+'" height="'+r.h+'" fill="none" stroke-width="20" data-hit="'+m.i+'"/>';}
+ const r=px(m);const hw=Math.max(r.w,16),hh=Math.max(r.h,16);const hx=r.x+(r.w-hw)/2,hy=r.y+(r.h-hh)/2;
+ return '<rect class="hit" x="'+hx+'" y="'+hy+'" width="'+hw+'" height="'+hh+'" data-hit="'+m.i+'"/>';
+}
+function clickMember(i){
+ const m=members[i];if(m.static)return;
+ if(m.built){setInfo(m.name,m.role);return;}
+ if(!armed){setInfo("Pick a member first","Tap a member type on the right, then tap where it goes.",true);return;}
+ if(armed.types.includes(m.type)){m.built=true;setInfo("Built: "+m.name,m.role);drawSVG();drawCheck();
+  const el=$("svgHost").querySelector('[data-built="'+i+'"]');if(el)el.classList.add("flash");
+  if(members.filter(x=>!x.static).every(x=>x.built))finishLevel();
+ } else setInfo("Not there \u2014 that's a "+m.name,m.role,true);
+}
+function drawCheck(){
+ const g={};members.filter(m=>!m.static).forEach(m=>{const k=GROUP[m.type];if(!g[k])g[k]={t:0,b:0};g[k].t++;if(m.built)g[k].b++;});
+ const keys=ORDER.filter(k=>g[k]);
+ $("check").innerHTML=keys.map(k=>{const x=g[k];const d=x.b===x.t;return '<li class="'+(d?'done':'')+'"><span class="ct">'+(d?'\u2713 ':'')+k+'</span><b>'+x.b+'/'+x.t+'</b></li>';}).join("");
+}
+function finishLevel(){
+ $("nextBtn").disabled=false;
+ if(view.loadPath)$("lpBtn").disabled=false;
+ const tips=[
+  "Floor platform framed. Joists at 16\u2033 OC carry the floor to the foundation walls, the rim caps their ends, and the subfloor ties it into the deck you build walls on.",
+  "Solid wall framed. Studs at 16\u2033 OC carry load straight down, and the doubled top plate spreads it and ties the walls together at the corners.",
+  "Window framed. Follow the load: the header catches everything above the opening and routes it through the jacks to the plate. Kings keep it rigid, sill and cripples fill the layout.",
+  "Door framed. Same king-jack-header logic, but the opening runs to the floor, so no sill and no cripples below. The jacks set the door's rough opening height.",
+  "Stick-framed roof up. Rafters carry load to the walls but push outward, so the ceiling joists tie the walls from spreading and the collar ties hold the rafters near the ridge.",
+  "Truss roof set. The triangle does the work: top chords in compression, bottom chord in tension, webs triangulating. That's why a truss spans wall to wall with no interior bearing wall."
+ ];
+ const extra=view.loadPath?" Hit <b>Show load path</b> to see how it carries weight down.":"";
+ $("banner").innerHTML='<div class="banner"><b>Done.</b> '+tips[lvi]+extra+'</div>';
+}
+function loadPathSVG(){
+ if(!view||!view.loadPath)return'';
+ let a='';const down=['stud','king','jack','cripple','joist'];
+ members.forEach(m=>{
+  if(m.shape==='beam'&&['rafter','topchord'].includes(m.type)){const p=beamPts(m);
+   const lo=p.ay>p.by?{x:p.ax,y:p.ay}:{x:p.bx,y:p.by},hi=p.ay>p.by?{x:p.bx,y:p.by}:{x:p.ax,y:p.ay};
+   a+='<line class="lp" x1="'+(hi.x*.4+lo.x*.6)+'" y1="'+(hi.y*.4+lo.y*.6)+'" x2="'+lo.x+'" y2="'+lo.y+'"/>';}
+  else if(!m.shape&&down.includes(m.type)){const r=px(m);const x=r.x+r.w/2;
+   a+='<line class="lp" x1="'+x+'" y1="'+(r.y+4)+'" x2="'+x+'" y2="'+(r.y+r.h-4)+'"/>';}
+ });
+ const h=members.find(m=>m.type==='header');
+ if(h){const r=px(h);a+='<line class="lp" x1="'+(r.x+6)+'" y1="'+(r.y+r.h)+'" x2="'+(r.x+6)+'" y2="'+(r.y+r.h+10)+'"/>'
+   +'<line class="lp" x1="'+(r.x+r.w-6)+'" y1="'+(r.y+r.h)+'" x2="'+(r.x+r.w-6)+'" y2="'+(r.y+r.h+10)+'"/>';}
+ return a;
+}
+$("lpBtn").onclick=()=>{lpOn=!lpOn;
+ $("svgHost").querySelectorAll(".lp").forEach((el,k)=>{el.classList.remove("go");if(lpOn)setTimeout(()=>el.classList.add("go"),k*40);});
+ $("svgHost").querySelectorAll("[data-built]").forEach(el=>{const m=members[+el.dataset.built];el.classList.toggle("glow",lpOn&&['header','jack','topchord','botchord'].includes(m.type));});
+ $("lpBtn").textContent=lpOn?"Hide load path":"Show load path";};
+$("nextBtn").onclick=()=>{if(lvi<LEVELS.length-1){lvi++;load();}else showDone();};
+$("resetBtn").onclick=()=>load();
+$("labelsTog").onchange=drawSVG;
+$("startBtn").onclick=()=>{$("intro").classList.add("hidden");load();};
+
+function showDone(){
+ const ov=document.createElement("div");ov.className="overlay";
+ ov.innerHTML='<div class="modal"><div class="levelpill" style="color:var(--grn)">full frame built</div>'
+  +'<h1>You can read a <span class="lime">frame</span> now.</h1>'
+  +'<p>You built every framing system in a house, bottom to top, and traced how each carries load to the ground. The words you just used are the whole language of stick framing.</p>'
+  +'<div class="stack"><b>The frame, top to bottom:</b><br>'
+  +'\u2022 <b>Floor:</b> PT sill on the foundation, joists at 16\u2033 OC between rims, decked with subfloor.<br>'
+  +'\u2022 <b>Walls:</b> bottom plate, studs at 16\u2033 OC, double top plate. Openings get a header on jacks, with kings, sill and cripples.<br>'
+  +'\u2022 <b>Roof:</b> rafters need a ridge and ties to stop spreading the walls, or a truss does it all in one triangle with no interior bearing wall.<br><br>'
+  +'<b>Load always runs roof \u2192 wall \u2192 floor \u2192 foundation \u2192 soil.</b> Size headers and joists to their span.</div>'
+  +'<button class="btn" onclick="location.reload()">Frame it again \u2192</button></div>';
+ document.body.appendChild(ov);
+}
+</script>
+</body>
+</html>
