@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bates Watch</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Georgia,'Times New Roman',serif;background:#faf9f7;color:#2d2d2d;min-height:100vh}
+.top{background:#3d5a3e;color:#fff;padding:1.5rem 1rem;text-align:center}
+.top h1{font-size:1.4rem;font-weight:normal;letter-spacing:.5px}
+.top p{font-size:.85rem;opacity:.75;margin-top:.25rem}
+.wrap{max-width:640px;margin:0 auto;padding:1.25rem}
+.box{background:#fff;border:1px solid #e0ddd8;border-radius:6px;padding:1.25rem;margin-bottom:1rem}
+.box h2{font-size:1rem;color:#3d5a3e;margin-bottom:.5rem;font-weight:600}
+.date{color:#888;font-size:.8rem}
+.status{display:inline-block;padding:.2rem .6rem;border-radius:4px;font-size:.8rem;font-weight:600;margin:.5rem 0}
+.status.green{background:#d4edda;color:#155724}
+.status.amber{background:#fff3cd;color:#856404}
+.msg{font-size:.95rem;line-height:1.6;margin-top:.5rem}
+.hit{border-left:3px solid #c0392b;padding:.75rem 1rem;margin:.75rem 0;background:#fdf2f2;border-radius:0 4px 4px 0}
+.hit h3{font-size:.9rem;color:#c0392b}
+.hit p{font-size:.85rem;color:#555;margin-top:.2rem}
+.hit .act{font-size:.8rem;color:#3d5a3e;font-weight:600;margin-top:.3rem}
+.src-grid{margin-top:.75rem}
+.src-row{display:flex;justify-content:space-between;align-items:center;padding:.35rem 0;border-bottom:1px solid #f0eeea;font-size:.82rem}
+.src-row:last-child{border-bottom:none}
+.src-name{color:#444;flex:1}
+.src-badge{font-size:.7rem;padding:.1rem .4rem;border-radius:3px;font-weight:600;margin-left:.5rem;white-space:nowrap}
+.src-badge.ok{background:#d4edda;color:#155724}
+.src-badge.fail{background:#f8d7da;color:#721c24}
+.src-count{color:#888;font-size:.75rem;margin-left:.5rem;min-width:50px;text-align:right}
+.hist{font-size:.85rem;padding:.5rem 0;border-bottom:1px solid #eee;line-height:1.4}
+.hist:last-child{border-bottom:none}
+.about{font-size:.85rem;line-height:1.6;color:#555}
+.about p{margin-bottom:.5rem}
+.about strong{color:#3d5a3e}
+.about ul{margin:.25rem 0 .5rem 1.25rem}
+.about li{margin-bottom:.2rem}
+details{margin-top:.5rem}
+details summary{cursor:pointer;font-size:.8rem;color:#3d5a3e;font-weight:600}
+.propinfo{background:#f0f4f0;border-radius:4px;padding:.75rem;margin-top:.5rem;font-size:.8rem;color:#555;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="top">
+<h1>Bates Watch</h1>
+<p>Walnut Church Property &bull; Hume, MO</p>
+</div>
+<div class="wrap">
+
+<div class="box" id="main"><p style="text-align:center;color:#888;padding:1rem">Loading...</p></div>
+
+<div class="box" id="srcbox" style="display:none">
+<h2>Sources Checked</h2>
+<p style="font-size:.8rem;color:#888;margin-bottom:.5rem">Every day, Bates Watch connects to these sources and scans for anything related to the property.</p>
+<div id="sources" class="src-grid"></div>
+</div>
+
+<div class="box" id="hbox" style="display:none"><h2>Previous Checks</h2><div id="hist"></div></div>
+
+<div class="box">
+<h2>What This Does</h2>
+<div class="about">
+<p>Bates Watch is an automated tool that runs <strong>every morning at 7:00 AM Central</strong>. It checks public records and local news sources in Bates County, Missouri for any new activity related to the <strong>Walnut Church property near Hume</strong>.</p>
+<p>Specifically, it looks for:</p>
+<ul>
+<li>Tax sale or sheriff sale notices in Bates County</li>
+<li>Legal notices mentioning the church, the trustees, or Walnut Township</li>
+<li>Property listings or real estate ads near Hume</li>
+<li>Any public notice mentioning the parcel or the trustee names</li>
+</ul>
+<p>It pulls text from each source, then uses AI to read through everything and flag only the items that are actually relevant. If something important shows up, you'll see a yellow alert at the top of this page with details about what was found and what to do about it.</p>
+<p>If you see <strong>"All Clear"</strong>, that means all sources were checked and nothing related to the property was found that day.</p>
+</div>
+<details>
+<summary>Property Details</summary>
+<div class="propinfo">
+<strong>Walnut Community Church</strong><br>
+Parcel: 1605021000000004010<br>
+Location: County Road 406, Walnut Township, Bates County, MO<br>
+Size: 1.00 acre<br>
+Original Trustees: Paul Rittenhouse, Dee Montgomery, Tom Hutchison (all deceased)<br>
+Deed recorded July 2004, quit-claimed from Hume R-8 School Board in October 1999
+</div>
+</details>
+</div>
+
+</div>
+<script>
+async function go(){
+  try{
+    const d=await(await fetch('/api/latest')).json();
+    const el=document.getElementById('main');
+    if(!d.scanned_at){el.innerHTML='<h2>No checks yet</h2><p class="msg">The first check will run tomorrow morning at 7 AM Central.</p>';return}
+    const dt=new Date(d.scanned_at).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/Chicago'});
+    let h='<h2>Latest Check</h2><p class="date">'+dt+' CT</p>';
+    if(d.found){
+      h+='<span class="status amber">New Activity Found</span>';
+    }else{
+      h+='<span class="status green">All Clear</span>';
+    }
+    h+='<p class="msg">'+d.summary+'</p>';
+    if(d.results&&d.results.length>0){
+      for(const r of d.results){
+        h+='<div class="hit"><h3>'+r.title+'</h3>';
+        if(r.details)h+='<p>'+r.details+'</p>';
+        if(r.source)h+='<p style="font-size:.75rem;color:#999">Source: '+r.source+'</p>';
+        if(r.action)h+='<p class="act">&#9654; '+r.action+'</p>';
+        h+='</div>';
+      }
+    }
+    h+='<p style="font-size:.8rem;color:#999;margin-top:.75rem">Checked '+d.sources_ok+' of '+d.sources_checked+' sources, scanned '+d.raw_count+' items total.</p>';
+    el.innerHTML=h;
+
+    // Show sources
+    if(d.sources&&d.sources.length>0){
+      document.getElementById('srcbox').style.display='block';
+      document.getElementById('sources').innerHTML=d.sources.map(s=>{
+        const badge=s.status==='ok'?'<span class="src-badge ok">OK</span>':'<span class="src-badge fail">Down</span>';
+        const cnt=s.status==='ok'?'<span class="src-count">'+s.count+' items</span>':'<span class="src-count">&mdash;</span>';
+        return'<div class="src-row"><span class="src-name">'+s.name+'</span>'+badge+cnt+'</div>';
+      }).join('');
+    }
+
+    // History
+    const hi=await(await fetch('/api/history')).json();
+    if(hi.length>1){
+      document.getElementById('hbox').style.display='block';
+      document.getElementById('hist').innerHTML=hi.slice(1,11).map(x=>{
+        const dt2=new Date(x.scanned_at).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'America/Chicago'});
+        const icon=x.found?'&#9888; ':'&#10003; ';
+        return'<div class="hist"><strong>'+dt2+'</strong> &ndash; '+icon+(x.summary||'No data')+'</div>';
+      }).join('');
+    }
+  }catch(e){document.getElementById('main').innerHTML='<p>Error loading. Try refreshing.</p>'}
+}
+go();
+</script>
+</body>
+</html>
