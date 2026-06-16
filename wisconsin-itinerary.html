@@ -15,24 +15,36 @@
 <style>
   :root{
     --bg:#f3efe6; --card:#fffdf8; --line:#e7e0d1; --line2:#d9d0bd;
-    --ink:#23271f; --mut:#6f695c; --faint:#9b9384;
-    --ever:#2f6b4f;
+    --ink:#23271f; --mut:#6f695c; --faint:#9b9384; --ever:#2f6b4f;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;padding:24px 16px 60px}
   .wrap{max-width:680px;margin:0 auto}
-  h1{font-family:'Fraunces',serif;font-weight:600;font-size:29px;letter-spacing:-.012em;line-height:1.05;color:var(--ink)}
-  .sub{font-family:'Fraunces',serif;font-style:italic;font-weight:400;font-size:15px;color:var(--mut);margin-top:5px}
-  .updated{font-size:11.5px;color:var(--faint);margin-top:7px;letter-spacing:.01em}
-  .rule{height:3px;background:var(--ever);width:48px;margin:15px 0 20px;border-radius:3px}
-  .legend{display:flex;flex-wrap:wrap;gap:9px 16px;font-size:11.5px;color:var(--mut);margin-bottom:20px}
-  .legend span{display:inline-flex;align-items:center;gap:6px}
-  .ld{width:9px;height:9px;border-radius:50%;display:inline-block}
-  .anchors{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 16px;margin-bottom:8px;box-shadow:0 1px 2px rgba(40,34,20,.03)}
-  .anchors .hd{font-size:11px;letter-spacing:.07em;color:var(--ever);text-transform:uppercase;font-weight:600;margin-bottom:10px}
-  .arow{display:flex;gap:9px;align-items:flex-start;margin:8px 0}
-  .arow .tx{font-size:13.5px;line-height:1.5}
-  .dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;margin-top:6px}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:29px;letter-spacing:-.012em;line-height:1.05}
+  .sub{font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--mut);margin-top:5px}
+  .updated{font-size:11.5px;color:var(--faint);margin-top:7px}
+  .rule{height:3px;background:var(--ever);width:48px;margin:15px 0 18px;border-radius:3px}
+
+  .filtbar{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+  .filter{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;border:1px solid;cursor:pointer;font-size:12px;font-weight:500;line-height:1;transition:opacity .12s,background .12s}
+  .filter .ld{width:9px;height:9px;border-radius:50%}
+  .filter.off{opacity:.45;background:transparent !important;border-color:var(--line2) !important;color:var(--faint) !important}
+  .fhint{font-size:11px;color:var(--faint);margin:8px 0 18px}
+  #reset{color:var(--ever);cursor:pointer;text-decoration:underline;margin-left:4px;display:none}
+
+  .anchors{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:15px 16px;margin-bottom:8px;box-shadow:0 1px 2px rgba(40,34,20,.03)}
+  .anchors .hd{font-size:11px;letter-spacing:.07em;color:var(--ever);text-transform:uppercase;font-weight:600;margin-bottom:12px}
+  .alist{list-style:none;display:flex;flex-direction:column;gap:14px}
+  .alist>li{display:flex;gap:11px;align-items:flex-start}
+  .num{flex:0 0 auto;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;margin-top:1px}
+  .atitle{font-size:14.5px;font-weight:600;line-height:1.35}
+  .amini{font-weight:400;color:var(--mut);font-size:13px}
+  .atext{font-size:13.5px;margin-top:2px;line-height:1.45}
+  .chain{list-style:none;margin:8px 0 0;padding-left:13px;border-left:2px solid var(--line2);display:flex;flex-direction:column;gap:6px}
+  .chain li{font-size:13px;line-height:1.4}
+  .chain b{font-weight:600}
+  .ok{color:var(--ever);font-size:12px;white-space:nowrap}
+
   .plabel{font-family:'Fraunces',serif;font-weight:500;font-size:15px;color:var(--ever);margin:24px 0 3px}
   .day{display:flex;gap:14px;padding:11px 8px;border-top:1px solid var(--line)}
   .day .date{flex:0 0 52px;font-size:11.5px;color:var(--mut);line-height:1.35;font-variant-numeric:tabular-nums}
@@ -40,12 +52,19 @@
   .day .body{flex:1;min-width:0}
   .it{display:flex;gap:9px;align-items:flex-start;margin:3px 0}
   .it .tx{font-size:14px;line-height:1.45}
+  .dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;margin-top:6px}
   .open{font-size:13px;color:var(--faint);font-style:italic;margin:3px 0}
   .day.past{opacity:.46}
   .day.today{background:rgba(47,107,79,.07);border-radius:10px;border-top:1px solid transparent;box-shadow:inset 3px 0 0 var(--ever)}
   .tag{display:inline-block;font-size:9.5px;color:#fffdf8;background:var(--ever);padding:1px 6px;border-radius:4px;margin-top:5px;letter-spacing:.04em;font-weight:500}
-  .loose{margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
-  .loose .hd{font-size:11px;letter-spacing:.07em;color:var(--mut);text-transform:uppercase;font-weight:600;margin-bottom:12px}
+
+  .block{margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
+  .block .hd{font-size:11px;letter-spacing:.07em;color:var(--mut);text-transform:uppercase;font-weight:600;margin-bottom:8px}
+  .fcap{font-size:11.5px;color:var(--mut);margin-bottom:12px;line-height:1.45}
+  .fitem{display:flex;gap:9px;align-items:flex-start;margin:6px 0}
+  .fitem .tx{font-size:13.5px;line-height:1.42}
+  .nm{font-weight:600}
+  .meta{color:var(--mut)}
   .chips{display:flex;flex-wrap:wrap;gap:7px}
   .chip{font-size:12px;padding:5px 11px;border-radius:8px;line-height:1.3;font-weight:500}
   .foot{margin-top:32px;font-size:11px;color:var(--faint);text-align:center;font-style:italic;font-family:'Fraunces',serif}
@@ -59,19 +78,57 @@
   <div class="updated" id="updated"></div>
   <div class="rule"></div>
 
-  <div class="legend">
-    <span><i class="ld" style="background:#c2583a"></i>Surgery / pre-op</span>
-    <span><i class="ld" style="background:#3f7d54"></i>Scouts / outdoor / fishing</span>
-    <span><i class="ld" style="background:#6d5a9c"></i>Leisure / travel / projects</span>
-    <span><i class="ld" style="background:#b07d1e"></i>WGU</span>
-    <span><i class="ld" style="background:#3f6c9c"></i>Bekah school</span>
-    <span><i class="ld" style="background:#b23b32"></i>Conflict</span>
+  <div class="filtbar" id="filters">
+    <span class="filter" data-cat="coral"  style="border-color:#c2583a;background:#f4e3da;color:#9c4329"><i class="ld" style="background:#c2583a"></i>Surgery / pre-op</span>
+    <span class="filter" data-cat="teal"   style="border-color:#3f7d54;background:#e1ecdf;color:#2f6b4f"><i class="ld" style="background:#3f7d54"></i>Scouts / outdoor / fishing</span>
+    <span class="filter" data-cat="purple" style="border-color:#6d5a9c;background:#e8e2f0;color:#564485"><i class="ld" style="background:#6d5a9c"></i>Leisure / travel / projects</span>
+    <span class="filter" data-cat="amber"  style="border-color:#b07d1e;background:#f1e7cf;color:#8a6114"><i class="ld" style="background:#b07d1e"></i>WGU</span>
+    <span class="filter" data-cat="blue"   style="border-color:#3f6c9c;background:#dde7f1;color:#345a85"><i class="ld" style="background:#3f6c9c"></i>Bekah school</span>
+    <span class="filter" data-cat="red"    style="border-color:#b23b32;background:#f4ddd9;color:#8f2d26"><i class="ld" style="background:#b23b32"></i>Conflict</span>
+  </div>
+  <div class="fhint">Tap a category to filter the days below.<span id="reset">show all</span></div>
+
+  <div class="anchors">
+    <div class="hd">Anchors &amp; decisions</div>
+    <ol class="alist">
+      <li>
+        <span class="num" style="background:#c2583a">1</span>
+        <div>
+          <div class="atitle">Surgery &mdash; Thu Jul 2 <span class="amini">vas reversal, Froedtert</span></div>
+          <ul class="chain">
+            <li><b>Jun 25</b> &middot; stop NSAIDs, vitamin E, supplements &nbsp;<span class="ok">reta already done &check;</span></li>
+            <li><b>~Jun 30</b> &middot; surgery nurse calls with arrival time</li>
+            <li><b>Jul 1, 9pm</b> &middot; clear liquids only</li>
+            <li><b>Jul 2</b> &middot; surgery &mdash; Bekah drives + 24h care</li>
+          </ul>
+        </div>
+      </li>
+      <li>
+        <span class="num" style="background:#6d5a9c">2</span>
+        <div>
+          <div class="atitle">Book Bekah's flight</div>
+          <div class="atext">Arriving late Jun 29 or sometime Jun 30.</div>
+        </div>
+      </li>
+      <li>
+        <span class="num" style="background:#b23b32">3</span>
+        <div>
+          <div class="atitle">Decide: UP Scout canoe trip dates</div>
+          <div class="atext">~Jun 26&ndash;28? The only thing that collides with surgery week. Confirm before committing.</div>
+        </div>
+      </li>
+    </ol>
   </div>
 
-  <div class="anchors" id="anchors"></div>
   <div id="agenda"></div>
 
-  <div class="loose">
+  <div class="block" id="fish">
+    <div class="hd">Fishing spots</div>
+    <div class="fcap">15-day license covers everything here except Scout Lake's stocked-trout pond. Check the expiry (~Jun 27&ndash;28 if it started the 13th).</div>
+    <div id="fishlist"></div>
+  </div>
+
+  <div class="block" id="loosewrap">
     <div class="hd">Loose, anytime this stay</div>
     <div class="chips" id="loose"></div>
   </div>
@@ -90,12 +147,6 @@ const PAL = {
   amber: {dot:'#b07d1e', fg:'#8a6114', bg:'#f1e7cf'},
   red:   {dot:'#b23b32', fg:'#8f2d26', bg:'#f4ddd9'},
 };
-
-const ANCHORS = [
-  ["Surgery Jul 2, vas reversal at Froedtert. Bekah drives + 24h care. Chain: reta done \u2713 \u00b7 NSAIDs/vit E/supps stop Jun 25 \u00b7 nurse calls ~Jun 30 \u00b7 clear liquids Jul 1 9pm.","coral"],
-  ["Book Bekah's flight, arriving late Jun 29 or Jun 30.","purple"],
-  ["Open: UP Scout canoe trip dates (~Jun 26\u201328?), the only thing that collides with surgery week. Confirm before committing.","red"],
-];
 
 const PHASES = [
   {label:"So far \u00b7 Jun 12\u201315", days:[
@@ -134,8 +185,16 @@ const PHASES = [
   ]},
 ];
 
+const FISH = [
+  ["Mauthe Lake","~1hr NW \u00b7 no-wake, accessible pier, free loaner rods \u00b7 bass, gills, crappie, pike \u00b7 park sticker"],
+  ["Long Lake","4 min from Mauthe \u00b7 3-mi flowage \u00b7 bass, crappie, pike \u00b7 park sticker"],
+  ["Random Lake","~40 min N \u00b7 muskie + bass, pike, walleye, panfish \u00b7 jet-ski circus midday, fish dawn/dusk \u00b7 no sticker"],
+  ["Milwaukee River","Estabrook & Kletzsch dams \u00b7 wadeable smallmouth"],
+  ["Lake Michigan piers","Oak Creek WE Energies, McKinley breakwall, Bay View \u00b7 smallmouth + perch right now"],
+  ["Green Lake","already fished, sailing-practice day"],
+];
+
 const LOOSE = [
-  ["Fishing","teal"],
   ["Filet lesson w/ Clifford Sr, if you land a keeper","teal"],
   ["Funeral pyre + church fence/brush work","teal"],
   ["A&W meal","purple"],
@@ -162,26 +221,60 @@ const dotEl = c => `<span class="dot" style="background:${PAL[c].dot}"></span>`;
 
 document.getElementById('updated').textContent = 'Last updated ' + UPDATED;
 
-document.getElementById('anchors').innerHTML =
-  `<div class="hd">Anchors &amp; open decisions</div>` +
-  ANCHORS.map(([t,c])=>`<div class="arow">${dotEl(c)}<div class="tx">${t}</div></div>`).join('');
-
 document.getElementById('agenda').innerHTML = PHASES.map(p=>{
   const rows = p.days.map(d=>{
     const st = stateFor(d.iso);
     const cls = 'day' + (st==='past'?' past':st==='today'?' today':'');
+    const oa = d.open ? ' data-open="1"' : '';
     const body = d.open
       ? `<div class="open">open</div>`
-      : d.items.map(([t,c])=>`<div class="it">${dotEl(c)}<div class="tx">${t}</div></div>`).join('');
+      : d.items.map(([t,c])=>`<div class="it" data-cat="${c}">${dotEl(c)}<div class="tx">${t}</div></div>`).join('');
     const tag = st==='today' ? `<span class="tag">today</span>` : '';
-    return `<div class="${cls}"><div class="date">${d.dow}<b>${d.date}</b>${tag}</div><div class="body">${body}</div></div>`;
+    return `<div class="${cls}"${oa}><div class="date">${d.dow}<b>${d.date}</b>${tag}</div><div class="body">${body}</div></div>`;
   }).join('');
-  return `<div class="plabel">${p.label}</div>${rows}`;
+  return `<div class="phase"><div class="plabel">${p.label}</div>${rows}</div>`;
 }).join('');
 
-document.getElementById('loose').innerHTML = LOOSE.map(([t,c])=>
-  `<span class="chip" style="background:${PAL[c].bg};color:${PAL[c].fg}">${t}</span>`
+document.getElementById('fishlist').innerHTML = FISH.map(([nm,meta])=>
+  `<div class="fitem" data-cat="teal"><span class="dot" style="background:#3f7d54"></span><div class="tx"><span class="nm">${nm}</span> <span class="meta">${meta}</span></div></div>`
 ).join('');
+
+document.getElementById('loose').innerHTML = LOOSE.map(([t,c])=>
+  `<span class="chip" data-cat="${c}" style="background:${PAL[c].bg};color:${PAL[c].fg}">${t}</span>`
+).join('');
+
+const ALL = ['coral','teal','purple','blue','amber','red'];
+let active = new Set(ALL);
+function applyFilter(){
+  const filtering = active.size < ALL.length;
+  document.querySelectorAll('#agenda [data-cat], #fish [data-cat], #loose [data-cat]').forEach(el=>{
+    el.style.display = active.has(el.dataset.cat) ? '' : 'none';
+  });
+  document.querySelectorAll('#agenda .day').forEach(day=>{
+    if(day.hasAttribute('data-open')){ day.style.display = filtering ? 'none' : ''; return; }
+    const vis = [...day.querySelectorAll('.it')].some(it=>it.style.display!=='none');
+    day.style.display = vis ? '' : 'none';
+  });
+  document.querySelectorAll('#agenda .phase').forEach(ph=>{
+    const vis = [...ph.querySelectorAll('.day')].some(d=>d.style.display!=='none');
+    ph.style.display = vis ? '' : 'none';
+  });
+  const fishVis = [...document.querySelectorAll('#fish [data-cat]')].some(e=>e.style.display!=='none');
+  document.getElementById('fish').style.display = fishVis ? '' : 'none';
+  const looseVis = [...document.querySelectorAll('#loose [data-cat]')].some(e=>e.style.display!=='none');
+  document.getElementById('loosewrap').style.display = looseVis ? '' : 'none';
+  document.querySelectorAll('.filter').forEach(f=> f.classList.toggle('off', !active.has(f.dataset.cat)));
+  document.getElementById('reset').style.display = filtering ? 'inline' : 'none';
+}
+document.querySelectorAll('.filter').forEach(f=>{
+  f.addEventListener('click', ()=>{
+    const c = f.dataset.cat;
+    if(active.has(c)) active.delete(c); else active.add(c);
+    applyFilter();
+  });
+});
+document.getElementById('reset').addEventListener('click', ()=>{ active = new Set(ALL); applyFilter(); });
+applyFilter();
 </script>
 </body>
 </html>
