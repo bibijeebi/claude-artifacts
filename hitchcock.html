@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Hitchcock Watch List</title>
+<meta name="description" content="Every Hitchcock that matters, ranked into tiers with a watch order. Track what you've seen, rate as you go. Start with Rear Window.">
+
+<meta property="og:title" content="The Hitchcock Watch List">
+<meta property="og:description" content="Every Hitchcock that matters, ranked into tiers with a watch order. Track what you've seen, rate as you go. Start with Rear Window.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/hitchcock-og-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/hitchcock.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/hitchcock-og-wide.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;500;600;700&family=Spectral:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0a0908;
+  --panel:#141110;
+  --panel2:#1c1815;
+  --line:#2a241f;
+  --red:#d62828;
+  --red-deep:#a01b16;
+  --cream:#ece2cd;
+  --bone:#c9bfa8;
+  --gold:#c9a227;
+  --muted:#8a7f6c;
+  --t1:#d62828;
+  --t2:#c9a227;
+  --t3:#cdbfa0;
+  --t4:#7d7363;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--cream);
+  font-family:'Oswald',sans-serif;
+  font-weight:300;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* film grain + vignette */
+body::before{
+  content:"";
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at center, transparent 38%, rgba(0,0,0,0.55) 100%);
+  mix-blend-mode:multiply;
+}
+body::after{
+  content:"";
+  position:fixed;inset:-50%;z-index:1;pointer-events:none;opacity:0.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:0 22px}
+
+/* ===== sticky progress bar ===== */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,9,8,0.82);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-in{max-width:1180px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;gap:18px}
+.mark{font-family:'Anton';font-size:18px;letter-spacing:2px;color:var(--cream);text-transform:uppercase;white-space:nowrap}
+.mark b{color:var(--red)}
+.bar-track{flex:1;height:6px;background:#241f1a;border:1px solid var(--line);position:relative;overflow:hidden}
+.bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--red-deep),var(--red));transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.bar-count{font-family:'Anton';font-size:16px;letter-spacing:1px;color:var(--cream);white-space:nowrap}
+.bar-count span{color:var(--red)}
+.reset{background:none;border:1px solid var(--line);color:var(--muted);font-family:'Oswald';font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:.2s;white-space:nowrap}
+.reset:hover{border-color:var(--red);color:var(--cream)}
+
+/* ===== hero ===== */
+.hero{position:relative;padding:70px 0 48px;text-align:center;overflow:hidden}
+.spiral{
+  position:absolute;top:50%;left:50%;width:560px;height:560px;
+  transform:translate(-50%,-50%);
+  opacity:0.16;pointer-events:none;
+  animation:spin 60s linear infinite;
+}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.kicker{font-size:13px;letter-spacing:6px;text-transform:uppercase;color:var(--red);font-weight:500;margin-bottom:14px;position:relative}
+.title{
+  font-family:'Anton';
+  font-size:clamp(54px,12vw,138px);
+  line-height:0.86;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--cream);
+  position:relative;
+  text-shadow:0 4px 0 rgba(0,0,0,0.4);
+}
+.title .cut{color:var(--red);display:block}
+.sub{
+  font-family:'Spectral';font-style:italic;font-size:clamp(15px,2.4vw,20px);
+  color:var(--bone);max-width:560px;margin:22px auto 0;position:relative;font-weight:400;
+}
+.slash{width:64px;height:4px;background:var(--red);margin:26px auto 0;position:relative}
+
+/* ===== feature card ===== */
+.feature{
+  margin:44px 0 8px;
+  background:linear-gradient(135deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);
+  border-left:5px solid var(--red);
+  padding:30px 32px;
+  display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:center;
+  position:relative;overflow:hidden;
+}
+.feature::after{
+  content:"01";position:absolute;right:-10px;bottom:-34px;
+  font-family:'Anton';font-size:160px;color:#ffffff;opacity:0.03;line-height:1;
+}
+.feat-badge{
+  font-family:'Anton';font-size:11px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--bg);background:var(--red);padding:7px 12px;writing-mode:vertical-rl;transform:rotate(180deg);
+  align-self:stretch;display:flex;align-items:center;justify-content:center;
+}
+.feat-body h2{font-family:'Anton';font-size:clamp(30px,5vw,46px);text-transform:uppercase;letter-spacing:1px;color:var(--cream);line-height:0.95}
+.feat-body h2 .yr{color:var(--red);font-size:0.55em;vertical-align:middle;margin-left:8px}
+.feat-body p{font-family:'Spectral';font-size:16px;color:var(--bone);margin-top:12px;max-width:640px;line-height:1.6}
+.feat-body .forks{margin-top:14px;font-size:14px;color:var(--muted);font-weight:300;letter-spacing:.3px}
+.feat-body .forks b{color:var(--cream);font-weight:600}
+
+/* ===== filter chips ===== */
+.filters{display:flex;flex-wrap:wrap;gap:9px;margin:46px 0 28px;align-items:center}
+.filt-label{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.chip{
+  font-family:'Oswald';font-weight:500;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;
+  background:var(--panel);border:1px solid var(--line);color:var(--bone);
+  padding:8px 15px;cursor:pointer;transition:.18s;
+}
+.chip:hover{border-color:var(--bone);color:var(--cream)}
+.chip.on{background:var(--red);border-color:var(--red);color:#fff}
+
+/* ===== tier sections ===== */
+.tier{margin-bottom:54px;scroll-margin-top:80px}
+.tier-head{display:flex;align-items:baseline;gap:16px;margin-bottom:6px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.tier-num{font-family:'Anton';font-size:46px;line-height:1;color:var(--red)}
+.tier.t-2 .tier-num{color:var(--gold)}
+.tier.t-3 .tier-num{color:var(--t3)}
+.tier.t-4 .tier-num{color:var(--t4)}
+.tier-name{font-family:'Anton';font-size:clamp(22px,4vw,32px);text-transform:uppercase;letter-spacing:1px;color:var(--cream)}
+.tier-tag{font-family:'Spectral';font-style:italic;font-size:15px;color:var(--muted);margin-left:auto;text-align:right}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;margin-top:20px}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-left:4px solid var(--red);
+  padding:18px 18px 16px;
+  position:relative;
+  transition:.2s;
+  display:flex;flex-direction:column;
+  min-height:158px;
+  overflow:hidden;
+}
+.card.t-2{border-left-color:var(--gold)}
+.card.t-3{border-left-color:var(--t3)}
+.card.t-4{border-left-color:var(--t4)}
+.card:hover{background:var(--panel2);transform:translateY(-2px)}
+.card.seen{border-left-color:var(--red);background:#100c0a}
+.card.seen::before{
+  content:"SEEN";
+  position:absolute;top:18px;right:-6px;
+  font-family:'Anton';font-size:34px;letter-spacing:2px;
+  color:var(--red);opacity:0.16;
+  border:4px solid var(--red);padding:2px 10px;
+  transform:rotate(-12deg);
+  pointer-events:none;
+}
+.c-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.c-title{font-family:'Anton';font-size:21px;line-height:1;text-transform:uppercase;letter-spacing:.5px;color:var(--cream);flex:1}
+.c-yr{font-family:'Oswald';font-weight:600;font-size:13px;color:var(--red);background:#241817;padding:2px 7px;letter-spacing:1px;white-space:nowrap}
+.card.t-2 .c-yr{color:var(--gold);background:#231e10}
+.card.t-3 .c-yr{color:var(--t3);background:#211d15}
+.card.t-4 .c-yr{color:var(--bone);background:#1d1a15}
+.c-desc{font-family:'Spectral';font-size:14px;line-height:1.5;color:var(--bone);flex:1;font-weight:400}
+.c-foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px;gap:10px}
+.stars{display:flex;gap:3px}
+.star{font-size:17px;color:#3a322a;cursor:pointer;transition:.12s;line-height:1;user-select:none}
+.star:hover{transform:scale(1.2)}
+.star.lit{color:var(--gold)}
+.toggle{
+  font-family:'Oswald';font-weight:600;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+  background:none;border:1px solid var(--line);color:var(--muted);
+  padding:6px 11px;cursor:pointer;transition:.18s;white-space:nowrap;
+}
+.toggle:hover{border-color:var(--bone);color:var(--cream)}
+.card.seen .toggle{background:var(--red);border-color:var(--red);color:#fff}
+
+/* footer */
+.foot{border-top:1px solid var(--line);padding:34px 0 60px;text-align:center;color:var(--muted);font-size:13px;letter-spacing:1px}
+.foot b{color:var(--bone);font-weight:500}
+.foot .q{font-family:'Spectral';font-style:italic;font-size:16px;color:var(--bone);max-width:600px;margin:0 auto 16px;display:block;line-height:1.6}
+
+.hidden{display:none!important}
+
+@media(max-width:640px){
+  .feature{grid-template-columns:1fr;padding:24px}
+  .feat-badge{writing-mode:horizontal-tb;transform:none;align-self:flex-start;padding:5px 12px}
+  .topbar-in{flex-wrap:wrap;gap:10px}
+  .mark{width:100%}
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="mark">HITCH<b>·</b>LIST</div>
+    <div class="bar-track"><div class="bar-fill" id="fill"></div></div>
+    <div class="bar-count"><span id="seenN">0</span> / <span id="totalN">30</span> SEEN</div>
+    <button class="reset" id="reset">Reset</button>
+  </div>
+</div>
+
+<div class="hero">
+  <svg class="spiral" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="#d62828" stroke-width="1.4">
+      <circle cx="100" cy="100" r="12"/><circle cx="100" cy="100" r="24"/>
+      <circle cx="100" cy="100" r="36"/><circle cx="100" cy="100" r="48"/>
+      <circle cx="100" cy="100" r="60"/><circle cx="100" cy="100" r="72"/>
+      <circle cx="100" cy="100" r="84"/><circle cx="100" cy="100" r="96"/>
+    </g>
+    <path d="M100,100 m0,-12 a12,12 0 1,1 -0.1,0 M100,100 m0,-24 a24,24 0 1,1 -0.1,0 M100,100 m0,-36 a36,36 0 1,1 -0.1,0 M100,100 m0,-60 a60,60 0 1,1 -0.1,0 M100,100 m0,-84 a84,84 0 1,1 -0.1,0" fill="none" stroke="#ece2cd" stroke-width="0.6" opacity="0.5"/>
+  </svg>
+  <div class="wrap">
+    <div class="kicker">The Master of Suspense</div>
+    <h1 class="title">Alfred<span class="cut">Hitchcock</span></h1>
+    <p class="sub">Fifty-plus years of films, distilled to the thirty that matter, sorted into tiers with a watch order. Tick them off, rate as you go.</p>
+    <div class="slash"></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="feature">
+    <div class="feat-badge">Watch&nbsp;First</div>
+    <div class="feat-body">
+      <h2>Rear Window<span class="yr">1954</span></h2>
+      <p>Hitchcock at his most controlled and most entertaining. One apartment, one man in a wheelchair, escalating dread, and secretly a film about the act of watching itself, which is the whole Hitchcock thesis. Ages the best of anything he made. If you see only one, see this.</p>
+      <div class="forks">Other picks: most shocking and important &rarr; <b>Psycho</b>. The critics' "greatest film ever" &rarr; <b>Vertigo</b>. But for pure "will I enjoy this tonight," Rear Window wins.</div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <span class="filt-label">Show</span>
+    <button class="chip on" data-f="all">All</button>
+    <button class="chip" data-f="1">Tier 1</button>
+    <button class="chip" data-f="2">Tier 2</button>
+    <button class="chip" data-f="3">Tier 3</button>
+    <button class="chip" data-f="4">Tier 4</button>
+    <button class="chip" data-f="unseen">Unseen</button>
+  </div>
+
+  <div id="tiers"></div>
+
+  <div class="foot">
+    <span class="q">"Always make the audience suffer as much as possible."</span>
+    <b>30 essential films</b> &nbsp;·&nbsp; he directed 53 features in all &nbsp;·&nbsp; progress saved in your browser
+  </div>
+
+</div>
+
+<script>
+const FILMS=[
+ {t:1,n:"Rear Window",y:1954,d:"The perfect one. Voyeurism, one set, escalating dread. Accessible, tight, timeless."},
+ {t:1,n:"Psycho",y:1960,d:"The most influential film he ever made. The shower, the score, the twist. Still lands."},
+ {t:1,n:"North by Northwest",y:1959,d:"The fun one. Wrong-man chase, crop duster, Mount Rushmore. Every Bond steals from it."},
+ {t:1,n:"Vertigo",y:1958,d:"Slow, hypnotic, obsessive. Divisive on first watch, grows into greatness. Topped the 2012 poll."},
+
+ {t:2,n:"Shadow of a Doubt",y:1943,d:"Hitch's own favorite. A killer uncle hiding in small-town America."},
+ {t:2,n:"Notorious",y:1946,d:"Bergman and Grant, espionage, his most romantic. Ruthlessly tight."},
+ {t:2,n:"Strangers on a Train",y:1951,d:"Two strangers swap murders. 'Criss-cross.' Lean and nasty."},
+ {t:2,n:"The Birds",y:1963,d:"Nature turns on you. No score, just shrieking. Apocalyptic."},
+ {t:2,n:"Rope",y:1948,d:"Faked as one continuous take, real-time, single room. A gimmick that works."},
+ {t:2,n:"Dial M for Murder",y:1954,d:"Perfect-crime chamber piece, originally shot in 3D."},
+ {t:2,n:"Rebecca",y:1940,d:"His only Best Picture winner. Gothic and gorgeous."},
+
+ {t:3,n:"The 39 Steps",y:1935,d:"Best of his British period. The blueprint for all his chases."},
+ {t:3,n:"The Lady Vanishes",y:1938,d:"Witty train mystery, brisk and clever."},
+ {t:3,n:"Spellbound",y:1945,d:"Psychoanalysis thriller with a Salvador Dalí dream sequence."},
+ {t:3,n:"To Catch a Thief",y:1955,d:"Grant and Kelly on the Riviera. Glossy and light."},
+ {t:3,n:"Frenzy",y:1972,d:"Late-career return to England and to form. Brutal, post-censorship."},
+ {t:3,n:"Marnie",y:1964,d:"Prickly, psychological, aged into a cult favorite."},
+ {t:3,n:"Lifeboat",y:1944,d:"The entire movie inside one lifeboat."},
+ {t:3,n:"Saboteur",y:1942,d:"Proto-North by Northwest. Statue of Liberty finale."},
+
+ {t:4,n:"The Man Who Knew Too Much",y:1956,d:"His remake of his own 1934 film. 'Que Sera, Sera.'"},
+ {t:4,n:"Suspicion",y:1941,d:"Grant as a maybe-poisoner. Fontaine won an Oscar."},
+ {t:4,n:"The Wrong Man",y:1956,d:"Bleak true story, Henry Fonda wrongly accused."},
+ {t:4,n:"The Trouble with Harry",y:1955,d:"Black comedy about a corpse nobody wants."},
+ {t:4,n:"Foreign Correspondent",y:1940,d:"WWII spy thriller, windmill set piece."},
+ {t:4,n:"Blackmail",y:1929,d:"Britain's first sound feature."},
+ {t:4,n:"Sabotage",y:1936,d:"Solid British-era suspense, infamous bus scene."},
+ {t:4,n:"Young and Innocent",y:1937,d:"Charming British-era chase picture."},
+ {t:4,n:"Torn Curtain",y:1966,d:"Cold War spy thriller. Weaker late work, one great kill."},
+ {t:4,n:"Family Plot",y:1976,d:"His final film. Lighter, lesser, but a complete career bookend."},
+];
+const TIERS={
+ 1:{name:"Start Here",tag:"The four that define him. Watch in this order."},
+ 2:{name:"Core Canon",tag:"The next seven. All masterworks or close."},
+ 3:{name:"Once You're Hooked",tag:"Deeper, weirder, still essential."},
+ 4:{name:"Deep Cuts & Completists",tag:"For when you want all of him."},
+};
+const KEY="hitchcock-tracker-v1";
+let state=JSON.parse(localStorage.getItem(KEY)||"{}");
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function id(f){return f.n.replace(/\W/g,"").toLowerCase()}
+
+function render(){
+ const root=document.getElementById("tiers");root.innerHTML="";
+ [1,2,3,4].forEach(t=>{
+   const sec=document.createElement("section");
+   sec.className="tier t-"+t;sec.dataset.tier=t;
+   sec.innerHTML=`<div class="tier-head">
+     <div class="tier-num">0${t}</div>
+     <div class="tier-name">${TIERS[t].name}</div>
+     <div class="tier-tag">${TIERS[t].tag}</div>
+   </div><div class="grid"></div>`;
+   const g=sec.querySelector(".grid");
+   FILMS.filter(f=>f.t===t).forEach(f=>{
+     const k=id(f),s=state[k]||{};
+     const seen=!!s.seen,rate=s.rate||0;
+     const card=document.createElement("div");
+     card.className="card t-"+t+(seen?" seen":"");
+     card.dataset.id=k;card.dataset.tier=t;card.dataset.seen=seen;
+     let stars="";for(let i=1;i<=5;i++)stars+=`<span class="star${i<=rate?" lit":""}" data-r="${i}">&#9733;</span>`;
+     card.innerHTML=`
+       <div class="c-top"><div class="c-title">${f.n}</div><div class="c-yr">${f.y}</div></div>
+       <div class="c-desc">${f.d}</div>
+       <div class="c-foot">
+         <div class="stars">${stars}</div>
+         <button class="toggle">${seen?"&#10003; Seen":"Mark seen"}</button>
+       </div>`;
+     g.appendChild(card);
+   });
+   root.appendChild(sec);
+ });
+ wire();updateBar();applyFilter();
+}
+function wire(){
+ document.querySelectorAll(".card").forEach(card=>{
+   const k=card.dataset.id;
+   card.querySelector(".toggle").onclick=()=>{
+     state[k]=state[k]||{};state[k].seen=!state[k].seen;save();render();
+   };
+   card.querySelectorAll(".star").forEach(st=>{
+     st.onclick=()=>{
+       const r=+st.dataset.r;state[k]=state[k]||{};
+       state[k].rate=(state[k].rate===r)?0:r;save();render();
+     };
+   });
+ });
+}
+function updateBar(){
+ const total=FILMS.length;
+ const seen=FILMS.filter(f=>state[id(f)]&&state[id(f)].seen).length;
+ document.getElementById("seenN").textContent=seen;
+ document.getElementById("totalN").textContent=total;
+ document.getElementById("fill").style.width=(seen/total*100)+"%";
+}
+let filter="all";
+function applyFilter(){
+ document.querySelectorAll(".card").forEach(c=>{
+   const t=c.dataset.tier,seen=c.dataset.seen==="true";
+   let show=true;
+   if(filter==="1"||filter==="2"||filter==="3"||filter==="4")show=(t===filter);
+   else if(filter==="unseen")show=!seen;
+   c.classList.toggle("hidden",!show);
+ });
+ document.querySelectorAll(".tier").forEach(sec=>{
+   const any=[...sec.querySelectorAll(".card")].some(c=>!c.classList.contains("hidden"));
+   sec.classList.toggle("hidden",!any);
+ });
+}
+document.querySelectorAll(".chip").forEach(ch=>{
+ ch.onclick=()=>{
+   document.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));
+   ch.classList.add("on");filter=ch.dataset.f;applyFilter();
+ };
+});
+document.getElementById("reset").onclick=()=>{
+ if(confirm("Clear all watched marks and ratings?")){state={};save();render();}
+};
+render();
+</script>
+</body>
+</html>
