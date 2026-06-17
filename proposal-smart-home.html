@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: Smart Home the Whole House</title>
+<meta property="og:title" content="Proposal: Smart Home the Whole House">
+<meta property="og:description" content="Home Assistant as the brain, Apple Home as the face. The Zigbee bulbs are already bought, so one $25 dongle lights up the whole house, then it scales into local AI cameras, sensors, and automations built for a homestead.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-smart-home-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/proposal-smart-home.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-smart-home-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { overflow-x: hidden; }
+:root {
+  --bark: #2C1810;
+  --loam: #3D2914;
+  --timber: #4A3320;
+  --fence: #5C4033;
+  --wire: #8B7355;
+  --hay: #D4A843;
+  --straw: #E8C878;
+  --cream: #F5F0E1;
+  --milk: #FDF8EF;
+  --grass: #4A7C3F;
+  --grass-light: #6BAF5B;
+  --rust: #A0522D;
+  --sky: #87CEEB;
+  --danger: #C0392B;
+  --info: #2980B9;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background: var(--milk);
+  color: var(--bark);
+  line-height: 1.75;
+  font-size: 17px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--fence);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.back-link:hover { color: var(--hay); }
+
+.hero {
+  position: relative;
+  padding: 4rem 1.5rem 3rem;
+  background: linear-gradient(135deg, var(--loam) 0%, var(--timber) 50%, var(--fence) 100%);
+  color: var(--cream);
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(-45deg, transparent 0px, transparent 20px, rgba(255,255,255,0.015) 20px, rgba(255,255,255,0.015) 22px);
+}
+.hero-inner { position: relative; max-width: 800px; margin: 0 auto; }
+.badge {
+  display: inline-block;
+  background: var(--hay);
+  color: var(--bark);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 2px;
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+.hero .subtitle {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--straw);
+  max-width: 640px;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+.meta-item { display: flex; flex-direction: column; gap: 2px; }
+.meta-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--wire);
+}
+.meta-value {
+  font-family: 'Fraunces', serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--cream);
+}
+.meta-value.cost { color: var(--hay); }
+
+.content { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.section { margin-bottom: 2.5rem; }
+.section h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bark);
+  margin-bottom: 0.75rem;
+}
+.section h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--timber);
+  margin: 1.25rem 0 0.5rem;
+}
+.section p { color: var(--timber); margin-bottom: 0.75rem; }
+.section p:last-child { margin-bottom: 0; }
+
+.bluf {
+  background: var(--bark);
+  color: var(--cream);
+  border-radius: 8px;
+  padding: 1.5rem 1.75rem;
+  margin: 0 0 2.5rem;
+}
+.bluf h2 { color: var(--straw); font-family: 'Fraunces', serif; font-size: 1.15rem; margin-bottom: 0.5rem; }
+.bluf p { color: var(--cream); font-size: 0.97rem; }
+.bluf strong { color: var(--hay); }
+
+/* ---- Flow / architecture ---- */
+.flow { display: flex; flex-direction: column; align-items: stretch; margin: 1.5rem 0; }
+.node {
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.node .node-kicker {
+  font-size: 0.62rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+  display: block; margin-bottom: 2px; opacity: 0.85;
+}
+.node .node-title { display: block; font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.02rem; line-height: 1.3; }
+.node .node-sub { display: block; font-size: 0.83rem; line-height: 1.45; margin-top: 4px; }
+.node.start { background: var(--bark); color: var(--cream); }
+.node.start .node-kicker { color: var(--straw); }
+.node.brain { background: #FFF8E7; border: 2px solid var(--hay); color: var(--bark); }
+.node.brain .node-kicker { color: var(--rust); }
+.node.good { background: #E8F3E4; border: 2px solid var(--grass); color: var(--loam); }
+.node.good .node-kicker { color: var(--grass); }
+.node.info-node { background: #EFF6FF; border: 2px solid var(--info); color: var(--loam); }
+.node.info-node .node-kicker { color: var(--info); }
+.connector { width: 2px; height: 22px; background: var(--wire); margin: 0 auto; }
+.branch { display: flex; gap: 0.75rem; align-items: stretch; }
+.branch > .lane { flex: 1; display: flex; flex-direction: column; align-items: stretch; }
+.branch-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  text-align: center; padding: 4px 0; color: var(--fence);
+}
+
+/* ---- Comparison path cards ---- */
+.path-card {
+  background: white; border-radius: 8px; padding: 1.5rem; margin: 1.25rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid var(--grass);
+}
+.path-card.bad { border-left-color: var(--danger); }
+.path-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.25rem; }
+.path-name { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 700; }
+.path-tag { color: var(--grass); font-size: 0.9rem; font-weight: 600; }
+.path-card.bad .path-tag { color: var(--danger); }
+.path-desc { color: var(--fence); font-size: 0.95rem; }
+
+/* ---- Tables ---- */
+.materials-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+.materials-table th {
+  text-align: left; font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--wire); padding: 8px 10px; border-bottom: 2px solid #e8e0d0;
+}
+.materials-table td { padding: 8px 10px; border-bottom: 1px solid #f0ebe0; color: var(--timber); vertical-align: top; }
+.materials-table tr:last-child td { border-bottom: none; }
+.materials-table .price { font-weight: 600; color: var(--grass); text-align: right; white-space: nowrap; }
+.materials-table .price.free { color: var(--info); }
+.materials-table tr.subtotal td { border-top: 2px solid #e8e0d0; font-weight: 700; color: var(--bark); }
+.materials-table tr.subtotal .price { color: var(--bark); }
+div.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ---- Callouts ---- */
+.callout {
+  background: #FFF8E7; border-left: 3px solid var(--hay); padding: 1rem 1.25rem; margin: 1.25rem 0;
+  border-radius: 0 4px 4px 0; font-size: 0.95rem;
+}
+.callout.info { background: #EFF6FF; border-left-color: var(--info); }
+.callout.warn { background: #FEF2F2; border-left-color: var(--danger); }
+.callout strong { color: var(--bark); }
+.callout a { color: var(--info); }
+
+/* ---- Shop / feature cards ---- */
+.shop-card {
+  background: white; border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid var(--hay);
+}
+.shop-card h4 { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 700; color: var(--bark); margin-bottom: 0.25rem; }
+.shop-card .shop-detail { font-size: 0.9rem; color: var(--fence); margin-bottom: 0.15rem; }
+.shop-card .shop-highlight { font-size: 0.85rem; color: var(--grass); font-weight: 500; margin-top: 0.4rem; }
+
+.feature {
+  background: white; border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); border-left: 4px solid var(--sky);
+}
+.feature h4 { font-family: 'Fraunces', serif; font-size: 1.08rem; font-weight: 700; color: var(--bark); margin-bottom: 0.5rem; }
+.feature ul { margin: 0; padding-left: 1.15rem; }
+.feature li { color: var(--timber); font-size: 0.93rem; margin-bottom: 0.35rem; line-height: 1.55; }
+.feature li:last-child { margin-bottom: 0; }
+.feature li strong { color: var(--loam); }
+
+.steps { margin: 0.75rem 0 0; padding-left: 1.25rem; }
+.steps li { color: var(--timber); font-size: 0.93rem; margin-bottom: 0.4rem; }
+.steps li strong { color: var(--loam); }
+
+.footer {
+  max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem 3rem;
+  border-top: 1px solid #e8e0d0; color: var(--wire); font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+  .meta-bar { gap: 1rem; }
+  .path-header { flex-direction: column; }
+  .hero { padding: 3rem 1.25rem 2rem; }
+  .content { padding: 2rem 1.25rem 3rem; }
+  .branch { flex-direction: column; gap: 0; }
+  .branch > .lane { margin-bottom: 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<a href="/proposals" class="back-link">&larr; All Proposals</a>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="badge">Proposal #025</span>
+    <h1>Smart Home the Whole House</h1>
+    <p class="subtitle">Home Assistant as the brain, Apple Home as the face. The Zigbee bulbs are already bought and in every room, so most of the system is paid for. One $25 dongle lights up the whole house under one roof, then it scales into local AI cameras, sensors, and automations actually built for a homestead.</p>
+    <div class="meta-bar">
+      <div class="meta-item"><span class="meta-label">Total Cost</span><span class="meta-value cost">$125&ndash;$1,200</span></div>
+      <div class="meta-item"><span class="meta-label">Difficulty</span><span class="meta-value">4/5</span></div>
+      <div class="meta-item"><span class="meta-label">Time</span><span class="meta-value">Phased, Phase 1 a weekend</span></div>
+      <div class="meta-item"><span class="meta-label">Category</span><span class="meta-value">Tech</span></div>
+      <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value">Proposed</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="bluf">
+    <h2>Bottom Line Up Front</h2>
+    <p>You already own the expensive part. <strong>Zigbee bulbs are in every room</strong>, which means the lighting layer is bought and paid for, it just has no brain that can talk to it. Apple Home can't speak Zigbee, so the move is <strong>Home Assistant as the engine</strong> with the <strong>HomeKit Bridge</strong> mirroring everything into the Apple Home app you and Bekah already use, plus <strong>Siri on a HomePod</strong>. HA runs as a VM on the Proxmox box from Proposal&nbsp;#023, your GPU runs <strong>Frigate</strong> for local AI cameras at zero monthly cost, and the UniFi network from #023 carries the PoE cameras. Lean entry is one $25 dongle and one HomePod mini, about <strong>$125</strong>, and every bulb in the house comes online under one roof. Full whole-house buildout with cameras, a doorbell, sensors, and a smart thermostat lands near <strong>$1,200</strong>, phased over months.</p>
+  </div>
+
+  <div class="callout info">
+    <strong>Chains with Proposal #023.</strong> This rides on the #023 server + network. <strong>Home Assistant</strong> runs as a VM on that Proxmox box and <strong>Frigate</strong> runs as a container with the GPU passed through, so both cost $0 in hardware. The PoE cameras hang off the UniFi switch, and IoT gets its own VLAN. You can do this fully standalone instead with a $99 Home Assistant Green and a cheap PoE switch, the parts list flags both paths. Net: do #023 first and this layer is nearly free to stand up.
+  </div>
+
+  <div class="section">
+    <h2>Why Now</h2>
+    <p>Right now you've got Zigbee bulbs scattered across the house sitting on their own little islands, run through whatever app shipped in the box. That's a half-built smart home with no brain. The point of this is <strong>one brain that runs everything locally</strong>: it survives the internet going down, costs nothing per month, and reaches every corner of the property instead of just the living room.</p>
+    <p>It also folds in pieces already on the board. Kong's dust-mite humidity problem (the dehumidifier, #004) becomes an automatic humidity hold instead of you squinting at a hygrometer. The outdoor rabbitry (#001) gets temp alerts so Rabbi Yosef and Rabbi Thump don't cook or freeze. And the fact that you're out of town for work constantly while Bekah holds down the fort turns into remote eyes on the whole place from a thousand miles away.</p>
+  </div>
+
+  <div class="section">
+    <h2>The Architecture: Brain and Face</h2>
+    <p><strong>Home Assistant is the engine. Apple Home is the pretty front end.</strong> HA does the heavy lifting, Zigbee, cameras, and any automation you can dream up, all running locally on hardware you own. The HomeKit Bridge integration then mirrors every device into the Apple Home app, so you and Bekah keep the clean interface and Siri, and a HomePod gives you voice. You get HA's power with Apple's polish, no compromise.</p>
+
+    <div class="flow">
+      <div class="node start">
+        <span class="node-kicker">Devices</span>
+        <span class="node-title">Zigbee bulbs, sensors, switches</span>
+        <span class="node-sub">Everything you already own, plus cheap add-ons later</span>
+      </div>
+      <div class="connector"></div>
+      <div class="node good">
+        <span class="node-kicker">Bridge</span>
+        <span class="node-title">Sonoff ZBDongle-E</span>
+        <span class="node-sub">One $25 USB stick, speaks Zigbee to any brand, fully local</span>
+      </div>
+      <div class="connector"></div>
+      <div class="node brain">
+        <span class="node-kicker">The Brain</span>
+        <span class="node-title">Home Assistant</span>
+        <span class="node-sub">VM on the #023 Proxmox box. Runs all logic locally. Frigate alongside it on the GPU for cameras.</span>
+      </div>
+      <div class="connector"></div>
+      <div class="branch">
+        <div class="lane">
+          <div class="branch-label">The face</div>
+          <div class="node info-node">
+            <span class="node-kicker">Front end</span>
+            <span class="node-title">Apple Home + Siri</span>
+            <span class="node-sub">Via HomeKit Bridge. The app you both already use, plus HomePod voice.</span>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="branch-label">The eyes</div>
+          <div class="node info-node">
+            <span class="node-kicker">Security</span>
+            <span class="node-title">Frigate on your GPU</span>
+            <span class="node-sub">Local AI person/car/package detection. Zero cloud, zero subscription.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Why not Apple Home as the brain?</h3>
+    <p>Two reasons, and they're both dealbreakers for your house.</p>
+
+    <div class="path-card">
+      <div class="path-header"><span class="path-name">Home Assistant as brain</span><span class="path-tag">Pick this</span></div>
+      <p class="path-desc">Speaks Zigbee natively with one $25 dongle. Unlimited local automations. Frigate cameras for free on your GPU. Remote access through your own Cloudflare tunnel. Mirrors into Apple Home so you still get the nice app and Siri. Fits your skills and your existing infrastructure exactly.</p>
+    </div>
+    <div class="path-card bad">
+      <div class="path-header"><span class="path-name">Apple Home as brain</span><span class="path-tag">Don't</span></div>
+      <p class="path-desc">Can't speak Zigbee, so you'd buy a bridge anyway. Its automation engine is a toy next to HA's, no real conditions, no scripting, no local AI cameras. You'd hit the ceiling in a week and be stuck inside a walled garden.</p>
+    </div>
+
+    <div class="table-wrap">
+    <table class="materials-table">
+      <tr><th>Capability</th><th>Apple Home as brain</th><th>Home Assistant as brain</th></tr>
+      <tr><td>Zigbee bulbs</td><td>needs a brand bridge</td><td>native via one $25 dongle</td></tr>
+      <tr><td>Automations</td><td>basic, Apple's rules only</td><td>unlimited, local, scriptable</td></tr>
+      <tr><td>Cameras</td><td>HomeKit Secure Video, iCloud sub</td><td>Frigate, local AI, free</td></tr>
+      <tr><td>Remote access</td><td>Apple's always-on hub</td><td>your Cloudflare tunnel, fully local</td></tr>
+      <tr><td>Front end + Siri</td><td>native</td><td>via HomeKit Bridge, you still get it</td></tr>
+      <tr><td>Fits your setup</td><td>no</td><td>yes</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>The Parts</h2>
+    <p>Grouped by layer. The headline number is small because the lights, the server, and the network are either already bought or already proposed. The only true new spend to get rolling is a dongle and a speaker.</p>
+
+    <h3>Brain &amp; Zigbee bridge</h3>
+    <div class="shop-card">
+      <h4>Home Assistant &mdash; $0 to $99</h4>
+      <p class="shop-detail"><strong>Free</strong> as a HAOS VM on the Proxmox box from #023, which is the cleanest path and what the pros recommend (virtualize it, never run it on an SD card).</p>
+      <p class="shop-detail"><strong>$99 alternative:</strong> a Home Assistant Green, a dedicated always-on box, if you want HA independent of the big server being up.</p>
+      <p class="shop-highlight">Recommendation: HAOS VM on #023. Proxmox snapshots make backups and rollbacks trivial.</p>
+    </div>
+    <div class="shop-card">
+      <h4>Sonoff ZBDongle-E &mdash; ~$25</h4>
+      <p class="shop-detail">The Zigbee coordinator, the single USB stick that lets HA talk to every Zigbee bulb regardless of brand.</p>
+      <p class="shop-highlight">The most-recommended HA coordinator in 2026. Brand-agnostic, handles 100+ devices, works with ZHA or Zigbee2MQTT, fully local with no cloud. Passes through to the HA VM. Mount it on a short USB extension, away from the router and off USB 3.0 ports, to dodge 2.4&nbsp;GHz interference.</p>
+    </div>
+
+    <h3>Voice &amp; the Apple hub</h3>
+    <div class="shop-card">
+      <h4>HomePod mini &mdash; $99 each (1&ndash;2)</h4>
+      <p class="shop-detail">Gives you Siri voice control and satisfies Apple Home's remote-access hub requirement. Place one central, add a second at the far end of the house for coverage.</p>
+      <p class="shop-highlight">Your Rokus stay exactly as they are, they have nothing to do with this. The HomePod is purely the voice and Apple-hub layer.</p>
+    </div>
+
+    <h3>The eyes: cameras &amp; doorbell (Frigate)</h3>
+    <div class="shop-card">
+      <h4>Frigate NVR &mdash; $0 software</h4>
+      <p class="shop-detail">Open-source local NVR built for Home Assistant. Runs real-time AI object detection on your GPU, identifies people, cars, packages, and animals, records to the 6TB, and fires events into HA.</p>
+      <p class="shop-highlight">No Coral TPU needed since your GPU handles inference. A $35 Coral USB is only relevant if you go standalone without the #023 GPU box.</p>
+    </div>
+    <div class="shop-card">
+      <h4>PoE cameras + doorbell &mdash; ~$50&ndash;100 each, doorbell ~$100</h4>
+      <p class="shop-detail">Reolink or Amcrest PoE cameras (they output RTSP, which Frigate needs) plus a PoE doorbell. One Ethernet cable does power and data, far more reliable than Wi-Fi cameras in a storm.</p>
+      <p class="shop-highlight">Ring and Nest don't support RTSP and won't work with Frigate, skip them. A $40 PoE switch powers it all, or use the UniFi PoE switch from #023.</p>
+    </div>
+
+    <h3>Sensors &amp; control (all Zigbee, all on the one dongle)</h3>
+    <div class="shop-card">
+      <h4>Cheap Zigbee sensors &amp; buttons &mdash; ~$10&ndash;20 each</h4>
+      <p class="shop-detail">Contact sensors (doors, garage, freezer), motion sensors, temp/humidity sensors (humidor, rabbitry, shop), water-leak sensors (under sinks, water heater, washer), and wall buttons for physical control. They all join the same dongle, no extra hubs.</p>
+      <p class="shop-highlight">Optional: an ecobee or Zigbee smart thermostat (~$130) and a DIY ESP32 + LD2410 mmWave presence sensor (~$15) running ESPHome for true "someone's in the room even if still" detection.</p>
+    </div>
+
+    <h3>Full bill of materials</h3>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <tr><th>Item</th><th>What it does</th><th class="price">Cost</th></tr>
+      <tr><td>Home Assistant (HAOS VM on #023)</td><td>The brain, all local logic</td><td class="price free">$0</td></tr>
+      <tr><td>&nbsp;&nbsp;&middot; or Home Assistant Green</td><td>Dedicated standalone brain</td><td class="price">$99</td></tr>
+      <tr><td>Sonoff ZBDongle-E</td><td>Zigbee coordinator, any brand</td><td class="price">$25</td></tr>
+      <tr><td>HomePod mini &times;1</td><td>Siri + Apple hub</td><td class="price">$99</td></tr>
+      <tr class="subtotal"><td>Lean start (lights online + voice)</td><td>Every existing bulb, under one roof</td><td class="price">~$125</td></tr>
+      <tr><td>Zigbee sensors &amp; buttons &times;~8</td><td>Doors, motion, temp, leak, wall control</td><td class="price">$90&ndash;160</td></tr>
+      <tr><td>Frigate NVR</td><td>Local AI cameras on the GPU</td><td class="price free">$0</td></tr>
+      <tr><td>PoE cameras &times;4</td><td>Person/car/package detection</td><td class="price">$200&ndash;400</td></tr>
+      <tr><td>PoE doorbell</td><td>Front-door video + detection</td><td class="price">$100</td></tr>
+      <tr><td>PoE switch (or use #023 UniFi)</td><td>Powers the cameras</td><td class="price">$0&ndash;40</td></tr>
+      <tr><td>HomePod mini #2</td><td>Voice at the far end</td><td class="price">$99</td></tr>
+      <tr><td>Smart thermostat (optional)</td><td>Presence + humidity climate</td><td class="price">$130</td></tr>
+      <tr><td>mmWave + humidor/extra sensors</td><td>True presence, cigar &amp; shop monitoring</td><td class="price">$40&ndash;80</td></tr>
+      <tr class="subtotal"><td>Full whole-house buildout</td><td>Phased over months</td><td class="price">~$1,000&ndash;1,200</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>What It Actually Does</h2>
+    <p>This is the part that matters. A pile of smart gear is worthless until it does work for you without being asked. Here's what the system runs once it's built, every one of these tied to how this house actually lives.</p>
+
+    <div class="feature">
+      <h4>Lighting that runs itself</h4>
+      <ul>
+        <li><strong>Sunset auto-on, sunrise auto-off</strong>, per room, so the house is never dark when you walk in and never burning lights at noon.</li>
+        <li><strong>Motion-triggered halls, bathrooms, and closets at night</strong>, dimmed low so a 3&nbsp;a.m. trip doesn't blind you.</li>
+        <li><strong>One-tap scenes</strong>: "Movie" drops the living room, "Goodnight" kills everything and locks up, "Leaving" shuts the house down as you pull out.</li>
+        <li><strong>Vacation randomization</strong> while you're out of town, lights cycle like someone's home.</li>
+        <li><strong>Adaptive lighting</strong>, warm at night and cool by day, automatically, plus a gentle wake-up fade in the bedroom.</li>
+      </ul>
+    </div>
+
+    <div class="feature">
+      <h4>Security &amp; cameras (Frigate, all local)</h4>
+      <ul>
+        <li><strong>Local AI detection</strong> of person, car, package, and animal, running on your GPU, no cloud and no monthly fee.</li>
+        <li><strong>Instant phone alert with a snapshot</strong> the moment a person hits the driveway or porch, not a generic "motion."</li>
+        <li><strong>Package detection</strong> logs the delivery with a timestamp and photo.</li>
+        <li><strong>Pet-aware:</strong> ignores Kong and Ginny crossing the yard and only alerts on humans and vehicles, which is the whole reason most people stop turning their cameras off.</li>
+        <li><strong>LLM Vision upgrade:</strong> alerts read "FedEx driver with a package" or "unknown person at the side door, no uniform" instead of "person detected."</li>
+        <li><strong>Recordings on the 6TB with smart retention</strong>, keep person events for 90 days, throw away empty footage.</li>
+      </ul>
+    </div>
+
+    <div class="feature">
+      <h4>Away from home (you're out of town constantly)</h4>
+      <ul>
+        <li><strong>Full remote view and control</strong> of the whole place from your phone in Wisconsin or wherever the job lands.</li>
+        <li><strong>Auto away-mode</strong>: arms when both your and Bekah's phones leave, disarms when you're back, no buttons.</li>
+        <li><strong>Bekah-home-alone safety:</strong> alerts to both phones, and a one-tap "Hey Siri, show me the front door."</li>
+        <li><strong>Leak, freeze, and smoke alerts reach your phone a thousand miles away</strong>, so you catch a burst pipe before it floods the house, not after.</li>
+        <li><strong>Garage-left-open alert plus one-tap remote close</strong> via the Meross controller, and a check that the doors locked from the airport.</li>
+      </ul>
+    </div>
+
+    <div class="feature">
+      <h4>Homestead &amp; pets</h4>
+      <ul>
+        <li><strong>Rabbitry temp/humidity monitoring (#001):</strong> alerts if the hutch gets too hot or freezing for Rabbi Yosef and Rabbi Thump.</li>
+        <li><strong>Freeze warnings</strong> for the garden, the water lines (#016), and the outdoor spigots before a hard night.</li>
+        <li><strong>Kong's dust-mite allergy:</strong> humidity sensors trigger the dehumidifier (#004) or HVAC to hold the house under the threshold automatically.</li>
+        <li><strong>Coop and run lights/door</strong> on a schedule, plus feed and water reminders.</li>
+      </ul>
+    </div>
+
+    <div class="feature">
+      <h4>The shop (welding &amp; woodworking)</h4>
+      <ul>
+        <li><strong>Shop lights on motion or a wall button</strong>, hands full of stock or a stinger, no problem.</li>
+        <li><strong>Dust collection or tool power on a smart plug</strong>, schedule or button-triggered.</li>
+        <li><strong>Garage door status and remote close</strong> (Meross), and a "did I leave the shop open" check.</li>
+        <li><strong>Shop temp/humidity monitoring</strong> to keep rust off the tools and the MIG.</li>
+      </ul>
+    </div>
+
+    <div class="feature">
+      <h4>Cigars, bar &amp; climate</h4>
+      <ul>
+        <li><strong>Humidor sensor with a drift alert</strong>, catch a humidor sliding off 70/70 before it dries out a box of Liga Privadas.</li>
+        <li><strong>Bar-area lighting scenes</strong> for when you're mixing.</li>
+        <li><strong>Presence + humidity-driven HVAC</strong>, don't heat or cool an empty house while you're OOT, and tie climate to the Kong humidity rule.</li>
+        <li><strong>Whole-home energy monitoring</strong>, including Tesla charging visibility.</li>
+      </ul>
+    </div>
+
+    <div class="feature">
+      <h4>Voice &amp; announcements (Siri / HomePod)</h4>
+      <ul>
+        <li><strong>"Hey Siri, goodnight"</strong> kills the lights, locks the doors, and arms the cameras in one shot.</li>
+        <li><strong>Spoken announcements</strong>: "garage door left open," "laundry's done," "someone's at the front door," "freezer door open."</li>
+        <li><strong>Ask Siri for any camera, light, or sensor</strong> by name, from any room.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Rollout</h2>
+    <p>Phase it so it's useful from day one and you never carry a big bill at once.</p>
+    <ol class="steps">
+      <li><strong>Foundation (a weekend):</strong> HA VM on the #023 box (or an HA Green), plug in the Sonoff dongle, migrate every Zigbee bulb onto it, flip on the HomeKit Bridge, add one HomePod mini. Result: every light is local, in Apple Home, and voice-controlled.</li>
+      <li><strong>Sensors &amp; control:</strong> add contact, motion, temp, and leak sensors plus a couple of wall buttons. Write the first real automations, sunset lights, motion halls, garage-open and leak alerts.</li>
+      <li><strong>The eyes:</strong> stand up Frigate on the GPU box, hang PoE cameras and a doorbell off the UniFi switch, wire person/car/package detection to phone alerts.</li>
+      <li><strong>The fun:</strong> LLM Vision smart alerts, mmWave presence, smart thermostat, humidor and rabbitry monitoring, energy, dashboards, and the full scene + voice layer.</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2>Reality Checks</h2>
+    <p>No perfect solution, here's the honest part.</p>
+    <ul class="steps">
+      <li><strong>HA has a learning curve</strong> and ships breaking updates now and then. That's the tax for total control and zero subscriptions. Pin versions and lean on Proxmox snapshots from #023 to roll back in seconds.</li>
+      <li><strong>Camera RTSP URLs are the single fiddliest thing</strong> in the whole build, every brand formats them differently. Budget one evening for it.</li>
+      <li><strong>Don't put your only mesh-routing bulbs on wall switches people flip off</strong>, a dead bulb kills that branch of the Zigbee mesh. Leave the switches hot, control in software, add buttons for the wall.</li>
+      <li><strong>One dongle replaces a shelf of brand hubs</strong> (Hue, Aqara, IKEA). Don't buy a hub per brand.</li>
+      <li><strong>Segment the IoT junk</strong> onto its own VLAN on the #023 UniFi network. Security, plus it keeps the chatter off your main network. You've already got the gear for it.</li>
+      <li><strong>HomeKit Secure Video is one-way</strong>, an HSV camera like the Aqara G400 over at Laurel's place won't hand video to HA. Go RTSP/PoE on the HA side; you can still push HA cameras into Apple Home, just not pull HSV out.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>Cost Summary</h2>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <tr><th>Tier</th><th>What you get</th><th class="price">Add</th></tr>
+      <tr><td>Lean start</td><td>Every existing bulb online, in Apple Home, voice control</td><td class="price">~$125</td></tr>
+      <tr><td>+ Sensors &amp; control</td><td>Door/motion/temp/leak + buttons, first automations</td><td class="price">+$90&ndash;160</td></tr>
+      <tr><td>+ Eyes (security)</td><td>4 PoE cams + doorbell, local AI detection (Frigate free)</td><td class="price">+$300&ndash;540</td></tr>
+      <tr><td>+ Extras</td><td>2nd HomePod, thermostat, mmWave, humidor/shop monitoring</td><td class="price">+$270&ndash;310</td></tr>
+      <tr class="subtotal"><td>Full whole-house</td><td>Phased over months</td><td class="price">~$1,000&ndash;1,200</td></tr>
+    </table>
+    </div>
+    <p>Standalone without #023 adds a $99 HA Green and a ~$40 PoE switch. The big takeaway stands either way: the lights are already paid for, so the cheapest, highest-impact move is the $125 lean start, and everything after that is optional and phased.</p>
+  </div>
+
+</div>
+
+<div class="footer">
+  Proposal #025 &middot; Foreman Homestead &middot; Smart Home the Whole House &middot; Home Assistant brain, Apple Home face, Frigate eyes. Chains with #023.
+</div>
+
+</body>
+</html>
