@@ -1,0 +1,257 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>D196 Lab — Accounting</title>
+<meta property="og:title" content="D196 Lab — Financial & Managerial Accounting">
+<meta property="og:description" content="WGU D196 prep: formula reference, a parametric calc engine that generates fresh problems with worked solutions, and a concept drill.">
+<meta property="og:url" content="https://niggerfaggot.club/d196-lab.html">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e0d;--bg2:#101614;--bg3:#161e1b;--line:#1d2926;--ink:#e8efe9;--dim:#7e918a;
+--lime:#d4ff3a;--green:#3ad47e;--amber:#ffc24b;--red:#ff5c5c;--blue:#5cc8ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'JetBrains Mono',monospace}
+h1,h2,h3,.fr{font-family:'Fraunces',serif}
+.wrap{max-width:760px;margin:0 auto;padding:16px 14px 92px}
+.title{font-size:29px;font-weight:900;letter-spacing:-.5px;line-height:1}.title b{color:var(--lime)}
+.sub{color:var(--dim);font-size:12px;margin-top:5px}
+.hr{height:1px;background:var(--line);margin:14px 0;border:0}
+.fade{animation:fade .25s ease}@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.chip{background:var(--bg2);border:1px solid var(--line);color:var(--dim);font:inherit;font-size:11.5px;border-radius:999px;padding:6px 12px;cursor:pointer;transition:.12s}
+.chip:hover{border-color:var(--lime);color:var(--ink)}.chip.on{background:var(--lime);color:#0a0e0d;border-color:var(--lime);font-weight:700}
+.search{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:11px;padding:11px 14px;font:inherit;font-size:13px;margin:4px 0 6px}
+.card{border:1px solid var(--line);background:var(--bg2);border-radius:13px;padding:13px 15px;margin:9px 0}
+.card .ct{font-family:'Fraunces',serif;font-weight:600;font-size:15px}
+.card .cf{margin-top:7px;background:#0a0e0d;border:1px solid var(--line);border-left:3px solid var(--lime);border-radius:8px;padding:9px 11px;font-size:13px;color:#eaf3ea;overflow-wrap:anywhere}
+.card .cx{margin-top:7px;font-size:12px;color:var(--blue)}.card .cn{margin-top:5px;font-size:11.5px;color:var(--dim)}
+.card .cn b{color:var(--amber)}
+.tag{float:right;font-size:10px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+
+/* calc engine */
+.prob{border:1px solid var(--line);background:var(--bg2);border-radius:14px;padding:16px;margin:10px 0}
+.ptype{font-size:11px;color:var(--lime);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.pq{font-size:14.5px;line-height:1.55}.pq b{color:var(--ink)}
+.give{margin-top:10px;font-size:13px;color:#cdd8d1;line-height:1.7}
+.give .v{color:var(--lime);font-weight:700}
+.ansrow{display:flex;gap:8px;margin-top:13px}
+.ansrow input{flex:1;background:#0a0e0d;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:12px;font:inherit;font-size:15px}
+.ansrow input:focus{outline:none;border-color:var(--lime)}
+.btn{background:var(--lime);color:#0a0e0d;border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:.12s}
+.btn:hover{filter:brightness(1.06)}.btn:active{transform:scale(.98)}
+.btn.g{background:transparent;border:1px solid var(--line);color:var(--dim)}.btn.g:hover{border-color:var(--lime);color:var(--ink)}
+.verdict{margin-top:12px;font-size:13px;font-weight:700}.verdict.ok{color:var(--green)}.verdict.no{color:var(--red)}
+.steps{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;font-size:12.5px;line-height:1.7;color:#cdd8d1}
+.steps .s{margin:3px 0}.steps .s b{color:var(--lime)}
+.row2{display:flex;gap:8px;margin-top:12px}
+
+/* mc drill */
+.opt{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:12px;margin:7px 0;font:inherit;color:var(--ink);cursor:pointer;transition:.13s}
+.opt:hover{border-color:var(--lime)}.opt .k{flex:0 0 auto;width:22px;height:22px;border-radius:6px;border:1px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--dim)}
+.opt.correct{border-color:var(--green);background:rgba(58,212,126,.09)}.opt.correct .k{background:var(--green);color:#04130a;border-color:var(--green)}
+.opt.wrong{border-color:var(--red);background:rgba(255,92,92,.09)}.opt.wrong .k{background:var(--red);color:#1a0303;border-color:var(--red)}
+.opt.lock{cursor:default}
+.expl{border:1px solid var(--line);border-left:3px solid var(--lime);background:var(--bg2);border-radius:10px;padding:11px 13px;margin:11px 0;font-size:13px;line-height:1.5;color:#cdd8d1}
+.expl.bad{border-left-color:var(--red)}
+.qhead{display:flex;gap:9px;font-size:11.5px;color:var(--dim);margin-bottom:11px}.qhead .sc{margin-left:auto}
+.qtext{font-family:'Fraunces',serif;font-size:18px;font-weight:600;line-height:1.34;margin:0 0 14px}
+
+.statline{display:flex;justify-content:space-between;padding:9px 11px;border:1px solid var(--line);background:var(--bg2);border-radius:10px;margin:6px 0;font-size:12.5px}
+.statline .pct{font-family:'Fraunces',serif;font-weight:700}
+.hstrip{display:flex;gap:10px;margin:12px 0}
+.hcard{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 13px}
+.hcard .n{font-family:'Fraunces',serif;font-size:24px;font-weight:900;line-height:1}.hcard .l{font-size:10.5px;color:var(--dim);margin-top:3px;text-transform:uppercase;letter-spacing:.4px}
+
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:rgba(10,14,13,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+.tabbar button{flex:1;background:none;border:0;color:var(--dim);font:inherit;font-size:11px;padding:10px 4px 8px;cursor:pointer}
+.tabbar button .ic{display:block;font-size:17px;margin-bottom:3px}.tabbar button.on{color:var(--lime)}
+.hidden{display:none}
+.kbd{font-size:11px;color:var(--dim);margin-top:14px;text-align:center}.kbd b{color:var(--ink)}
+@media(max-width:520px){.title{font-size:25px}.qtext{font-size:16px}.hcard .n{font-size:20px}}
+</style></head><body><div class="wrap">
+
+<section id="t-formulas">
+  <div class="title">D196 <b>LAB</b></div>
+  <div class="sub">Financial &amp; Managerial Accounting · formulas · live calc practice · concept drill</div>
+  <div class="chips" id="fCats"></div>
+  <input class="search" id="fSearch" placeholder="Search formulas &amp; concepts…" oninput="renderFormulas()">
+  <div id="fList"></div>
+</section>
+
+<section id="t-calc" class="hidden">
+  <div class="title">Calc <b>Engine</b></div>
+  <div class="sub">Fresh numbers every problem. Solve it, then check the worked steps.</div>
+  <div class="chips" id="cCats"></div>
+  <div id="probHost"></div>
+  <div class="kbd">Type your answer (numbers only) · <b>Enter</b> to check · then <b>Enter</b> for next</div>
+</section>
+
+<section id="t-concepts" class="hidden">
+  <div class="title">Concept <b>Drill</b></div>
+  <div class="sub">39 questions across the memorization-heavy lessons.</div>
+  <div class="chips" id="mCats"></div>
+  <div id="mcHost"></div>
+</section>
+
+<section id="t-stats" class="hidden">
+  <div class="title">Stats</div>
+  <div class="sub">Your accuracy by area.</div>
+  <div class="hstrip">
+    <div class="hcard"><div class="n lime" id="sCalc">0%</div><div class="l">calc engine</div></div>
+    <div class="hcard"><div class="n" id="sMC">0%</div><div class="l">concept drill</div></div>
+    <div class="hcard"><div class="n" id="sTot">0</div><div class="l">total done</div></div>
+  </div>
+  <div class="hr"></div>
+  <div class="sub" style="margin-bottom:6px">Calc engine by type</div>
+  <div id="sCalcRows"></div>
+  <div class="hr"></div>
+  <div class="sub" style="margin-bottom:6px">Concept drill by topic</div>
+  <div id="sMCRows"></div>
+  <div class="hr"></div>
+  <button class="btn g" onclick="resetAll()">Reset progress</button>
+</section>
+
+<nav class="tabbar">
+  <button id="tb-formulas" class="on" onclick="tab('formulas')"><span class="ic">∑</span>Formulas</button>
+  <button id="tb-calc" onclick="tab('calc')"><span class="ic">⌨</span>Calc</button>
+  <button id="tb-concepts" onclick="tab('concepts')"><span class="ic">▤</span>Concepts</button>
+  <button id="tb-stats" onclick="tab('stats')"><span class="ic">▦</span>Stats</button>
+</nav>
+</div>
+<script>
+const FORMULAS=[{"id": "cm_unit", "title": "Contribution Margin (per unit)", "f": "CM/unit = Price − Variable Cost/unit", "ex": "$100 bill − $25 variable = $75 per patient", "note": "Each unit's $ toward fixed costs, then profit.", "cat": "CVP"}, {"id": "cm_total", "title": "Contribution Margin (total)", "f": "CM = Sales Revenue − Total Variable Costs", "ex": "$5,000 − $2,000 = $3,000 per flight", "note": "Total margin available to cover fixed costs.", "cat": "CVP"}, {"id": "cm_ratio", "title": "Contribution Margin Ratio", "f": "CM Ratio = CM ÷ Sales = 1 − Variable Cost Ratio", "ex": "$3,000 ÷ $5,000 = 60%", "note": "% of each sales dollar left after variable cost.", "cat": "CVP"}, {"id": "vc_ratio", "title": "Variable Cost Ratio", "f": "VC Ratio = Variable Costs ÷ Sales = 1 − CM Ratio", "ex": "$2,000 ÷ $5,000 = 40%", "note": "Complement of CM ratio. For total VC use VC ratio × sales, NOT per-unit × sales.", "cat": "CVP"}, {"id": "be_units", "title": "Break-Even (units)", "f": "Break-Even Units = Fixed Costs ÷ CM per unit", "ex": "$18,000 ÷ $75 = 240 patients", "note": "Units needed so profit = 0.", "cat": "CVP"}, {"id": "be_dollars", "title": "Break-Even (dollars)", "f": "Break-Even $ = Fixed Costs ÷ CM Ratio", "ex": "$3,000,000 ÷ 0.60 = $5,000,000", "note": "Use the CM RATIO for dollars, not per-unit CM.", "cat": "CVP"}, {"id": "target_units", "title": "Target Profit (units)", "f": "Units = (Fixed Costs + Target Profit) ÷ CM per unit", "ex": "($18,000 + $7,500) ÷ $75 = 340", "note": "Break-even plus the units to earn the target.", "cat": "CVP"}, {"id": "target_dollars", "title": "Target Profit (dollars)", "f": "Sales$ = (Fixed Costs + Target Profit) ÷ CM Ratio", "ex": "($3,000,000 + $600,000) ÷ 0.60 = $6,000,000", "note": "Dollar version of the target-profit formula.", "cat": "CVP"}, {"id": "mos", "title": "Margin of Safety", "f": "MOS $ = Actual (or budgeted) Sales − Break-Even Sales   ·   MOS % = MOS $ ÷ Actual Sales", "ex": "$7,000,000 − $5,000,000 = $2,000,000 (≈28.6%)", "note": "Cushion before you drop into a loss.", "cat": "CVP"}, {"id": "cvp_eq", "title": "Core CVP Equation", "f": "(Price × Units) − (VC × Units) − Fixed Costs = Target Income   (= 0 at break-even)", "ex": "800X − $1,600,000 − $3,000,000 = 0 → X = $5,750", "note": "Set income = 0 and solve for the unknown.", "cat": "CVP"}, {"id": "poh_rate", "title": "Predetermined Overhead Rate", "f": "Rate = Estimated Manufacturing Overhead ÷ Estimated Activity Base", "ex": "$268,800 ÷ 8,400 machine hrs = $32/MH", "note": "Set BEFORE the year, applied evenly all year.", "cat": "Costing"}, {"id": "applied_oh", "title": "Applied Overhead", "f": "Applied Overhead = Predetermined Rate × Actual Activity", "ex": "$32/MH × 7,900 MH = $252,800", "note": "Charged to Work-in-Process as production happens.", "cat": "Costing"}, {"id": "fc_unit", "title": "Fixed Cost per Unit", "f": "FC per unit = Total Fixed Cost ÷ Units", "ex": "$60,000 ÷ 300 = $200 each", "note": "DECREASES as volume rises (economy of scale).", "cat": "CostBeh"}, {"id": "acct_eq", "title": "Accounting Equation", "f": "Assets = Liabilities + Owners' Equity", "ex": "$500k assets = $300k liabilities + $200k equity", "note": "Must always balance; basis of the balance sheet.", "cat": "Fin"}], NOTES=[{"id": "trap_perunit", "title": "Cost Behavior Trap", "f": "Variable cost = constant PER UNIT, changes in TOTAL. Fixed cost = constant in TOTAL, changes PER UNIT.", "ex": "Per-unit variable is fixed; per-unit fixed varies.", "note": "D196's single favorite trick question.", "cat": "CostBeh"}, {"id": "stmt_show", "title": "What Each Statement Shows", "f": "Balance Sheet = position at a point (A=L+E). Income Statement = performance over a period (rev−exp). Retained Earnings = beginning RE + NI − dividends. Cash Flows = operating/investing/financing.", "ex": "Snapshot vs period; the four statements articulate.", "note": "B/S is a moment, I/S is a span.", "cat": "Fin"}, {"id": "fin_vs_mgr", "title": "Financial vs Managerial", "f": "Financial = external users (investors/creditors), GAAP, historical, whole company. Managerial = internal (managers), no GAAP required, future-oriented, by segment.", "ex": "External+GAAP+past vs Internal+flexible+future.", "note": "Who reads it tells you which one.", "cat": "Mgr"}], MC=[{"q": "What is the primary purpose of accounting?", "o": ["To provide quantitative financial information useful for making economic decisions", "To maximize a company's tax refund", "To record only cash transactions", "To replace the need for managers"], "a": 0, "t": "Foundations", "e": "Accounting is a system providing financial information for sound economic decisions."}, {"q": "Which term is described as 'the language of business'?", "o": ["Bookkeeping", "Accounting", "Financial statements", "Reporting"], "a": 1, "t": "Foundations", "e": "Accounting is commonly called the language of business."}, {"q": "Financial accounting primarily serves which users?", "o": ["Internal managers only", "External users such as investors and creditors", "Production line workers", "Government auditors exclusively"], "a": 1, "t": "Foundations", "e": "Financial accounting reports to external users (investors, creditors)."}, {"q": "Managerial accounting is best described as", "o": ["Reporting to external users under GAAP", "Gathering and analyzing information for internal use and decision-making", "Filing tax returns", "Auditing public companies"], "a": 1, "t": "Foundations", "e": "Managerial accounting is for internal use and decision-making."}, {"q": "Which is NOT one of the three sources of business capital?", "o": ["Investors", "Creditors (lenders)", "The business itself (retained earnings)", "Government grants by default"], "a": 3, "t": "Foundations", "e": "Capital comes from investors, creditors, and the business itself."}, {"q": "Bookkeeping refers to", "o": ["The day-to-day recording of transactions", "High-level financial strategy", "Auditing financial statements", "Setting GAAP standards"], "a": 0, "t": "Foundations", "e": "Bookkeeping is the routine day-to-day recording of transactions."}, {"q": "Ethical standards in accounting primarily", "o": ["Enhance the value and reliability of accounting information", "Slow down the reporting process", "Are optional for private firms", "Apply only to auditors"], "a": 0, "t": "Foundations", "e": "Ethics enhance the value and integrity of accounting information."}, {"q": "The accounting equation is", "o": ["Assets = Liabilities − Equity", "Assets = Liabilities + Owners' Equity", "Assets + Liabilities = Equity", "Revenue = Assets + Liabilities"], "a": 1, "t": "Cycle", "e": "Assets = Liabilities + Owners' Equity, and it must always balance."}, {"q": "An owner invests personal cash into the business. The effect is", "o": ["Assets increase, equity increases", "Assets decrease, liabilities increase", "Equity decreases only", "No effect"], "a": 0, "t": "Cycle", "e": "Cash (asset) up and owner's equity up."}, {"q": "A company buys equipment on account (credit). The effect is", "o": ["Assets increase, liabilities increase", "Assets decrease, equity decreases", "Liabilities decrease only", "Equity increases"], "a": 0, "t": "Cycle", "e": "Equipment (asset) up and accounts payable (liability) up."}, {"q": "Which sequence reflects the financial accounting cycle?", "o": ["Report → analyze → record", "Analyze transactions → record → report", "Record → report → analyze", "Budget → report → audit"], "a": 1, "t": "Cycle", "e": "Analyze the transaction, record it, then report it."}, {"q": "Which statement shows financial position at a single point in time?", "o": ["Income statement", "Balance sheet", "Statement of cash flows", "Statement of retained earnings"], "a": 1, "t": "Statements", "e": "The balance sheet is a snapshot at a point in time."}, {"q": "Which statement reports performance over a period of time?", "o": ["Balance sheet", "Income statement", "Notes to the statements", "Trial balance"], "a": 1, "t": "Statements", "e": "The income statement covers a span of time (revenues − expenses)."}, {"q": "Operating income equals", "o": ["Sales − COGS − operating expenses", "Assets − liabilities", "Cash in − cash out", "Revenue + dividends"], "a": 0, "t": "Statements", "e": "Operating income = sales − COGS − operating expenses."}, {"q": "The statement of retained earnings is calculated as", "o": ["Beginning RE + Net Income − Dividends", "Assets − Liabilities", "Revenue − Expenses only", "Cash inflows − outflows"], "a": 0, "t": "Statements", "e": "Ending RE = beginning RE + net income − dividends."}, {"q": "The statement of cash flows is organized into which three sections?", "o": ["Operating, investing, financing", "Current, long-term, equity", "Sales, costs, profit", "Fixed, variable, mixed"], "a": 0, "t": "Statements", "e": "Cash flows = operating, investing, and financing activities."}, {"q": "Horizontal analysis compares", "o": ["A line item across multiple periods (dollar/percent change)", "Each item as a percent of a base within one period", "Two unrelated companies' logos", "Cash vs accrual basis"], "a": 0, "t": "Statements", "e": "Horizontal analysis = changes in a line item across periods."}, {"q": "Vertical analysis expresses", "o": ["Each statement item as a percent of a base figure (e.g., total sales)", "The change from year to year", "Only cash transactions", "The market price of stock"], "a": 0, "t": "Statements", "e": "Vertical analysis = each item as a % of a base within one period."}, {"q": "A variable cost behaves how?", "o": ["Constant in total, varies per unit", "Constant per unit, varies in total", "Constant both in total and per unit", "Always zero"], "a": 1, "t": "CostConcepts", "e": "Variable cost is constant per unit and changes in total with volume."}, {"q": "A fixed cost behaves how?", "o": ["Constant in total, varies per unit", "Constant per unit, varies in total", "Increases per unit as volume rises", "Varies in total with volume"], "a": 0, "t": "CostConcepts", "e": "Fixed cost is constant in total; per-unit fixed cost falls as volume rises."}, {"q": "As production volume increases, fixed cost per unit", "o": ["Increases", "Decreases", "Stays exactly constant", "Becomes variable"], "a": 1, "t": "CostConcepts", "e": "Spreading fixed cost over more units lowers per-unit fixed cost (economy of scale)."}, {"q": "Any cost containing both a fixed and a variable component is a", "o": ["Step cost", "Mixed cost", "Sunk cost", "Opportunity cost"], "a": 1, "t": "CostConcepts", "e": "A combination of fixed and variable is a mixed cost."}, {"q": "A cost that jumps to a new level once an activity threshold is crossed is a", "o": ["Mixed cost", "Stepped fixed cost", "Pure variable cost", "Period cost"], "a": 1, "t": "CostConcepts", "e": "Stepped fixed costs jump up at activity thresholds."}, {"q": "Product costs include", "o": ["Direct materials, direct labor, and manufacturing overhead", "Selling and administrative expenses", "Interest and dividends", "Only direct materials"], "a": 0, "t": "CostConcepts", "e": "Product costs = DM + DL + manufacturing overhead."}, {"q": "Period costs are", "o": ["Expensed in the period incurred (selling & admin)", "Attached to the product until sold", "Always variable", "Part of inventory"], "a": 0, "t": "CostConcepts", "e": "Period costs (selling/admin) are expensed when incurred, not inventoried."}, {"q": "Direct materials are", "o": ["Raw materials directly traceable to the product (e.g., aluminum for airplanes)", "Factory rent", "The CEO's salary", "Advertising"], "a": 0, "t": "CostConcepts", "e": "Direct materials are traceable raw inputs, like aluminum for planes."}, {"q": "Indirect costs are also called", "o": ["Common or joint costs", "Direct costs", "Marginal costs", "Prime costs"], "a": 0, "t": "CostConcepts", "e": "Indirect costs are common/joint costs benefiting several segments."}, {"q": "Contribution margin is", "o": ["Sales revenue minus variable costs", "Sales minus fixed costs", "Fixed costs minus variable costs", "Revenue minus taxes"], "a": 0, "t": "CVP", "e": "CM = sales revenue − variable costs; it covers fixed costs, then profit."}, {"q": "At the break-even point, profit equals", "o": ["A positive target", "Zero", "Total fixed costs", "Total contribution margin doubled"], "a": 1, "t": "CVP", "e": "Break-even is where total revenue covers all costs and profit = 0."}, {"q": "To find break-even in DOLLARS you divide fixed costs by", "o": ["CM per unit", "The contribution margin ratio", "The variable cost per unit", "Total sales"], "a": 1, "t": "CVP", "e": "Break-even dollars = fixed costs ÷ CM ratio."}, {"q": "CVP analysis is also commonly called", "o": ["Ratio analysis", "Break-even analysis", "Horizontal analysis", "Variance analysis"], "a": 1, "t": "CVP", "e": "CVP is often called break-even analysis."}, {"q": "The margin of safety represents", "o": ["How far sales can fall before reaching break-even", "The markup on each unit", "Total fixed costs", "The tax cushion"], "a": 0, "t": "CVP", "e": "Margin of safety = how far sales can drop before hitting break-even."}, {"q": "The predetermined overhead rate is computed as", "o": ["Estimated overhead ÷ estimated activity base", "Actual overhead ÷ actual units", "Overhead × direct labor", "Sales ÷ overhead"], "a": 0, "t": "Costing", "e": "Predetermined rate = estimated manufacturing overhead ÷ estimated activity base."}, {"q": "Applied overhead equals", "o": ["Predetermined rate × actual activity", "Estimated overhead ÷ units", "Actual overhead − budget", "Direct labor × sales"], "a": 0, "t": "Costing", "e": "Applied overhead = predetermined rate × actual activity level."}, {"q": "Job order costing is most appropriate when", "o": ["Costs are specifically identified with a distinct job or product", "Identical units flow continuously", "There are no overhead costs", "Only one product exists forever"], "a": 0, "t": "Costing", "e": "Job order costing fits when costs trace to a specific job/product."}, {"q": "Process costing is best suited to", "o": ["Continuous production of identical/homogeneous units", "Custom one-off jobs", "Service firms only", "Companies with no inventory"], "a": 0, "t": "Costing", "e": "Process costing suits continuous, homogeneous production."}, {"q": "Activity-based costing (ABC) assigns overhead using", "o": ["Multiple cost pools and cost drivers", "A single plantwide rate only", "Direct materials only", "Random allocation"], "a": 0, "t": "Costing", "e": "ABC uses multiple cost pools and activity drivers for accuracy."}, {"q": "The master budget process begins with the", "o": ["Cash budget", "Sales budget", "Production budget", "Balance sheet"], "a": 1, "t": "Budgeting", "e": "The master budget starts with the sales budget."}, {"q": "A master budget is best described as", "o": ["A comprehensive financial plan for the coming period", "A single department's wish list", "Last year's actual results", "A tax return"], "a": 0, "t": "Budgeting", "e": "The master budget is a comprehensive plan/blueprint for operations."}], DOMAINS={"Foundations": "Role, Users & Ethics", "Cycle": "Accounting Cycle", "Statements": "Financial Statements", "CostConcepts": "Cost Concepts", "CVP": "CVP & Break-Even", "Costing": "Costing & Overhead", "Budgeting": "Budgeting"};
+const FCAT={CVP:"CVP & Break-Even",Costing:"Costing & Overhead",CostBeh:"Cost Behavior",Fin:"Financial",Mgr:"Managerial"};
+const KEY="d196lab_v1";
+let DB=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){return fresh()}}
+function fresh(){return {calc:{},mc:{}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}}
+function bump(group,key,ok){const g=DB[group];g[key]=g[key]||{r:0,t:0};g[key].t++;if(ok)g[key].r++;save()}
+function esc(s){return(''+s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function money(n){return '$'+Math.round(n).toLocaleString()}
+function money2(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+/* ---------- FORMULAS ---------- */
+let fCat='all';
+function renderFCats(){const host=document.getElementById('fCats');const cats=['all',...new Set(FORMULAS.concat(NOTES).map(f=>f.cat))];
+  host.innerHTML=cats.map(c=>`<button class="chip ${c===fCat?'on':''}" onclick="fCat='${c}';renderFCats();renderFormulas()">${c==='all'?'All':FCAT[c]||c}</button>`).join('')}
+function renderFormulas(){const q=(document.getElementById('fSearch').value||'').toLowerCase();const host=document.getElementById('fList');
+  const all=[...FORMULAS,...NOTES].filter(f=>(fCat==='all'||f.cat===fCat));
+  host.innerHTML=all.filter(f=>!q||(f.title+f.f+f.ex+f.note).toLowerCase().includes(q)).map(f=>
+    `<div class="card fade"><span class="tag">${FCAT[f.cat]||f.cat}</span><div class="ct">${esc(f.title)}</div>
+     <div class="cf">${esc(f.f)}</div>
+     ${f.ex?`<div class="cx">e.g. ${esc(f.ex)}</div>`:''}
+     ${f.note?`<div class="cn"><b>▸</b> ${esc(f.note)}</div>`:''}</div>`).join('')||'<div class="sub">No match.</div>'}
+
+/* ---------- CALC ENGINE ---------- */
+function ri(min,max,step){step=step||1;const n=Math.floor((max-min)/step)+1;return min+step*Math.floor(Math.random()*n)}
+const GEN={
+ cm_unit:()=>{const vc=ri(8,60),cm=ri(15,90),price=vc+cm;return{
+   type:"Contribution Margin / unit",
+   q:`A product sells for <b>${money(price)}</b> per unit with <b>${money(vc)}</b> of variable cost per unit. What is the contribution margin per unit?`,
+   ans:cm,fmt:money,
+   steps:[["CM/unit = Price − Variable Cost/unit"],[`= ${money(price)} − ${money(vc)} = `,money(cm)]]}},
+ cm_ratio:()=>{const price=ri(20,200,5);const cmr=[0.25,0.3,0.4,0.5,0.6,0.7,0.75][ri(0,6)];const cm=Math.round(price*cmr);const vc=price-cm;const r=cm/price*100;return{
+   type:"Contribution Margin Ratio",
+   q:`A unit sells for <b>${money(price)}</b> with variable cost of <b>${money(vc)}</b>. What is the contribution margin ratio (percent, 1 decimal)?`,
+   ans:+r.toFixed(1),fmt:v=>v+'%',tol:0.15,
+   steps:[["CM/unit = "+money(price)+" − "+money(vc)+" = "+money(cm)],["CM Ratio = CM ÷ Sales"],[`= ${money(cm)} ÷ ${money(price)} = `,r.toFixed(1)+'%']]}},
+ be_units:()=>{const cm=ri(10,80,5);const be=ri(40,900,10);const fc=cm*be;return{
+   type:"Break-Even (units)",
+   q:`Fixed costs are <b>${money(fc)}</b> and the contribution margin is <b>${money(cm)}</b> per unit. What is the break-even point in units?`,
+   ans:be,fmt:v=>v.toLocaleString()+' units',
+   steps:[["Break-Even Units = Fixed Costs ÷ CM per unit"],[`= ${money(fc)} ÷ ${money(cm)} = `,be.toLocaleString()+' units']]}},
+ be_dollars:()=>{const cmr=[0.2,0.25,0.4,0.5,0.6][ri(0,4)];const beK=ri(20,400,10);const be=beK*1000;const fc=Math.round(be*cmr);return{
+   type:"Break-Even (dollars)",
+   q:`Fixed costs are <b>${money(fc)}</b> and the contribution margin ratio is <b>${(cmr*100)}%</b>. What is the break-even point in sales dollars?`,
+   ans:be,fmt:money,tol:1,
+   steps:[["Break-Even $ = Fixed Costs ÷ CM Ratio"],[`= ${money(fc)} ÷ ${cmr} = `,money(be)],["(Use the RATIO for dollars, not per-unit CM.)"]]}},
+ target_units:()=>{const cm=ri(10,60,5);const beU=ri(50,500,10);const fc=cm*beU;const extra=ri(20,300,10);const tp=cm*extra;const units=beU+extra;return{
+   type:"Target Profit (units)",
+   q:`Fixed costs are <b>${money(fc)}</b>, CM is <b>${money(cm)}</b> per unit, and the target profit is <b>${money(tp)}</b>. How many units must be sold?`,
+   ans:units,fmt:v=>v.toLocaleString()+' units',
+   steps:[["Units = (Fixed Costs + Target Profit) ÷ CM per unit"],[`= (${money(fc)} + ${money(tp)}) ÷ ${money(cm)}`],[`= ${money(fc+tp)} ÷ ${money(cm)} = `,units.toLocaleString()+' units']]}},
+ mos:()=>{const beK=ri(50,400,10);const be=beK*1000;const extra=ri(20,300,10)*1000;const actual=be+extra;return{
+   type:"Margin of Safety ($)",
+   q:`Budgeted sales are <b>${money(actual)}</b> and break-even sales are <b>${money(be)}</b>. What is the margin of safety in dollars?`,
+   ans:extra,fmt:money,tol:1,
+   steps:[["MOS $ = Actual Sales − Break-Even Sales"],[`= ${money(actual)} − ${money(be)} = `,money(extra)]]}},
+ poh_rate:()=>{const rate=ri(8,60,2);const base=ri(2000,20000,100);const oh=rate*base;const unit=["machine hours","direct labor hours"][ri(0,1)];return{
+   type:"Predetermined Overhead Rate",
+   q:`Estimated manufacturing overhead is <b>${money(oh)}</b> and estimated activity is <b>${base.toLocaleString()} ${unit}</b>. What is the predetermined overhead rate per ${unit.replace(/s$/,'')}?`,
+   ans:rate,fmt:v=>money(v)+'/'+unit.replace(/s$/,''),tol:0.01,
+   steps:[["Rate = Estimated Overhead ÷ Estimated Activity Base"],[`= ${money(oh)} ÷ ${base.toLocaleString()} = `,money(rate)+' per '+unit.replace(/s$/,'')]]}},
+ applied_oh:()=>{const rate=ri(10,50,2);const actual=ri(1500,15000,100);const applied=rate*actual;return{
+   type:"Applied Overhead",
+   q:`The predetermined overhead rate is <b>${money(rate)}</b> per hour and actual activity was <b>${actual.toLocaleString()} hours</b>. How much overhead is applied?`,
+   ans:applied,fmt:money,tol:1,
+   steps:[["Applied Overhead = Predetermined Rate × Actual Activity"],[`= ${money(rate)} × ${actual.toLocaleString()} = `,money(applied)]]}},
+ fc_unit:()=>{const fcu=ri(5,80,5);const units=ri(50,800,10);const fc=fcu*units;return{
+   type:"Fixed Cost per Unit",
+   q:`Total fixed cost is <b>${money(fc)}</b> and <b>${units.toLocaleString()} units</b> are produced. What is the fixed cost per unit?`,
+   ans:fcu,fmt:money,tol:0.01,
+   steps:[["FC per unit = Total Fixed Cost ÷ Units"],[`= ${money(fc)} ÷ ${units.toLocaleString()} = `,money(fcu)],["Note: this FALLS as volume rises (economy of scale)."]]}},
+};
+const CALC_GROUPS={cm:["cm_unit","cm_ratio"],be:["be_units","be_dollars","target_units","mos"],oh:["poh_rate","applied_oh"],beh:["fc_unit"]};
+const CALC_LABEL={all:"All",cm:"Contribution Margin",be:"Break-Even / Target",oh:"Overhead",beh:"Cost Behavior"};
+let calcCat='all',cur=null,calcLocked=false;
+function calcPool(){return calcCat==='all'?Object.keys(GEN):CALC_GROUPS[calcCat]}
+function renderCalcCats(){const host=document.getElementById('cCats');const cats=['all','cm','be','oh','beh'];
+  host.innerHTML=cats.map(c=>`<button class="chip ${c===calcCat?'on':''}" onclick="calcCat='${c}';renderCalcCats();newProb()">${CALC_LABEL[c]}</button>`).join('')}
+function newProb(){const pool=calcPool();const id=pool[ri(0,pool.length-1)];cur={id,...GEN[id]()};calcLocked=false;
+  const host=document.getElementById('probHost');
+  host.innerHTML=`<div class="prob fade"><div class="ptype">${cur.type}</div><div class="pq">${cur.q}</div>
+   <div class="ansrow"><input id="calcIn" inputmode="decimal" placeholder="your answer" autocomplete="off"><button class="btn" onclick="checkCalc()">Check</button></div>
+   <div id="calcOut"></div></div>`;
+  const inp=document.getElementById('calcIn');inp.focus();
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();calcLocked?newProb():checkCalc()}})}
+function checkCalc(){if(calcLocked)return;const raw=(document.getElementById('calcIn').value||'').replace(/[$,%\s]/g,'');
+  if(raw===''){return}
+  const val=parseFloat(raw);const tol=cur.tol||0.5;const ok=Math.abs(val-cur.ans)<=tol;
+  calcLocked=true;bump('calc',cur.id,ok);
+  const out=document.getElementById('calcOut');
+  out.innerHTML=`<div class="verdict ${ok?'ok':'no'}">${ok?'✓ Correct':'✗ Not quite — answer: '+cur.fmt(cur.ans)}</div>
+   <div class="steps">${cur.steps.map(s=>`<div class="s">${s.length>1?esc(s[0])+'<b>'+esc(s[1])+'</b>':esc(s[0])}</div>`).join('')}</div>
+   <div class="row2"><button class="btn" onclick="newProb()">Next problem ▶</button></div>`;
+  refreshStats()}
+
+/* ---------- MC DRILL ---------- */
+let mcCat='all',mcQ=[],mcPos=0,mcLock=false,mcScore={r:0,t:0};
+function mcPool(){return mcCat==='all'?MC:MC.filter(m=>m.t===mcCat)}
+function renderMCCats(){const host=document.getElementById('mCats');const cats=['all',...Object.keys(DOMAINS)];
+  host.innerHTML=cats.map(c=>`<button class="chip ${c===mcCat?'on':''}" onclick="mcCat='${c}';renderMCCats();startMC()">${c==='all'?'All':DOMAINS[c]}</button>`).join('')}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startMC(){mcQ=shuffle(mcPool());mcPos=0;mcScore={r:0,t:0};renderMC()}
+function renderMC(){mcLock=false;const host=document.getElementById('mcHost');const it=mcQ[mcPos];if(!it){host.innerHTML='';return}
+  const opts=shuffle(it.o.map((txt,i)=>({txt,ok:i===it.a})));it._opts=opts;
+  host.innerHTML=`<div class="qhead fade"><span>${DOMAINS[it.t]}</span><span>${mcPos+1}/${mcQ.length}</span><span class="sc">${mcScore.t?mcScore.r+'/'+mcScore.t:''}</span></div>
+   <div class="qtext fade">${esc(it.q)}</div><div id="mcOpts"></div><div id="mcFb"></div>`;
+  const box=document.getElementById('mcOpts');
+  opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<span class="k">${'ABCD'[i]}</span><span>${esc(o.txt)}</span>`;b.onclick=()=>pickMC(i);box.appendChild(b)})}
+function pickMC(i){if(mcLock)return;mcLock=true;const it=mcQ[mcPos];const ok=it._opts[i].ok;mcScore.t++;if(ok)mcScore.r++;
+  bump('mc',it.t,ok);
+  document.querySelectorAll('#mcOpts .opt').forEach((e,idx)=>{e.classList.add('lock');if(it._opts[idx].ok)e.classList.add('correct');else if(idx===i)e.classList.add('wrong')});
+  document.getElementById('mcFb').innerHTML=`<div class="expl fade ${ok?'':'bad'}"><strong style="color:${ok?'var(--green)':'var(--red)'}">${ok?'Correct.':'Wrong.'}</strong> ${esc(it.e)}</div>
+   <button class="btn" onclick="nextMC()">${mcPos+1>=mcQ.length?'Restart ▶':'Next ▶'}</button>`;
+  document.querySelector('.qhead .sc').textContent=mcScore.r+'/'+mcScore.t;refreshStats()}
+function nextMC(){mcPos++;if(mcPos>=mcQ.length)startMC();else renderMC()}
+
+/* ---------- STATS ---------- */
+function pctOf(g){let r=0,t=0;Object.values(g).forEach(v=>{r+=v.r;t+=v.t});return{r,t,p:t?Math.round(100*r/t):0}}
+function refreshStats(){const c=pctOf(DB.calc),m=pctOf(DB.mc);
+  document.getElementById('sCalc').textContent=c.p+'%';document.getElementById('sMC').textContent=m.p+'%';
+  document.getElementById('sTot').textContent=c.t+m.t;
+  const cr=document.getElementById('sCalcRows');const TY={cm_unit:"CM / unit",cm_ratio:"CM ratio",be_units:"Break-even units",be_dollars:"Break-even $",target_units:"Target profit",mos:"Margin of safety",poh_rate:"Overhead rate",applied_oh:"Applied overhead",fc_unit:"FC per unit"};
+  cr.innerHTML=Object.keys(GEN).map(id=>{const v=DB.calc[id]||{r:0,t:0};const p=v.t?Math.round(100*v.r/v.t):0;const col=!v.t?'var(--dim)':p>=80?'var(--green)':p>=60?'var(--amber)':'var(--red)';
+    return `<div class="statline"><span>${TY[id]}</span><span class="pct" style="color:${col}">${v.t?p+'% ('+v.r+'/'+v.t+')':'—'}</span></div>`}).join('');
+  const mr=document.getElementById('sMCRows');
+  mr.innerHTML=Object.keys(DOMAINS).map(t=>{const v=DB.mc[t]||{r:0,t:0};const p=v.t?Math.round(100*v.r/v.t):0;const col=!v.t?'var(--dim)':p>=80?'var(--green)':p>=60?'var(--amber)':'var(--red)';
+    return `<div class="statline"><span>${DOMAINS[t]}</span><span class="pct" style="color:${col}">${v.t?p+'% ('+v.r+'/'+v.t+')':'—'}</span></div>`}).join('')}
+function resetAll(){if(confirm('Reset all D196 progress?')){DB=fresh();save();refreshStats()}}
+
+/* ---------- tabs ---------- */
+function tab(n){['formulas','calc','concepts','stats'].forEach(t=>{document.getElementById('t-'+t).classList.toggle('hidden',t!==n);document.getElementById('tb-'+t).classList.toggle('on',t===n)});
+  if(n==='stats')refreshStats();window.scrollTo(0,0)}
+renderFCats();renderFormulas();renderCalcCats();newProb();renderMCCats();startMC();refreshStats();
+</script></body></html>
