@@ -1,0 +1,329 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>C722 Cram - Project Management</title>
+<meta property="og:title" content="C722 Cram - Project Management">
+<meta property="og:description" content="WGU C722 Project Management OA prep: concepts, selection methods, critical path, and full EVM formula drills with worked examples.">
+<meta property="og:url" content="https://niggerfaggot.club/c722-cram">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e0d;--bg2:#101614;--bg3:#161e1b;--line:#1d2926;--ink:#e8efe9;--dim:#7e918a;--lime:#d4ff3a;--green:#3ad47e;--amber:#ffc24b;--red:#ff5c5c;--blue:#5cc8ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'JetBrains Mono',monospace}
+h1,h2,h3,.fr{font-family:'Fraunces',serif}
+.wrap{max-width:820px;margin:0 auto;padding:16px 14px 96px}
+.title{font-size:30px;font-weight:900;letter-spacing:-.5px;line-height:1}.title b{color:var(--lime)}
+.sub{color:var(--dim);font-size:12px;margin-top:5px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 6px}
+.chip{background:var(--bg2);border:1px solid var(--line);color:var(--dim);font:inherit;font-size:11px;border-radius:20px;padding:5px 11px;cursor:pointer;transition:.12s}
+.chip:hover{border-color:var(--lime)}.chip.on{background:var(--lime);color:#0a0e0d;border-color:var(--lime);font-weight:700}
+.tabs{display:flex;gap:6px;margin:12px 0;overflow-x:auto}
+.tab{flex:1;min-width:82px;background:var(--bg2);border:1px solid var(--line);color:var(--dim);font:inherit;font-size:12px;border-radius:10px;padding:9px 6px;cursor:pointer;text-align:center;transition:.12s;white-space:nowrap}
+.tab:hover{border-color:var(--lime)}.tab.on{background:var(--lime);color:#0a0e0d;font-weight:700}
+.bar{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--dim);margin:6px 2px}
+.btn{background:var(--bg3);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:12px;border-radius:8px;padding:7px 12px;cursor:pointer;transition:.12s}
+.btn:hover{border-color:var(--lime)}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:30px 22px;min-height:200px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;user-select:none}
+.card .term{font-family:'Fraunces',serif;font-size:23px;font-weight:700}
+.card .def{color:var(--ink);font-size:15px;line-height:1.5}
+.card .tag{position:relative;color:var(--lime);font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.card .hint{color:var(--dim);font-size:10px;margin-top:16px}
+.nav{display:flex;gap:8px;margin-top:10px}.nav .btn{flex:1}
+.q{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.q .qn{color:var(--lime);font-size:11px;font-weight:700}
+.q .qt{font-size:14px;margin:6px 0 12px;line-height:1.45}
+.opt{display:block;width:100%;text-align:left;background:var(--bg3);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:13px;border-radius:9px;padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:.1s}
+.opt:hover{border-color:var(--lime)}
+.opt.correct{border-color:var(--green);background:rgba(58,212,126,.12)}
+.opt.wrong{border-color:var(--red);background:rgba(255,92,92,.12)}
+.exp{font-size:12px;color:var(--dim);line-height:1.5;margin-top:8px;padding:10px;background:var(--bg3);border-radius:8px;border-left:2px solid var(--lime)}
+.exp.show{display:block}.exp{display:none}
+.slot{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:7px;font-size:13px;cursor:grab;display:flex;align-items:center;gap:10px}
+.slot .num{color:var(--lime);font-weight:700;font-size:12px;min-width:18px}
+.slot.dragging{opacity:.4}.slot.ok{border-color:var(--green)}.slot.no{border-color:var(--red)}
+.mrow{display:flex;gap:8px;margin-bottom:7px;align-items:stretch}
+.mleft{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:10px;font-size:12.5px;display:flex;align-items:center}
+.msel{flex:1}
+.msel select{width:100%;height:100%;background:var(--bg3);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:12px;border-radius:9px;padding:9px}
+.msel select.ok{border-color:var(--green)}.msel select.no{border-color:var(--red)}
+/* formulas */
+.fgroup{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.fgroup h3{color:var(--lime);font-size:15px;margin:0 0 10px}
+.frow{display:grid;grid-template-columns:135px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.frow:last-of-type{border-bottom:0}
+.frow .fl{color:var(--ink);font-weight:700}
+.frow .fr2 .eq{color:var(--lime);font-weight:700;display:block;margin-bottom:2px}
+.frow .fr2 .im{color:var(--dim);font-size:11.5px}
+.work{background:var(--bg3);border-left:3px solid var(--blue);border-radius:8px;padding:11px 13px;margin-top:11px;font-size:12.5px;line-height:1.55}
+.work .wl{color:var(--blue);font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700}
+.work .ans{color:var(--green);font-weight:700;margin-top:6px;display:block}
+.prac{margin-top:10px}
+.pracq{background:var(--bg3);border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:7px;font-size:12.5px}
+.pracq .pa{display:none;color:var(--lime);margin-top:7px;padding-top:7px;border-top:1px solid var(--line)}
+.pracq .pa.show{display:block}
+.pracq .rb{margin-top:7px}
+.note h3{color:var(--lime);font-size:16px;margin:18px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.note p{font-size:13px;line-height:1.6;color:var(--ink);margin:6px 0}
+.note .cut{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;padding:9px 12px;font-size:12.5px;margin:7px 0}
+.note .mn{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:8px;padding:9px 12px;font-size:12.5px;margin:7px 0}
+.note b{color:var(--lime)}
+.note table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px}
+.note th,.note td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+.note th{color:var(--lime);background:var(--bg2)}
+.k{color:var(--lime);font-weight:700}
+.warn{background:rgba(255,194,75,.1);border:1px solid var(--amber);border-radius:8px;padding:10px 12px;font-size:12.5px;margin:10px 0}
+.hide{display:none}
+</style></head><body><div class="wrap">
+<div class="title">C722 <b>Cram</b></div>
+<div class="sub">Project Management · OA prep · 70 items / 150 min · concepts + selection, critical path &amp; EVM formula drills</div>
+<div class="chips" id="chips"></div>
+<div class="tabs">
+<button class="tab on" data-t="fc">Flashcards</button>
+<button class="tab" data-t="mc">MCQs</button>
+<button class="tab" data-t="fm">Formulas</button>
+<button class="tab" data-t="sq">Sequencing</button>
+<button class="tab" data-t="ma">Matching</button>
+<button class="tab" data-t="nt">Notes</button>
+</div>
+<div id="fc" class="panel">
+  <div class="bar"><span id="fcpos"></span><button class="btn" id="fcshuf">shuffle</button></div>
+  <div class="card" id="fccard"><div class="tag" id="fctag"></div><div class="term fr" id="fcterm"></div><div class="def hide" id="fcdef"></div><div class="hint" id="fchint">tap to flip</div></div>
+  <div class="nav"><button class="btn" id="fcprev">prev</button><button class="btn" id="fcnext">next</button></div>
+</div>
+<div id="mc" class="panel hide">
+  <div class="bar"><span id="mcscore">0 / 0</span><span><button class="btn" id="mcshuf">shuffle</button> <button class="btn" id="mcreset">reset</button></span></div>
+  <div id="mclist"></div>
+</div>
+<div id="fm" class="panel hide"><div id="fmlist"></div></div>
+<div id="sq" class="panel hide"><div id="sqlist"></div></div>
+<div id="ma" class="panel hide"><div id="malist"></div></div>
+<div id="nt" class="panel hide"><div class="note" id="notes"></div></div>
+</div>
+<script>
+const FLASHCARDS=[
+["Project","A temporary endeavor with a defined beginning and end that creates a unique product, service, or result. Temporary + unique are the keywords.","Concepts"],
+["Project vs operations","Project = temporary, unique, has an end. Operations = ongoing, repetitive, no end date.","Concepts"],
+["Triple constraint","Scope, Time (schedule), and Cost (budget). Change one and the others are affected. Quality sits in the middle.","Concepts"],
+["Progressive elaboration","Continuously refining plans in greater detail as more information becomes known through the project.","Concepts"],
+["Program vs portfolio","Program = a group of related projects managed together. Portfolio = all projects and programs aligned to strategy.","Concepts"],
+["Project charter","The document that formally authorizes the project and gives the PM authority to use organizational resources. Output of initiating.","Concepts"],
+["Project life cycle phases","Initiating, Planning, Executing, Monitoring & Controlling, Closing.","Concepts"],
+["Functional organization","Departments grouped by specialty. The functional manager holds the power; the PM has little or no authority (coordinator/expediter) and does not control resources.","Org Structures"],
+["Projectized organization","Organized around projects. The PM has full authority and controls the budget and resources. The team reports to the PM.","Org Structures"],
+["Matrix organization","A blend of functional and projectized. Authority is shared. Weak matrix = functional manager stronger; strong matrix = PM stronger; balanced = shared.","Org Structures"],
+["PM authority by structure","Functional = none. Weak matrix = low. Balanced matrix = moderate. Strong matrix = high. Projectized = full.","Org Structures"],
+["Net Present Value (NPV)","Sum of discounted future cash flows minus the initial investment. Positive NPV = accept. Higher NPV = better project.","Selection"],
+["Internal Rate of Return (IRR)","The discount rate at which NPV equals zero. Higher IRR = better. Accept if IRR exceeds the required rate of return.","Selection"],
+["Payback period","The time required to recover the initial investment. Shorter is better. Ignores the time value of money.","Selection"],
+["Benefit-Cost Ratio (BCR)","Benefits divided by costs. BCR greater than 1 = accept. Higher is better.","Selection"],
+["Weighted scoring model","Score each option against weighted criteria, then sum weight x score. The highest total wins.","Selection"],
+["Work Breakdown Structure (WBS)","A hierarchical, deliverable-oriented decomposition of project work. Follows the 100% rule. The lowest level is a work package. It is deliverables, not activities.","Planning"],
+["Work package","The lowest level of the WBS. Activities used for scheduling are defined from work packages.","Planning"],
+["Scope creep","Uncontrolled expansion of project scope without adjusting time, cost, or resources.","Planning"],
+["Analogous estimating","Top-down. Uses actual data from a similar past project. Fast and cheap but least accurate.","Scheduling"],
+["Parametric estimating","Uses a statistical relationship, such as cost per unit or per square foot. More accurate than analogous.","Scheduling"],
+["Bottom-up estimating","Sum the estimates of each individual work package. Most accurate but most time-consuming.","Scheduling"],
+["PERT / three-point estimate","Weighted average: (O + 4M + P) / 6. Uses optimistic, most likely, and pessimistic to handle uncertainty.","Scheduling"],
+["Critical path","The longest path through the network diagram. It sets the shortest possible project duration and has zero float.","Scheduling"],
+["Float / slack","How long an activity can slip without delaying the project. Float = LS - ES = LF - EF. Critical path activities have zero float.","Scheduling"],
+["Forward pass","Calculates Early Start (ES) and Early Finish (EF). EF = ES + duration. Left to right; take the max EF where paths merge.","Scheduling"],
+["Backward pass","Calculates Late Finish (LF) and Late Start (LS). LS = LF - duration. Right to left; take the min LS where paths merge.","Scheduling"],
+["Risk register","A document listing identified risks along with their analysis, owners, and response plans.","Risk"],
+["Qualitative vs quantitative risk","Qualitative = subjective probability/impact rating (P x I matrix). Quantitative = numerical analysis (EMV, Monte Carlo).","Risk"],
+["Negative risk responses","Avoid, Transfer, Mitigate, Accept. (Threats.)","Risk"],
+["Positive risk responses","Exploit, Enhance, Share, Accept. (Opportunities.)","Risk"],
+["Expected Monetary Value (EMV)","Probability x impact. Used in quantitative risk analysis and decision trees.","Risk"],
+["Planned Value (PV)","Budgeted cost of work scheduled. PV = planned % x BAC. The baseline of what should be done by now.","EVM"],
+["Earned Value (EV)","Budgeted cost of work performed. EV = actual % complete x BAC. What you have actually earned.","EVM"],
+["Actual Cost (AC)","The actual cost of the work performed so far. What you actually spent.","EVM"],
+["Budget at Completion (BAC)","The total approved budget for the project.","EVM"],
+["Cost Variance (CV)","CV = EV - AC. Positive = under budget (good). Negative = over budget.","EVM"],
+["Schedule Variance (SV)","SV = EV - PV. Positive = ahead of schedule. Negative = behind.","EVM"],
+["Cost Performance Index (CPI)","CPI = EV / AC. Greater than 1 = under budget (good). Less than 1 = over budget.","EVM"],
+["Schedule Performance Index (SPI)","SPI = EV / PV. Greater than 1 = ahead of schedule. Less than 1 = behind.","EVM"],
+["Estimate at Completion (EAC)","Forecast total cost. Common form: EAC = BAC / CPI, which assumes current cost performance continues.","EVM"],
+["Variance at Completion (VAC)","VAC = BAC - EAC. Positive = the project will finish under budget.","EVM"],
+["Tuckman's stages","Forming, Storming, Norming, Performing, Adjourning. The stages a team moves through as it develops.","Teams"],
+["Conflict resolution (best to worst)","Confronting / problem-solving (best, win-win), collaborating, compromising, smoothing / accommodating, forcing (win-lose), withdrawing / avoiding (worst).","Teams"],
+["Powers of the PM","Legitimate (position), reward, expert (knowledge), referent (respect), coercive (punishment). Expert and reward are best; coercive is worst.","Teams"]
+];
+const MCQS=[
+["A stakeholder asks to add features late in the project. Adding scope without more time or budget threatens which model?",["The triple constraint","The WBS","The risk register","Earned value"],0,"Scope, time, and cost are interdependent. Increasing scope while holding time and cost fixed is the classic triple-constraint squeeze.","Concepts"],
+["Which best distinguishes a project from operations?",["A project is temporary with a unique result; operations are ongoing and repetitive","A project never has a budget","Operations always cost more","A project has no stakeholders"],0,"Temporary + unique = project. Ongoing + repetitive = operations.","Concepts"],
+["In a functional organization, how much authority does the project manager have?",["Full authority over budget and resources","Little to no authority; the functional manager controls resources","Equal authority with the functional manager","Authority only over procurement"],1,"Functional org = PM is weakest (coordinator/expediter). The functional manager holds the power.","Org Structures"],
+["A company organizes entirely around projects, and team members report to the PM who controls the budget. This is a:",["Functional organization","Weak matrix","Projectized organization","Balanced matrix"],2,"Projectized = PM has full authority and resource control.","Org Structures"],
+["In which structure does the project manager have MORE authority than the functional manager?",["Weak matrix","Balanced matrix","Strong matrix","Functional"],2,"Strong matrix tilts power toward the PM. Weak matrix favors the functional manager; balanced shares it.","Org Structures"],
+["Which document formally authorizes the project and empowers the PM to use resources?",["Project charter","Work breakdown structure","Risk register","Network diagram"],0,"The project charter is the output of initiating that authorizes the project and the PM.","Concepts"],
+["What is found at the lowest level of a work breakdown structure?",["Activities","Work packages","Milestones","Risks"],1,"The lowest WBS level is the work package. Activities are derived from work packages, they are not in the WBS itself.","Planning"],
+["Features keep getting added informally without adjusting schedule or budget. This is:",["Progressive elaboration","Scope creep","Fast tracking","Crashing"],1,"Uncontrolled, unmanaged scope growth = scope creep.","Planning"],
+["A PM estimates a new project's cost using the actual cost of a similar past project. This is:",["Bottom-up estimating","Parametric estimating","Analogous estimating","Three-point estimating"],2,"Using a similar past project's actuals = analogous (top-down). Fast, cheap, least accurate.","Scheduling"],
+["Which estimating technique is the MOST accurate?",["Analogous","Parametric","Bottom-up","Rough order of magnitude"],2,"Bottom-up sums each work package and is the most accurate but most time-consuming.","Scheduling"],
+["The critical path of a project is:",["The shortest path through the network","The path with the most activities","The longest path through the network, with zero float","The path with the most float"],2,"Critical path = longest path = shortest possible duration = zero float.","Scheduling"],
+["An activity can be delayed 3 days without delaying the project. Those 3 days are its:",["Lead","Lag","Float (slack)","Duration"],2,"Float/slack = how long an activity can slip without affecting the project finish.","Scheduling"],
+["A PM buys insurance to handle a potential risk. Which negative-risk response is this?",["Avoid","Transfer","Mitigate","Accept"],1,"Shifting the impact to a third party (insurance) = transfer.","Risk"],
+["The team assigns its best engineer to a task to maximize the chance of a beneficial outcome. This positive-risk response is:",["Exploit","Mitigate","Avoid","Transfer"],0,"Making sure an opportunity happens = exploit. (Exploit, Enhance, Share, Accept are the positive responses.)","Risk"],
+["A PM rates risks on a probability-and-impact matrix using high/medium/low. This is:",["Quantitative risk analysis","Qualitative risk analysis","Monte Carlo simulation","Earned value analysis"],1,"Subjective P x I rating = qualitative. Numerical (EMV, Monte Carlo) = quantitative.","Risk"],
+["Under NPV, a project should be accepted when:",["NPV is negative","NPV is positive","NPV equals the IRR","Payback exceeds 5 years"],1,"Positive NPV means the discounted returns exceed the investment, so accept. Among competing projects, pick the highest NPV.","Selection"],
+["The internal rate of return (IRR) is:",["The rate at which NPV equals zero","Always 10%","The same as the payback period","Benefits divided by costs"],0,"IRR is the discount rate where NPV = 0. Higher IRR is better.","Selection"],
+["Two projects are identical except Project A pays back in 2 years and Project B in 4 years. By payback period, which is preferred?",["Project A","Project B","Neither","Cannot tell"],0,"Shorter payback is better, so Project A.","Selection"],
+["A project has a benefit-cost ratio (BCR) of 1.4. This means:",["Costs exceed benefits; reject","Benefits exceed costs; acceptable","The project breaks even","Payback is 1.4 years"],1,"BCR > 1 means benefits outweigh costs, so it is acceptable.","Selection"],
+["A newly formed team is polite and getting oriented, with little open conflict yet. Which Tuckman stage?",["Storming","Norming","Forming","Performing"],2,"Initial orientation = forming. Conflict emerges in storming.","Teams"],
+["Which conflict-resolution approach is generally considered BEST?",["Forcing","Withdrawing","Confronting / problem-solving","Smoothing"],2,"Confronting (problem-solving) addresses the root cause and is win-win. Withdrawing is the worst.","Teams"],
+["A PM influences the team because of deep technical knowledge and credibility. This is which type of power?",["Coercive","Expert","Legitimate","Reward"],1,"Influence from knowledge/competence = expert power, one of the most effective.","Teams"],
+["BAC = $200,000. Planned 50% complete, actually 40% complete, AC = $100,000. What is the cost variance (CV)?",["+$20,000","-$20,000","-$10,000","$0"],1,"EV = 40% x 200,000 = $80,000. CV = EV - AC = 80,000 - 100,000 = -$20,000 (over budget).","EVM"],
+["EV = $80,000 and AC = $100,000. The CPI is 0.8, which means the project is:",["Under budget","Over budget","Exactly on budget","Ahead of schedule"],1,"CPI = EV/AC = 0.8. Below 1 means you are getting only $0.80 of work per $1 spent, so over budget.","EVM"],
+["BAC = $500,000 and CPI = 1.25. What is the estimate at completion (EAC)?",["$625,000","$400,000","$500,000","$375,000"],1,"EAC = BAC / CPI = 500,000 / 1.25 = $400,000. A CPI above 1 forecasts finishing under budget.","EVM"],
+["Path A-C-D = 9 days and path B-C-D = 11 days through the network. What is the project's duration?",["9 days","10 days","11 days","20 days"],2,"The critical path is the longest path, B-C-D = 11 days, which sets the project duration.","Scheduling"],
+["An activity has optimistic = 4, most likely = 6, pessimistic = 14 days. What is the PERT expected duration?",["6 days","7 days","8 days","24 days"],1,"PERT = (O + 4M + P)/6 = (4 + 24 + 14)/6 = 42/6 = 7 days.","Scheduling"],
+["There is a 30% chance of a $50,000 loss. What is the expected monetary value (EMV) of this risk?",["-$15,000","-$50,000","-$1,500","+$15,000"],0,"EMV = probability x impact = 0.30 x (-50,000) = -$15,000.","Risk"]
+];
+const FORMULAS=[
+["Project Selection (the money math)",
+ [["NPV","Sum of [ cash flow / (1+r)^t ]  -  initial investment","Positive = accept. Higher = better. Accounts for time value of money."],
+  ["IRR","the rate r where NPV = 0","Higher = better. Accept if IRR > required return."],
+  ["Payback period","time to recover the initial investment","Shorter = better. Ignores time value of money."],
+  ["BCR","benefits / costs","Greater than 1 = accept. Higher = better."],
+  ["ROI","(gain - cost) / cost","Higher = better."]],
+ {"scenario":"You invest $9,000 today and receive $11,000 in one year. The required rate of return is 10%. Compute NPV.",
+  "steps":["Discount the future cash flow: 11,000 / (1 + 0.10) = 11,000 / 1.10 = $10,000.","Subtract the investment: 10,000 - 9,000 = $1,000."],
+  "answer":"NPV = +$1,000. Positive, so accept the project."},
+ [["A project pays back its $50,000 cost with even inflows of $12,500 per year. Payback period?","50,000 / 12,500 = 4 years."],
+  ["Project A: NPV +$8,000. Project B: NPV +$12,000. Same cost. Which do you pick?","Project B. Higher NPV wins."],
+  ["Benefits = $300,000, costs = $200,000. BCR? Accept?","300,000 / 200,000 = 1.5. Greater than 1, so accept."]]],
+["Critical Path Method (CPM)",
+ [["Early Finish","EF = ES + duration","Forward pass, move left to right."],
+  ["Late Start","LS = LF - duration","Backward pass, move right to left."],
+  ["Float / Slack","Float = LS - ES = LF - EF","Critical path activities have zero float."],
+  ["Critical path","the longest path through the network","Equals the shortest possible project duration."],
+  ["Merge rule","forward: take the MAX EF.  backward: take the MIN LS","Applied where multiple paths join."]],
+ {"scenario":"Activity A (3 days) and Activity B (5 days) must both finish before Activity C (2 days) starts. Find the critical path, project duration, and the float of A.",
+  "steps":["Forward pass: A: ES 0, EF 3. B: ES 0, EF 5. C starts after both, so ES = max(3,5) = 5, EF = 7.","Project duration = 7 days. The longest path is B then C (5 + 2 = 7), so that is the critical path.","Float of A: backward pass gives C LF 7, LS 5. So A's LF = 5, LS = 5 - 3 = 2. Float of A = LS - ES = 2 - 0 = 2 days."],
+  "answer":"Critical path = B then C. Duration = 7 days. Float of A = 2 days (B has 0 float)."},
+ [["Paths through a network: A-C-D = 9 days, B-C-D = 11 days. Project duration and critical path?","11 days; critical path is B-C-D (the longest path)."],
+  ["An activity has ES = 4 and LS = 7. Its float, and is it critical?","Float = LS - ES = 3. Not critical (critical = zero float)."],
+  ["Critical path = 20 days. A non-critical activity with 4 days of float slips 2 days. New project duration?","Still 20 days. The slip fits within its float."]]],
+["Earned Value Management (EVM)",
+ [["Planned Value","PV = planned % x BAC","Baseline: what should be done by now."],
+  ["Earned Value","EV = actual % complete x BAC","What you have actually earned."],
+  ["Cost Variance","CV = EV - AC","Positive = under budget. Negative = over."],
+  ["Schedule Variance","SV = EV - PV","Positive = ahead. Negative = behind."],
+  ["Cost Performance Index","CPI = EV / AC","Above 1 = under budget. Below 1 = over."],
+  ["Schedule Performance Index","SPI = EV / PV","Above 1 = ahead. Below 1 = behind."],
+  ["Estimate at Completion","EAC = BAC / CPI","Forecast total cost if current cost performance holds."],
+  ["Variance at Completion","VAC = BAC - EAC","Positive = will finish under budget."]],
+ {"scenario":"BAC = $200,000. Work was planned to be 50% done; it is actually 40% done. AC so far = $100,000. Find EV, PV, CV, SV, CPI, SPI, EAC, VAC.",
+  "steps":["PV = 50% x 200,000 = $100,000.  EV = 40% x 200,000 = $80,000.  AC = $100,000.","CV = EV - AC = 80,000 - 100,000 = -$20,000 (over budget).","SV = EV - PV = 80,000 - 100,000 = -$20,000 (behind schedule).","CPI = EV / AC = 80,000 / 100,000 = 0.8.","SPI = EV / PV = 80,000 / 100,000 = 0.8.","EAC = BAC / CPI = 200,000 / 0.8 = $250,000.","VAC = BAC - EAC = 200,000 - 250,000 = -$50,000."],
+  "answer":"CV -$20k, SV -$20k, CPI 0.8, SPI 0.8, EAC $250k, VAC -$50k. Over budget and behind schedule."},
+ [["EV = $40,000, AC = $50,000. Cost variance, CPI, and is it over or under budget?","CV = 40k - 50k = -$10,000. CPI = 40/50 = 0.8. Over budget."],
+  ["EV = $60,000, PV = $50,000. Schedule variance, SPI, ahead or behind?","SV = 60k - 50k = +$10,000. SPI = 60/50 = 1.2. Ahead of schedule."],
+  ["BAC = $500,000, CPI = 1.25. EAC?","EAC = 500,000 / 1.25 = $400,000."]]]
+];
+const SEQUENCES=[
+["Project life cycle: order the phases",["Initiating","Planning","Executing","Monitoring & Controlling","Closing"],"Initiate (charter), plan, execute the work, monitor and control against the baseline, then close. Monitoring runs alongside executing but is sequenced after it here."],
+["Critical Path Method: order the steps",["List activities and durations","Draw the network diagram (dependencies)","Forward pass: compute ES and EF","Backward pass: compute LF and LS","Identify the critical path (zero float)"],"You can't find float until both passes are done, and you can't pass until the network is drawn."],
+["EVM: order the calculation",["PV = planned % x BAC","EV = actual % x BAC","CV = EV - AC  and  SV = EV - PV","CPI = EV / AC","EAC = BAC / CPI"],"EV feeds everything. Variances and indices come from EV, and EAC comes from CPI."]
+];
+const MATCHES=[
+["Org structure -> PM authority",[["Functional","Little to none"],["Balanced matrix","Moderate / shared"],["Strong matrix","High"],["Projectized","Full"]]],
+["EVM metric -> what it tells you",[["CV = EV - AC","Over or under budget (dollars)"],["SV = EV - PV","Ahead or behind schedule (dollars)"],["CPI = EV / AC","Cost efficiency (ratio)"],["EAC = BAC / CPI","Forecast total cost"]]],
+["Risk response -> what it does",[["Avoid","Eliminate the threat (change the plan so it can't happen)"],["Transfer","Shift the impact to a third party (insurance, outsourcing)"],["Mitigate","Reduce the probability or impact of a threat"],["Exploit","Make sure a positive risk (opportunity) happens"]]],
+["Estimating technique -> description",[["Analogous","Top-down from a similar past project; least accurate"],["Parametric","Statistical rate, e.g. cost per unit"],["Bottom-up","Sum of work packages; most accurate"],["Three-point (PERT)","(O + 4M + P) / 6"]]]
+];
+</script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+let topic="All";
+const TOPICS=["All",...new Set(MCQS.map(m=>m[4]))];
+function renderChips(){$("#chips").innerHTML=TOPICS.map(t=>`<button class="chip${t==topic?' on':''}" data-c="${t}">${t}</button>`).join("")}
+$("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;topic=b.dataset.c;renderChips();buildFC();buildMC()});
+$$(".tab").forEach(t=>t.addEventListener("click",()=>{$$(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");$$(".panel").forEach(p=>p.classList.add("hide"));$("#"+t.dataset.t).classList.remove("hide")}));
+
+let fcArr=[],fcI=0,fcFlip=false;
+function fcFilter(){return topic=="All"?FLASHCARDS:FLASHCARDS.filter(c=>c[2]==topic)}
+function buildFC(){fcArr=fcFilter();fcI=0;fcFlip=false;showFC()}
+function showFC(){if(!fcArr.length){$("#fcterm").textContent="No cards";$("#fcdef").classList.add("hide");$("#fcpos").textContent="0 / 0";return}const c=fcArr[fcI];$("#fctag").textContent=c[2];$("#fcterm").textContent=c[0];$("#fcdef").textContent=c[1];$("#fcterm").classList.toggle("hide",fcFlip);$("#fcdef").classList.toggle("hide",!fcFlip);$("#fchint").textContent=fcFlip?"tap to flip back":"tap to flip";$("#fcpos").textContent=`${fcI+1} / ${fcArr.length}`}
+$("#fccard").onclick=()=>{fcFlip=!fcFlip;showFC()};
+$("#fcnext").onclick=()=>{fcI=(fcI+1)%fcArr.length;fcFlip=false;showFC()};
+$("#fcprev").onclick=()=>{fcI=(fcI-1+fcArr.length)%fcArr.length;fcFlip=false;showFC()};
+$("#fcshuf").onclick=()=>{fcArr=shuf(fcArr);fcI=0;fcFlip=false;showFC()};
+
+function mcFilter(){return topic=="All"?MCQS.map((m,i)=>[m,i]):MCQS.map((m,i)=>[m,i]).filter(x=>x[0][4]==topic)}
+let mcAns={};
+function buildMC(){const list=mcFilter();$("#mclist").innerHTML=list.map(([m,gi])=>{
+  const opts=m[1].map((o,oi)=>`<button class="opt" data-q="${gi}" data-o="${oi}">${o}</button>`).join("");
+  return `<div class="q" id="q${gi}"><div class="qn">Q${gi+1} · ${m[4]}</div><div class="qt">${m[0]}</div>${opts}<div class="exp" id="e${gi}">${m[3]}</div></div>`}).join("");
+  updateScore()}
+$("#mclist").addEventListener("click",e=>{const b=e.target.closest(".opt");if(!b)return;const q=+b.dataset.q,o=+b.dataset.o;if(mcAns[q]!=null)return;mcAns[q]=o;const m=MCQS[q],cor=m[2];
+  $$(`#q${q} .opt`).forEach(btn=>{const bo=+btn.dataset.o;if(bo==cor)btn.classList.add("correct");if(bo==o&&o!=cor)btn.classList.add("wrong");btn.style.cursor="default"});
+  $("#e"+q).classList.add("show");updateScore()});
+function updateScore(){const list=mcFilter().map(x=>x[1]);let done=0,right=0;list.forEach(q=>{if(mcAns[q]!=null){done++;if(mcAns[q]==MCQS[q][2])right++}});$("#mcscore").textContent=`${right} / ${done}  (${list.length} total)`}
+$("#mcshuf").onclick=()=>{const sh=shuf(MCQS.map((m,i)=>i));const list=$("#mclist");const map={};$$("#mclist .q").forEach(el=>map[el.id]=el);list.innerHTML="";sh.forEach(i=>{if(topic=="All"||MCQS[i][4]==topic)list.appendChild(map["q"+i])})};
+$("#mcreset").onclick=()=>{mcAns={};buildMC()};
+
+// FORMULAS
+function buildFM(){$("#fmlist").innerHTML=FORMULAS.map((g,gi)=>{
+  const rows=g[1].map(f=>`<div class="frow"><div class="fl">${f[0]}</div><div class="fr2"><span class="eq">${f[1]}</span><span class="im">${f[2]}</span></div></div>`).join("");
+  const ex=g[2];
+  const exsteps=ex.steps.map(s=>`<div>• ${s}</div>`).join("");
+  const prac=g[3].map((p,pi)=>`<div class="pracq"><div>${p[0]}</div><button class="btn rb" data-fg="${gi}" data-fp="${pi}">show answer</button><div class="pa" id="pa${gi}_${pi}">${p[1]}</div></div>`).join("");
+  return `<div class="fgroup"><h3>${g[0]}</h3>${rows}
+    <div class="work"><span class="wl">Worked example</span><div style="margin:5px 0">${ex.scenario}</div>${exsteps}<span class="ans">${ex.answer}</span></div>
+    <div class="prac"><div style="color:var(--dim);font-size:11px;margin:10px 0 6px">Practice (tap to reveal):</div>${prac}</div></div>`}).join("")}
+$("#fmlist").addEventListener("click",e=>{const b=e.target.closest("[data-fg]");if(!b)return;const el=$(`#pa${b.dataset.fg}_${b.dataset.fp}`);el.classList.toggle("show");b.textContent=el.classList.contains("show")?"hide answer":"show answer"});
+
+function buildSQ(){$("#sqlist").innerHTML=SEQUENCES.map((s,si)=>{
+  const items=shuf(s[1].map((t,i)=>[t,i]));
+  const rows=items.map(([t,i])=>`<div class="slot" draggable="true" data-correct="${i}"><span class="num"></span><span>${t}</span></div>`).join("");
+  return `<div class="q"><div class="qn">${s[0]}</div><div class="seq" id="seq${si}">${rows}</div><div class="bar" style="margin-top:8px"><button class="btn" data-check="${si}">check order</button><span class="exp" style="display:block;border:0;background:0;padding:0">${s[2]}</span></div></div>`}).join("");
+  $$(".seq").forEach(seq=>enableDrag(seq))}
+function enableDrag(seq){let dragEl=null;
+  seq.addEventListener("dragstart",e=>{dragEl=e.target.closest(".slot");dragEl.classList.add("dragging")});
+  seq.addEventListener("dragend",e=>{if(dragEl)dragEl.classList.remove("dragging");dragEl=null});
+  seq.addEventListener("dragover",e=>{e.preventDefault();const after=getAfter(seq,e.clientY);if(!dragEl)return;if(after==null)seq.appendChild(dragEl);else seq.insertBefore(dragEl,after)})}
+function getAfter(seq,y){const els=[...seq.querySelectorAll(".slot:not(.dragging)")];return els.reduce((c,ch)=>{const box=ch.getBoundingClientRect();const off=y-box.top-box.height/2;if(off<0&&off>c.offset)return{offset:off,element:ch};return c},{offset:-Infinity}).element}
+$("#sqlist").addEventListener("click",e=>{const b=e.target.closest("[data-check]");if(!b)return;const seq=$("#seq"+b.dataset.check);[...seq.children].forEach((row,idx)=>{const ok=+row.dataset.correct==idx;row.classList.toggle("ok",ok);row.classList.toggle("no",!ok);row.querySelector(".num").textContent=idx+1})});
+
+function buildMA(){$("#malist").innerHTML=MATCHES.map((m,mi)=>{
+  const rights=shuf(m[1].map(p=>p[1]));
+  const rows=m[1].map((p,pi)=>{
+    const opts=rights.map(r=>`<option value="${r}">${r}</option>`).join("");
+    return `<div class="mrow"><div class="mleft">${p[0]}</div><div class="msel"><select data-m="${mi}" data-correct="${p[1]}"><option value="">choose...</option>${opts}</select></div></div>`}).join("");
+  return `<div class="q"><div class="qn">${m[0]}</div>${rows}<div class="bar" style="margin-top:8px"><button class="btn" data-checkm="${mi}">check</button></div></div>`}).join("")}
+$("#malist").addEventListener("click",e=>{const b=e.target.closest("[data-checkm]");if(!b)return;$$(`select[data-m="${b.dataset.checkm}"]`).forEach(s=>{const ok=s.value==s.dataset.correct;s.classList.toggle("ok",ok);s.classList.toggle("no",!ok)})});
+
+const NOTES=`
+<div class="warn"><b>OA shape:</b> 70 items, 150 minutes, Competent or Exemplary to pass. Mostly concept and scenario questions, but expect a solid block of <span class="k">calculations</span>: project selection (NPV / payback / BCR), critical path / float, and EVM. The calc questions are free points if you drill the formulas, so do the Formulas tab until the EVM stack is automatic.</div>
+<h3>Triple constraint and org structures</h3>
+<p>The <b>triple constraint</b> is scope, time, and cost. Squeeze one and the others move. Quality sits in the middle.</p>
+<table><tr><th>Structure</th><th>PM authority</th></tr><tr><td>Functional</td><td>Little to none (functional manager runs it)</td></tr><tr><td>Weak matrix</td><td>Low</td></tr><tr><td>Balanced matrix</td><td>Moderate / shared</td></tr><tr><td>Strong matrix</td><td>High</td></tr><tr><td>Projectized</td><td>Full (PM controls budget + team)</td></tr></table>
+<div class="mn"><b>Lock it:</b> Functional = PM is a <span class="k">Figurehead</span>. Projectized = PM is <span class="k">President</span>. Matrix = somewhere in between, and the adjective tells you who is stronger (weak = functional, strong = PM).</div>
+<h3>Project selection (higher vs shorter)</h3>
+<div class="cut"><b>Decision rules:</b> <span class="k">NPV</span> positive = accept, higher = better. <span class="k">IRR</span> higher = better (accept if above required return). <span class="k">BCR</span> above 1 = accept, higher = better. <span class="k">Payback</span> shorter = better. Quick memory: everything is "bigger is better" EXCEPT payback, where shorter wins.</div>
+<h3>Estimating and the WBS</h3>
+<p><b>WBS</b> = deliverable-oriented decomposition; the lowest level is a <span class="k">work package</span>. Activities come out of work packages; they are not in the WBS itself.</p>
+<div class="cut"><b>Estimating accuracy:</b> <span class="k">Bottom-up</span> most accurate (sum of packages). <span class="k">Parametric</span> middle (statistical rate). <span class="k">Analogous</span> least accurate (top-down from a similar project). <span class="k">PERT</span> = (O + 4M + P) / 6.</div>
+<h3>Critical path</h3>
+<p>The critical path is the <b>longest</b> path through the network, which sets the <b>shortest</b> possible duration. Its activities have <span class="k">zero float</span>.</p>
+<div class="mn"><b>Float</b> = LS - ES = LF - EF. Forward pass (left to right) gives ES/EF, take the <span class="k">max</span> at merges. Backward pass (right to left) gives LF/LS, take the <span class="k">min</span> at merges. An activity can slip up to its float without moving the finish date.</div>
+<h3>Risk responses</h3>
+<table><tr><th>Negative (threats)</th><th>Positive (opportunities)</th></tr><tr><td>Avoid</td><td>Exploit</td></tr><tr><td>Transfer (insurance)</td><td>Share</td></tr><tr><td>Mitigate</td><td>Enhance</td></tr><tr><td>Accept</td><td>Accept</td></tr></table>
+<div class="mn"><b>Both lists end in Accept.</b> Threats: <span class="k">A-T-M-A</span>. Opportunities: <span class="k">E-S-E-A</span>. "Transfer" almost always = buy insurance / outsource the risk. <span class="k">EMV</span> = probability x impact.</div>
+<h3>Earned Value Management (the big one)</h3>
+<table><tr><th>Metric</th><th>Formula</th><th>Good</th><th>Bad</th></tr>
+<tr><td>CV</td><td>EV - AC</td><td>positive</td><td>negative</td></tr>
+<tr><td>SV</td><td>EV - PV</td><td>positive</td><td>negative</td></tr>
+<tr><td>CPI</td><td>EV / AC</td><td>above 1</td><td>below 1</td></tr>
+<tr><td>SPI</td><td>EV / PV</td><td>above 1</td><td>below 1</td></tr>
+<tr><td>EAC</td><td>BAC / CPI</td><td>-</td><td>-</td></tr>
+<tr><td>VAC</td><td>BAC - EAC</td><td>positive</td><td>negative</td></tr></table>
+<div class="mn"><b>The whole EVM trick in four lines:</b><br>1. <span class="k">EV is always first</span> in every formula.<br>2. <span class="k">Variance = subtract</span> (want positive). <span class="k">Index = divide</span> (want above 1).<br>3. <span class="k">Cost</span> uses <span class="k">AC</span>; <span class="k">Schedule</span> uses <span class="k">PV</span>.<br>4. Negative and below-1 are always bad.</div>
+<div class="cut"><b>PV / EV / AC:</b> PV = what you <span class="k">planned</span> to have done (planned % x BAC). EV = what you <span class="k">earned</span> / actually did (actual % x BAC). AC = what you actually <span class="k">spent</span>.</div>
+<h3>Teams and conflict</h3>
+<p><b>Tuckman:</b> Forming, Storming, Norming, Performing, Adjourning.</p>
+<div class="cut"><b>Conflict resolution, best to worst:</b> <span class="k">Confronting / problem-solving</span> (best, win-win), collaborating, compromising, smoothing, forcing (win-lose), <span class="k">withdrawing / avoiding</span> (worst). <b>PM power:</b> expert and reward are best, coercive is worst.</div>
+`;
+$("#notes").innerHTML=NOTES;
+
+renderChips();buildFC();buildMC();buildFM();buildSQ();buildMA();
+</script></body></html>
