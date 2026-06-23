@@ -14,6 +14,7 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-syst
 .pool .sub{display:block;font-size:11px;color:var(--mut);font-weight:500;margin-top:2px}
 .poolsel{margin-top:4px}
 .poolsel select{font:inherit;font-size:11px;color:var(--teal);background:#f1f7fa;border:1px solid #d4e6ee;border-radius:14px;padding:3px 8px;font-weight:600;cursor:pointer;max-width:180px}
+.reset{font:inherit;font-size:11px;color:var(--mut);background:none;border:0;cursor:pointer;text-decoration:underline;padding:3px 4px}
 .meters{display:flex;gap:12px;flex:none}
 .meter{text-align:center}
 .meter svg{display:block}
@@ -47,7 +48,7 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-syst
 </style></head><body>
 <div class="hdr"><div class="hdr-in">
   <div class="pool">D080 Study Mode<span class="sub">Managing in a Global Business Environment</span>
-    <div class="poolsel"><select id="sel"></select></div>
+    <div class="poolsel"><select id="sel"></select> <button id="reset" class="reset">reset</button></div>
   </div>
   <div class="meters">
     <div class="meter"><svg width="52" height="52" viewBox="0 0 52 52"><circle class="ring-bg" cx="26" cy="26" r="22"></circle><circle class="ring-fg" id="ringSeen" cx="26" cy="26" r="22" stroke="#159fc9"></circle><text class="ring-pct" id="pctSeen" x="26" y="30" text-anchor="middle">0%</text></svg><div class="lbl">Seen</div></div>
@@ -146,22 +147,33 @@ let topic="All";
 const TOPICS=["All",...new Set(MCQS.map(m=>m[4]))];
 function buildSel(){$("#sel").innerHTML=TOPICS.map(t=>`<option value="${t}"${t==topic?" selected":""}>${t==="All"?"All topics":t}</option>`).join("")}
 $("#sel").addEventListener("change",e=>{topic=e.target.value;init()});
+$("#reset").addEventListener("click",()=>{if(confirm("Reset all study progress?"))resetSet(true);});
 
-let queue=[],total=0,mastered=0,seen=new Set(),cur=null,locked=false,waiting=false;
+const LS_KEY='d080drill_v2';
+let PROG={};
+function load(){try{PROG=JSON.parse(localStorage.getItem(LS_KEY))||{};}catch(e){PROG={};}}
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(PROG));}catch(e){}}
+function allIdx(){return MCQS.map((m,i)=>i).filter(i=>topic==="All"||MCQS[i][4]===topic);}
+let queue=[],total=0,mastered=0,seen=new Set(),cur=null,curOpts=[],locked=false,waiting=false;
 function init(){
-  const items=MCQS.map((m,i)=>i).filter(i=>topic==="All"||MCQS[i][4]===topic);
-  total=items.length;mastered=0;seen=new Set();
-  queue=sh(items.map(i=>({i,c:0,hist:[]})));
-  meters();next();
+  load();
+  const items=allIdx();
+  total=items.length;
+  items.forEach(i=>{if(!PROG[i])PROG[i]={c:0,hist:[]};});
+  recount();
+  queue=sh(items.filter(i=>PROG[i].c<2));
+  next();
 }
+function recount(){const items=allIdx();mastered=items.filter(i=>PROG[i].c>=2).length;seen=new Set(items.filter(i=>PROG[i].hist.length>0));}
+function resetSet(all){const items=all?MCQS.map((m,i)=>i):allIdx();items.forEach(i=>{PROG[i]={c:0,hist:[]};});save();init();}
 function meters(){setRing("#ringSeen","#pctSeen",total?seen.size/total:0);setRing("#ringApt","#pctApt",total?mastered/total:0);}
 function next(){
   locked=false;waiting=false;
   if(!queue.length){done();return;}
-  cur=queue.shift();seen.add(cur.i);
-  const m=MCQS[cur.i];
-  const opts=sh(m[1].map((o,oi)=>({o,oi})));cur._opts=opts;
-  const pips=cur.hist.map(h=>`<span class="pip ${h?'ok':'no'}"></span>`).join("");
+  cur=queue.shift();const p=PROG[cur];seen.add(cur);
+  const m=MCQS[cur];
+  const opts=sh(m[1].map((o,oi)=>({o,oi})));curOpts=opts;
+  const pips=p.hist.map(h=>`<span class="pip ${h?'ok':'no'}"></span>`).join("");
   let html=`<div class="q">${m[0]}</div><div class="hist">${pips}</div><div id="opts">`;
   html+=opts.map((x,disp)=>`<button class="ans" data-disp="${disp}" data-oi="${x.oi}"><span class="ltr">${"ABCD"[disp]}</span><span class="txt">${x.o}</span></button>`).join("");
   html+=`</div><div class="cont" id="cont"></div>`;
@@ -170,20 +182,21 @@ function next(){
 }
 function pick(disp){
   if(locked||waiting)return;
-  const m=MCQS[cur.i],x=cur._opts[disp];if(!x)return;
-  const right=x.oi===m[2],btns=$$("#opts .ans");
+  const m=MCQS[cur],x=curOpts[disp];if(!x)return;
+  const p=PROG[cur],right=x.oi===m[2],btns=$$("#opts .ans");
   if(right){
-    locked=true;cur.hist.push(true);
+    locked=true;p.hist.push(true);
     btns.forEach(b=>{if(+b.dataset.disp===disp)b.classList.add("correct");else b.classList.add("dim");b.style.pointerEvents="none"});
     revealBold(btns,m);
-    cur.c++;if(cur.c>=2)mastered++;else queue.push(cur);
-    meters();setTimeout(next,420);
+    p.c++;if(p.c>=2)mastered++;else queue.push(cur);
+    save();meters();setTimeout(next,420);
   } else {
-    locked=true;waiting=true;cur.hist.push(false);cur.c=0;
+    locked=true;waiting=true;p.hist.push(false);p.c=0;
     btns.forEach(b=>{const bi=+b.dataset.oi;if(+b.dataset.disp===disp)b.classList.add("wrong");if(bi===m[2])b.classList.add("correct");b.style.pointerEvents="none"});
     revealBold(btns,m);
     $("#cont").innerHTML=`<div class="explain"><div class="et">Explain</div>${m[3]}</div><div class="cont">tap or press <b>space</b> to continue ▸</div>`;
     queue.splice(Math.min(4,queue.length),0,cur);
+    save();
   }
 }
 $("#qbox").addEventListener("click",e=>{if(waiting){next();return;}const b=e.target.closest(".ans");if(!b)return;pick(+b.dataset.disp);});
@@ -193,7 +206,7 @@ document.addEventListener("keydown",e=>{
   if(!locked&&!waiting&&k in map)pick(map[k]);
 });
 function done(){
-  $("#qbox").innerHTML=`<div class="done"><div class="big">100% Aptitude</div><div class="sm">All ${total} questions answered correctly twice. You have seen and mastered the set.</div><button class="btn" onclick="init()">Study again</button></div>`;
+  $("#qbox").innerHTML=`<div class="done"><div class="big">100% Aptitude</div><div class="sm">All ${total} questions answered correctly twice. You have seen and mastered the set.</div><button class="btn" onclick="resetSet(false)">Study again</button></div>`;
   setRing("#ringSeen","#pctSeen",1);setRing("#ringApt","#pctApt",1);
 }
 buildSel();init();
