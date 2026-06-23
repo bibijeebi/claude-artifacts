@@ -8,8 +8,8 @@
 :root{--bg:#e9edf0;--panel:#ffffff;--ink:#2b3a42;--mut:#7b8794;--line:#dde3e8;--teal:#159fc9;--green:#43a047;--greenbg:#e3f4e4;--red:#e23b3b;--redbg:#fbe6e6;--shadow:0 1px 3px rgba(20,40,60,.10)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;min-height:100%}
-.app{max-width:640px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
-.hdr{background:var(--panel);border-bottom:1px solid var(--line);box-shadow:var(--shadow);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:20}
+.hdr{background:var(--panel);border-bottom:1px solid var(--line);box-shadow:var(--shadow);position:sticky;top:0;z-index:20}
+.hdr-in{max-width:680px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .pool{font-size:14px;font-weight:700;line-height:1.2}
 .pool .sub{display:block;font-size:11px;color:var(--mut);font-weight:500;margin-top:2px}
 .poolsel{margin-top:4px}
@@ -21,10 +21,10 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-syst
 .ring-bg{fill:none;stroke:#eceff1;stroke-width:5}
 .ring-fg{fill:none;stroke-width:5;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dasharray .3s}
 .ring-pct{font-size:13px;font-weight:700;fill:var(--ink)}
-.body{flex:1;padding:22px 16px 30px;display:flex;flex-direction:column}
-.qbox{flex:1;display:flex;flex-direction:column;justify-content:center}
+.body{max-width:680px;margin:0 auto;padding:clamp(28px,7vh,72px) 16px 60px}
 .q{font-size:20px;line-height:1.4;font-weight:500;text-align:center;margin-bottom:14px;color:#1f2d35}
-.hist{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;min-height:11px}
+.hist{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.hist:empty{display:none}
 .pip{width:11px;height:11px;border-radius:2px;background:#cfd6db}
 .pip.ok{background:var(--green)}.pip.no{background:var(--red)}
 .ans{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:16px;border-radius:8px;padding:14px 15px;margin-bottom:10px;cursor:pointer;box-shadow:var(--shadow);transition:.1s}
@@ -44,8 +44,8 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-syst
 .done .big{font-size:30px;font-weight:800;color:var(--green)}
 .done .sm{color:var(--mut);font-size:14px;margin:10px 0 20px}
 .btn{font:inherit;font-size:13px;background:var(--teal);color:#fff;border:0;border-radius:8px;padding:10px 20px;cursor:pointer;font-weight:600}
-</style></head><body><div class="app">
-<div class="hdr">
+</style></head><body>
+<div class="hdr"><div class="hdr-in">
   <div class="pool">D080 Study Mode<span class="sub">Managing in a Global Business Environment</span>
     <div class="poolsel"><select id="sel"></select></div>
   </div>
@@ -53,9 +53,8 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-syst
     <div class="meter"><svg width="52" height="52" viewBox="0 0 52 52"><circle class="ring-bg" cx="26" cy="26" r="22"></circle><circle class="ring-fg" id="ringSeen" cx="26" cy="26" r="22" stroke="#159fc9"></circle><text class="ring-pct" id="pctSeen" x="26" y="30" text-anchor="middle">0%</text></svg><div class="lbl">Seen</div></div>
     <div class="meter"><svg width="52" height="52" viewBox="0 0 52 52"><circle class="ring-bg" cx="26" cy="26" r="22"></circle><circle class="ring-fg" id="ringApt" cx="26" cy="26" r="22" stroke="#43a047"></circle><text class="ring-pct" id="pctApt" x="26" y="30" text-anchor="middle">0%</text></svg><div class="lbl">Apt</div></div>
   </div>
-</div>
+</div></div>
 <div class="body"><div class="qbox" id="qbox"></div></div>
-</div>
 <script>
 const MCQS=[
 ["Which negative outcome on political systems comes from globalization?",["Increase in the number of laws","Increase in the amount of taxes","Creation of isolationist policies","Creation of translation problems"],2,"Globalization can trigger a political backlash: isolationist (protectionist, anti-trade) policies.","Globalization & Economies"],
@@ -161,7 +160,7 @@ function next(){
   cur=queue.shift();seen.add(cur.i);
   const m=MCQS[cur.i];
   const opts=sh(m[1].map((o,oi)=>({o,oi})));cur._opts=opts;
-  const pips=cur.hist.map(h=>`<span class="pip ${h?'ok':'no'}"></span>`).join("")||'<span class="pip"></span>';
+  const pips=cur.hist.map(h=>`<span class="pip ${h?'ok':'no'}"></span>`).join("");
   let html=`<div class="q">${m[0]}</div><div class="hist">${pips}</div><div id="opts">`;
   html+=opts.map((x,disp)=>{
     const txt=x.oi===m[2]?boldUnique(x.o,m[1].filter((_,k)=>k!==m[2])):x.o;
