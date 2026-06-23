@@ -138,6 +138,7 @@ function boldUnique(correct,distractors){
   const dw=new Set();distractors.forEach(d=>norm(d).forEach(w=>dw.add(w)));
   return correct.split(/(\s+)/).map(tok=>{const w=tok.toLowerCase().replace(/[^a-z0-9]/g,"");if(w&&w.length>2&&!STOP.has(w)&&!dw.has(w))return "<b>"+tok+"</b>";return tok;}).join("");
 }
+function revealBold(btns,m){const cb=btns.find(b=>+b.dataset.oi===m[2]);if(!cb)return;const t=cb.querySelector(".txt");t.innerHTML=boldUnique(t.textContent,m[1].filter((_,k)=>k!==m[2]));}
 const CIRC=2*Math.PI*22;
 function setRing(id,pid,frac){const c=$(id);c.style.strokeDasharray=`${frac*CIRC} ${CIRC}`;$(pid).textContent=Math.round(frac*100)+"%";}
 
@@ -162,10 +163,7 @@ function next(){
   const opts=sh(m[1].map((o,oi)=>({o,oi})));cur._opts=opts;
   const pips=cur.hist.map(h=>`<span class="pip ${h?'ok':'no'}"></span>`).join("");
   let html=`<div class="q">${m[0]}</div><div class="hist">${pips}</div><div id="opts">`;
-  html+=opts.map((x,disp)=>{
-    const txt=x.oi===m[2]?boldUnique(x.o,m[1].filter((_,k)=>k!==m[2])):x.o;
-    return `<button class="ans" data-disp="${disp}" data-oi="${x.oi}"><span class="ltr">${"ABCD"[disp]}</span><span>${txt}</span></button>`;
-  }).join("");
+  html+=opts.map((x,disp)=>`<button class="ans" data-disp="${disp}" data-oi="${x.oi}"><span class="ltr">${"ABCD"[disp]}</span><span class="txt">${x.o}</span></button>`).join("");
   html+=`</div><div class="cont" id="cont"></div>`;
   $("#qbox").innerHTML=html;
   meters();
@@ -177,11 +175,13 @@ function pick(disp){
   if(right){
     locked=true;cur.hist.push(true);
     btns.forEach(b=>{if(+b.dataset.disp===disp)b.classList.add("correct");else b.classList.add("dim");b.style.pointerEvents="none"});
+    revealBold(btns,m);
     cur.c++;if(cur.c>=2)mastered++;else queue.push(cur);
     meters();setTimeout(next,420);
   } else {
     locked=true;waiting=true;cur.hist.push(false);cur.c=0;
     btns.forEach(b=>{const bi=+b.dataset.oi;if(+b.dataset.disp===disp)b.classList.add("wrong");if(bi===m[2])b.classList.add("correct");b.style.pointerEvents="none"});
+    revealBold(btns,m);
     $("#cont").innerHTML=`<div class="explain"><div class="et">Explain</div>${m[3]}</div><div class="cont">tap or press <b>space</b> to continue ▸</div>`;
     queue.splice(Math.min(4,queue.length),0,cur);
   }
