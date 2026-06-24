@@ -158,7 +158,36 @@
 
   .foot{text-align:center;color:var(--ink3);font-size:14px;margin-top:40px;line-height:1.7;font-style:italic;font-family:'EB Garamond',serif}
   ::-webkit-scrollbar{height:8px;width:8px}::-webkit-scrollbar-thumb{background:var(--line2);border-radius:999px}::-webkit-scrollbar-track{background:var(--paper2)}
-  @media(max-width:560px){.ttl{font-size:20px}.prog{min-width:150px}.grid{grid-template-columns:1fr}.orn{display:none}}
+  @media(max-width:600px){
+    .hd{gap:10px;padding:12px 14px}
+    .ttl{font-size:21px}.sub{font-size:12.5px}
+    .orn{display:none}
+    .prog{min-width:100%;max-width:100%;margin-left:0;flex-basis:100%}
+    .pcap{font-size:11.5px;gap:8px}
+    .ctl{padding:0 14px 8px}.search{font-size:16px;min-width:100%;flex-basis:100%}
+    .ratehint{font-size:13px}
+    .grid{grid-template-columns:1fr}
+    .nextup{padding:13px 14px}.nuchip{font-size:14px;padding:6px 12px}
+    .sname{font-size:22px}
+    .node .nn{font-size:16.5px;padding-right:56px}
+    .ov{padding:14px 10px}
+    .modal{border-radius:18px}
+    .mhd{padding:18px 18px 15px}.mname{font-size:23px}.mbody{padding:16px 18px 20px}
+    .seg{grid-template-columns:1fr 1fr}
+    .prac-hd{padding:18px 18px 15px}.prac-name{font-size:25px}.prac-ttl{font-size:23px}
+    .prac-body,.prac-body2{padding:18px 18px 20px}
+    .prac-grades{grid-template-columns:1fr 1fr}
+    .backup{gap:7px}.bbtn{padding:8px 13px;font-size:10.5px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+    .node:hover,.chip:hover,.jchip:hover,.nuchip:hover,.mlink:hover,.pip:hover,.bbtn:hover,
+    .prac-sc:hover,.prac-br:hover,.pg:hover,.praclaunch:hover,.prac-start:hover,.prac-reveal:hover,.segb:hover{transform:none!important}
+  }
+  .prac-keys{margin-top:14px;text-align:center;font-family:'Fraunces',serif;font-size:10.5px;letter-spacing:.6px;color:var(--mut2);text-transform:uppercase}
+  .prac-keys b{color:var(--ink3);font-weight:700}
+  .mkeys{margin-top:9px;font-family:'Fraunces',serif;font-size:10px;letter-spacing:.5px;color:var(--mut2);text-transform:uppercase}
+  .mkeys b{color:var(--ink3)}
   .mlink{text-decoration:none}
   .mlink.ext{border-color:var(--ox2);color:var(--ox)}
   .mlink.ext:hover{background:var(--ox);color:#fdf6e8;border-color:var(--ox)}
@@ -641,13 +670,30 @@ function openModal(id){
        <div class="ratelab">Your level${l===0?(st==='avail'?', learnable now':', locked: learn the prereqs'):''}</div>
        <div class="seg">${seg}</div>
        ${l>0?`<button class="clr" onclick="setLvl('${id}',0)">clear rating</button>`:''}
+       <div class="mkeys">tip: press <b>1</b>–<b>4</b> to set your level, <b>0</b> to clear</div>
      </div>
    </div>`;
   document.getElementById('ov').classList.add('show');
 }
 function closeModal(){open_id=null;document.getElementById('ov').classList.remove('show');try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
 document.getElementById('ov').addEventListener('click',e=>{if(e.target.id==='ov')closeModal()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(document.getElementById('prov').classList.contains('show'))pracClose();else closeModal()}});
+document.addEventListener('keydown',e=>{
+  const po=document.getElementById('prov').classList.contains('show');
+  const mo=document.getElementById('ov').classList.contains('show');
+  if(e.key==='Escape'){if(po)pracClose();else if(mo)closeModal();return}
+  if(e.target&&(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'))return;
+  if(po){
+    if(!prac.queue.length||prac.idx>=prac.queue.length)return;
+    if(!prac.reveal){if(e.key===' '||e.key==='Enter'){e.preventDefault();prac.reveal=true;pracRender()}return}
+    if(e.key>='1'&&e.key<='4'){e.preventDefault();pracGrade(+e.key)}
+    else if(e.key==='s'||e.key==='S'){pracSkip()}
+    return;
+  }
+  if(mo&&open_id){
+    if(e.key>='1'&&e.key<='4'){e.preventDefault();setLvl(open_id,+e.key)}
+    else if(e.key==='0'){setLvl(open_id,0)}
+  }
+});
 
 document.getElementById('search').addEventListener('input',e=>{q=e.target.value.toLowerCase().trim();render()});
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
@@ -717,7 +763,7 @@ function pracRender(){
        '<span>'+(prac.idx+1)+' / '+total+'</span></div>'+
      '<div class="prac-meta">'+tags+'<span class="prac-cur">'+(cur?'now: '+LV[cur]:'unrated')+'</span></div>'+
      '<div class="prac-name">'+n.n+'</div>'+(n.aka?'<div class="prac-aka">'+n.aka+'</div>':'')+'</div>'+
-   '<div class="prac-body2">'+body+'</div>';
+   '<div class="prac-body2">'+body+(prac.reveal?'<div class="prac-keys"><b>1</b> didn\u2019t know &middot; <b>2</b> guide &middot; <b>3</b> slow &middot; <b>4</b> nailed &middot; <b>s</b> skip</div>':'<div class="prac-keys"><b>space</b> reveal &middot; <b>esc</b> exit</div>')+'</div>';
 }
 function pracGrade(l){const n=prac.queue[prac.idx],before=eff(n.id);
   store[n.id]=l;try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}
