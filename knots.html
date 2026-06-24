@@ -253,6 +253,9 @@
   .prac-stat{font-size:18px;color:var(--ink2);margin:9px 0}.prac-stat b{font-family:'Fraunces',serif;font-size:26px;color:var(--ox);margin-right:7px}
   .prac-doneact{display:flex;gap:10px;margin-top:22px}
   .prac-doneact .prac-start{flex:1}
+  .duebadge{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1.5px solid var(--ox);color:var(--ox);font-family:'Fraunces',serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:.16s cubic-bezier(.34,1.4,.64,1)}
+  .duebadge:hover{background:var(--ox);color:#fdf6e8;transform:translateY(-1px)}
+  .duebadge::before{content:'\21BB';font-size:13px}
 </style>
 </head>
 <body>
@@ -276,6 +279,7 @@
     <button class="chip" data-f="unrated">unrated only</button>
     <button class="chip" data-f="hidem">hide mastered</button>
     <button class="praclaunch" onclick="pracOpen()">▶ practice</button>
+    <span class="duebadge" id="duebadge" onclick="pracReview()" style="display:none"></span>
   </div>
   <div class="ratehint"><b>Rate fast:</b> tap the 4 dots on any card, recognize &rarr; tied once &rarr; familiar &rarr; mastered. Tap the top filled dot to clear. Open a card for the full reference + the same selector.</div>
   <div class="jump" id="jump"></div>
@@ -570,6 +574,8 @@ function updHead(){
     `<span><span class="dot r"></span>${c[1]} recognize</span>`+
     `<span><span class="dot l"></span>${c[0]} to go</span>`+
     `<span style="margin-left:auto;color:var(--ox)"><i>${pct}% weighted</i></span>`;
+  const due=N.filter(dueReview).length,db=document.getElementById('duebadge');
+  if(due>0){db.style.display='';db.textContent=due+' due';}else{db.style.display='none';}
 }
 
 function visible(n){
@@ -707,18 +713,21 @@ function dueScore(n){const l=eff(n.id),s=srs[n.id];
   if(l===0)return prereqMet(n)?1e9:-1;
   if(!s)return 1e8-l*1e6;
   return ((Date.now()-s.ts)-IVL[l]*DAY)/DAY;}
+function dueReview(n){const l=eff(n.id),s=srs[n.id];if(l===0)return false;if(!s)return l<4;return (Date.now()-s.ts)>=IVL[l]*DAY;}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 let prac={queue:[],idx:0,reveal:false,res:{rev:0,up:0,mast:0},scope:'due',branch:null,pc:0};
 function pracPool(){let p=N.slice();if(prac.pc)p=p.filter(n=>n.pc);
   if(prac.scope==='due')p=p.filter(n=>dueScore(n)>=0).sort((a,b)=>dueScore(b)-dueScore(a));
   else if(prac.scope==='learn')p=p.filter(n=>status(n)==='avail');
   else if(prac.scope==='weak')p=p.filter(n=>{const l=eff(n.id);return l>=1&&l<=3});
+  else if(prac.scope==='review')p=p.filter(dueReview).sort((a,b)=>dueScore(b)-dueScore(a));
   else if(prac.scope==='branch')p=p.filter(n=>n.br===prac.branch&&status(n)!=='locked');
   return p;}
 function pracOpen(){prac.scope='due';prac.branch=null;prac.pc=0;pracSetup();document.getElementById('prov').classList.add('show')}
 function pracClose(){document.getElementById('prov').classList.remove('show')}
+function pracReview(){prac.scope='review';prac.branch=null;prac.pc=0;document.getElementById('prov').classList.add('show');pracStart();}
 function pracSetup(){
-  const scopes=[['due','Due now'],['learn','Learnable'],['weak','Weak spots'],['branch','By branch']];
+  const scopes=[['due','Due now'],['review','Review due'],['learn','Learnable'],['weak','Weak spots'],['branch','By branch']];
   const sc=scopes.map(s=>'<button class="prac-sc'+(prac.scope===s[0]?' on':'')+'" onclick="prac.scope=\''+s[0]+'\';prac.branch='+(s[0]==='branch'?'(prac.branch||\''+Object.keys(BR)[0]+'\')':'null')+';pracSetup()">'+s[1]+'</button>').join('');
   const brrow=prac.scope==='branch'?'<div class="prac-brs">'+Object.keys(BR).map(bk=>'<button class="prac-br'+(prac.branch===bk?' on':'')+'" style="--bc:var('+BR[bk].color+')" onclick="prac.branch=\''+bk+'\';pracSetup()">'+BR[bk].name+'</button>').join('')+'</div>':'';
   const cnt=pracPool().length;
