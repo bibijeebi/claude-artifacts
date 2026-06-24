@@ -1,0 +1,169 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C175 Mock OA — Data Management Foundations</title>
+<meta property="og:title" content="C175 Mock OA — Data Management Foundations">
+<meta property="og:description" content="Timed 41-question objective assessment simulation with per-competency scoring.">
+<meta property="og:image" content="https://niggerfaggot.club/c175-og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e0d;--card:#111614;--card2:#161d1a;--line:#23302b;--ink:#e8efe9;--mut:#8aa093;--lime:#d4ff3a;--good:#5ad17a;--bad:#ff6b6b;--warn:#ffb454}
+*{box-sizing:border-box}html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"JetBrains Mono",ui-monospace,monospace;-webkit-font-smoothing:antialiased}
+.wrap{max-width:820px;margin:0 auto;padding:16px}
+h1{font-family:"Fraunces",serif;font-weight:700;font-size:25px;letter-spacing:-.4px;margin:4px 0 2px}
+.sub{color:var(--mut);font-size:12.5px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 20px}
+.btn{font:inherit;font-size:13.5px;font-weight:700;color:var(--bg);background:var(--lime);border:0;border-radius:10px;padding:12px 22px;cursor:pointer}
+.btn.ghost{color:var(--ink);background:var(--card2);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--lime);color:var(--lime)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+.timer{font-family:"Fraunces",serif;font-weight:700;font-size:20px;color:var(--lime)}
+.timer.warn{color:var(--warn)}.timer.crit{color:var(--bad)}
+.meta{font-size:12px;color:var(--mut);margin-left:auto}
+.palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:6px;margin:14px 0 4px}
+.pcell{font:inherit;font-size:12px;font-weight:700;aspect-ratio:1;border-radius:8px;background:var(--card2);border:1.5px solid var(--line);color:var(--mut);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pcell.ans{background:#11231a;border-color:var(--good);color:var(--good)}
+.pcell.cur{outline:2px solid var(--lime);outline-offset:1px;color:var(--ink)}
+.pcell.flag{border-color:var(--warn);color:var(--warn)}
+.pcell.flag.ans{background:#2a2410}
+.topic{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--lime);font-weight:700;margin:2px 0 9px}
+.q{font-size:16.5px;line-height:1.5;margin:0 0 16px}
+.opt{display:flex;gap:11px;align-items:flex-start;font-size:14.5px;line-height:1.45;background:var(--card2);border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;margin:9px 0;cursor:pointer;transition:.1s}
+.opt:hover{border-color:#33453d}
+.opt.sel{border-color:var(--lime);background:#1a2410}
+.opt .ltr{flex:0 0 auto;width:23px;height:23px;border-radius:6px;background:#1d2723;color:var(--mut);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.opt.sel .ltr{background:var(--lime);color:var(--bg)}
+.opt.correct{border-color:var(--good);background:#11231a}.opt.correct .ltr{background:var(--good);color:var(--bg)}
+.opt.wrong{border-color:var(--bad);background:#231414}.opt.wrong .ltr{background:var(--bad);color:var(--bg)}
+.exp{margin-top:14px;padding:13px 15px;border-radius:10px;background:#0e1512;border:1px solid var(--line);font-size:13.5px;line-height:1.55;color:var(--mut)}
+.exp b{color:var(--ink)}
+.nav{display:flex;gap:8px;margin-top:18px;align-items:center}
+.nav .sp{margin-left:auto}
+.flagbtn{font:inherit;font-size:12px;font-weight:600;color:var(--mut);background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:9px 13px;cursor:pointer}
+.flagbtn.on{color:var(--warn);border-color:var(--warn)}
+.big{font-family:"Fraunces",serif;font-weight:700;font-size:54px;line-height:1;margin:6px 0}
+.big.pass{color:var(--good)}.big.fail{color:var(--bad)}
+.verdict{font-size:14px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:18px}
+.verdict.pass{color:var(--good)}.verdict.fail{color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.bar{height:7px;border-radius:4px;background:var(--card2);overflow:hidden;min-width:70px}
+.bar>i{display:block;height:100%;background:var(--lime)}
+.rev{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 16px;margin:10px 0}
+.rev .rh{font-size:12px;color:var(--mut);margin-bottom:7px;display:flex;justify-content:space-between}
+.rev .rh .ok{color:var(--good);font-weight:700}.rev .rh .no{color:var(--bad);font-weight:700}
+.rev .rq{font-size:14.5px;line-height:1.45;margin-bottom:10px}
+.ro{font-size:13px;padding:8px 11px;border-radius:8px;margin:5px 0;border:1px solid var(--line);color:var(--mut)}
+.ro.c{border-color:var(--good);color:var(--ink);background:#11231a}
+.ro.w{border-color:var(--bad);color:var(--ink);background:#231414}
+.muted{color:var(--mut);font-size:12.5px;line-height:1.6}
+.hide{display:none}
+kbd{font:inherit;font-size:11px;background:var(--card2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--mut)}
+</style></head>
+<body><div class="wrap">
+<h1>C175 Mock OA</h1>
+<div class="sub">Data Management Foundations &middot; 41 questions &middot; 60 min &middot; pass &ge; 68%</div>
+<div id="app"></div>
+</div>
+<script>
+const $=s=>document.getElementById(s);
+const QS=[{"q": "A hospital stores patient MRI scans, CSV lab-result tables, and JSON sensor feeds. Which is the BEST example of semi-structured data?", "o": ["The MRI image files", "The CSV lab tables", "The JSON sensor feeds", "A scanned paper intake form"], "c": 2, "e": "JSON/XML carry self-describing tags but no rigid schema = semi-structured. CSV is structured; images/scans are unstructured.", "t": "Intro to Data"}, {"q": "Which statement best separates data from information?", "o": ["Data is digital; information is printed", "Data is raw facts; information is processed data in context", "Data is numbers; information is text", "Data is stored; information is deleted"], "c": 1, "e": "Information is data that has been processed and placed in a meaningful context for decisions.", "t": "Intro to Data"}, {"q": "A legacy system keeps everything in one delimited text file with no relationships between records. This is best described as a:", "o": ["Relational database", "Flat file", "Data warehouse", "Hierarchical database"], "c": 1, "e": "A single delimited text file with no internal hierarchy or relationships is a flat file.", "t": "Intro to Data"}, {"q": "In an ERD, an attribute that is itself made of smaller meaningful parts (e.g., Address = street, city, zip) is called a:", "o": ["Derived attribute", "Multivalued attribute", "Composite attribute", "Key attribute"], "c": 2, "e": "An attribute decomposable into sub-parts is a composite attribute. Multivalued = many values; derived = calculated.", "t": "Data Modeling"}, {"q": "An entity that cannot be uniquely identified by its own attributes and depends on a parent entity's key is a:", "o": ["Strong entity", "Weak entity", "Associative entity", "Recursive entity"], "c": 1, "e": "A weak entity has no sufficient key of its own and borrows the owner's key (a partial/discriminator key plus the parent's).", "t": "Data Modeling"}, {"q": "To resolve a many-to-many relationship into a physical schema, you introduce a(n):", "o": ["Recursive relationship", "Associative (junction/bridge) entity", "Supertype", "Derived attribute"], "c": 1, "e": "An M:N is broken into two one-to-many relationships via an associative/junction table holding both foreign keys.", "t": "Data Modeling"}, {"q": "In crow's-foot notation, a single perpendicular bar nearest an entity and a crow's foot at the far end reads as:", "o": ["Zero or many", "Exactly one to many", "One and only one to one", "Many to many"], "c": 1, "e": "Bar = one (mandatory), crow's foot = many. So one (mandatory) on this side relates to many on the other.", "t": "Data Modeling"}, {"q": "Modality (participation) in an ERD specifies the:", "o": ["Maximum number of related instances", "Minimum number of related instances", "Primary key of the relationship", "Data type of the foreign key"], "c": 1, "e": "Modality = the MINIMUM (0 = optional, 1 = mandatory). Cardinality = the maximum.", "t": "Data Modeling"}, {"q": "An employee 'manages' other employees in the same EMPLOYEE table. This is a:", "o": ["Binary one-to-many relationship", "Unary (recursive) relationship", "Ternary relationship", "Many-to-many relationship requiring no junction"], "c": 1, "e": "A relationship from an entity to itself is unary/recursive (here one manager to many reports).", "t": "Data Modeling"}, {"q": "Which term refers to a single row in a relation?", "o": ["Attribute", "Domain", "Tuple", "Schema"], "c": 2, "e": "A row = tuple. Column = attribute; the set of valid values for an attribute = domain.", "t": "Relational Model"}, {"q": "A surrogate key is best described as a:", "o": ["Natural attribute that already uniquely identifies rows", "System-generated, meaningless unique identifier (e.g., auto-increment ID)", "Foreign key copied from a parent table", "Composite of two business attributes"], "c": 1, "e": "A surrogate key is an artificial, system-generated PK with no business meaning, used instead of a natural key.", "t": "Relational Model"}, {"q": "Entity integrity is enforced by the rule that:", "o": ["Every foreign key must match a primary key", "No part of a primary key may be null", "Every column must have a default value", "All attributes must be single-valued"], "c": 1, "e": "Entity integrity: the primary key (or any part of a composite PK) cannot be null. Referential integrity is the FK->PK rule.", "t": "Relational Model"}, {"q": "Deleting a CUSTOMER row that still has related ORDERS, where ORDERS.CustID references CUSTOMER, would violate:", "o": ["Entity integrity", "Domain integrity", "Referential integrity", "First normal form"], "c": 2, "e": "Orphaning child rows breaks referential integrity. ON DELETE CASCADE / RESTRICT controls this behavior.", "t": "Relational Model"}, {"q": "A composite key is:", "o": ["A key copied from another table", "A primary key made of two or more attributes", "An index built on one column", "A key that allows null values"], "c": 1, "e": "A composite (compound) key uses multiple attributes together to uniquely identify a row.", "t": "Relational Model"}, {"q": "Adding an index to a frequently-searched column generally:", "o": ["Speeds up SELECT lookups but slows INSERT/UPDATE/DELETE", "Speeds up everything equally", "Has no effect on read performance", "Removes the need for a primary key"], "c": 0, "e": "Indexes accelerate reads but add maintenance overhead on writes. Trade read speed against write cost.", "t": "Relational Model"}, {"q": "A 2NF violation occurs when:", "o": ["A non-key attribute depends on another non-key attribute", "A non-key attribute depends on only PART of a composite primary key", "A table has a multivalued attribute", "Two tables share a foreign key"], "c": 1, "e": "2NF removes PARTIAL dependencies (non-key attribute depending on part of a composite key). Already requires 1NF.", "t": "Normalization"}, {"q": "Third normal form specifically eliminates:", "o": ["Partial dependencies", "Transitive dependencies", "Multivalued attributes", "Foreign keys"], "c": 1, "e": "3NF removes transitive dependencies (non-key -> non-key, e.g., ZIP -> City). 2NF handled partial dependencies.", "t": "Normalization"}, {"q": "In Employees(EmpID, DeptID, DeptName), DeptName depends on DeptID, which depends on EmpID. DeptName -> via DeptID is a:", "o": ["Partial dependency", "Transitive dependency", "Multivalued dependency", "Trivial dependency"], "c": 1, "e": "EmpID -> DeptID -> DeptName is a transitive dependency, a 3NF violation. Split Department into its own table.", "t": "Normalization"}, {"q": "The inability to add a new course because no student has enrolled yet is an example of a(n):", "o": ["Update anomaly", "Insertion anomaly", "Deletion anomaly", "Read anomaly"], "c": 1, "e": "Can't insert one fact without an unrelated one = insertion anomaly. Normalization removes these.", "t": "Normalization"}, {"q": "BCNF is stricter than 3NF because it requires that:", "o": ["Every determinant is a candidate key", "All attributes are single-valued", "No foreign keys exist", "Tables have surrogate keys"], "c": 0, "e": "Boyce-Codd NF: for every functional dependency, the left side (determinant) must be a candidate key.", "t": "Normalization"}, {"q": "Which SQL command creates a new table structure?", "o": ["INSERT", "CREATE TABLE", "SELECT INTO only", "ALTER ROW"], "c": 1, "e": "CREATE TABLE is DDL that defines a new table. INSERT (DML) adds rows to an existing table.", "t": "SQL"}, {"q": "INSERT, UPDATE, and DELETE belong to which SQL sub-language?", "o": ["DDL (Data Definition Language)", "DML (Data Manipulation Language)", "DCL (Data Control Language)", "TCL (Transaction Control Language)"], "c": 1, "e": "DML manipulates the rows/data. DDL (CREATE/ALTER/DROP) defines structure; DCL (GRANT/REVOKE) controls access.", "t": "SQL"}, {"q": "To return only departments having more than 5 employees, you filter the grouped result with:", "o": ["WHERE COUNT(*) > 5", "HAVING COUNT(*) > 5", "ORDER BY COUNT(*) > 5", "DISTINCT COUNT(*) > 5"], "c": 1, "e": "HAVING filters groups after GROUP BY/aggregation. WHERE filters individual rows before grouping.", "t": "SQL"}, {"q": "Which join returns all rows from the left table plus matching rows from the right, with NULLs where no match exists?", "o": ["INNER JOIN", "LEFT (OUTER) JOIN", "CROSS JOIN", "SELF JOIN"], "c": 1, "e": "LEFT OUTER JOIN keeps all left rows and pads unmatched right columns with NULL. INNER drops unmatched rows.", "t": "SQL"}, {"q": "SELECT DeptID, AVG(Salary) FROM Employee GROUP BY DeptID;  -- this returns:", "o": ["The average salary of the whole company", "One average salary per department", "Every employee's salary sorted", "The single highest salary"], "c": 1, "e": "GROUP BY DeptID collapses rows per department and AVG computes the per-group average.", "t": "SQL"}, {"q": "Which clause restricts rows to names that begin with 'Sm'?", "o": ["WHERE Name = 'Sm'", "WHERE Name LIKE 'Sm%'", "WHERE Name IN ('Sm')", "WHERE Name BETWEEN 'Sm'"], "c": 1, "e": "LIKE with % wildcard matches a prefix. % = any sequence of characters; _ = a single character.", "t": "SQL"}, {"q": "To remove a table and all its data permanently you use:", "o": ["DELETE FROM table;", "DROP TABLE table;", "TRUNCATE COLUMN;", "ALTER TABLE table REMOVE;"], "c": 1, "e": "DROP TABLE (DDL) removes structure and data. DELETE removes rows but keeps the table; TRUNCATE empties rows fast.", "t": "SQL"}, {"q": "Which constraint guarantees a column never contains duplicate values but, unlike a primary key, may allow one NULL?", "o": ["NOT NULL", "UNIQUE", "CHECK", "DEFAULT"], "c": 1, "e": "A UNIQUE constraint blocks duplicates and (in most DBMSs) permits a single NULL. A PK forbids nulls entirely.", "t": "SQL"}, {"q": "The correct explicit-join syntax to combine ORDERS and CUSTOMER on CustID is:", "o": ["SELECT * FROM ORDERS, CUSTOMER ON CustID;", "SELECT * FROM ORDERS INNER JOIN CUSTOMER ON ORDERS.CustID = CUSTOMER.CustID;", "SELECT * FROM ORDERS JOIN CUSTOMER WHERE CustID;", "SELECT * JOIN ORDERS, CUSTOMER;"], "c": 1, "e": "Explicit join uses JOIN ... ON with the qualified key columns. The comma form needs the join condition in WHERE.", "t": "SQL"}, {"q": "OLTP systems are optimized for ___, while OLAP systems are optimized for ___.", "o": ["analytical queries; transaction processing", "transaction processing; analytical queries", "backups; encryption", "indexing; normalization"], "c": 1, "e": "OLTP handles many short read/write transactions; OLAP handles complex analytical/aggregate queries over historical data.", "t": "Business Intelligence"}, {"q": "In a star schema, the central table containing measures (e.g., sales amount) surrounded by descriptive tables is the:", "o": ["Dimension table", "Fact table", "Bridge table", "Lookup table"], "c": 1, "e": "The fact table holds numeric measures and foreign keys to the surrounding dimension tables.", "t": "Business Intelligence"}, {"q": "A data mart differs from a data warehouse in that it:", "o": ["Holds only unstructured data", "Is a subject- or department-focused subset", "Cannot be queried with SQL", "Stores only real-time data"], "c": 1, "e": "A data mart is a smaller, subject-specific slice of the enterprise data warehouse (e.g., just Marketing).", "t": "Business Intelligence"}, {"q": "Grouping customers into similar segments with no predefined labels is a data-mining technique called:", "o": ["Classification", "Clustering", "Estimation", "Association"], "c": 1, "e": "Clustering groups similar records without predefined classes. Classification assigns to KNOWN classes.", "t": "Business Intelligence"}, {"q": "Predicting a continuous numeric value (e.g., next month's revenue) from existing data is:", "o": ["Classification", "Estimation", "Affinity grouping", "Clustering"], "c": 1, "e": "Estimation outputs a continuous value. Classification outputs a discrete class label.", "t": "Business Intelligence"}, {"q": "'Customers who buy bread often buy butter' is discovered through:", "o": ["Classification", "Clustering", "Association (affinity) rules", "Regression"], "c": 2, "e": "Association / market-basket analysis finds items frequently purchased together.", "t": "Business Intelligence"}, {"q": "The three pillars of the CIA triad in data security are:", "o": ["Control, Integrity, Access", "Confidentiality, Integrity, Availability", "Capacity, Indexing, Authentication", "Compliance, Insurance, Auditing"], "c": 1, "e": "CIA = Confidentiality (only authorized access), Integrity (accurate/unaltered), Availability (accessible when needed).", "t": "Data Security"}, {"q": "Restricting which users can read or modify which tables is an example of:", "o": ["Encryption", "Access control / authorization", "Normalization", "Indexing"], "c": 1, "e": "Access control (authorization) governs user permissions. In SQL this is DCL: GRANT and REVOKE.", "t": "Data Security"}, {"q": "Converting stored data into unreadable ciphertext to protect it at rest is:", "o": ["Hashing for indexing", "Encryption", "Compression", "Replication"], "c": 1, "e": "Encryption transforms data into ciphertext readable only with a key, protecting confidentiality.", "t": "Data Security"}, {"q": "Regular database backups primarily support which security objective?", "o": ["Confidentiality", "Availability (and recovery)", "Normalization", "Concurrency"], "c": 1, "e": "Backups protect availability and enable recovery after failure, corruption, or attack.", "t": "Data Security"}, {"q": "Which is a recognized dimension of data quality?", "o": ["Encryption strength", "Accuracy (and completeness/consistency/timeliness)", "Index depth", "Join cardinality"], "c": 1, "e": "Data-quality dimensions include accuracy, completeness, consistency, timeliness, and validity.", "t": "Data Security"}, {"q": "The overall framework of policies, roles, and standards for managing an organization's data assets is called:", "o": ["Data mining", "Data governance", "Data warehousing", "Data normalization"], "c": 1, "e": "Data governance defines who owns data and the policies/standards/accountability for its management and quality.", "t": "Data Security"}];
+const PASS=0.68, LIMIT=60*60, LSK="c175mock_v1";
+const LT="ABCDEFGH";
+let S=load();
+
+function load(){try{const r=JSON.parse(localStorage.getItem(LSK));if(r&&r.qn===QS.length)return r;}catch(e){}return null;}
+function save(){if(S)localStorage.setItem(LSK,JSON.stringify(S));}
+function fresh(){S={qn:QS.length,ans:{},flag:{},cur:0,start:Date.now(),left:LIMIT,done:false,reviewIdx:null};save();}
+function isMulti(i){return Array.isArray(QS[i].c);}
+function answered(i){const a=S.ans[i];return a!==undefined&&a!==null&&(!isMulti(i)||(Array.isArray(a)&&a.length));}
+function correct(i){const a=S.ans[i],c=QS[i].c;if(isMulti(i)){const aa=(a||[]).slice().sort().join(",");return aa===c.slice().sort().join(",");}return a===c;}
+
+let tick=null;
+function startTimer(){clearInterval(tick);tick=setInterval(()=>{const el=Math.floor((Date.now()-S.start)/1000);S.left=Math.max(0,LIMIT-el);const t=$("timer");if(t){t.textContent=fmt(S.left);t.className="timer"+(S.left<300?" crit":S.left<600?" warn":"");}if(S.left<=0){clearInterval(tick);submit();}save();},1000);}
+function fmt(s){const m=Math.floor(s/60),x=s%60;return (m<10?"0":"")+m+":"+(x<10?"0":"")+x;}
+
+function render(){
+  if(!S){intro();return;}
+  if(S.done){results();return;}
+  exam();
+}
+
+function intro(){
+  $("app").innerHTML=`<div class="card">
+   <div style="font-family:Fraunces,serif;font-weight:600;font-size:19px;margin-bottom:10px">Ready?</div>
+   <div class="muted" style="margin-bottom:16px">${QS.length} multiple-choice questions drawn across all six competencies, including the data-security &amp; BI material the pre-assessment skipped. Timer is ${LIMIT/60} minutes. You can flag questions and jump around with the palette. Auto-submits at 0:00.<br><br>Keys: <kbd>1-4</kbd> answer &middot; <kbd>&larr;</kbd>/<kbd>&rarr;</kbd> move &middot; <kbd>F</kbd> flag</div>
+   <button class="btn" id="start">Start exam</button></div>`;
+  $("start").onclick=()=>{fresh();startTimer();render();};
+}
+
+function exam(){
+  const i=S.cur,q=QS[i],a=S.ans[i],multi=isMulti(i);
+  const pal=QS.map((_,j)=>`<button class="pcell ${answered(j)?'ans':''} ${S.flag[j]?'flag':''} ${j===i?'cur':''}" onclick="go(${j})">${j+1}</button>`).join("");
+  const opts=q.o.map((o,k)=>{
+    let sel = multi ? (Array.isArray(a)&&a.includes(k)) : a===k;
+    return `<div class="opt ${sel?'sel':''}" onclick="pick(${k})"><span class="ltr">${LT[k]}</span><span>${o}</span></div>`;
+  }).join("");
+  const nA=QS.filter((_,j)=>answered(j)).length;
+  $("app").innerHTML=`
+   <div class="topbar"><span class="timer" id="timer">${fmt(S.left)}</span>
+     <button class="btn ghost" style="padding:9px 16px" onclick="confirmSubmit()">Submit</button>
+     <span class="meta">${nA}/${QS.length} answered</span></div>
+   <div class="palette">${pal}</div>
+   <div class="card" style="margin-top:10px">
+     <div class="topic">${q.t} &middot; Q${i+1}${multi?' &middot; select all':''}</div>
+     <div class="q">${q.q}</div>${opts}
+     <div class="nav">
+       <button class="btn ghost" onclick="go(${i-1})" ${i===0?'disabled':''}>&larr; Prev</button>
+       <button class="flagbtn ${S.flag[i]?'on':''}" onclick="flag()">${S.flag[i]?'&#9873; Flagged':'&#9873; Flag'}</button>
+       <span class="sp"></span>
+       <button class="btn" onclick="go(${i+1})" ${i===QS.length-1?'disabled':''}>Next &rarr;</button>
+     </div></div>`;
+}
+
+window.go=j=>{if(j<0||j>=QS.length)return;S.cur=j;save();exam();};
+window.pick=k=>{const i=S.cur;if(isMulti(i)){let a=Array.isArray(S.ans[i])?S.ans[i].slice():[];const x=a.indexOf(k);x>=0?a.splice(x,1):a.push(k);S.ans[i]=a;}else{S.ans[i]=k;}save();exam();};
+window.flag=()=>{const i=S.cur;S.flag[i]=!S.flag[i];save();exam();};
+window.confirmSubmit=()=>{const n=QS.filter((_,j)=>!answered(j)).length;if(n>0&&!confirm(n+" question(s) unanswered. Submit anyway?"))return;submit();};
+function submit(){clearInterval(tick);S.done=true;S.left=Math.max(0,S.left);save();results();}
+
+function results(){
+  const tot=QS.length;let right=0;const byT={};
+  QS.forEach((q,i)=>{const ok=correct(i);if(ok)right++;byT[q.t]=byT[q.t]||{c:0,n:0};byT[q.t].n++;if(ok)byT[q.t].c++;});
+  const pct=right/tot, pass=pct>=PASS;
+  const rows=Object.keys(byT).sort((a,b)=>byT[b].n-byT[a].n).map(t=>{const o=byT[t],p=Math.round(o.c/o.n*100);return `<tr><td>${t}</td><td class="n">${o.c}/${o.n}</td><td><div class="bar"><i style="width:${p}%;background:${p>=PASS*100?'var(--good)':p>=50?'var(--lime)':'var(--bad)'}"></i></div></td><td class="n">${p}%</td></tr>`;}).join("");
+  const used=LIMIT-S.left;
+  const rev=QS.map((q,i)=>{const a=S.ans[i],ok=correct(i),multi=isMulti(i);
+    const opts=q.o.map((o,k)=>{const isC=multi?q.c.includes(k):k===q.c;const isP=multi?(Array.isArray(a)&&a.includes(k)):a===k;let cl=isC?'c':(isP?'w':'');return `<div class="ro ${cl}">${LT[k]}. ${o}${isC?' &check;':''}${isP&&!isC?' &times; (your pick)':''}</div>`;}).join("");
+    return `<div class="rev"><div class="rh"><span>Q${i+1} &middot; ${q.t}</span><span class="${ok?'ok':'no'}">${ok?'CORRECT':'WRONG'}</span></div><div class="rq">${q.q}</div>${opts}<div class="exp"><b>Why:</b> ${q.e}</div></div>`;}).join("");
+  $("app").innerHTML=`
+   <div class="card" style="text-align:center">
+     <div class="big ${pass?'pass':'fail'}">${Math.round(pct*100)}%</div>
+     <div class="verdict ${pass?'pass':'fail'}">${pass?'PASS':'BELOW CUT'} &middot; ${right}/${tot} correct</div>
+     <div class="muted">Time used ${fmt(used)} of ${fmt(LIMIT)} &middot; cut line ${Math.round(PASS*100)}%</div>
+   </div>
+   <div class="card" style="margin-top:12px"><div class="topic">By competency</div>
+     <table><thead><tr><th>Competency</th><th class="n">Score</th><th></th><th class="n">%</th></tr></thead><tbody>${rows}</tbody></table>
+   </div>
+   <div class="row" style="margin:16px 0 8px"><button class="btn ghost" onclick="toggleRev()" id="rvb">Show review</button><button class="btn" onclick="again()">New attempt</button></div>
+   <div id="rev" class="hide">${rev}</div>`;
+}
+window.toggleRev=()=>{const r=$("rev"),b=$("rvb");r.classList.toggle("hide");b.textContent=r.classList.contains("hide")?"Show review":"Hide review";};
+window.again=()=>{if(confirm("Start a new attempt? Current results are cleared."))(fresh(),startTimer(),render());};
+
+document.addEventListener("keydown",e=>{
+  if(!S||S.done)return;const i=S.cur;
+  if(e.key>="1"&&e.key<="8"){const k=+e.key-1;if(k<QS[i].o.length)pick(k);}
+  else if(e.key==="ArrowLeft")go(i-1);
+  else if(e.key==="ArrowRight")go(i+1);
+  else if(e.key.toLowerCase()==="f")flag();
+});
+
+if(S&&!S.done){const el=Math.floor((Date.now()-S.start)/1000);S.left=Math.max(0,LIMIT-el);if(S.left<=0){S.done=true;save();}else startTimer();}
+render();
+</script></body></html>
