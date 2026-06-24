@@ -166,7 +166,11 @@ function init(){
 }
 function recount(){const items=allIdx();mastered=items.filter(i=>PROG[i].c>=2).length;seen=new Set(items.filter(i=>PROG[i].hist.length>0));}
 function resetSet(all){const items=all?MCQS.map((m,i)=>i):allIdx();items.forEach(i=>{PROG[i]={c:0,hist:[]};});save();init();}
-function meters(){setRing("#ringSeen","#pctSeen",total?seen.size/total:0);setRing("#ringApt","#pctApt",total?mastered/total:0);}
+function meters(){
+  let conf=0;allIdx().forEach(i=>{conf+=Math.min((PROG[i]?PROG[i].c:0),2)/2;});
+  setRing("#ringSeen","#pctSeen",total?seen.size/total:0);
+  setRing("#ringApt","#pctApt",total?conf/total:0);
+}
 function next(){
   locked=false;waiting=false;
   if(!queue.length){done();return;}
@@ -188,14 +192,14 @@ function pick(disp){
     locked=true;p.hist.push(true);
     btns.forEach(b=>{if(+b.dataset.disp===disp)b.classList.add("correct");else b.classList.add("dim");b.style.pointerEvents="none"});
     revealBold(btns,m);
-    p.c++;if(p.c>=2)mastered++;else queue.push(cur);
+    p.c++;if(p.c>=2)mastered++;else queue.splice(Math.min(10,queue.length),0,cur);
     save();meters();setTimeout(next,420);
   } else {
     locked=true;waiting=true;p.hist.push(false);p.c=0;
     btns.forEach(b=>{const bi=+b.dataset.oi;if(+b.dataset.disp===disp)b.classList.add("wrong");if(bi===m[2])b.classList.add("correct");b.style.pointerEvents="none"});
     revealBold(btns,m);
     $("#cont").innerHTML=`<div class="explain"><div class="et">Explain</div>${m[3]}</div><div class="cont">tap or press <b>space</b> to continue ▸</div>`;
-    queue.splice(Math.min(4,queue.length),0,cur);
+    queue.splice(Math.min(3,queue.length),0,cur);
     save();
   }
 }
