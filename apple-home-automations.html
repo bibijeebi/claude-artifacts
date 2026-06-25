@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Apple Home Automations · Hub, Phone & the Shortcuts Bridge</title>
+<meta name="description" content="Two automation engines, one Home app. Learn which to reach for and how Shortcuts turns a dumb trigger into real logic. iOS 26.">
+
+<meta property="og:title" content="Apple Home Automations, demystified">
+<meta property="og:description" content="Two engines share one surface: hub-resident Home automations and phone-resident Personal automations. Plus the one button that adds real logic.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-applehome-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/apple-home-automations.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-applehome-wide.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --canvas:#e7ecf4;
+  --blob-1:rgba(90,200,250,0.55);
+  --blob-2:rgba(94,92,230,0.50);
+  --blob-3:rgba(255,45,85,0.34);
+  --blob-4:rgba(52,199,89,0.40);
+  --blob-5:rgba(255,159,10,0.38);
+
+  --glass:rgba(255,255,255,0.52);
+  --glass-strong:rgba(255,255,255,0.72);
+  --glass-soft:rgba(255,255,255,0.34);
+  --glass-border:rgba(255,255,255,0.75);
+  --glass-edge:rgba(255,255,255,0.55);
+  --glass-shadow:0 10px 34px rgba(28,33,64,0.14);
+  --sheen:rgba(255,255,255,0.35);
+
+  --ink:#16181d;
+  --ink-2:rgba(60,60,67,0.62);
+  --ink-3:rgba(60,60,67,0.40);
+  --accent:#0a84ff;
+  --accent-soft:rgba(10,132,255,0.14);
+  --hairline:rgba(60,60,67,0.16);
+
+  --t-time:rgba(255,159,10,0.20);
+  --t-people:rgba(255,45,85,0.18);
+  --t-acc:rgba(10,132,255,0.16);
+  --t-sensor:rgba(52,199,89,0.20);
+  --t-phone:rgba(94,92,230,0.18);
+  --t-ha:rgba(0,199,190,0.20);
+
+  --r-lg:30px; --r-md:22px; --r-sm:15px; --r-pill:999px;
+  --maxw:1080px;
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;
+}
+body.dark{
+  --canvas:#070a11;
+  --blob-1:rgba(90,200,250,0.40);
+  --blob-2:rgba(124,92,255,0.42);
+  --blob-3:rgba(255,55,95,0.30);
+  --blob-4:rgba(48,209,88,0.30);
+  --blob-5:rgba(255,159,10,0.26);
+
+  --glass:rgba(38,42,56,0.46);
+  --glass-strong:rgba(46,50,66,0.66);
+  --glass-soft:rgba(40,44,58,0.30);
+  --glass-border:rgba(255,255,255,0.14);
+  --glass-edge:rgba(255,255,255,0.20);
+  --glass-shadow:0 14px 40px rgba(0,0,0,0.45);
+  --sheen:rgba(255,255,255,0.16);
+
+  --ink:#f3f4f8;
+  --ink-2:rgba(235,235,245,0.62);
+  --ink-3:rgba(235,235,245,0.38);
+  --accent:#64d2ff;
+  --accent-soft:rgba(100,210,255,0.16);
+  --hairline:rgba(255,255,255,0.12);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  color:var(--ink);
+  background:var(--canvas);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  transition:background .6s ease,color .4s ease;
+}
+
+/* ---- ambient mesh ---- */
+.mesh{position:fixed;inset:-20% -20% -20% -20%;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(40% 50% at 18% 22%,var(--blob-1),transparent 70%),
+    radial-gradient(42% 46% at 82% 18%,var(--blob-2),transparent 70%),
+    radial-gradient(50% 50% at 72% 78%,var(--blob-3),transparent 72%),
+    radial-gradient(44% 48% at 24% 82%,var(--blob-4),transparent 72%),
+    radial-gradient(38% 40% at 52% 48%,var(--blob-5),transparent 70%);
+  filter:saturate(125%);
+  animation:drift 26s ease-in-out infinite alternate;
+}
+.mesh-grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+  background:radial-gradient(circle at 50% 0%,transparent 60%,rgba(255,255,255,.25));}
+@keyframes drift{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(2%,-2%,0) scale(1.06)}
+  100%{transform:translate3d(-2%,1.5%,0) scale(1.03)}
+}
+
+/* ---- progress ---- */
+.progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:50;
+  background:linear-gradient(90deg,var(--accent),rgba(255,45,85,.8));
+  box-shadow:0 0 12px var(--accent);transition:width .1s linear}
+
+/* ---- glass primitive ---- */
+.glass{
+  position:relative;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:var(--r-lg);
+  box-shadow:var(--glass-shadow),inset 0 1px 0 var(--glass-edge),inset 0 -1px 1px rgba(0,0,0,0.03);
+  backdrop-filter:blur(28px) saturate(180%);
+  -webkit-backdrop-filter:blur(28px) saturate(180%);
+  overflow:hidden;
+}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(circle 220px at var(--mx,50%) var(--my,-20%),var(--sheen),transparent 70%);
+  opacity:0;transition:opacity .35s ease;mix-blend-mode:screen}
+.glass:hover::before{opacity:1}
+
+/* ---- nav ---- */
+.nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:40;
+  display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:var(--r-pill);
+  background:var(--glass-strong);border:1px solid var(--glass-border);
+  box-shadow:var(--glass-shadow),inset 0 1px 0 var(--glass-edge);
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  max-width:calc(100vw - 24px)}
+.nav a{font-size:13px;font-weight:560;color:var(--ink-2);text-decoration:none;
+  padding:7px 13px;border-radius:var(--r-pill);transition:.2s;white-space:nowrap}
+.nav a:hover{color:var(--ink);background:var(--glass-soft)}
+.nav .brand{font-weight:700;color:var(--ink);padding-left:8px}
+.toggle{width:34px;height:34px;border:none;cursor:pointer;border-radius:var(--r-pill);
+  background:var(--glass-soft);color:var(--ink);font-size:15px;display:grid;place-items:center;
+  transition:.2s}
+.toggle:hover{background:var(--accent-soft)}
+.nav-links{display:flex;gap:2px}
+
+/* ---- layout ---- */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+section{padding:46px 0;scroll-margin-top:88px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.eyebrow::before{content:"";width:24px;height:1px;background:var(--accent);opacity:.6}
+h2{font-size:clamp(26px,4vw,38px);font-weight:760;letter-spacing:-.02em;line-height:1.08;margin-bottom:12px}
+.lede{font-size:17px;color:var(--ink-2);max-width:62ch;margin-bottom:30px}
+.lede b{color:var(--ink);font-weight:600}
+
+/* ---- hero ---- */
+.hero{min-height:92vh;display:flex;flex-direction:column;justify-content:center;
+  padding-top:120px;padding-bottom:40px}
+.hero-card{padding:clamp(30px,5vw,58px);border-radius:38px}
+.hero .kick{font-family:var(--mono);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);font-weight:600;margin-bottom:22px;display:inline-flex;align-items:center;gap:10px}
+.hero .dot{width:7px;height:7px;border-radius:50%;background:var(--blob-4);
+  box-shadow:0 0 10px #34c759;animation:pulse 2.4s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.hero h1{font-size:clamp(38px,7.2vw,76px);font-weight:800;letter-spacing:-.035em;line-height:.98;
+  margin-bottom:22px}
+.hero h1 .grad{background:linear-gradient(115deg,#0a84ff,#5e5ce6 45%,#ff2d55);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font-size:clamp(16px,2.1vw,20px);color:var(--ink-2);max-width:60ch;margin-bottom:30px}
+.hero p b{color:var(--ink);font-weight:600}
+.hero-stats{display:flex;flex-wrap:wrap;gap:10px}
+.stat{padding:13px 20px;border-radius:var(--r-md);background:var(--glass-soft);
+  border:1px solid var(--glass-border)}
+.stat .n{font-size:25px;font-weight:780;letter-spacing:-.02em;line-height:1}
+.stat .l{font-size:12px;color:var(--ink-2);margin-top:5px;font-weight:500}
+
+/* ---- two engines ---- */
+.engines{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.engine{padding:30px}
+.engine .ico{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;
+  font-size:24px;margin-bottom:18px;border:1px solid var(--glass-border)}
+.engine.hub .ico{background:var(--t-acc)}
+.engine.phone .ico{background:var(--t-phone)}
+.engine h3{font-size:21px;font-weight:720;letter-spacing:-.01em;margin-bottom:5px}
+.engine .sub{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-bottom:16px}
+.engine ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.engine li{display:flex;gap:11px;font-size:14.5px;color:var(--ink-2);align-items:flex-start}
+.engine li b{color:var(--ink);font-weight:600}
+.engine li .ck{flex-shrink:0;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;
+  font-size:10px;margin-top:1px;font-weight:700}
+.engine.hub li .ck{background:var(--t-acc);color:#0a84ff}
+.engine.phone li .ck{background:var(--t-phone);color:#5e5ce6}
+body.dark .engine.hub li .ck{color:#64d2ff}
+body.dark .engine.phone li .ck{color:#b3b1ff}
+
+/* ---- trigger chips ---- */
+.triggers{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:18px}
+.trig{padding:22px;border-radius:var(--r-md)}
+.trig .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:600;padding:4px 9px;border-radius:var(--r-pill);display:inline-block;margin-bottom:13px}
+.trig h4{font-size:16px;font-weight:680;margin-bottom:6px;letter-spacing:-.01em}
+.trig p{font-size:13.5px;color:var(--ink-2)}
+.t1 .tag{background:var(--t-time)}.t2 .tag,.t3 .tag{background:var(--t-people)}
+.t4 .tag{background:var(--t-acc)}.t5 .tag{background:var(--t-sensor)}
+.note{padding:18px 22px;border-radius:var(--r-md);background:var(--glass-soft);
+  border:1px dashed var(--hairline);font-size:14px;color:var(--ink-2)}
+.note b{color:var(--ink);font-weight:600}
+
+/* ---- bridge ---- */
+.bridge{padding:34px}
+.seg{display:inline-flex;gap:4px;padding:5px;border-radius:var(--r-pill);background:var(--glass-soft);
+  border:1px solid var(--glass-border);margin-bottom:26px}
+.seg button{border:none;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:600;
+  padding:9px 20px;border-radius:var(--r-pill);background:transparent;color:var(--ink-2);transition:.25s}
+.seg button.on{background:var(--glass-strong);color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.cap-wrap{position:relative;min-height:200px}
+.cap{display:none;animation:fade .4s ease}
+.cap.show{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cap h4{font-size:18px;font-weight:700;margin-bottom:4px}
+.cap .meta{font-family:var(--mono);font-size:12px;color:var(--ink-2);margin-bottom:18px}
+.cap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cap-item{padding:13px 15px;border-radius:var(--r-sm);background:var(--glass-soft);
+  border:1px solid var(--hairline);font-size:13.5px;font-weight:500;display:flex;align-items:center;gap:9px}
+.cap-item .mi{font-size:15px}
+.cap.plain .cap-item{opacity:.85}
+.cap.conv .cap-item{border-color:var(--accent-soft)}
+.caveat{margin-top:20px;padding:14px 18px;border-radius:var(--r-sm);
+  background:var(--t-time);font-size:13.5px;color:var(--ink);font-weight:500}
+
+/* ---- phone trigger gallery ---- */
+.phone-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:20px}
+.pchip{font-size:13.5px;font-weight:550;padding:9px 15px;border-radius:var(--r-pill);
+  background:var(--glass);border:1px solid var(--glass-border);color:var(--ink);
+  display:inline-flex;align-items:center;gap:8px;transition:.2s}
+.pchip:hover{transform:translateY(-2px);box-shadow:var(--glass-shadow)}
+.pchip .mi{font-size:14px;opacity:.85}
+.pchip.new::after{content:"26";font-family:var(--mono);font-size:9px;font-weight:700;
+  background:var(--accent);color:#fff;padding:1px 5px;border-radius:var(--r-pill);margin-left:2px}
+body.dark .pchip.new::after{color:#000}
+
+/* ---- table ---- */
+.tbl{padding:8px;border-radius:var(--r-lg);overflow:hidden}
+.tbl table{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th,.tbl td{padding:15px 18px;text-align:left}
+.tbl thead th{font-size:12px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;
+  color:var(--ink-2);font-weight:600;border-bottom:1px solid var(--hairline)}
+.tbl thead th:first-child{color:transparent}
+.tbl tbody tr{transition:.2s}
+.tbl tbody tr:hover{background:var(--glass-soft)}
+.tbl tbody td:first-child{font-weight:600;color:var(--ink)}
+.tbl tbody td{color:var(--ink-2);border-bottom:1px solid var(--hairline)}
+.tbl tbody tr:last-child td{border-bottom:none}
+.col-hub{background:var(--t-acc)}
+.tbl td.col-hub{background:rgba(10,132,255,0.06)}
+.yes{color:#34c759;font-weight:600}.no{color:#ff3b30;font-weight:600}
+body.dark .yes{color:#30d158}body.dark .no{color:#ff6961}
+
+/* ---- whats new ---- */
+.news{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.new-card{padding:24px}
+.new-card .badge{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);font-weight:600;margin-bottom:10px}
+.new-card h4{font-size:16.5px;font-weight:680;margin-bottom:7px;letter-spacing:-.01em}
+.new-card p{font-size:13.5px;color:var(--ink-2)}
+
+/* ---- examples ---- */
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.filt{font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;
+  padding:8px 16px;border-radius:var(--r-pill);background:var(--glass-soft);
+  border:1px solid var(--glass-border);color:var(--ink-2);transition:.2s}
+.filt:hover{color:var(--ink)}
+.filt.on{background:var(--accent);color:#fff;border-color:transparent}
+body.dark .filt.on{color:#000}
+.examples{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:13px}
+.ex{padding:20px;border-radius:var(--r-md);transition:.3s}
+.ex.hide{display:none}
+.ex .extag{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  font-weight:600;padding:3px 9px;border-radius:var(--r-pill);display:inline-block;margin-bottom:12px}
+.ex .trigger{font-size:14.5px;font-weight:620;margin-bottom:6px;letter-spacing:-.01em}
+.ex .arrow{color:var(--accent);font-weight:700}
+.ex .action{font-size:13.5px;color:var(--ink-2)}
+.ex[data-cat="home"] .extag{background:var(--t-acc)}
+.ex[data-cat="conv"] .extag{background:var(--t-sensor)}
+.ex[data-cat="phone"] .extag{background:var(--t-phone)}
+.ex[data-cat="ha"] .extag{background:var(--t-ha)}
+
+/* ---- ha bridge ---- */
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;margin:22px 0}
+.flow-node{flex:1;min-width:150px;padding:20px;border-radius:var(--r-md);text-align:center;
+  background:var(--glass);border:1px solid var(--glass-border)}
+.flow-node .mi{font-size:26px;display:block;margin-bottom:9px}
+.flow-node h5{font-size:14px;font-weight:680;margin-bottom:4px}
+.flow-node p{font-size:12px;color:var(--ink-2)}
+.flow-arrow{display:grid;place-items:center;padding:0 4px;color:var(--accent);font-size:20px;font-weight:700}
+.limits{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.limit{padding:20px;border-radius:var(--r-md)}
+.limit h5{font-size:14.5px;font-weight:680;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.limit p{font-size:13.5px;color:var(--ink-2)}
+.limit .x{color:#ff3b30}
+
+/* ---- quiz ---- */
+.quiz{display:flex;flex-direction:column;gap:14px}
+.q{padding:24px}
+.q .qn{font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:600;margin-bottom:10px}
+.q .qt{font-size:16.5px;font-weight:620;margin-bottom:16px;letter-spacing:-.01em}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{padding:13px 16px;border-radius:var(--r-sm);background:var(--glass-soft);
+  border:1px solid var(--glass-border);font-size:14px;cursor:pointer;transition:.2s;
+  display:flex;align-items:center;gap:11px}
+.opt:hover{background:var(--glass)}
+.opt .mk{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--ink-3);flex-shrink:0;
+  display:grid;place-items:center;font-size:11px;font-weight:700;transition:.2s}
+.opt.correct{background:rgba(52,199,89,.16);border-color:#34c759}
+.opt.correct .mk{background:#34c759;border-color:#34c759;color:#fff}
+.opt.wrong{background:rgba(255,59,48,.12);border-color:#ff3b30}
+.opt.wrong .mk{background:#ff3b30;border-color:#ff3b30;color:#fff}
+.opt.lock{pointer-events:none}
+.explain{margin-top:14px;padding:13px 16px;border-radius:var(--r-sm);background:var(--accent-soft);
+  font-size:13.5px;color:var(--ink);display:none}
+.explain.show{display:block;animation:fade .35s ease}
+.explain b{font-weight:600}
+
+/* ---- footer ---- */
+footer{padding:50px 0 70px;text-align:center}
+footer .glass{padding:34px;display:inline-block;max-width:560px}
+footer p{font-size:14px;color:var(--ink-2)}
+footer .big{font-size:18px;font-weight:600;color:var(--ink);margin-bottom:8px}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+@media(max-width:760px){
+  .engines{grid-template-columns:1fr}
+  .limits{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .tbl{overflow-x:auto}
+  .tbl table{min-width:440px}
+  section{padding:36px 0}
+  .flow-arrow{transform:rotate(90deg)}
+  .flow{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div class="mesh"></div>
+<div class="mesh-grain"></div>
+<div class="progress" id="prog"></div>
+
+<nav class="nav glass">
+  <span class="brand">Home·Auto</span>
+  <div class="nav-links">
+    <a href="#model">Model</a>
+    <a href="#triggers">Triggers</a>
+    <a href="#bridge">Bridge</a>
+    <a href="#table">Compare</a>
+    <a href="#examples">Examples</a>
+    <a href="#quiz">Check</a>
+  </div>
+  <button class="toggle" id="themeBtn" aria-label="Toggle light or dark glass">◑</button>
+</nav>
+
+<header class="hero wrap">
+  <div class="hero-card glass" data-tilt>
+    <span class="kick"><span class="dot"></span>iOS 26 · Home + Shortcuts</span>
+    <h1>Make the house do<br>things <span class="grad">by itself.</span></h1>
+    <p><b>Two automation engines share one surface.</b> One lives on your hub and runs for everyone. One lives on your phone and runs for you. Shortcuts is the bridge that turns a dumb trigger into real logic. Here's the whole map.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="n">5</div><div class="l">Home triggers</div></div>
+      <div class="stat"><div class="n">15+</div><div class="l">Phone triggers</div></div>
+      <div class="stat"><div class="n">1</div><div class="l">Bridge button</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="model" class="wrap reveal">
+  <div class="eyebrow">The mental model</div>
+  <h2>Hub-resident vs phone-resident</h2>
+  <p class="lede">The Home app and the Shortcuts Automation tab are two windows onto the same database. Everything you build is one of these two things. Get this distinction and the rest is detail.</p>
+  <div class="engines">
+    <div class="engine hub glass" data-tilt>
+      <div class="ico">🏠</div>
+      <h3>Home automation</h3>
+      <div class="sub">stored on Apple TV / HomePod</div>
+      <ul>
+        <li><span class="ck">✓</span><span>Runs for <b>everyone</b> in the home, not just you</span></li>
+        <li><span class="ck">✓</span><span>Keeps working when <b>your phone's away</b> or dead</span></li>
+        <li><span class="ck">✓</span><span>Exactly <b>5 HomeKit triggers</b>, nothing else</span></li>
+        <li><span class="ck">✓</span><span>No logic by default. Run a scene, set accessories, auto-revert</span></li>
+        <li><span class="ck">✓</span><span>Shareable, since it lives in the home</span></li>
+      </ul>
+    </div>
+    <div class="engine phone glass" data-tilt>
+      <div class="ico">📱</div>
+      <h3>Personal automation</h3>
+      <div class="sub">stored on one iPhone</div>
+      <ul>
+        <li><span class="ck">✓</span><span>Runs <b>only for you</b>, never fires for Bekah's phone</span></li>
+        <li><span class="ck">✓</span><span>Needs that phone <b>present</b>, some triggers prompt first</span></li>
+        <li><span class="ck">✓</span><span>Phone-side triggers: <b>NFC, Focus, Wi-Fi, time, app</b>…</span></li>
+        <li><span class="ck">✓</span><span>Full Shortcuts logic from the start</span></li>
+        <li><span class="ck">✓</span><span>Can <b>call Home actions</b>, becoming a trigger HomeKit lacks</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="triggers" class="wrap reveal">
+  <div class="eyebrow">Home automation</div>
+  <h2>The only 5 triggers</h2>
+  <p class="lede">Every hub-resident automation starts with one of these. The first three are about people and time. The last two react to your accessories.</p>
+  <div class="triggers">
+    <div class="trig t1 glass" data-tilt><span class="tag">Time</span><h4>A Time of Day Occurs</h4><p>Sunrise, sunset, or a clock time. Can gate on day-of-week and on who's home.</p></div>
+    <div class="trig t2 glass" data-tilt><span class="tag">People</span><h4>People Arrive</h4><p>Anyone, the first person, or a specific person reaches a location.</p></div>
+    <div class="trig t3 glass" data-tilt><span class="tag">People</span><h4>People Leave</h4><p>Same options. "Last person leaves" is the canonical everyone's-gone trigger.</p></div>
+    <div class="trig t4 glass" data-tilt><span class="tag">Accessory</span><h4>An Accessory is Controlled</h4><p>A light turns on, a lock unlocks, the garage opens. Chain one device to others.</p></div>
+    <div class="trig t5 glass" data-tilt><span class="tag">Sensor</span><h4>A Sensor Detects Something</h4><p>Motion, contact, occupancy, leak, smoke. The reactive workhorse.</p></div>
+  </div>
+  <div class="note"><b>The native action set is thin on purpose:</b> run a scene, set accessories to states, or auto-revert after X minutes ("turn off after 1 hour"). No conditionals. No reading a sensor's value. That ceiling is exactly what the next section removes.</div>
+</section>
+
+<section id="bridge" class="wrap reveal">
+  <div class="eyebrow">The relationship to Shortcuts</div>
+  <h2>One button changes everything</h2>
+  <p class="lede">Build a Home automation, pick a trigger, then on the accessories screen swipe up and tap <b>Convert To Shortcut</b>. It still lives on the hub and still runs for everyone, but now the full Shortcuts library is inside it. Flip the switch to see what you gain.</p>
+  <div class="bridge glass">
+    <div class="seg">
+      <button class="on" data-cap="plain">Plain automation</button>
+      <button data-cap="conv">Converted to Shortcut</button>
+    </div>
+    <div class="cap-wrap">
+      <div class="cap plain show" id="cap-plain">
+        <h4>What a plain automation can do</h4>
+        <div class="meta">trigger → set state. That's the whole vocabulary.</div>
+        <div class="cap-grid">
+          <div class="cap-item"><span class="mi">🎬</span>Run a scene</div>
+          <div class="cap-item"><span class="mi">💡</span>Set accessories on/off</div>
+          <div class="cap-item"><span class="mi">🎚️</span>Set brightness/color</div>
+          <div class="cap-item"><span class="mi">⏱️</span>Auto-revert after X min</div>
+        </div>
+      </div>
+      <div class="cap conv" id="cap-conv">
+        <h4>What it can do after Convert To Shortcut</h4>
+        <div class="meta">everything above, plus the full action library + logic</div>
+        <div class="cap-grid">
+          <div class="cap-item"><span class="mi">🔀</span>If / Otherwise logic</div>
+          <div class="cap-item"><span class="mi">📊</span>Read an accessory's value</div>
+          <div class="cap-item"><span class="mi">🔁</span>Repeat & Wait</div>
+          <div class="cap-item"><span class="mi">🌦️</span>Get current weather</div>
+          <div class="cap-item"><span class="mi">🧮</span>Math & dates</div>
+          <div class="cap-item"><span class="mi">🔔</span>Send notification</div>
+          <div class="cap-item"><span class="mi">💬</span>Send a message</div>
+          <div class="cap-item"><span class="mi">🌐</span>Get Contents of URL → HA webhook</div>
+          <div class="cap-item"><span class="mi">🤖</span>Use Model (Apple Intelligence)</div>
+          <div class="cap-item"><span class="mi">⚡</span>Run another shortcut</div>
+        </div>
+      </div>
+    </div>
+    <div class="caveat">⚠️ One-way street: you can't convert back, and the editor gets fussier. Convert only when you actually need conditionals or external data.</div>
+  </div>
+</section>
+
+<section id="personal" class="wrap reveal">
+  <div class="eyebrow">Personal automation</div>
+  <h2>Phone-side triggers</h2>
+  <p class="lede">These never existed in HomeKit. Your phone's own state becomes the trigger, and the automation can then <b>call Home actions</b> to fire a scene or toggle a device. Tap an NFC tag, run a HomeKit scene.</p>
+  <div class="phone-chips">
+    <span class="pchip"><span class="mi">🕐</span>Time of Day</span>
+    <span class="pchip"><span class="mi">⏰</span>Alarm</span>
+    <span class="pchip"><span class="mi">📍</span>Arrive / Leave</span>
+    <span class="pchip"><span class="mi">📳</span>NFC tag</span>
+    <span class="pchip new"><span class="mi">🌙</span>Focus / Sleep</span>
+    <span class="pchip new"><span class="mi">📶</span>Wi-Fi connect</span>
+    <span class="pchip new"><span class="mi">🔵</span>Bluetooth</span>
+    <span class="pchip"><span class="mi">🚗</span>CarPlay</span>
+    <span class="pchip"><span class="mi">📲</span>App opened / closed</span>
+    <span class="pchip"><span class="mi">🔋</span>Battery level</span>
+    <span class="pchip"><span class="mi">🔌</span>Charger</span>
+    <span class="pchip"><span class="mi">🪫</span>Low Power Mode</span>
+    <span class="pchip"><span class="mi">✈️</span>Airplane Mode</span>
+    <span class="pchip"><span class="mi">✉️</span>Message / Email</span>
+  </div>
+  <div class="note"><b>Run-silently caveat:</b> NFC and Focus run without a prompt. As of iOS 26, Wi-Fi and Bluetooth triggers run silently too (marked <b>26</b> above). Location and some others may still ask before running. A personal automation can't be shared, so once you script multiple devices it lives on that one phone.</div>
+</section>
+
+<section id="table" class="wrap reveal">
+  <div class="eyebrow">Side by side</div>
+  <h2>Which engine, at a glance</h2>
+  <p class="lede">When you're deciding where to build something, this is the whole decision. Hub for shared and reliable, phone for personal and trigger-rich.</p>
+  <div class="tbl glass">
+    <table>
+      <thead><tr><th>Property</th><th class="col-hub">Home automation</th><th>Personal automation</th></tr></thead>
+      <tbody>
+        <tr><td>Stored on</td><td class="col-hub">Home hub</td><td>Your iPhone</td></tr>
+        <tr><td>Runs for</td><td class="col-hub">Everyone in home</td><td>Only you</td></tr>
+        <tr><td>Works phone-away</td><td class="col-hub"><span class="yes">Yes</span></td><td><span class="no">No</span></td></tr>
+        <tr><td>Triggers</td><td class="col-hub">5 HomeKit events</td><td>NFC, Focus, time, Wi-Fi…</td></tr>
+        <tr><td>Logic / conditionals</td><td class="col-hub">Only after converting</td><td>Full Shortcuts from start</td></tr>
+        <tr><td>Shareable</td><td class="col-hub"><span class="yes">Yes</span></td><td><span class="no">No</span></td></tr>
+        <tr><td>Runs silently</td><td class="col-hub"><span class="yes">Yes</span></td><td>Some yes, some prompt</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="new" class="wrap reveal">
+  <div class="eyebrow">What iOS 26 changed</div>
+  <h2>New since the last release</h2>
+  <p class="lede">If you skipped the upgrade notes, here's what actually matters for automations.</p>
+  <div class="news">
+    <div class="new-card glass" data-tilt><div class="badge">Required</div><h4>New HomeKit architecture</h4><p>The old one was retired in fall 2025. The upgrade unlocks guest access, robot vacuums, and Activity History.</p></div>
+    <div class="new-card glass" data-tilt><div class="badge">Native</div><h4>Adaptive Temperature</h4><p>Built-in thermostat automation. On-device prediction pre-conditions a Matter thermostat for arrival, sleep, and away. No building required.</p></div>
+    <div class="new-card glass" data-tilt><div class="badge">Silent</div><h4>Wi-Fi & Bluetooth run silently</h4><p>Personal automations on these triggers can finally fire without an "Ask Before Running" prompt.</p></div>
+    <div class="new-card glass" data-tilt><div class="badge">Parity</div><h4>Sleep Focus on/off triggers</h4><p>Sleep Focus now has explicit turn-on and turn-off triggers, matching every other Focus. Clean goodnight routines at last.</p></div>
+    <div class="new-card glass" data-tilt><div class="badge">Smarter</div><h4>25+ new actions + Use Model</h4><p>New Shortcuts actions plus LLM "Use Model" steps (Apple Intelligence / ChatGPT) you can drop straight into a converted automation.</p></div>
+    <div class="new-card glass" data-tilt><div class="badge">Mac</div><h4>Personal automations on macOS</h4><p>macOS 26 gets personal automations for the first time, so your Mac can join the trigger party.</p></div>
+  </div>
+</section>
+
+<section id="examples" class="wrap reveal">
+  <div class="eyebrow">Make it concrete</div>
+  <h2>Tangible examples</h2>
+  <p class="lede">The same patterns, sorted by engine. Filter to whichever layer you're building in right now.</p>
+  <div class="filters">
+    <button class="filt on" data-filter="all">All</button>
+    <button class="filt" data-filter="home">Plain Home</button>
+    <button class="filt" data-filter="conv">Converted</button>
+    <button class="filt" data-filter="phone">Personal</button>
+    <button class="filt" data-filter="ha">HA bridge</button>
+  </div>
+  <div class="examples" id="exGrid">
+    <div class="ex glass" data-cat="home"><span class="extag">Time</span><div class="trigger">Sunset <span class="arrow">→</span></div><div class="action">Run "Evening" scene: porch and driveway bulbs on.</div></div>
+    <div class="ex glass" data-cat="home"><span class="extag">Accessory</span><div class="trigger">Front door unlocks <span class="arrow">→</span></div><div class="action">Run "I'm Home" scene: lights, thermostat, music.</div></div>
+    <div class="ex glass" data-cat="home"><span class="extag">Sensor</span><div class="trigger">Shop motion <span class="arrow">→</span></div><div class="action">Shop lights on, auto-off after 15 minutes.</div></div>
+    <div class="ex glass" data-cat="home"><span class="extag">People</span><div class="trigger">Last person leaves <span class="arrow">→</span></div><div class="action">All lights off, doors lock, thermostat to eco.</div></div>
+    <div class="ex glass" data-cat="home"><span class="extag">Accessory</span><div class="trigger">Garage opens after sunset <span class="arrow">→</span></div><div class="action">Driveway lights on for 10 minutes.</div></div>
+    <div class="ex glass" data-cat="conv"><span class="extag">If / value</span><div class="trigger">Every 30 min <span class="arrow">→</span></div><div class="action">If shop temp &gt; 85°F, exhaust fan on; else if &lt; 60°F, heater on.</div></div>
+    <div class="ex glass" data-cat="conv"><span class="extag">If / context</span><div class="trigger">Doorbell motion <span class="arrow">→</span></div><div class="action">If after sunset AND nobody home, flash entrance lights + notify with snapshot.</div></div>
+    <div class="ex glass" data-cat="conv"><span class="extag">Weather</span><div class="trigger">Sunrise <span class="arrow">→</span></div><div class="action">Get weather. If rain &gt; 50%, text "skip the sprinklers" and don't run irrigation.</div></div>
+    <div class="ex glass" data-cat="phone"><span class="extag">NFC</span><div class="trigger">Tag by the door <span class="arrow">→</span></div><div class="action">Toggle "Leaving" scene. Replaces a $50 button with a 10¢ NTAG215.</div></div>
+    <div class="ex glass" data-cat="phone"><span class="extag">NFC</span><div class="trigger">Tag at workbench <span class="arrow">→</span></div><div class="action">Set Focus, shop lights on, start a 90-min timer, start a playlist.</div></div>
+    <div class="ex glass" data-cat="phone"><span class="extag">Focus</span><div class="trigger">Sleep Focus on <span class="arrow">→</span></div><div class="action">Goodnight: lock doors, lights off, thermostat down, white noise on.</div></div>
+    <div class="ex glass" data-cat="phone"><span class="extag">Location</span><div class="trigger">You arrive home <span class="arrow">→</span></div><div class="action">Your welcome scene. Bekah's phone runs hers. Per-person on a shared home.</div></div>
+    <div class="ex glass" data-cat="phone"><span class="extag">Wi-Fi</span><div class="trigger">Connect to home Wi-Fi <span class="arrow">→</span></div><div class="action">Silent housekeeping: toggle a HomeKit state, run a sync. No prompt in iOS 26.</div></div>
+    <div class="ex glass" data-cat="ha"><span class="extag">Webhook</span><div class="trigger">Any trigger <span class="arrow">→</span></div><div class="action">Get Contents of URL POSTs to Home Assistant; HA runs the real logic, pushes state back via HomeKit Bridge.</div></div>
+  </div>
+</section>
+
+<section id="ha" class="wrap reveal">
+  <div class="eyebrow">For the whole-house build</div>
+  <h2>HomeKit is the voice. HA is the brain.</h2>
+  <p class="lede">When you outgrow what HomeKit exposes, keep the Apple side dumb and offload logic to Home Assistant. A converted automation (or any shortcut) fires a webhook; HA does the thinking; the result mirrors back into the Home app so Siri stays in sync.</p>
+  <div class="flow">
+    <div class="flow-node glass"><span class="mi">📱</span><h5>Apple trigger</h5><p>Home or personal automation</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node glass"><span class="mi">🌐</span><h5>Get Contents of URL</h5><p>POST webhook to HA</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node glass"><span class="mi">🧠</span><h5>Home Assistant</h5><p>Templating, multi-sensor, Frigate</p></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node glass"><span class="mi">🏠</span><h5>HomeKit Bridge</h5><p>State pushed back to Home app</p></div>
+  </div>
+  <div class="limits">
+    <div class="limit glass"><h5><span class="x">✕</span> Self-state loop</h5><p>A HomeKit automation can't read a device's own state to control itself. The smart-plug-can't-re-toggle-itself problem. HA handles it natively.</p></div>
+    <div class="limit glass"><h5><span class="x">✕</span> Value thresholds & AND/OR</h5><p>The Home app won't expose numeric sensor thresholds or multi-sensor AND/OR conditions. HA fuses as many sensors as you want.</p></div>
+  </div>
+  <div class="note" style="margin-top:16px"><b>Don't want HA?</b> The <b>Eve</b> app and <b>Controller for HomeKit</b> expose more of the underlying HomeKit trigger API than Apple's Home app does, including sensor-value thresholds and Thread network status. Good middle ground before going full Home Assistant.</div>
+</section>
+
+<section id="quiz" class="wrap reveal">
+  <div class="eyebrow">Quick check</div>
+  <h2>Did it stick?</h2>
+  <p class="lede">Four questions. Tap an answer to lock it in and see why.</p>
+  <div class="quiz" id="quiz"></div>
+</section>
+
+<footer class="wrap reveal">
+  <div class="glass">
+    <p class="big">That's the whole map.</p>
+    <p>Hub for shared and reliable. Phone for personal and trigger-rich. Convert To Shortcut when you need logic. HA when you outgrow the ceiling.</p>
+  </div>
+</footer>
+
+<script>
+const RM = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// theme toggle
+const tBtn = document.getElementById('themeBtn');
+tBtn.addEventListener('click', ()=>{
+  document.body.classList.toggle('dark');
+  tBtn.textContent = document.body.classList.contains('dark') ? '◐' : '◑';
+});
+
+// progress bar
+const prog = document.getElementById('prog');
+addEventListener('scroll', ()=>{
+  const h = document.documentElement;
+  const p = h.scrollTop / (h.scrollHeight - h.clientHeight);
+  prog.style.width = (p*100)+'%';
+}, {passive:true});
+
+// reveal on scroll
+const io = new IntersectionObserver((es)=>{
+  es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+}, {threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// specular sheen following pointer
+if(!RM){
+  document.querySelectorAll('.glass').forEach(card=>{
+    card.addEventListener('pointermove', e=>{
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100)+'%');
+      card.style.setProperty('--my', ((e.clientY-r.top)/r.height*100)+'%');
+    });
+  });
+}
+
+// bridge segmented control
+document.querySelectorAll('.seg button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.seg button').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+    const target = btn.dataset.cap;
+    document.querySelectorAll('.cap').forEach(c=>c.classList.remove('show'));
+    document.getElementById('cap-'+target).classList.add('show');
+  });
+});
+
+// examples filter
+document.querySelectorAll('.filt').forEach(f=>{
+  f.addEventListener('click', ()=>{
+    document.querySelectorAll('.filt').forEach(x=>x.classList.remove('on'));
+    f.classList.add('on');
+    const v = f.dataset.filter;
+    document.querySelectorAll('.ex').forEach(ex=>{
+      ex.classList.toggle('hide', v!=='all' && ex.dataset.cat!==v);
+    });
+  });
+});
+
+// quiz
+const QS = [
+  {q:"You want a goodnight routine that locks the doors for the whole family, even when your phone is at the shop. Which engine?",
+   a:["Home automation (hub-resident)","Personal automation (phone-resident)"],c:0,
+   e:"Hub-resident. It runs for everyone and keeps working when your phone is away. A personal automation only fires on your phone, while present."},
+  {q:"Your shop fan should turn on only when the temp sensor reads above 85°F. A plain Home automation can do this.",
+   a:["True","False"],c:1,
+   e:"False. Plain automations can't read a sensor's value or run conditionals. You must Convert To Shortcut to use an If and read the temperature."},
+  {q:"You stick a 10¢ NFC tag by the door to fire a 'Leaving' scene with one tap. What is this?",
+   a:["A Home automation","A Personal automation calling a Home action"],c:1,
+   e:"Personal automation. NFC is a phone-side trigger HomeKit doesn't have. The automation then calls a Home action to run the scene."},
+  {q:"HomeKit can't read a device's own state to re-toggle itself, and won't do multi-sensor AND/OR. Best fix for a power user?",
+   a:["Give up, it's impossible","Offload the logic to Home Assistant via a webhook, mirror back through HomeKit Bridge"],c:1,
+   e:"Offload to HA. A webhook (Get Contents of URL) hands the hard logic to Home Assistant, which pushes results back into the Home app via HomeKit Bridge."}
+];
+const quizEl = document.getElementById('quiz');
+QS.forEach((item,i)=>{
+  const q = document.createElement('div');
+  q.className='q glass';
+  q.innerHTML = `<div class="qn">Question ${i+1} / ${QS.length}</div><div class="qt">${item.q}</div>
+    <div class="opts">${item.a.map((opt,j)=>`<div class="opt" data-i="${j}"><span class="mk"></span><span>${opt}</span></div>`).join('')}</div>
+    <div class="explain"><b>Why:</b> ${item.e}</div>`;
+  quizEl.appendChild(q);
+  q.querySelectorAll('.opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      const opts = q.querySelectorAll('.opt');
+      opts.forEach(o=>o.classList.add('lock'));
+      const chosen = +opt.dataset.i;
+      opts[item.c].classList.add('correct');
+      opts[item.c].querySelector('.mk').textContent='✓';
+      if(chosen!==item.c){ opt.classList.add('wrong'); opt.querySelector('.mk').textContent='✕'; }
+      q.querySelector('.explain').classList.add('show');
+    });
+  });
+});
+
+// subtle hero tilt
+if(!RM){
+  const hero = document.querySelector('.hero-card');
+  document.querySelector('.hero').addEventListener('pointermove', e=>{
+    const r = hero.getBoundingClientRect();
+    const rx = ((e.clientY-r.top)/r.height-0.5)*-3;
+    const ry = ((e.clientX-r.left)/r.width-0.5)*3;
+    hero.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+  });
+  document.querySelector('.hero').addEventListener('pointerleave', ()=>{
+    hero.style.transform='';
+  });
+}
+</script>
+</body>
+</html>
