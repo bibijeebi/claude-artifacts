@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Apple Home Drill · Mastery Mode</title>
+<meta name="description" content="HamStudy-style mastery drill for Apple Home automations and Shortcuts. One question at a time, requeues misses until mastered.">
+
+<meta property="og:title" content="Apple Home Automations · Mastery Drill">
+<meta property="og:description" content="Blind-recall drill for hub vs phone, the 5 Home triggers, Convert To Shortcut, iOS 26, and the HA bridge. Misses requeue until mastered.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-applehome-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/apple-home-drill.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-applehome-wide.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --canvas:#e7ecf4;
+  --blob-1:rgba(90,200,250,0.55);--blob-2:rgba(94,92,230,0.50);--blob-3:rgba(255,45,85,0.34);
+  --blob-4:rgba(52,199,89,0.40);--blob-5:rgba(255,159,10,0.38);
+  --glass:rgba(255,255,255,0.52);--glass-strong:rgba(255,255,255,0.74);--glass-soft:rgba(255,255,255,0.40);
+  --glass-border:rgba(255,255,255,0.78);--glass-edge:rgba(255,255,255,0.55);
+  --glass-shadow:0 12px 38px rgba(28,33,64,0.16);--sheen:rgba(255,255,255,0.38);
+  --ink:#16181d;--ink-2:rgba(60,60,67,0.62);--ink-3:rgba(60,60,67,0.40);
+  --accent:#0a84ff;--accent-soft:rgba(10,132,255,0.14);--hairline:rgba(60,60,67,0.15);
+  --green:#34c759;--green-soft:rgba(52,199,89,0.16);--red:#ff3b30;--red-soft:rgba(255,59,48,0.14);
+  --r-lg:30px;--r-md:20px;--r-sm:14px;--r-pill:999px;
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,monospace;
+}
+body.dark{
+  --canvas:#070a11;
+  --blob-1:rgba(90,200,250,0.40);--blob-2:rgba(124,92,255,0.42);--blob-3:rgba(255,55,95,0.30);
+  --blob-4:rgba(48,209,88,0.30);--blob-5:rgba(255,159,10,0.26);
+  --glass:rgba(38,42,56,0.48);--glass-strong:rgba(46,50,66,0.70);--glass-soft:rgba(40,44,58,0.34);
+  --glass-border:rgba(255,255,255,0.14);--glass-edge:rgba(255,255,255,0.20);
+  --glass-shadow:0 16px 44px rgba(0,0,0,0.48);--sheen:rgba(255,255,255,0.16);
+  --ink:#f3f4f8;--ink-2:rgba(235,235,245,0.62);--ink-3:rgba(235,235,245,0.38);
+  --accent:#64d2ff;--accent-soft:rgba(100,210,255,0.16);--hairline:rgba(255,255,255,0.12);
+  --green:#30d158;--green-soft:rgba(48,209,88,0.18);--red:#ff6961;--red-soft:rgba(255,105,97,0.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);line-height:1.5;
+  -webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
+  display:flex;flex-direction:column;align-items:center;padding:22px 16px 40px;
+  transition:background .6s ease,color .4s ease}
+.mesh{position:fixed;inset:-20%;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(40% 50% at 18% 22%,var(--blob-1),transparent 70%),
+    radial-gradient(42% 46% at 82% 18%,var(--blob-2),transparent 70%),
+    radial-gradient(50% 50% at 72% 80%,var(--blob-3),transparent 72%),
+    radial-gradient(44% 48% at 22% 84%,var(--blob-4),transparent 72%),
+    radial-gradient(38% 40% at 52% 50%,var(--blob-5),transparent 70%);
+  filter:saturate(125%);animation:drift 26s ease-in-out infinite alternate}
+@keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(2%,-2%,0) scale(1.06)}100%{transform:translate3d(-2%,1.5%,0) scale(1.03)}}
+
+.glass{position:relative;background:var(--glass);border:1px solid var(--glass-border);
+  box-shadow:var(--glass-shadow),inset 0 1px 0 var(--glass-edge);
+  backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);
+  overflow:hidden}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(circle 240px at var(--mx,50%) var(--my,-20%),var(--sheen),transparent 70%);
+  opacity:0;transition:opacity .35s ease;mix-blend-mode:screen}
+.glass:hover::before{opacity:1}
+
+.topbar{width:100%;max-width:620px;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;padding:0 4px}
+.topbar .home{font-size:13px;font-weight:560;color:var(--ink-2);text-decoration:none;
+  display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--r-pill);
+  background:var(--glass-strong);border:1px solid var(--glass-border);
+  box-shadow:var(--glass-shadow);backdrop-filter:blur(20px) saturate(180%)}
+.topbar .home:hover{color:var(--ink)}
+.toggle{width:38px;height:38px;border:none;cursor:pointer;border-radius:var(--r-pill);
+  background:var(--glass-strong);color:var(--ink);font-size:16px;display:grid;place-items:center;
+  border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);
+  backdrop-filter:blur(20px) saturate(180%)}
+
+.card{width:100%;max-width:620px;border-radius:var(--r-lg);padding:30px}
+
+.head{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+.rings{display:flex;gap:14px;flex-shrink:0}
+.ring{position:relative;width:62px;height:62px}
+.ring svg{transform:rotate(-90deg)}
+.ring .val{position:absolute;inset:0;display:grid;place-items:center;font-size:15px;font-weight:740;letter-spacing:-.02em}
+.ring .lbl{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  text-align:center;color:var(--ink-2);margin-top:5px;font-weight:600}
+.htext{min-width:0}
+.htext h1{font-size:19px;font-weight:760;letter-spacing:-.02em;line-height:1.1}
+.htext p{font-size:13px;color:var(--ink-2);margin-top:2px}
+.counts{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:6px}
+
+.qbox{margin-bottom:20px}
+.qtopic{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  font-weight:600;color:var(--accent);margin-bottom:11px;display:inline-block;
+  padding:3px 10px;border-radius:var(--r-pill);background:var(--accent-soft)}
+.qtext{font-size:19px;font-weight:620;letter-spacing:-.01em;line-height:1.35}
+
+.opts{display:flex;flex-direction:column;gap:10px}
+.ans{display:flex;align-items:center;gap:13px;text-align:left;width:100%;cursor:pointer;
+  padding:15px 17px;border-radius:var(--r-sm);font-family:var(--font);font-size:15px;
+  background:var(--glass-soft);border:1px solid var(--glass-border);color:var(--ink);
+  transition:transform .12s ease,background .2s ease,border-color .2s ease}
+.ans:hover{background:var(--glass);transform:translateY(-1px)}
+.ans .ltr{width:26px;height:26px;flex-shrink:0;border-radius:8px;display:grid;place-items:center;
+  font-family:var(--mono);font-size:12px;font-weight:700;background:var(--glass-strong);
+  border:1px solid var(--glass-border);color:var(--ink-2)}
+.ans .txt b{font-weight:740}
+.ans.correct{background:var(--green-soft);border-color:var(--green)}
+.ans.correct .ltr{background:var(--green);color:#fff;border-color:var(--green)}
+.ans.wrong{background:var(--red-soft);border-color:var(--red)}
+.ans.wrong .ltr{background:var(--red);color:#fff;border-color:var(--red)}
+.ans.locked{pointer-events:none}
+.ans.dim{opacity:.5}
+
+.explain{margin-top:16px;padding:15px 17px;border-radius:var(--r-sm);background:var(--accent-soft);
+  font-size:14px;color:var(--ink);display:none}
+.explain.show{display:block;animation:fade .3s ease}
+.explain b{font-weight:640}
+.explain .cont{font-family:var(--mono);font-size:11px;color:var(--ink-2);margin-top:9px;display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px;
+  padding-top:18px;border-top:1px solid var(--hairline)}
+.foot select{font-family:var(--font);font-size:13px;font-weight:560;color:var(--ink);cursor:pointer;
+  padding:9px 13px;border-radius:var(--r-pill);background:var(--glass-soft);
+  border:1px solid var(--glass-border);outline:none;max-width:62%}
+.reset{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-decoration:none;cursor:pointer;
+  padding:8px 12px;border-radius:var(--r-pill);transition:.2s}
+.reset:hover{color:var(--red);background:var(--red-soft)}
+
+.done{text-align:center;padding:14px 8px}
+.done .em{font-size:46px;margin-bottom:14px}
+.done h2{font-size:24px;font-weight:780;letter-spacing:-.02em;margin-bottom:8px}
+.done p{font-size:14.5px;color:var(--ink-2);margin-bottom:22px}
+.done button{font-family:var(--font);font-size:15px;font-weight:620;cursor:pointer;
+  padding:13px 28px;border-radius:var(--r-pill);background:var(--accent);color:#fff;border:none}
+body.dark .done button{color:#000}
+
+@media(max-width:560px){
+  .card{padding:22px}.head{gap:13px}.qtext{font-size:17px}
+  .htext h1{font-size:16px}.ring{width:54px;height:54px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="mesh"></div>
+
+<div class="topbar">
+  <a class="home" href="https://niggerfaggot.club/apple-home-automations">← Lesson</a>
+  <button class="toggle" id="themeBtn" aria-label="Toggle light or dark glass">◑</button>
+</div>
+
+<main class="card glass" id="card">
+  <div class="head">
+    <div class="rings">
+      <div>
+        <div class="ring"><svg width="62" height="62"><circle cx="31" cy="31" r="26" fill="none" stroke="var(--hairline)" stroke-width="6"/><circle id="ringSeen" cx="31" cy="31" r="26" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"/></svg><div class="val" id="seenVal">0%</div></div>
+        <div class="lbl">Seen</div>
+      </div>
+      <div>
+        <div class="ring"><svg width="62" height="62"><circle cx="31" cy="31" r="26" fill="none" stroke="var(--hairline)" stroke-width="6"/><circle id="ringApt" cx="31" cy="31" r="26" fill="none" stroke="var(--green)" stroke-width="6" stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"/></svg><div class="val" id="aptVal">0%</div></div>
+        <div class="lbl">Aptitude</div>
+      </div>
+    </div>
+    <div class="htext">
+      <h1>Apple Home Drill</h1>
+      <p>Hub · Phone · Convert · iOS 26 · HA</p>
+      <div class="counts" id="counts">0 mastered · 0 in rotation</div>
+    </div>
+  </div>
+
+  <div id="stage"></div>
+
+  <div class="foot">
+    <select id="topic" aria-label="Filter by topic"></select>
+    <span class="reset" id="reset">reset progress</span>
+  </div>
+</main>
+
+<script>
+const MCQS = [
+  ["A goodnight routine should lock the doors for the whole family, even when your phone is across the state. Which engine?",
+   ["Home automation (hub-resident)","Personal automation","A scene only","Either works identically"],0,
+   "Hub-resident: it runs for everyone and keeps working when your phone is away. A personal automation only fires on your phone, while present.","Engine choice"],
+  ["Where is a Personal automation stored?",
+   ["On the Home hub","On one specific iPhone","In iCloud for all devices","On the accessory firmware"],1,
+   "Personal automations live on a single iPhone, so they run only for you and need that phone present.","Engine choice"],
+  ["Which automation type can be shared with other people in the home?",
+   ["Personal automation","Home automation","Neither can be shared","Both share equally"],1,
+   "Home automations live in the home, so they're shared. Personal automations can't be shared.","Engine choice"],
+  ["Why does a Home automation still fire when your iPhone is dead or out of state?",
+   ["It runs on the hub (Apple TV / HomePod)","iCloud relays it to the cloud","The iPhone pre-caches it","It doesn't, it needs the phone"],0,
+   "It executes on the home hub, independent of your phone.","Engine choice"],
+  ["You want a welcome routine that fires only for you when you arrive, distinct from your spouse's. Best built as:",
+   ["A Home 'People Arrive' for everyone","A Personal automation on your phone","A shared scene","A sensor automation"],1,
+   "Per-person behavior on a shared home is cleanest as a personal automation on each phone.","Engine choice"],
+
+  ["How many trigger types does a Home automation have?",
+   ["Three","Five","Eight","Unlimited"],1,
+   "Exactly five: Time of Day, People Arrive, People Leave, An Accessory is Controlled, A Sensor Detects Something.","Home triggers"],
+  ["Which of these is NOT one of the 5 Home automation triggers?",
+   ["A Time of Day Occurs","An Accessory is Controlled","An NFC Tag is Scanned","A Sensor Detects Something"],2,
+   "NFC is a phone-side (personal) trigger, not a HomeKit home trigger.","Home triggers"],
+  ["The 'last person leaves' empty-house trigger is a variant of which trigger?",
+   ["People Leave","People Arrive","A Sensor Detects Something","Time of Day"],0,
+   "People Leave with the 'last person' option is the canonical everyone's-gone trigger.","Home triggers"],
+  ["A plain (unconverted) Home automation can do all of these EXCEPT:",
+   ["Run a scene","Set a light's brightness","Auto-revert after X minutes","Run an If / Otherwise conditional"],3,
+   "Conditionals aren't available until you Convert To Shortcut.","Home triggers"],
+  ["To turn on stairway lights when movement is detected nearby, which trigger?",
+   ["A Sensor Detects Something","An Accessory is Controlled","People Arrive","Time of Day"],0,
+   "Motion is a sensor event.","Home triggers"],
+  ["Turn lights on at dusk with no motion sensor involved. Which trigger and option?",
+   ["Time of Day, Sunset","People Arrive","A Sensor Detects Something","An Accessory is Controlled"],0,
+   "Time of Day supports Sunrise and Sunset, determined by the Weather app.","Home triggers"],
+
+  ["Your shop fan should turn on only when the temp sensor reads above 85 degrees. A plain Home automation can do this.",
+   ["True","False"],1,
+   "False. Plain automations can't read a sensor's value or branch. Convert To Shortcut to use an If and read the temperature.","Convert"],
+  ["What does 'Convert To Shortcut' unlock inside a Home automation?",
+   ["Nothing, it's cosmetic","Conditional logic and the full Shortcuts action library","More accessory slots","Faster execution"],1,
+   "It brings If/Otherwise, reading values, weather, notifications, and webhooks, while staying hub-resident.","Convert"],
+  ["After you Convert To Shortcut, you can convert it back to a plain automation whenever you like.",
+   ["True","False"],1,
+   "False. It's a one-way street. Convert only when you actually need the extra power.","Convert"],
+  ["A Home automation that you converted to a Shortcut still runs on the hub for everyone.",
+   ["True","False"],0,
+   "True. Conversion adds logic but it stays a hub-resident home automation.","Convert"],
+  ["Which Shortcuts action lets a converted automation hand its logic off to Home Assistant?",
+   ["Get Contents of URL","Set Scene","Adjust Brightness","Find Photos"],0,
+   "Get Contents of URL POSTs a webhook to Home Assistant.","Convert"],
+
+  ["You stick a 10-cent NFC tag by the door to fire a 'Leaving' scene with one tap. This is:",
+   ["A Home automation","A Personal automation calling a Home action","A scene only","A sensor automation"],1,
+   "NFC is a phone-side trigger; the automation then calls a Home action to run the scene.","Personal triggers"],
+  ["Which of these is a valid Personal automation trigger?",
+   ["A Sensor Detects Something","Focus turns on","An Accessory is Controlled","Last person leaves"],1,
+   "Focus (including Sleep in iOS 26) is a phone-side trigger. The others are home triggers.","Personal triggers"],
+  ["Can a Personal automation control your HomeKit devices?",
+   ["Yes, via Home actions like Control or Set Scene","No, it can't touch HomeKit","Only with a paid hub","Only on a Mac"],0,
+   "Personal automations can call Home actions, becoming a trigger source HomeKit itself lacks.","Personal triggers"],
+  ["Once you script several devices into a Personal automation, you can share it with the family.",
+   ["True","False"],1,
+   "False. Personal automations can't be shared; they stay on that one phone.","Personal triggers"],
+
+  ["In iOS 26, which personal automation triggers can now run silently with no prompt?",
+   ["Wi-Fi and Bluetooth","Email and Message","App opened","None of them"],0,
+   "iOS 26 lets Wi-Fi and Bluetooth automations run without 'Ask Before Running.'","iOS 26"],
+  ["What is Adaptive Temperature in iOS 26?",
+   ["A manual thermostat slider","Native thermostat automation predicting arrival, sleep, and away","A weather widget","A new Focus mode"],1,
+   "It uses on-device prediction to pre-condition a Matter thermostat, with no automation-building needed.","iOS 26"],
+  ["iOS 26 gave the Sleep Focus what new capability for automations?",
+   ["Explicit turn-on and turn-off triggers","A new accent color","Nothing changed","It was removed"],0,
+   "Sleep Focus now has on/off triggers matching every other Focus, enabling clean goodnight routines.","iOS 26"],
+  ["Apple retired the old HomeKit architecture in fall 2025. Upgrading to the new one unlocks:",
+   ["Guest access, robot vacuums, and Activity History","Nothing new","Only cosmetic changes","A monthly subscription"],0,
+   "The new architecture is required and unlocks those features behind the richer automations.","iOS 26"],
+
+  ["HomeKit can't read a device's own state to re-toggle itself. The best power-user fix is to:",
+   ["Give up, it's impossible","Offload the logic to Home Assistant via webhook, mirror back through HomeKit Bridge","Buy more HomePods","Stack more scenes"],1,
+   "A webhook hands the hard logic to HA, which pushes results back into the Home app via HomeKit Bridge.","HA bridge"],
+  ["In the HA-as-brain pattern, what role does HomeKit play?",
+   ["The brain doing all the logic","The voice and UI layer, while HA is the brain","Storage only","No role at all"],1,
+   "Keep the Apple side dumb (Siri + Home app), and let HA do templating, multi-sensor fusion, and Frigate logic.","HA bridge"],
+  ["Without Home Assistant, which apps expose more native HomeKit triggers (like sensor-value thresholds) than Apple's Home app?",
+   ["Eve and Controller for HomeKit","Maps and Weather","Notes and Reminders","No such apps exist"],0,
+   "Eve and Controller for HomeKit surface more of the underlying HomeKit trigger API.","HA bridge"]
+];
+
+const LS_KEY = "aha_drill_v1";
+const CIRC = 163.4;
+const RM = (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) || false;
+
+let st = load();            // per-question {c, seen}
+let POOL = MCQS.map((_,i)=>i);
+let Q = [];                 // working queue of original indices
+let cur = -1;
+let curOpts = [];
+let waiting = false;
+let locked = false;
+let pending = null;
+
+function load(){
+  let s={};
+  try{ s=JSON.parse(localStorage.getItem(LS_KEY))||{}; }catch(e){ s={}; }
+  MCQS.forEach((_,i)=>{ if(!s[i]) s[i]={c:0,seen:false}; });
+  return s;
+}
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(st)); }catch(e){} }
+
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function buildTopics(){
+  const sel=document.getElementById('topic');
+  const topics=[...new Set(MCQS.map(m=>m[4]))];
+  sel.innerHTML = `<option value="__all">All topics (${MCQS.length})</option>` +
+    topics.map(t=>{const n=MCQS.filter(m=>m[4]===t).length; return `<option value="${t}">${t} (${n})</option>`;}).join('');
+  sel.addEventListener('change', ()=>{ startTopic(sel.value); });
+}
+
+function startTopic(val){
+  POOL = (val==='__all') ? MCQS.map((_,i)=>i) : MCQS.map((_,i)=>i).filter(i=>MCQS[i][4]===val);
+  Q = shuffle(POOL.filter(i=>st[i].c<2));
+  clearTimeout(pending); pending=null; waiting=false; locked=false;
+  if(Q.length===0){ finish(); } else { render(); }
+  updateRings();
+}
+
+function updateRings(){
+  const total=POOL.length||1;
+  const seen=POOL.filter(i=>st[i].seen).length;
+  const apt=POOL.reduce((s,i)=>s+Math.min(st[i].c,2)/2,0)/total;
+  const mastered=POOL.filter(i=>st[i].c>=2).length;
+  document.getElementById('ringSeen').style.strokeDashoffset = CIRC*(1-seen/total);
+  document.getElementById('ringApt').style.strokeDashoffset = CIRC*(1-apt);
+  document.getElementById('seenVal').textContent = Math.round(seen/total*100)+'%';
+  document.getElementById('aptVal').textContent = Math.round(apt*100)+'%';
+  document.getElementById('counts').textContent = `${mastered} mastered · ${Q.length} in rotation`;
+}
+
+function boldUnique(text, allTexts){
+  const others = allTexts.filter(t=>t!==text).join(' ').toLowerCase();
+  return text.split(/(\s+)/).map(w=>{
+    const clean=w.replace(/[^a-z0-9]/gi,'').toLowerCase();
+    if(clean.length>3 && !others.includes(clean)) return '<b>'+w+'</b>';
+    return w;
+  }).join('');
+}
+
+function render(){
+  cur = Q[0];
+  if(cur===undefined){ finish(); return; }
+  locked=false; waiting=false;
+  const m=MCQS[cur];
+  curOpts = shuffle(m[1].map((t,i)=>({text:t,oi:i})));
+  const stage=document.getElementById('stage');
+  stage.innerHTML = `
+    <div class="qbox">
+      <span class="qtopic">${m[4]}</span>
+      <div class="qtext"></div>
+    </div>
+    <div class="opts" id="opts">
+      ${curOpts.map((o,d)=>`<button class="ans" data-disp="${d}"><span class="ltr">${'ABCD'[d]}</span><span class="txt">${escapeHtml(o.text)}</span></button>`).join('')}
+    </div>
+    <div class="explain" id="explain"></div>`;
+  stage.querySelector('.qtext').textContent = m[0];
+  stage.querySelectorAll('.ans').forEach(b=>{
+    b.addEventListener('click', ()=>answer(+b.dataset.disp));
+    if(!RM) b.addEventListener('pointermove', e=>{const r=b.getBoundingClientRect();b.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');b.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');});
+  });
+}
+
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function answer(disp){
+  if(locked) return; locked=true;
+  const m=MCQS[cur];
+  const oi=curOpts[disp].oi;
+  const correct = oi===m[2];
+  st[cur].seen=true;
+
+  Q.shift();
+  if(correct){ st[cur].c=(st[cur].c||0)+1; if(st[cur].c<2){ Q.splice(Math.min(10,Q.length),0,cur); } }
+  else{ st[cur].c=0; Q.splice(Math.min(3,Q.length),0,cur); }
+  save(); updateRings();
+
+  // reveal
+  const opts=document.querySelectorAll('#opts .ans');
+  const correctDisp=curOpts.findIndex(o=>o.oi===m[2]);
+  opts.forEach((b,d)=>{
+    b.classList.add('locked');
+    if(d===correctDisp){
+      b.classList.add('correct');
+      const allTexts=m[1];
+      b.querySelector('.txt').innerHTML=boldUnique(escapeHtml(curOpts[d].text), allTexts.map(escapeHtml));
+    } else if(d===disp && !correct){ b.classList.add('wrong'); }
+    else { b.classList.add('dim'); }
+  });
+
+  if(correct){ pending=setTimeout(next,420); }
+  else{
+    waiting=true;
+    const ex=document.getElementById('explain');
+    ex.innerHTML=`<b>Why:</b> ${escapeHtml(m[3])}<span class="cont">tap or press space to continue</span>`;
+    ex.classList.add('show');
+  }
+}
+
+function next(){
+  clearTimeout(pending); pending=null; waiting=false; locked=false;
+  if(Q.length===0){ finish(); return; }
+  render();
+}
+
+function finish(){
+  const mastered=POOL.filter(i=>st[i].c>=2).length;
+  document.getElementById('stage').innerHTML=`
+    <div class="done">
+      <div class="em">🥃</div>
+      <h2>Pool cleared</h2>
+      <p>${mastered} of ${POOL.length} mastered (2 correct in a row each). Reflex achieved.</p>
+      <button id="again">Study again</button>
+    </div>`;
+  document.getElementById('again').addEventListener('click', ()=>{
+    POOL.forEach(i=>{ st[i]={c:0,seen:false}; }); save();
+    startTopic(document.getElementById('topic').value);
+  });
+  updateRings();
+}
+
+// keyboard
+document.addEventListener('keydown', e=>{
+  if(waiting && (e.key===' '||e.key==='Enter')){ e.preventDefault(); next(); return; }
+  if(locked) return;
+  let d=-1;
+  if(/[1-4]/.test(e.key)) d=+e.key-1;
+  else if(/[a-dA-D]/.test(e.key)) d='abcd'.indexOf(e.key.toLowerCase());
+  if(d>=0 && d<curOpts.length){ answer(d); }
+});
+
+// reset
+document.getElementById('reset').addEventListener('click', ()=>{
+  if(confirm('Wipe all drill progress?')){
+    localStorage.removeItem(LS_KEY);
+    st=load();
+    startTopic(document.getElementById('topic').value);
+  }
+});
+
+// theme
+const tBtn=document.getElementById('themeBtn');
+tBtn.addEventListener('click', ()=>{ document.body.classList.toggle('dark'); tBtn.textContent=document.body.classList.contains('dark')?'◐':'◑'; });
+
+// sheen on card
+if(!RM){ const c=document.getElementById('card'); c.addEventListener('pointermove', e=>{const r=c.getBoundingClientRect();c.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');c.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');}); }
+
+// boot
+buildTopics();
+startTopic('__all');
+</script>
+</body>
+</html>
