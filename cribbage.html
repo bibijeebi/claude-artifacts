@@ -6,7 +6,7 @@
 <title>Cribbage: simulator + tutor</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Cribbage: play the CPU and learn to count hands">
-<meta property="og:description" content="Learn cribbage from a built-in tutorial, then play full games against the CPU. The tutor breaks down every fifteen, pair, and run as your score climbs.">
+<meta property="og:description" content="Learn cribbage from a built-in tutorial, then play full games against the CPU with optional coaching on every discard and play.">
 <meta property="og:url" content="https://niggerfaggot.club/cribbage">
 <meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-cribbage.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -117,6 +117,7 @@ h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;line-height:1.12;color:var
 .log .you{color:var(--sky-deep)}
 .log .cpu{color:var(--coral-ink)}
 .log .pts{color:var(--mint-ink);font-weight:600}
+.log .coach{color:var(--lav-ink);font-weight:700}
 .hint{font-size:13px;color:var(--slate);background:var(--butter-tint);border:1px solid var(--hair);border-radius:12px;padding:10px 12px;margin-top:10px}
 .hint b{color:var(--butter-ink)}
 .crib-tag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 10px;border-radius:9px;background:var(--lav-tint);color:var(--lav-ink);font-weight:600}
@@ -308,7 +309,8 @@ function renderDiscard(){
   let h=`<div class="lbl">discard: pick 2 cards for ${whose} <span class="crib-tag">crib belongs to ${G.dealer==='you'?'you':'CPU'}</span></div>
   <div class="cards" id="myhand">${G.dealt.you.map(c=>cardHTML(c,'playable')).join('')}</div>
   <div style="margin-top:14px"><button class="btn btn-cta" id="throwBtn" disabled onclick="throwCrib()">throw to crib</button></div>`;
-  if(tutor) h+=`<div class="hint" id="dhint"><b>tip:</b> the crib is ${G.dealer==='you'?'yours, keep it stocked':"the CPU's, feed it junk, never 5s or connected cards"}. Pick 2 to throw, I'll grade it against the math.</div>`;
+  if(tutor) h+=`<div class="hint" id="dhint"><b>tip:</b> the crib is ${G.dealer==='you'?'yours, keep it stocked':"the CPU's, feed it junk, never 5s or connected cards"}. Pick 2 to throw, I'll grade it against the math.</div>
+  <div id="dcoach" style="margin-top:8px"><span class="linktab" id="bestKeepBtn">&#9656; show the best keep + why</span></div>`;
   stage().innerHTML=h;
   document.querySelectorAll('#myhand .card').forEach(el=>{
     el.onclick=()=>{
@@ -319,6 +321,12 @@ function renderDiscard(){
       document.getElementById('throwBtn').disabled=G.sel.length!==2;
     };
   });
+  const bk=document.getElementById('bestKeepBtn');
+  if(bk) bk.onclick=()=>{
+    const best=bestDiscard(G.dealt.you), ids=best.keep.map(c=>c.r+c.s);
+    document.querySelectorAll('#myhand .card').forEach(el=>{const k=ids.includes(el.dataset.id);el.classList.toggle('hi',k);el.classList.toggle('faint',!k);});
+    document.getElementById('dcoach').innerHTML='<div class="hint"><b>best keep:</b> '+best.keep.map(lbl).join(' ')+' (avg '+best.ev.toFixed(2)+' pts), throw '+best.toss.map(lbl).join(' ')+'. Highest average hand over every possible cut.</div>';
+  };
 }
 function byId(arr,id){return arr.find(c=>c.r+c.s===id);}
 function throwCrib(){
@@ -363,10 +371,40 @@ function startPlay(){
 }
 function canPlay(p){return G.play.rem[p].some(c=>G.play.total+val(c.r)<=31);}
 function playOver(){return G.play.rem.you.length===0&&G.play.rem.cpu.length===0;}
+function lbl(c){return rankLabel(c.r)+SUIT[c.s];}
+function pegEval(p){
+  const P=G.play, isLead=P.seq.length===0;
+  const legal=P.rem[p].filter(c=>P.total+val(c.r)<=31);
+  const cands=legal.map(c=>{
+    const seq=[...P.seq.map(x=>x.c),c], tot=P.total+val(c.r);
+    const sc=scorePeg(seq,tot); let score=sc.total*100; const tags=[];
+    if(sc.total>0) tags.push({k:'pts',t:'scores '+sc.total+' ('+sc.parts.map(x=>x.t).join(', ')+')'});
+    if(tot===31) score+=30;
+    if(tot===5){score-=14;tags.push({k:'risk',t:'leaves the count at 5, a ten makes 15'});}
+    else if(tot===21){score-=16;tags.push({k:'risk',t:'leaves the count at 21, a ten makes 31'});}
+    else if(tot===10){score-=4;tags.push({k:'risk',t:'leaves 10, a five makes 15'});}
+    if(isLead){
+      if(c.r===5){score-=8;tags.push({k:'risk',t:'leading a 5 lets them make 15 with a ten'});}
+      else if(val(c.r)<=4){score+=4;tags.push({k:'safe',t:'a safe low lead'});}
+    }
+    if(sc.total===0) score+=c.r*0.4;
+    return {c,pts:sc.total,tot,score,tags};
+  });
+  cands.sort((a,b)=>b.score-a.score);
+  return cands;
+}
+function pegWhy(cands){
+  const b=cands[0], pt=b.tags.find(t=>t.k==='pts');
+  if(pt) return 'it '+pt.t;
+  const safe=b.tags.find(t=>t.k==='safe');
+  if(safe) return 'it is '+safe.t;
+  if(b.pts===0 && cands.some(x=>x.tags.some(t=>t.k==='risk'))) return 'it keeps your low cards and gives the CPU nothing, while the others leave a count it can pounce on';
+  return 'it gives the CPU nothing and keeps your low cards free for later';
+}
 function renderPlay(opts){
   opts=opts||{};
   const P=G.play;
-  const seqHTML=P.seq.length?P.seq.map(x=>cardHTML(x.c,'tag'+x.by)).join(''):'<span style="color:var(--muted);font-size:13px">, new count ,</span>';
+  const seqHTML=P.seq.length?P.seq.map(x=>cardHTML(x.c,'tag'+x.by)).join(''):'<span style="color:var(--muted);font-size:13px">new count</span>';
   let myHand=P.rem.you.map(c=>{
     const legal=P.total+val(c.r)<=31;
     return cardHTML(c,(opts.myTurn&&legal)?'playable tagme':('dim tagme'));
@@ -382,12 +420,20 @@ function renderPlay(opts){
      </div>
    </div>
    <div style="margin:14px 0 6px"><div class="lbl">this count</div><div class="cards">${seqHTML}</div></div>
-   <div style="margin-top:14px"><div class="lbl">your hand${opts.myTurn?', tap a card to play':''}</div><div class="cards" id="playHand">${myHand}</div></div>`;
+   <div style="margin-top:14px"><div class="lbl">your hand${opts.myTurn?', tap a card to play':''}</div><div class="cards" id="playHand">${myHand}</div></div>
+   ${(opts.myTurn&&tutor)?'<div id="coachRow" style="margin-top:10px"><span class="linktab" id="bestBtn">&#9656; show best play + why</span></div>':''}`;
   stage().innerHTML=h;
   if(opts.myTurn){
     document.querySelectorAll('#playHand .card.playable').forEach(el=>{
       el.onclick=()=>playCard('you',byId(P.rem.you,el.dataset.id));
     });
+    const bb=document.getElementById('bestBtn');
+    if(bb) bb.onclick=()=>{
+      const adv=pegEval('you'); if(!adv.length)return;
+      const top=adv[0].score, recs=adv.filter(x=>x.score>=top-1e-6), ids=recs.map(x=>x.c.r+x.c.s);
+      document.querySelectorAll('#playHand .card').forEach(el=>{if(ids.includes(el.dataset.id))el.classList.add('hi');});
+      document.getElementById('coachRow').innerHTML='<div class="hint"><b>best:</b> '+recs.map(x=>lbl(x.c)).join(' or ')+', '+pegWhy(adv)+'.</div>';
+    };
   }
 }
 function runTurn(){
@@ -419,6 +465,7 @@ function cpuPlay(){
 }
 function playCard(p,card){
   const P=G.play;
+  const adv=(p==='you'&&tutor)?pegEval('you'):null;
   P.rem[p]=P.rem[p].filter(c=>!(c.r===card.r&&c.s===card.s));
   P.tbl[p].push(card);P.seq.push({c:card,by:p});P.total+=val(card.r);P.last=p;
   const s=scorePeg(P.seq.map(x=>x.c),P.total);
@@ -428,6 +475,14 @@ function playCard(p,card){
     msg+=' <span class="pts">+'+s.total+'</span> ('+s.parts.map(x=>x.t).join(', ')+')';
   }
   log(msg);
+  if(adv){
+    const best=adv[0], pl=adv.find(x=>x.c.r===card.r&&x.c.s===card.s);
+    if(best.pts>pl.pts) log('<span class="coach">coach:</span> '+lbl(best.c)+' was better, '+pegWhy(adv)+'.');
+    else if(pl.tags.some(t=>t.k==='risk')&&!best.tags.some(t=>t.k==='risk')&&best.score>pl.score+5){
+      const rt=pl.tags.find(t=>t.k==='risk');
+      log('<span class="coach">coach:</span> '+lbl(best.c)+' was safer here, your '+lbl(card)+' '+rt.t+'.');
+    }
+  }
   if(checkWin())return;
   if(P.total===31){renderPlay({});setTimeout(closeRound,650);return;}
   P.toAct=other(p);
