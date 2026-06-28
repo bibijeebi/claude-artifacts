@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Italiano 🍋 — Bekah's Italian</title>
+<meta property="og:title" content="Italiano 🍋 — Bekah's Italian Study">
+<meta property="og:description" content="A cute little Italian study app with flashcards, sections, audio, and saved progress. Numeri, saluti, cibo, conversazione and more.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/italiano-og-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/italiano.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/italiano-og-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#FFF7EE;
+  --cream-2:#FBEEDD;
+  --ink:#4A3F39;
+  --ink-soft:#897b72;
+  --coral:#F2997E;
+  --coral-deep:#E47A5C;
+  --sage:#A7C4A0;
+  --sage-deep:#7FA877;
+  --gold:#EEC069;
+  --rose:#F0AEB4;
+  --sky:#9FC9D9;
+  --card:#FFFFFF;
+  --shadow:0 10px 30px -12px rgba(120,80,60,.28);
+  --shadow-sm:0 4px 14px -6px rgba(120,80,60,.25);
+  --radius:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{
+  background:
+    radial-gradient(1200px 500px at 85% -8%, #FDE9CF 0%, transparent 60%),
+    radial-gradient(900px 480px at 5% 8%, #FCE2E4 0%, transparent 55%),
+    var(--cream);
+  background-attachment:scroll;
+  min-height:100%;
+}
+body{
+  font-family:'Nunito',system-ui,sans-serif;
+  color:var(--ink);
+  background:transparent;
+  line-height:1.45;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+.wrap{max-width:880px;margin:0 auto;padding:26px 18px 80px}
+
+/* ---------- header ---------- */
+.hero{
+  text-align:center;
+  padding:18px 14px 24px;
+}
+.hero .lemons{font-size:2.4rem;line-height:1;letter-spacing:6px}
+.hero h1{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:clamp(2.1rem,7vw,3.1rem);
+  letter-spacing:-.5px;
+  margin:.18em 0 .08em;
+  color:var(--ink);
+}
+.hero h1 .it{color:var(--coral-deep);font-style:italic}
+.hero .sub{
+  font-size:1.02rem;color:var(--ink-soft);font-weight:600;
+}
+.flag-line{height:5px;width:120px;margin:14px auto 0;border-radius:99px;
+  background:linear-gradient(90deg,var(--sage) 0 33%,#fff 33% 66%,var(--coral) 66% 100%);
+  box-shadow:var(--shadow-sm)}
+
+/* ---------- overall progress ---------- */
+.overall{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:18px 20px;margin:8px 0 22px;display:flex;align-items:center;gap:16px;
+}
+.overall .ring{flex:0 0 auto}
+.overall .meta{flex:1 1 auto;min-width:0}
+.overall .meta h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;margin-bottom:3px}
+.overall .meta p{font-size:.9rem;color:var(--ink-soft);font-weight:600}
+.bar{height:11px;border-radius:99px;background:var(--cream-2);overflow:hidden;margin-top:9px}
+.bar > i{display:block;height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--gold),var(--coral));transition:width .5s cubic-bezier(.2,.8,.2,1)}
+
+.ring{--p:0;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--coral) calc(var(--p)*1%), var(--cream-2) 0);}
+.ring::before{content:"";position:absolute;width:46px;height:46px;border-radius:50%;background:var(--card)}
+.ring span{position:relative;font-weight:800;font-size:.86rem;color:var(--coral-deep)}
+.ring{position:relative}
+
+/* ---------- big study button ---------- */
+.everything{
+  width:100%;border:none;cursor:pointer;border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--coral),var(--coral-deep));
+  color:#fff;padding:20px 22px;margin-bottom:26px;
+  box-shadow:0 14px 30px -12px rgba(228,122,92,.7);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  font-family:'Nunito';transition:transform .12s ease, box-shadow .12s ease;
+}
+.everything:active{transform:scale(.98)}
+.everything .l{text-align:left}
+.everything .l b{font-family:'Fraunces',serif;font-weight:600;font-size:1.35rem;display:block}
+.everything .l small{font-weight:700;opacity:.92;font-size:.9rem}
+.everything .emo{font-size:2rem}
+
+/* ---------- section title ---------- */
+.sect-h{display:flex;align-items:baseline;gap:10px;margin:6px 4px 14px}
+.sect-h h2{font-family:'Fraunces',serif;font-weight:600;font-size:1.5rem}
+.sect-h span{color:var(--ink-soft);font-weight:700;font-size:.85rem}
+
+/* ---------- category grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
+.cat{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow-sm);
+  padding:16px 16px 15px;cursor:pointer;border:2px solid transparent;
+  transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+  display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;
+}
+.cat:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--gold)}
+.cat .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cat .ico{font-size:1.9rem;line-height:1}
+.cat .mini-ring{--p:0;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;position:relative;
+  background:conic-gradient(var(--sage-deep) calc(var(--p)*1%), var(--cream-2) 0)}
+.cat .mini-ring::before{content:"";position:absolute;width:27px;height:27px;border-radius:50%;background:var(--card)}
+.cat .mini-ring b{position:relative;font-size:.62rem;font-weight:800;color:var(--sage-deep)}
+.cat h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.16rem;line-height:1.1}
+.cat .en{color:var(--ink-soft);font-weight:700;font-size:.82rem;margin-top:-4px}
+.cat .foot{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
+.cat .count{font-size:.78rem;font-weight:700;color:var(--ink-soft)}
+.cat .go{font-size:.8rem;font-weight:800;color:var(--coral-deep);background:#FCE7DE;
+  padding:5px 11px;border-radius:99px}
+.cat.done{border-color:var(--sage)}
+.cat .ribbon{position:absolute;top:11px;right:-30px;transform:rotate(38deg);background:var(--sage-deep);
+  color:#fff;font-size:.62rem;font-weight:800;padding:3px 34px;display:none}
+.cat.done .ribbon{display:block}
+
+/* ---------- resources ---------- */
+.res{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px}
+@media(max-width:520px){.res{grid-template-columns:1fr}}
+.res a{
+  text-decoration:none;color:inherit;background:var(--card);border-radius:18px;
+  box-shadow:var(--shadow-sm);padding:14px 15px;display:flex;align-items:center;gap:12px;
+  transition:transform .12s ease, box-shadow .12s ease;border:2px solid transparent;
+}
+.res a:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--sky)}
+.res .yt{flex:0 0 auto;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:#FDECEC;font-size:1.2rem}
+.res .tx b{display:block;font-family:'Fraunces',serif;font-weight:600;font-size:1rem;line-height:1.05}
+.res .tx small{color:var(--ink-soft);font-weight:700;font-size:.78rem}
+
+.tip{background:#FBF1DF;border:2px dashed var(--gold);border-radius:18px;padding:14px 16px;
+  margin:22px 0 8px;font-weight:600;font-size:.9rem;color:#6b5a3e}
+.tip b{color:var(--coral-deep)}
+
+.reset{display:block;margin:30px auto 0;background:none;border:none;color:var(--ink-soft);
+  font-family:'Nunito';font-weight:700;font-size:.82rem;cursor:pointer;text-decoration:underline;opacity:.8}
+.footer{text-align:center;color:var(--ink-soft);font-weight:700;font-size:.8rem;margin-top:26px}
+
+/* ---------- study overlay ---------- */
+.study{position:fixed;inset:0;z-index:50;background:
+  radial-gradient(1000px 500px at 80% -10%, #FBE3CB 0%, transparent 60%),
+  radial-gradient(800px 420px at 0% 100%, #FBDCE0 0%, transparent 55%),
+  var(--cream);
+  display:none;flex-direction:column;padding:16px 16px 22px;}
+.study.open{display:flex}
+.s-top{display:flex;align-items:center;gap:12px;max-width:560px;width:100%;margin:0 auto}
+.s-back{flex:0 0 auto;width:42px;height:42px;border-radius:14px;border:none;background:var(--card);
+  box-shadow:var(--shadow-sm);font-size:1.2rem;cursor:pointer;color:var(--ink)}
+.s-titles{flex:1 1 auto;min-width:0}
+.s-titles b{font-family:'Fraunces',serif;font-weight:600;font-size:1.12rem;display:block;line-height:1}
+.s-titles small{color:var(--ink-soft);font-weight:700;font-size:.8rem}
+.s-bar{height:9px;border-radius:99px;background:var(--cream-2);overflow:hidden;max-width:560px;width:100%;
+  margin:12px auto 0}
+.s-bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--coral));
+  border-radius:99px;transition:width .35s ease}
+
+.s-controls{max-width:560px;width:100%;margin:11px auto 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.chip{border:none;cursor:pointer;background:var(--card);box-shadow:var(--shadow-sm);
+  border-radius:99px;padding:7px 13px;font-family:'Nunito';font-weight:800;font-size:.78rem;color:var(--ink-soft);
+  display:inline-flex;align-items:center;gap:5px}
+.chip.on{background:var(--sage);color:#fff}
+
+.card-area{flex:1 1 auto;display:flex;align-items:center;justify-content:center;max-width:560px;width:100%;
+  margin:0 auto;padding:14px 0}
+.flip{width:100%;aspect-ratio:7/5;max-height:46vh;perspective:1400px;cursor:pointer}
+.flip-in{position:relative;width:100%;height:100%;transform-style:preserve-3d;
+  transition:transform .5s cubic-bezier(.2,.85,.25,1)}
+.flip.flipped .flip-in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--card);border-radius:28px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px;gap:10px}
+.face.back{transform:rotateY(180deg);background:linear-gradient(160deg,#FFFDF9,#FDF1E6)}
+.face .word{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.8rem,8vw,2.9rem);
+  letter-spacing:-.5px;line-height:1.05;color:var(--ink)}
+.face.front .word{color:var(--coral-deep)}
+.face .pron{font-weight:700;color:var(--ink-soft);font-size:1.02rem;font-style:italic}
+.face .note{font-weight:600;color:var(--ink-soft);font-size:.86rem;max-width:90%}
+.face .tag{position:absolute;top:14px;left:16px;font-weight:800;font-size:.7rem;letter-spacing:.5px;
+  color:var(--ink-soft);opacity:.65;text-transform:uppercase}
+.face .hint{position:absolute;bottom:13px;font-weight:700;font-size:.72rem;color:var(--ink-soft);opacity:.7}
+.speak{position:absolute;top:10px;right:12px;width:40px;height:40px;border-radius:12px;border:none;
+  background:#FCE7DE;cursor:pointer;font-size:1.1rem;display:grid;place-items:center}
+.speak:active{transform:scale(.92)}
+
+.s-actions{max-width:560px;width:100%;margin:0 auto;display:flex;gap:12px}
+.s-actions button{flex:1;border:none;cursor:pointer;border-radius:18px;padding:16px;
+  font-family:'Nunito';font-weight:800;font-size:1rem;box-shadow:var(--shadow-sm);transition:transform .1s}
+.s-actions button:active{transform:scale(.97)}
+.btn-no{background:#FFF;color:var(--coral-deep);border:2px solid #F6D6CB!important}
+.btn-yes{background:linear-gradient(135deg,var(--sage),var(--sage-deep));color:#fff}
+
+/* ---------- finish ---------- */
+.finish{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;gap:14px}
+.finish.show{display:flex}
+.finish .big{font-size:3.6rem}
+.finish h2{font-family:'Fraunces',serif;font-weight:600;font-size:2rem;color:var(--ink)}
+.finish p{font-weight:700;color:var(--ink-soft);max-width:320px}
+.finish .fbtns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.finish .fbtns button{border:none;cursor:pointer;border-radius:14px;padding:12px 18px;font-family:'Nunito';
+  font-weight:800;font-size:.92rem;box-shadow:var(--shadow-sm)}
+.fb-1{background:linear-gradient(135deg,var(--coral),var(--coral-deep));color:#fff}
+.fb-2{background:var(--card);color:var(--ink)}
+
+/* confetti */
+.confetti{position:fixed;top:-12px;width:11px;height:16px;border-radius:2px;z-index:60;pointer-events:none;
+  animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.9}}
+</style>
+</head>
+<body>
+<div class="wrap" id="home">
+  <div class="hero">
+    <div class="lemons">🍋🇮🇹🍋</div>
+    <h1>Ciao, <span class="it">Bekah!</span></h1>
+    <div class="sub">Impariamo l'italiano insieme ✨</div>
+    <div class="flag-line"></div>
+  </div>
+
+  <div class="overall">
+    <div class="ring" id="ovRing" style="--p:0"><span id="ovPct">0%</span></div>
+    <div class="meta">
+      <h3>Your progress</h3>
+      <p id="ovText">0 of 0 words learned</p>
+      <div class="bar"><i id="ovBar" style="width:0%"></i></div>
+    </div>
+  </div>
+
+  <button class="everything" onclick="openStudy('ALL')">
+    <span class="l"><b>Study Everything</b><small id="allCount">the big deck · all words</small></span>
+    <span class="emo">📚</span>
+  </button>
+
+  <div class="sect-h"><h2>Beginner</h2><span id="catSub">tap a topic to study</span></div>
+  <div class="grid" id="grid"></div>
+
+  <div class="tip">💡 <b>How to win at this:</b> short daily reps beat one long cram. Tap 🔊 on a card to hear it, flip it to check yourself, and your "learned" cards stay saved even if you close the page.</div>
+
+  <div class="sect-h" style="margin-top:26px"><h2>Watch & Listen</h2><span>real Italian to soak up</span></div>
+  <div class="res" id="res"></div>
+
+  <button class="reset" onclick="resetAll()">Reset all my progress</button>
+  <div class="footer">made with 🍋 for Bekah &middot; in bocca al lupo</div>
+</div>
+
+<!-- STUDY -->
+<div class="study" id="study">
+  <div class="s-top">
+    <button class="s-back" onclick="closeStudy()">←</button>
+    <div class="s-titles"><b id="stTitle">Deck</b><small id="stSub">0 / 0</small></div>
+  </div>
+  <div class="s-bar"><i id="stBar" style="width:0%"></i></div>
+  <div class="s-controls">
+    <button class="chip" id="dirChip" onclick="toggleDir()">🔁 IT → EN</button>
+    <button class="chip" id="remChip" onclick="toggleRemaining()">🎯 Review remaining</button>
+    <button class="chip" onclick="shuffleDeck()">🔀 Shuffle</button>
+    <button class="chip" onclick="restartDeck()">↺ Restart</button>
+  </div>
+
+  <div class="card-area">
+    <div class="flip" id="flip" onclick="flipCard()">
+      <div class="flip-in">
+        <div class="face front">
+          <span class="tag" id="frontTag">italiano</span>
+          <button class="speak" id="frontSpeak" onclick="event.stopPropagation();speakCard()">🔊</button>
+          <div class="word" id="frontWord">—</div>
+          <div class="hint">tap to flip</div>
+        </div>
+        <div class="face back">
+          <span class="tag" id="backTag">english</span>
+          <button class="speak" id="backSpeak" onclick="event.stopPropagation();speakCard()">🔊</button>
+          <div class="word" id="backWord">—</div>
+          <div class="pron" id="backPron"></div>
+          <div class="note" id="backNote"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s-actions">
+    <button class="btn-no" onclick="answer(false)">Keep practicing</button>
+    <button class="btn-yes" onclick="answer(true)">Got it ✓</button>
+  </div>
+
+  <div class="finish" id="finish">
+    <div class="big" id="finBig">🎉</div>
+    <h2 id="finTitle">Bravissima!</h2>
+    <p id="finText"></p>
+    <div class="fbtns">
+      <button class="fb-1" onclick="restartDeck()">Study again</button>
+      <button class="fb-2" onclick="closeStudy()">Back home</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const DECKS = [
+  {id:"numeri", name:"Numeri", en:"Numbers", ico:"🔢", cards:[
+    ["zero","zero","DZEH-roh"],["uno","one","OO-noh"],["due","two","DOO-eh"],["tre","three","treh"],
+    ["quattro","four","KWAH-troh"],["cinque","five","CHEEN-kweh"],["sei","six","say"],["sette","seven","SEH-teh"],
+    ["otto","eight","OH-toh"],["nove","nine","NOH-veh"],["dieci","ten","DYEH-chee"],["undici","eleven","OON-dee-chee"],
+    ["dodici","twelve","DOH-dee-chee"],["tredici","thirteen","TREH-dee-chee"],["quattordici","fourteen","kwah-TOR-dee-chee"],
+    ["quindici","fifteen","KWEEN-dee-chee"],["sedici","sixteen","SEH-dee-chee"],["diciassette","seventeen","dee-chah-SEH-teh"],
+    ["diciotto","eighteen","dee-CHOH-toh"],["diciannove","nineteen","dee-chah-NOH-veh"],["venti","twenty","VEN-tee"],
+    ["trenta","thirty","TREN-tah"],["quaranta","forty","kwah-RAN-tah"],["cinquanta","fifty","cheen-KWAN-tah"],
+    ["sessanta","sixty","seh-SAN-tah"],["settanta","seventy","seh-TAN-tah"],["ottanta","eighty","oh-TAN-tah"],
+    ["novanta","ninety","noh-VAN-tah"],["cento","one hundred","CHEN-toh"],["mille","one thousand","MEE-leh"]
+  ]},
+  {id:"saluti", name:"Saluti", en:"Greetings & Politeness", ico:"👋", cards:[
+    ["Ciao","Hi / Bye","chow"],["Salve","Hello (polite)","SAL-veh"],["Buongiorno","Good morning / day","bwon-JOR-noh"],
+    ["Buon pomeriggio","Good afternoon","bwon poh-meh-REE-joh"],["Buonasera","Good evening","bwoh-nah-SEH-rah"],
+    ["Buonanotte","Good night","bwoh-nah-NOH-teh"],["Arrivederci","Goodbye","ah-ree-veh-DER-chee"],
+    ["A presto","See you soon","ah PREH-stoh"],["A domani","See you tomorrow","ah doh-MAH-nee"],
+    ["Per favore","Please","per fah-VOH-reh"],["Grazie","Thank you","GRAH-tsyeh"],["Grazie mille","Thanks a lot","GRAH-tsyeh MEE-leh"],
+    ["Prego","You're welcome","PREH-goh"],["Scusa","Sorry / excuse me (casual)","SKOO-zah"],["Scusi","Excuse me (polite)","SKOO-zee"],
+    ["Mi dispiace","I'm sorry","mee dee-SPYAH-cheh"],["Sì","Yes","see"],["No","No","noh"],
+    ["Come stai?","How are you? (casual)","KOH-meh STY"],["Come sta?","How are you? (polite)","KOH-meh stah"],
+    ["Sto bene","I'm well","stoh BEH-neh"],["Molto bene","Very well","MOL-toh BEH-neh"],["Così così","So-so","koh-ZEE koh-ZEE"],
+    ["E tu?","And you?","eh too"],["Piacere","Nice to meet you","pyah-CHEH-reh"]
+  ]},
+  {id:"cibo", name:"Cibo e Spesa", en:"Food & Grocery", ico:"🛒", cards:[
+    ["il pane","bread","eel PAH-neh"],["il latte","milk","eel LAH-teh"],["l'acqua","water","LAH-kwah"],
+    ["il vino","wine","eel VEE-noh"],["la birra","beer","lah BEE-rah"],["il caffè","coffee","eel kah-FEH"],
+    ["il formaggio","cheese","eel for-MAH-joh"],["il pomodoro","tomato","eel poh-moh-DOH-roh"],["la mela","apple","lah MEH-lah"],
+    ["la pasta","pasta","lah PAH-stah"],["il riso","rice","eel REE-zoh"],["la carne","meat","lah KAR-neh"],
+    ["il pollo","chicken","eel POH-loh"],["il pesce","fish","eel PEH-sheh"],["l'uovo","egg","LWOH-voh"],
+    ["il burro","butter","eel BOO-roh"],["lo zucchero","sugar","loh TSOO-keh-roh"],["il sale","salt","eel SAH-leh"],
+    ["l'olio","oil","LOH-lyoh"],["la frutta","fruit","lah FROO-tah"],["la verdura","vegetables","lah ver-DOO-rah"],
+    ["il supermercato","supermarket","eel soo-per-mer-KAH-toh"],["Quanto costa?","How much is it?","KWAN-toh KOH-stah"],
+    ["il conto","the bill / check","eel KON-toh"],["Vorrei...","I would like...","vor-RAY"]
+  ]},
+  {id:"conversazione", name:"Conversazione", en:"Everyday Talk", ico:"💬", cards:[
+    ["Come ti chiami?","What's your name?","KOH-meh tee KYAH-mee"],["Mi chiamo...","My name is...","mee KYAH-moh"],
+    ["Di dove sei?","Where are you from?","dee DOH-veh say"],["Sono americana","I'm American (f.)","SOH-noh ah-meh-ree-KAH-nah"],
+    ["Parli inglese?","Do you speak English?","PAR-lee een-GLEH-zeh"],["Non capisco","I don't understand","non kah-PEE-skoh"],
+    ["Puoi ripetere?","Can you repeat?","pwoy ree-PEH-teh-reh"],["Non lo so","I don't know","non loh soh"],
+    ["Va bene","Okay / that's fine","vah BEH-neh"],["Dov'è il bagno?","Where's the bathroom?","doh-VEH eel BAH-nyoh"],
+    ["Aiuto!","Help!","ah-YOO-toh"],["Che ore sono?","What time is it?","keh OH-reh SOH-noh"],
+    ["Parlo un po' d'italiano","I speak a little Italian","PAR-loh oon poh dee-tah-LYAH-noh"],
+    ["Mi può aiutare?","Can you help me?","mee pwoh ah-yoo-TAH-reh"],["Certo","Of course","CHER-toh"]
+  ]},
+  {id:"colori", name:"Colori", en:"Colors", ico:"🎨", cards:[
+    ["rosso","red","ROH-soh"],["blu","blue","bloo"],["verde","green","VER-deh"],["giallo","yellow","JAH-loh"],
+    ["nero","black","NEH-roh"],["bianco","white","BYAN-koh"],["arancione","orange","ah-ran-CHOH-neh"],
+    ["rosa","pink","ROH-zah"],["viola","purple","VYOH-lah"],["marrone","brown","mah-ROH-neh"],["grigio","grey","GREE-joh"]
+  ]},
+  {id:"tempo", name:"Giorni e Mesi", en:"Days & Months", ico:"📅", cards:[
+    ["lunedì","Monday","loo-neh-DEE"],["martedì","Tuesday","mar-teh-DEE"],["mercoledì","Wednesday","mer-koh-leh-DEE"],
+    ["giovedì","Thursday","joh-veh-DEE"],["venerdì","Friday","veh-ner-DEE"],["sabato","Saturday","SAH-bah-toh"],
+    ["domenica","Sunday","doh-MEH-nee-kah"],["gennaio","January","jeh-NAH-yoh"],["febbraio","February","feh-BRAH-yoh"],
+    ["marzo","March","MAR-tsoh"],["aprile","April","ah-PREE-leh"],["maggio","May","MAH-joh"],["giugno","June","JOO-nyoh"],
+    ["luglio","July","LOO-lyoh"],["agosto","August","ah-GOH-stoh"],["settembre","September","seh-TEM-breh"],
+    ["ottobre","October","oh-TOH-breh"],["novembre","November","noh-VEM-breh"],["dicembre","December","dee-CHEM-breh"],
+    ["oggi","today","OH-jee"],["domani","tomorrow","doh-MAH-nee"],["ieri","yesterday","YEH-ree"]
+  ]},
+  {id:"famiglia", name:"Famiglia", en:"Family", ico:"👨‍👩‍👧", cards:[
+    ["la madre","mother","lah MAH-dreh"],["il padre","father","eel PAH-dreh"],["la mamma","mom","lah MAH-mah"],
+    ["il papà","dad","eel pah-PAH"],["la sorella","sister","lah soh-REH-lah"],["il fratello","brother","eel frah-TEH-loh"],
+    ["la figlia","daughter","lah FEE-lyah"],["il figlio","son","eel FEE-lyoh"],["la nonna","grandmother","lah NOH-nah"],
+    ["il nonno","grandfather","eel NOH-noh"],["il marito","husband","eel mah-REE-toh"],["la moglie","wife","lah MOH-lyeh"],
+    ["la zia","aunt","lah TSEE-ah"],["lo zio","uncle","loh TSEE-oh"],["l'amica","friend (f.)","lah-MEE-kah"],
+    ["l'amico","friend (m.)","lah-MEE-koh"],["la famiglia","family","lah fah-MEE-lyah"]
+  ]},
+  {id:"verbi", name:"Verbi", en:"Common Verbs", ico:"⚡", cards:[
+    ["essere","to be","EH-seh-reh"],["avere","to have","ah-VEH-reh"],["andare","to go","an-DAH-reh"],
+    ["fare","to do / make","FAH-reh"],["mangiare","to eat","man-JAH-reh"],["bere","to drink","BEH-reh"],
+    ["parlare","to speak","par-LAH-reh"],["capire","to understand","kah-PEE-reh"],["volere","to want","voh-LEH-reh"],
+    ["potere","can / to be able","poh-TEH-reh"],["dovere","must / to have to","doh-VEH-reh"],["vedere","to see","veh-DEH-reh"],
+    ["sapere","to know","sah-PEH-reh"],["venire","to come","veh-NEE-reh"],["dire","to say","DEE-reh"],["amare","to love","ah-MAH-reh"]
+  ]},
+  {id:"frasi", name:"Frasi Utili", en:"Handy Phrases", ico:"✨", cards:[
+    ["Buon appetito","Enjoy your meal","bwon ah-peh-TEE-toh"],["Salute!","Cheers! / Bless you!","sah-LOO-teh"],
+    ["In bocca al lupo","Good luck (lit. in the wolf's mouth)","een BOH-kah al LOO-poh"],["Che bello!","How lovely!","keh BEH-loh"],
+    ["Ti amo","I love you (romantic)","tee AH-moh"],["Ti voglio bene","I love you (caring)","tee VOH-lyoh BEH-neh"],
+    ["Mi piace","I like it","mee PYAH-cheh"],["Non mi piace","I don't like it","non mee PYAH-cheh"],
+    ["Ho fame","I'm hungry","oh FAH-meh"],["Ho sete","I'm thirsty","oh SEH-teh"],["Sono stanca","I'm tired (f.)","SOH-noh STAN-kah"],
+    ["Va tutto bene","Everything's fine","vah TOO-toh BEH-neh"],["Magari!","I wish!","mah-GAH-ree"],
+    ["Dai!","Come on!","dye"],["Allora","So... / well then","ah-LOH-rah"]
+  ]}
+];
+
+const RESOURCES = [
+  {ico:"🗣️", t:"Easy Italian", s:"real street conversations, dual subs", q:"easy italian street interview beginner subtitles"},
+  {ico:"👩‍🏫", t:"Learn w/ Lucrezia", s:"clear, slow, super beginner-friendly", q:"learn italian with lucrezia for beginners"},
+  {ico:"📘", t:"Italy Made Easy", s:"grammar explained in English", q:"italy made easy italian for beginners"},
+  {ico:"🔢", t:"Numbers 1–100", s:"count along practice", q:"italian numbers 1 to 100 pronunciation"},
+  {ico:"🛒", t:"At the Supermarket", s:"grocery & ordering phrases", q:"italian grocery shopping conversation beginner"},
+  {ico:"🎶", t:"Andrea Bocelli", s:"your favorite, with lyrics", q:"andrea bocelli con te partiro lyrics italian"},
+  {ico:"📻", t:"Italian Pop Mix", s:"modern songs to mine", q:"best modern italian pop songs playlist"},
+  {ico:"🍝", t:"Cook in Italian", s:"recipes + food words", q:"lucrezia learn italian cooking pasta"}
+];
+
+/* ============ STATE / STORAGE ============ */
+const KEY="italiano_progress_v1";
+let known = load();
+function load(){ try{ return JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ return {}; } }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(known)); }catch(e){} }
+function cid(deckId,i){ return deckId+"-"+i; }
+function isKnown(id){ return !!known[id]; }
+function setKnown(id,v){ if(v) known[id]=1; else delete known[id]; save(); }
+
+function allCards(){
+  const out=[];
+  DECKS.forEach(d=>d.cards.forEach((c,i)=>out.push({id:cid(d.id,i),it:c[0],en:c[1],pron:c[2],deck:d.name})));
+  return out;
+}
+function deckCards(deckId){
+  if(deckId==="ALL") return allCards();
+  const d=DECKS.find(x=>x.id===deckId);
+  return d.cards.map((c,i)=>({id:cid(d.id,i),it:c[0],en:c[1],pron:c[2],deck:d.name}));
+}
+function deckKnownCount(deckId){ return deckCards(deckId).filter(c=>isKnown(c.id)).length; }
+
+/* ============ HOME RENDER ============ */
+function renderHome(){
+  const all=allCards();
+  const tot=all.length, kn=all.filter(c=>isKnown(c.id)).length;
+  const pct=tot? Math.round(kn/tot*100):0;
+  document.getElementById("ovPct").textContent=pct+"%";
+  document.getElementById("ovRing").style.setProperty("--p",pct);
+  document.getElementById("ovText").textContent=`${kn} of ${tot} words learned`;
+  document.getElementById("ovBar").style.width=pct+"%";
+  document.getElementById("allCount").textContent=`the big deck · ${tot} words · ${kn} learned`;
+
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+  DECKS.forEach(d=>{
+    const n=d.cards.length, k=deckKnownCount(d.id), p=n?Math.round(k/n*100):0;
+    const done=k===n && n>0;
+    const el=document.createElement("div");
+    el.className="cat"+(done?" done":"");
+    el.onclick=()=>openStudy(d.id);
+    el.innerHTML=`
+      <span class="ribbon">DONE</span>
+      <div class="top">
+        <span class="ico">${d.ico}</span>
+        <div class="mini-ring" style="--p:${p}"><b>${p}%</b></div>
+      </div>
+      <div>
+        <h3>${d.name}</h3>
+        <div class="en">${d.en}</div>
+      </div>
+      <div class="foot">
+        <span class="count">${k}/${n} learned</span>
+        <span class="go">Study →</span>
+      </div>`;
+    grid.appendChild(el);
+  });
+
+  const res=document.getElementById("res");
+  res.innerHTML="";
+  RESOURCES.forEach(r=>{
+    const a=document.createElement("a");
+    a.href="https://www.youtube.com/results?search_query="+encodeURIComponent(r.q);
+    a.target="_blank"; a.rel="noopener";
+    a.innerHTML=`<span class="yt">${r.ico}</span><span class="tx"><b>${r.t}</b><small>${r.s} ▸</small></span>`;
+    res.appendChild(a);
+  });
+}
+
+/* ============ STUDY ============ */
+let S={deckId:null,queue:[],idx:0,dir:"it",remainingOnly:false,flipped:false};
+
+function openStudy(deckId){
+  S.deckId=deckId; S.remainingOnly=false; S.dir="it";
+  buildQueue(); S.idx=0; S.flipped=false;
+  document.getElementById("remChip").classList.remove("on");
+  setDirLabel();
+  document.getElementById("study").classList.add("open");
+  document.getElementById("finish").classList.remove("show");
+  const name = deckId==="ALL" ? "Everything 📚" : DECKS.find(d=>d.id===deckId).name;
+  document.getElementById("stTitle").textContent=name;
+  renderCard();
+  window.scrollTo(0,0);
+}
+function closeStudy(){ document.getElementById("study").classList.remove("open"); renderHome(); }
+
+function buildQueue(){
+  let cards=deckCards(S.deckId);
+  if(S.remainingOnly) cards=cards.filter(c=>!isKnown(c.id));
+  S.queue=cards;
+}
+function curCard(){ return S.queue[S.idx]; }
+
+function renderCard(){
+  document.getElementById("finish").classList.remove("show");
+  if(!S.queue.length){ showFinish(true); return; }
+  if(S.idx>=S.queue.length){ showFinish(false); return; }
+  const c=curCard();
+  S.flipped=false;
+  document.getElementById("flip").classList.remove("flipped");
+  // direction
+  const frontIsIt = S.dir==="it";
+  document.getElementById("frontTag").textContent = frontIsIt?"italiano":"english";
+  document.getElementById("backTag").textContent = frontIsIt?"english":"italiano";
+  document.getElementById("frontWord").textContent = frontIsIt? c.it : c.en;
+  document.getElementById("backWord").textContent = frontIsIt? c.en : c.it;
+  document.getElementById("backPron").textContent = c.pron? "["+c.pron+"]" : "";
+  let note = (S.deckId==="ALL") ? c.deck : "";
+  document.getElementById("backNote").textContent = note;
+  // progress
+  const total=S.queue.length;
+  document.getElementById("stSub").textContent=`card ${Math.min(S.idx+1,total)} of ${total} · ${deckKnownCount(S.deckId)} learned`;
+  document.getElementById("stBar").style.width=(S.idx/total*100)+"%";
+}
+
+function flipCard(){
+  S.flipped=!S.flipped;
+  document.getElementById("flip").classList.toggle("flipped",S.flipped);
+}
+function speakCard(){
+  const c=curCard(); if(!c) return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(c.it.replace(/\.\.\.$/,""));
+    u.lang="it-IT"; u.rate=.85;
+    const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith("it"));
+    if(v) u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function answer(gotIt){
+  const c=curCard(); if(!c) return;
+  setKnown(c.id, gotIt);
+  S.idx++;
+  if(S.idx>=S.queue.length){ showFinish(S.queue.every(x=>isKnown(x.id))); }
+  else renderCard();
+  // bump progress bar to reflect known immediately on home next open
+}
+
+function showFinish(allLearned){
+  const finished=document.getElementById("finish");
+  finished.classList.add("show");
+  document.getElementById("stBar").style.width="100%";
+  const k=deckKnownCount(S.deckId), n=deckCards(S.deckId).length;
+  if(n>0 && k===n){
+    document.getElementById("finBig").textContent="🏆";
+    document.getElementById("finTitle").textContent="Perfetto!";
+    document.getElementById("finText").textContent=`You've learned all ${n} cards in this deck. Sei una star! ⭐`;
+    confetti();
+  } else if(S.remainingOnly && S.queue.length===0){
+    document.getElementById("finBig").textContent="✅";
+    document.getElementById("finTitle").textContent="Niente da ripassare!";
+    document.getElementById("finText").textContent="Nothing left to review here. Flip off 'review remaining' to see them all again.";
+  } else {
+    document.getElementById("finBig").textContent="🎉";
+    document.getElementById("finTitle").textContent="Brava!";
+    document.getElementById("finText").textContent=`Round done — ${k} of ${n} marked learned. Keep going and you'll have the whole deck.`;
+    if(k>0) confetti();
+  }
+}
+
+function restartDeck(){ S.remainingOnly=false; document.getElementById("remChip").classList.remove("on"); buildQueue(); S.idx=0; renderCard(); }
+function shuffleDeck(){
+  for(let i=S.queue.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [S.queue[i],S.queue[j]]=[S.queue[j],S.queue[i]]; }
+  S.idx=0; renderCard();
+}
+function toggleRemaining(){
+  S.remainingOnly=!S.remainingOnly;
+  document.getElementById("remChip").classList.toggle("on",S.remainingOnly);
+  buildQueue(); S.idx=0; renderCard();
+}
+function toggleDir(){ S.dir = S.dir==="it"?"en":"it"; setDirLabel(); renderCard(); }
+function setDirLabel(){ document.getElementById("dirChip").textContent = S.dir==="it" ? "🔁 IT → EN" : "🔁 EN → IT"; }
+
+function resetAll(){
+  if(confirm("Reset all your learned cards back to zero? This can't be undone.")){
+    known={}; save(); renderHome();
+  }
+}
+
+function confetti(){
+  const cols=["#F2997E","#A7C4A0","#EEC069","#F0AEB4","#9FC9D9"];
+  for(let i=0;i<70;i++){
+    const d=document.createElement("div");
+    d.className="confetti";
+    d.style.left=Math.random()*100+"vw";
+    d.style.background=cols[i%cols.length];
+    d.style.animationDuration=(2+Math.random()*2)+"s";
+    d.style.animationDelay=(Math.random()*.5)+"s";
+    d.style.transform=`rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),4500);
+  }
+}
+
+// warm up voices
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged=()=>{}; speechSynthesis.getVoices(); }
+renderHome();
+</script>
+</body>
+</html>
