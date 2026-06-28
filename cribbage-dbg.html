@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cribbage: simulator + tutor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--grad:linear-gradient(158deg,#c4e6f4 0%,#dcefe8 50%,#f5eddf 100%);
+--text:#163a5f;--slate:#5b7a99;--muted:#8aa3b8;--navy:#163a5f;
+--sky:#1f93cc;--sky-deep:#13567a;--sky-tint:rgba(31,147,204,0.16);
+--coral:#f6a8a0;--mint:#a3ddc6;--butter:#f4d79a;--lav:#c4b4e6;
+--cta-bg:#163a5f;--cta-fg:#ffffff;--cta-bg-h:#1f4d77;
+--glass:rgba(255,255,255,0.52);--glass-strong:rgba(255,255,255,0.68);--glass-hover:#ffffff;--glass-solid:#f4f8fb;
+--field:rgba(255,255,255,0.55);--field-solid:#ffffff;--hair:rgba(255,255,255,0.55);
+--shadow:0 8px 28px rgba(20,55,90,0.16);
+--specular:inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(120,150,180,0.14);
+--row-line:rgba(120,150,180,0.14);
+--coral-tint:rgba(246,168,160,0.28);--coral-ink:#9c3a30;
+--mint-tint:rgba(163,221,198,0.30);--mint-ink:#2f6b54;
+--butter-tint:rgba(244,215,154,0.36);--butter-ink:#7a5a13;
+--lav-tint:rgba(196,180,230,0.32);--lav-ink:#5a4a86;
+--radius:16px;--radius-lg:22px;--bg-base:#c4e6f4;
+--red:#c2362f;--cardface:#ffffff;
+}
+[data-theme="dark"]{
+--grad:linear-gradient(158deg,#0c2733 0%,#0e1f33 52%,#10182a 100%);
+--text:#e8f0f7;--slate:#9fb4c8;--muted:#6f8aa3;
+--sky:#46b4e6;--sky-deep:#a6daf0;--sky-tint:rgba(70,180,230,0.18);
+--cta-bg:#34a9dd;--cta-fg:#08243a;--cta-bg-h:#52b9e8;
+--glass:rgba(26,50,76,0.5);--glass-strong:rgba(34,60,90,0.66);--glass-hover:rgba(42,70,102,0.82);--glass-solid:#15263a;
+--field:rgba(255,255,255,0.07);--field-solid:#1b3046;--hair:rgba(255,255,255,0.14);
+--shadow:0 10px 34px rgba(0,10,25,0.45);
+--specular:inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,18,36,0.3);
+--row-line:rgba(255,255,255,0.08);
+--coral-ink:#f2a69e;--mint-ink:#a6e0c9;--butter-ink:#f3d99f;--lav-ink:#c9bbe9;
+--bg-base:#0c2733;--red:#ff7a72;--cardface:#eef4f9;
+}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+html{scroll-behavior:smooth;background-image:var(--grad);background-color:var(--bg-base);min-height:100%}
+body{margin:0;color:var(--text);font-family:'Nunito',system-ui,sans-serif;font-size:16px;line-height:1.55;background:transparent;min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;line-height:1.12;color:var(--text);margin:0}
+.mono{font-family:'JetBrains Mono',monospace}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--sky-deep);text-transform:uppercase}
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);border:1px solid var(--hair);box-shadow:var(--specular),var(--shadow)}
+@supports not ((backdrop-filter:blur(4px)) or (-webkit-backdrop-filter:blur(4px))){.glass,.btn-glass,.ghost{background:var(--glass-solid);backdrop-filter:none;-webkit-backdrop-filter:none}}
+.wrap{max-width:860px;margin:0 auto;padding:18px 16px 60px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.brand{font-family:'Fraunces',serif;font-weight:600;font-size:22px}
+.brand small{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--sky-deep);text-transform:uppercase;font-weight:400}
+.controls{display:flex;gap:8px;align-items:center}
+.ghost{width:36px;height:36px;border-radius:50%;background:var(--glass-strong);border:1px solid var(--hair);color:var(--text);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.btn{font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;border-radius:13px;padding:10px 18px;cursor:pointer;border:1px solid transparent;transition:transform .08s ease,background .15s ease;display:inline-flex;align-items:center;gap:7px}
+.btn:active{transform:translateY(1px)}
+.btn-cta{background:var(--cta-bg);color:var(--cta-fg)}
+.btn-cta:hover{background:var(--cta-bg-h)}
+.btn-glass{background:var(--glass-strong);color:var(--text);border-color:var(--hair);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.toggle{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;padding:8px 12px;border-radius:11px;cursor:pointer;border:1px solid var(--hair);background:var(--glass-strong);color:var(--slate);display:inline-flex;gap:6px;align-items:center}
+.toggle.on{color:var(--mint-ink);background:var(--mint-tint);border-color:transparent}
+.panel{border-radius:var(--radius-lg);padding:18px 18px 20px}
+.panel+.panel{margin-top:14px}
+/* board */
+.board .lane{display:grid;grid-template-columns:54px 1fr 64px;align-items:center;gap:10px;margin:9px 0}
+.lane .who{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--slate);letter-spacing:.1em}
+.track{position:relative;height:22px;border-radius:11px;background:var(--field);border:1px solid var(--hair);overflow:hidden}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:11px;background:linear-gradient(90deg,var(--sky-deep),var(--sky));transition:width .5s cubic-bezier(.4,0,.2,1)}
+.cpu .fill{background:linear-gradient(90deg,var(--coral-ink),var(--coral))}
+.skunk{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--butter-ink);opacity:.6}
+.lane .num{font-family:'Fraunces',serif;font-weight:600;font-size:26px;text-align:right}
+/* cards */
+.cards{display:flex;flex-wrap:wrap;gap:8px}
+.card{width:52px;height:74px;border-radius:9px;background:var(--cardface);border:1px solid rgba(120,150,180,.35);box-shadow:0 3px 10px rgba(20,55,90,.18);position:relative;cursor:default;display:flex;flex-direction:column;justify-content:space-between;padding:5px 6px;user-select:none;flex:0 0 auto;transition:transform .12s ease,box-shadow .12s ease,opacity .12s ease}
+.card .rk{font-family:'Fraunces',serif;font-weight:600;font-size:16px;line-height:1;color:var(--navy)}
+.card .st{font-size:13px;line-height:1;align-self:flex-end}
+.card.red .rk,.card.red .st{color:var(--red)}
+.card .big{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:26px;opacity:.9}
+.card.red .big{color:var(--red)}
+.card.sel{transform:translateY(-10px);box-shadow:0 8px 18px rgba(31,147,204,.4);border-color:var(--sky);outline:2px solid var(--sky)}
+.card.playable{cursor:pointer}
+.card.playable:hover{transform:translateY(-6px);box-shadow:0 8px 16px rgba(20,55,90,.28)}
+.card.dim{opacity:.32}
+.card.tagme::after,.card.tagcpu::after{content:'';position:absolute;left:5px;right:5px;bottom:-1px;height:3px;border-radius:2px}
+.card.tagme::after{background:var(--sky)}
+.card.tagcpu::after{background:var(--coral-ink)}
+.back{width:52px;height:74px;border-radius:9px;border:1px solid var(--hair);background:repeating-linear-gradient(45deg,var(--sky-deep),var(--sky-deep) 5px,var(--sky) 5px,var(--sky) 10px);box-shadow:0 3px 10px rgba(20,55,90,.18);flex:0 0 auto}
+.chip{display:inline-flex;align-items:center;gap:2px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;padding:2px 7px;border-radius:8px;background:var(--field);border:1px solid var(--hair);color:var(--navy)}
+.chip.red{color:var(--red)}
+.row-flex{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.seg{flex:1 1 260px;min-width:0}
+.lbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--slate);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+.total-big{font-family:'Fraunces',serif;font-weight:600;font-size:44px;line-height:1}
+.total-big small{font-size:15px;color:var(--slate);font-family:'JetBrains Mono',monospace}
+.go-flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;padding:3px 10px;border-radius:9px;background:var(--coral-tint);color:var(--coral-ink);margin-left:8px}
+/* breakdown */
+.brk{margin-top:6px}
+.brk .r{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--row-line)}
+.brk .r:last-child{border-bottom:none}
+.brk .ph{font-weight:700;font-size:14px;min-width:120px}
+.brk .dt{flex:1;display:flex;gap:5px;flex-wrap:wrap;align-items:center;color:var(--slate);font-size:13px}
+.brk .pt{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mint-ink);background:var(--mint-tint);padding:2px 8px;border-radius:8px;font-weight:600}
+.brk .run{font-family:'Fraunces',serif;font-weight:600;font-size:22px;min-width:34px;text-align:right;color:var(--sky-deep)}
+.brk-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.brk-tot{font-family:'Fraunces',serif;font-weight:600;font-size:20px}
+.log{max-height:170px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:var(--slate)}
+.log .you{color:var(--sky-deep)}
+.log .cpu{color:var(--coral-ink)}
+.log .pts{color:var(--mint-ink);font-weight:600}
+.log .coach{color:var(--lav-ink);font-weight:700}
+.hint{font-size:13px;color:var(--slate);background:var(--butter-tint);border:1px solid var(--hair);border-radius:12px;padding:10px 12px;margin-top:10px}
+.hint b{color:var(--butter-ink)}
+.crib-tag{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 10px;border-radius:9px;background:var(--lav-tint);color:var(--lav-ink);font-weight:600}
+details{margin-top:14px}
+summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--sky-deep);letter-spacing:.08em}
+.rules{font-size:13.5px;color:var(--slate);margin-top:10px}
+.rules table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.rules td{padding:5px 8px;border-bottom:1px solid var(--row-line)}
+.rules td:last-child{font-family:'JetBrains Mono',monospace;color:var(--text);text-align:right;white-space:nowrap}
+.win-banner{text-align:center;padding:8px 0}
+.win-banner .t{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin-bottom:4px}
+.tut h2{font-size:26px;margin-bottom:4px}
+.tut .sub{color:var(--slate);font-size:14px;margin-bottom:16px}
+.tut .body{font-size:15.5px;line-height:1.65}
+.tut .body b{color:var(--text)}
+.valrow{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0 16px}
+.valcard{display:flex;flex-direction:column;align-items:center;gap:6px}
+.valcard .v{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--sky-deep);background:var(--sky-tint);padding:2px 9px;border-radius:8px}
+.card.hi{outline:3px solid var(--sky);outline-offset:1px;box-shadow:0 7px 18px rgba(31,147,204,.45);z-index:2}
+.card.faint{opacity:.3}
+.count-cap{background:var(--mint-tint);border:1px solid var(--hair);border-radius:12px;padding:11px 14px;font-size:14.5px;color:var(--text);margin-top:14px;min-height:46px}
+.count-cap b{color:var(--mint-ink)}
+.runtot{font-family:'Fraunces',serif;font-weight:600;font-size:32px;color:var(--sky-deep);line-height:1}
+.tutfoot{display:flex;align-items:center;justify-content:space-between;margin-top:22px;gap:10px;flex-wrap:wrap}
+.dots{display:flex;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--hair);border:1px solid var(--row-line)}
+.dot.on{background:var(--sky);border-color:var(--sky)}
+.linktab{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--slate);letter-spacing:.06em}
+.linktab:hover{color:var(--sky-deep)}
+@media(max-width:520px){
+.card,.back{width:44px;height:63px}.card .rk{font-size:14px}.card .big{font-size:22px}
+.lane .num,.total-big{font-size:34px}
+.wrap{padding:14px 12px 50px}
+.brk .ph{min-width:92px;font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">Cribbage<small>simulator + tutor</small></div>
+    <div class="controls">
+      <button class="toggle on" id="tutorBtn" onclick="toggleTutor()">◆ tutor on</button>
+      <button class="ghost" id="tutBtn" onclick="startTutorial()" title="tutorial">?</button>
+      <button class="ghost" id="themeBtn" onclick="toggleTheme()" title="theme">☾</button>
+    </div>
+  </div>
+
+  <div class="panel glass board" id="boardPanel">
+    <div class="lane you"><span class="who">YOU</span><div class="track"><div class="fill" id="fillYou"></div><div class="skunk" style="left:75.2%"></div></div><span class="num" id="numYou">0</span></div>
+    <div class="lane cpu"><span class="who">CPU</span><div class="track"><div class="fill" id="fillCpu"></div><div class="skunk" style="left:75.2%"></div></div><span class="num" id="numCpu">0</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+      <span class="eyebrow" id="dealerTag">dealer:</span>
+      <span class="eyebrow" id="phaseTag">race to 121</span>
+    </div>
+  </div>
+
+  <div class="panel glass" id="stage"></div>
+
+  <div class="panel glass" id="logPanel">
+    <div class="lbl">tutor log</div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <details id="cheatDetails">
+    <summary>scoring cheat sheet</summary>
+    <div class="rules">
+      Count your 4 cards + the cut as one 5-card hand. Scan it three times. Cards never get used up, a card counts in every combo it belongs to.
+      <table>
+        <tr><td>Any cards summing to 15</td><td>2 each</td></tr>
+        <tr><td>Pair</td><td>2</td></tr>
+        <tr><td>Three of a kind</td><td>6</td></tr>
+        <tr><td>Four of a kind</td><td>12</td></tr>
+        <tr><td>Run of 3 / 4 / 5</td><td>3 / 4 / 5</td></tr>
+        <tr><td>Flush (4 in hand, +1 if cut matches)</td><td>4 / 5</td></tr>
+        <tr><td>Nobs (Jack in hand matching cut suit)</td><td>1</td></tr>
+      </table>
+      During the play instead: 15 = 2, 31 = 2, pairs/runs same as above on the most recent cards, and the last card of each round = 1.
+    </div>
+  </details>
+</div>
+
+<script>
+const SUIT = {S:'\u2660',H:'\u2665',D:'\u2666',C:'\u2663'};
+const RED = {H:1,D:1};
+const val = r => Math.min(r,10);
+const other = p => p==='you'?'cpu':'you';
+const rankLabel = r => r===1?'A':r===11?'J':r===12?'Q':r===13?'K':''+r;
+const rankName = r => ({1:'aces',11:'jacks',12:'queens',13:'kings'}[r]) || rankLabel(r)+'s';
+
+/* ---------- scoring engine (unit-tested) ---------- */
+function scoreShow(hand, starter, isCrib){
+  const cards=[...hand,starter], n=cards.length, out={total:0,parts:[]};
+  for(let mask=1;mask<(1<<n);mask++){
+    const sub=[];let sum=0;
+    for(let i=0;i<n;i++) if(mask&(1<<i)){sub.push(cards[i]);sum+=val(cards[i].r);}
+    if(sub.length>=2&&sum===15){out.total+=2;out.parts.push({type:'fifteen',cards:sub,pts:2});}
+  }
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)
+    if(cards[i].r===cards[j].r){out.total+=2;out.parts.push({type:'pair',cards:[cards[i],cards[j]],pts:2});}
+  const counts={};for(const c of cards)counts[c.r]=(counts[c.r]||0)+1;
+  const ranks=Object.keys(counts).map(Number).sort((a,b)=>a-b);
+  let i=0;
+  while(i<ranks.length){
+    let j=i;while(j+1<ranks.length&&ranks[j+1]===ranks[j]+1)j++;
+    const len=j-i+1;
+    if(len>=3){let mult=1;for(let k=i;k<=j;k++)mult*=counts[ranks[k]];
+      out.total+=len*mult;out.parts.push({type:'run',len,mult,span:[ranks[i],ranks[j]],pts:len*mult});}
+    i=j+1;
+  }
+  const suits=hand.map(c=>c.s), allHand=suits.every(s=>s===suits[0]);
+  if(allHand&&starter.s===suits[0]){out.total+=5;out.parts.push({type:'flush',pts:5});}
+  else if(allHand&&!isCrib){out.total+=4;out.parts.push({type:'flush',pts:4});}
+  for(const c of hand) if(c.r===11&&c.s===starter.s){out.total+=1;out.parts.push({type:'nobs',pts:1});}
+  return out;
+}
+function scorePeg(seq,total){
+  const out={total:0,parts:[]};
+  if(total===15){out.total+=2;out.parts.push({t:'fifteen',pts:2});}
+  if(total===31){out.total+=2;out.parts.push({t:'31',pts:2});}
+  const lastR=seq[seq.length-1].r;let same=0;
+  for(let k=seq.length-1;k>=0&&seq[k].r===lastR;k--)same++;
+  if(same===2){out.total+=2;out.parts.push({t:'pair',pts:2});}
+  else if(same===3){out.total+=6;out.parts.push({t:'three of a kind',pts:6});}
+  else if(same===4){out.total+=12;out.parts.push({t:'four of a kind',pts:12});}
+  for(let len=seq.length;len>=3;len--){
+    const w=seq.slice(seq.length-len).map(c=>c.r),set=new Set(w);
+    if(set.size!==len)continue;
+    if(Math.max(...w)-Math.min(...w)===len-1){out.total+=len;out.parts.push({t:'run of '+len,pts:len});break;}
+  }
+  return out;
+}
+/* discard EV */
+function deck52(){const d=[];for(const s of ['S','H','D','C'])for(let r=1;r<=13;r++)d.push({r,s});return d;}
+function handEV(keep4,exclude){
+  const used=new Set(exclude.map(c=>c.r+c.s));
+  const pool=deck52().filter(c=>!used.has(c.r+c.s));
+  let sum=0;for(const st of pool)sum+=scoreShow(keep4,st,false).total;
+  return sum/pool.length;
+}
+function bestDiscard(six){
+  let best=null;
+  for(let i=0;i<6;i++)for(let j=i+1;j<6;j++){
+    const keep=six.filter((_,k)=>k!==i&&k!==j), toss=[six[i],six[j]];
+    const ev=handEV(keep,six);
+    if(!best||ev>best.ev)best={keep,toss,ev};
+  }
+  return best;
+}
+
+/* ---------- game state ---------- */
+let G, tutor=true, themeDark=false;
+function newGame(){
+  G={deck:[],dealer:Math.random()<.5?'you':'cpu',scores:{you:0,cpu:0},phase:null,hand:0};
+  G.scores={you:0,cpu:0};
+  paintBoard();logClear();
+  log('New game. First deal goes to '+(G.dealer==='you'?'you':'the CPU')+'.');
+  deal();
+}
+function shuffle(d){for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}return d;}
+function deal(){
+  G.hand++;
+  G.deck=shuffle(deck52());
+  G.dealt={you:G.deck.slice(0,6),cpu:G.deck.slice(6,12)};
+  G.rest=G.deck.slice(12);
+  G.kept={you:null,cpu:null};G.crib=[];G.starter=null;
+  G.sel=[];
+  G.phase='discard';
+  // cpu discards now
+  const cd=bestDiscard(G.dealt.cpu);
+  G.kept.cpu=cd.keep;G.crib.push(...cd.toss);
+  paintBoard();
+  renderDiscard();
+}
+
+/* ---------- rendering helpers ---------- */
+function cardHTML(c,cls){
+  const red=RED[c.s]?' red':'';
+  return `<div class="card${red}${cls?' '+cls:''}" data-id="${c.r}${c.s}">
+    <div class="rk">${rankLabel(c.r)}</div><div class="big">${SUIT[c.s]}</div><div class="st">${SUIT[c.s]}</div></div>`;
+}
+function chip(c){return `<span class="chip${RED[c.s]?' red':''}">${rankLabel(c.r)}${SUIT[c.s]}</span>`;}
+function backs(n){return Array(n).fill('<div class="back"></div>').join('');}
+const stage=()=>document.getElementById('stage');
+
+/* ---------- discard phase ---------- */
+function renderDiscard(){
+  const whose=G.dealer==='you'?'your crib':"the CPU's crib";
+  let h=`<div class="lbl">discard: pick 2 cards for ${whose} <span class="crib-tag">crib belongs to ${G.dealer==='you'?'you':'CPU'}</span></div>
+  <div class="cards" id="myhand">${G.dealt.you.map(c=>cardHTML(c,'playable')).join('')}</div>
+  <div style="margin-top:14px"><button class="btn btn-cta" id="throwBtn" disabled onclick="throwCrib()">throw to crib</button></div>`;
+  if(tutor) h+=`<div class="hint" id="dhint"><b>tip:</b> the crib is ${G.dealer==='you'?'yours, keep it stocked':"the CPU's, feed it junk, never 5s or connected cards"}. Pick 2 to throw, I'll grade it against the math.</div>
+  <div id="dcoach" style="margin-top:8px"><span class="linktab" id="bestKeepBtn">&#9656; show the best keep + why</span></div>`;
+  stage().innerHTML=h;
+  document.querySelectorAll('#myhand .card').forEach(el=>{
+    el.onclick=()=>{
+      const id=el.dataset.id;
+      const k=G.sel.indexOf(id);
+      if(k>=0){G.sel.splice(k,1);el.classList.remove('sel');}
+      else if(G.sel.length<2){G.sel.push(id);el.classList.add('sel');}
+      document.getElementById('throwBtn').disabled=G.sel.length!==2;
+    };
+  });
+  const bk=document.getElementById('bestKeepBtn');
+  if(bk) bk.onclick=()=>{
+    const best=bestDiscard(G.dealt.you), ids=best.keep.map(c=>c.r+c.s);
+    document.querySelectorAll('#myhand .card').forEach(el=>{const k=ids.includes(el.dataset.id);el.classList.toggle('hi',k);el.classList.toggle('faint',!k);});
+    document.getElementById('dcoach').innerHTML='<div class="hint"><b>best keep:</b> '+best.keep.map(lbl).join(' ')+' (avg '+best.ev.toFixed(2)+' pts), throw '+best.toss.map(lbl).join(' ')+'. Highest average hand over every possible cut.</div>';
+  };
+}
+function byId(arr,id){return arr.find(c=>c.r+c.s===id);}
+function throwCrib(){
+  const toss=G.sel.map(id=>byId(G.dealt.you,id));
+  const keep=G.dealt.you.filter(c=>!G.sel.includes(c.r+c.s));
+  G.kept.you=keep;G.crib.push(...toss);
+  if(tutor){
+    const best=bestDiscard(G.dealt.you);
+    const mine=handEV(keep,G.dealt.you);
+    const same=best.keep.every(c=>keep.some(k=>k.r===c.r&&k.s===c.s));
+    log(`You kept ${keep.map(c=>rankLabel(c.r)+SUIT[c.s]).join(' ')} `+
+      `(avg ${mine.toFixed(2)} pts). `+
+      (same?'That is the EV-optimal keep.':`EV-optimal was ${best.keep.map(c=>rankLabel(c.r)+SUIT[c.s]).join(' ')} at ${best.ev.toFixed(2)}.`));
+  }
+  cut();
+}
+
+/* ---------- cut ---------- */
+function cut(){
+  G.phase='cut';
+  G.starter=G.rest[Math.floor(Math.random()*G.rest.length)];
+  let h=`<div class="lbl">the cut</div>
+   <div class="row-flex" style="align-items:center">
+     <div><div class="lbl">starter</div><div class="cards">${cardHTML(G.starter)}</div></div>
+     <div class="seg"><p style="margin:0;color:var(--slate);font-size:14px">This card counts in every hand and the crib.</p></div>
+   </div>`;
+  if(G.starter.r===11){
+    award(G.dealer,2,(G.dealer==='you'?'You':'CPU')+' cut a Jack, 2 for his heels');
+  }
+  h+=`<div style="margin-top:14px"><button class="btn btn-cta" onclick="startPlay()">start the play →</button></div>`;
+  stage().innerHTML=h;
+  if(checkWin())return;
+}
+
+/* ---------- the play (pegging) ---------- */
+function startPlay(){
+  G.phase='play';
+  G.play={rem:{you:[...G.kept.you],cpu:[...G.kept.cpu]},
+          tbl:{you:[],cpu:[]},seq:[],total:0,last:null,toAct:other(G.dealer),history:[]};
+  log('Play begins. '+(G.play.toAct==='you'?'You lead.':'CPU leads.'));
+  runTurn();
+}
+function canPlay(p){return G.play.rem[p].some(c=>G.play.total+val(c.r)<=31);}
+function playOver(){return G.play.rem.you.length===0&&G.play.rem.cpu.length===0;}
+function lbl(c){return rankLabel(c.r)+SUIT[c.s];}
+function pegEval(p){
+  const P=G.play, isLead=P.seq.length===0;
+  const legal=P.rem[p].filter(c=>P.total+val(c.r)<=31);
+  const cands=legal.map(c=>{
+    const seq=[...P.seq.map(x=>x.c),c], tot=P.total+val(c.r);
+    const sc=scorePeg(seq,tot); let score=sc.total*100; const tags=[];
+    if(sc.total>0) tags.push({k:'pts',t:'scores '+sc.total+' ('+sc.parts.map(x=>x.t).join(', ')+')'});
+    if(tot===31) score+=30;
+    if(tot===5){score-=14;tags.push({k:'risk',t:'leaves the count at 5, a ten makes 15'});}
+    else if(tot===21){score-=16;tags.push({k:'risk',t:'leaves the count at 21, a ten makes 31'});}
+    else if(tot===10){score-=4;tags.push({k:'risk',t:'leaves 10, a five makes 15'});}
+    if(isLead){
+      if(c.r===5){score-=8;tags.push({k:'risk',t:'leading a 5 lets them make 15 with a ten'});}
+      else if(val(c.r)<=4){score+=4;tags.push({k:'safe',t:'a safe low lead'});}
+    }
+    if(sc.total===0) score+=c.r*0.4;
+    return {c,pts:sc.total,tot,score,tags};
+  });
+  cands.sort((a,b)=>b.score-a.score);
+  return cands;
+}
+function pegWhy(cands){
+  const b=cands[0], pt=b.tags.find(t=>t.k==='pts');
+  if(pt) return 'it '+pt.t;
+  const safe=b.tags.find(t=>t.k==='safe');
+  if(safe) return 'it is '+safe.t;
+  if(b.pts===0 && cands.some(x=>x.tags.some(t=>t.k==='risk'))) return 'it keeps your low cards and gives the CPU nothing, while the others leave a count it can pounce on';
+  return 'it gives the CPU nothing and keeps your low cards free for later';
+}
+function renderPlay(opts){
+  opts=opts||{};
+  const P=G.play;
+  const seqHTML=P.seq.length?P.seq.map(x=>cardHTML(x.c,'tag'+x.by)).join(''):'<span style="color:var(--muted);font-size:13px">new count</span>';
+  let myHand=P.rem.you.map(c=>{
+    const legal=P.total+val(c.r)<=31;
+    return cardHTML(c,(opts.myTurn&&legal)?'playable tagme':('dim tagme'));
+  }).join('');
+  if(!P.rem.you.length)myHand='<span style="color:var(--muted);font-size:13px">empty</span>';
+  let h=`<div class="lbl">cut <span style="opacity:.6">(in play, counts in the show)</span></div>
+   <div class="cards" style="margin-bottom:12px">${cardHTML(G.starter)}</div>
+   <div class="row-flex">
+     <div class="seg"><div class="lbl">CPU, ${P.rem.cpu.length} left</div><div class="cards">${backs(P.rem.cpu.length)}</div></div>
+     <div class="seg" style="text-align:right">
+       <div class="lbl">count</div>
+       <div class="total-big">${P.total}<small>/31</small>${opts.go?'<span class="go-flag">'+opts.go+', go</span>':''}</div>
+     </div>
+   </div>
+   <div style="margin:14px 0 6px"><div class="lbl">this count</div><div class="cards">${seqHTML}</div></div>
+   <div style="margin-top:14px"><div class="lbl">your hand${opts.myTurn?', tap a card to play':''}</div><div class="cards" id="playHand">${myHand}</div></div>
+   ${(opts.myTurn&&tutor)?'<div id="coachRow" style="margin-top:10px"><span class="linktab" id="bestBtn">&#9656; show best play + why</span></div>':''}`;
+  stage().innerHTML=h;
+  if(opts.myTurn){
+    document.querySelectorAll('#playHand .card.playable').forEach(el=>{
+      el.onclick=()=>playCard('you',byId(P.rem.you,el.dataset.id));
+    });
+    const bb=document.getElementById('bestBtn');
+    if(bb) bb.onclick=()=>{
+      const adv=pegEval('you'); if(!adv.length)return;
+      const top=adv[0].score, recs=adv.filter(x=>x.score>=top-1e-6), ids=recs.map(x=>x.c.r+x.c.s);
+      document.querySelectorAll('#playHand .card').forEach(el=>{if(ids.includes(el.dataset.id))el.classList.add('hi');});
+      document.getElementById('coachRow').innerHTML='<div class="hint"><b>best:</b> '+recs.map(x=>lbl(x.c)).join(' or ')+', '+pegWhy(adv)+'.</div>';
+    };
+  }
+}
+function runTurn(){
+  if(G.phase!=='play')return;
+  const P=G.play, p=P.toAct;
+  if(playOver()){closeRound();return;}
+  if(!canPlay(p)){
+    renderPlay({go:p==='you'?'YOU':'CPU'});
+    log((p==='you'?'<span class="you">You</span>':'<span class="cpu">CPU</span>')+' say go.');
+    const opp=other(p);
+    if(!canPlay(opp)){setTimeout(closeRound,650);return;}
+    P.toAct=opp;setTimeout(runTurn,650);return;
+  }
+  if(p==='cpu'){renderPlay({myTurn:false});setTimeout(cpuPlay,750);}
+  else renderPlay({myTurn:true});
+}
+function cpuPlay(){
+  const P=G.play;
+  const legal=P.rem.cpu.filter(c=>P.total+val(c.r)<=31);
+  let best=null;
+  for(const c of legal){
+    const seq=[...P.seq.map(x=>x.c),c],tot=P.total+val(c.r);
+    const pts=scorePeg(seq,tot).total;
+    const danger=(tot===5||tot===21)?1:0;
+    const score=pts*10-danger+c.r*0.01;
+    if(!best||score>best.score)best={c,score};
+  }
+  playCard('cpu',best.c);
+}
+function playCard(p,card){
+  const P=G.play;
+  const adv=(p==='you'&&tutor)?pegEval('you'):null;
+  P.rem[p]=P.rem[p].filter(c=>!(c.r===card.r&&c.s===card.s));
+  P.tbl[p].push(card);P.seq.push({c:card,by:p});P.total+=val(card.r);P.last=p;
+  const s=scorePeg(P.seq.map(x=>x.c),P.total);
+  let msg=(p==='you'?'<span class="you">You</span>':'<span class="cpu">CPU</span>')+' play '+rankLabel(card.r)+SUIT[card.s]+' → '+P.total;
+  if(s.total){
+    award(p,s.total,null);
+    msg+=' <span class="pts">+'+s.total+'</span> ('+s.parts.map(x=>x.t).join(', ')+')';
+  }
+  log(msg);
+  if(adv){
+    const best=adv[0], pl=adv.find(x=>x.c.r===card.r&&x.c.s===card.s);
+    if(best.pts>pl.pts) log('<span class="coach">coach:</span> '+lbl(best.c)+' was better, '+pegWhy(adv)+'.');
+    else if(pl.tags.some(t=>t.k==='risk')&&!best.tags.some(t=>t.k==='risk')&&best.score>pl.score+5){
+      const rt=pl.tags.find(t=>t.k==='risk');
+      log('<span class="coach">coach:</span> '+lbl(best.c)+' was safer here, your '+lbl(card)+' '+rt.t+'.');
+    }
+  }
+  if(checkWin())return;
+  if(P.total===31){renderPlay({});setTimeout(closeRound,650);return;}
+  P.toAct=other(p);
+  setTimeout(runTurn,p==='cpu'?600:250);
+}
+function closeRound(){
+  const P=G.play;
+  if(P.total!==31&&P.last){
+    award(P.last,1,null);
+    log((P.last==='you'?'<span class="you">You</span>':'<span class="cpu">CPU</span>')+' get <span class="pts">+1</span> for last card.');
+    if(checkWin())return;
+  }
+  P.total=0;P.seq=[];
+  if(playOver()){setTimeout(enterShow,500);return;}
+  P.toAct=other(P.last);
+  log('Count resets to 0. '+(P.toAct==='you'?'You lead.':'CPU leads.'));
+  setTimeout(runTurn,500);
+}
+
+/* ---------- the show ---------- */
+function enterShow(){
+  G.phase='show';
+  const nd=other(G.dealer);
+  G.showQ=[
+    {who:nd, label:(nd==='you'?'your hand':"CPU's hand"), cards:G.kept[nd], crib:false, owner:nd},
+    {who:G.dealer, label:(G.dealer==='you'?'your hand':"CPU's hand"), cards:G.kept[G.dealer], crib:false, owner:G.dealer},
+    {who:G.dealer, label:(G.dealer==='you'?'your crib':"CPU's crib"), cards:G.crib, crib:true, owner:G.dealer}
+  ];
+  G.showI=0;
+  log('the show. '+(nd==='you'?'you':'CPU')+' counts first.');
+  renderShow();
+}
+function breakdownRows(parts){
+  let run=0;const rows=[];
+  for(const pt of parts){
+    if(pt.type==='fifteen'){run+=2;rows.push({ph:'Fifteen',chips:pt.cards,pts:2,run});}
+    else if(pt.type==='pair'){run+=2;rows.push({ph:'Pair of '+rankName(pt.cards[0].r),chips:pt.cards,pts:2,run});}
+    else if(pt.type==='run'){
+      const span=rankLabel(pt.span[0])+'·'+rankLabel(pt.span[0]+1)+(pt.len>2?'·'+rankLabel(pt.span[1]):'');
+      for(let m=0;m<pt.mult;m++){run+=pt.len;rows.push({ph:'Run of '+pt.len,note:span+(pt.mult>1?'  (×'+pt.mult+', a duplicate makes the run twice)':''),pts:pt.len,run});}
+    }
+    else if(pt.type==='flush'){run+=pt.pts;rows.push({ph:'Flush',note:pt.pts+' same suit',pts:pt.pts,run});}
+    else if(pt.type==='nobs'){run+=1;rows.push({ph:'Nobs',note:'Jack matches the cut suit',pts:1,run});}
+  }
+  if(!rows.length)rows.push({ph:'Nothing',note:'no fifteens, pairs, or runs',pts:0,run:0});
+  return rows;
+}
+function renderShow(){
+  const q=G.showQ[G.showI];
+  const res=scoreShow(q.cards,G.starter,q.crib);
+  const rows=breakdownRows(res.parts);
+  let brk=rows.map(r=>`<div class="r"><span class="ph">${r.ph}</span>
+     <span class="dt">${r.chips?r.chips.map(chip).join(''):(r.note||'')}</span>
+     <span class="pt">+${r.pts}</span><span class="run">${r.run}</span></div>`).join('');
+  let h=`<div class="brk-head"><div class="lbl" style="margin:0">${q.label} ${q.crib?'<span class="crib-tag">crib</span>':''}</div><div class="brk-tot">${res.total} pts</div></div>
+   <div class="cards" style="margin:8px 0">${q.cards.map(c=>cardHTML(c)).join('')}<span style="align-self:center;color:var(--muted);margin:0 4px">+ cut</span>${cardHTML(G.starter)}</div>
+   <div class="brk">${brk}</div>`;
+  const nextLabel = G.showI<G.showQ.length-1?'count next →':'next hand →';
+  h+=`<div style="margin-top:16px"><button class="btn btn-cta" id="showNext">${nextLabel}</button></div>`;
+  stage().innerHTML=h;
+  document.getElementById('showNext').onclick=()=>{
+    award(q.owner,res.total,(q.owner==='you'?'You':'CPU')+' score '+res.total+' from '+(q.crib?'the crib':'hand'));
+    if(checkWin())return;
+    if(G.showI<G.showQ.length-1){G.showI++;renderShow();}
+    else nextHand();
+  };
+}
+function nextHand(){
+  G.dealer=other(G.dealer);
+  log('Deal passes to '+(G.dealer==='you'?'you':'the CPU')+'.');
+  deal();
+}
+
+/* ---------- scoring + board ---------- */
+function award(p,pts,msg){
+  if(!pts)return;
+  G.scores[p]=Math.min(121,G.scores[p]+pts);
+  if(msg)log((p==='you'?'<span class="you">':'<span class="cpu">')+msg+'</span>');
+  paintBoard();
+}
+function checkWin(){
+  if(G.scores.you>=121||G.scores.cpu>=121){gameOver();return true;}
+  return false;
+}
+function gameOver(){
+  G.phase='over';
+  const w=G.scores.you>=121?'you':'cpu';const l=other(w);
+  const margin=121-G.scores[l];
+  let tag=margin>=61?'double skunk':margin>=31?'skunk':'';
+  let h=`<div class="win-banner"><div class="t">${w==='you'?'You win':'CPU wins'} ${tag?'· '+tag:''}</div>
+   <p style="color:var(--slate);margin:0">${G.scores.you}, ${G.scores.cpu}${tag?'. Loser stuck under '+(margin>=61?61:91)+'.':''}</p>
+   <div style="margin-top:16px"><button class="btn btn-cta" onclick="newGame()">new game</button></div></div>`;
+  stage().innerHTML=h;
+  log((w==='you'?'You':'CPU')+' reach 121. '+(tag||'gg')+'.');
+}
+function paintBoard(){
+  document.getElementById('numYou').textContent=G.scores.you;
+  document.getElementById('numCpu').textContent=G.scores.cpu;
+  document.getElementById('fillYou').style.width=(G.scores.you/121*100)+'%';
+  document.getElementById('fillCpu').style.width=(G.scores.cpu/121*100)+'%';
+  document.getElementById('dealerTag').textContent='dealer: '+(G.dealer==='you'?'you':'CPU');
+  document.getElementById('phaseTag').textContent='hand '+(G.hand||0)+' · '+(G.phase||'');
+}
+
+/* ---------- log + toggles ---------- */
+function log(html){const l=document.getElementById('log');l.innerHTML+='<div>'+html+'</div>';l.scrollTop=l.scrollHeight;}
+function logClear(){document.getElementById('log').innerHTML='';}
+function toggleTutor(){tutor=!tutor;const b=document.getElementById('tutorBtn');b.textContent=(tutor?'◆ tutor on':'◇ tutor off');b.classList.toggle('on',tutor);
+  if(G&&G.phase==='discard')renderDiscard();}
+function toggleTheme(){themeDark=!themeDark;document.documentElement.setAttribute('data-theme',themeDark?'dark':'light');document.getElementById('themeBtn').textContent=themeDark?'☀':'☾';}
+
+/* ---------- tutorial ---------- */
+const DEMO_HAND=[{r:4,s:'S'},{r:5,s:'H'},{r:5,s:'D'},{r:6,s:'S'}];
+const DEMO_CUT={r:9,s:'H'};
+const COUNT_STEPS=[
+ {cap:'<b>Scan 1: fifteens.</b> 4 + 5 + 6 = 15. Two points.',hi:['4S','5H','6S'],pts:2},
+ {cap:'Another 15, same 4 and 6 but the <b>other</b> 5. Cards never get used up, so it counts again.',hi:['4S','5D','6S'],pts:2},
+ {cap:'One more: 6 + 9 = 15.',hi:['6S','9H'],pts:2},
+ {cap:'<b>Scan 2: pairs.</b> Two 5s, two points.',hi:['5H','5D'],pts:2},
+ {cap:'<b>Scan 3: runs.</b> 4, 5, 6 in a row. A run of three.',hi:['4S','5H','6S'],pts:3},
+ {cap:'Two 5s means the run <b>happens twice</b>: 4, 5, 6 again with the other 5.',hi:['4S','5D','6S'],pts:3},
+ {cap:'Done. <b>14 points</b> from four little cards. The 5 and 6 each landed in a fifteen <i>and</i> a run. That doubling-up is where the points hide.',hi:[],pts:0}
+];
+const TUT_STEPS=['goal','values','count','play','crib','done'];
+let tutStep=0,ci=0,ctot=0;
+function hideGameChrome(h){['boardPanel','logPanel','cheatDetails'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=h?'none':'';});}
+function startTutorial(){tutStep=0;ci=0;ctot=0;hideGameChrome(true);renderTut();}
+function endTutorial(){try{localStorage.setItem('crib_tut','1');}catch(e){}hideGameChrome(false);newGame();}
+function tutNav(d){tutStep=Math.max(0,Math.min(TUT_STEPS.length-1,tutStep+d));if(TUT_STEPS[tutStep]==='count'){ci=0;ctot=0;}renderTut();}
+function valCard(c,v){return `<div class="valcard">${cardHTML(c)}<span class="v">=${v}</span></div>`;}
+function demoCardsHTML(hi){
+  const faint=hi.length>0;
+  const body=DEMO_HAND.map(c=>cardHTML(c,hi.includes(c.r+c.s)?'hi':(faint?'faint':''))).join('');
+  const cut=cardHTML(DEMO_CUT,hi.includes('9H')?'hi':(faint?'faint':''));
+  return `${body}<span style="align-self:center;color:var(--muted);margin:0 6px">+ cut</span>${cut}`;
+}
+function renderTut(){
+  const step=TUT_STEPS[tutStep], last=tutStep===TUT_STEPS.length-1;
+  let body='';
+  if(step==='goal'){
+    body=`<h2>How cribbage works</h2><div class="sub">Ninety seconds, then you play.</div>
+    <div class="body">It is a race to <b>121</b> points, pegged up the board. You score two ways: live during <b>the play</b>, and by <b>counting your hand</b> afterward. Everything else is just the specific things that score.</div>`;
+  } else if(step==='values'){
+    body=`<h2>What the cards are worth</h2><div class="sub">Used for making fifteens and counting.</div>
+    <div class="valrow">${valCard({r:1,s:'S'},'1')}${valCard({r:5,s:'H'},'5')}${valCard({r:9,s:'C'},'9')}${valCard({r:11,s:'D'},'10')}${valCard({r:13,s:'S'},'10')}</div>
+    <div class="body">Ace is 1, numbers are face value, and <b>J, Q, K all count as 10</b>. Suit only matters for flushes.</div>`;
+  } else if(step==='count'){
+    body=`<h2>Counting a hand</h2><div class="sub">The part everyone gets stuck on. Your 4 cards plus the cut make one 5-card hand. Scan it three times.</div>
+    <div class="cards" id="demoCards">${demoCardsHTML([])}</div>
+    <div class="count-cap" id="demoCap">Tap below to reveal each scoring combo one at a time. Watch how the same cards get reused.</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+      <button id="revealBtn" class="btn btn-cta">show first combo</button>
+      <div style="text-align:right"><span class="lbl" style="margin:0">running total</span><div class="runtot" id="demoTot">0</div></div>
+    </div>`;
+  } else if(step==='play'){
+    body=`<h2>The play (pegging)</h2><div class="sub">Before counting, you take turns laying cards down.</div>
+    <div class="body">You and the CPU alternate one card at a time, calling the running total. It cannot pass <b>31</b>. You score on the way: a 15 is 2, hitting 31 is 2, a pair is 2, a run of the most recent cards is its length, and the <b>last card</b> of each round is 1. Cannot play without busting 31? Say <b>"go"</b>, the other player keeps going, then the count resets to 0.</div>`;
+  } else if(step==='crib'){
+    body=`<h2>The crib and the cut</h2>
+    <div class="body">After the deal you each toss <b>2 cards</b> into the crib, a fifth hand that scores for the <b>dealer</b>. When it is your crib, feed it good cards. When it is the CPU's, throw junk. Then the deck is cut and the top card flips: the <b>cut</b>, which counts in every hand and the crib. Cut a Jack and the dealer pegs 2 right away.</div>`;
+  } else {
+    body=`<h2>That is the whole game</h2>
+    <div class="body">Deal, throw to the crib, cut, play, count, repeat. First to 121 wins. The tutor stays on while you play and breaks down every count exactly like you just saw, so the patterns stick fast. The <b>?</b> up top reopens this anytime.</div>`;
+  }
+  const dots=TUT_STEPS.map((_,i)=>`<span class="dot${i===tutStep?' on':''}"></span>`).join('');
+  body+=`<div class="tutfoot">
+    <span class="linktab" onclick="endTutorial()">skip to play</span>
+    <div class="dots">${dots}</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-glass"${tutStep===0?' disabled':''} onclick="tutNav(-1)">back</button>
+      <button class="btn btn-cta" onclick="${last?'endTutorial()':'tutNav(1)'}">${last?'start playing':'next'}</button>
+    </div>
+  </div>`;
+  stage().innerHTML='<div class="tut">'+body+'</div>';
+  if(step==='count'){
+    document.getElementById('revealBtn').onclick=()=>{
+      if(ci>=COUNT_STEPS.length)return;
+      const st=COUNT_STEPS[ci];ctot+=st.pts;ci++;
+      document.getElementById('demoCards').innerHTML=demoCardsHTML(st.hi);
+      document.getElementById('demoCap').innerHTML=st.cap;
+      document.getElementById('demoTot').textContent=ctot;
+      const b=document.getElementById('revealBtn');
+      if(ci>=COUNT_STEPS.length){b.disabled=true;b.textContent='all counted \u2713';}
+      else b.textContent='show next combo';
+    };
+  }
+}
+
+(function(){newGame();G.dealer='cpu';G.sel=[G.dealt.you[0].r+G.dealt.you[0].s,G.dealt.you[1].r+G.dealt.you[1].s];throwCrib();startPlay();setTimeout(function(){var b=document.getElementById('bestBtn');if(b)b.click();},200);})();
+</script>
+</body>
+</html>
