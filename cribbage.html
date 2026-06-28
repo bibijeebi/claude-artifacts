@@ -3,12 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cribbage — simulator + tutor</title>
+<title>Cribbage: simulator + tutor</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Cribbage: play the CPU and learn to count hands">
 <meta property="og:description" content="Play full games of cribbage against the CPU and learn to count. A built-in tutor breaks down every fifteen, pair, and run as the score climbs up the board.">
 <meta property="og:url" content="https://niggerfaggot.club/cribbage">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-cribbage.jpg">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-cribbage.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -148,7 +150,7 @@ summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;col
     <div class="lane you"><span class="who">YOU</span><div class="track"><div class="fill" id="fillYou"></div><div class="skunk" style="left:75.2%"></div></div><span class="num" id="numYou">0</span></div>
     <div class="lane cpu"><span class="who">CPU</span><div class="track"><div class="fill" id="fillCpu"></div><div class="skunk" style="left:75.2%"></div></div><span class="num" id="numCpu">0</span></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-      <span class="eyebrow" id="dealerTag">dealer: —</span>
+      <span class="eyebrow" id="dealerTag">dealer: ,</span>
       <span class="eyebrow" id="phaseTag">race to 121</span>
     </div>
   </div>
@@ -284,10 +286,10 @@ const stage=()=>document.getElementById('stage');
 /* ---------- discard phase ---------- */
 function renderDiscard(){
   const whose=G.dealer==='you'?'your crib':"the CPU's crib";
-  let h=`<div class="lbl">discard — pick 2 cards for ${whose} <span class="crib-tag">crib belongs to ${G.dealer==='you'?'you':'CPU'}</span></div>
+  let h=`<div class="lbl">discard: pick 2 cards for ${whose} <span class="crib-tag">crib belongs to ${G.dealer==='you'?'you':'CPU'}</span></div>
   <div class="cards" id="myhand">${G.dealt.you.map(c=>cardHTML(c,'playable')).join('')}</div>
   <div style="margin-top:14px"><button class="btn btn-cta" id="throwBtn" disabled onclick="throwCrib()">throw to crib</button></div>`;
-  if(tutor) h+=`<div class="hint" id="dhint"><b>tip:</b> the crib is ${G.dealer==='you'?'yours — keep it stocked':"the CPU's — feed it junk, never 5s or connected cards"}. Pick 2 to throw, I'll grade it against the math.</div>`;
+  if(tutor) h+=`<div class="hint" id="dhint"><b>tip:</b> the crib is ${G.dealer==='you'?'yours, keep it stocked':"the CPU's, feed it junk, never 5s or connected cards"}. Pick 2 to throw, I'll grade it against the math.</div>`;
   stage().innerHTML=h;
   document.querySelectorAll('#myhand .card').forEach(el=>{
     el.onclick=()=>{
@@ -325,7 +327,7 @@ function cut(){
      <div class="seg"><p style="margin:0;color:var(--slate);font-size:14px">This card counts in every hand and the crib.</p></div>
    </div>`;
   if(G.starter.r===11){
-    award(G.dealer,2,(G.dealer==='you'?'You':'CPU')+' cut a Jack — 2 for his heels');
+    award(G.dealer,2,(G.dealer==='you'?'You':'CPU')+' cut a Jack, 2 for his heels');
   }
   h+=`<div style="margin-top:14px"><button class="btn btn-cta" onclick="startPlay()">start the play →</button></div>`;
   stage().innerHTML=h;
@@ -345,7 +347,7 @@ function playOver(){return G.play.rem.you.length===0&&G.play.rem.cpu.length===0;
 function renderPlay(opts){
   opts=opts||{};
   const P=G.play;
-  const seqHTML=P.seq.length?P.seq.map(x=>cardHTML(x.c,'tag'+x.by)).join(''):'<span style="color:var(--muted);font-size:13px">— new count —</span>';
+  const seqHTML=P.seq.length?P.seq.map(x=>cardHTML(x.c,'tag'+x.by)).join(''):'<span style="color:var(--muted);font-size:13px">, new count ,</span>';
   let myHand=P.rem.you.map(c=>{
     const legal=P.total+val(c.r)<=31;
     return cardHTML(c,(opts.myTurn&&legal)?'playable tagme':('dim tagme'));
@@ -354,14 +356,14 @@ function renderPlay(opts){
   let h=`<div class="lbl">cut <span style="opacity:.6">(in play, counts in the show)</span></div>
    <div class="cards" style="margin-bottom:12px">${cardHTML(G.starter)}</div>
    <div class="row-flex">
-     <div class="seg"><div class="lbl">CPU — ${P.rem.cpu.length} left</div><div class="cards">${backs(P.rem.cpu.length)}</div></div>
+     <div class="seg"><div class="lbl">CPU, ${P.rem.cpu.length} left</div><div class="cards">${backs(P.rem.cpu.length)}</div></div>
      <div class="seg" style="text-align:right">
        <div class="lbl">count</div>
-       <div class="total-big">${P.total}<small>/31</small>${opts.go?'<span class="go-flag">'+opts.go+' — go</span>':''}</div>
+       <div class="total-big">${P.total}<small>/31</small>${opts.go?'<span class="go-flag">'+opts.go+', go</span>':''}</div>
      </div>
    </div>
    <div style="margin:14px 0 6px"><div class="lbl">this count</div><div class="cards">${seqHTML}</div></div>
-   <div style="margin-top:14px"><div class="lbl">your hand${opts.myTurn?' — tap a card to play':''}</div><div class="cards" id="playHand">${myHand}</div></div>`;
+   <div style="margin-top:14px"><div class="lbl">your hand${opts.myTurn?', tap a card to play':''}</div><div class="cards" id="playHand">${myHand}</div></div>`;
   stage().innerHTML=h;
   if(opts.myTurn){
     document.querySelectorAll('#playHand .card.playable').forEach(el=>{
@@ -436,7 +438,7 @@ function enterShow(){
     {who:G.dealer, label:(G.dealer==='you'?'your crib':"CPU's crib"), cards:G.crib, crib:true, owner:G.dealer}
   ];
   G.showI=0;
-  log('— the show — '+(nd==='you'?'you':'CPU')+' counts first.');
+  log('the show. '+(nd==='you'?'you':'CPU')+' counts first.');
   renderShow();
 }
 function breakdownRows(parts){
@@ -497,7 +499,7 @@ function gameOver(){
   const margin=121-G.scores[l];
   let tag=margin>=61?'double skunk':margin>=31?'skunk':'';
   let h=`<div class="win-banner"><div class="t">${w==='you'?'You win':'CPU wins'} ${tag?'· '+tag:''}</div>
-   <p style="color:var(--slate);margin:0">${G.scores.you} — ${G.scores.cpu}${tag?'. Loser stuck under '+(margin>=61?61:91)+'.':''}</p>
+   <p style="color:var(--slate);margin:0">${G.scores.you}, ${G.scores.cpu}${tag?'. Loser stuck under '+(margin>=61?61:91)+'.':''}</p>
    <div style="margin-top:16px"><button class="btn btn-cta" onclick="newGame()">new game</button></div></div>`;
   stage().innerHTML=h;
   log((w==='you'?'You':'CPU')+' reach 121. '+(tag||'gg')+'.');
