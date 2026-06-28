@@ -6,7 +6,7 @@
 <title>Cribbage: simulator + tutor</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="Cribbage: play the CPU and learn to count hands">
-<meta property="og:description" content="Play full games of cribbage against the CPU and learn to count. A built-in tutor breaks down every fifteen, pair, and run as the score climbs up the board.">
+<meta property="og:description" content="Learn cribbage from a built-in tutorial, then play full games against the CPU. The tutor breaks down every fifteen, pair, and run as your score climbs.">
 <meta property="og:url" content="https://niggerfaggot.club/cribbage">
 <meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-cribbage.jpg">
 <meta name="twitter:card" content="summary_large_image">
@@ -128,6 +128,24 @@ summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;col
 .rules td:last-child{font-family:'JetBrains Mono',monospace;color:var(--text);text-align:right;white-space:nowrap}
 .win-banner{text-align:center;padding:8px 0}
 .win-banner .t{font-family:'Fraunces',serif;font-weight:600;font-size:30px;margin-bottom:4px}
+.tut h2{font-size:26px;margin-bottom:4px}
+.tut .sub{color:var(--slate);font-size:14px;margin-bottom:16px}
+.tut .body{font-size:15.5px;line-height:1.65}
+.tut .body b{color:var(--text)}
+.valrow{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0 16px}
+.valcard{display:flex;flex-direction:column;align-items:center;gap:6px}
+.valcard .v{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--sky-deep);background:var(--sky-tint);padding:2px 9px;border-radius:8px}
+.card.hi{outline:3px solid var(--sky);outline-offset:1px;box-shadow:0 7px 18px rgba(31,147,204,.45);z-index:2}
+.card.faint{opacity:.3}
+.count-cap{background:var(--mint-tint);border:1px solid var(--hair);border-radius:12px;padding:11px 14px;font-size:14.5px;color:var(--text);margin-top:14px;min-height:46px}
+.count-cap b{color:var(--mint-ink)}
+.runtot{font-family:'Fraunces',serif;font-weight:600;font-size:32px;color:var(--sky-deep);line-height:1}
+.tutfoot{display:flex;align-items:center;justify-content:space-between;margin-top:22px;gap:10px;flex-wrap:wrap}
+.dots{display:flex;gap:7px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--hair);border:1px solid var(--row-line)}
+.dot.on{background:var(--sky);border-color:var(--sky)}
+.linktab{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--slate);letter-spacing:.06em}
+.linktab:hover{color:var(--sky-deep)}
 @media(max-width:520px){
 .card,.back{width:44px;height:63px}.card .rk{font-size:14px}.card .big{font-size:22px}
 .lane .num,.total-big{font-size:34px}
@@ -142,6 +160,7 @@ summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;col
     <div class="brand">Cribbage<small>simulator + tutor</small></div>
     <div class="controls">
       <button class="toggle on" id="tutorBtn" onclick="toggleTutor()">◆ tutor on</button>
+      <button class="ghost" id="tutBtn" onclick="startTutorial()" title="tutorial">?</button>
       <button class="ghost" id="themeBtn" onclick="toggleTheme()" title="theme">☾</button>
     </div>
   </div>
@@ -150,19 +169,19 @@ summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;col
     <div class="lane you"><span class="who">YOU</span><div class="track"><div class="fill" id="fillYou"></div><div class="skunk" style="left:75.2%"></div></div><span class="num" id="numYou">0</span></div>
     <div class="lane cpu"><span class="who">CPU</span><div class="track"><div class="fill" id="fillCpu"></div><div class="skunk" style="left:75.2%"></div></div><span class="num" id="numCpu">0</span></div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-      <span class="eyebrow" id="dealerTag">dealer: ,</span>
+      <span class="eyebrow" id="dealerTag">dealer:</span>
       <span class="eyebrow" id="phaseTag">race to 121</span>
     </div>
   </div>
 
   <div class="panel glass" id="stage"></div>
 
-  <div class="panel glass">
+  <div class="panel glass" id="logPanel">
     <div class="lbl">tutor log</div>
     <div class="log" id="log"></div>
   </div>
 
-  <details>
+  <details id="cheatDetails">
     <summary>scoring cheat sheet</summary>
     <div class="rules">
       Count your 4 cards + the cut as one 5-card hand. Scan it three times. Cards never get used up, a card counts in every combo it belongs to.
@@ -520,7 +539,84 @@ function toggleTutor(){tutor=!tutor;const b=document.getElementById('tutorBtn');
   if(G&&G.phase==='discard')renderDiscard();}
 function toggleTheme(){themeDark=!themeDark;document.documentElement.setAttribute('data-theme',themeDark?'dark':'light');document.getElementById('themeBtn').textContent=themeDark?'☀':'☾';}
 
-newGame();
+/* ---------- tutorial ---------- */
+const DEMO_HAND=[{r:4,s:'S'},{r:5,s:'H'},{r:5,s:'D'},{r:6,s:'S'}];
+const DEMO_CUT={r:9,s:'H'};
+const COUNT_STEPS=[
+ {cap:'<b>Scan 1: fifteens.</b> 4 + 5 + 6 = 15. Two points.',hi:['4S','5H','6S'],pts:2},
+ {cap:'Another 15, same 4 and 6 but the <b>other</b> 5. Cards never get used up, so it counts again.',hi:['4S','5D','6S'],pts:2},
+ {cap:'One more: 6 + 9 = 15.',hi:['6S','9H'],pts:2},
+ {cap:'<b>Scan 2: pairs.</b> Two 5s, two points.',hi:['5H','5D'],pts:2},
+ {cap:'<b>Scan 3: runs.</b> 4, 5, 6 in a row. A run of three.',hi:['4S','5H','6S'],pts:3},
+ {cap:'Two 5s means the run <b>happens twice</b>: 4, 5, 6 again with the other 5.',hi:['4S','5D','6S'],pts:3},
+ {cap:'Done. <b>14 points</b> from four little cards. The 5 and 6 each landed in a fifteen <i>and</i> a run. That doubling-up is where the points hide.',hi:[],pts:0}
+];
+const TUT_STEPS=['goal','values','count','play','crib','done'];
+let tutStep=0,ci=0,ctot=0;
+function hideGameChrome(h){['boardPanel','logPanel','cheatDetails'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=h?'none':'';});}
+function startTutorial(){tutStep=0;ci=0;ctot=0;hideGameChrome(true);renderTut();}
+function endTutorial(){try{localStorage.setItem('crib_tut','1');}catch(e){}hideGameChrome(false);newGame();}
+function tutNav(d){tutStep=Math.max(0,Math.min(TUT_STEPS.length-1,tutStep+d));if(TUT_STEPS[tutStep]==='count'){ci=0;ctot=0;}renderTut();}
+function valCard(c,v){return `<div class="valcard">${cardHTML(c)}<span class="v">=${v}</span></div>`;}
+function demoCardsHTML(hi){
+  const faint=hi.length>0;
+  const body=DEMO_HAND.map(c=>cardHTML(c,hi.includes(c.r+c.s)?'hi':(faint?'faint':''))).join('');
+  const cut=cardHTML(DEMO_CUT,hi.includes('9H')?'hi':(faint?'faint':''));
+  return `${body}<span style="align-self:center;color:var(--muted);margin:0 6px">+ cut</span>${cut}`;
+}
+function renderTut(){
+  const step=TUT_STEPS[tutStep], last=tutStep===TUT_STEPS.length-1;
+  let body='';
+  if(step==='goal'){
+    body=`<h2>How cribbage works</h2><div class="sub">Ninety seconds, then you play.</div>
+    <div class="body">It is a race to <b>121</b> points, pegged up the board. You score two ways: live during <b>the play</b>, and by <b>counting your hand</b> afterward. Everything else is just the specific things that score.</div>`;
+  } else if(step==='values'){
+    body=`<h2>What the cards are worth</h2><div class="sub">Used for making fifteens and counting.</div>
+    <div class="valrow">${valCard({r:1,s:'S'},'1')}${valCard({r:5,s:'H'},'5')}${valCard({r:9,s:'C'},'9')}${valCard({r:11,s:'D'},'10')}${valCard({r:13,s:'S'},'10')}</div>
+    <div class="body">Ace is 1, numbers are face value, and <b>J, Q, K all count as 10</b>. Suit only matters for flushes.</div>`;
+  } else if(step==='count'){
+    body=`<h2>Counting a hand</h2><div class="sub">The part everyone gets stuck on. Your 4 cards plus the cut make one 5-card hand. Scan it three times.</div>
+    <div class="cards" id="demoCards">${demoCardsHTML([])}</div>
+    <div class="count-cap" id="demoCap">Tap below to reveal each scoring combo one at a time. Watch how the same cards get reused.</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+      <button id="revealBtn" class="btn btn-cta">show first combo</button>
+      <div style="text-align:right"><span class="lbl" style="margin:0">running total</span><div class="runtot" id="demoTot">0</div></div>
+    </div>`;
+  } else if(step==='play'){
+    body=`<h2>The play (pegging)</h2><div class="sub">Before counting, you take turns laying cards down.</div>
+    <div class="body">You and the CPU alternate one card at a time, calling the running total. It cannot pass <b>31</b>. You score on the way: a 15 is 2, hitting 31 is 2, a pair is 2, a run of the most recent cards is its length, and the <b>last card</b> of each round is 1. Cannot play without busting 31? Say <b>"go"</b>, the other player keeps going, then the count resets to 0.</div>`;
+  } else if(step==='crib'){
+    body=`<h2>The crib and the cut</h2>
+    <div class="body">After the deal you each toss <b>2 cards</b> into the crib, a fifth hand that scores for the <b>dealer</b>. When it is your crib, feed it good cards. When it is the CPU's, throw junk. Then the deck is cut and the top card flips: the <b>cut</b>, which counts in every hand and the crib. Cut a Jack and the dealer pegs 2 right away.</div>`;
+  } else {
+    body=`<h2>That is the whole game</h2>
+    <div class="body">Deal, throw to the crib, cut, play, count, repeat. First to 121 wins. The tutor stays on while you play and breaks down every count exactly like you just saw, so the patterns stick fast. The <b>?</b> up top reopens this anytime.</div>`;
+  }
+  const dots=TUT_STEPS.map((_,i)=>`<span class="dot${i===tutStep?' on':''}"></span>`).join('');
+  body+=`<div class="tutfoot">
+    <span class="linktab" onclick="endTutorial()">skip to play</span>
+    <div class="dots">${dots}</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-glass"${tutStep===0?' disabled':''} onclick="tutNav(-1)">back</button>
+      <button class="btn btn-cta" onclick="${last?'endTutorial()':'tutNav(1)'}">${last?'start playing':'next'}</button>
+    </div>
+  </div>`;
+  stage().innerHTML='<div class="tut">'+body+'</div>';
+  if(step==='count'){
+    document.getElementById('revealBtn').onclick=()=>{
+      if(ci>=COUNT_STEPS.length)return;
+      const st=COUNT_STEPS[ci];ctot+=st.pts;ci++;
+      document.getElementById('demoCards').innerHTML=demoCardsHTML(st.hi);
+      document.getElementById('demoCap').innerHTML=st.cap;
+      document.getElementById('demoTot').textContent=ctot;
+      const b=document.getElementById('revealBtn');
+      if(ci>=COUNT_STEPS.length){b.disabled=true;b.textContent='all counted \u2713';}
+      else b.textContent='show next combo';
+    };
+  }
+}
+
+(function(){let seen=false;try{seen=localStorage.getItem('crib_tut')==='1';}catch(e){}seen?newGame():startTutorial();})();
 </script>
 </body>
 </html>
