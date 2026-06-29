@@ -148,17 +148,20 @@ section.strand{border-radius:var(--radius-lg);padding-top:22px;padding-bottom:14
 <div class="bg-blobs"><span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span></div>
 
 <header class="bar">
-  <span class="brand">The Reading Tree</span>
-  <button id="theme-toggle" class="ghost-btn" aria-label="Toggle light or dark">
-    <span class="moon">&#9789;</span><span class="sun">&#9728;</span>
-  </button>
+  <a class="brand" href="/library" style="text-decoration:none">The Reading Tree</a>
+  <div style="display:flex;align-items:center;gap:13px">
+    <a href="/library" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--slate)">&#8593; Library</a>
+    <button id="theme-toggle" class="ghost-btn" aria-label="Toggle light or dark">
+      <span class="moon">&#9789;</span><span class="sun">&#9728;</span>
+    </button>
+  </div>
 </header>
 
 <main class="wrap">
   <section class="hero glass">
     <span class="eyebrow">Branching reading map</span>
     <h1>Get back into it.</h1>
-    <p class="lede">The dissident-right and post-liberal canon, drawn as a tree. Two starters at the root, eight branches you can take in any order. Sorted easy to brutal, with the free ones flagged. Tap the circle to mark a book read; progress saves to this device.</p>
+    <p class="lede">The dissident-right and post-liberal canon, drawn as a tree. Three short starters, a history floor, then eight branches you can take in any order. Sorted easy to brutal, with the free ones flagged. Tap the circle to mark a book read; progress saves to this device.</p>
     <div class="prog-wrap">
       <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
       <span class="prog-num" id="progNum">0 / 0 read</span>
@@ -178,12 +181,35 @@ section.strand{border-radius:var(--radius-lg);padding-top:22px;padding-bottom:14
 const DATA = [
   {
     id:"start", code:"0", c:"mint", eyebrow:"Root", title:"Start Here",
-    thesis:"Two short, free, public-domain books. Finish both before you touch a branch. They build the habit and they're sitting in justRead's Gutenberg catalog right now.",
+    thesis:"A few short, free, public-domain books. Finish them before you touch a branch. They build the habit and they're sitting in justRead's Gutenberg catalog right now.",
     books:[
       {k:"p",t:"The Law",a:"Frédéric Bastiat",y:1850,d:"start",s:"gut",l:"https://www.gutenberg.org/ebooks/search/?query=Bastiat+The+Law",
         b:"One idea, 75 pages: law exists to protect life, liberty, and property, and the moment it's used to take from some and hand to others it becomes legal plunder. Written in 1850, reads like this week. Your app test and your first finish."},
+      {k:"p",t:"What Is Seen and What Is Not Seen",a:"Frédéric Bastiat",y:1850,d:"start",s:"gut",l:"https://www.gutenberg.org/ebooks/search/?query=Bastiat+Essays",
+        b:"Same author as The Law, about half the length. Opens with the broken-window parable, the most important three pages in economics: the kid breaks the window, the glazier gets paid, and everyone forgets the shoes the shopkeeper now can't buy. The Candlemakers' Petition (banning the sun for unfair competition) rides along in the same free collection. Your shortest real starter."},
       {k:"p",t:"The Prince",a:"Niccolò Machiavelli",y:1532,d:"start",s:"gut",l:"https://www.gutenberg.org/ebooks/search/?query=Machiavelli+The+Prince",
         b:"The headwater of every 'how power actually works' book downstream. Cold, short, endlessly quotable. Read it now and Burnham later lands like a sequel instead of a cold open."}
+    ]
+  },
+  {
+    id:"history", code:"0+", c:"sky", eyebrow:"Foundations",
+    title:"The history floor",
+    thesis:"The whole tree assumes a baseline you might not have. Build it first. One narrative history fixes most of it, the rest is targeted.",
+    books:[
+      {k:"p",t:"A Little History of the World",a:"E. H. Gombrich",y:1936,d:"easy",s:"epub",
+        b:"The entire human story, cavemen to the World Wars, written so a smart kid follows it but never talked down to. ~280 pages, reads like a novel. If you read one history book, this is the one. Start here."},
+      {k:"p",t:"The Lessons of History",a:"Will & Ariel Durant",y:1968,d:"easy",s:"epub",
+        b:"~100 pages distilling an 11-volume life's work into the patterns: why civilizations rise, rot, and fall. The exact lens Spengler and Buchanan use, so it doubles as the key to half the tree."},
+      {k:"p",t:"Modern Times",a:"Paul Johnson",y:1983,d:"med",s:"epub",
+        b:"The 20th century as one narrative: the wars, communism, the collapse the rest of the tree keeps mourning. Long but readable, and it sets up Gulag.",
+        x:"hands into Solzhenitsyn in Branch D"},
+      {k:"p",t:"A History of the Jews",a:"Paul Johnson",y:1987,d:"med",s:"epub",
+        b:"Read this before MacDonald or E. M. Jones in Branch F. Get the straight, sympathetic history first so your baseline isn't only the polemics. Same reason I steered you off the Protocols: argue from the checkable version.",
+        x:"prerequisite for Branch F"},
+      {k:"p",t:"The Communist Manifesto",a:"Marx & Engels",y:1848,d:"easy",s:"gut",l:"https://www.gutenberg.org/ebooks/search/?query=Communist+Manifesto",
+        b:"~40 pages, fast, know-thy-enemy. The thing half the tree is reacting against, in its authors' own words. Free on Gutenberg."},
+      {k:"m",t:"Hardcore History: Blueprint for Armageddon",a:"Dan Carlin",y:2013,d:"easy",s:"free",kt:"listen",
+        b:"Not a book, a ~24-hour podcast on WWI. The painless way to absorb how the old world ended, the event the entire decline canon sits downstream of. Listen in the truck."}
     ]
   },
   {
@@ -253,7 +279,12 @@ const DATA = [
         b:"The harder, darker reaction: Providence, throne and altar, and the famous meditation on the executioner as the hidden cornerstone of all social order. Burke's grimmer cousin."},
       {k:"p",t:"The Concept of the Political",a:"Carl Schmitt",y:1932,d:"med",s:"epub",
         b:"Politics reduces to the friend/enemy distinction, and the sovereign is whoever decides the exception. The 20th century's most dangerous political mind, and unavoidable once you're in this material. Read 'Political Theology' right after.",
-        x:"feeds Yarvin in Branch C, decisionism is core neoreaction"}
+        x:"feeds Yarvin in Branch C, decisionism is core neoreaction"},
+      {k:"p",t:"The Gulag Archipelago",a:"Aleksandr Solzhenitsyn",y:1973,d:"hard",s:"epub",
+        b:"Solzhenitsyn's witness to the Soviet camp system: the lived endpoint of the abstractions, where revolution-by-reason actually lands. Read the one-volume abridgment he authorized, not the full 1,800 pages, you lose nothing essential. Heavy, and unforgettable.",
+        x:"the body-count proof of Hayek's warning back in Branch A"},
+      {k:"c",t:"Live Not by Lies",a:"Aleksandr Solzhenitsyn",y:1974,d:"easy",s:"free",kt:"essay",
+        b:"His parting shot, published the day before they exiled him. Ten minutes long: don't fight the regime, just refuse to repeat its lies. Free everywhere online, a browser read."}
     ]
   },
   {
@@ -337,7 +368,7 @@ const DATA = [
 
 const DLABEL = {start:["Start","d-start"], easy:["Easy","d-easy"], med:["Medium","d-med"], hard:["Hard","d-hard"]};
 const SLABEL = {gut:["Gutenberg · free","src-gut"], free:["free essay · web","src-free"], epub:["needs epub","src-epub"]};
-const KLABEL = {c:"cross-link", s:"side branch"};
+const KLABEL = {c:"cross-link", s:"side branch", m:"listen"};
 const DOTCOL = {mint:["var(--mint-tint)","var(--mint-ink)"], coral:["var(--coral-tint)","var(--coral-ink)"], sky:["var(--sky-tint)","var(--sky-deep)"], lav:["var(--lav-tint)","var(--lav-ink)"], butter:["var(--butter-tint)","var(--butter-ink)"]};
 
 let allBooks = [];
@@ -376,11 +407,11 @@ function render(){
       const [sl,sc] = SLABEL[b.s];
       let rail;
       if(b.k === "p"){ pathN++; rail = `<div class="b-num">${pathN}</div>`; }
-      else { rail = `<div class="b-glyph">${b.k === "c" ? "&#8631;" : "&#8690;"}</div>`; }
+      else { const g = b.k==="c"?"&#8631;":(b.k==="m"?"&#9654;":"&#8690;"); rail = `<div class="b-glyph">${g}</div>`; }
       const srcEl = b.l
         ? `<a class="src ${sc}" href="${b.l}" target="_blank" rel="noopener">${sl}</a>`
         : `<span class="src ${sc}">${sl}</span>`;
-      const kindTag = b.k !== "p" ? `<span class="kind-tag">${KLABEL[b.k]}</span>` : "";
+      const kindTag = b.k !== "p" ? `<span class="kind-tag">${b.kt || KLABEL[b.k]}</span>` : "";
       const xEl = b.x ? `<div class="b-x">&#8627; ${b.x}</div>` : "";
       rows += `<div class="book ${readSet.has(b._id)?"read":""} ${vis?"":"hide"}" data-id="${b._id}">
         <div class="b-rail">${rail}</div>
