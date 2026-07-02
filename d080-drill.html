@@ -29,7 +29,7 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-syst
 .pip{width:11px;height:11px;border-radius:2px;background:#cfd6db}
 .pip.ok{background:var(--green)}.pip.no{background:var(--red)}
 .ans{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);color:var(--ink);font:inherit;font-size:16px;border-radius:8px;padding:14px 15px;margin-bottom:10px;cursor:pointer;box-shadow:var(--shadow);transition:.1s}
-.ans:hover{border-color:var(--teal);background:#f7fbfd}
+@media(hover:hover){.ans:hover{border-color:var(--teal);background:#f7fbfd}}
 .ans .ltr{flex:none;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--mut)}
 .ans b{font-weight:800}
 .ans.correct{background:var(--greenbg);border-color:var(--green);color:#1b5e20}
@@ -45,6 +45,22 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-syst
 .done .big{font-size:30px;font-weight:800;color:var(--green)}
 .done .sm{color:var(--mut);font-size:14px;margin:10px 0 20px}
 .btn{font:inherit;font-size:13px;background:var(--teal);color:#fff;border:0;border-radius:8px;padding:10px 20px;cursor:pointer;font-weight:600}
+
+*{-webkit-tap-highlight-color:transparent}
+
+[data-theme="dark"]{--bg:#0f1318;--panel:#171e27;--ink:#e7edf4;--mut:#8b98a9;--line:#2a3441;--teal:#2cb5dd;--green:#4bc251;--greenbg:#16301b;--red:#f0625f;--redbg:#38191c;--shadow:0 1px 3px rgba(0,0,0,.45)}
+[data-theme="dark"] .q{color:#e7edf4}
+[data-theme="dark"] .ring-bg{stroke:#232d3a}
+[data-theme="dark"] .pip{background:#2a3441}
+[data-theme="dark"] .poolsel select{background:#14222b;border-color:#2a3441}
+[data-theme="dark"] .explain{background:#14222b;border-color:#2a3441}
+[data-theme="dark"] .ans.correct{color:#8fdc96}
+[data-theme="dark"] .ans.wrong{color:#f3a2a2}
+.ans:active{border-color:var(--teal)}
+
+.themeb{position:fixed;right:14px;bottom:14px;z-index:60;width:38px;height:38px;border-radius:50%;
+border:1px solid var(--line);background:var(--panel,var(--bg3,var(--bg2,#fff)));color:var(--ink);
+font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);line-height:1;padding:0}
 </style></head><body>
 <div class="hdr"><div class="hdr-in">
   <div class="pool">D080 Study Mode<span class="sub">Managing in a Global Business Environment</span>
@@ -214,4 +230,17 @@ function done(){
   setRing("#ringSeen","#pctSeen",1);setRing("#ringApt","#pctApt",1);
 }
 buildSel();init();
-</script></body></html>
+</script>
+<button id="themeBtn" class="themeb" aria-label="toggle theme">☾</button>
+<script>
+(function(){
+  var K="drill_theme", btn=document.getElementById("themeBtn");
+  var qp=null; try{qp=new URLSearchParams(location.search).get("theme");}catch(e){}
+  var saved=null; try{saved=localStorage.getItem(K);}catch(e){}
+  var t=qp||saved||"light";
+  function apply(x){document.documentElement.setAttribute("data-theme",x);btn.textContent=x==="dark"?"\u2600":"\u263e";}
+  apply(t);
+  btn.addEventListener("click",function(){t=(t==="dark")?"light":"dark";try{localStorage.setItem(K,t)}catch(e){}apply(t);});
+})();
+</script>
+</body></html>
