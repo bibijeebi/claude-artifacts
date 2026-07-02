@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BUTLER·LIST — The Gerard Butler Watch Tracker</title>
+<meta property="og:title" content="BUTLER·LIST — The Gerard Butler Watch Tracker">
+<meta property="og:description" content="30 Gerard Butler films sorted into 4 tiers. Mark seen, rate, and grind the filmography from 300 to Dracula 2000.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/butler-og-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/butler.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/butler-og-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1114;
+  --panel:#151b20;
+  --steel:#2a343c;
+  --amber:#f08c1e;
+  --teal:#3fa8a0;
+  --cream:#e8e2d6;
+  --dim:#8a949c;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--cream);
+  font-family:'Barlow',sans-serif;
+  line-height:1.45;
+  min-height:100vh;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.14) 2px 4px);
+  pointer-events:none;z-index:99;
+  opacity:.5;
+}
+.wrap{max-width:1060px;margin:0 auto;padding:28px 18px 80px}
+
+/* header */
+header{
+  position:relative;
+  padding:38px 0 26px;
+  border-bottom:1px solid var(--steel);
+  overflow:hidden;
+}
+header::before{
+  content:"";
+  position:absolute;inset:-40px -20px;
+  background:linear-gradient(112deg,rgba(63,168,160,.14) 0 46%,rgba(240,140,30,.16) 54% 100%);
+  z-index:-1;
+}
+.eyebrow{
+  font-family:'Barlow Condensed';
+  font-weight:600;
+  letter-spacing:.32em;
+  font-size:.78rem;
+  color:var(--teal);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+h1{
+  font-family:'Anton';
+  font-size:clamp(2.8rem,8vw,4.6rem);
+  letter-spacing:.02em;
+  line-height:1;
+  text-transform:uppercase;
+}
+h1 .dot{color:var(--amber)}
+.tagline{color:var(--dim);margin-top:10px;font-size:.98rem;max-width:560px}
+
+/* progress */
+.progress{
+  margin-top:24px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.bar{
+  flex:1;min-width:200px;height:14px;
+  background:var(--panel);
+  border:1px solid var(--steel);
+  position:relative;overflow:hidden;
+}
+.bar-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--teal),var(--amber));
+  transition:width .35s ease;
+}
+.count{
+  font-family:'Barlow Condensed';
+  font-weight:600;font-size:1.05rem;
+  letter-spacing:.14em;
+  white-space:nowrap;
+}
+.count b{color:var(--amber)}
+#resetBtn{
+  font-family:'Barlow Condensed';
+  font-weight:600;letter-spacing:.18em;
+  background:none;border:1px solid var(--steel);
+  color:var(--dim);padding:6px 14px;
+  cursor:pointer;text-transform:uppercase;font-size:.78rem;
+}
+#resetBtn:hover{border-color:var(--amber);color:var(--amber)}
+
+/* featured */
+.featured{
+  margin-top:30px;
+  border:1px solid var(--amber);
+  background:var(--panel);
+  padding:22px 22px 20px;
+  position:relative;
+}
+.featured .flag{
+  position:absolute;top:-11px;left:18px;
+  background:var(--amber);color:#0d1114;
+  font-family:'Barlow Condensed';font-weight:600;
+  letter-spacing:.24em;font-size:.74rem;
+  padding:3px 12px;text-transform:uppercase;
+}
+.featured h2{font-family:'Anton';font-size:1.9rem;letter-spacing:.02em}
+.featured .year{color:var(--teal);font-family:'Barlow Condensed';font-weight:600;letter-spacing:.14em;margin-left:8px;font-size:1.05rem}
+.featured p{color:var(--dim);margin-top:6px;max-width:640px}
+.forks{margin-top:12px;display:flex;gap:18px;flex-wrap:wrap;font-size:.9rem}
+.forks span{color:var(--dim)}
+.forks b{color:var(--teal);font-weight:600}
+
+/* chips */
+.chips{
+  margin:34px 0 8px;
+  display:flex;gap:8px;flex-wrap:wrap;
+  position:sticky;top:0;z-index:10;
+  background:var(--bg);
+  padding:12px 0;
+}
+.chip{
+  font-family:'Barlow Condensed';
+  font-weight:600;letter-spacing:.16em;font-size:.82rem;
+  text-transform:uppercase;
+  background:var(--panel);
+  border:1px solid var(--steel);
+  color:var(--dim);
+  padding:7px 16px;cursor:pointer;
+}
+.chip.active{border-color:var(--amber);color:var(--amber)}
+.chip:hover{color:var(--cream)}
+
+/* tiers */
+.tier-head{
+  margin:38px 0 14px;
+  display:flex;align-items:baseline;gap:14px;
+}
+.tier-head h3{
+  font-family:'Anton';
+  font-size:1.4rem;letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.tier-head .tsub{color:var(--dim);font-size:.88rem}
+.tier-head .tno{
+  font-family:'Barlow Condensed';font-weight:600;
+  color:var(--amber);letter-spacing:.2em;font-size:.85rem;
+}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{
+  background:var(--panel);
+  border:1px solid var(--steel);
+  border-left:3px solid var(--teal);
+  padding:16px 16px 14px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s;
+}
+.card:hover{border-color:var(--dim);border-left-color:var(--amber)}
+.card h4{font-size:1.08rem;font-weight:600;padding-right:56px}
+.card .year{color:var(--teal);font-family:'Barlow Condensed';font-weight:600;letter-spacing:.12em;font-size:.86rem}
+.card .blurb{color:var(--dim);font-size:.88rem;margin-top:6px;min-height:2.4em}
+.card-foot{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+.stars{display:flex;gap:2px}
+.star{cursor:pointer;font-size:1.05rem;color:#3a444c;user-select:none;transition:color .12s}
+.star.lit{color:var(--amber)}
+.star:hover{color:var(--cream)}
+
+.seen-btn{
+  font-family:'Barlow Condensed';font-weight:600;
+  letter-spacing:.14em;font-size:.74rem;text-transform:uppercase;
+  background:none;border:1px solid var(--steel);
+  color:var(--dim);padding:5px 12px;cursor:pointer;white-space:nowrap;
+}
+.seen-btn:hover{border-color:var(--amber);color:var(--amber)}
+.card.is-seen .seen-btn{border-color:var(--teal);color:var(--teal)}
+
+.stamp{
+  position:absolute;top:10px;right:-34px;
+  transform:rotate(24deg);
+  font-family:'Anton';
+  font-size:1.05rem;letter-spacing:.3em;
+  color:var(--amber);
+  border:2px solid var(--amber);
+  padding:2px 40px;
+  opacity:0;pointer-events:none;
+  text-transform:uppercase;
+}
+.card.is-seen .stamp{opacity:.85}
+.card.is-seen{border-left-color:var(--amber)}
+.card.hidden{display:none}
+.tier-block.hidden{display:none}
+
+footer{margin-top:60px;color:var(--dim);font-size:.8rem;border-top:1px solid var(--steel);padding-top:16px}
+footer a{color:var(--teal)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">One man. One filmography. No survivors.</div>
+  <h1>BUTLER<span class="dot">·</span>LIST</h1>
+  <p class="tagline">30 Gerard Butler films sorted into 4 tiers, from the canon to the guilty pleasures. Mark them seen, rate them, clear the board.</p>
+  <div class="progress">
+    <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+    <div class="count"><b id="seenCount">0</b>/<span id="totalCount">30</span> SEEN</div>
+    <button id="resetBtn">Reset</button>
+  </div>
+</header>
+
+<div class="featured">
+  <div class="flag">Watch First</div>
+  <h2>300 <span class="year">2006</span></h2>
+  <p>Leonidas at Thermopylae. The role that built the whole Butler industrial complex, and every frame is a wall poster. Start here, then pick a lane.</p>
+  <div class="forks">
+    <span>Heist lane → <b>Den of Thieves</b></span>
+    <span>Serious lane → <b>Greenland</b></span>
+  </div>
+</div>
+
+<div class="chips" id="chips">
+  <button class="chip active" data-filter="all">All</button>
+  <button class="chip" data-filter="1">Tier 1</button>
+  <button class="chip" data-filter="2">Tier 2</button>
+  <button class="chip" data-filter="3">Tier 3</button>
+  <button class="chip" data-filter="4">Tier 4</button>
+  <button class="chip" data-filter="unseen">Unseen</button>
+</div>
+
+<div id="tiers"></div>
+
+<footer>
+  BUTLER·LIST · progress saved in this browser · companion to <a href="/hitchcock.html">HITCH·LIST</a>
+</footer>
+</div>
+
+<script>
+const FILMS=[
+ {id:"300",t:"300",y:2006,tier:1,b:"Leonidas. THIS IS SPARTA. The career-maker."},
+ {id:"lac",t:"Law Abiding Citizen",y:2009,tier:1,b:"Locked-up vigilante out-schemes the entire justice system from a cell."},
+ {id:"dot",t:"Den of Thieves",y:2018,tier:1,b:"Grimy LA Heat homage. Big Nick at full sleaze. Peak modern Butler."},
+ {id:"ohf",t:"Olympus Has Fallen",y:2013,tier:1,b:"Mike Banning begins. Die Hard in the White House, played mean."},
+ {id:"grn",t:"Greenland",y:2020,tier:1,b:"Comet disaster played dead serious. Real dread, no cartoon physics."},
+ {id:"httyd",t:"How to Train Your Dragon",y:2010,tier:1,b:"Stoick the Vast. The best voice work he's ever done."},
+
+ {id:"rr",t:"RocknRolla",y:2008,tier:2,b:"Guy Ritchie crime ensemble. One Two and the Wild Bunch."},
+ {id:"pln",t:"Plane",y:2023,tier:2,b:"The title is the pitch. Way better than it has any right to be."},
+ {id:"ahf",t:"Angel Has Fallen",y:2019,tier:2,b:"Best of the Fallen sequels. Nick Nolte steals every scene he's in."},
+ {id:"poto",t:"The Phantom of the Opera",y:2004,tier:2,b:"He actually sings. Full commitment, zero irony."},
+ {id:"cor",t:"Coriolanus",y:2011,tier:2,b:"Shakespeare opposite Ralph Fiennes. Proof there's range under the beard."},
+ {id:"hk",t:"Hunter Killer",y:2018,tier:2,b:"Submarine thriller comfort food, executed straight."},
+ {id:"cop",t:"Copshop",y:2021,tier:2,b:"Lean grindhouse standoff. Butler and Grillo locked in opposite cells."},
+ {id:"dot2",t:"Den of Thieves 2: Pantera",y:2025,tier:2,b:"European diamond job. More caper than carnage, still Big Nick."},
+
+ {id:"df",t:"Dear Frankie",y:2004,tier:3,b:"Quiet Glasgow charmer. The Stranger. Early proof of a softer gear."},
+ {id:"rof",t:"Reign of Fire",y:2002,tier:3,b:"Dragons torch England alongside Bale and a bald McConaughey."},
+ {id:"mgp",t:"Machine Gun Preacher",y:2011,tier:3,b:"Biker preacher builds an orphanage in Sudan, heavily armed."},
+ {id:"lhf",t:"London Has Fallen",y:2016,tier:3,b:"Dumber and meaner than Olympus. Endlessly quotable."},
+ {id:"van",t:"The Vanishing",y:2018,tier:3,b:"Three lighthouse keepers, one crate of gold. Bleak and underrated."},
+ {id:"kan",t:"Kandahar",y:2023,tier:3,b:"Burned CIA contractor runs for the border across Afghanistan."},
+ {id:"httyd25",t:"How to Train Your Dragon",y:2025,tier:3,b:"Live-action Stoick. $650M worldwide, sequel already filming."},
+ {id:"grn2",t:"Greenland 2: Migration",y:2026,tier:3,b:"Bunker's done, Europe trek begins. Butler carries a bleaker sequel. On HBO Max now."},
+
+ {id:"psily",t:"P.S. I Love You",y:2007,tier:4,b:"The rom-com weepie half the planet swears by."},
+ {id:"gmr",t:"Gamer",y:2009,tier:4,b:"Neveldine/Taylor mind-control mayhem. Absolute chaos."},
+ {id:"geo",t:"Geostorm",y:2017,tier:4,b:"Weather satellites go rogue. Gloriously stupid."},
+ {id:"goe",t:"Gods of Egypt",y:2016,tier:4,b:"Infamous. Watch it once so you can say you did."},
+ {id:"ut",t:"The Ugly Truth",y:2009,tier:4,b:"Peak 2009 Heigl rom-com. A time capsule."},
+ {id:"bh",t:"The Bounty Hunter",y:2010,tier:4,b:"Bounty hunter assigned to bring in his own ex-wife."},
+ {id:"nim",t:"Nim's Island",y:2008,tier:4,b:"Dual role, family adventure. Softest entry on the board."},
+ {id:"drac",t:"Dracula 2000",y:2000,tier:4,b:"He's Dracula, with a Judas twist. The first big break."}
+];
+const TIER_META={
+ 1:["Tier 1","The Canon","the six that matter"],
+ 2:["Tier 2","The Good Stuff","genre lane at its best"],
+ 3:["Tier 3","Shift Work","solid, watchable, occasionally great"],
+ 4:["Tier 4","Completists & Guilty Pleasures","enter at your own risk"]
+};
+const KEY="butlerlist-v1";
+let state=JSON.parse(localStorage.getItem(KEY)||"{}");
+const save=()=>localStorage.setItem(KEY,JSON.stringify(state));
+
+const tiersEl=document.getElementById("tiers");
+function starRow(id){
+  const r=(state[id]&&state[id].r)||0;
+  let s="";
+  for(let i=1;i<=5;i++)s+=`<span class="star ${i<=r?'lit':''}" data-id="${id}" data-v="${i}">★</span>`;
+  return s;
+}
+function render(){
+  tiersEl.innerHTML="";
+  for(const tn of [1,2,3,4]){
+    const [label,name,sub]=TIER_META[tn];
+    const block=document.createElement("div");
+    block.className="tier-block";block.dataset.tier=tn;
+    block.innerHTML=`<div class="tier-head"><span class="tno">${label}</span><h3>${name}</h3><span class="tsub">${sub}</span></div><div class="grid"></div>`;
+    const grid=block.querySelector(".grid");
+    FILMS.filter(f=>f.tier===tn).forEach(f=>{
+      const seen=state[f.id]&&state[f.id].s;
+      const card=document.createElement("div");
+      card.className="card"+(seen?" is-seen":"");
+      card.dataset.id=f.id;card.dataset.tier=tn;
+      card.innerHTML=`<div class="stamp">Seen</div>
+        <h4>${f.t} <span class="year">${f.y}</span></h4>
+        <div class="blurb">${f.b}</div>
+        <div class="card-foot">
+          <div class="stars">${starRow(f.id)}</div>
+          <button class="seen-btn">${seen?"Seen ✓":"Mark Seen"}</button>
+        </div>`;
+      grid.appendChild(card);
+    });
+    tiersEl.appendChild(block);
+  }
+  updateProgress();applyFilter();
+}
+function updateProgress(){
+  const n=FILMS.filter(f=>state[f.id]&&state[f.id].s).length;
+  document.getElementById("seenCount").textContent=n;
+  document.getElementById("totalCount").textContent=FILMS.length;
+  document.getElementById("barFill").style.width=(n/FILMS.length*100)+"%";
+}
+let filter="all";
+function applyFilter(){
+  document.querySelectorAll(".card").forEach(c=>{
+    const seen=c.classList.contains("is-seen");
+    let show=true;
+    if(filter==="unseen")show=!seen;
+    else if(filter!=="all")show=c.dataset.tier===filter;
+    c.classList.toggle("hidden",!show);
+  });
+  document.querySelectorAll(".tier-block").forEach(b=>{
+    const any=b.querySelectorAll(".card:not(.hidden)").length>0;
+    b.classList.toggle("hidden",!any);
+  });
+}
+document.getElementById("chips").addEventListener("click",e=>{
+  const chip=e.target.closest(".chip");if(!chip)return;
+  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+  chip.classList.add("active");filter=chip.dataset.filter;applyFilter();
+});
+tiersEl.addEventListener("click",e=>{
+  const card=e.target.closest(".card");if(!card)return;
+  const id=card.dataset.id;
+  state[id]=state[id]||{};
+  if(e.target.classList.contains("seen-btn")){
+    state[id].s=!state[id].s;save();
+    card.classList.toggle("is-seen",state[id].s);
+    e.target.textContent=state[id].s?"Seen ✓":"Mark Seen";
+    updateProgress();applyFilter();
+  }else if(e.target.classList.contains("star")){
+    const v=+e.target.dataset.v;
+    state[id].r=(state[id].r===v)?0:v;save();
+    card.querySelector(".stars").innerHTML=starRow(id);
+  }
+});
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  if(confirm("Wipe all seen marks and ratings?")){state={};save();render();}
+});
+render();
+</script>
+</body>
+</html>
