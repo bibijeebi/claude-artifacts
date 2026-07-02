@@ -1,0 +1,225 @@
+<!--
+DRILL TEMPLATE (canonical, fixed 2026-07-02)
+Fixes baked in:
+  - Mobile answer-leak: all :hover rules wrapped in @media(hover:hover) so iOS sticky
+    hover can never pre-highlight an option. -webkit-tap-highlight-color killed,
+    :active provides touch feedback instead.
+  - Day/night toggle: floating button bottom-right. Persists to localStorage key
+    "drill_theme" (SHARED across all drills on the domain). URL param ?theme=dark|light
+    overrides for screenshots/sharing without persisting.
+  - Core/Full mode toggle, index-keyed progress (append-only banks preserve progress).
+
+Placeholders to replace at build time:
+  {{TITLE}}      e.g. "D196 Drill"
+  {{SUBTITLE}}   e.g. "Financial & Managerial Accounting · core 113 Q · full 123 Q"
+  {{OG_DESC}}    one-sentence description
+  {{SLUG}}       e.g. "d196-drill" (used for og:url and og:image)
+  {{LS_PREFIX}}  e.g. "d196drill" (yields d196drill_v1 + d196drill_mode)
+  MCQS array     rows: [question, [opts], correctIndex, explanation, "Topic", coreFlag]
+                 coreFlag 1 = core; omit it for full-only questions.
+Verification (mandatory before deploy): jsdom mastery loop, N core questions must
+master in exactly 2N answers; mode switch must expand the pool; saved state must persist.
+-->
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{TITLE}} — {{SUBTITLE}}</title>
+<meta property="og:title" content="{{TITLE}}">
+<meta property="og:description" content="{{OG_DESC}}">
+<meta property="og:image" content="https://niggerfaggot.club/{{SLUG}}-og.png">
+<meta property="og:url" content="https://niggerfaggot.club/{{SLUG}}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://niggerfaggot.club/{{SLUG}}-og.png">
+<style>
+:root{--bg:#e9edf0;--panel:#fff;--ink:#1f2733;--mut:#6b7888;--line:#d9e0e7;--teal:#159fc9;--green:#43a047;--red:#e23b3b}
+*{box-sizing:border-box}html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:14px}
+header{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 1px 3px rgba(20,40,60,.06)}
+.htxt h1{margin:0;font-size:18px;letter-spacing:-.2px}.htxt p{margin:2px 0 0;font-size:12.5px;color:var(--mut)}
+.rings{margin-left:auto;display:flex;gap:10px;align-items:flex-start}
+.ring{position:relative;width:54px;display:flex;flex-direction:column;align-items:center}.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;top:0;left:0;width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.ring span{margin-top:4px;text-align:center;font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.bar{display:flex;align-items:center;gap:10px;margin:16px 2px 10px}
+select{font:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink)}
+.count{margin-left:auto;font-size:12.5px;color:var(--mut)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 18px;box-shadow:0 1px 3px rgba(20,40,60,.06)}
+.topic{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);font-weight:700;margin-bottom:8px}
+.q{font-size:17px;line-height:1.45;margin:0 0 16px}
+.hint{font-size:12px;color:var(--mut);margin:-8px 0 12px}
+.ans{display:block;width:100%;text-align:left;font:inherit;color:var(--ink);font-size:15px;line-height:1.35;background:#fff;border:1.5px solid var(--line);border-radius:11px;padding:13px 14px;margin:8px 0;cursor:pointer;transition:.12s;display:flex;gap:11px;align-items:flex-start}
+@media(hover:hover){.ans:hover{border-color:var(--teal);background:#f5fbfd}}
+.ans .ltr{flex:0 0 auto;width:23px;height:23px;border-radius:6px;background:#eef2f6;color:var(--mut);font-weight:700;font-size:12.5px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.ans.sel{border-color:var(--teal);background:#eaf7fc}.ans.sel .ltr{background:var(--teal);color:#fff}
+.ans.correct{border-color:var(--green);background:#edf7ee}.ans.correct .ltr{background:var(--green);color:#fff}
+.ans.wrong{border-color:var(--red);background:#fdeeee}.ans.wrong .ltr{background:var(--red);color:#fff}
+.ans.dim{opacity:.55}.ans b{color:var(--ink)}
+.chk{font:inherit;font-size:14px;font-weight:600;background:var(--teal);color:#fff;border:0;border-radius:10px;padding:11px 18px;cursor:pointer;margin-top:6px}
+.chk:disabled{opacity:.4;cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:10px;background:#f3f6f9;border:1px solid var(--line);font-size:14px;line-height:1.45;display:none}
+.explain.show{display:block}.explain.ok{background:#edf7ee;border-color:#bfe3c2}.explain.no{background:#fdeeee;border-color:#f4cccc}
+.cont{font-size:12.5px;color:var(--mut);margin-top:10px;text-align:center;display:none}.cont.show{display:block}
+.done{text-align:center;padding:40px 18px}.done h2{margin:0 0 6px;font-size:22px}.done p{color:var(--mut);margin:0 0 18px}
+.btn{font:inherit;font-size:14px;font-weight:600;background:var(--green);color:#fff;border:0;border-radius:10px;padding:11px 20px;cursor:pointer}
+footer{text-align:center;font-size:11.5px;color:var(--mut);margin:18px 0 6px}
+footer a{color:var(--teal);cursor:pointer}
+.seg{display:flex;border:1px solid #d5dde3;border-radius:8px;overflow:hidden;flex:none}.seg button{border:0;background:#fff;padding:7px 12px;font:inherit;font-size:13px;color:#456;cursor:pointer}.seg button.on{background:var(--teal);color:#fff;font-weight:600}
+*{-webkit-tap-highlight-color:transparent}
+
+[data-theme="dark"]{--bg:#0f1318;--panel:#171e27;--ink:#e7edf4;--mut:#8b98a9;--line:#2a3441;--teal:#2cb5dd;--green:#4bc251;--red:#f0625f}
+[data-theme="dark"] .ans{background:var(--panel)}
+[data-theme="dark"] .ans .ltr{background:#232d3a}
+[data-theme="dark"] .ans.sel{background:#12303c}
+[data-theme="dark"] .ans.correct{background:#16301b}
+[data-theme="dark"] .ans.wrong{background:#38191c}
+[data-theme="dark"] .explain{background:#1a2129}
+[data-theme="dark"] .explain.ok{background:#16301b;border-color:#2b5c33}
+[data-theme="dark"] .explain.no{background:#38191c;border-color:#5c2b2b}
+[data-theme="dark"] .seg{border-color:#2a3441}
+[data-theme="dark"] .seg button{background:#171e27;color:#a9b6c6}
+[data-theme="dark"] select{background:#171e27;color:#e7edf4;border-color:#2a3441}
+[data-theme="dark"] circle[stroke="#e3e9ef"]{stroke:#232d3a}
+.ans:active{border-color:var(--teal)}
+
+.themeb{position:fixed;right:14px;bottom:14px;z-index:60;width:38px;height:38px;border-radius:50%;
+border:1px solid var(--line);background:var(--panel,var(--bg3,var(--bg2,#fff)));color:var(--ink);
+font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);line-height:1;padding:0}
+</style></head>
+<body><div class="wrap">
+<header>
+  <div class="htxt"><h1>{{TITLE}}</h1><p>{{SUBTITLE}}</p></div>
+  <div class="rings">
+    <div class="ring"><svg width="54" height="54"><circle cx="27" cy="27" r="22" fill="none" stroke="#e3e9ef" stroke-width="6"/><circle id="seenR" cx="27" cy="27" r="22" fill="none" stroke="var(--teal)" stroke-width="6" stroke-linecap="round" stroke-dasharray="138" stroke-dashoffset="138"/></svg><b id="seenN">0%</b><span>Seen</span></div>
+    <div class="ring"><svg width="54" height="54"><circle cx="27" cy="27" r="22" fill="none" stroke="#e3e9ef" stroke-width="6"/><circle id="aptR" cx="27" cy="27" r="22" fill="none" stroke="var(--green)" stroke-width="6" stroke-linecap="round" stroke-dasharray="138" stroke-dashoffset="138"/></svg><b id="aptN">0%</b><span>Apt</span></div>
+  </div>
+</header>
+<div class="bar">
+  <div class="seg"><button id="mCore">Core</button><button id="mFull">Full</button></div>
+  <select id="topic"><option value="">All topics</option></select>
+  <div class="count" id="count"></div>
+</div>
+<div id="stage" class="card"></div>
+<footer>Tap or press 1–4 / A–D · space to continue · <a id="reset">reset progress</a></footer>
+</div>
+<script>
+const MCQS=[
+["Example question: which option is correct?", ["Wrong one","The correct one","Also wrong","Still wrong"], 1, "Explanation with the cut rule in plain text.", "Topic A", 1],
+["Full-only example (omit trailing 1 to keep it out of core mode).", ["A","B","C","D"], 0, "Why A is right.", "Topic B"]
+];
+const LS = "{{LS_PREFIX}}_v1";
+const C=22*2*Math.PI;
+let queue=[], cur=0, curOpts=[], waiting=false, picked=new Set(), filter="", waitAt=0;
+let mode=localStorage.getItem("{{LS_PREFIX}}_mode")||"core";
+const $=s=>document.getElementById(s);
+let state=load();
+
+function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(Array.isArray(s)){while(s.length<MCQS.length)s.push({c:0,seen:false});return s.slice(0,MCQS.length);}}catch(e){}return MCQS.map(()=>({c:0,seen:false}));}
+function save(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
+function isMulti(i){return Array.isArray(MCQS[i][2])}
+function corrSet(i){return new Set(isMulti(i)?MCQS[i][2]:[MCQS[i][2]])}
+
+function idxs(){return MCQS.map((_,i)=>i).filter(i=>(mode==="full"||MCQS[i][5]===1)&&(!filter||MCQS[i][4]===filter))}
+function rebuild(){queue=idxs().filter(i=>state[i].c<2);if(queue.length)shuffle(queue);}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function rings(){
+  const pool=idxs();const seen=pool.filter(i=>state[i].seen).length;
+  const apt=pool.reduce((s,i)=>s+Math.min(state[i].c,2)/2,0)/(pool.length||1);
+  const sp=pool.length?seen/pool.length:0;
+  $("seenR").style.strokeDashoffset=C*(1-sp);$("seenN").textContent=Math.round(sp*100)+"%";
+  $("aptR").style.strokeDashoffset=C*(1-apt);$("aptN").textContent=Math.round(apt*100)+"%";
+  const mastered=pool.filter(i=>state[i].c>=2).length;
+  $("count").textContent=mastered+" / "+pool.length+" mastered";
+}
+
+function render(){
+  rings();
+  if(!queue.length){
+    const pool=idxs();
+    $("stage").innerHTML='<div class="done"><h2>'+(pool.every(i=>state[i].c>=2)?"Pool mastered ✓":"Nothing left in queue")+'</h2><p>Every question answered correctly twice.</p><button class="btn" id="again">Study again</button></div>';
+    $("again").onclick=()=>{idxs().forEach(i=>state[i].c=0);save();rebuild();render()};return;
+  }
+  cur=queue[0];waiting=false;picked=new Set();
+  const m=MCQS[cur],multi=isMulti(cur);
+  curOpts=m[1].map((t,oi)=>({oi,text:t}));shuffle(curOpts);
+  let h='<div class="topic">'+m[4]+'</div><p class="q">'+esc(m[0])+'</p>';
+  if(multi)h+='<p class="hint">Select all that apply ('+m[2].length+'), then Check.</p>';
+  h+='<div id="opts">';
+  curOpts.forEach((o,d)=>{h+='<button class="ans" data-disp="'+d+'"><span class="ltr">'+"ABCDEF"[d]+'</span><span>'+esc(o.text)+'</span></button>'});
+  h+='</div>';
+  if(multi)h+='<button class="chk" id="chk" disabled>Check</button>';
+  h+='<div class="explain" id="exp"></div><div class="cont" id="cont">tap or press space to continue</div>';
+  $("stage").innerHTML=h;
+  [...document.querySelectorAll("#opts .ans")].forEach(b=>b.onclick=()=>pick(+b.dataset.disp));
+  if(multi)$("chk").onclick=submit;
+}
+
+function pick(d){
+  if(waiting)return;
+  if(isMulti(cur)){
+    const b=document.querySelector('#opts .ans[data-disp="'+d+'"]');
+    if(picked.has(d)){picked.delete(d);b.classList.remove("sel")}else{picked.add(d);b.classList.add("sel")}
+    $("chk").disabled=picked.size===0;return;
+  }
+  picked=new Set([d]);submit();
+}
+
+function submit(){
+  if(waiting)return;waiting=true;waitAt=Date.now();
+  const m=MCQS[cur],cs=corrSet(cur);
+  const chosen=new Set([...picked].map(d=>curOpts[d].oi));
+  const ok=chosen.size===cs.size&&[...chosen].every(x=>cs.has(x));
+  document.querySelectorAll("#opts .ans").forEach(b=>{
+    const oi=curOpts[+b.dataset.disp].oi;b.style.pointerEvents="none";
+    if(cs.has(oi))b.classList.add("correct");
+    else if(chosen.has(oi))b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  if(isMulti(cur))$("chk").style.display="none";
+  state[cur].seen=true;
+  if(ok)state[cur].c++;else state[cur].c=0;
+  save();
+  const e=$("exp");e.className="explain show "+(ok?"ok":"no");
+  e.innerHTML="<b>"+(ok?"Correct.":"Not quite.")+"</b> "+esc(m[3]);
+  // requeue
+  queue.shift();
+  if(ok&&state[cur].c>=2){/* retire */}
+  else{const off=ok?Math.min(10,queue.length):Math.min(3,queue.length);queue.splice(off,0,cur)}
+  rings();
+  if(ok){$("cont").classList.remove("show");setTimeout(()=>{if(waiting)next()},460)}
+  else $("cont").classList.add("show");
+}
+
+function next(){if(waiting){waiting=false;render()}}
+
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+
+document.addEventListener("keydown",e=>{
+  if(e.key===" "||e.key==="Enter"){if(waiting){e.preventDefault();next()}return}
+  const n="1234".indexOf(e.key),a="abcd".indexOf(e.key.toLowerCase());
+  const d=n>=0?n:a;if(d>=0){const b=document.querySelector('#opts .ans[data-disp="'+d+'"]');if(b)pick(d)}
+});
+$("stage").addEventListener("click",()=>{if(waiting&&Date.now()-waitAt>250)next()});
+
+// topic dropdown
+[...new Set(MCQS.map(m=>m[4]))].forEach(t=>{const o=document.createElement("option");o.value=o.textContent=t;$("topic").appendChild(o)});
+$("topic").onchange=()=>{filter=$("topic").value;rebuild();render()};
+$("reset").onclick=()=>{if(confirm("Wipe all drill progress?")){state=MCQS.map(()=>({c:0,seen:false}));save();rebuild();render()}};
+
+function setMode(m){mode=m;localStorage.setItem("{{LS_PREFIX}}_mode",m);$("mCore").classList.toggle("on",m==="core");$("mFull").classList.toggle("on",m==="full");rebuild();render()}
+$("mCore").onclick=()=>setMode("core");$("mFull").onclick=()=>setMode("full");
+setMode(mode);
+</script>
+<button id="themeBtn" class="themeb" aria-label="toggle theme">☾</button>
+<script>
+(function(){
+  var K="drill_theme", btn=document.getElementById("themeBtn");
+  var qp=null; try{qp=new URLSearchParams(location.search).get("theme");}catch(e){}
+  var saved=null; try{saved=localStorage.getItem(K);}catch(e){}
+  var t=qp||saved||"light";
+  function apply(x){document.documentElement.setAttribute("data-theme",x);btn.textContent=x==="dark"?"\u2600":"\u263e";}
+  apply(t);
+  btn.addEventListener("click",function(){t=(t==="dark")?"light":"dark";try{localStorage.setItem(K,t)}catch(e){}apply(t);});
+})();
+</script>
+</body></html>
