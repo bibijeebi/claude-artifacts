@@ -17,6 +17,8 @@ Placeholders to replace at build time:
   {{LS_PREFIX}}  e.g. "d196drill" (yields d196drill_v1 + d196drill_mode)
   MCQS array     rows: [question, [opts], correctIndex, explanation, "Topic", coreFlag]
                  coreFlag 1 = core; omit it for full-only questions.
+Mobile tap-to-advance: document-level click handler with 250ms debounce (waitAt) so the
+answering tap cannot skip the reveal; taps on select/a/#themeBtn/.seg/.reset excluded.
 Verification (mandatory before deploy): jsdom mastery loop, N core questions must
 master in exactly 2N answers; mode switch must expand the pool; saved state must persist.
 -->
@@ -209,6 +211,14 @@ $("reset").onclick=()=>{if(confirm("Wipe all drill progress?")){state=MCQS.map((
 function setMode(m){mode=m;localStorage.setItem("{{LS_PREFIX}}_mode",m);$("mCore").classList.toggle("on",m==="core");$("mFull").classList.toggle("on",m==="full");rebuild();render()}
 $("mCore").onclick=()=>setMode("core");$("mFull").onclick=()=>setMode("full");
 setMode(mode);
+
+document.addEventListener("click", function(e){
+  if(!waiting) return;
+  if(Date.now()-waitAt<250) return;
+  var t=e.target;
+  if(t.closest && t.closest("select,a,#themeBtn,.seg,.reset")) return;
+  next();
+});
 </script>
 <button id="themeBtn" class="themeb" aria-label="toggle theme">☾</button>
 <script>
