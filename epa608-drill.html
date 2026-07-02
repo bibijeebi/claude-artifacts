@@ -334,6 +334,7 @@ function render(){
   rings();
 }
 
+var waitAt=0;
 function pick(disp){
   if(waiting) return;
   var m = MCQS[cur];
@@ -343,7 +344,7 @@ function pick(disp){
   p.c = lastCorrect ? (p.c+1) : 0;
   p.hist.push(lastCorrect?1:0);
   save();
-  waiting=true;
+  waiting=true; waitAt=Date.now();
 
   var btns = document.querySelectorAll("#opts .ans");
   var uniq = uniqueWords(m[1][m[2]], m[1]);
@@ -426,6 +427,14 @@ buildTopicSel();
 buildPool();
 buildQueue();
 render();
+
+document.addEventListener("click", function(e){
+  if(!waiting) return;
+  if(Date.now()-waitAt<250) return;
+  var t=e.target;
+  if(t.closest && t.closest("select,a,#themeBtn,.seg,.reset")) return;
+  next();
+});
 </script>
 
 <button id="themeBtn" class="themeb" aria-label="toggle theme">☾</button>
