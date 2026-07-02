@@ -73,6 +73,7 @@ font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);line-height:1
 </div></div>
 <div class="body"><div class="qbox" id="qbox"></div></div>
 <script>
+var waitAt=0;
 const MCQS=[
 ["Which negative outcome on political systems comes from globalization?",["Increase in the number of laws","Increase in the amount of taxes","Creation of isolationist policies","Creation of translation problems"],2,"Globalization can trigger a political backlash: isolationist (protectionist, anti-trade) policies.","Globalization & Economies"],
 ["Which factor results in a higher rate of globalization?",["Reduced trade barriers","Lower cross-border migration","Higher costs of doing business","Decreased direct foreign investment"],0,"Lower trade barriers (tariffs, quotas) accelerate globalization. The others slow it.","Globalization & Economies"],
@@ -145,6 +146,14 @@ const MCQS=[
 ["One economic sector is slower to adopt AI, limiting its global opportunities. Which sector?",["Financial services","Healthcare","Transportation","Education"],3,"Education lags in AI adoption relative to finance, healthcare, and transportation.","Technology"],
 ["A company's information systems do not communicate across departments. What should it implement?",["Enterprise resource planning system","Deep learning system","Management information system","Integrated software system"],0,"An ERP integrates data and processes across all departments into one system.","Technology"]
 ];
+
+document.addEventListener("click", function(e){
+  if(!waiting) return;
+  if(Date.now()-waitAt<250) return;
+  var t=e.target;
+  if(t.closest && t.closest("select,a,#themeBtn,.seg,.reset")) return;
+  next();
+});
 </script>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
@@ -211,7 +220,7 @@ function pick(disp){
     p.c++;if(p.c>=2)mastered++;else queue.splice(Math.min(10,queue.length),0,cur);
     save();meters();setTimeout(next,420);
   } else {
-    locked=true;waiting=true;p.hist.push(false);p.c=0;
+    locked=true;waiting=true;waitAt=Date.now();p.hist.push(false);p.c=0;
     btns.forEach(b=>{const bi=+b.dataset.oi;if(+b.dataset.disp===disp)b.classList.add("wrong");if(bi===m[2])b.classList.add("correct");b.style.pointerEvents="none"});
     revealBold(btns,m);
     $("#cont").innerHTML=`<div class="explain"><div class="et">Explain</div>${m[3]}</div><div class="cont">tap or press <b>space</b> to continue ▸</div>`;
