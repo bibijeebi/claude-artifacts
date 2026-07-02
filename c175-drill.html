@@ -441,6 +441,14 @@ $("reset").onclick=()=>{if(confirm("Wipe all drill progress?")){state=MCQS.map((
 function setMode(m){mode=m;localStorage.setItem("c175drill_mode",m);$("mCore").classList.toggle("on",m==="core");$("mFull").classList.toggle("on",m==="full");rebuild();render()}
 $("mCore").onclick=()=>setMode("core");$("mFull").onclick=()=>setMode("full");
 setMode(mode);
+
+document.addEventListener("click", function(e){
+  if(!waiting) return;
+  if(Date.now()-waitAt<250) return;
+  var t=e.target;
+  if(t.closest && t.closest("select,a,#themeBtn,.seg,.reset")) return;
+  next();
+});
 </script>
 <button id="themeBtn" class="themeb" aria-label="toggle theme">☾</button>
 <script>
