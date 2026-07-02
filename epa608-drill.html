@@ -26,7 +26,7 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
 .h2{font-size:12.5px;color:var(--muted);margin-top:2px;font-weight:500}
 .reset{font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--line);
   padding:5px 9px;border-radius:8px;background:var(--panel);white-space:nowrap;cursor:pointer}
-.reset:hover{color:var(--red);border-color:var(--red)}
+@media(hover:hover){.reset:hover{color:var(--red);border-color:var(--red)}}
 .stats{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);
   border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom:14px;flex-wrap:wrap}
 .ring{display:flex;align-items:center;gap:9px}
@@ -46,7 +46,7 @@ select{font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line
 .ans{display:flex;align-items:flex-start;gap:10px;text-align:left;width:100%;cursor:pointer;
   background:var(--panel);border:1.5px solid var(--line);border-radius:11px;padding:11px 12px;
   font:inherit;font-size:15px;line-height:1.35;color:var(--ink);transition:border-color .12s,background .12s}
-.ans:hover{border-color:var(--teal)}
+@media(hover:hover){.ans:hover{border-color:var(--teal)}}
 .ans .ltr{flex:0 0 22px;height:22px;border-radius:6px;background:#eef2f6;color:var(--muted);
   display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:1px}
 .ans.correct{border-color:var(--green);background:#edf7ee}
@@ -67,10 +67,24 @@ select{font:inherit;font-size:12.5px;padding:6px 8px;border:1px solid var(--line
 .finish p{color:var(--muted);font-size:14px;margin:0 0 18px}
 .btn{font:inherit;font-size:14px;font-weight:700;padding:10px 18px;border-radius:10px;border:none;
   background:var(--teal);color:#fff;cursor:pointer}
-.btn:hover{filter:brightness(1.05)}
+@media(hover:hover){.btn:hover{filter:brightness(1.05)}}
 .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#eef2f6;border:1px solid var(--line);
   border-radius:5px;padding:1px 5px;font-size:11px}
 @media(max-width:480px){.q{font-size:16px}.ans{font-size:14px}}
+
+*{-webkit-tap-highlight-color:transparent}
+
+[data-theme="dark"]{--bg:#0f1318;--panel:#171e27;--ink:#e7edf4;--muted:#8b98a9;--line:#2a3441;--teal:#2cb5dd;--green:#4bc251;--red:#f0625f;--shadow:0 1px 3px rgba(0,0,0,.45),0 6px 18px rgba(0,0,0,.3)}
+[data-theme="dark"] .ans .ltr,[data-theme="dark"] .kbd{background:#232d3a}
+[data-theme="dark"] .ans.correct{background:#16301b}
+[data-theme="dark"] .ans.wrong{background:#38191c}
+[data-theme="dark"] .explain{background:#14222b}
+[data-theme="dark"] circle[stroke="#e7ecf1"]{stroke:#232d3a}
+.ans:active{border-color:var(--teal)}
+
+.themeb{position:fixed;right:14px;bottom:14px;z-index:60;width:38px;height:38px;border-radius:50%;
+border:1px solid var(--line);background:var(--panel,var(--bg3,var(--bg2,#fff)));color:var(--ink);
+font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);line-height:1;padding:0}
 </style>
 </head>
 <body>
@@ -412,6 +426,19 @@ buildTopicSel();
 buildPool();
 buildQueue();
 render();
+</script>
+
+<button id="themeBtn" class="themeb" aria-label="toggle theme">☾</button>
+<script>
+(function(){
+  var K="drill_theme", btn=document.getElementById("themeBtn");
+  var qp=null; try{qp=new URLSearchParams(location.search).get("theme");}catch(e){}
+  var saved=null; try{saved=localStorage.getItem(K);}catch(e){}
+  var t=qp||saved||"light";
+  function apply(x){document.documentElement.setAttribute("data-theme",x);btn.textContent=x==="dark"?"\u2600":"\u263e";}
+  apply(t);
+  btn.addEventListener("click",function(){t=(t==="dark")?"light":"dark";try{localStorage.setItem(K,t)}catch(e){}apply(t);});
+})();
 </script>
 </body>
 </html>
