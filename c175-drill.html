@@ -77,7 +77,7 @@ font-size:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);line-height:1
   <div class="count" id="count"></div>
 </div>
 <div id="stage" class="card"></div>
-<footer>Tap or press 1–4 / A–D · space to continue · <a id="reset">reset progress</a></footer>
+<footer>Tap or press 1–4 / A–D · space to continue · <a id="reset">reset progress</a> · <a id="sndBtn"></a></footer>
 </div>
 <script>
 const MCQS=[
@@ -369,6 +369,7 @@ function render(){
   if(!queue.length){
     const pool=idxs();
     $("stage").innerHTML='<div class="done"><h2>'+(pool.every(i=>state[i].c>=2)?"Pool mastered ✓":"Nothing left in queue")+'</h2><p>Every question answered correctly twice.</p><button class="btn" id="again">Study again</button></div>';
+    SND.win();
     $("again").onclick=()=>{idxs().forEach(i=>state[i].c=0);save();rebuild();render()};return;
   }
   cur=queue[0];waiting=false;picked=new Set();
@@ -385,6 +386,19 @@ function render(){
   [...document.querySelectorAll("#opts .ans")].forEach(b=>b.onclick=()=>pick(+b.dataset.disp));
   if(multi)$("chk").onclick=submit;
 }
+
+// --- audio feedback (Web Audio synth, no assets) ---
+var SND=(function(){
+var ctx=null,muted=(localStorage.getItem("drillSnd")==="0"),streak=0;
+function ac(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}if(ctx&&ctx.state==="suspended")ctx.resume();return ctx}
+function tone(f,t0,dur,type,vol){var c=ac();if(!c)return;var o=c.createOscillator(),g=c.createGain(),t=c.currentTime+t0;o.type=type||"sine";o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.12,t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+0.02)}
+function ok(mastered){streak++;if(muted)return;var s=Math.min(streak,12),b=660*Math.pow(2,(s-1)/24);tone(b,0,.09);tone(b*1.5,.07,.12);if(mastered){tone(1318.5,.16,.1,"triangle",.09);tone(1760,.24,.14,"triangle",.09)}if(streak%5===0){tone(b*2,.2,.18,"sine",.08)}}
+function no(){streak=0;if(muted)return;tone(196,0,.16,"triangle",.08);tone(147,.09,.2,"triangle",.08)}
+function win(){if(muted||!ctx)return;[523.25,659.25,783.99,1046.5].forEach(function(f,i){tone(f,i*.11,.22,"sine",.1)});tone(1318.5,.5,.4,"triangle",.08)}
+function toggle(){muted=!muted;localStorage.setItem("drillSnd",muted?"0":"1");return muted}
+return{ok:ok,no:no,win:win,toggle:toggle,muted:function(){return muted}}
+})();
+(function(){var a=document.getElementById("sndBtn");if(!a)return;function r(){a.textContent=SND.muted()?"\uD83D\uDD07 sound":"\uD83D\uDD0A sound"}a.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();SND.toggle();r()});r()})();
 
 function pick(d){
   if(waiting)return;
@@ -410,6 +424,7 @@ function submit(){
   if(isMulti(cur))$("chk").style.display="none";
   state[cur].seen=true;
   if(ok)state[cur].c++;else state[cur].c=0;
+  if(ok)SND.ok(state[cur].c>=2);else SND.no();
   save();
   const e=$("exp");e.className="explain show "+(ok?"ok":"no");
   e.innerHTML="<b>"+(ok?"Correct.":"Not quite.")+"</b> "+esc(m[3]);
