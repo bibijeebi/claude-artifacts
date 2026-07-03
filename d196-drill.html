@@ -236,7 +236,7 @@ function render(){
   if(!queue.length){
     const pool=idxs();
     $("stage").innerHTML='<div class="done"><h2>'+(pool.every(i=>state[i].c>=2)?"Pool mastered ✓":"Nothing left in queue")+'</h2><p>Every question answered correctly twice.</p><button class="btn" id="again">Study again</button></div>';
-    SND.win();
+    SND.win();GAME.win();
     $("again").onclick=()=>{idxs().forEach(i=>state[i].c=0);save();rebuild();render()};return;
   }
   cur=queue[0];waiting=false;picked=new Set();
@@ -254,6 +254,21 @@ function render(){
   if(multi)$("chk").onclick=submit;
 }
 
+// --- gamification layer ---
+var GAME=(function(){
+var xp=0,streak=0,best=+(localStorage.getItem(LS+"_bestStreak")||0),rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+var st=document.createElement("style");st.textContent="#gPill{position:fixed;right:12px;bottom:12px;z-index:99;font:600 12px/1 -apple-system,system-ui,sans-serif;padding:8px 12px;border-radius:999px;background:rgba(127,127,127,.16);backdrop-filter:blur(6px);color:inherit;display:none;pointer-events:none}@keyframes gPop{0%{opacity:0;transform:translate(-50%,0) scale(.7)}15%{opacity:1;transform:translate(-50%,-14px) scale(1.05)}100%{opacity:0;transform:translate(-50%,-52px) scale(1)}}.gPop{position:fixed;left:50%;top:38%;z-index:99;font:800 20px/1 -apple-system,system-ui,sans-serif;color:#43a047;animation:gPop .9s ease-out forwards;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.15)}@keyframes gFall{to{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0}}.gCf{position:fixed;z-index:98;width:8px;height:12px;border-radius:2px;animation:gFall var(--t) ease-out forwards;pointer-events:none}";
+document.head.appendChild(st);
+var pillEl=document.createElement("div");pillEl.id="gPill";document.body.appendChild(pillEl);
+function pill(){pillEl.style.display=xp>0?"block":"none";pillEl.textContent=(streak>1?"\uD83D\uDD25"+streak+" \u00b7 ":"")+xp+" XP"+(best>1?" \u00b7 best "+best:"")}
+function pop(txt,color){var d=document.createElement("div");d.className="gPop";if(color)d.style.color=color;d.textContent=txt;document.body.appendChild(d);setTimeout(function(){d.remove()},950)}
+function burst(n,fromTop){if(rm)return;var cols=["#159fc9","#43a047","#e8912d","#e23b3b","#8e6bd6"];for(var i=0;i<n;i++){var c=document.createElement("div");c.className="gCf";c.style.background=cols[i%5];c.style.left=(fromTop?Math.random()*100:45+Math.random()*10)+"%";c.style.top=fromTop?"-16px":"36%";c.style.setProperty("--dx",(Math.random()*260-130)+"px");c.style.setProperty("--dy",(fromTop?300+Math.random()*500:120+Math.random()*260)+"px");c.style.setProperty("--rot",(Math.random()*720-360)+"deg");c.style.setProperty("--t",(0.7+Math.random()*0.8)+"s");document.body.appendChild(c);setTimeout(function(e){return function(){e.remove()}}(c),1600)}}
+function ok(mastered){streak++;if(streak>best){best=streak;try{localStorage.setItem(LS+"_bestStreak",best)}catch(e){}}
+var pts=10*Math.min(streak,5)+(mastered?25:0);xp+=pts;pop("+"+pts+" XP"+(mastered?" \u2605":""),mastered?"#e8912d":"#43a047");if(mastered)burst(14);else if(streak%5===0)burst(10);pill()}
+function no(){streak=0;pill()}
+function win(){burst(90,true);pop("POOL MASTERED","#e8912d")}
+return{ok:ok,no:no,win:win}
+})();
 // --- audio feedback (Web Audio synth, no assets) ---
 var SND=(function(){
 var ctx=null,muted=(localStorage.getItem("drillSnd")==="0"),streak=0;
@@ -292,6 +307,7 @@ function submit(){
   state[cur].seen=true;
   if(ok)state[cur].c++;else state[cur].c=0;
   if(ok)SND.ok(state[cur].c>=2);else SND.no();
+  if(ok)GAME.ok(state[cur].c>=2);else GAME.no();
   save();
   const e=$("exp");e.className="explain show "+(ok?"ok":"no");
   e.innerHTML="<b>"+(ok?"Correct.":"Not quite.")+"</b> "+esc(m[3]);
