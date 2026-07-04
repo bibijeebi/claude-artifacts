@@ -83,6 +83,7 @@ footer a{color:var(--patina);cursor:pointer;text-decoration:underline}
 </div>
 
 <div class="why" id="why">warming up…</div>
+<div class="why" id="cfg" style="display:flex;gap:14px;flex-wrap:wrap"><span id="cfgQuick" style="cursor:pointer"></span><span id="cfgLLM" style="cursor:pointer"></span><span style="opacity:.6">quick: 1–4 answers instantly (confidence from speed) · auto-gen off = refutations/mnemonics cost credits only when you click</span></div>
 
 <div class="probe" id="probe">
   <div class="eyebrow" id="eyebrow"></div>
@@ -111,7 +112,10 @@ const SECTIONS=["Core","Type I","Type II","Type III"];
 const LLM="https://atom-llm.bennyforeman1.workers.dev";
 const LS="atomengine_v1";
 const $=s=>document.getElementById(s);
-let S,curAtom=null,curProbe=null,selDisp=-1,tShown=0,lastPicks=[],secFocus="",llmUp=false;
+let S,curAtom=null,curProbe=null,selDisp=-1,tShown=0,lastPicks=[],secFocus="",llmUp=false,snap=null;
+let CFG={quick:true,autollm:false};
+try{Object.assign(CFG,JSON.parse(localStorage.getItem("atomengine_cfg")||"{}"))}catch(e){}
+function saveCfg(){try{localStorage.setItem("atomengine_cfg",JSON.stringify(CFG))}catch(e){}}
 
 function fresh(){const o={};ATOMS.forEach(a=>o[a.i]={p:.35,tries:0,wins:0,fails:0,mis:false,enc:null,gen:[],served:0,lastWin:-9});return o}
 function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(s&&typeof s==="object"){ATOMS.forEach(a=>{if(!s[a.i])s[a.i]=fresh()[a.i]});return s}}catch(e){}return fresh()}
@@ -197,7 +201,8 @@ async function serve(){
  $("q").textContent=probe.q;
  $("opts").innerHTML=order.map((oi,d)=>'<button class="ans" data-d="'+d+'" data-oi="'+oi+'"><span class="ltr">'+"ABCD"[d]+'</span><span>'+esc(probe.opts[oi])+'</span></button>').join("");
  [...document.querySelectorAll(".ans")].forEach(b=>b.onclick=()=>{if(b.disabled)return;
-  [...document.querySelectorAll(".ans")].forEach(x=>x.classList.remove("sel"));b.classList.add("sel");selDisp=+b.dataset.d;$("conf").classList.add("show")});
+  [...document.querySelectorAll(".ans")].forEach(x=>x.classList.remove("sel"));b.classList.add("sel");selDisp=+b.dataset.d;
+  if(CFG.quick){lock((Date.now()-tShown)/1000<4)}else{$("conf").classList.add("show")}});
  tShown=Date.now();
 }
 async function lock(sure){
@@ -205,6 +210,7 @@ async function lock(sure){
  const latency=(Date.now()-tShown)/1000;
  const chosenOi=curProbe._order[selDisp];
  const ok=chosenOi===curProbe.ci;
+ snap={i:curAtom.i,ts:totalServes,st:JSON.parse(JSON.stringify(S[curAtom.i]))};
  const st=S[curAtom.i];st.tries++;totalServes++;
  [...document.querySelectorAll(".ans")].forEach(b=>{b.disabled=true;const oi=+b.dataset.oi;
   if(oi===curProbe.ci)b.classList.add("correct");else if(oi===chosenOi)b.classList.add("wrong");else b.classList.add("dim")});
@@ -219,16 +225,21 @@ async function lock(sure){
  else{st.fails++;if(sure)st.mis=true}
  st.p=Math.min(.98,Math.max(.05,st.p+d));save();
  const fb=$("fb");fb.classList.add("show");
- fb.innerHTML='<span class="delta '+(d>=0?"up":"down")+'">'+(d>=0?"▲":"▼")+" P(know) "+(d>=0?"+":"")+d.toFixed(2)+" → "+st.p.toFixed(2)+" · "+latency.toFixed(1)+"s · "+(sure?"sure":"unsure")+(retired(curAtom)?" · retired ✓":"")+'</span><br>'+esc(curProbe.exp)+((st.enc||curAtom.mnem)&&!ok?'<br><i>'+esc(st.enc||curAtom.mnem)+'</i>':"");
+ fb.innerHTML='<span class="delta '+(d>=0?"up":"down")+'">'+(d>=0?"▲":"▼")+" P(know) "+(d>=0?"+":"")+d.toFixed(2)+" → "+st.p.toFixed(2)+" · "+latency.toFixed(1)+"s · "+(sure?"sure":"unsure")+(retired(curAtom)?" · retired ✓":"")+' · <a id="misfire" style="cursor:pointer;text-decoration:underline">misfire, undo</a></span><br>'+esc(curProbe.exp)+((st.enc||curAtom.mnem)&&!ok?'<br><i>'+esc(st.enc||curAtom.mnem)+'</i>':"");
  if(wasMis){const r=$("refute");r.classList.add("show");
-  r.innerHTML='<span class="tag">confident-wrong · refutation</span><br>'+esc("You locked in \""+curProbe.opts[chosenOi]+"\" with confidence, so the wrong value is what's encoded. Overwrite it: "+curAtom.stmt);
-  llmCall("A student was CONFIDENT that: \""+curProbe.opts[chosenOi]+"\" answering: \""+curProbe.q+"\" but the truth is: \""+curAtom.stmt+"\". Two sentences: name the wrong belief and why it's tempting, then the correction, memorably. Plain text.",300).then(t=>{if(t)r.innerHTML='<span class="tag">confident-wrong · refutation</span><br>'+esc(t)})}
+  r.innerHTML='<span class="tag">confident-wrong · refutation</span><br>'+esc("You locked in \""+curProbe.opts[chosenOi]+"\" with confidence, so the wrong value is what's encoded. Overwrite it: "+curAtom.stmt)+(llmUp?' <a id="refBtn" style="cursor:pointer;text-decoration:underline">generate deeper refutation ⚡</a>':'');
+  const fire=()=>llmCall("A student was CONFIDENT that: \""+curProbe.opts[chosenOi]+"\" answering: \""+curProbe.q+"\" but the truth is: \""+curAtom.stmt+"\". Two sentences: name the wrong belief and why it's tempting, then the correction, memorably. Plain text.",300).then(t=>{if(t)r.innerHTML='<span class="tag">confident-wrong · refutation</span><br>'+esc(t)});
+  if(CFG.autollm&&llmUp)fire();else{const b=$("refBtn");if(b)b.onclick=fire;}}
  if(!ok&&st.fails>=2&&!st.enc){const e=$("encode");e.classList.add("show");
-  e.innerHTML='<span class="tag">leech · re-encoding</span><br><span class="spin">building a new handle…</span>';
-  llmCall("This fact keeps failing for an HVAC tech who welds and fishes: \""+curAtom.stmt+"\". Old mnemonic failed: \""+(curAtom.mnem||"none")+"\". ONE new vivid mnemonic or trade analogy, max 20 words, plain text.",200).then(t=>{
-   st.enc=t||("Say it out loud three times and picture it on your last jobsite: "+curAtom.stmt);save();
-   e.innerHTML='<span class="tag">leech · re-encoding</span><br>'+esc(st.enc)})}
+  const fire=()=>{e.innerHTML='<span class="tag">leech · re-encoding</span><br><span class="spin">building a new handle…</span>';
+   llmCall("This fact keeps failing for an HVAC tech who welds and fishes: \""+curAtom.stmt+"\". Old mnemonic failed: \""+(curAtom.mnem||"none")+"\". ONE new vivid mnemonic or trade analogy, max 20 words, plain text.",200).then(t=>{
+    st.enc=t||("Say it out loud three times and picture it on your last jobsite: "+curAtom.stmt);save();
+    e.innerHTML='<span class="tag">leech · re-encoding</span><br>'+esc(st.enc)})};
+  if(CFG.autollm&&llmUp)fire();
+  else e.innerHTML='<span class="tag">leech · re-encoding</span><br>'+esc("This one keeps failing. Old handle: "+(curAtom.mnem||"none"))+(llmUp?' <a id="encBtn" style="cursor:pointer;text-decoration:underline">generate new mnemonic ⚡</a>':''),
+   (function(){const b=$("encBtn");if(b)b.onclick=fire})()}
  drawAll();$("next").classList.add("show");
+ const mf=$("misfire");if(mf)mf.onclick=()=>{if(!snap)return;S[snap.i]=snap.st;totalServes=snap.ts;snap=null;save();drawAll();serve()};
 }
 $("cSure").onclick=()=>lock(true);
 $("cUnsure").onclick=()=>lock(false);
@@ -241,9 +252,14 @@ document.addEventListener("keydown",e=>{
  if($("next").classList.contains("show")&&(k===" "||k==="enter")){e.preventDefault();serve();return}
  const d="1234".indexOf(e.key)>=0?"1234".indexOf(e.key):"abcd".indexOf(k);
  if(d>=0){const b=document.querySelector('.ans[data-d="'+d+'"]');if(b&&!b.disabled){b.click();return}}
+ if(k==="z"&&$("next").classList.contains("show")){const mf=$("misfire");if(mf)mf.click();return}
  if(k==="s"&&$("conf").classList.contains("show"))lock(true);
  if(k==="u"&&$("conf").classList.contains("show"))lock(false);
 });
+function drawCfg(){$("cfgQuick").innerHTML="[quick keys: <b>"+(CFG.quick?"on":"off")+"</b>]";$("cfgLLM").innerHTML="[auto-generate on miss: <b>"+(CFG.autollm?"on":"off")+"</b>]"}
+$("cfgQuick").onclick=()=>{CFG.quick=!CFG.quick;saveCfg();drawCfg()};
+$("cfgLLM").onclick=()=>{CFG.autollm=!CFG.autollm;saveCfg();drawCfg()};
+drawCfg();
 (function(){const K="atomengine_theme",btn=$("themeBtn");let t=null;
  try{t=localStorage.getItem(K)}catch(e){}
  t=t||"light";
