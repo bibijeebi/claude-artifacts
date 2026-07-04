@@ -117,6 +117,7 @@ function exam(){
   $("app").innerHTML=`
    <div class="topbar"><span class="timer" id="timer">${fmt(S.left)}</span>
      <button class="btn ghost" style="padding:9px 16px" onclick="confirmSubmit()">Submit</button>
+     <button class="btn ghost" style="padding:9px 16px" onclick="resetMock()">Reset</button>
      <span class="meta">${nA}/${QS.length} answered</span></div>
    <div class="palette">${pal}</div>
    <div class="card" style="margin-top:10px">
@@ -133,6 +134,7 @@ function exam(){
 window.go=j=>{if(j<0||j>=QS.length)return;S.cur=j;save();exam();};
 window.pick=k=>{const i=S.cur;const orig=pm(i)[k];if(orig===undefined)return;if(isMulti(i)){let a=Array.isArray(S.ans[i])?S.ans[i].slice():[];const x=a.indexOf(orig);x>=0?a.splice(x,1):a.push(orig);S.ans[i]=a;}else{S.ans[i]=orig;}save();exam();};
 window.flag=()=>{const i=S.cur;S.flag[i]=!S.flag[i];save();exam();};
+window.resetMock=()=>{if(!confirm("Wipe this attempt and restart the 120:00 clock?"))return;fresh();startTimer();render();};
 window.confirmSubmit=()=>{const n=QS.filter((_,j)=>!answered(j)).length;if(n>0&&!confirm(n+" question(s) unanswered. Submit anyway?"))return;submit();};
 function submit(){clearInterval(tick);S.done=true;S.left=Math.max(0,S.left);save();results();}
 
