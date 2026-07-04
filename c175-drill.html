@@ -390,18 +390,20 @@ let mode=localStorage.getItem("c175drill_mode")||"core";
 const $=s=>document.getElementById(s);
 let state=load();
 
-function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(Array.isArray(s)){while(s.length<MCQS.length)s.push({c:0,seen:false});return s.slice(0,MCQS.length);}}catch(e){}return MCQS.map(()=>({c:0,seen:false}));}
+function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(Array.isArray(s)){while(s.length<MCQS.length)s.push({c:0,seen:false,lta:[]});const t=s.slice(0,MCQS.length);t.forEach(p=>{if(!Array.isArray(p.lta))p.lta=[]});return t;}}catch(e){}return MCQS.map(()=>({c:0,seen:false,lta:[]}));}
 function save(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
 function isMulti(i){return Array.isArray(MCQS[i][2])}
 function corrSet(i){return new Set(isMulti(i)?MCQS[i][2]:[MCQS[i][2]])}
 
+const APTW=[.5,.25,.15,.1];
+function qApt(i){const l=state[i].lta||[];let a=0;for(let k=0;k<4;k++)a+=APTW[k]*(l[k]===undefined?.25:l[k]);return a}
 function idxs(){return MCQS.map((_,i)=>i).filter(i=>(mode==="full"||MCQS[i][5]===1)&&(!filter||MCQS[i][4]===filter))}
-function rebuild(){queue=idxs().filter(i=>state[i].c<2);if(queue.length)shuffle(queue);}
+function rebuild(){queue=idxs().filter(i=>state[i].c<2);if(queue.length){shuffle(queue);queue.sort((a,b)=>(state[a].seen?1:0)-(state[b].seen?1:0));}}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 
 function rings(){
   const pool=idxs();const seen=pool.filter(i=>state[i].seen).length;
-  const apt=pool.reduce((s,i)=>s+Math.min(state[i].c,2)/2,0)/(pool.length||1);
+  const apt=pool.reduce((s,i)=>s+(state[i].seen?qApt(i):0),0)/(pool.length||1);
   const sp=pool.length?seen/pool.length:0;
   $("seenR").style.strokeDashoffset=C*(1-sp);$("seenN").textContent=Math.round(sp*100)+"%";
   $("aptR").style.strokeDashoffset=C*(1-apt);$("aptN").textContent=Math.round(apt*100)+"%";
@@ -489,6 +491,7 @@ function submit(){
   if(isMulti(cur))$("chk").style.display="none";
   state[cur].seen=true;
   if(ok)state[cur].c++;else state[cur].c=0;
+  state[cur].lta=[ok?1:0].concat(state[cur].lta||[]).slice(0,4);
   if(ok)SND.ok(state[cur].c>=2);else SND.no();
   if(ok)GAME.ok(state[cur].c>=2);else GAME.no();
   save();
@@ -497,7 +500,7 @@ function submit(){
   // requeue
   queue.shift();
   if(ok&&state[cur].c>=2){/* retire */}
-  else{const off=ok?Math.min(10,queue.length):Math.min(3,queue.length);queue.splice(off,0,cur)}
+  else{const uns=queue.reduce((n,i)=>n+(state[i].seen?0:1),0);const off=ok?Math.min(uns+8,queue.length):Math.min(3,queue.length);queue.splice(off,0,cur)}
   rings();
   if(ok){$("cont").classList.remove("show");setTimeout(()=>{if(waiting)next()},460)}
   else $("cont").classList.add("show");
@@ -517,7 +520,7 @@ $("stage").addEventListener("click",()=>{if(waiting&&Date.now()-waitAt>250)next(
 // topic dropdown
 [...new Set(MCQS.map(m=>m[4]))].forEach(t=>{const o=document.createElement("option");o.value=o.textContent=t;$("topic").appendChild(o)});
 $("topic").onchange=()=>{filter=$("topic").value;rebuild();render()};
-$("reset").onclick=()=>{if(confirm("Wipe all drill progress?")){state=MCQS.map(()=>({c:0,seen:false}));save();rebuild();render()}};
+$("reset").onclick=()=>{if(confirm("Wipe all drill progress?")){state=MCQS.map(()=>({c:0,seen:false,lta:[]}));save();rebuild();render()}};
 
 function setMode(m){mode=m;localStorage.setItem("c175drill_mode",m);$("mCore").classList.toggle("on",m==="core");$("mFull").classList.toggle("on",m==="full");rebuild();render()}
 $("mCore").onclick=()=>setMode("core");$("mFull").onclick=()=>setMode("full");
