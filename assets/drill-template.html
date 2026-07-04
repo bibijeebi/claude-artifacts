@@ -146,7 +146,7 @@ footer a{color:var(--sky);cursor:pointer;text-decoration:none}
   <div class="count" id="count"></div>
 </div>
 <div id="stage" class="card"></div>
-<footer>Tap or press 1–4 / A–D · space to continue · <a id="reset">reset progress</a> · <a id="sndBtn"></a></footer>
+<footer>Tap or press 1–4 / A–D · space to continue · <a id="histBtn">‹ back</a> · <a id="reset">reset progress</a> · <a id="sndBtn"></a></footer>
 </div>
 <script>
 const MCQS=[
@@ -156,6 +156,7 @@ const MCQS=[
 const LS = "{{LS_PREFIX}}_v1";
 const C=22*2*Math.PI;
 let queue=[], cur=0, curOpts=[], waiting=false, picked=new Set(), filter="", waitAt=0;
+let hist=[],histPos=-1;
 let mode=localStorage.getItem("{{LS_PREFIX}}_mode")||"core";
 const $=s=>document.getElementById(s);
 let state=load();
@@ -182,6 +183,7 @@ function rings(){
 }
 
 function render(){
+  histPos=-1;
   rings();
   if(!queue.length){
     const pool=idxs();
@@ -237,7 +239,22 @@ return{ok:ok,no:no,win:win,toggle:toggle,muted:function(){return muted}}
 })();
 (function(){var a=document.getElementById("sndBtn");if(!a)return;function r(){a.textContent=SND.muted()?"\uD83D\uDD07 sound":"\uD83D\uDD0A sound"}a.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();SND.toggle();r()});r()})();
 
+function showHist(p){
+  histPos=p;waiting=false;
+  const h=hist[p],m=MCQS[h.i];
+  const cs=corrSet(h.i),ch=new Set(h.ch.map(d=>h.opts[d].oi));
+  let out='<div class="topic">'+m[4]+' \u00b7 review '+(p+1)+' of '+hist.length+'</div><p class="q">'+esc(m[0])+'</p><div id="opts">';
+  h.opts.forEach((o,d)=>{let cls="ans dim";if(cs.has(o.oi))cls="ans correct";else if(ch.has(o.oi))cls="ans wrong";out+='<button class="'+cls+'" style="pointer-events:none"><span class="ltr">'+"ABCDEF"[d]+'</span><span>'+esc(o.text)+'</span></button>'});
+  out+='</div><div class="explain show '+(h.ok?"ok":"no")+'"><b>'+(h.ok?"Correct.":"Missed.")+'</b> '+esc(m[3])+'</div><div class="cont show">'+(p>0?"\u2039 older \u00b7 ":"")+'tap / \u2192 to return</div>';
+  $("stage").innerHTML=out;
+}
+function histNav(d){
+  if(d<0){const t=(histPos<0?hist.length:histPos)-1;if(t>=0)showHist(t);return}
+  if(histPos<0)return;
+  if(histPos+1<hist.length)showHist(histPos+1);else{histPos=-1;render()}
+}
 function pick(d){
+  if(histPos>=0)return;
   if(waiting)return;
   if(isMulti(cur)){
     const b=document.querySelector('#opts .ans[data-disp="'+d+'"]');
@@ -265,6 +282,7 @@ function submit(){
   if(ok)SND.ok(state[cur].c>=2);else SND.no();
   if(ok)GAME.ok(state[cur].c>=2);else GAME.no();
   save();
+  hist.push({i:cur,opts:curOpts.slice(),ch:[...picked],ok:ok});if(hist.length>10)hist.shift();
   const e=$("exp");e.className="explain show "+(ok?"ok":"no");
   e.innerHTML="<b>"+(ok?"Correct.":"Not quite.")+"</b> "+esc(m[3]);
   // requeue
@@ -281,15 +299,18 @@ function next(){if(waiting){waiting=false;render()}}
 function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
 
 document.addEventListener("keydown",e=>{
-  if(e.key===" "||e.key==="Enter"){if(waiting){e.preventDefault();next()}return}
+  if(e.key==="ArrowLeft"){e.preventDefault();histNav(-1);return}
+  if(e.key==="ArrowRight"){if(histPos>=0){e.preventDefault();histNav(1)}return}
+  if(e.key===" "||e.key==="Enter"){if(histPos>=0){e.preventDefault();histNav(1);return}if(waiting){e.preventDefault();next()}return}
   const n="1234".indexOf(e.key),a="abcd".indexOf(e.key.toLowerCase());
   const d=n>=0?n:a;if(d>=0){const b=document.querySelector('#opts .ans[data-disp="'+d+'"]');if(b)pick(d)}
 });
-$("stage").addEventListener("click",()=>{if(waiting&&Date.now()-waitAt>250)next()});
+$("stage").addEventListener("click",()=>{if(histPos>=0)return;if(waiting&&Date.now()-waitAt>250)next()});
 
 // topic dropdown
 [...new Set(MCQS.map(m=>m[4]))].forEach(t=>{const o=document.createElement("option");o.value=o.textContent=t;$("topic").appendChild(o)});
 $("topic").onchange=()=>{filter=$("topic").value;rebuild();render()};
+$("histBtn").onclick=e=>{e.preventDefault();e.stopPropagation();histNav(-1)};
 $("reset").onclick=()=>{if(confirm("Wipe all drill progress?")){state=MCQS.map(()=>({c:0,seen:false,lta:[]}));save();rebuild();render()}};
 
 function setMode(m){mode=m;localStorage.setItem("{{LS_PREFIX}}_mode",m);$("mCore").classList.toggle("on",m==="core");$("mFull").classList.toggle("on",m==="full");rebuild();render()}
@@ -297,10 +318,11 @@ $("mCore").onclick=()=>setMode("core");$("mFull").onclick=()=>setMode("full");
 setMode(mode);
 
 document.addEventListener("click", function(e){
-  if(!waiting) return;
-  if(Date.now()-waitAt<250) return;
   var t=e.target;
   if(t.closest && t.closest("select,a,#themeBtn,.seg,.reset")) return;
+  if(histPos>=0){ histNav(1); return; }
+  if(!waiting) return;
+  if(Date.now()-waitAt<250) return;
   next();
 });
 </script>
