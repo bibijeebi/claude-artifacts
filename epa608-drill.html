@@ -181,10 +181,10 @@ function shuffle(a){ for(var k=a.length-1;k>0;k--){ var j=Math.floor(Math.random
 
 function distinctTopics(){ var s=[]; for(var i=0;i<MCQS.length;i++){ if(s.indexOf(MCQS[i][4])<0) s.push(MCQS[i][4]); } return s; }
 function buildPool(){ pool=[]; for(var i=0;i<MCQS.length;i++){ if(activeTopic==="All"||MCQS[i][4]===activeTopic) pool.push(i); } }
-function buildQueue(){ queue = pool.filter(function(i){ return P(i).c < 2; }); shuffle(queue); }
+function buildQueue(){ queue = pool.filter(function(i){ return P(i).c < 2; }); shuffle(queue); queue.sort(function(a,b){ return (P(a).seen?1:0)-(P(b).seen?1:0); }); }
 
 function seenPct(){ var n=0; for(var k=0;k<pool.length;k++){ if(P(pool[k]).seen) n++; } return pool.length? n/pool.length*100 : 0; }
-function aptPct(){ var s=0; for(var k=0;k<pool.length;k++){ s += Math.min(P(pool[k]).c,2)/2; } return pool.length? s/pool.length*100 : 0; }
+function aptPct(){ var W=[.5,.25,.15,.1], s=0; for(var k=0;k<pool.length;k++){ var p=P(pool[k]); if(!p.seen) continue; var h=p.hist||[], a=0; for(var w=0;w<4;w++){ var v=h[h.length-1-w]; a+=W[w]*(v===undefined?.25:(v?1:0)); } s+=a; } return pool.length? s/pool.length*100 : 0; }
 function masteredCount(){ var n=0; for(var k=0;k<pool.length;k++){ if(P(pool[k]).c>=2) n++; } return n; }
 
 function setRing(id, pct){ var el=document.getElementById(id); if(el) el.setAttribute("stroke-dashoffset", (C*(1-pct/100)).toFixed(2)); }
@@ -316,7 +316,8 @@ function next(){
   if(lastCorrect && p.c>=2){
     // mastered -> retire
   } else if(lastCorrect){
-    var pos = Math.min(10, queue.length);
+    var uns=0; for(var q2=0;q2<queue.length;q2++){ if(!P(queue[q2]).seen) uns++; }
+    var pos = Math.min(uns+8, queue.length);
     queue.splice(pos,0,idx);
   } else {
     var pos2 = Math.min(3, queue.length);
