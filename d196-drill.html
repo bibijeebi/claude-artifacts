@@ -1,12 +1,36 @@
+<!--
+DRILL TEMPLATE (canonical, fixed 2026-07-02)
+Fixes baked in:
+  - Mobile answer-leak: all :hover rules wrapped in @media(hover:hover) so iOS sticky
+    hover can never pre-highlight an option. -webkit-tap-highlight-color killed,
+    :active provides touch feedback instead.
+  - Day/night toggle: floating button bottom-right. Persists to localStorage key
+    "drill_theme" (SHARED across all drills on the domain). URL param ?theme=dark|light
+    overrides for screenshots/sharing without persisting.
+  - Core/Full mode toggle, index-keyed progress (append-only banks preserve progress).
+
+Placeholders to replace at build time:
+  D196 Drill      e.g. "D196 Drill"
+  Financial &amp; Managerial Accounting · core 113 Q · full 123 Q   e.g. "Financial & Managerial Accounting · core 113 Q · full 123 Q"
+  HamStudy-style mastery drill for WGU D196. Core (113 exam-critical Q, all 62 keyed PA) and Full (123 Q) modes, requeues misses until mastered.    one-sentence description
+  d196-drill       e.g. "d196-drill" (used for og:url and og:image)
+  d196drill  e.g. "d196drill" (yields d196drill_v1 + d196drill_mode)
+  MCQS array     rows: [question, [opts], correctIndex, explanation, "Topic", coreFlag]
+                 coreFlag 1 = core; omit it for full-only questions.
+Mobile tap-to-advance: document-level click handler with 250ms debounce (waitAt) so the
+answering tap cannot skip the reveal; taps on select/a/#themeBtn/.seg/.reset excluded.
+Verification (mandatory before deploy): jsdom mastery loop, N core questions must
+master in exactly 2N answers; mode switch must expand the pool; saved state must persist.
+-->
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>D196 Drill — Financial &amp; Managerial Accounting</title>
-<meta property="og:title" content="D196 Drill — Financial &amp; Managerial Accounting">
+<title>D196 Drill — Financial &amp; Managerial Accounting · core 113 Q · full 123 Q</title>
+<meta property="og:title" content="D196 Drill">
 <meta property="og:description" content="HamStudy-style mastery drill for WGU D196. Core (113 exam-critical Q, all 62 keyed PA) and Full (123 Q) modes, requeues misses until mastered.">
-<meta property="og:image" content="https://niggerfaggot.club/d196-og.jpg">
+<meta property="og:image" content="https://niggerfaggot.club/d196-drill-og.png">
 <meta property="og:url" content="https://niggerfaggot.club/d196-drill">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://niggerfaggot.club/d196-og.jpg">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://niggerfaggot.club/d196-drill-og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -64,6 +88,7 @@ header{display:flex;align-items:center;gap:14px;background:var(--glass);-webkit-
 circle[stroke="#e3e9ef"]{stroke:var(--track)}
 .hud{margin-top:12px;margin-left:2px}
 .bar{display:flex;align-items:center;gap:10px;margin-top:14px;margin-bottom:10px;margin-left:2px;margin-right:2px;flex-wrap:wrap}
+.pileRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pchip{cursor:pointer;user-select:none}.pchip.on{outline:2px solid var(--sky)}.tri{display:flex;gap:10px;margin-top:14px}.tbtn{font-family:var(--fm);font-size:12px;font-weight:700;padding-top:8px;padding-bottom:8px;padding-left:14px;padding-right:14px;border-radius:999px;border:1px solid var(--hair);background:var(--glass2);color:var(--ink);cursor:pointer;box-shadow:inset 0 1px 0 var(--spec)}.tbtn .kb{opacity:.5;font-size:10px;margin-left:4px}#noteIn{display:block;width:100%;margin-top:10px;font-family:var(--fm);font-size:13px;padding-top:8px;padding-bottom:8px;padding-left:12px;padding-right:12px;border-radius:10px;border:1px solid var(--hair);background:var(--glass2);color:var(--ink);box-sizing:border-box}
 .seg{display:flex;border:1px solid var(--hair);border-radius:10px;overflow:hidden;flex:none;background:var(--glass2)}
 .seg button{border:0;background:transparent;padding:7px 12px;font-family:var(--fb);font-size:13px;font-weight:700;color:var(--mut);cursor:pointer}
 .seg button.on{background:var(--sky);color:#fff}
@@ -117,10 +142,12 @@ footer a{color:var(--sky);cursor:pointer;text-decoration:none}
 </header>
 <div class="hud"><span class="chip flame" id="hudStreak"></span><span class="chip" id="hudXP"></span><span class="chip" id="hudBest"></span></div>
 <div class="bar">
+  <div class="seg"><button id="vTriage">Triage</button><button id="vDrill">Drill</button></div>
   <div class="seg"><button id="mCore">Core</button><button id="mFull">Full</button></div>
   <select id="topic"><option value="">All topics</option></select>
   <div class="count" id="count"></div>
 </div>
+<div id="piles" class="pileRow"></div>
 <div id="stage" class="card"></div>
 <footer>Tap or press 1–4 / A–D · space to continue · <a id="histBtn">‹ back</a> · <a id="reset">reset progress</a> · <a id="sndBtn"></a></footer>
 </div>
@@ -258,7 +285,7 @@ let mode=localStorage.getItem("d196drill_mode")||"core";
 const $=s=>document.getElementById(s);
 let state=load();
 
-function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(Array.isArray(s)){while(s.length<MCQS.length)s.push({c:0,seen:false,lta:[]});const t=s.slice(0,MCQS.length);t.forEach(p=>{if(!Array.isArray(p.lta))p.lta=[]});return t;}}catch(e){}return MCQS.map(()=>({c:0,seen:false,lta:[]}));}
+function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(Array.isArray(s)){while(s.length<MCQS.length)s.push({c:0,seen:false,lta:[],t:0,n:"",tg:false});const t=s.slice(0,MCQS.length);t.forEach(p=>{if(!Array.isArray(p.lta))p.lta=[];if(typeof p.t!=="number")p.t=(p.c>=2?1:(p.seen?2:0));if(typeof p.n!=="string")p.n="";if(typeof p.tg!=="boolean")p.tg=false});return t;}}catch(e){}return MCQS.map(()=>({c:0,seen:false,lta:[],t:0,n:"",tg:false}));}
 function save(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
 function isMulti(i){return Array.isArray(MCQS[i][2])}
 function corrSet(i){return new Set(isMulti(i)?MCQS[i][2]:[MCQS[i][2]])}
@@ -266,7 +293,49 @@ function corrSet(i){return new Set(isMulti(i)?MCQS[i][2]:[MCQS[i][2]])}
 const APTW=[.5,.25,.15,.1];
 function qApt(i){const l=state[i].lta||[];let a=0;for(let k=0;k<4;k++)a+=APTW[k]*(l[k]===undefined?.25:l[k]);return a}
 function idxs(){return MCQS.map((_,i)=>i).filter(i=>(mode==="full"||MCQS[i][5]===1)&&(!filter||MCQS[i][4]===filter))}
-function rebuild(){queue=idxs().filter(i=>state[i].c<2);if(queue.length){shuffle(queue);queue.sort((a,b)=>(state[a].seen?1:0)-(state[b].seen?1:0));}}
+const TIERS=["untriaged","known","review","learn"];
+let view="drill",pileF="",tq=[];
+function pileCounts(){const p=idxs();const c=[0,0,0,0];p.forEach(i=>c[state[i].t]++);return c}
+function drawPiles(){const c=pileCounts(),lbl=["Untriaged","Known","Review","Learn"];
+  $("piles").innerHTML=lbl.map((L,t)=>'<span class="chip pchip'+(pileF===TIERS[t]?" on":"")+'" data-p="'+TIERS[t]+'">'+L+" "+c[t]+'</span>').join("");
+  [...document.querySelectorAll(".pchip")].forEach(el=>el.onclick=()=>{pileF=(pileF===el.dataset.p?"":el.dataset.p);refresh()});}
+function drillIdxs(){const p=idxs();if(pileF)return p.filter(i=>TIERS[state[i].t]===pileF);return p.filter(i=>state[i].t!==1)}
+function refresh(){drawPiles();if(view==="triage"){buildTriage();renderTriage()}else{rebuild();render()}}
+function setView(v){view=v;localStorage.setItem("d196drill_view",v);$("vTriage").classList.toggle("on",v==="triage");$("vDrill").classList.toggle("on",v==="drill");refresh()}
+function buildTriage(){tq=idxs().filter(i=>state[i].t===0)}
+function renderTriage(){
+  histPos=-1;rings();drawPiles();
+  if(!tq.length){const c=pileCounts();
+    $("stage").innerHTML='<div class="done"><h2>Triage complete</h2><p>Known '+c[1]+' \u00b7 Review '+c[2]+' \u00b7 Learn '+c[3]+'. Drill works the Review and Learn piles.</p><button class="btn" id="goDrill">Start drilling</button></div>';
+    $("goDrill").onclick=()=>setView("drill");return;}
+  cur=tq[0];waiting=false;picked=new Set();
+  const m=MCQS[cur],multi=isMulti(cur);
+  curOpts=m[1].map((t,oi)=>({oi,text:t}));shuffle(curOpts);
+  let h='<div class="topic">'+m[4]+' \u00b7 triage '+(idxs().filter(i=>state[i].t===0).length)+' left</div><p class="q">'+esc(m[0])+'</p>';
+  if(multi)h+='<p class="hint">Select all that apply ('+m[2].length+'), then Check.</p>';
+  h+='<div id="opts">';
+  curOpts.forEach((o,d)=>{h+='<button class="ans" data-disp="'+d+'"><span class="ltr">'+"ABCDEF"[d]+'</span><span>'+esc(o.text)+'</span></button>'});
+  h+='</div>';
+  if(multi)h+='<button class="chk" id="chk" disabled>Check</button>';
+  h+='<div class="tri"><button class="tbtn" id="tStar">\u2605 review later <span class="kb">S</span></button><button class="tbtn" id="tNo">no idea <span class="kb">N</span></button></div>';
+  h+='<div class="explain" id="exp"></div><div class="cont" id="cont">tap or press space to continue</div>';
+  $("stage").innerHTML=h;
+  [...document.querySelectorAll("#opts .ans")].forEach(b=>b.onclick=()=>pick(+b.dataset.disp));
+  if(multi)$("chk").onclick=submit;
+  $("tStar").onclick=triStar;$("tNo").onclick=triNo;
+}
+function triStar(){if(waiting||view!=="triage")return;state[cur].t=2;save();tq.shift();renderTriage()}
+function triNo(){if(waiting||view!=="triage")return;
+  waiting=true;waitAt=Date.now();state[cur].t=3;save();
+  const cs=corrSet(cur);
+  document.querySelectorAll("#opts .ans").forEach(b=>{const oi=curOpts[+b.dataset.disp].oi;b.style.pointerEvents="none";if(cs.has(oi))b.classList.add("correct");else b.classList.add("dim")});
+  const ch=$("chk");if(ch)ch.style.display="none";
+  const e=$("exp");e.className="explain show no";
+  e.innerHTML="<b>Learn:</b> "+esc(MCQS[cur][3])+'<br><input id="noteIn" placeholder="note to self (optional)" maxlength="140">';
+  $("cont").classList.add("show");
+  const ni=$("noteIn");ni.onclick=ev=>ev.stopPropagation();setTimeout(()=>ni.focus(),30);
+}
+function rebuild(){queue=drillIdxs().filter(i=>state[i].c<2);if(queue.length){shuffle(queue);queue.sort((a,b)=>(state[a].seen?1:0)-(state[b].seen?1:0));}}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 
 function rings(){
@@ -286,9 +355,22 @@ function render(){
     const pool=idxs();
     $("stage").innerHTML='<div class="done"><h2>'+(pool.every(i=>state[i].c>=2)?"Pool mastered ✓":"Nothing left in queue")+'</h2><p>Every question answered correctly twice.</p><button class="btn" id="again">Study again</button></div>';
     SND.win();GAME.win();
-    $("again").onclick=()=>{idxs().forEach(i=>state[i].c=0);save();rebuild();render()};return;
+    $("again").onclick=()=>{drillIdxs().forEach(i=>state[i].c=0);save();rebuild();render()};return;
   }
   cur=queue[0];waiting=false;picked=new Set();
+  const st0=state[cur];
+  if(st0.t===3&&!st0.tg){
+    st0.tg=true;save();
+    const m0=MCQS[cur],cs0=corrSet(cur);
+    curOpts=m0[1].map((t,oi)=>({oi,text:t}));shuffle(curOpts);
+    let g='<div class="topic">'+m0[4]+' \u00b7 study card</div><p class="q">'+esc(m0[0])+'</p><div id="opts">';
+    curOpts.forEach((o,d)=>{let cls=cs0.has(o.oi)?"ans correct":"ans dim";g+='<button class="'+cls+'" style="pointer-events:none"><span class="ltr">'+"ABCDEF"[d]+'</span><span>'+esc(o.text)+'</span></button>'});
+    g+='</div><div class="explain show no"><b>Learn:</b> '+esc(m0[3])+(st0.n?'<br><i>note: '+esc(st0.n)+'</i>':'')+'</div><div class="cont show">study it \u00b7 it comes back as a question in a few cards</div>';
+    $("stage").innerHTML=g;
+    waiting=true;waitAt=Date.now();
+    queue.shift();queue.splice(Math.min(4,queue.length),0,cur);
+    return;
+  }
   const m=MCQS[cur],multi=isMulti(cur);
   curOpts=m[1].map((t,oi)=>({oi,text:t}));shuffle(curOpts);
   let h='<div class="topic">'+m[4]+'</div><p class="q">'+esc(m[0])+'</p>';
@@ -348,7 +430,7 @@ function showHist(p){
 function histNav(d){
   if(d<0){const t=(histPos<0?hist.length:histPos)-1;if(t>=0)showHist(t);return}
   if(histPos<0)return;
-  if(histPos+1<hist.length)showHist(histPos+1);else{histPos=-1;render()}
+  if(histPos+1<hist.length)showHist(histPos+1);else{histPos=-1;view==="triage"?renderTriage():render()}
 }
 function pick(d){
   if(histPos>=0)return;
@@ -381,42 +463,53 @@ function submit(){
   save();
   hist.push({i:cur,opts:curOpts.slice(),ch:[...picked],ok:ok});if(hist.length>10)hist.shift();
   const e=$("exp");e.className="explain show "+(ok?"ok":"no");
-  e.innerHTML="<b>"+(ok?"Correct.":"Not quite.")+"</b> "+esc(m[3]);
+  e.innerHTML="<b>"+(ok?"Correct.":"Not quite.")+"</b> "+esc(m[3])+((view!=="triage"&&state[cur].n)?"<br><i>note: "+esc(state[cur].n)+"</i>":"");
+  if(view==="triage"){state[cur].t=ok?1:2;}
   // requeue
+  else{
   queue.shift();
   if(ok&&state[cur].c>=2){/* retire */}
   else{const uns=queue.reduce((n,i)=>n+(state[i].seen?0:1),0);const off=ok?Math.min(uns+8,queue.length):Math.min(3,queue.length);queue.splice(off,0,cur)}
-  rings();
+  }
+  rings();drawPiles();
   if(ok){$("cont").classList.remove("show");setTimeout(()=>{if(waiting)next()},460)}
   else $("cont").classList.add("show");
 }
 
-function next(){if(waiting){waiting=false;render()}}
+function next(){if(!waiting)return;waiting=false;
+  if(view==="triage"){const ni=$("noteIn");if(ni&&ni.value.trim()){state[cur].n=ni.value.trim();save()}tq.shift();renderTriage()}
+  else render()}
 
 function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
 
 document.addEventListener("keydown",e=>{
+  if(e.target&&e.target.tagName==="INPUT"){if(e.key==="Enter"||e.key==="Escape"){e.preventDefault();next()}return}
+  if(view==="triage"&&!waiting){const k=(e.key||"").toLowerCase();if(k==="s"){e.preventDefault();triStar();return}if(k==="n"){e.preventDefault();triNo();return}}
   if(e.key==="ArrowLeft"){e.preventDefault();histNav(-1);return}
   if(e.key==="ArrowRight"){if(histPos>=0){e.preventDefault();histNav(1)}return}
   if(e.key===" "||e.key==="Enter"){if(histPos>=0){e.preventDefault();histNav(1);return}if(waiting){e.preventDefault();next()}return}
   const n="1234".indexOf(e.key),a="abcd".indexOf(e.key.toLowerCase());
   const d=n>=0?n:a;if(d>=0){const b=document.querySelector('#opts .ans[data-disp="'+d+'"]');if(b)pick(d)}
 });
-$("stage").addEventListener("click",()=>{if(histPos>=0)return;if(waiting&&Date.now()-waitAt>250)next()});
+$("stage").addEventListener("click",e=>{if(e.target.closest&&e.target.closest("input,.tbtn"))return;if(histPos>=0)return;if(waiting&&Date.now()-waitAt>250)next()});
 
 // topic dropdown
 [...new Set(MCQS.map(m=>m[4]))].forEach(t=>{const o=document.createElement("option");o.value=o.textContent=t;$("topic").appendChild(o)});
-$("topic").onchange=()=>{filter=$("topic").value;rebuild();render()};
+$("topic").onchange=()=>{filter=$("topic").value;refresh()};
 $("histBtn").onclick=e=>{e.preventDefault();e.stopPropagation();histNav(-1)};
-$("reset").onclick=()=>{if(confirm("Wipe all drill progress?")){state=MCQS.map(()=>({c:0,seen:false,lta:[]}));save();rebuild();render()}};
+$("reset").onclick=()=>{if(confirm("Wipe all drill progress?")){state=MCQS.map(()=>({c:0,seen:false,lta:[],t:0,n:"",tg:false}));save();refresh()}};
 
-function setMode(m){mode=m;localStorage.setItem("d196drill_mode",m);$("mCore").classList.toggle("on",m==="core");$("mFull").classList.toggle("on",m==="full");rebuild();render()}
+function setMode(m){mode=m;localStorage.setItem("d196drill_mode",m);$("mCore").classList.toggle("on",m==="core");$("mFull").classList.toggle("on",m==="full");refresh()}
 $("mCore").onclick=()=>setMode("core");$("mFull").onclick=()=>setMode("full");
+$("vTriage").onclick=()=>setView("triage");$("vDrill").onclick=()=>setView("drill");
+view=localStorage.getItem("d196drill_view")||"";
 setMode(mode);
+if(!view)view=idxs().some(i=>state[i].t===0)?"triage":"drill";
+setView(view);
 
 document.addEventListener("click", function(e){
   var t=e.target;
-  if(t.closest && t.closest("select,a,#themeBtn,.seg,.reset")) return;
+  if(t.closest && t.closest("select,a,#themeBtn,.seg,.reset,input,.tbtn,.pchip")) return;
   if(histPos>=0){ histNav(1); return; }
   if(!waiting) return;
   if(Date.now()-waitAt<250) return;
