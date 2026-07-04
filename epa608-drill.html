@@ -110,6 +110,7 @@ select{font-family:var(--fb);font-size:12.5px;padding:6px 9px;border:1px solid v
       <div class="h1">EPA 608 Mastery Drill</div>
       <div class="h2">Core &middot; Type I &middot; Type II &middot; Type III &mdash; one at a time, requeued until mastered</div>
     </div>
+    <a class="reset" id="histBtn">‹ back</a>
     <a class="reset" id="resetBtn">reset</a>
     <a class="reset" id="sndBtn"></a>
   </header>
@@ -199,6 +200,7 @@ var curOpts = [];
 var waiting = false;
 var lastCorrect = false;
 var advTimer = null;
+var hist=[];var histPos=-1;
 
 function shuffle(a){ for(var k=a.length-1;k>0;k--){ var j=Math.floor(Math.random()*(k+1)); var t=a[k]; a[k]=a[j]; a[j]=t; } return a; }
 
@@ -236,6 +238,7 @@ function boldUnique(text, uniq){
 }
 
 function render(){
+  histPos=-1;
   if(queue.length===0){ finish(); return; }
   document.getElementById("finish").classList.remove("done");
   document.getElementById("card").style.display="block";
@@ -294,7 +297,34 @@ return{ok:ok,no:no,win:win,toggle:toggle,muted:function(){return muted}}
 })();
 (function(){var a=document.getElementById("sndBtn");if(!a)return;function r(){a.textContent=SND.muted()?"\uD83D\uDD07 sound":"\uD83D\uDD0A sound"}a.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();SND.toggle();r()});r()})();
 
+function showHist(p){
+  if(waiting){ next(); }
+  histPos=p;
+  var h=hist[p], m=MCQS[h.i];
+  document.getElementById("finish").classList.remove("done");
+  document.getElementById("card").style.display="block";
+  document.getElementById("qtopic").textContent=m[4]+"  \u00b7  review "+(p+1)+" of "+hist.length;
+  document.getElementById("q").textContent=m[0];
+  var box=document.getElementById("opts"); box.innerHTML="";
+  for(var d=0; d<h.opts.length; d++){
+    var b=document.createElement("button");
+    var cls="ans lock dim";
+    if(h.opts[d].oi===m[2])cls="ans lock correct";
+    else if(d===h.disp)cls="ans lock wrong";
+    b.className=cls;
+    b.innerHTML='<span class="ltr">'+LETTERS[d]+'</span><span class="txt">'+h.opts[d].text.replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</span>';
+    box.appendChild(b);
+  }
+  var ex=document.getElementById("explain"); ex.textContent=m[3]; ex.classList.add("show");
+  var ct=document.getElementById("cont"); ct.innerHTML=(p>0?"\u2039 older \u00b7 ":"")+"tap / \u2192 to return"; ct.classList.add("show");
+}
+function histNav(d){
+  if(d<0){var t=(histPos<0?hist.length:histPos)-1;if(t>=0)showHist(t);return;}
+  if(histPos<0)return;
+  if(histPos+1<hist.length)showHist(histPos+1);else{histPos=-1;document.getElementById("cont").innerHTML='Tap or press <span class="kbd">space</span> to continue';render();}
+}
 function pick(disp){
+  if(histPos>=0) return;
   if(waiting) return;
   var m = MCQS[cur];
   var chosen = curOpts[disp].oi;
@@ -305,6 +335,7 @@ function pick(disp){
   if(lastCorrect)SND.ok(p.c>=2);else SND.no();
   if(lastCorrect)GAME.ok(p.c>=2);else GAME.no();
   save();
+  hist.push({i:cur,opts:curOpts.slice(),disp:disp,ok:lastCorrect});if(hist.length>10)hist.shift();
   waiting=true; waitAt=Date.now();
 
   var btns = document.querySelectorAll("#opts .ans");
@@ -358,6 +389,9 @@ function finish(){
 }
 
 document.addEventListener("keydown", function(e){
+  if(e.key==="ArrowLeft"){ e.preventDefault(); histNav(-1); return; }
+  if(e.key==="ArrowRight"){ if(histPos>=0){ e.preventDefault(); histNav(1); } return; }
+  if(histPos>=0){ if(e.key===" "||e.key==="Enter"||e.key==="Spacebar"){ e.preventDefault(); histNav(1); } return; }
   if(waiting){
     if(e.key===" "||e.key==="Enter"||e.key==="Spacebar"){ e.preventDefault(); next(); }
     return;
@@ -375,6 +409,7 @@ function buildTopicSel(){
   sel.addEventListener("change", function(){ activeTopic=sel.value; buildPool(); buildQueue(); render(); });
 }
 
+document.getElementById("histBtn").addEventListener("click", function(e){ e.preventDefault(); e.stopPropagation(); histNav(-1); });
 document.getElementById("resetBtn").addEventListener("click", function(){
   if(!confirm("Wipe all drill progress?")) return;
   prog={}; try{ localStorage.removeItem(LS_KEY); }catch(e){}
@@ -392,10 +427,11 @@ buildQueue();
 render();
 
 document.addEventListener("click", function(e){
-  if(!waiting) return;
-  if(Date.now()-waitAt<250) return;
   var t=e.target;
   if(t.closest && t.closest("select,a,#themeBtn,.seg,.reset")) return;
+  if(histPos>=0){ histNav(1); return; }
+  if(!waiting) return;
+  if(Date.now()-waitAt<250) return;
   next();
 });
 </script>
