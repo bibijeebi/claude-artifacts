@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Turnstile — prove your way through the gates</title>
+<meta property="og:title" content="Turnstile — a proof game">
+<meta property="og:description" content="Pass through the gates by proving. Intuitionistic sequent calculus as a metro system: tap fare cards, open gates, collect brass tokens. 20 stations, 2 lines.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/turnstile-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/turnstile/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/turnstile-og.jpg">
+<meta name="theme-color" content="#0d0d0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Turnstile">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<script>try{if(localStorage.getItem('turnstile-theme')==='light')document.documentElement.classList.add('light')}catch(e){}</script>
+<style>
+:root{
+  --bg:#0d0d0f; --surface:#17171a; --text:#ffffff; --text2:#9a9aa2; --hair:#2a2a2e;
+  --w1:#00933c; --w2:#ee352e; --brass:#c9a227; --brass2:#8a6d1d;
+  --font:-apple-system,"Helvetica Neue",Helvetica,Inter,Arial,sans-serif;
+}
+html.light{ --bg:#f5f2ea; --surface:#ffffff; --text:#111111; --text2:#55555c; --hair:#d8d4c8; }
+html{background:var(--bg);}
+html,body{overflow-x:hidden;margin:0;padding:0;}
+body{
+  background:transparent; color:var(--text); font-family:var(--font);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  -webkit-text-size-adjust:100%;
+}
+#app{max-width:430px;margin:0 auto;padding:12px 16px 32px;}
+button{font-family:var(--font);color:var(--text);background:none;border:none;padding:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+.game{user-select:none;-webkit-user-select:none;}
+.caps{text-transform:uppercase;letter-spacing:.06em;}
+.tnum{font-variant-numeric:tabular-nums;}
+.pill{display:inline-flex;align-items:center;justify-content:center;min-height:44px;min-width:44px;padding:0 18px;border:1px solid var(--hair);border-radius:999px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;background:var(--surface);}
+.pill:active{border-color:var(--line,var(--text2));transform:scale(.97);}
+.pill.primary{background:var(--line);border-color:var(--line);color:#fff;}
+.hidden{display:none !important;}
+
+/* header */
+header{display:flex;align-items:center;gap:12px;padding:10px 0 4px;}
+.logo{width:44px;height:44px;border-radius:10px;background:var(--text);color:var(--bg);display:grid;place-items:center;font-size:26px;font-weight:600;}
+.wordmark{font-size:22px;font-weight:700;letter-spacing:.08em;}
+.tagline{font-size:10px;letter-spacing:.14em;color:var(--text2);margin-top:2px;}
+header .spacer{flex:1;}
+#themeBtn{width:44px;height:44px;border:1px solid var(--hair);border-radius:50%;font-size:18px;background:var(--surface);}
+
+/* route map */
+.world{margin-top:26px;}
+.world.w1{--line:var(--w1);} .world.w2{--line:var(--w2);}
+.lineHead{display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--hair);}
+.lineBadge{width:30px;height:30px;border-radius:50%;background:var(--line);color:#fff;display:grid;place-items:center;font-size:16px;font-weight:700;flex:none;}
+.lineName{font-size:15px;font-weight:700;}
+.lineSub{font-size:11px;color:var(--text2);letter-spacing:.1em;margin-left:auto;text-transform:uppercase;}
+.stations{list-style:none;margin:0;padding:6px 0 0;position:relative;}
+.stations::before{content:"";position:absolute;left:12px;top:18px;bottom:18px;width:4px;background:var(--line);border-radius:2px;}
+.station{position:relative;}
+.station button{display:flex;align-items:center;width:100%;min-height:56px;padding:6px 4px 6px 40px;text-align:left;gap:8px;}
+.station button:active .stName{color:var(--line);}
+.dot{position:absolute;left:5px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:var(--bg);border:3px solid var(--line);z-index:1;}
+.station.solved .dot{background:var(--line);}
+.station.current .dot{animation:pulse 1.6s ease-out infinite;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--line) 60%,transparent);}70%{box-shadow:0 0 0 9px transparent;}100%{box-shadow:0 0 0 0 transparent;}}
+.stMain{flex:1;min-width:0;}
+.stName{display:block;font-size:14px;font-weight:600;letter-spacing:.06em;}
+.stSeq{display:block;font-size:12px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tokens{display:flex;gap:4px;flex:none;}
+.token{width:13px;height:13px;border-radius:50%;border:1px solid var(--hair);}
+.token.got{border:none;background:radial-gradient(circle at 35% 30%,#e8cd62,var(--brass) 55%,var(--brass2));}
+.mapFoot{display:flex;gap:10px;justify-content:center;margin-top:34px;}
+.ver{color:var(--text2);font-size:10px;text-align:center;letter-spacing:.1em;margin-top:14px;}
+
+/* play screen */
+#screen-play.w1{--line:var(--w1);} #screen-play.w2{--line:var(--w2);}
+.playBar{display:flex;align-items:center;gap:8px;padding:8px 0 2px;}
+.playBar .pill{padding:0 14px;}
+.playTitle{flex:1;text-align:center;font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.playTitle .ldot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--line);margin-right:6px;}
+.stepsRow{text-align:center;color:var(--text2);font-size:12px;letter-spacing:.1em;margin:12px 0 14px;text-transform:uppercase;}
+.goalCard{background:var(--surface);border-radius:14px;border-top:3px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.25);padding:18px 16px 22px;overflow:hidden;}
+.goalCard.slideIn{animation:cardIn .14s ease-out;}
+@keyframes cardIn{from{transform:translateX(28px);opacity:0;}to{transform:none;opacity:1;}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;min-height:48px;align-items:center;justify-content:center;}
+.noFares{color:var(--text2);font-size:12px;letter-spacing:.12em;text-transform:uppercase;}
+.chip{min-height:44px;padding:8px 14px;border:1px solid var(--hair);border-radius:10px;background:var(--surface);font-size:17px;font-weight:500;}
+.chip:active{border-color:var(--line);transform:scale(.97);}
+.chip.in{animation:chipIn .12s ease-out;}
+@keyframes chipIn{from{transform:translateY(-8px);opacity:0;}to{transform:none;opacity:1;}}
+.chip.shake,.goalFormula.shake{animation:shake .18s linear;}
+@keyframes shake{25%{transform:translateX(-4px);}50%{transform:translateX(4px);}75%{transform:translateX(-3px);}}
+.gcRule{border:none;border-top:1px solid var(--hair);margin:16px 0;}
+.goalRow{text-align:center;}
+.turnstileSym{font-size:26px;color:var(--text2);margin-right:10px;vertical-align:baseline;}
+.goalFormula{font-size:28px;font-weight:500;min-height:44px;padding:4px 10px;border:1px solid transparent;border-radius:10px;display:inline-block;}
+.goalFormula.tappable{border-color:var(--hair);}
+.goalFormula:active{border-color:var(--line);transform:scale(.97);}
+.conn{color:var(--line);padding:0 .08em;}
+.crumbs{display:flex;gap:7px;justify-content:center;margin-top:22px;min-height:9px;}
+.crumb{width:9px;height:9px;border-radius:50%;background:var(--hair);}
+.crumb.cur{background:var(--line);}
+
+/* victory */
+#screen-win.w1{--line:var(--w1);} #screen-win.w2{--line:var(--w2);}
+.placard{background:var(--surface);border-top:8px solid var(--line);border-bottom:8px solid var(--line);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:center;padding:30px 16px 26px;margin-top:18px;}
+.placard.stamp{animation:stamp .08s ease-out;}
+@keyframes stamp{from{transform:scale(1.15);}to{transform:scale(1);}}
+.notice{font-size:10px;letter-spacing:.3em;color:var(--text2);text-transform:uppercase;}
+.qed{font-size:72px;font-weight:800;letter-spacing:.04em;margin:6px 0 2px;}
+.winStation{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;}
+.winStats{color:var(--text2);font-size:13px;letter-spacing:.1em;margin-top:10px;text-transform:uppercase;}
+.bigTokens{display:flex;gap:10px;justify-content:center;margin-top:14px;}
+.bigToken{width:30px;height:30px;border-radius:50%;border:1px solid var(--hair);display:grid;place-items:center;font-size:14px;color:transparent;}
+.bigToken.got{border:none;background:radial-gradient(circle at 35% 30%,#e8cd62,var(--brass) 55%,var(--brass2));color:var(--brass2);font-weight:700;}
+.treeWrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:18px;border:1px solid var(--hair);border-radius:10px;background:var(--surface);}
+.treeWrap svg{display:block;margin:0 auto;}
+.winBtns{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+
+/* dialog */
+#dlg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:10;padding:20px;}
+.dlgCard{background:var(--surface);border-radius:14px;padding:20px;width:100%;max-width:380px;}
+.dlgCard h3{margin:0 0 10px;font-size:14px;letter-spacing:.08em;text-transform:uppercase;}
+.dlgCard textarea{width:100%;box-sizing:border-box;height:110px;background:var(--bg);color:var(--text);border:1px solid var(--hair);border-radius:8px;padding:10px;font-size:12px;font-family:ui-monospace,monospace;}
+.dlgBtns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
+.dlgMsg{font-size:12px;color:var(--text2);margin-top:8px;min-height:14px;}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important;}
+}
+</style>
+</head>
+<body>
+<div id="app" class="game">
+
+  <section id="screen-map">
+    <header>
+      <div class="logo">⊢</div>
+      <div>
+        <div class="wordmark">TURNSTILE</div>
+        <div class="tagline caps">INTUITIONISTIC TRANSIT AUTHORITY</div>
+      </div>
+      <div class="spacer"></div>
+      <button id="themeBtn" aria-label="toggle theme">◐</button>
+    </header>
+    <div id="worlds"></div>
+    <div class="mapFoot">
+      <button class="pill" id="exportBtn">Export</button>
+      <button class="pill" id="importBtn">Import</button>
+    </div>
+    <div class="ver caps">NIGHT SERVICE · MVP</div>
+  </section>
+
+  <section id="screen-play" class="hidden">
+    <div class="playBar">
+      <button class="pill" id="backBtn">◀ Map</button>
+      <div class="playTitle"><span class="ldot"></span><span id="playName"></span></div>
+      <button class="pill" id="resetBtn">Reset</button>
+    </div>
+    <div class="stepsRow tnum" id="stepsRow"></div>
+    <div class="goalCard" id="goalCard">
+      <div class="chips" id="chips"></div>
+      <hr class="gcRule">
+      <div class="goalRow">
+        <span class="turnstileSym">⊢</span><button class="goalFormula" id="goalFormula"></button>
+      </div>
+    </div>
+    <div class="crumbs" id="crumbs"></div>
+  </section>
+
+  <section id="screen-win" class="hidden">
+    <div class="placard" id="placard">
+      <div class="notice">SERVICE NOTICE</div>
+      <div class="qed">Q.E.D.</div>
+      <div class="winStation" id="winStation"></div>
+      <div class="winStats tnum" id="winStats"></div>
+      <div class="bigTokens" id="bigTokens"></div>
+    </div>
+    <div class="treeWrap" id="treeWrap"></div>
+    <div class="winBtns">
+      <button class="pill primary" id="nextBtn">Next station</button>
+      <button class="pill" id="winMapBtn">Map</button>
+      <button class="pill" id="saveSvgBtn">Save proof</button>
+    </div>
+  </section>
+
+</div>
+<div id="dlg" class="hidden">
+  <div class="dlgCard">
+    <h3 id="dlgTitle"></h3>
+    <textarea id="dlgText" spellcheck="false"></textarea>
+    <div class="dlgMsg" id="dlgMsg"></div>
+    <div class="dlgBtns">
+      <button class="pill" id="dlgClose">Close</button>
+      <button class="pill" id="dlgAction"></button>
+    </div>
+  </div>
+</div>
+
+<script>// Turnstile core: G4ip (Dyckhoff contraction-free LJT), fragment: atoms, ∧, →
+'use strict';
+
+// ---- formulas ----
+const atom = n => ({ t: 'a', n });
+const and = (l, r) => ({ t: '&', l, r });
+const imp = (l, r) => ({ t: '>', l, r });
+
+function fkey(f) {
+  if (f.t === 'a') return f.n;
+  return '(' + fkey(f.l) + f.t + fkey(f.r) + ')';
+}
+const feq = (a, b) => fkey(a) === fkey(b);
+
+// parser: atoms = single token letters/emoji ids, & binds tighter than >, > right-assoc
+// accepts ∧ for & and → for >
+function parse(src) {
+  const s = src.replace(/∧/g, '&').replace(/→/g, '>').replace(/\s+/g, '');
+  let i = 0;
+  function prim() {
+    if (s[i] === '(') { i++; const f = impExpr(); if (s[i] !== ')') throw new Error('expected ) in ' + src); i++; return f; }
+    const m = /^[A-Za-z][A-Za-z0-9]*/.exec(s.slice(i));
+    if (!m) throw new Error('bad atom at ' + i + ' in ' + src);
+    i += m[0].length;
+    return atom(m[0]);
+  }
+  function andExpr() { let f = prim(); while (s[i] === '&') { i++; f = and(f, prim()); } return f; }
+  function impExpr() { const f = andExpr(); if (s[i] === '>') { i++; return imp(f, impExpr()); } return f; }
+  const f = impExpr();
+  if (i !== s.length) throw new Error('trailing junk in ' + src);
+  return f;
+}
+
+// sequent: { hyps: [formula...], goal: formula }  (hyps is a multiset; array order = display order)
+function seqKey(sq) {
+  return sq.hyps.map(fkey).sort().join('|') + '⊢' + fkey(sq.goal);
+}
+const withHyps = (hyps, goal) => ({ hyps, goal });
+function replaceHyp(hyps, i, ...subs) {
+  const h = hyps.slice();
+  h.splice(i, 1, ...subs);
+  return h;
+}
+
+// ---- moves ----
+// enumerate legal rule applications at a sequent.
+// tap: {kind:'goal'} or {kind:'hyp', i}
+// returns [{rule, tap, principal, prems:[seq...]}]
+function moves(sq) {
+  const out = [];
+  const { hyps, goal } = sq;
+  const gk = fkey(goal);
+  for (let i = 0; i < hyps.length; i++) {
+    const h = hyps[i];
+    if (fkey(h) === gk) {
+      // trap 5: identical chip always closes as axiom, no other effect offered on it
+      out.push({ rule: 'ax', tap: { kind: 'hyp', i }, principal: gk, prems: [] });
+      continue;
+    }
+    if (h.t === '&') {
+      out.push({ rule: 'andL', tap: { kind: 'hyp', i }, principal: fkey(h), prems: [withHyps(replaceHyp(hyps, i, h.l, h.r), goal)] });
+    } else if (h.t === '>') {
+      const A = h.l, B = h.r;
+      if (A.t === 'a') {
+        // →L case 1: requires the atom present in Γ (trap 1)
+        if (hyps.some((x, j) => j !== i && x.t === 'a' && x.n === A.n)) {
+          out.push({ rule: 'impL1', tap: { kind: 'hyp', i }, principal: fkey(h), prems: [withHyps(replaceHyp(hyps, i, B), goal)] });
+        }
+      } else if (A.t === '&') {
+        // →L case 2: (C∧D)→B  ⇒  C→(D→B), in place
+        out.push({ rule: 'impL2', tap: { kind: 'hyp', i }, principal: fkey(h), prems: [withHyps(replaceHyp(hyps, i, imp(A.l, imp(A.r, B))), goal)] });
+      } else if (A.t === '>') {
+        // →L case 4: (C→D)→B ⇒ [Γ, D→B ⊢ C→D]  and  [Γ, B ⊢ G]  (trap 2: chip replaced in both)
+        out.push({
+          rule: 'impL4', tap: { kind: 'hyp', i }, principal: fkey(h), prems: [
+            withHyps(replaceHyp(hyps, i, imp(A.r, B)), imp(A.l, A.r)),
+            withHyps(replaceHyp(hyps, i, B), goal),
+          ]
+        });
+      }
+      // A.t === '|' would be case 3; v2 slot in this dispatch
+    }
+  }
+  if (goal.t === '&') {
+    out.push({ rule: 'andR', tap: { kind: 'goal' }, principal: gk, prems: [withHyps(hyps, goal.l), withHyps(hyps, goal.r)] });
+  } else if (goal.t === '>') {
+    out.push({ rule: 'impR', tap: { kind: 'goal' }, principal: gk, prems: [withHyps(hyps.concat([goal.l]), goal.r)] });
+  }
+  return out;
+}
+
+// ---- decider: exact minimal proof (par) via memoized recursion ----
+// termination: every premise strictly smaller in Dyckhoff's multiset weight ordering,
+// so plain recursion terminates with no loop check.
+// cost convention: every tap = 1 step (axiom taps included); par = total taps.
+function solve(sq, memo) {
+  memo = memo || new Map();
+  const key = seqKey(sq);
+  if (memo.has(key)) return memo.get(key);
+  let best = null;
+  for (const mv of moves(sq)) {
+    if (mv.rule === 'ax') { best = { cost: 1, rule: 'ax', principal: mv.principal, prems: [] }; break; }
+  }
+  if (!best) {
+    for (const mv of moves(sq)) {
+      let cost = 1;
+      const prems = [];
+      let ok = true;
+      for (const p of mv.prems) {
+        const sub = solve(p, memo);
+        if (!sub) { ok = false; break; }
+        cost += sub.cost;
+        prems.push(sub);
+      }
+      if (ok && (!best || cost < best.cost)) best = { cost, rule: mv.rule, principal: mv.principal, prems };
+    }
+  }
+  memo.set(key, best);
+  return best;
+}
+
+function decide(sq) {
+  const proof = solve(sq);
+  return proof ? { provable: true, par: proof.cost, minimalProof: proof } : { provable: false, par: null, minimalProof: null };
+}
+
+// ---- structural validator: checks a derivation tree is a legal G4ip derivation ----
+// node: { seq, rule, principalKey, children:[node...] }  (as built by the checker)
+function multisetEq(a, b) {
+  if (a.length !== b.length) return false;
+  const ka = a.map(fkey).sort(), kb = b.map(fkey).sort();
+  return ka.every((k, i) => k === kb[i]);
+}
+function validate(node) {
+  if (!node.rule) return false;
+  const legal = moves(node.seq).filter(m => m.rule === node.rule && m.principal === node.principalKey);
+  for (const mv of legal) {
+    if (mv.prems.length !== node.children.length) continue;
+    let match = true;
+    for (let i = 0; i < mv.prems.length; i++) {
+      const p = mv.prems[i], c = node.children[i].seq;
+      if (!multisetEq(p.hyps, c.hyps) || !feq(p.goal, c.goal)) { match = false; break; }
+    }
+    if (match) return node.children.every(validate);
+  }
+  return false;
+}
+
+// ---- classical truth-table check (soundness oracle: int. provable ⇒ classically valid) ----
+function atomsOf(f, s) { s = s || new Set(); if (f.t === 'a') s.add(f.n); else { atomsOf(f.l, s); atomsOf(f.r, s); } return s; }
+function evalF(f, v) {
+  if (f.t === 'a') return v[f.n];
+  if (f.t === '&') return evalF(f.l, v) && evalF(f.r, v);
+  return !evalF(f.l, v) || evalF(f.r, v);
+}
+function classicallyValid(sq) {
+  const ats = [...sq.hyps.reduce((s, h) => atomsOf(h, s), atomsOf(sq.goal))];
+  for (let m = 0; m < (1 << ats.length); m++) {
+    const v = {};
+    ats.forEach((a, i) => v[a] = !!(m & (1 << i)));
+    if (sq.hyps.every(h => evalF(h, v)) && !evalF(sq.goal, v)) return false;
+  }
+  return true;
+}
+
+const G4 = { atom, and, imp, parse, fkey, feq, seqKey, withHyps, moves, solve, decide, validate, multisetEq, classicallyValid };
+if (typeof module !== 'undefined') module.exports = G4;
+if (typeof window !== 'undefined') window.G4 = G4;
+</script>
+<script>// Turnstile interactive checker: one rule per tap, goal queue, derivation tree for validation
+'use strict';
+const G4c = typeof module !== 'undefined' ? require('./core.js') : window.G4;
+
+function newGame(sq) {
+  const root = { seq: { hyps: sq.hyps.slice(), goal: sq.goal }, rule: null, principalKey: null, children: [] };
+  return { root, queue: [root], steps: 0 };
+}
+
+// tap: {kind:'goal'} | {kind:'hyp', i}
+// returns {ok, rule, effect} — effect describes what happened for the UI; invalid tap => ok:false, state untouched
+function tap(state, action) {
+  if (state.queue.length === 0) return { ok: false, reason: 'done' };
+  const node = state.queue[0];
+  const legal = G4c.moves(node.seq);
+  let mv = null;
+  if (action.kind === 'goal') {
+    mv = legal.find(m => m.tap.kind === 'goal') || null;
+  } else {
+    if (!Number.isInteger(action.i) || action.i < 0 || action.i >= node.seq.hyps.length) return { ok: false, reason: 'bad index' };
+    mv = legal.find(m => m.tap.kind === 'hyp' && m.tap.i === action.i) || null;
+  }
+  if (!mv) return { ok: false, reason: 'no rule applies' };
+  node.rule = mv.rule;
+  node.principalKey = mv.principal;
+  node.children = mv.prems.map(p => ({ seq: p, rule: null, principalKey: null, children: [] }));
+  state.queue.splice(0, 1, ...node.children);
+  state.steps++;
+  return { ok: true, rule: mv.rule, children: node.children.length };
+}
+
+const won = state => state.queue.length === 0;
+
+// replay a decider proof tree through the interactive checker; returns {ok, steps}
+function proofToTaps(proof) {
+  // preorder: at each node emit its tap descriptor {rule, principal}
+  const taps = [];
+  (function walk(n) { taps.push({ rule: n.rule, principal: n.principal }); n.prems.forEach(walk); })(proof);
+  return taps;
+}
+function replay(sq, proof) {
+  const state = newGame(sq);
+  for (const t of proofToTaps(proof)) {
+    let action;
+    if (t.rule === 'andR' || t.rule === 'impR') action = { kind: 'goal' };
+    else {
+      const i = state.queue[0].seq.hyps.findIndex(h => G4c.fkey(h) === t.principal);
+      if (i < 0) return { ok: false, steps: state.steps, reason: 'principal not found: ' + t.principal };
+      action = { kind: 'hyp', i };
+    }
+    const r = tap(state, action);
+    if (!r.ok || r.rule !== t.rule) return { ok: false, steps: state.steps, reason: `tap failed (${r.reason || 'rule mismatch ' + r.rule + '≠' + t.rule})` };
+  }
+  return { ok: won(state), steps: state.steps, state };
+}
+
+const CK = { newGame, tap, won, replay, proofToTaps };
+if (typeof module !== 'undefined') module.exports = CK;
+if (typeof window !== 'undefined') window.CK = CK;
+</script>
+<script>'use strict';
+// 20 MVP levels per LEVELS.md. Emoji map applies to levels 1-4 (🔑=A, 🚪=B, 🧀=C).
+const LEVELS = [
+  { id: 1, world: 1, name: 'FIRST GATE', hyps: ['A'], goal: 'A', emoji: true },
+  { id: 2, world: 1, name: 'SPARE KEY', hyps: ['A', 'B'], goal: 'A', emoji: true },
+  { id: 3, world: 1, name: 'PAIR UP', hyps: ['A', 'B'], goal: 'A&B', emoji: true },
+  { id: 4, world: 1, name: 'TWO OF A KIND', hyps: ['A'], goal: 'A&A', emoji: true },
+  { id: 5, world: 1, name: 'BREAK IT DOWN', hyps: ['A&B'], goal: 'A' },
+  { id: 6, world: 1, name: 'OTHER HALF', hyps: ['A&B'], goal: 'B' },
+  { id: 7, world: 1, name: 'TURNAROUND', hyps: ['A&B'], goal: 'B&A' },
+  { id: 8, world: 1, name: 'THREE-WAY', hyps: ['A', 'B', 'C'], goal: '(A&B)&C' },
+  { id: 9, world: 1, name: 'REGROUP', hyps: ['(A&B)&C'], goal: 'A&(B&C)' },
+  { id: 10, world: 1, name: 'CROSSOVER', hyps: ['A&B', 'C&D'], goal: '(A&D)&(C&B)' },
+  { id: 11, world: 2, name: 'THROUGH TRAIN', hyps: ['A', 'A>B'], goal: 'B' },
+  { id: 12, world: 2, name: 'TRANSFER', hyps: ['A>B', 'B>C', 'A'], goal: 'C' },
+  { id: 13, world: 2, name: 'ROUND TRIP', hyps: [], goal: 'A>A' },
+  { id: 14, world: 2, name: 'FREE RIDE', hyps: [], goal: 'A>(B>A)' },
+  { id: 15, world: 2, name: 'LOCAL SERVICE', hyps: ['A>B', 'B>C'], goal: 'A>C' },
+  { id: 16, world: 2, name: 'SWITCHYARD', hyps: ['A>(B>C)'], goal: 'B>(A>C)' },
+  { id: 17, world: 2, name: 'DOUBLE FARE', hyps: ['A>(A>B)'], goal: 'A>B' },
+  { id: 18, world: 2, name: 'SPLIT TICKET', hyps: ['A>B', 'A>C'], goal: 'A>(B&C)' },
+  { id: 19, world: 2, name: 'UNCURRY', hyps: ['A>(B>C)'], goal: '(A&B)>C' },
+  { id: 20, world: 2, name: 'CURRY', hyps: ['(A&B)>C'], goal: 'A>(B>C)' },
+];
+if (typeof module !== 'undefined') module.exports = LEVELS;
+if (typeof window !== 'undefined') window.LEVELS = LEVELS;
+</script>
+<script>
+'use strict';
+(function(){
+const $ = id => document.getElementById(id);
+const EMOJI = { A:'🔑', B:'🚪', C:'🧀' };
+const WORLDS = {
+  1: { name:'JUNCTION LINE', sym:'∧', cls:'w1', color:'#00933c' },
+  2: { name:'EXPRESS LINE', sym:'→', cls:'w2', color:'#ee352e' },
+};
+
+// ---- level table with decider pars (pars come from the decider, not the file) ----
+const LV = LEVELS.map(l => {
+  const sq = G4.withHyps(l.hyps.map(G4.parse), G4.parse(l.goal));
+  const d = G4.decide(sq);
+  return Object.assign({}, l, { sq, par: d.par, minimalProof: d.minimalProof });
+});
+const byId = id => LV.find(l => l.id === id);
+
+// ---- progress ----
+function loadP(){ try{ const p = JSON.parse(localStorage.getItem('turnstile')||'{}'); return { v:1, levels:(p&&p.levels)||{} }; }catch(e){ return { v:1, levels:{} }; } }
+function saveP(p){ try{ localStorage.setItem('turnstile', JSON.stringify(p)); }catch(e){} }
+let P = loadP();
+
+// ---- formula rendering (minimal parens; ∧ tighter than →, ∧ left-assoc, → right-assoc) ----
+function fmt(f, emoji, sub){
+  if (f.t==='a') return (emoji&&EMOJI[f.n])||f.n;
+  const s = fmt(f.l, emoji, true) + (f.t==='&'?'\u2227':'\u2192') + fmt(f.r, emoji, true);
+  return sub? '('+s+')' : s;  // LEVELS.md convention: every compound subformula parenthesized
+}
+function fmtHTML(f, emoji){
+  return fmt(f, emoji).replace(/(\u2227|\u2192)/g, '<span class="conn">$1</span>');
+}
+function fmtText(f, emoji){ return fmt(f, emoji); }
+function seqText(sq, emoji){
+  return (sq.hyps.length? sq.hyps.map(h=>fmtText(h,emoji)).join(', ')+' ' : '') + '⊢ ' + fmtText(sq.goal, emoji);
+}
+
+// ---- theme ----
+$('themeBtn').onclick = () => {
+  const light = document.documentElement.classList.toggle('light');
+  try{ localStorage.setItem('turnstile-theme', light?'light':'dark'); }catch(e){}
+  document.querySelector('meta[name=theme-color]').setAttribute('content', light?'#f5f2ea':'#0d0d0f');
+};
+
+// ---- screens ----
+function show(id){ ['screen-map','screen-play','screen-win'].forEach(s=>$(s).classList.toggle('hidden', s!==id)); window.scrollTo(0,0); }
+
+// ---- map ----
+function renderMap(){
+  const cur = LV.find(l => !(P.levels[l.id]&&P.levels[l.id].stars));
+  const wrap = $('worlds'); wrap.innerHTML='';
+  for (const w of [1,2]){
+    const W = WORLDS[w];
+    const sec = document.createElement('section');
+    sec.className = 'world '+W.cls;
+    sec.innerHTML = '<div class="lineHead"><div class="lineBadge">'+W.sym+'</div><div class="lineName caps">'+W.name+'</div><div class="lineSub">World '+w+'</div></div>';
+    const ol = document.createElement('ol'); ol.className='stations';
+    for (const l of LV.filter(x=>x.world===w)){
+      const pr = P.levels[l.id];
+      const li = document.createElement('li');
+      li.className = 'station'+(pr&&pr.stars?' solved':'')+(cur&&cur.id===l.id?' current':'');
+      const stars = pr?pr.stars:0;
+      li.innerHTML = '<button data-id="'+l.id+'"><span class="dot"></span>'+
+        '<span class="stMain"><span class="stName caps">'+String(l.id).padStart(2,'0')+' · '+l.name+'</span>'+
+        '<span class="stSeq">'+seqText(l.sq, l.emoji)+'</span></span>'+
+        '<span class="tokens">'+[1,2,3].map(i=>'<span class="token'+(i<=stars?' got':'')+'"></span>').join('')+'</span></button>';
+      li.querySelector('button').onclick = () => openLevel(l.id);
+      ol.appendChild(li);
+    }
+    sec.appendChild(ol);
+    wrap.appendChild(sec);
+  }
+}
+
+// ---- play ----
+let cur = null; // { level, state }
+function openLevel(id){
+  const l = byId(id);
+  cur = { level:l, state: CK.newGame(l.sq) };
+  $('screen-play').className = WORLDS[l.world].cls;
+  $('screen-win').className = 'hidden '+WORLDS[l.world].cls;
+  $('playName').textContent = l.name;
+  show('screen-play');
+  renderPlay(false);
+}
+$('backBtn').onclick = () => { renderMap(); show('screen-map'); };
+$('resetBtn').onclick = () => { cur.state = CK.newGame(cur.level.sq); renderPlay(true); };
+
+function renderPlay(cardIn){
+  const st = cur.state, l = cur.level;
+  $('stepsRow').textContent = 'STEPS '+st.steps+' · PAR '+l.par;
+  const card = $('goalCard');
+  if (cardIn){ card.classList.remove('slideIn'); void card.offsetWidth; card.classList.add('slideIn'); }
+  const node = st.queue[0];
+  const chips = $('chips'); chips.innerHTML='';
+  if (!node){ return; }
+  if (node.seq.hyps.length===0){
+    chips.innerHTML = '<span class="noFares">no fare cards</span>';
+  } else node.seq.hyps.forEach((h,i)=>{
+    const b = document.createElement('button');
+    b.className='chip'; b.innerHTML = fmtHTML(h, l.emoji);
+    b.onclick = () => tapHyp(i, b);
+    chips.appendChild(b);
+  });
+  const gf = $('goalFormula');
+  gf.innerHTML = fmtHTML(node.seq.goal, l.emoji);
+  gf.classList.toggle('tappable', node.seq.goal.t!=='a');
+  const crumbs = $('crumbs'); crumbs.innerHTML='';
+  st.queue.forEach((_,i)=>{ const d=document.createElement('span'); d.className='crumb'+(i===0?' cur':''); crumbs.appendChild(d); });
+}
+function shake(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+function afterTap(r, el){
+  if (!r.ok){ shake(el); return; }
+  if (CK.won(cur.state)) return win();
+  renderPlay(r.children===0); // axiom closed a goal → next goal card slides in
+  if (r.children>0) $('chips').querySelectorAll('.chip').forEach(c=>c.classList.add('in'));
+}
+function tapHyp(i, el){ afterTap(CK.tap(cur.state, {kind:'hyp', i}), el); }
+$('goalFormula').onclick = function(){
+  const r = CK.tap(cur.state, {kind:'goal'});
+  afterTap(r, this);
+};
+
+// ---- win ----
+function stars(steps, par){ return steps<=par?3 : steps<=par+2?2 : 1; }
+function win(){
+  const l = cur.level, steps = cur.state.steps, s = stars(steps, l.par);
+  const pr = P.levels[l.id]||{stars:0,best:Infinity};
+  P.levels[l.id] = { stars: Math.max(pr.stars, s), best: Math.min(pr.best===undefined?Infinity:pr.best, steps) };
+  saveP(P);
+  $('winStation').textContent = String(l.id).padStart(2,'0')+' · '+l.name;
+  $('winStats').textContent = 'STEPS '+steps+' · PAR '+l.par;
+  $('bigTokens').innerHTML = [1,2,3].map(i=>'<span class="bigToken'+(i<=s?' got':'')+'">⊢</span>').join('');
+  $('treeWrap').innerHTML = '';
+  $('treeWrap').appendChild(gentzenSVG(cur.state.root, WORLDS[l.world].color, l.emoji));
+  $('nextBtn').classList.toggle('hidden', l.id===LV.length);
+  $('screen-win').className = WORLDS[l.world].cls;
+  show('screen-win');
+  const pl = $('placard'); pl.classList.remove('stamp'); void pl.offsetWidth; pl.classList.add('stamp');
+}
+$('nextBtn').onclick = () => openLevel(cur.level.id+1);
+$('winMapBtn').onclick = () => { renderMap(); show('screen-map'); };
+$('saveSvgBtn').onclick = () => {
+  const svg = $('treeWrap').querySelector('svg').cloneNode(true);
+  svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  const blob = new Blob([svg.outerHTML], {type:'image/svg+xml'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'turnstile-'+cur.level.id+'-'+cur.level.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.svg';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+};
+
+// ---- Gentzen tree SVG ----
+const measurer = (()=>{ const c=document.createElement('canvas').getContext('2d'); return t=>{ c.font='13px '+getComputedStyle(document.body).fontFamily; return c.measureText(t).width; }; })();
+function gentzenSVG(root, lineColor, emoji){
+  const light = document.documentElement.classList.contains('light');
+  const ink = light? '#111111' : '#ffffff';
+  const paper = light? '#ffffff' : '#17171a';
+  const ROW = 42, GAP = 26, PADX = 18, PADY = 16;
+  function build(n){
+    const text = seqText(n.seq, emoji);
+    const tw = measurer(text)+8;
+    const kids = n.children.map(build);
+    const span = kids.length? kids.reduce((s,k)=>s+k.w,0) + GAP*(kids.length-1) : 0;
+    return { n, text, tw, kids, w: Math.max(tw, span), depth: kids.length? 1+Math.max(...kids.map(k=>k.depth)) : 0 };
+  }
+  const t = build(root);
+  const H = (t.depth+1)*ROW + PADY*2;
+  const W = t.w + PADX*2;
+  const parts = [];
+  function draw(b, x, level){
+    const y = H - PADY - level*ROW - 8;
+    let cx;
+    if (b.kids.length){
+      const span = b.kids.reduce((s,k)=>s+k.w,0) + GAP*(b.kids.length-1);
+      let kx = x + (b.w-span)/2;
+      const centers = [];
+      for (const k of b.kids){ centers.push(draw(k, kx, level+1)); kx += k.w + GAP; }
+      cx = (centers[0]+centers[centers.length-1])/2;
+    } else cx = x + b.w/2;
+    // inference bar above the text (axiom leaves get a bar too)
+    const barW = b.kids.length ? Math.max(b.tw, b.kids.reduce((s,k)=>s+k.tw,0) + GAP*(b.kids.length-1)) : b.tw;
+    parts.push('<line x1="'+(cx-barW/2).toFixed(1)+'" y1="'+(y-16)+'" x2="'+(cx+barW/2).toFixed(1)+'" y2="'+(y-16)+'" stroke="'+ink+'" stroke-opacity="0.55" stroke-width="1"/>');
+    const fill = level===0? lineColor : ink;
+    const weight = level===0? '600':'400';
+    parts.push('<text x="'+cx.toFixed(1)+'" y="'+y+'" text-anchor="middle" font-size="13" font-weight="'+weight+'" fill="'+fill+'">'+b.text.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</text>');
+    return cx;
+  }
+  draw(t, PADX, 0);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  svg.setAttribute('width', Math.min(W, 398));
+  svg.setAttribute('font-family', getComputedStyle(document.body).fontFamily);
+  svg.innerHTML = '<rect width="'+W+'" height="'+H+'" fill="'+paper+'"/>' + parts.join('');
+  return svg;
+}
+
+// ---- export / import ----
+function dialog(title, mode){
+  $('dlgTitle').textContent = title;
+  $('dlgMsg').textContent = '';
+  const ta = $('dlgText'), act = $('dlgAction');
+  if (mode==='export'){
+    ta.value = btoa(JSON.stringify(P));
+    ta.readOnly = true;
+    act.textContent = 'Copy';
+    act.onclick = () => { ta.select(); ta.setSelectionRange(0, 99999);
+      (navigator.clipboard? navigator.clipboard.writeText(ta.value) : Promise.reject()).then(
+        ()=> $('dlgMsg').textContent='Copied.',
+        ()=> { document.execCommand('copy'); $('dlgMsg').textContent='Copied (fallback).'; });
+    };
+  } else {
+    ta.value=''; ta.readOnly=false;
+    act.textContent = 'Load';
+    act.onclick = () => {
+      try {
+        const p = JSON.parse(atob(ta.value.trim()));
+        if (!p || typeof p.levels!=='object') throw 0;
+        P = { v:1, levels:p.levels }; saveP(P); renderMap();
+        $('dlgMsg').textContent = 'Progress loaded.';
+      } catch(e){ $('dlgMsg').textContent = 'Bad blob. Paste the exact export string.'; }
+    };
+  }
+  $('dlg').classList.remove('hidden');
+}
+$('exportBtn').onclick = () => dialog('Export progress','export');
+$('importBtn').onclick = () => dialog('Import progress','import');
+$('dlgClose').onclick = () => $('dlg').classList.add('hidden');
+
+// ---- test hook: replay decider's minimal proof through the live UI ----
+window.__replay = function(levelId){
+  const l = byId(levelId);
+  if (!l) return { ok:false, reason:'no level' };
+  openLevel(levelId);
+  const taps = CK.proofToTaps(l.minimalProof);
+  for (const t of taps){
+    let el;
+    if (t.rule==='andR'||t.rule==='impR'){ el = $('goalFormula'); }
+    else {
+      const node = cur.state.queue[0];
+      const i = node.seq.hyps.findIndex(h=>G4.fkey(h)===t.principal);
+      if (i<0) return { ok:false, steps:cur.state.steps, reason:'principal missing' };
+      el = $('chips').children[i];
+    }
+    if (!el || el.tagName!=='BUTTON') return { ok:false, steps:cur.state.steps, reason:'no tap target' };
+    el.click();
+  }
+  const done = cur.state.queue.length===0;
+  return { ok:done, steps:cur.state.steps, par:l.par, stars: done?stars(cur.state.steps,l.par):0 };
+};
+window.__progressKey = 'turnstile';
+
+// ---- boot ----
+renderMap();
+show('screen-map');
+if ('serviceWorker' in navigator && location.protocol!=='file:'){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+})();
+</script>
+</body>
+</html>
