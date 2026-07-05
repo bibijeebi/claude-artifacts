@@ -121,7 +121,10 @@ header .spacer{flex:1;}
 .bNode.open{cursor:pointer;}
 .bNew{animation:bIn .15s ease-out;}
 @keyframes bIn{from{opacity:0;}}
-.preview{display:flex;align-items:baseline;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;}
+.preview{display:flex;align-items:baseline;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;min-height:64px;box-sizing:border-box;}
+.preview.empty{border-color:var(--hair);}
+.preview.empty .pvName{color:var(--text2);}
+.preview.empty .pvText{color:var(--text2);}
 .preview.bad{border-color:var(--hair);}
 .pvName{color:var(--line);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px;flex:none;}
 .preview.bad .pvName{color:var(--text2);}
@@ -161,6 +164,33 @@ header .spacer{flex:1;}
 .ruleRow .rs{color:var(--text2);}
 .closedSt{display:flex;gap:10px;align-items:center;padding:6px 0;font-size:13px;}
 .closedSt .x{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid var(--w2);color:var(--w2);display:grid;place-items:center;font-size:10px;font-weight:700;}
+.kbdHint{display:none;}
+.deskOnly{display:none;}
+.station.playingNow .stName{color:var(--line);}
+
+@media (min-width: 1080px){
+  #app{max-width:560px;}
+  #app.playing{max-width:1400px;display:grid;grid-template-columns:320px minmax(0,1fr);gap:0 32px;align-items:start;}
+  #app.playing #screen-map{display:block !important;grid-column:1;grid-row:1;position:sticky;top:0;max-height:100vh;overflow-y:auto;padding-right:6px;padding-bottom:24px;}
+  #app.playing #screen-map header{padding-top:14px;}
+  #app.playing #screen-map .stSeq{font-size:11px;}
+  #app.playing #screen-play, #app.playing #screen-win, #app.playing #screen-guide{grid-column:2;grid-row:1;}
+  #screen-play:not(.hidden){display:grid;grid-template-columns:minmax(0,1fr) 420px;grid-template-areas:"bar bar" "board cab";gap:14px 26px;align-items:start;}
+  #screen-play .playBar{grid-area:bar;}
+  #screen-play .boardWrap{grid-area:board;max-height:calc(100vh - 150px);min-height:340px;position:sticky;top:14px;margin-bottom:0;padding:16px 10px;display:grid;align-items:center;justify-items:center;}
+  #screen-play .boardWrap svg{margin:auto;}
+  #leanLive pre{white-space:pre-wrap;word-break:break-word;}
+  #cab{grid-area:cab;min-width:0;}
+  .kbdHint{display:block;text-align:center;color:var(--text2);font-size:10.5px;letter-spacing:.08em;margin-top:12px;text-transform:uppercase;}
+  .deskOnly{display:block;}
+  #leanLive{margin-top:16px;}
+  #leanLive pre{max-height:180px;overflow:auto;}
+  #ruleMini{margin-top:16px;}
+  #ruleMini .ruleRow{font-size:11.5px;padding:5px 0;}
+  #ruleMini .ruleRow .rn{width:118px;font-size:9.5px;}
+  #screen-win:not(.hidden){max-width:680px;margin:0 auto;width:100%;}
+  #screen-guide:not(.hidden){max-width:720px;margin:0 auto;width:100%;}
+}
 /* dialog */
 #dlg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;z-index:10;padding:20px;}
 .dlgCard{background:var(--surface);border-radius:14px;padding:20px;width:100%;max-width:380px;}
@@ -193,23 +223,35 @@ header .spacer{flex:1;}
       <button class="pill" id="exportBtn">Export</button>
       <button class="pill" id="importBtn">Import</button>
     </div>
-    <div class="ver caps">NIGHT SERVICE · V4</div>
+    <div class="ver caps">NIGHT SERVICE · V5</div>
   </section>
 
   <section id="screen-play" class="hidden">
     <div class="playBar">
       <button class="pill" id="backBtn">◀ Map</button>
       <div class="playTitle"><span class="ldot"></span><span id="playName"></span></div>
+      <button class="pill" id="undoBtn">Undo</button>
       <button class="pill" id="resetBtn">Reset</button>
     </div>
-    <div class="stepsRow tnum" id="stepsRow"></div>
-    <div class="advisory hidden" id="advisory"><span class="advTag">ⓘ</span><span id="advText"></span><button id="advOk">OK</button></div>
     <div class="boardWrap" id="boardWrap"></div>
-    <div class="preview hidden" id="preview"><span class="pvName" id="pvName"></span><span class="pvText" id="pvText"></span><span class="pvHint" id="pvHint"></span></div>
-    <div class="goalCard" id="goalCard">
-      <div class="chips" id="chips"></div>
-      <hr class="gcRule">
-      <div class="goalRow" id="goalRow"></div>
+    <div id="cab">
+      <div class="stepsRow tnum" id="stepsRow"></div>
+      <div class="advisory hidden" id="advisory"><span class="advTag">ⓘ</span><span id="advText"></span><button id="advOk">OK</button></div>
+      <div class="preview empty" id="preview"><span class="pvName" id="pvName">STANDBY</span><span class="pvText" id="pvText">tap a card or the display to preview a move.</span><span class="pvHint" id="pvHint"></span></div>
+      <div class="goalCard" id="goalCard">
+        <div class="chips" id="chips"></div>
+        <hr class="gcRule">
+        <div class="goalRow" id="goalRow"></div>
+      </div>
+      <div class="kbdHint">1–9 cards · G gate · ← → platforms · Z undo · ESC cancel · M map</div>
+      <div class="leanWrap deskOnly" id="leanLive">
+        <div class="leanHead"><span>Ticket in progress</span></div>
+        <pre id="leanLiveCode"></pre>
+      </div>
+      <div class="guideCard deskOnly" id="ruleMini">
+        <h3>The rules</h3>
+        <div id="ruleListMini"></div>
+      </div>
     </div>
   </section>
 
@@ -578,6 +620,7 @@ let fresh;
 function name() { return 'h' + (fresh++); }
 function extract(node, names) {
   const { seq, rule, children } = node;
+  if (!rule) return { k: 'sorry' };  // open goal: hole
   const hyps = seq.hyps;
   const pi = () => hyps.findIndex(h => K(h) === node.principalKey);
   switch (rule) {
@@ -704,6 +747,7 @@ function infer(t, ctx) {
   throw new Error('infer: bad term');
 }
 function chk(t, ctx, ty) {
+  if (t.k === 'sorry') return;  // holes typecheck at any type, like Lean's sorry
   if (t.k === 'pair') {
     if (ty.t !== '&') throw new Error('pair vs non-∧');
     chk(t.a, ctx, ty.l); chk(t.b, ctx, ty.r);
@@ -747,6 +791,7 @@ function pTerm(t, prec) {
   // prec 0 = top, 1 = app-arg position
   switch (t.k) {
     case 'var': return t.n;
+    case 'sorry': return 'sorry';
     case 'app': { const s = pTerm(t.f, 0) + ' ' + pTerm(t.a, 1); return prec ? '(' + s + ')' : s; }
     case 'lam': { const s = 'fun ' + t.n + ' => ' + pTerm(t.b, 0); return prec ? '(' + s + ')' : s; }
     case 'pair': return '⟨' + pTerm(t.a, 0) + ', ' + pTerm(t.b, 0) + '⟩';
@@ -885,7 +930,11 @@ $('themeBtn').onclick = () => {
 };
 
 // ---- screens ----
-function show(id){ ['screen-map','screen-play','screen-win','screen-guide'].forEach(s=>$(s).classList.toggle('hidden', s!==id)); window.scrollTo(0,0); }
+function show(id){
+  ['screen-map','screen-play','screen-win','screen-guide'].forEach(s=>$(s).classList.toggle('hidden', s!==id));
+  $('app').classList.toggle('playing', id !== 'screen-map');
+  window.scrollTo(0,0);
+}
 
 // ---- map ----
 function renderMap(){
@@ -965,8 +1014,11 @@ function edgeLabel(parent, idx, em){
 }
 function openLevel(id){
   const l = byId(id);
-  cur = { level: l, state: CK.newGame(l.sq) };
-  armed = null; lastKids = [];
+  cur = { level: l, state: CK.newGame(l.sq), undo: [] };
+  armed = null; lastKids = []; hoverKey = null;
+  renderMap();
+  const stBtn = document.querySelector('.station button[data-id="' + id + '"]');
+  if (stBtn) stBtn.parentElement.classList.add('playingNow');
   $('screen-play').className = WORLDS[l.world].cls;
   $('screen-win').className = 'hidden ' + WORLDS[l.world].cls;
   $('playName').textContent = l.name;
@@ -979,17 +1031,31 @@ function openLevel(id){
 }
 $('advOk').onclick = () => { P.tips[cur.level.id] = true; saveP(P); $('advisory').classList.add('hidden'); };
 $('backBtn').onclick = () => { armed = null; renderMap(); show('screen-map'); };
-$('resetBtn').onclick = () => { cur.state = CK.newGame(cur.level.sq); armed = null; lastKids = []; hidePreview(); renderPlay(true); };
+$('resetBtn').onclick = () => { cur.state = CK.newGame(cur.level.sq); cur.undo = []; armed = null; lastKids = []; hidePreview(); renderPlay(true); };
+$('undoBtn').onclick = () => {
+  if (!cur || !cur.undo.length) return;
+  cur.state = cur.undo.pop();
+  armed = null; lastKids = []; hoverKey = null;
+  hidePreview();
+  renderPlay(true);
+};
 
 function showPreview(d, bad){
   $('pvName').textContent = d.name;
   $('pvText').textContent = d.text;
-  $('pvHint').textContent = bad ? 'no move' : 'tap again';
+  $('pvHint').textContent = bad ? 'no move' : (HOVERABLE.matches && hoverKey ? 'click to commit' : 'tap again');
   const pv = $('preview');
   pv.classList.toggle('bad', !!bad);
-  pv.classList.remove('hidden');
+  pv.classList.remove('empty');
 }
-function hidePreview(){ $('preview').classList.add('hidden'); }
+function hidePreview(){
+  const pv = $('preview');
+  pv.classList.add('empty');
+  pv.classList.remove('bad');
+  $('pvName').textContent = 'STANDBY';
+  $('pvText').textContent = 'tap a card or the display to preview a move.';
+  $('pvHint').textContent = '';
+}
 function shake(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 
 function renderBoard(){
@@ -1033,7 +1099,7 @@ function renderBoard(){
     const n = b.n;
     const status = n.rule === null ? (st.queue[0] === n ? 'open active' : 'open') : (n.rule === 'ax' ? 'closed' : 'passed');
     const nw = lastKids.includes(n) ? ' bNew' : '';
-    parts.push('<g class="bNode ' + status + nw + '" data-bi="' + bi + '">' +
+    parts.push('<g class="bNode ' + status + nw + '" data-bi="' + bi + '"><title>' + esc(seqText(n.seq, em)) + '</title>' +
       '<circle class="bRing" cx="' + b.cx.toFixed(1) + '" cy="' + b.cy + '" r="9"/>' +
       '<circle class="bDot" cx="' + b.cx.toFixed(1) + '" cy="' + b.cy + '" r="' + (status === 'passed' ? 5.5 : 8) + '"/>' +
       '<text class="bLbl" x="' + b.cx.toFixed(1) + '" y="' + (b.cy + 24) + '" text-anchor="middle">' + esc(b.label) + '</text>' +
@@ -1042,7 +1108,8 @@ function renderBoard(){
   });
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-  svg.setAttribute('width', Math.min(W, 366));
+  const maxW = Math.max(280, ($('boardWrap').clientWidth || 380) - 24);
+  svg.setAttribute('width', (W * Math.min(1.45, maxW / W)).toFixed(0));
   svg.setAttribute('font-family', getComputedStyle(document.body).fontFamily);
   svg.innerHTML = parts.join('');
   svg.querySelectorAll('.bNode.open').forEach(g => {
@@ -1073,6 +1140,7 @@ function renderPlay(cardIn){
     b.className = 'chip';
     b.innerHTML = fmtHTML(h, l.emoji);
     b.onclick = () => tapTarget('hyp', i, b);
+    wireHover(b, 'hyp', i);
     chips.appendChild(b);
   });
   const row = $('goalRow');
@@ -1086,6 +1154,7 @@ function renderPlay(cardIn){
       b.className = 'goalFormula tappable';
       b.innerHTML = fmtHTML(f, l.emoji, f.t !== 'a' && f.t !== 'F' && !G4.isNeg(f));
       b.onclick = () => tapTarget('goal', side, b);
+      wireHover(b, 'goal', side);
       return b;
     };
     row.appendChild(mk(g.l, 'l'));
@@ -1097,18 +1166,57 @@ function renderPlay(cardIn){
     b.className = 'goalFormula tappable';
     b.innerHTML = fmtHTML(g, l.emoji);
     b.onclick = () => tapTarget('goal', -1, b);
+    wireHover(b, 'goal', -1);
     row.appendChild(b);
   }
+  $('undoBtn').style.opacity = cur.undo.length ? '1' : '.4';
+  if (DESK() && $('leanLiveCode')){
+    try { $('leanLiveCode').textContent = LEAN.leanTheorem(cur.state.root, 'station' + String(l.id).padStart(2, '0')); }
+    catch (e) { $('leanLiveCode').textContent = '-- ticket unavailable'; }
+  }
+}
+const HOVERABLE = window.matchMedia('(hover: hover) and (pointer: fine)');
+const DESK = () => window.matchMedia('(min-width: 1080px)').matches;
+let hoverKey = null;
+function previewFor(kind, i, node){
+  const legal = G4.moves(node.seq);
+  let mv = null;
+  if (kind === 'goal'){
+    const gms = legal.filter(m => m.tap.kind === 'goal');
+    mv = i === -1 ? (gms.length === 1 ? gms[0] : null) : (gms.find(m => m.tap.side === i) || null);
+  } else mv = legal.find(m => m.tap.kind === 'hyp' && m.tap.i === i) || null;
+  return mv;
+}
+function wireHover(el, kind, i){
+  if (!HOVERABLE.matches) return;
+  el.addEventListener('mouseenter', () => {
+    hoverKey = kind + ':' + i;
+    if (armed) return;
+    const node = cur.state.queue[0];
+    if (!node) return;
+    const mv = previewFor(kind, i, node);
+    if (mv) showPreview(describe(mv, node.seq, cur.level.emoji), false);
+    else showPreview(explainInvalid(kind, i, node.seq, cur.level.emoji), true);
+  });
+  el.addEventListener('mouseleave', () => {
+    hoverKey = null;
+    if (!armed) hidePreview();
+  });
 }
 function tapTarget(kind, i, el){
   const node = cur.state.queue[0];
   if (!node) return;
   const key = kind + ':' + i;
+  // hover-capable pointers: the hover preview already satisfied preview-before-commit,
+  // so a click on the hovered element commits directly
+  if (armed !== key && HOVERABLE.matches && hoverKey === key && previewFor(kind, i, node)) armed = key;
   if (armed === key){
     armed = null;
     hidePreview();
     const action = kind === 'goal' ? (i === -1 ? { kind: 'goal' } : { kind: 'goal', side: i }) : { kind: 'hyp', i };
+    const snap = structuredClone(cur.state);
     const r = CK.tap(cur.state, action);
+    if (r.ok){ cur.undo.push(snap); if (cur.undo.length > 200) cur.undo.shift(); }
     if (!r.ok){ shake(el); return; }
     lastKids = node.children.slice();
     if (CK.won(cur.state)){
@@ -1286,6 +1394,28 @@ window.__replay = function(levelId){
 };
 window.__progressKey = 'turnstile';
 
+// ---- keyboard (desktop) ----
+document.addEventListener('keydown', e => {
+  if ($('screen-play').classList.contains('hidden') || !$('dlg').classList.contains('hidden')) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  const goalBtns = $('goalRow') ? $('goalRow').querySelectorAll('button') : [];
+  let el = null;
+  if (k >= '1' && k <= '9') el = $('chips').children[+k - 1];
+  else if (k === 'g' || k === 'G') el = goalBtns.length === 1 ? goalBtns[0] : null;
+  else if (k === 'ArrowLeft') el = goalBtns.length === 2 ? goalBtns[0] : null;
+  else if (k === 'ArrowRight') el = goalBtns.length === 2 ? goalBtns[1] : null;
+  else if (k === 'z' || k === 'Z') { $('undoBtn').click(); e.preventDefault(); return; }
+  else if (k === 'm' || k === 'M') { $('backBtn').click(); e.preventDefault(); return; }
+  else if (k === 'Escape') {
+    armed = null; hidePreview();
+    document.querySelectorAll('.armed').forEach(x => x.classList.remove('armed'));
+    e.preventDefault(); return;
+  }
+  else return;
+  if (el && el.tagName === 'BUTTON'){ el.click(); e.preventDefault(); }
+});
+
 // ---- guide ----
 $('guideBtn').onclick = () => show('screen-guide');
 $('guideBackBtn').onclick = () => { renderMap(); show('screen-map'); };
@@ -1311,7 +1441,9 @@ $('leanCopy').onclick = function(){
     ['DOUBLE TRANSFER', '(A\u2192B)\u2192C card: forks, the tricky one'],
     ['OUT OF SERVICE', '\u22a5\u2192B card \u25b8 binned'],
   ];
-  $('ruleList').innerHTML = rows.map(r => '<div class="ruleRow"><span class="rn">' + r[0] + '</span><span class="rs">' + r[1] + '</span></div>').join('');
+  const html = rows.map(r => '<div class="ruleRow"><span class="rn">' + r[0] + '</span><span class="rs">' + r[1] + '</span></div>').join('');
+  $('ruleList').innerHTML = html;
+  if ($('ruleListMini')) $('ruleListMini').innerHTML = html;
 })();
 
 // ---- boot ----
