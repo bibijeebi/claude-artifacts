@@ -104,6 +104,9 @@ header .spacer{flex:1;}
 .crumbs{display:flex;gap:7px;justify-content:center;margin-top:22px;min-height:9px;}
 .crumb{width:9px;height:9px;border-radius:50%;background:var(--hair);}
 .crumb.cur{background:var(--line);}
+.advisory{display:flex;align-items:center;gap:10px;background:var(--surface);border-left:4px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;letter-spacing:.08em;color:var(--text2);text-transform:uppercase;line-height:1.6;}
+.advisory .advTag{color:var(--line);font-weight:700;flex:none;}
+.advisory button{margin-left:auto;flex:none;min-width:44px;min-height:44px;border:1px solid var(--hair);border-radius:999px;font-size:11px;letter-spacing:.06em;background:var(--bg);color:var(--text);}
 
 /* victory */
 #screen-win.w1{--line:var(--w1);} #screen-win.w2{--line:var(--w2);}
@@ -162,6 +165,7 @@ header .spacer{flex:1;}
       <button class="pill" id="resetBtn">Reset</button>
     </div>
     <div class="stepsRow tnum" id="stepsRow"></div>
+    <div class="advisory hidden" id="advisory"><span class="advTag">ⓘ</span><span id="advText"></span><button id="advOk">OK</button></div>
     <div class="goalCard" id="goalCard">
       <div class="chips" id="chips"></div>
       <hr class="gcRule">
@@ -462,6 +466,15 @@ if (typeof window !== 'undefined') window.LEVELS = LEVELS;
 (function(){
 const $ = id => document.getElementById(id);
 const EMOJI = { A:'🔑', B:'🚪', C:'🧀' };
+// one-time service advisories on levels that introduce a mechanic (controls, not hints)
+const TIPS = {
+  1: 'Tap the fare card that matches the gate display. Match = pass.',
+  3: 'Gate shows two things joined by ∧? Tap the gate display to split it into two stops. The dots below count stops remaining.',
+  5: 'Tap a ∧ fare card to break it into its two halves.',
+  11: 'Holding A? Tap the A→B card to trade it for B.',
+  13: 'Tap the gate display. The left of the → becomes a fare card; then prove the right.',
+  20: 'A (A∧B)→C card taps into A→(B→C). Currying is one tap.',
+};
 const WORLDS = {
   1: { name:'JUNCTION LINE', sym:'∧', cls:'w1', color:'#00933c' },
   2: { name:'EXPRESS LINE', sym:'→', cls:'w2', color:'#ee352e' },
@@ -476,7 +489,7 @@ const LV = LEVELS.map(l => {
 const byId = id => LV.find(l => l.id === id);
 
 // ---- progress ----
-function loadP(){ try{ const p = JSON.parse(localStorage.getItem('turnstile')||'{}'); return { v:1, levels:(p&&p.levels)||{} }; }catch(e){ return { v:1, levels:{} }; } }
+function loadP(){ try{ const p = JSON.parse(localStorage.getItem('turnstile')||'{}'); return { v:1, levels:(p&&p.levels)||{}, tips:(p&&p.tips)||{} }; }catch(e){ return { v:1, levels:{}, tips:{} }; } }
 function saveP(p){ try{ localStorage.setItem('turnstile', JSON.stringify(p)); }catch(e){} }
 let P = loadP();
 
@@ -539,9 +552,13 @@ function openLevel(id){
   $('screen-play').className = WORLDS[l.world].cls;
   $('screen-win').className = 'hidden '+WORLDS[l.world].cls;
   $('playName').textContent = l.name;
+  const tip = TIPS[l.id];
+  $('advisory').classList.toggle('hidden', !(tip && !P.tips[l.id]));
+  if (tip) $('advText').textContent = tip;
   show('screen-play');
   renderPlay(false);
 }
+$('advOk').onclick = () => { P.tips[cur.level.id] = true; saveP(P); $('advisory').classList.add('hidden'); };
 $('backBtn').onclick = () => { renderMap(); show('screen-map'); };
 $('resetBtn').onclick = () => { cur.state = CK.newGame(cur.level.sq); renderPlay(true); };
 
@@ -586,6 +603,7 @@ function win(){
   const l = cur.level, steps = cur.state.steps, s = stars(steps, l.par);
   const pr = P.levels[l.id]||{stars:0,best:Infinity};
   P.levels[l.id] = { stars: Math.max(pr.stars, s), best: Math.min(pr.best===undefined?Infinity:pr.best, steps) };
+  if (TIPS[l.id]) P.tips[l.id] = true;
   saveP(P);
   $('winStation').textContent = String(l.id).padStart(2,'0')+' · '+l.name;
   $('winStats').textContent = 'STEPS '+steps+' · PAR '+l.par;
@@ -676,7 +694,7 @@ function dialog(title, mode){
       try {
         const p = JSON.parse(atob(ta.value.trim()));
         if (!p || typeof p.levels!=='object') throw 0;
-        P = { v:1, levels:p.levels }; saveP(P); renderMap();
+        P = { v:1, levels:p.levels, tips:p.tips||{} }; saveP(P); renderMap();
         $('dlgMsg').textContent = 'Progress loaded.';
       } catch(e){ $('dlgMsg').textContent = 'Bad blob. Paste the exact export string.'; }
     };
