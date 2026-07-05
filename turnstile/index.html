@@ -101,12 +101,32 @@ header .spacer{flex:1;}
 .goalFormula.tappable{border-color:var(--hair);}
 .goalFormula:active{border-color:var(--line);transform:scale(.97);}
 .conn{color:var(--line);padding:0 .08em;}
-.crumbs{display:flex;gap:7px;justify-content:center;margin-top:22px;min-height:9px;}
-.crumb{width:9px;height:9px;border-radius:50%;background:var(--hair);}
-.crumb.cur{background:var(--line);}
 .advisory{display:flex;align-items:center;gap:10px;background:var(--surface);border-left:4px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;letter-spacing:.08em;color:var(--text2);text-transform:uppercase;line-height:1.6;}
 .advisory .advTag{color:var(--line);font-weight:700;flex:none;}
 .advisory button{margin-left:auto;flex:none;min-width:44px;min-height:44px;border:1px solid var(--hair);border-radius:999px;font-size:11px;letter-spacing:.06em;background:var(--bg);color:var(--text);}
+
+.boardWrap{background:var(--surface);border:1px solid var(--hair);border-radius:14px;margin-bottom:12px;padding:8px 4px;max-height:38vh;overflow:auto;-webkit-overflow-scrolling:touch;}
+.boardWrap svg{display:block;margin:0 auto;}
+.bEdge{stroke:var(--line);stroke-width:4;stroke-linecap:round;}
+.bEdgeLbl{font-size:9.5px;fill:var(--text2);paint-order:stroke;stroke:var(--surface);stroke-width:3px;}
+.bLbl{font-size:12px;font-weight:600;fill:var(--text);paint-order:stroke;stroke:var(--surface);stroke-width:3px;}
+.bNode.closed .bLbl{fill:var(--text2);font-weight:400;}
+.bDot{fill:var(--surface);stroke:var(--line);stroke-width:3;}
+.bNode.passed .bDot{fill:var(--line);}
+.bNode.closed .bDot{fill:var(--brass);stroke:var(--brass2);stroke-width:2;}
+.bRing{fill:none;stroke:var(--line);opacity:0;}
+.bNode.active .bRing{animation:ringPulse 1.6s ease-out infinite;}
+@keyframes ringPulse{0%{r:9px;opacity:.7;stroke-width:3;}100%{r:19px;opacity:0;stroke-width:1;}}
+.bTap{fill:transparent;}
+.bNode.open{cursor:pointer;}
+.bNew{animation:bIn .15s ease-out;}
+@keyframes bIn{from{opacity:0;}}
+.preview{display:flex;align-items:baseline;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.5;}
+.preview.bad{border-color:var(--hair);}
+.pvName{color:var(--line);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px;flex:none;}
+.preview.bad .pvName{color:var(--text2);}
+.pvHint{margin-left:auto;flex:none;color:var(--text2);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding-left:8px;}
+.chip.armed,.goalFormula.armed{border-color:var(--line);}
 
 /* victory */
 #screen-win.w1{--line:var(--w1);} #screen-win.w2{--line:var(--w2);}
@@ -166,6 +186,8 @@ header .spacer{flex:1;}
     </div>
     <div class="stepsRow tnum" id="stepsRow"></div>
     <div class="advisory hidden" id="advisory"><span class="advTag">ⓘ</span><span id="advText"></span><button id="advOk">OK</button></div>
+    <div class="boardWrap" id="boardWrap"></div>
+    <div class="preview hidden" id="preview"><span class="pvName" id="pvName"></span><span class="pvText" id="pvText"></span><span class="pvHint" id="pvHint"></span></div>
     <div class="goalCard" id="goalCard">
       <div class="chips" id="chips"></div>
       <hr class="gcRule">
@@ -173,7 +195,6 @@ header .spacer{flex:1;}
         <span class="turnstileSym">⊢</span><button class="goalFormula" id="goalFormula"></button>
       </div>
     </div>
-    <div class="crumbs" id="crumbs"></div>
   </section>
 
   <section id="screen-win" class="hidden">
@@ -399,6 +420,7 @@ function tap(state, action) {
   if (!mv) return { ok: false, reason: 'no rule applies' };
   node.rule = mv.rule;
   node.principalKey = mv.principal;
+  node.principalF = action.kind === 'hyp' ? node.seq.hyps[action.i] : node.seq.goal;
   node.children = mv.prems.map(p => ({ seq: p, rule: null, principalKey: null, children: [] }));
   state.queue.splice(0, 1, ...node.children);
   state.steps++;
@@ -406,6 +428,14 @@ function tap(state, action) {
 }
 
 const won = state => state.queue.length === 0;
+
+// make any open leaf the active goal (pure queue permutation; derivation unaffected)
+function select(state, node) {
+  const i = state.queue.indexOf(node);
+  if (i < 0) return false;
+  if (i > 0) { state.queue.splice(i, 1); state.queue.unshift(node); }
+  return true;
+}
 
 // replay a decider proof tree through the interactive checker; returns {ok, steps}
 function proofToTaps(proof) {
@@ -430,7 +460,7 @@ function replay(sq, proof) {
   return { ok: won(state), steps: state.steps, state };
 }
 
-const CK = { newGame, tap, won, replay, proofToTaps };
+const CK = { newGame, tap, won, select, replay, proofToTaps };
 if (typeof module !== 'undefined') module.exports = CK;
 if (typeof window !== 'undefined') window.CK = CK;
 </script>
@@ -468,13 +498,13 @@ const $ = id => document.getElementById(id);
 const EMOJI = { A:'🔑', B:'🚪', C:'🧀' };
 // one-time service advisories on levels that introduce a mechanic (controls, not hints)
 const TIPS = {
-  1: 'Tap the fare card that matches the gate display. Match = pass.',
-  3: 'Gate shows two things joined by ∧? Tap the gate display to split it into two stops. The dots below count stops remaining.',
-  5: 'Tap a ∧ fare card to break it into its two halves.',
-  11: 'Holding A? Tap the A→B card to trade it for B.',
-  13: 'Tap the gate display. The left of the → becomes a fare card; then prove the right.',
-  20: 'A (A∧B)→C card taps into A→(B→C). Currying is one tap.',
-};
+  1: 'Tap the fare card that matches the gate display to preview the move. Tap again to pass.',
+  3: 'Tap the gate display: \u2227 forks the line on the board above. Every branch must reach a terminal.',
+  5: 'Tap a \u2227 fare card to break it into its two halves.',
+  11: 'Hold A? Tap the A\u2192B card to trade it for B. The board logs every trade.',
+  13: 'Tap the gate display: the left of the \u2192 boards as a fare card.',
+  20: 'A (A\u2227B)\u2192C card curries to A\u2192(B\u2192C) in one move.',
+}
 const WORLDS = {
   1: { name:'JUNCTION LINE', sym:'∧', cls:'w1', color:'#00933c' },
   2: { name:'EXPRESS LINE', sym:'→', cls:'w2', color:'#ee352e' },
@@ -545,66 +575,217 @@ function renderMap(){
 }
 
 // ---- play ----
-let cur = null; // { level, state }
+let cur = null, armed = null, lastKids = [];
+const RULES = {
+  ax:    { name: 'GATE MATCH' },
+  andR:  { name: 'JUNCTION' },
+  impR:  { name: 'BOARDING' },
+  andL:  { name: 'SPLIT FARE' },
+  impL1: { name: 'MODUS PONENS' },
+  impL2: { name: 'CURRY' },
+  impL4: { name: 'DOUBLE TRANSFER' },
+};
+function describe(mv, seq, em){
+  const F = f => fmt(f, em);
+  const g = seq.goal;
+  const chip = mv.tap.kind === 'hyp' ? seq.hyps[mv.tap.i] : null;
+  switch (mv.rule) {
+    case 'ax':    return { name: RULES.ax.name, text: F(g) + ' matches the display. Gate opens.' };
+    case 'andR':  return { name: RULES.andR.name, text: 'line forks: prove ' + F(g.l) + ', then prove ' + F(g.r) + '.' };
+    case 'impR':  return { name: RULES.impR.name, text: F(g.l) + ' boards your fare cards; display becomes ' + F(g.r) + '.' };
+    case 'andL':  return { name: RULES.andL.name, text: F(chip) + ' breaks into ' + F(chip.l) + ' and ' + F(chip.r) + '.' };
+    case 'impL1': return { name: RULES.impL1.name, text: 'you hold ' + F(chip.l) + ', so ' + F(chip) + ' trades for ' + F(chip.r) + '.' };
+    case 'impL2': return { name: RULES.impL2.name, text: F(chip) + ' rewrites to ' + F(G4.imp(chip.l.l, G4.imp(chip.l.r, chip.r))) + '.' };
+    case 'impL4': return { name: RULES.impL4.name, text: 'forks: prove ' + F(chip.l) + ' holding ' + F(G4.imp(chip.l.r, chip.r)) + '; then carry on with ' + F(chip.r) + '.' };
+  }
+}
+function explainInvalid(kind, i, seq, em){
+  const F = f => fmt(f, em);
+  if (kind === 'goal') return { name: 'ATOMIC DISPLAY', text: 'nothing to apply here. Find the matching fare card.' };
+  const h = seq.hyps[i];
+  if (h.t === 'a') return { name: 'NO MATCH', text: F(h) + ' does not match the display.' };
+  if (h.t === '>' && h.l.t === 'a') return { name: 'NO ENTRY', text: 'you do not hold ' + F(h.l) + ' yet.' };
+  return { name: 'NO MOVE', text: 'no rule applies to this card right now.' };
+}
+function edgeLabel(parent, idx, em){
+  const F = f => fmt(f, em);
+  const P = parent.principalF;
+  switch (parent.rule) {
+    case 'impR':  return '+' + F(parent.seq.goal.l);
+    case 'andL':  return F(P) + ' \u25b8 ' + F(P.l) + ', ' + F(P.r);
+    case 'impL1': return F(P) + ' \u25b8 ' + F(P.r);
+    case 'impL2': return '\u25b8 ' + F(G4.imp(P.l.l, G4.imp(P.l.r, P.r)));
+    case 'impL4': return idx === 0 ? 'holding ' + F(G4.imp(P.l.r, P.r)) : '\u25b8 ' + F(P.r);
+    default: return '';
+  }
+}
 function openLevel(id){
   const l = byId(id);
-  cur = { level:l, state: CK.newGame(l.sq) };
+  cur = { level: l, state: CK.newGame(l.sq) };
+  armed = null; lastKids = [];
   $('screen-play').className = WORLDS[l.world].cls;
-  $('screen-win').className = 'hidden '+WORLDS[l.world].cls;
+  $('screen-win').className = 'hidden ' + WORLDS[l.world].cls;
   $('playName').textContent = l.name;
   const tip = TIPS[l.id];
   $('advisory').classList.toggle('hidden', !(tip && !P.tips[l.id]));
   if (tip) $('advText').textContent = tip;
   show('screen-play');
+  hidePreview();
   renderPlay(false);
 }
 $('advOk').onclick = () => { P.tips[cur.level.id] = true; saveP(P); $('advisory').classList.add('hidden'); };
-$('backBtn').onclick = () => { renderMap(); show('screen-map'); };
-$('resetBtn').onclick = () => { cur.state = CK.newGame(cur.level.sq); renderPlay(true); };
+$('backBtn').onclick = () => { armed = null; renderMap(); show('screen-map'); };
+$('resetBtn').onclick = () => { cur.state = CK.newGame(cur.level.sq); armed = null; lastKids = []; hidePreview(); renderPlay(true); };
+
+function showPreview(d, bad){
+  $('pvName').textContent = d.name;
+  $('pvText').textContent = d.text;
+  $('pvHint').textContent = bad ? 'no move' : 'tap again';
+  const pv = $('preview');
+  pv.classList.toggle('bad', !!bad);
+  pv.classList.remove('hidden');
+}
+function hidePreview(){ $('preview').classList.add('hidden'); }
+function shake(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+
+function renderBoard(){
+  const st = cur.state, em = cur.level.emoji;
+  const ROW = 62, GAPX = 26, PAD = 16;
+  function build(n){
+    const label = fmt(n.seq.goal, em);
+    const lw = measurer(label) + 10;
+    const kids = n.children.map(build);
+    const span = kids.length ? kids.reduce((s, k) => s + k.w, 0) + GAPX * (kids.length - 1) : 0;
+    return { n, label, lw, kids, w: Math.max(lw, span, 44), d: kids.length ? 1 + Math.max(...kids.map(k => k.d)) : 0 };
+  }
+  const t = build(st.root);
+  const W = t.w + PAD * 2, H = t.d * ROW + 58 + PAD;
+  const E = [], N = [];
+  function place(b, x, depth){
+    const y = PAD + 10 + depth * ROW;
+    let cx;
+    if (b.kids.length){
+      const span = b.kids.reduce((s, k) => s + k.w, 0) + GAPX * (b.kids.length - 1);
+      let kx = x + (b.w - span) / 2;
+      const cs = [];
+      for (const k of b.kids){ cs.push(place(k, kx, depth + 1)); kx += k.w + GAPX; }
+      cx = (cs[0] + cs[cs.length - 1]) / 2;
+      b.kids.forEach((k, idx) => E.push({ x1: cx, y1: y, x2: k.cx, y2: k.cy, lbl: edgeLabel(b.n, idx, em), nw: lastKids.includes(k.n) }));
+    } else cx = x + b.w / 2;
+    b.cx = cx; b.cy = y;
+    N.push(b);
+    return cx;
+  }
+  place(t, PAD, 0);
+  const parts = [];
+  for (const e of E){
+    parts.push('<line class="bEdge' + (e.nw ? ' bNew' : '') + '" x1="' + e.x1.toFixed(1) + '" y1="' + (e.y1 + 4) + '" x2="' + e.x2.toFixed(1) + '" y2="' + (e.y2 - 4) + '"/>');
+    if (e.lbl){
+      const mx = (e.x1 + e.x2) / 2, my = e.y1 + (e.y2 - e.y1) * 0.66;
+      parts.push('<text class="bEdgeLbl" x="' + mx.toFixed(1) + '" y="' + (my + 3).toFixed(1) + '" text-anchor="middle">' + esc(e.lbl) + '</text>');
+    }
+  }
+  N.forEach((b, bi) => {
+    const n = b.n;
+    const status = n.rule === null ? (st.queue[0] === n ? 'open active' : 'open') : (n.rule === 'ax' ? 'closed' : 'passed');
+    const nw = lastKids.includes(n) ? ' bNew' : '';
+    parts.push('<g class="bNode ' + status + nw + '" data-bi="' + bi + '">' +
+      '<circle class="bRing" cx="' + b.cx.toFixed(1) + '" cy="' + b.cy + '" r="9"/>' +
+      '<circle class="bDot" cx="' + b.cx.toFixed(1) + '" cy="' + b.cy + '" r="' + (status === 'passed' ? 5.5 : 8) + '"/>' +
+      '<text class="bLbl" x="' + b.cx.toFixed(1) + '" y="' + (b.cy + 24) + '" text-anchor="middle">' + esc(b.label) + '</text>' +
+      (n.rule === null ? '<circle class="bTap" cx="' + b.cx.toFixed(1) + '" cy="' + b.cy + '" r="24"/>' : '') +
+      '</g>');
+  });
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  svg.setAttribute('width', Math.min(W, 366));
+  svg.setAttribute('font-family', getComputedStyle(document.body).fontFamily);
+  svg.innerHTML = parts.join('');
+  svg.querySelectorAll('.bNode.open').forEach(g => {
+    g.addEventListener('click', () => {
+      const b = N[+g.dataset.bi];
+      if (CK.select(cur.state, b.n)){ armed = null; hidePreview(); renderPlay(true); }
+    });
+  });
+  const wrap = $('boardWrap');
+  wrap.innerHTML = '';
+  wrap.appendChild(svg);
+}
+function esc(s){ return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 
 function renderPlay(cardIn){
   const st = cur.state, l = cur.level;
-  $('stepsRow').textContent = 'STEPS '+st.steps+' · PAR '+l.par;
+  $('stepsRow').textContent = 'MOVES ' + st.steps + ' \u00b7 PAR ' + l.par;
+  renderBoard();
   const card = $('goalCard');
   if (cardIn){ card.classList.remove('slideIn'); void card.offsetWidth; card.classList.add('slideIn'); }
   const node = st.queue[0];
-  const chips = $('chips'); chips.innerHTML='';
-  if (!node){ return; }
-  if (node.seq.hyps.length===0){
+  const chips = $('chips'); chips.innerHTML = '';
+  if (!node) return;
+  if (node.seq.hyps.length === 0){
     chips.innerHTML = '<span class="noFares">no fare cards</span>';
-  } else node.seq.hyps.forEach((h,i)=>{
+  } else node.seq.hyps.forEach((h, i) => {
     const b = document.createElement('button');
-    b.className='chip'; b.innerHTML = fmtHTML(h, l.emoji);
-    b.onclick = () => tapHyp(i, b);
+    b.className = 'chip';
+    b.innerHTML = fmtHTML(h, l.emoji);
+    b.onclick = () => tapTarget('hyp', i, b);
     chips.appendChild(b);
   });
   const gf = $('goalFormula');
   gf.innerHTML = fmtHTML(node.seq.goal, l.emoji);
-  gf.classList.toggle('tappable', node.seq.goal.t!=='a');
-  const crumbs = $('crumbs'); crumbs.innerHTML='';
-  st.queue.forEach((_,i)=>{ const d=document.createElement('span'); d.className='crumb'+(i===0?' cur':''); crumbs.appendChild(d); });
+  gf.classList.toggle('tappable', true);
+  gf.classList.remove('armed');
 }
-function shake(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
-function afterTap(r, el){
-  if (!r.ok){ shake(el); return; }
-  if (CK.won(cur.state)) return win();
-  renderPlay(r.children===0); // axiom closed a goal → next goal card slides in
-  if (r.children>0) $('chips').querySelectorAll('.chip').forEach(c=>c.classList.add('in'));
+function tapTarget(kind, i, el){
+  const node = cur.state.queue[0];
+  if (!node) return;
+  const key = kind + ':' + i;
+  if (armed === key){
+    armed = null;
+    hidePreview();
+    const r = CK.tap(cur.state, kind === 'goal' ? { kind: 'goal' } : { kind: 'hyp', i });
+    if (!r.ok){ shake(el); return; }
+    lastKids = node.children.slice();
+    if (CK.won(cur.state)){
+      $('stepsRow').textContent = 'MOVES ' + cur.state.steps + ' \u00b7 PAR ' + cur.level.par;
+      renderBoard();
+      record(cur);
+      const f = cur;
+      const instant = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      setTimeout(() => { if (cur === f) showWin(f); }, instant ? 0 : 450);
+      return;
+    }
+    renderPlay(r.children === 0);
+    if (r.children > 0) $('chips').querySelectorAll('.chip').forEach(c => c.classList.add('in'));
+    return;
+  }
+  document.querySelectorAll('.armed').forEach(e => e.classList.remove('armed'));
+  const legal = G4.moves(node.seq);
+  const mv = kind === 'goal' ? legal.find(m => m.tap.kind === 'goal') : legal.find(m => m.tap.kind === 'hyp' && m.tap.i === i);
+  if (mv){
+    armed = key;
+    el.classList.add('armed');
+    showPreview(describe(mv, node.seq, cur.level.emoji), false);
+  } else {
+    armed = null;
+    shake(el);
+    showPreview(explainInvalid(kind, i, node.seq, cur.level.emoji), true);
+  }
 }
-function tapHyp(i, el){ afterTap(CK.tap(cur.state, {kind:'hyp', i}), el); }
-$('goalFormula').onclick = function(){
-  const r = CK.tap(cur.state, {kind:'goal'});
-  afterTap(r, this);
-};
+$('goalFormula').onclick = function(){ tapTarget('goal', -1, this); };
 
 // ---- win ----
 function stars(steps, par){ return steps<=par?3 : steps<=par+2?2 : 1; }
-function win(){
-  const l = cur.level, steps = cur.state.steps, s = stars(steps, l.par);
+function record(f){
+  const l = f.level, steps = f.state.steps, s = stars(steps, l.par);
   const pr = P.levels[l.id]||{stars:0,best:Infinity};
   P.levels[l.id] = { stars: Math.max(pr.stars, s), best: Math.min(pr.best===undefined?Infinity:pr.best, steps) };
   if (TIPS[l.id]) P.tips[l.id] = true;
   saveP(P);
+}
+function showWin(f){
+  cur = f;
+  const l = f.level, steps = f.state.steps, s = stars(steps, l.par);
   $('winStation').textContent = String(l.id).padStart(2,'0')+' · '+l.name;
   $('winStats').textContent = 'STEPS '+steps+' · PAR '+l.par;
   $('bigTokens').innerHTML = [1,2,3].map(i=>'<span class="bigToken'+(i<=s?' got':'')+'">⊢</span>').join('');
@@ -713,18 +894,19 @@ window.__replay = function(levelId){
   const taps = CK.proofToTaps(l.minimalProof);
   for (const t of taps){
     let el;
-    if (t.rule==='andR'||t.rule==='impR'){ el = $('goalFormula'); }
+    if (t.rule === 'andR' || t.rule === 'impR'){ el = $('goalFormula'); }
     else {
       const node = cur.state.queue[0];
-      const i = node.seq.hyps.findIndex(h=>G4.fkey(h)===t.principal);
-      if (i<0) return { ok:false, steps:cur.state.steps, reason:'principal missing' };
+      const i = node.seq.hyps.findIndex(h => G4.fkey(h) === t.principal);
+      if (i < 0) return { ok:false, steps:cur.state.steps, reason:'principal missing' };
       el = $('chips').children[i];
     }
-    if (!el || el.tagName!=='BUTTON') return { ok:false, steps:cur.state.steps, reason:'no tap target' };
-    el.click();
+    if (!el || el.tagName !== 'BUTTON') return { ok:false, steps:cur.state.steps, reason:'no tap target' };
+    el.click();  // arm (preview)
+    el.click();  // commit
   }
-  const done = cur.state.queue.length===0;
-  return { ok:done, steps:cur.state.steps, par:l.par, stars: done?stars(cur.state.steps,l.par):0 };
+  const done = cur.state.queue.length === 0;
+  return { ok:done, steps:cur.state.steps, par:l.par, stars: done ? stars(cur.state.steps, l.par) : 0 };
 };
 window.__progressKey = 'turnstile';
 
