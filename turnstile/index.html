@@ -101,6 +101,12 @@ header .spacer{flex:1;}
 .goalFormula.tappable{border-color:var(--hair);}
 .goalFormula:active{border-color:var(--line);transform:scale(.97);}
 .conn{color:var(--line);padding:0 .08em;}
+.noteCard{background:var(--surface);border:1px solid var(--hair);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.noteCard summary{cursor:pointer;list-style:none;padding:10px 14px;font-size:10px;letter-spacing:.14em;color:var(--brass);text-transform:uppercase;font-weight:700;user-select:none;-webkit-user-select:none;}
+.noteCard summary::-webkit-details-marker{display:none;}
+.noteCard summary::before{content:"\25b8";margin-right:8px;color:var(--text2);}
+.noteCard[open] summary::before{content:"\25be";}
+.noteCard p{margin:0;padding:0 14px 12px;font-size:12.5px;line-height:1.65;color:var(--text);}
 .advisory{display:flex;align-items:center;gap:10px;background:var(--surface);border-left:4px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:11px;letter-spacing:.08em;color:var(--text2);text-transform:uppercase;line-height:1.6;}
 .advisory .advTag{color:var(--line);font-weight:700;flex:none;}
 .advisory button{margin-left:auto;flex:none;min-width:44px;min-height:44px;border:1px solid var(--hair);border-radius:999px;font-size:11px;letter-spacing:.06em;background:var(--bg);color:var(--text);}
@@ -223,7 +229,7 @@ header .spacer{flex:1;}
       <button class="pill" id="exportBtn">Export</button>
       <button class="pill" id="importBtn">Import</button>
     </div>
-    <div class="ver caps">NIGHT SERVICE · V5</div>
+    <div class="ver caps">NIGHT SERVICE · V6</div>
   </section>
 
   <section id="screen-play" class="hidden">
@@ -236,6 +242,7 @@ header .spacer{flex:1;}
     <div class="boardWrap" id="boardWrap"></div>
     <div id="cab">
       <div class="stepsRow tnum" id="stepsRow"></div>
+      <details class="noteCard" id="noteCard"><summary>Conductor's note</summary><p id="noteText"></p></details>
       <div class="advisory hidden" id="advisory"><span class="advTag">ⓘ</span><span id="advText"></span><button id="advOk">OK</button></div>
       <div class="preview empty" id="preview"><span class="pvName" id="pvName">STANDBY</span><span class="pvText" id="pvText">tap a card or the display to preview a move.</span><span class="pvHint" id="pvHint"></span></div>
       <div class="goalCard" id="goalCard">
@@ -821,46 +828,85 @@ if (typeof module !== 'undefined') module.exports = LEAN;
 if (typeof window !== 'undefined') window.LEAN = LEAN;
 </script>
 <script>'use strict';
-// 20 MVP levels per LEVELS.md. Emoji map applies to levels 1-4 (🔑=A, 🚪=B, 🧀=C).
+// 38 levels across 4 lines. Emoji map applies to levels 1-4 (🔑=A, 🚪=B, 🧀=C).
+// note = conductor's note: concept narrative (the advisories teach the taps; these teach the logic).
 const LEVELS = [
-  { id: 1, world: 1, name: 'FIRST GATE', hyps: ['A'], goal: 'A', emoji: true },
-  { id: 2, world: 1, name: 'SPARE KEY', hyps: ['A', 'B'], goal: 'A', emoji: true },
-  { id: 3, world: 1, name: 'PAIR UP', hyps: ['A', 'B'], goal: 'A&B', emoji: true },
-  { id: 4, world: 1, name: 'TWO OF A KIND', hyps: ['A'], goal: 'A&A', emoji: true },
-  { id: 5, world: 1, name: 'BREAK IT DOWN', hyps: ['A&B'], goal: 'A' },
-  { id: 6, world: 1, name: 'OTHER HALF', hyps: ['A&B'], goal: 'B' },
-  { id: 7, world: 1, name: 'TURNAROUND', hyps: ['A&B'], goal: 'B&A' },
-  { id: 8, world: 1, name: 'THREE-WAY', hyps: ['A', 'B', 'C'], goal: '(A&B)&C' },
-  { id: 9, world: 1, name: 'REGROUP', hyps: ['(A&B)&C'], goal: 'A&(B&C)' },
-  { id: 10, world: 1, name: 'CROSSOVER', hyps: ['A&B', 'C&D'], goal: '(A&D)&(C&B)' },
-  { id: 11, world: 2, name: 'THROUGH TRAIN', hyps: ['A', 'A>B'], goal: 'B' },
-  { id: 12, world: 2, name: 'TRANSFER', hyps: ['A>B', 'B>C', 'A'], goal: 'C' },
-  { id: 13, world: 2, name: 'ROUND TRIP', hyps: [], goal: 'A>A' },
-  { id: 14, world: 2, name: 'FREE RIDE', hyps: [], goal: 'A>(B>A)' },
-  { id: 15, world: 2, name: 'LOCAL SERVICE', hyps: ['A>B', 'B>C'], goal: 'A>C' },
-  { id: 16, world: 2, name: 'SWITCHYARD', hyps: ['A>(B>C)'], goal: 'B>(A>C)' },
-  { id: 17, world: 2, name: 'DOUBLE FARE', hyps: ['A>(A>B)'], goal: 'A>B' },
-  { id: 18, world: 2, name: 'SPLIT TICKET', hyps: ['A>B', 'A>C'], goal: 'A>(B&C)' },
-  { id: 19, world: 2, name: 'UNCURRY', hyps: ['A>(B>C)'], goal: '(A&B)>C' },
-  { id: 20, world: 2, name: 'CURRY', hyps: ['(A&B)>C'], goal: 'A>(B>C)' },
-  { id: 21, world: 3, name: 'PICK A PLATFORM', hyps: ['A'], goal: 'A|B' },
-  { id: 22, world: 3, name: 'OTHER PLATFORM', hyps: ['B'], goal: 'A|B' },
-  { id: 23, world: 3, name: 'EITHER WAY', hyps: ['A|A'], goal: 'A' },
-  { id: 24, world: 3, name: 'U-TURN', hyps: ['A|B'], goal: 'B|A' },
-  { id: 25, world: 3, name: 'CASEWORK', hyps: ['A|B', 'A>C', 'B>C'], goal: 'C' },
-  { id: 26, world: 3, name: 'MERGE', hyps: ['A>C', 'B>C'], goal: '(A|B)>C' },
-  { id: 27, world: 3, name: 'SPLIT PASS', hyps: ['(A|B)>C'], goal: 'A>C' },
-  { id: 28, world: 3, name: 'SHUFFLE', hyps: ['A|(B|C)'], goal: '(A|B)|C' },
-  { id: 29, world: 3, name: 'DISTRIBUTE', hyps: ['A&(B|C)'], goal: '(A&B)|(A&C)' },
-  { id: 30, world: 3, name: 'COLLECT', hyps: ['(A&B)|(A&C)'], goal: 'A&(B|C)' },
-  { id: 31, world: 4, name: 'END OF THE LINE', hyps: ['#'], goal: 'A' },
-  { id: 32, world: 4, name: 'COLLISION', hyps: ['A', '~A'], goal: 'B' },
-  { id: 33, world: 4, name: 'NO RETURN', hyps: ['A'], goal: '~~A' },
-  { id: 34, world: 4, name: 'MODUS TOLLENS', hyps: ['A>B', '~B'], goal: '~A' },
-  { id: 35, world: 4, name: 'SAFETY INTERLOCK', hyps: ['~A'], goal: '~(A&B)' },
-  { id: 36, world: 4, name: 'DE MORGAN LOCAL', hyps: ['~A&~B'], goal: '~(A|B)' },
-  { id: 37, world: 4, name: 'DE MORGAN EXPRESS', hyps: ['~(A|B)'], goal: '~A&~B' },
-  { id: 38, world: 4, name: 'GHOST TRAIN', hyps: [], goal: '~~(A|~A)' },
+  { id: 1, world: 1, name: 'FIRST GATE', hyps: ['A'], goal: 'A', emoji: true,
+    note: 'Every proof ends the same way: the thing you hold is the thing they ask for. That is the axiom, the only move that actually closes a gate. Everything else in this game just manufactures the moment where card and display match.' },
+  { id: 2, world: 1, name: 'SPARE KEY', hyps: ['A', 'B'], goal: 'A', emoji: true,
+    note: 'You hold more than you need. Fine. This logic never makes you use everything; extra cards ride along unused. (Relevance logicians would object. They are not driving this train.)' },
+  { id: 3, world: 1, name: 'PAIR UP', hyps: ['A', 'B'], goal: 'A∧B', emoji: true,
+    note: '∧ means both. To prove A∧B you prove A and separately prove B: the line forks, and each branch is its own little proof. First taste of the board growing sideways.' },
+  { id: 4, world: 1, name: 'TWO OF A KIND', hyps: ['A'], goal: 'A∧A', emoji: true,
+    note: 'Both branches want the same card, and both get it. Hypotheses are not consumed by use; every branch inherits your full hand. One key opens two gates.' },
+  { id: 5, world: 1, name: 'BREAK IT DOWN', hyps: ['A&B'], goal: 'A',
+    note: 'The mirror move: ∧ in your hand instead of on the display. A pair card breaks into its two halves. Using ∧ and proving ∧ are different moves. Left rules versus right rules: that is the entire grammar of this game.' },
+  { id: 6, world: 1, name: 'OTHER HALF', hyps: ['A&B'], goal: 'B',
+    note: 'Same break, other half. Note what happens to the piece you do not use: nothing. It sits there. Discarding information is always free here; obtaining it is what costs moves.' },
+  { id: 7, world: 1, name: 'TURNAROUND', hyps: ['A&B'], goal: 'B∧A',
+    note: 'Commutativity, earned by hand: break the pair apart, rebuild it in the other order. Two moves down, two axioms up. The finished board IS the fact that ∧ does not care about order.' },
+  { id: 8, world: 1, name: 'THREE-WAY', hyps: ['A', 'B', 'C'], goal: '(A&B)&C',
+    note: 'Nesting begins. (A∧B)∧C is a pair whose left half is itself a pair. The parentheses are load-bearing: the fork order on the board follows them exactly.' },
+  { id: 9, world: 1, name: 'REGROUP', hyps: ['(A&B)&C'], goal: 'A&(B&C)',
+    note: 'Associativity: same three ingredients, different bracketing. Break everything to atoms, rebuild in the new shape. Par 7, the longest ride yet. The tree you build is the proof that regrouping is legal.' },
+  { id: 10, world: 1, name: 'CROSSOVER', hyps: ['A&B', 'C&D'], goal: '(A&D)&(C&B)',
+    note: 'Terminus, Junction Line. Two pair cards, four atoms, reassembled crosswise. Nothing new, just everything at once. If the board reads clean at the end, you understand ∧.' },
+  { id: 11, world: 2, name: 'THROUGH TRAIN', hyps: ['A', 'A>B'], goal: 'B',
+    note: 'The most famous rule in logic: from A and A→B, conclude B. Modus ponens. Here it is a trade: surrender the pass, receive the destination. Every argument you have ever won rode this line.' },
+  { id: 12, world: 2, name: 'TRANSFER', hyps: ['A>B', 'B>C', 'A'], goal: 'C',
+    note: 'Chain two trades. B exists only in transit, manufactured by the first pass and consumed by the second. Intermediate results are stations you pass through, not places you keep.' },
+  { id: 13, world: 2, name: 'ROUND TRIP', hyps: [], goal: 'A>A',
+    note: 'First proof from an empty hand. An → display is an offer: give me the left side, I owe you the right. Accept, the A boards, card matches display. Identity costs nothing, which is why everything else can be priced against it.' },
+  { id: 14, world: 2, name: 'FREE RIDE', hyps: [], goal: 'A>(B>A)',
+    note: 'Take A aboard, then B, then hand back the A you took first. This is the K combinator, one of the two atoms every function in existence can be built from. You just proved it exists.' },
+  { id: 15, world: 2, name: 'LOCAL SERVICE', hyps: ['A>B', 'B>C'], goal: 'A>C',
+    note: 'Composition: A→B then B→C yields A→C. Board the A, trade twice, arrive at C. Every pipeline ever built is this proof wearing overalls.' },
+  { id: 16, world: 2, name: 'SWITCHYARD', hyps: ['A>(B>C)'], goal: 'B>(A>C)',
+    note: 'Argument order does not matter for curried functions: the C combinator. Board B, board A, spend them in the opposite order. The proof is pure bookkeeping, which is exactly the point.' },
+  { id: 17, world: 2, name: 'DOUBLE FARE', hyps: ['A>(A>B)'], goal: 'A>B',
+    note: 'The W combinator: one A, used twice. Notice that you CAN. The same card feeds both trades because hypotheses do not burn. Contraction is built into the walls of this system.' },
+  { id: 18, world: 2, name: 'SPLIT TICKET', hyps: ['A>B', 'A>C'], goal: 'A>(B&C)',
+    note: '→ and ∧ cooperating: one boarding, then a fork, then two passes spending the same A. This is the shape of "compute two things from one input".' },
+  { id: 19, world: 2, name: 'UNCURRY', hyps: ['A>(B>C)'], goal: '(A&B)>C',
+    note: 'A→(B→C) and (A∧B)→C say the same thing: two arguments, delivered one at a time or both at once. This direction: board the pair, break it, feed the curried card piece by piece.' },
+  { id: 20, world: 2, name: 'CURRY', hyps: ['(A&B)>C'], goal: 'A>(B>C)',
+    note: 'Terminus, Express Line, and it is two moves, because the CURRY rewrite does the whole job in one tap. When a boss level is trivial, that is the calculus telling you the two forms were never really different.' },
+  { id: 21, world: 3, name: 'PICK A PLATFORM', hyps: ['A'], goal: 'A|B',
+    note: 'Intuitionistically, ∨ means commitment: to prove A∨B you must deliver one of them and say which. No proving "one of them, somehow". That single demand is the whole schism with classical logic.' },
+  { id: 22, world: 3, name: 'OTHER PLATFORM', hyps: ['B'], goal: 'A|B',
+    note: 'Same station, mirrored. The display does not care which side is true. YOU have to know. If you cannot say which side you can prove, ∨ is not done with you yet.' },
+  { id: 23, world: 3, name: 'EITHER WAY', hyps: ['A|A'], goal: 'A',
+    note: '∨ in the hand is the opposite of ∨ on the display: you do NOT get to choose. Whoever handed you A∨A knew which one it was; you were not told. Be ready for both cases, even when both cases are the same.' },
+  { id: 24, world: 3, name: 'U-TURN', hyps: ['A|B'], goal: 'B|A',
+    note: 'Case split, then commit differently inside each case: the left case boards the right platform and vice versa. Choice and case analysis are dual moves, and this proof uses both.' },
+  { id: 25, world: 3, name: 'CASEWORK', hyps: ['A|B', 'A>C', 'B>C'], goal: 'C',
+    note: 'The canonical ∨ pattern: split on A∨B, give each case its own escape route to C. Every "proof by cases" in every mathematics book is this exact shape.' },
+  { id: 26, world: 3, name: 'MERGE', hyps: ['A>C', 'B>C'], goal: '(A|B)>C',
+    note: 'CASEWORK wearing an → coat: board the A∨B first, then split. Look at the board when you finish: the subtree below the boarding is station 25 verbatim. Recognizing reruns is half of proof literacy.' },
+  { id: 27, world: 3, name: 'SPLIT PASS', hyps: ['(A|B)>C'], goal: 'A>C',
+    note: 'A pass that accepted either platform becomes two specific passes: (A∨B)→C splits into A→C and B→C. One rewrite, no branching. Keep the one you need; the other rides along, ignored.' },
+  { id: 28, world: 3, name: 'SHUFFLE', hyps: ['A|(B|C)'], goal: '(A|B)|C',
+    note: 'Associativity again, but for ∨, and now it costs par 10. Compare station 9. Choices are more expensive than pairs: they do not regroup for free, every case gets re-escorted to its new platform individually.' },
+  { id: 29, world: 3, name: 'DISTRIBUTE', hyps: ['A&(B|C)'], goal: '(A&B)|(A&C)',
+    note: 'The ∧ rides into both cases of the ∨: distribution, the reason logic has normal forms. Watch the A get copied into both branches on the board. Nothing is lost; it is bookkeeping all the way down.' },
+  { id: 30, world: 3, name: 'COLLECT', hyps: ['(A&B)|(A&C)'], goal: 'A&(B|C)',
+    note: 'Terminus, Loop Line, longest ride in the system at par 11. Both cases arrive at the same A∧(B∨C), built two different ways. When the last token drops, read the whole board. That shape is what distributivity IS.' },
+  { id: 31, world: 4, name: 'END OF THE LINE', hyps: ['#'], goal: 'A',
+    note: '⊥ is the station with no trains: nothing proves it, and from it, everything follows. Ex falso quodlibet. Holding ⊥ means the timetable already lied, so any gate opens. Not a trick; the definition.' },
+  { id: 32, world: 4, name: 'COLLISION', hyps: ['A', '~A'], goal: 'B',
+    note: 'A and ¬A in the same hand. ¬A is literally A→⊥, a pass to nowhere. Feed it the A, receive ⊥, derail through whatever gate you like. Contradictions do not argue. They detonate.' },
+  { id: 33, world: 4, name: 'NO RETURN', hyps: ['A'], goal: '~~A',
+    note: 'If you hold A, then "A leads to ⊥" itself leads to ⊥: that is ¬¬A. The easy direction. The return trip, ¬¬A ⊢ A, has no route anywhere in this system. The guide lists it under closed stations.' },
+  { id: 34, world: 4, name: 'MODUS TOLLENS', hyps: ['A>B', '~B'], goal: '~A',
+    note: 'The classic: from A→B and ¬B, conclude ¬A. There is no tollens button. Board an A, ponens it to B, feed B to its own refutation, derail. Tollens is not a primitive. It is ponens run into a wall, which is why it earned its own station.' },
+  { id: 35, world: 4, name: 'SAFETY INTERLOCK', hyps: ['~A'], goal: '~(A&B)',
+    note: '¬A condemns every conjunction containing A: board the pair, break it, collide. One bad component fails the whole assembly. Quality control, as logic.' },
+  { id: 36, world: 4, name: 'DE MORGAN LOCAL', hyps: ['~A&~B'], goal: '~(A|B)',
+    note: '"Neither A nor B" from "not-A and not-B": board the ∨, split cases, and each case walks into its own refutation. Fully constructive; both refutations are already in hand.' },
+  { id: 37, world: 4, name: 'DE MORGAN EXPRESS', hyps: ['~(A|B)'], goal: '~A&~B',
+    note: 'The other constructive direction: from ¬(A∨B), manufacture ¬A and ¬B separately, each by boarding then inserting into the ∨. The fourth De Morgan direction, ¬(A∧B) ⊢ ¬A∨¬B, stays closed: it would require knowing WHICH one fails.' },
+  { id: 38, world: 4, name: 'GHOST TRAIN', hyps: [], goal: '~~(A|~A)',
+    note: 'Terminus of the system. You cannot prove A∨¬A, but you CAN prove it is irrefutable: its double negation runs. Excluded middle haunts this logic without living in it. Five moves of judo: assume the denial, turn it against itself twice. Read your Lean ticket afterward. It is a beautiful little program.' },
 ];
 if (typeof module !== 'undefined') module.exports = LEVELS;
 if (typeof window !== 'undefined') window.LEVELS = LEVELS;
@@ -1022,6 +1068,9 @@ function openLevel(id){
   $('screen-play').className = WORLDS[l.world].cls;
   $('screen-win').className = 'hidden ' + WORLDS[l.world].cls;
   $('playName').textContent = l.name;
+  $('noteText').textContent = l.note || '';
+  $('noteCard').classList.toggle('hidden', !l.note);
+  $('noteCard').open = DESK();
   const tip = TIPS[l.id];
   $('advisory').classList.toggle('hidden', !(tip && !P.tips[l.id]));
   if (tip) $('advText').textContent = tip;
