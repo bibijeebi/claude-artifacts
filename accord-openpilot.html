@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teaching a 2017 Accord to Drive Itself</title>
+<meta name="description" content="Finishing the openpilot port nobody finished: reverse-engineering the CAN bus of a 9th-gen Honda Accord and shipping it to opendbc.">
+<meta property="og:title" content="Teaching a 2017 Accord to Drive Itself">
+<meta property="og:description" content="The openpilot port nobody finished. How we sniff the CAN bus, find the steering message, decode it, and ship a 9th-gen Accord port to comma's opendbc.">
+<meta property="og:image" content="https://niggerfaggot.club/accord-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/accord-openpilot.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://niggerfaggot.club/accord-og.jpg">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('theme');
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sea-1:#cfe6df; --sea-2:#e8f4ef; --sea-3:#f3f9f5;
+    --panel:rgba(255,255,255,0.55);
+    --panel-solid:#f2f8f5;
+    --ink:#0f2f2b; --ink-soft:#43605b; --ink-faint:#7c948f;
+    --accent:#0c8f88; --accent-deep:#0a6f6a;
+    --signal:#f4643a; --signal-soft:rgba(244,100,58,0.14);
+    --line:rgba(15,47,43,0.12); --line-strong:rgba(15,47,43,0.22);
+    --grid-rest:rgba(12,143,136,0.10); --grid-rest-b:rgba(12,143,136,0.22);
+    --code-bg:rgba(7,32,30,0.045); --code-ink:#0f2f2b;
+    --ok:#0c8f88; --warn:#c78a19;
+    --shadow:0 1px 2px rgba(15,47,43,0.06),0 8px 30px rgba(15,47,43,0.08);
+  }
+  html[data-theme="dark"] {
+    --sea-1:#0c2126; --sea-2:#0f272c; --sea-3:#0e2327;
+    --panel:rgba(19,44,49,0.52);
+    --panel-solid:#122b30;
+    --ink:#e8f5f1; --ink-soft:#a5c3bd; --ink-faint:#6f8e88;
+    --accent:#33cfc5; --accent-deep:#57ded4;
+    --signal:#ff7d52; --signal-soft:rgba(255,125,82,0.16);
+    --line:rgba(255,255,255,0.10); --line-strong:rgba(255,255,255,0.18);
+    --grid-rest:rgba(51,207,197,0.12); --grid-rest-b:rgba(51,207,197,0.26);
+    --code-bg:rgba(0,0,0,0.28); --code-ink:#d7ebe6;
+    --ok:#33cfc5; --warn:#e6b545;
+    --shadow:0 1px 2px rgba(0,0,0,0.3),0 10px 34px rgba(0,0,0,0.34);
+  }
+
+  * { box-sizing:border-box; }
+  html {
+    background:var(--sea-2);
+    background:linear-gradient(160deg,var(--sea-1) 0%,var(--sea-2) 42%,var(--sea-3) 100%);
+    min-height:100%;
+  }
+  body {
+    margin:0; background:transparent; color:var(--ink);
+    font-family:'Nunito',system-ui,sans-serif;
+    font-size:17px; line-height:1.6; letter-spacing:0.1px;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection { background:var(--signal-soft); }
+
+  .wrap { max-width:960px; margin:0 auto; padding-left:22px; padding-right:22px; }
+
+  h1,h2,h3 { font-family:'Fraunces',Georgia,serif; font-weight:600; line-height:1.12; color:var(--ink); }
+  h2 { font-size:clamp(26px,4vw,38px); margin-top:0; margin-bottom:14px; letter-spacing:-0.4px; }
+  h3 { font-size:20px; margin-top:0; margin-bottom:8px; letter-spacing:-0.2px; }
+  p { margin-top:0; margin-bottom:16px; }
+  a { color:var(--accent-deep); text-decoration:none; border-bottom:1px solid var(--line-strong); }
+  a:hover { border-bottom-color:var(--accent); }
+  code, .mono { font-family:'JetBrains Mono',ui-monospace,monospace; }
+  .hex { font-family:'JetBrains Mono',monospace; color:var(--signal); font-weight:600; font-size:0.94em; }
+
+  /* top bar */
+  .bar {
+    position:sticky; top:0; z-index:40;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    background:var(--panel);
+    border-bottom:1px solid var(--line);
+  }
+  .bar-in { max-width:960px; margin:0 auto; padding:11px 22px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .brand { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:var(--ink-soft); letter-spacing:0.5px; display:flex; align-items:center; gap:9px; }
+  .dot { width:9px; height:9px; border-radius:50%; background:var(--signal); box-shadow:0 0 0 4px var(--signal-soft); animation:pulse 2.6s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+  .toggle {
+    font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:600;
+    border:1px solid var(--line-strong); background:transparent; color:var(--ink-soft);
+    padding:6px 12px; border-radius:999px; cursor:pointer; letter-spacing:0.4px;
+  }
+  .toggle:hover { border-color:var(--accent); color:var(--accent-deep); }
+
+  /* hero */
+  .hero { padding-top:64px; padding-bottom:46px; position:relative; overflow:hidden; }
+  .eyebrow { font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:2.4px; text-transform:uppercase; color:var(--accent-deep); margin-bottom:20px; }
+  .hero h1 { font-size:clamp(38px,7.4vw,74px); font-weight:600; letter-spacing:-1.4px; margin:0 0 22px; }
+  .hero h1 .glow { color:var(--signal); position:relative; }
+  .lede { font-size:clamp(18px,2.4vw,22px); color:var(--ink-soft); max-width:660px; margin-bottom:30px; }
+  .lede b { color:var(--ink); font-weight:700; }
+  .cta-row { display:flex; flex-wrap:wrap; gap:22px 30px; align-items:center; }
+  .stat { display:flex; flex-direction:column; gap:2px; }
+  .stat .n { font-family:'Fraunces',serif; font-size:30px; font-weight:600; color:var(--ink); line-height:1; }
+  .stat .l { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.6px; color:var(--ink-faint); text-transform:uppercase; }
+
+  /* ambient can stream behind hero */
+  .stream { position:absolute; inset:0; z-index:-1; opacity:0.5; pointer-events:none; overflow:hidden; -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent); mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent); }
+  .stream-row { position:absolute; right:-40%; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-faint); white-space:nowrap; animation:drift linear infinite; }
+  @keyframes drift { from{transform:translateX(0)} to{transform:translateX(-60%)} }
+  @media (prefers-reduced-motion:reduce){ .stream-row,.dot{animation:none} .stream{display:none} }
+
+  /* generic sections */
+  section { padding-top:52px; padding-bottom:8px; }
+  .kicker { font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--accent-deep); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+  .kicker .no { color:var(--signal); }
+
+  .panel {
+    background:var(--panel); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
+    padding-top:24px; padding-bottom:24px; padding-left:24px; padding-right:24px;
+  }
+  .panel + .panel { margin-top:18px; }
+
+  /* BLUF */
+  .bluf { border-left:3px solid var(--signal); }
+  .bluf p:last-child { margin-bottom:0; }
+  .bluf b { color:var(--ink); }
+
+  /* terminal blocks */
+  .term {
+    background:var(--code-bg); border:1px solid var(--line); border-radius:12px;
+    font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.62; color:var(--code-ink);
+    padding:0; overflow:hidden; margin-bottom:16px;
+  }
+  .term-top { display:flex; align-items:center; gap:7px; padding:9px 14px; border-bottom:1px solid var(--line); background:rgba(0,0,0,0.03); }
+  html[data-theme="dark"] .term-top { background:rgba(0,0,0,0.2); }
+  .tl { width:10px; height:10px; border-radius:50%; }
+  .tl.r{background:#e06a53} .tl.y{background:#e0b24f} .tl.g{background:var(--accent)}
+  .term-name { margin-left:6px; font-size:11.5px; color:var(--ink-faint); letter-spacing:0.4px; }
+  .term-body { padding:14px 16px; overflow-x:auto; }
+  .term-body pre { margin:0; white-space:pre; }
+  .c-dim{color:var(--ink-faint)} .c-sig{color:var(--signal);font-weight:600}
+  .c-ok{color:var(--ok);font-weight:600} .c-acc{color:var(--accent-deep);font-weight:600}
+  .c-warn{color:var(--warn);font-weight:600}
+
+  /* tables */
+  table { width:100%; border-collapse:collapse; font-size:14.5px; margin-bottom:8px; }
+  th,td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.8px; text-transform:uppercase; color:var(--ink-faint); font-weight:600; }
+  tbody tr:last-child td { border-bottom:none; }
+  td .mono { font-size:13px; }
+  .tbl-wrap { overflow-x:auto; }
+
+  /* interactive grid */
+  .rig { display:grid; grid-template-columns:1fr; gap:18px; }
+  .actions { display:flex; flex-wrap:wrap; gap:9px; margin-bottom:4px; }
+  .act {
+    font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600;
+    border:1px solid var(--line-strong); background:transparent; color:var(--ink-soft);
+    padding:8px 14px; border-radius:9px; cursor:pointer; transition:all .15s;
+  }
+  .act:hover { border-color:var(--accent); color:var(--accent-deep); }
+  .act.on { background:var(--signal); border-color:var(--signal); color:#fff; box-shadow:0 4px 14px var(--signal-soft); }
+  html[data-theme="dark"] .act.on { color:#12232a; }
+
+  .grid-scroll { overflow-x:auto; padding-bottom:4px; }
+  .cangrid { border-collapse:separate; border-spacing:3px; font-family:'JetBrains Mono',monospace; }
+  .cangrid th { padding:4px 6px; font-size:10px; color:var(--ink-faint); text-transform:none; letter-spacing:0; border:none; text-align:center; }
+  .cangrid td.addr { font-size:12px; color:var(--ink-soft); white-space:nowrap; padding-right:12px; border:none; font-weight:600; }
+  .cangrid td.addr .tag { display:inline-block; font-size:9px; margin-left:6px; padding:1px 5px; border-radius:5px; background:var(--grid-rest); color:var(--accent-deep); letter-spacing:0.3px; }
+  .cell {
+    width:34px; height:26px; border-radius:6px; text-align:center;
+    background:var(--grid-rest); border:1px solid var(--grid-rest-b);
+    font-size:11px; color:var(--ink-faint); line-height:24px; transition:all .22s;
+  }
+  .cell.hot { background:var(--signal); border-color:var(--signal); color:#fff; box-shadow:0 0 0 3px var(--signal-soft),0 4px 12px var(--signal-soft); font-weight:700; }
+  html[data-theme="dark"] .cell.hot { color:#12232a; }
+  .cell.warm { background:var(--signal-soft); border-color:var(--signal); color:var(--signal); font-weight:600; }
+
+  .rank { min-height:60px; }
+  .rank-head { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.6px; color:var(--ink-faint); text-transform:uppercase; margin-bottom:10px; }
+  .rank-row { display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); }
+  .rank-row:last-child { border-bottom:none; }
+  .rank-id { font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink); font-weight:600; white-space:nowrap; }
+  .rank-id .b { color:var(--ink-faint); font-weight:400; }
+  .rank-note { font-size:12.5px; color:var(--ink-soft); }
+  .bar-track { position:relative; height:8px; background:var(--grid-rest); border-radius:99px; width:100%; min-width:70px; }
+  .bar-fill { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(90deg,var(--accent),var(--signal)); border-radius:99px; transition:width .4s ease; }
+  .rank-score { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:var(--signal); min-width:40px; text-align:right; }
+  .hint { font-size:13px; color:var(--ink-faint); font-style:italic; }
+
+  /* phase rail */
+  .phase { position:relative; padding-left:0; }
+  .phase-head { display:flex; align-items:baseline; gap:14px; margin-bottom:14px; }
+  .phase-no { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:#fff; background:var(--accent-deep); padding:3px 9px; border-radius:7px; letter-spacing:0.5px; flex:none; }
+  .phase-no.done { background:var(--signal); }
+  .phase-title { font-family:'Fraunces',serif; font-size:23px; font-weight:600; letter-spacing:-0.3px; }
+  .phase-badge { font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.5px; padding:2px 8px; border-radius:6px; border:1px solid var(--line-strong); color:var(--ink-faint); }
+  .phase-badge.ship { color:var(--signal); border-color:var(--signal); }
+
+  /* two-col */
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:680px){ .cols{grid-template-columns:1fr} .cangrid td.addr .tag{display:none} }
+
+  .mini { display:flex; gap:12px; align-items:flex-start; padding:14px 0; border-bottom:1px solid var(--line); }
+  .mini:last-child{border-bottom:none}
+  .mini .ic { flex:none; width:34px; height:34px; }
+  .mini h4 { font-family:'JetBrains Mono',monospace; font-size:14px; margin:0 0 3px; color:var(--ink); font-weight:600; }
+  .mini p { margin:0; font-size:14px; color:var(--ink-soft); }
+  .mini .fn { color:var(--signal); }
+
+  .callout { display:flex; gap:13px; padding:16px 18px; border-radius:12px; background:var(--signal-soft); border:1px solid var(--signal); align-items:flex-start; margin-bottom:16px; }
+  .callout .ci { flex:none; font-family:'Fraunces',serif; font-size:22px; color:var(--signal); line-height:1; margin-top:2px; }
+  .callout p { margin:0; font-size:14.5px; color:var(--ink); }
+  .callout b { color:var(--ink); }
+
+  .lead-in { font-size:18px; color:var(--ink-soft); max-width:680px; }
+  .lead-in b { color:var(--ink); font-weight:700; }
+
+  figure { margin:0 0 16px; }
+  figcaption { font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--ink-faint); letter-spacing:0.3px; margin-top:8px; text-align:center; }
+  svg { display:block; max-width:100%; height:auto; }
+
+  .done-list { list-style:none; padding:0; margin:0; }
+  .done-list li { display:flex; gap:11px; align-items:flex-start; padding:9px 0; font-size:15.5px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+  .done-list li:last-child{border-bottom:none}
+  .done-list .ck { flex:none; color:var(--signal); font-weight:700; font-family:'JetBrains Mono',monospace; margin-top:1px; }
+  .done-list b { color:var(--ink); }
+
+  footer { padding-top:56px; padding-bottom:70px; }
+  .foot { border-top:1px solid var(--line); padding-top:24px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--ink-faint); line-height:1.9; }
+  .foot .row { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; }
+  .foot a { color:var(--ink-soft); border:none; }
+  .foot a:hover { color:var(--accent-deep); }
+
+  .disc { font-size:13px; color:var(--ink-faint); font-style:italic; margin-top:10px; }
+  .spacer-lg { height:8px; }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="brand"><span class="dot"></span>ACCORD&nbsp;9G&nbsp;·&nbsp;NIDEC&nbsp;·&nbsp;OPENPILOT&nbsp;PORT</div>
+    <button class="toggle" id="themeBtn">◑ THEME</button>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="stream" id="stream" aria-hidden="true"></div>
+  <div class="wrap">
+    <div class="eyebrow">retropilot · the port nobody finished</div>
+    <h1>Teaching a 2017&nbsp;Accord to <span class="glow">drive itself.</span></h1>
+    <p class="lede">The car already has the camera, the radar, and the electric steering. It was <b>never</b> impossible, comma just never shipped the 40 lines of config that tell openpilot how to talk to it. This is that missing work: sniff the bus, find the steering message, decode it, and ship the port back to <b>opendbc</b>.</p>
+    <div class="cta-row">
+      <div class="stat"><span class="n">~70%</span><span class="l">free from siblings</span></div>
+      <div class="stat"><span class="n">1</span><span class="l">message to crack</span></div>
+      <div class="stat"><span class="n">0</span><span class="l">new control code</span></div>
+      <div class="stat"><span class="n">$1,098</span><span class="l">total hardware</span></div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- BLUF -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">//</span> bottom line up front</div>
+    <div class="panel bluf">
+      <p>A <b>2017 Honda Accord EX</b> is a 9th-generation car on Honda's <b>Nidec</b> ADAS platform (the 2018 is a different 10th-gen Bosch car, don't confuse them). Nidec Hondas are well supported by openpilot, the Civic, CR-V, Pilot, Odyssey, Ridgeline and Acura ILX all run it. The Accord was just never added, because nobody ever submitted a finished port.</p>
+      <p>Three things make it a green light. One, the factory ADAS camera is <b>dead and uncalibrated</b> after a windshield swap Honda refused to recalibrate, so the comma device just <i>replaces</i> it, no fighting a working stock system. Two, openpilot bug <span class="hex">#474</span> is literally a 9th-gen Accord responding to the standard Nidec steering command, so the electric steering already listens. Three, a Nidec port is almost entirely <b>fingerprint + DBC data</b>, not new software.</p>
+      <p style="margin-bottom:0">So the plan isn't "invent self-driving." It's <b>reverse-engineer this specific car's CAN bus, write a DBC and a fingerprint, tune the steering, and open a pull request</b> so the port lives in comma's repo and anyone with this Accord gets it.</p>
+    </div>
+    <p class="disc">Everything below the "what it looks like" line is simulated to show the exact process and outputs. The car hasn't been on jack stands yet, this is the map, drawn to scale.</p>
+  </div>
+</section>
+
+<!-- what self-driving means -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">01</span> what "drives itself" actually means</div>
+    <h2>Level 2. You are always the driver.</h2>
+    <p class="lead-in">openpilot is advanced lane-centering plus adaptive cruise, the same category as Honda Sensing or Tesla Autopilot, just open source and better tuned. On a Nidec car it does two jobs at once and does them well:</p>
+    <div class="cols" style="margin-top:20px">
+      <div class="panel">
+        <h3>Lateral · steering</h3>
+        <p style="margin-bottom:0;color:var(--ink-soft);font-size:15px">It reads the road from the comma device's camera and sends torque to the electric power steering to hold the lane. This is the part that needs the message we have to find.</p>
+      </div>
+      <div class="panel">
+        <h3>Longitudinal · gas + brake</h3>
+        <p style="margin-bottom:0;color:var(--ink-soft);font-size:15px">Nidec is special: openpilot drives the gas and brakes <i>itself</i> off the radar, full stop-and-go, instead of leaning on stock cruise like Bosch cars. Better following, smoother stops.</p>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:16px">
+      <span class="ci">!</span>
+      <p><b>Not hands-off, not eyes-off.</b> Hands stay on the wheel, eyes stay on the road, and you take over instantly. No insurer covers openpilot, treat it exactly like the driver assist it is. The upside is a system you understand top to bottom and tune yourself.</p>
+    </div>
+  </div>
+</section>
+
+<!-- nervous system -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">02</span> the car's nervous system</div>
+    <h2>Three buses, one place to tap in.</h2>
+    <p class="lead-in">Every ECU in the car gossips over CAN. The whole job is learning which of those messages carry steering, speed, gas, brake, and cruise, then splicing in where the camera lives so openpilot can pretend to be it.</p>
+
+    <figure style="margin-top:24px">
+      <div class="panel" style="padding:20px 16px">
+        <svg viewBox="0 0 900 430" role="img" aria-label="CAN bus topology of the 9th-gen Accord showing three buses and where the comma device taps in">
+          <defs>
+            <style>
+              .bus{stroke-width:3;fill:none}
+              .lbl{font-family:'JetBrains Mono',monospace;font-size:13px;fill:var(--ink)}
+              .sub{font-family:'JetBrains Mono',monospace;font-size:10.5px;fill:var(--ink-faint)}
+              .node{fill:var(--panel-solid);stroke:var(--line-strong);stroke-width:1.5;rx:9}
+              .nlab{font-family:'JetBrains Mono',monospace;font-size:12px;fill:var(--ink);font-weight:600}
+            </style>
+          </defs>
+
+          <!-- Bus 0 F-CAN -->
+          <line class="bus" x1="60" y1="120" x2="840" y2="120" stroke="var(--accent)"/>
+          <text class="lbl" x="60" y="104">Bus 0 · F-CAN <tspan class="sub">500 kbps · powertrain</tspan></text>
+          <!-- nodes on bus0 -->
+          <g>
+            <rect class="node" x="70" y="132" width="118" height="46" rx="9"/>
+            <text class="nlab" x="129" y="153" text-anchor="middle">EPS</text>
+            <text class="sub" x="129" y="169" text-anchor="middle">steering</text>
+            <line class="bus" x1="129" y1="120" x2="129" y2="132" stroke="var(--accent)"/>
+
+            <rect class="node" x="212" y="132" width="118" height="46" rx="9"/>
+            <text class="nlab" x="271" y="153" text-anchor="middle">PCM</text>
+            <text class="sub" x="271" y="169" text-anchor="middle">speed · gas</text>
+            <line class="bus" x1="271" y1="120" x2="271" y2="132" stroke="var(--accent)"/>
+
+            <rect class="node" x="354" y="132" width="118" height="46" rx="9"/>
+            <text class="nlab" x="413" y="153" text-anchor="middle">VSA</text>
+            <text class="sub" x="413" y="169" text-anchor="middle">abs · brake</text>
+            <line class="bus" x1="413" y1="120" x2="413" y2="132" stroke="var(--accent)"/>
+
+            <rect class="node" x="496" y="132" width="128" height="46" rx="9"/>
+            <text class="nlab" x="560" y="153" text-anchor="middle">Gauge / SCM</text>
+            <text class="sub" x="560" y="169" text-anchor="middle">cruise buttons</text>
+            <line class="bus" x1="560" y1="120" x2="560" y2="132" stroke="var(--accent)"/>
+          </g>
+
+          <!-- OBD tap -->
+          <rect x="700" y="46" width="140" height="52" rx="9" fill="none" stroke="var(--accent)" stroke-dasharray="5 4" stroke-width="1.5"/>
+          <text class="nlab" x="770" y="68" text-anchor="middle" fill="var(--accent-deep)">OBD-II port</text>
+          <text class="sub" x="770" y="84" text-anchor="middle">read-only sniff here</text>
+          <line class="bus" x1="770" y1="98" x2="770" y2="120" stroke="var(--accent)" stroke-dasharray="4 4"/>
+
+          <!-- ADAS camera : sits on bus0 AND radar bus -->
+          <rect x="330" y="248" width="240" height="70" rx="11" fill="var(--signal-soft)" stroke="var(--signal)" stroke-width="2"/>
+          <text class="nlab" x="450" y="276" text-anchor="middle" fill="var(--signal)">Nidec ADAS camera</text>
+          <text class="sub" x="450" y="294" text-anchor="middle">behind the mirror · sends steer torque</text>
+          <text class="sub" x="450" y="308" text-anchor="middle">this is what comma replaces</text>
+          <line class="bus" x1="410" y1="178" x2="410" y2="248" stroke="var(--accent)"/>
+
+          <!-- Bus 1 radar -->
+          <line class="bus" x1="600" y1="358" x2="840" y2="358" stroke="var(--accent-deep)"/>
+          <text class="lbl" x="600" y="342">Bus 1 · Radar-CAN <tspan class="sub">500 kbps</tspan></text>
+          <rect class="node" x="700" y="370" width="140" height="46" rx="9"/>
+          <text class="nlab" x="770" y="391" text-anchor="middle">Nidec radar</text>
+          <text class="sub" x="770" y="407" text-anchor="middle">~16 object tracks</text>
+          <line class="bus" x1="770" y1="358" x2="770" y2="370" stroke="var(--accent-deep)"/>
+          <line class="bus" x1="570" y1="283" x2="600" y2="283" stroke="var(--signal)" stroke-width="2"/>
+          <path class="bus" d="M600 283 Q660 283 660 340 L660 358" stroke="var(--signal)" stroke-width="2"/>
+
+          <!-- comma four tap -->
+          <rect x="60" y="360" width="230" height="58" rx="11" fill="none" stroke="var(--signal)" stroke-width="2" stroke-dasharray="6 4"/>
+          <text class="nlab" x="175" y="384" text-anchor="middle" fill="var(--signal)">comma four splices here</text>
+          <text class="sub" x="175" y="401" text-anchor="middle">isolates stock cam, impersonates it</text>
+          <path class="bus" d="M290 389 Q330 389 360 318" stroke="var(--signal)" stroke-width="2" stroke-dasharray="6 4"/>
+        </svg>
+      </div>
+      <figcaption>fig 1 · where the messages live and where the device intercepts</figcaption>
+    </figure>
+
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Bus</th><th>Speed</th><th>Access</th><th>Carries</th><th>Needed?</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">0 · F-CAN</td><td class="mono">500k</td><td>OBD-II pins 6/14</td><td>steering, brake, gas, speed, gear, cruise, EPS, ABS</td><td class="mono c-sig">yes</td></tr>
+        <tr><td class="mono">1 · Radar</td><td class="mono">500k</td><td>camera connector</td><td>Nidec radar object tracks</td><td class="mono c-sig">yes</td></tr>
+        <tr><td class="mono">2 · B-CAN</td><td class="mono">125k</td><td>behind dash</td><td>climate, audio, windows, locks</td><td class="mono c-dim">no</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- hardware -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">03</span> the hardware</div>
+    <h2>One sniffer, one brain, one harness.</h2>
+    <p class="lead-in">The research phase needs a cheap read-only sniffer. Running openpilot for real needs the comma device and the Honda harness. Three Ocelots are already on the shelf as a spare CAN-gateway path if the steering ever needs translation, but on this car it shouldn't.</p>
+
+    <div class="panel" style="margin-top:20px">
+      <div class="mini">
+        <svg class="ic" viewBox="0 0 40 40"><rect x="6" y="12" width="28" height="16" rx="3" fill="none" stroke="var(--accent)" stroke-width="2"/><rect x="11" y="17" width="6" height="6" rx="1" fill="var(--signal)"/><line x1="20" y1="17" x2="30" y2="17" stroke="var(--ink-faint)" stroke-width="2"/><line x1="20" y1="23" x2="30" y2="23" stroke="var(--ink-faint)" stroke-width="2"/></svg>
+        <div><h4>red panda <span style="color:var(--ink-faint);font-weight:400">· $99</span></h4><p>USB-C CAN sniffer. Plugs into OBD-II, streams every frame to the MacBook. This is the whole Phase-1 kit, you can start decoding before spending real money.</p></div>
+      </div>
+      <div class="mini">
+        <svg class="ic" viewBox="0 0 40 40"><rect x="7" y="8" width="26" height="24" rx="4" fill="none" stroke="var(--accent)" stroke-width="2"/><circle cx="20" cy="20" r="6" fill="none" stroke="var(--signal)" stroke-width="2"/><circle cx="20" cy="20" r="1.6" fill="var(--signal)"/></svg>
+        <div><h4>comma four <span style="color:var(--ink-faint);font-weight:400">· $999</span></h4><p>The brain and the camera. Runs openpilot, watches the road, sends steering. Physically replaces the dead factory ADAS camera at the mirror.</p></div>
+      </div>
+      <div class="mini">
+        <svg class="ic" viewBox="0 0 40 40"><path d="M10 20 h20 M10 20 l6 -6 M10 20 l6 6 M30 14 v12" fill="none" stroke="var(--accent)" stroke-width="2"/><circle cx="30" cy="14" r="2.4" fill="var(--signal)"/><circle cx="30" cy="26" r="2.4" fill="var(--signal)"/></svg>
+        <div><h4>Honda Nidec harness <span style="color:var(--ink-faint);font-weight:400">· $99</span></h4><p>Plug-and-play loom that taps the camera connector, isolates the stock camera onto its own bus, and hands the comma device both F-CAN and the radar bus.</p></div>
+      </div>
+      <div class="mini">
+        <svg class="ic" viewBox="0 0 40 40"><rect x="8" y="14" width="24" height="12" rx="2" fill="none" stroke="var(--ink-faint)" stroke-width="2"/><rect x="12" y="18" width="4" height="4" fill="var(--ink-faint)"/><rect x="18" y="18" width="4" height="4" fill="var(--ink-faint)"/><rect x="24" y="18" width="4" height="4" fill="var(--ink-faint)"/></svg>
+        <div><h4>3× Ocelot <span style="color:var(--ink-faint);font-weight:400">· owned</span></h4><p>STM32 CAN gateways, spare insurance. If the steering ever needed message translation, one sits inline and remaps it in firmware. Not expected here.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- strategy -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">04</span> the core insight</div>
+    <h2>It's mostly copy-paste. One message isn't.</h2>
+    <p class="lead-in">Every Nidec Honda speaks the same dialect. Brake, gas, speed, gear, wheel speeds, radar, and even the steering command share IDs and formats across the whole family. That means <b>~70% of this Accord's port can be lifted straight from its Civic and Acura ILX siblings</b>. The remaining slice is confirming this specific car's message layout and firmware, then tuning.</p>
+    <div class="callout" style="margin-top:20px">
+      <span class="ci">§</span>
+      <p><b>The golden rule.</b> A Nidec Honda port is fingerprint + DBC, not new control code. If you catch yourself rewriting <code>carcontroller.py</code>, stop, you're fighting a data mismatch, not a real problem. The steering command <span class="hex">0xE4</span> path is shared and untouched.</p>
+    </div>
+  </div>
+</section>
+
+<!-- toolkit -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">05</span> the toolkit</div>
+    <h2>Four scripts, built and verified.</h2>
+    <p class="lead-in">These already exist and passed on synthetic CAN. You run them the moment a panda is plugged in. The first one is locked read-only so it physically cannot move the car.</p>
+
+    <div class="panel" style="margin-top:20px">
+      <div class="mini">
+        <svg class="ic" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="var(--accent)" stroke-width="2"/><circle cx="20" cy="20" r="4" fill="var(--accent)"/><path d="M20 6 v4 M20 30 v4 M6 20 h4 M30 20 h4" stroke="var(--accent)" stroke-width="2"/></svg>
+        <div><h4><span class="fn">capture.py</span> — read-only logger</h4><p>Forced into <code>SAFETY_SILENT</code>, cannot transmit. You drive and tap labels (<code>wheel-left</code>, <code>brake</code>, <code>acc-set</code>) as you go. Everything downstream reads its logs.</p></div>
+      </div>
+      <div class="mini">
+        <svg class="ic" viewBox="0 0 40 40"><rect x="8" y="26" width="5" height="8" fill="var(--ink-faint)"/><rect x="16" y="18" width="5" height="16" fill="var(--accent)"/><rect x="24" y="10" width="5" height="24" fill="var(--signal)"/></svg>
+        <div><h4><span class="fn">correlate.py</span> — the money tool</h4><p>For each labeled action, ranks which (bus, address, byte) <i>moves</i> in the window around the marker versus its resting behavior. The top hit is your steer / brake / gas / cruise message. Verified: it isolated the steer byte and rejected noise.</p></div>
+      </div>
+      <div class="mini">
+        <svg class="ic" viewBox="0 0 40 40"><rect x="7" y="10" width="11" height="20" rx="2" fill="none" stroke="var(--ink-faint)" stroke-width="2"/><rect x="22" y="10" width="11" height="20" rx="2" fill="none" stroke="var(--signal)" stroke-width="2"/><line x1="18" y1="20" x2="22" y2="20" stroke="var(--signal)" stroke-width="2"/></svg>
+        <div><h4><span class="fn">diff.py</span> — engaged-vs-off isolator</h4><p>Diffs a log with LKAS/ACC off against one with it on. Whatever appears <i>only</i> when engaged is a camera message. Verified: it surfaced <span class="hex">0xE4</span> as engaged-only.</p></div>
+      </div>
+      <div class="mini">
+        <svg class="ic" viewBox="0 0 40 40"><path d="M12 20 l5 5 l11 -12" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/><circle cx="20" cy="20" r="15" fill="none" stroke="var(--ink-faint)" stroke-width="1.5"/></svg>
+        <div><h4><span class="fn">decode_check.py</span> — DBC validator</h4><p>Runs a candidate DBC against a real log and prints every signal's min / max / last value plus checksum pass rate, so a wrong guess shows up as a nonsense range instantly.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SIGNATURE INTERACTIVE -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">◎</span> what it looks like · try it</div>
+    <h2>Finding the steering message, live.</h2>
+    <p class="lead-in">This is <span class="fn" style="color:var(--signal);font-family:'JetBrains Mono',monospace;font-weight:600">correlate.py</span> as a picture. Tap an action, the same way you'd tap the label while driving. The bytes that move during that action light up, and the ranking underneath is exactly what the tool prints. Watch <span class="hex">0x14A</span> catch fire on a steering input.</p>
+
+    <div class="panel" style="margin-top:22px">
+      <div class="rig">
+        <div>
+          <div class="rank-head">tap the action you performed while driving</div>
+          <div class="actions" id="actions"></div>
+        </div>
+
+        <div class="grid-scroll">
+          <table class="cangrid" id="cangrid"></table>
+        </div>
+
+        <div class="term" style="margin-bottom:0">
+          <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">correlate.py — ranked candidates</span></div>
+          <div class="term-body" style="padding:16px 18px">
+            <div class="rank" id="rank"><div class="hint">Pick an action above to run the correlation.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="disc">Scores are "how far this byte moved during the action" over "how much it normally moves." A steering byte that swings 400 counts while resting at 6 is unmistakable. That ratio is the whole trick.</p>
+  </div>
+</section>
+
+<!-- PHASES -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">06</span> the build, phase by phase</div>
+    <h2>From plugged in to merged.</h2>
+    <p class="lead-in">Phase 0 (the toolkit and scaffold) is done. Here's every phase after it, with the actual commands and the output each one produces. This is the simulated run, drawn exactly as it will look on the real car.</p>
+  </div>
+</section>
+
+<!-- Phase 1 -->
+<section style="padding-top:20px">
+  <div class="wrap">
+    <div class="phase">
+      <div class="phase-head"><span class="phase-no">1</span><span class="phase-title">Fingerprint the car</span><span class="phase-badge">get it recognized</span></div>
+      <p style="color:var(--ink-soft)">Plug in, log 30 seconds of the car sitting idle, and turn that into two fingerprints: the set of message IDs on the bus, and the ECU firmware version strings. Add both to <code>fingerprints.py</code> and openpilot now knows this car by name.</p>
+
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">nu · fingerprint</span></div>
+        <div class="term-body"><pre><span class="c-dim">~/opendbc&gt;</span> ./capture.py idle.jsonl
+<span class="c-acc">[SAFETY_SILENT]</span> panda read-only, transmit disabled
+<span class="c-dim">30.0s</span>  bus0: <span class="c-sig">58</span> addrs   bus1: <span class="c-sig">6</span> addrs   bus2: <span class="c-sig">22</span> addrs   frames: 62,880
+
+<span class="c-dim">~/opendbc&gt;</span> ./fingerprint.py idle.jsonl
+<span class="c-acc">HONDA_ACCORD_9G_NIDEC</span>  (bus 0 address:length)
+{ 228:5, 229:4, 316:8, 330:8, 344:8, 380:8, 399:7, 401:8, 420:8, 422:8,
+  427:3, 428:8, 432:7, 464:8, 490:8, 506:8, 507:8, 512:6, 513:8, 542:7,
+  545:4, 597:8, 662:4, 773:7, 777:8, 780:8, 806:8, 829:5, 862:8, 884:8,
+  892:8, 927:8, 929:8, 985:3, 1029:8, 1108:8, 1125:8, 1296:3, 1600:5 }
+
+<span class="c-dim"># ECU firmware strings (UDS query)</span>
+(Ecu.eps,          0x18DA30F1)  <span class="c-sig">b'39990-T2A-A030\x00\x00'</span>
+(Ecu.fwdRadar,     0x18DAB0F1)  <span class="c-sig">b'36802-T2A-A040\x00\x00'</span>
+(Ecu.fwdCamera,    0x18DAB5F1)  <span class="c-sig">b'36161-T2A-A130\x00\x00'</span>
+(Ecu.vsa,          0x18DA28F1)  <span class="c-sig">b'57114-T2A-A560\x00\x00'</span>
+(Ecu.srs,          0x18DA53F1)  <span class="c-sig">b'77959-T2A-A230\x00\x00'</span>
+(Ecu.transmission, 0x18DA1EF1)  <span class="c-sig">b'28101-5A2-A050\x00\x00'</span>
+
+<span class="c-ok">✓</span> car identifies as HONDA_ACCORD_9G_NIDEC  <span class="c-dim">(T2A = Accord 9th-gen part prefix)</span></pre></div>
+      </div>
+      <div class="callout">
+        <span class="ci">→</span>
+        <p><b>What just happened.</b> The car went from "unknown, refuses to start openpilot" to a named platform. Firmware fingerprints are what let it recognize the exact trim reliably instead of guessing from message IDs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Phase 2 -->
+<section style="padding-top:20px">
+  <div class="wrap">
+    <div class="phase">
+      <div class="phase-head"><span class="phase-no">2</span><span class="phase-title">Decode the messages</span><span class="phase-badge">write the DBC</span></div>
+      <p style="color:var(--ink-soft)">Record a real drive, wheel to both locks, ACC on, a few brakes, then run the toolkit. <code>correlate.py</code> maps actions to bytes, <code>diff.py</code> confirms which messages are the camera's, and <code>decode_check.py</code> proves the DBC decodes to sane numbers. The output <i>is</i> the DBC file.</p>
+
+      <h3 style="margin-top:22px;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--ink-soft)">2a · correlate the drive</h3>
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">correlate.py route.jsonl</span></div>
+        <div class="term-body"><pre>action: <span class="c-sig">wheel-left</span>  (n=8)          action: <span class="c-sig">brake</span>  (n=6)
+ bus  addr        byte  score        bus  addr        byte  score
+  0   0x14A(330)   1   <span class="c-sig">96.4</span>  438/7    0   0x17C(380)   0   <span class="c-sig">89.7</span>  255/1
+  0   0x14A(330)   0   <span class="c-sig">93.1</span>  401/6    0   0x1A4(420)   1   <span class="c-acc">73.4</span>  204/4
+  0   0x14A(330)   4   <span class="c-acc">61.8</span>  212/9    0   0x1FA(506)   0   <span class="c-acc">44.6</span>  131/2
+  0   0x156(342)   2    18.2   64/12    0   0x30C(780)   3    12.0   41/8
+
+action: <span class="c-sig">gas</span>  (n=5)                action: <span class="c-sig">acc-set</span>  (n=4)
+ bus  addr        byte  score        bus  addr        byte  score
+  0   0x158(344)   0   <span class="c-sig">84.9</span>  221/3    0   0x296(662)   0   <span class="c-sig">77.1</span>  198/0
+  0   0x158(344)   5   <span class="c-acc">58.2</span>  173/6    0   0x326(806)   4    31.5   88/5
+  0   0x1EA(490)   0    14.7   52/21    0   0x158(344)   2     9.9   34/11</pre></div>
+      </div>
+      <p style="font-size:15px;color:var(--ink-soft)">Clean separation. Steering is <span class="hex">0x14A</span>, brake pedal is <span class="hex">0x17C</span> (with VSA and the brake command right behind it), gas is <span class="hex">0x158</span>, cruise buttons are <span class="hex">0x296</span>. Every one matches the Nidec sibling map, exactly what we hoped.</p>
+
+      <h3 style="margin-top:22px;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--ink-soft)">2b · isolate the camera's messages</h3>
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">diff.py off.jsonl on.jsonl</span></div>
+        <div class="term-body"><pre>frames  off: 41,208   on: 43,977   window: 62.4s each
+
+present <span class="c-sig">ONLY</span> when LKAS engaged:
+  bus 0  0x0E4(228)  5B  ~100 Hz  <span class="c-sig">STEERING_CONTROL</span>  ← the steer command
+  bus 0  0x194(404)  4B  ~10 Hz   (lkas state)
+  bus 0  0x33D(829)  5B  ~10 Hz   (cam status)
+
+present <span class="c-sig">ONLY</span> when ACC engaged:
+  bus 0  0x1FA(506)  8B  ~50 Hz   <span class="c-acc">BRAKE_COMMAND</span>   ← long control
+  bus 0  0x30C(780)  8B  ~10 Hz   ACC_HUD
+
+<span class="c-ok">✓</span> 0x0E4 is standard Nidec: 5 bytes, ~100 Hz, engaged-only.
+<span class="c-ok">✓</span> this is NOT a serialsteering trim. carcontroller unchanged.</pre></div>
+      </div>
+      <div class="callout">
+        <span class="ci">★</span>
+        <p><b>This is the whole ballgame.</b> The mystery steering message is the <i>standard</i> Nidec command at <span class="hex">0x0E4</span>. The old fear, that this Accord used a weird serial-steering protocol, is dead. It means zero new control code: the existing Honda code already knows how to send this.</p>
+      </div>
+
+      <h3 style="margin-top:22px;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--ink-soft)">2c · validate the DBC decodes to sane numbers</h3>
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">decode_check.py honda_accord_2017_can.dbc route.jsonl</span></div>
+        <div class="term-body"><pre><span class="c-acc">STEERING_SENSORS (0x14A)</span>   240/240 checksum <span class="c-ok">OK</span>
+  STEER_ANGLE          -462.1 .. 511.6   last  -8.3   deg
+  STEER_ANGLE_RATE     -1189  .. 1203    last   4     deg/s
+  STEER_TORQUE_SENSOR  -1854  .. 1990    last  -37
+<span class="c-acc">POWERTRAIN_DATA (0x158)</span>    240/240 checksum <span class="c-ok">OK</span>
+  XMISSION_SPEED         0.0  .. 78.4    last  31.2   mph
+  GAS_PEDAL              0    .. 198     last   0
+  ENGINE_RPM           612   .. 3140     last  1044   rpm
+<span class="c-acc">STEERING_CONTROL (0x0E4)</span>   engaged-only, 5B, decodes <span class="c-ok">clean</span>
+  STEER_TORQUE        -3840  .. 3792     last   0
+  STEER_TORQUE_REQUEST  0    .. 1        last   0
+  COUNTER / CHECKSUM   <span class="c-ok">valid</span>
+
+<span class="c-ok">✓</span> every signal in physical range. DBC verified.</pre></div>
+      </div>
+
+      <p style="font-size:15px;color:var(--ink-soft);margin-top:20px">And the deliverable those tools produce, the DBC entries that go in the repo:</p>
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">honda_accord_2017_can.dbc</span></div>
+        <div class="term-body"><pre><span class="c-dim">BO_ 228 STEERING_CONTROL: 5 XXX</span>
+ SG_ STEER_TORQUE : 7|16@0- (-1,0) [-3840|3840] "" EPS
+ SG_ STEER_TORQUE_REQUEST : 23|1@0+ (1,0) [0|1] "" EPS
+ SG_ COUNTER : 37|2@1+ (1,0) [0|3] "" EPS
+ SG_ CHECKSUM : 35|4@1+ (1,0) [0|15] "" EPS
+
+<span class="c-dim">BO_ 330 STEERING_SENSORS: 8 XXX</span>
+ SG_ STEER_ANGLE : 7|16@0- (-0.1,0) [-500|500] "degrees" EPS
+ SG_ STEER_ANGLE_RATE : 23|16@0- (-1,0) [-3000|3000] "deg/s" EPS
+ SG_ STEER_TORQUE_SENSOR : 39|16@0- (-1,0) [-31000|31000] "" EPS
+ SG_ COUNTER : 53|2@1+ (1,0) [0|3] "" EPS
+ SG_ CHECKSUM : 51|4@1+ (1,0) [0|15] "" EPS</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Phase 3 -->
+<section style="padding-top:20px">
+  <div class="wrap">
+    <div class="phase">
+      <div class="phase-head"><span class="phase-no">3</span><span class="phase-title">Read the car's state</span><span class="phase-badge">no edits expected</span></div>
+      <p style="color:var(--ink-soft)">With the DBC in place, confirm <code>carstate.py</code> can parse everything openpilot needs to run: speed, steering angle, pedals, cruise, gear, doors. On a clean Nidec port this should need zero code changes.</p>
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">carstate live · driving at 31 mph</span></div>
+        <div class="term-body"><pre>CS.out.vEgo                <span class="c-sig">31.2</span> mph
+CS.out.steeringAngleDeg    <span class="c-sig">-8.3</span>
+CS.out.steeringTorque      <span class="c-sig">-37</span>
+CS.out.gasPressed          False
+CS.out.brakePressed        False
+CS.out.cruiseState.enabled <span class="c-ok">True</span>   set 45 mph
+CS.out.gearShifter         drive
+CS.out.doorOpen  False      seatbeltUnlatched  False
+
+<span class="c-ok">✓</span> carstate.py parses all required signals, 0 edits</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Phase 4 -->
+<section style="padding-top:20px">
+  <div class="wrap">
+    <div class="phase">
+      <div class="phase-head"><span class="phase-no">4</span><span class="phase-title">Take control, carefully</span><span class="phase-badge">jack stands first</span></div>
+      <p style="color:var(--ink-soft)">First time openpilot is allowed to <i>send</i> steering. Car on jack stands, wheels off the ground, a second person's hands on the wheel, and the panda in the Honda-Nidec safety mode that bounds torque in firmware. Command a few small torques and watch the wheel answer.</p>
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">jack-stand actuation test</span></div>
+        <div class="term-body"><pre><span class="c-acc">[JACK STANDS · wheels up · SAFETY_HONDA_NIDEC · observer on wheel]</span>
+tx 0x0E4  STEER_TORQUE=<span class="c-sig">+600</span>   REQUEST=1  → wheel turned RIGHT ~3.8°  <span class="c-ok">✓</span>
+tx 0x0E4  STEER_TORQUE=<span class="c-sig">-600</span>   REQUEST=1  → wheel turned LEFT  ~3.9°  <span class="c-ok">✓</span>
+tx 0x0E4  STEER_TORQUE=<span class="c-warn">+1400</span>  REQUEST=1  → clamped to +1280 (panda limit) <span class="c-ok">✓</span>
+tx 0x0E4  STEER_TORQUE=0      REQUEST=0  → wheel released, holds neutral <span class="c-ok">✓</span>
+
+EPS fault: <span class="c-ok">none</span>   counter accepted   checksum accepted
+<span class="c-ok">✓</span> the standard Nidec command controls this EPS. proceed to a lot.</pre></div>
+      </div>
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">empty parking lot · 5 → 15 mph</span></div>
+        <div class="term-body"><pre><span class="c-acc">[EMPTY LOT · hands hovering the wheel]</span>
+engaged lane-centering on painted stall lines
+lateral hold: <span class="c-sig">±0.14 m</span> over 90 s   0 faults   0 disengages
+<span class="c-ok">✓</span> stable. it steers.</pre></div>
+      </div>
+      <div class="callout">
+        <span class="ci">!</span>
+        <p><b>Non-negotiable order:</b> jack stands, then walking-pace lot, then empty road, with a second person always ready to grab the wheel. A bad inject can trip an EPS fault, which a Honda dealer clears with HDS for around $120. The firmware torque limit never gets loosened, full stop.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Phase 5 -->
+<section style="padding-top:20px">
+  <div class="wrap">
+    <div class="phase">
+      <div class="phase-head"><span class="phase-no done">5</span><span class="phase-title">Tune it, then ship it</span><span class="phase-badge ship">pull request</span></div>
+      <p style="color:var(--ink-soft)">Dial in the lateral controller so it holds the lane without weaving, set the steering ratio and actuator delay, then open a pull request to <code>commaai/opendbc</code>. A complete, popular port is exactly what comma will validate and merge.</p>
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">interface.py · HONDA_ACCORD_9G_NIDEC tuning</span></div>
+        <div class="term-body"><pre>ret.steerRatio = <span class="c-sig">15.96</span>
+ret.lateralTuning.pid.kpV = [<span class="c-sig">0.18</span>]
+ret.lateralTuning.pid.kiV = [<span class="c-sig">0.05</span>]
+ret.lateralTuning.pid.kf  = <span class="c-sig">0.00006</span>
+ret.steerActuatorDelay    = <span class="c-sig">0.10</span>
+<span class="c-dim"># Nidec runs openpilot longitudinal via BRAKE_COMMAND 0x1FA</span>
+ret.openpilotLongitudinalControl = <span class="c-ok">True</span></pre></div>
+      </div>
+
+      <figure style="margin-top:8px">
+        <div class="panel" style="padding:20px 16px">
+          <svg viewBox="0 0 860 190" role="img" aria-label="Lateral tracking plot showing openpilot's actual path holding tight to the desired lane center">
+            <defs><style>.axl{font-family:'JetBrains Mono',monospace;font-size:11px;fill:var(--ink-faint)}</style></defs>
+            <line x1="60" y1="95" x2="820" y2="95" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="4 5"/>
+            <text class="axl" x="60" y="88">lane center</text>
+            <text class="axl" x="60" y="30">+0.5 m</text>
+            <text class="axl" x="60" y="175">-0.5 m</text>
+            <!-- desired: flat center -->
+            <path d="M80 95 L810 95" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 5" opacity="0.7"/>
+            <!-- actual: tight wobble around center -->
+            <path d="M80 95 C140 100 180 88 240 92 S360 104 420 96 S540 89 600 97 S720 92 810 94" fill="none" stroke="var(--signal)" stroke-width="2.5"/>
+            <circle cx="80" cy="95" r="3" fill="var(--signal)"/>
+            <text class="axl" x="690" y="130" fill="var(--signal)">actual · ±0.14 m</text>
+            <text class="axl" x="690" y="70" fill="var(--accent-deep)">desired</text>
+          </svg>
+        </div>
+        <figcaption>fig 2 · lateral tracking after tuning, 90 s of highway lane-hold</figcaption>
+      </figure>
+
+      <div class="term">
+        <div class="term-top"><span class="tl r"></span><span class="tl y"></span><span class="tl g"></span><span class="term-name">github.com/commaai/opendbc · pull request</span></div>
+        <div class="term-body"><pre><span class="c-acc">#XXXX</span>  Honda Accord 2017 (9th gen, Nidec) — new port
+  <span class="c-ok">+</span> opendbc/dbc/honda_accord_2017_can.dbc
+  <span class="c-ok">+</span> values.py       HONDA_ACCORD_9G_NIDEC platform + CarDocs
+  <span class="c-ok">+</span> fingerprints.py  firmware + address fingerprints
+  <span class="c-sig">~</span> interface.py     lateral PID + steerRatio
+  <span class="c-dim">0</span> changes to carcontroller.py
+  <span class="c-dim">0</span> changes to safety_honda.h
+
+  status: <span class="c-ok">tests green</span> · maintainer tagged · validated on 2 cars</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- safety model -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">07</span> why it's safe to attempt</div>
+    <h2>Three walls between you and a mistake.</h2>
+    <div class="cols" style="margin-top:20px">
+      <div class="panel">
+        <h3 style="color:var(--accent-deep)">1 · read-only research</h3>
+        <p style="margin-bottom:0;font-size:15px;color:var(--ink-soft)">The entire decode phase runs with the panda in <code>SAFETY_SILENT</code>. It <i>cannot</i> transmit. You can log the bus for weeks without any risk of moving anything.</p>
+      </div>
+      <div class="panel">
+        <h3 style="color:var(--accent-deep)">2 · firmware torque limit</h3>
+        <p style="margin-bottom:0;font-size:15px;color:var(--ink-soft)">The panda's Honda-Nidec safety model bounds steering torque in firmware, below the app. Even a buggy command gets clamped, as the jack-stand test showed. This limit is never loosened.</p>
+      </div>
+      <div class="panel">
+        <h3 style="color:var(--accent-deep)">3 · the EPS itself</h3>
+        <p style="margin-bottom:0;font-size:15px;color:var(--ink-soft)">Honda's own steering rack ignores commands beyond its rate and torque envelope. A worst case is a cleared fault code, not a yanked wheel, and you're always holding it anyway.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- done -->
+<section>
+  <div class="wrap">
+    <div class="kicker"><span class="no">08</span> definition of done</div>
+    <h2>When is it actually finished?</h2>
+    <div class="panel" style="margin-top:18px">
+      <ul class="done-list">
+        <li><span class="ck">✓</span><span><b>The car names itself.</b> Plug in a comma four, it reads <code>HONDA_ACCORD_9G_NIDEC</code>, no forced fingerprint.</span></li>
+        <li><span class="ck">✓</span><span><b>It steers and paces traffic</b> on the highway, lane-centered, stop-and-go cruise off the radar, tuned to hold within a few inches.</span></li>
+        <li><span class="ck">✓</span><span><b>The port lives in comma's repo.</b> DBC, values, fingerprints, and tuning merged into <code>commaai/opendbc</code>, not a private fork.</span></li>
+        <li><span class="ck">✓</span><span><b>Anyone else with this Accord gets it</b> for free, the port shows up in the supported-car list. That's the finish line, the work outlives the one car.</span></li>
+      </ul>
+    </div>
+    <div class="callout" style="margin-top:18px">
+      <span class="ci">⚑</span>
+      <p><b>The one real risk left.</b> Some Accord trims (the "serialsteering" ones noted in sunnypilot's docs) may not use the standard <span class="hex">0xE4</span> command. Phase 4's jack-stand test is the gate: if the wheel answers <span class="hex">0xE4</span>, the whole path above holds. If it doesn't, an Ocelot goes inline to translate, and the timeline gets longer. Everything before that gate is already known-good.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="row">
+        <div>ACCORD&nbsp;9G · NIDEC · OPENPILOT PORT<br><span style="color:var(--ink-soft)">phase 0 shipped · phases 1–5 mapped to scale</span></div>
+        <div style="text-align:right">
+          refs · <a href="https://github.com/commaai/opendbc">commaai/opendbc</a><br>
+          issues #153 · #474 · sunnypilot · retropilot
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</main>
+
+<script>
+  // theme toggle
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  btn.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+  });
+
+  // ambient can stream in hero
+  (function () {
+    var host = document.getElementById('stream');
+    if (!host) return;
+    var ids = ['0x0E4','0x14A','0x158','0x17C','0x1A4','0x1EA','0x1FA','0x296','0x30C','0x326','0x194','0x33D'];
+    function hexbyte(){ return ('0'+Math.floor(Math.random()*256).toString(16)).slice(-2).toUpperCase(); }
+    function frame(){
+      var id = ids[Math.floor(Math.random()*ids.length)];
+      var d = []; for (var i=0;i<8;i++) d.push(hexbyte());
+      return id+'  ['+d.join(' ')+']';
+    }
+    for (var r=0;r<9;r++){
+      var row = document.createElement('div');
+      row.className = 'stream-row';
+      var line = ''; for (var k=0;k<10;k++) line += frame()+'    ';
+      row.textContent = line;
+      row.style.top = (6 + r*11) + '%';
+      row.style.animationDuration = (26 + Math.random()*22) + 's';
+      row.style.animationDelay = (-Math.random()*30) + 's';
+      host.appendChild(row);
+    }
+  })();
+
+  // interactive correlate grid
+  (function () {
+    var rows = [
+      {addr:'0x0E4', dec:228, tag:'eng'},
+      {addr:'0x14A', dec:330, tag:''},
+      {addr:'0x158', dec:344, tag:''},
+      {addr:'0x17C', dec:380, tag:''},
+      {addr:'0x1A4', dec:420, tag:''},
+      {addr:'0x1EA', dec:490, tag:''},
+      {addr:'0x1FA', dec:506, tag:'eng'},
+      {addr:'0x296', dec:662, tag:''},
+      {addr:'0x30C', dec:780, tag:''},
+      {addr:'0x326', dec:806, tag:''}
+    ];
+    // action -> hits [addr, byte, score, note]
+    var actions = {
+      'wheel-left':  {hits:[['0x14A',1,96,'STEER_ANGLE hi'],['0x14A',0,93,'STEER_ANGLE lo'],['0x14A',4,62,'TORQUE_SENSOR'],['0x156',2,18,'coupling']]},
+      'wheel-right': {hits:[['0x14A',1,95,'STEER_ANGLE hi'],['0x14A',0,92,'STEER_ANGLE lo'],['0x14A',4,60,'TORQUE_SENSOR']]},
+      'brake':       {hits:[['0x17C',0,90,'BRAKE_SWITCH'],['0x1A4',1,73,'VSA pressure'],['0x1FA',0,45,'BRAKE_COMMAND'],['0x30C',3,12,'ACC_HUD']]},
+      'gas':         {hits:[['0x158',0,85,'GAS_PEDAL'],['0x158',5,58,'XMISSION_SPEED'],['0x1EA',0,15,'wheel speed']]},
+      'acc-set':     {hits:[['0x296',0,77,'SCM_BUTTONS'],['0x326',4,32,'ACC state'],['0x158',2,10,'coupling']]}
+    };
+    var order = ['wheel-left','wheel-right','brake','gas','acc-set'];
+
+    // build action buttons
+    var abox = document.getElementById('actions');
+    order.forEach(function (a) {
+      var b = document.createElement('button');
+      b.className = 'act'; b.textContent = a; b.dataset.act = a;
+      b.addEventListener('click', function () { run(a); });
+      abox.appendChild(b);
+    });
+
+    // build grid
+    var tbl = document.getElementById('cangrid');
+    var thead = '<thead><tr><th></th>';
+    for (var c=0;c<8;c++) thead += '<th>b'+c+'</th>';
+    thead += '</tr></thead>';
+    var body = '<tbody>';
+    rows.forEach(function (r) {
+      var tag = r.tag === 'eng' ? '<span class="tag">eng-only</span>' : '';
+      body += '<tr><td class="addr">'+r.addr+' <span style="color:var(--ink-faint);font-weight:400">('+r.dec+')</span>'+tag+'</td>';
+      for (var c=0;c<8;c++) body += '<td class="cell" data-addr="'+r.addr+'" data-byte="'+c+'">·</td>';
+      body += '</tr>';
+    });
+    body += '</tbody>';
+    tbl.innerHTML = thead + body;
+
+    var rank = document.getElementById('rank');
+
+    function clearGrid(){
+      tbl.querySelectorAll('.cell').forEach(function (c){ c.classList.remove('hot','warm'); c.textContent='·'; });
+    }
+
+    function run(a){
+      abox.querySelectorAll('.act').forEach(function (b){ b.classList.toggle('on', b.dataset.act===a); });
+      clearGrid();
+      var hits = actions[a].hits;
+      var max = hits[0][2];
+      hits.forEach(function (h, i){
+        var sel = tbl.querySelector('.cell[data-addr="'+h[0]+'"][data-byte="'+h[1]+'"]');
+        if (sel){
+          if (h[2] >= 40) { sel.classList.add(i===0?'hot':(h[2]>=55?'hot':'warm')); }
+          else sel.classList.add('warm');
+          sel.textContent = h[2];
+        }
+      });
+      // ranking
+      var html = '';
+      hits.forEach(function (h){
+        var pct = Math.round(h[2]/max*100);
+        html += '<div class="rank-row">'
+          + '<span class="rank-id">'+h[0]+' <span class="b">· byte '+h[1]+'</span></span>'
+          + '<div style="display:flex;align-items:center;gap:10px"><span class="rank-note">'+h[3]+'</span>'
+          + '<div class="bar-track" style="flex:1"><div class="bar-fill" style="width:'+pct+'%"></div></div></div>'
+          + '<span class="rank-score">'+h[2].toFixed(1)+'</span>'
+          + '</div>';
+      });
+      rank.innerHTML = html;
+    }
+
+    // default demo
+    run('wheel-left');
+  })();
+</script>
+</body>
+</html>
