@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVAC Speedrun — 608/609 + Service Fundamentals in One Day</title>
+<meta property="og:title" content="MVAC Speedrun — HVAC/MVAC Mastery in One Day">
+<meta property="og:description" content="Any% route through the refrigeration cycle, refrigerants, PT charts, superheat/subcool, MVAC systems, service procedures, leak detection, EPA law, and electrical. Timed splits, interactive tools, quizzes, final exam.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-mvac-speedrun.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/mvac-speedrun.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-mvac-speedrun.jpg">
+<script>
+(function(){var t=localStorage.getItem('mvac-theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t);})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-grad-a:#e9f5f3; --bg-grad-b:#dcecf4; --bg-solid:#e5f1f1;
+  --card:rgba(255,255,255,0.58); --card-strong:rgba(255,255,255,0.78);
+  --card-border:rgba(255,255,255,0.65); --inner:rgba(255,255,255,0.4);
+  --ink:#16333c; --ink-soft:#3f5f68; --ink-faint:#6b8790;
+  --teal:#188f80; --teal-deep:#0d6b60; --coral:#e05f3f; --coral-deep:#b8492e;
+  --amber:#c98a1b; --blue:#2273b8; --blue-deep:#174f80;
+  --hi-red:#c8442a; --lo-blue:#1f6fb2;
+  --ok:#1d8a4f; --bad:#c23b2b;
+  --shadow:0 18px 40px -18px rgba(22,60,70,0.25);
+  --mono:'JetBrains Mono',monospace; --serif:'Fraunces',serif; --sans:'Nunito',sans-serif;
+}
+html[data-theme="dark"]{
+  --bg-grad-a:#0e1d23; --bg-grad-b:#132b31; --bg-solid:#101f25;
+  --card:rgba(255,255,255,0.065); --card-strong:rgba(255,255,255,0.1);
+  --card-border:rgba(255,255,255,0.12); --inner:rgba(255,255,255,0.05);
+  --ink:#e6f1ef; --ink-soft:#a9c3c4; --ink-faint:#77979b;
+  --teal:#3fc4b1; --teal-deep:#7fe0d2; --coral:#f08662; --coral-deep:#ffab8d;
+  --amber:#e8b04b; --blue:#5aa5e0; --blue-deep:#8cc4f0;
+  --hi-red:#ef7a5e; --lo-blue:#63a9e6;
+  --ok:#4fce8a; --bad:#ef7a63;
+  --shadow:0 18px 40px -18px rgba(0,0,0,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:var(--bg-solid);background-image:linear-gradient(160deg,var(--bg-grad-a) 0%,var(--bg-grad-b) 55%,var(--bg-grad-a) 100%);min-height:100%;scroll-behavior:smooth}
+html,body{overflow-x:hidden}
+body{background:transparent;color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.65}
+.wrap{max-width:980px;margin-left:auto;margin-right:auto;padding-top:0;padding-right:20px;padding-bottom:80px;padding-left:20px}
+h1,h2,h3,h4{font-family:var(--serif);line-height:1.15}
+a{color:var(--teal);text-decoration:none;border-bottom:1px solid transparent}
+a:hover{border-bottom-color:var(--teal)}
+code,.mono{font-family:var(--mono);font-size:0.92em}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:var(--card-strong);border-bottom:1px solid var(--card-border)}
+.topbar-in{max-width:980px;margin-left:auto;margin-right:auto;padding-top:10px;padding-right:20px;padding-bottom:10px;padding-left:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tb-title{font-family:var(--serif);font-weight:900;font-size:1.05rem;letter-spacing:0.02em}
+.tb-title span{color:var(--coral)}
+#run-clock{font-family:var(--mono);font-weight:700;font-size:1.05rem;color:var(--teal-deep);min-width:118px}
+.tb-spacer{flex:1}
+.pbar{flex-basis:100%;height:5px;border-radius:99px;background:var(--inner);overflow:hidden}
+.pbar>div{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--coral));transition:width .5s}
+.btn{cursor:pointer;border:1px solid var(--card-border);background:var(--card);color:var(--ink);font-family:var(--sans);font-weight:800;font-size:0.85rem;border-radius:12px;padding-top:8px;padding-right:14px;padding-bottom:8px;padding-left:14px;transition:transform .12s, background .2s}
+.btn:hover{transform:translateY(-1px);background:var(--card-strong)}
+.btn-primary{background:var(--teal);border-color:var(--teal);color:#fff}
+html[data-theme="dark"] .btn-primary{color:#08201c}
+.btn-primary:hover{background:var(--teal-deep);border-color:var(--teal-deep)}
+.btn-coral{background:var(--coral);border-color:var(--coral);color:#fff}
+html[data-theme="dark"] .btn-coral{color:#2a0e05}
+
+/* hero */
+.hero{padding-top:56px;padding-bottom:8px;text-align:center}
+.hero h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:900}
+.hero h1 .pct{color:var(--coral)}
+.hero .sub{margin-top:12px;font-size:1.08rem;color:var(--ink-soft);max-width:640px;margin-left:auto;margin-right:auto}
+.hero .bluf{margin-top:22px;font-weight:800;color:var(--ink)}
+.timerbox{margin-top:28px;display:inline-block;background:var(--card);border:1px solid var(--card-border);border-radius:22px;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding-top:22px;padding-right:34px;padding-bottom:22px;padding-left:34px}
+#big-clock{font-family:var(--mono);font-size:clamp(2rem,7vw,3.2rem);font-weight:700;letter-spacing:0.03em}
+.timer-btns{margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* cards & sections */
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:22px;box-shadow:var(--shadow);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding-top:26px;padding-right:28px;padding-bottom:26px;padding-left:28px;margin-top:26px}
+.segment{scroll-margin-top:90px}
+.seg-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.seg-num{font-family:var(--mono);font-weight:700;font-size:0.85rem;color:var(--coral);letter-spacing:0.12em}
+.seg-head h2{font-size:1.7rem;font-weight:900;flex:1;min-width:200px}
+.seg-par{font-family:var(--mono);font-size:0.8rem;color:var(--ink-faint)}
+.split-btn{white-space:nowrap}
+.split-btn.done{background:var(--ok);border-color:var(--ok);color:#fff;pointer-events:none}
+.bluf-line{margin-top:10px;font-weight:800;color:var(--teal-deep);border-left:3px solid var(--teal);padding-left:12px}
+.seg-body p{margin-top:14px}
+.seg-body h3{margin-top:26px;font-size:1.18rem;font-weight:700;color:var(--ink)}
+.seg-body ul{margin-top:10px;margin-left:22px}
+.seg-body li{margin-top:7px}
+.kicker{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint);margin-top:26px}
+strong{font-weight:800}
+.hi{color:var(--hi-red);font-weight:800}
+.lo{color:var(--lo-blue);font-weight:800}
+
+/* tables */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:14px;border-radius:14px;border:1px solid var(--card-border)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:0.92rem;background:var(--inner)}
+th{font-family:var(--sans);font-weight:800;text-align:left;padding-top:10px;padding-right:12px;padding-bottom:10px;padding-left:12px;border-bottom:2px solid var(--card-border);color:var(--teal-deep);white-space:nowrap}
+td{padding-top:9px;padding-right:12px;padding-bottom:9px;padding-left:12px;border-bottom:1px solid var(--card-border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+
+/* pills, resources */
+.pill{display:inline-block;font-family:var(--mono);font-size:0.72rem;font-weight:700;border-radius:99px;padding-top:3px;padding-right:10px;padding-bottom:3px;padding-left:10px;background:var(--inner);border:1px solid var(--card-border);color:var(--ink-soft);margin-right:6px;margin-top:6px}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-top:12px}
+.res{display:block;background:var(--inner);border:1px solid var(--card-border);border-radius:14px;padding-top:12px;padding-right:14px;padding-bottom:12px;padding-left:14px;transition:transform .12s}
+.res:hover{transform:translateY(-2px);border-bottom-color:var(--card-border)}
+.res b{display:block;font-size:0.92rem;color:var(--ink)}
+.res span{display:block;font-size:0.8rem;color:var(--ink-faint);margin-top:3px}
+
+/* quiz */
+.quiz{margin-top:18px}
+.q{background:var(--inner);border:1px solid var(--card-border);border-radius:16px;padding-top:16px;padding-right:18px;padding-bottom:16px;padding-left:18px;margin-top:12px}
+.q .qt{font-weight:800}
+.q .opts{margin-top:10px;display:grid;gap:8px}
+.opt{cursor:pointer;text-align:left;border:1px solid var(--card-border);background:var(--card);border-radius:10px;padding-top:9px;padding-right:12px;padding-bottom:9px;padding-left:12px;font-family:var(--sans);font-size:0.95rem;color:var(--ink);transition:background .15s}
+.opt:hover{background:var(--card-strong)}
+.opt.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,transparent);font-weight:800}
+.opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.opt:disabled{cursor:default}
+.expl{display:none;margin-top:10px;font-size:0.9rem;color:var(--ink-soft);border-left:3px solid var(--teal);padding-left:10px}
+.q.answered .expl{display:block}
+.quiz-score{margin-top:12px;font-family:var(--mono);font-weight:700;color:var(--teal-deep)}
+
+/* tools */
+.tool{background:var(--inner);border:1px solid var(--card-border);border-radius:16px;padding-top:18px;padding-right:20px;padding-bottom:18px;padding-left:20px;margin-top:16px}
+.tool h4{font-size:1.05rem;margin-bottom:8px}
+.tool label{display:block;font-size:0.82rem;font-weight:800;color:var(--ink-soft);margin-top:10px}
+.tool select,.tool input[type=number]{font-family:var(--mono);font-size:0.95rem;color:var(--ink);background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding-top:7px;padding-right:10px;padding-bottom:7px;padding-left:10px;margin-top:4px;width:100%;max-width:220px}
+.tool input[type=range]{width:100%;accent-color:var(--teal);margin-top:8px}
+.readout{font-family:var(--mono);font-weight:700;font-size:1.5rem;color:var(--teal-deep);margin-top:10px}
+.readout small{font-size:0.85rem;color:var(--ink-faint);font-weight:400}
+.tool-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.verdict{margin-top:10px;font-weight:800}
+
+/* splits table */
+.splits td,.splits th{font-family:var(--mono);font-size:0.85rem}
+.delta-ahead{color:var(--ok);font-weight:700}
+.delta-behind{color:var(--bad);font-weight:700}
+
+/* route list */
+.route{display:grid;gap:10px;margin-top:16px}
+.route a{display:flex;align-items:center;gap:12px;background:var(--inner);border:1px solid var(--card-border);border-radius:14px;padding-top:11px;padding-right:16px;padding-bottom:11px;padding-left:16px;color:var(--ink);font-weight:700}
+.route a:hover{background:var(--card-strong);border-bottom-color:var(--card-border)}
+.route .rn{font-family:var(--mono);color:var(--coral);font-size:0.8rem;min-width:34px}
+.route .rt{flex:1}
+.route .rp{font-family:var(--mono);font-size:0.78rem;color:var(--ink-faint)}
+.route .rd{font-size:1rem}
+
+/* gauntlet */
+.scenario{background:var(--inner);border:1px solid var(--card-border);border-radius:16px;padding-top:18px;padding-right:20px;padding-bottom:18px;padding-left:20px;margin-top:14px}
+.scenario .facts{font-family:var(--mono);font-size:0.88rem;background:var(--card);border:1px solid var(--card-border);border-radius:12px;padding-top:12px;padding-right:14px;padding-bottom:12px;padding-left:14px;margin-top:10px;white-space:pre-line}
+.scenario .ans{display:none;margin-top:12px;border-left:3px solid var(--coral);padding-left:12px}
+.scenario.revealed .ans{display:block}
+
+svg text{font-family:var(--sans)}
+.diagram{margin-top:18px;background:var(--inner);border:1px solid var(--card-border);border-radius:16px;padding-top:14px;padding-right:14px;padding-bottom:6px;padding-left:14px}
+.dcap{font-size:0.8rem;color:var(--ink-faint);text-align:center;padding-bottom:10px}
+footer{margin-top:60px;text-align:center;font-size:0.85rem;color:var(--ink-faint)}
+@media(max-width:640px){.card{padding-top:20px;padding-right:18px;padding-bottom:20px;padding-left:18px}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-in">
+<div class="tb-title">MVAC <span>ANY%</span></div>
+<div id="run-clock">0:00:00</div>
+<div class="tb-spacer"></div>
+<button class="btn" id="tb-split-jump" onclick="document.getElementById('splits-card').scrollIntoView()">Splits</button>
+<button class="btn" id="theme-toggle" onclick="toggleTheme()">◐</button>
+<div class="pbar"><div id="pbar-fill"></div></div>
+</div></div>
+
+<div class="wrap">
+<div class="hero">
+<h1>MVAC SPEEDRUN <span class="pct">any%</span></h1>
+<p class="sub">One day. Ten segments. The refrigeration cycle through EPA law and electrical, with the 609 exam material buried inside. Hit start, work the route in order, split when a segment is in your head.</p>
+<p class="bluf">BLUF: read each segment, run its tool, pass its quick check, split. Boss at the end is a 25-question exam at real 609 pass standards (21/25).</p>
+<div class="timerbox">
+<div id="big-clock">0:00:00</div>
+<div class="timer-btns">
+<button class="btn btn-primary" id="start-btn" onclick="startRun()">▶ START RUN</button>
+<button class="btn" onclick="resetRun()">Reset</button>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h3 style="font-size:1.2rem">The route</h3>
+<div class="route" id="route-list"></div>
+</div>
+
+<div class="card" id="splits-card">
+<h3 style="font-size:1.2rem">Splits</h3>
+<div class="tscroll"><table class="splits"><thead><tr><th>#</th><th>Segment</th><th>Par</th><th>Split</th><th>Δ</th></tr></thead><tbody id="splits-body"></tbody></table></div>
+<p style="margin-top:10px;font-size:0.85rem;color:var(--ink-faint)">Par is a comfortable pace, not WR. Beating par on every segment puts the full route around 6 hours.</p>
+</div>
+
+<!-- ============ SEGMENT 1 ============ -->
+<div class="card segment" id="seg1">
+<div class="seg-head"><span class="seg-num">SEG 01</span><h2>The refrigeration cycle</h2><span class="seg-par">par 0:30</span><button class="btn split-btn" onclick="splitSeg(1)">SPLIT ✓</button></div>
+<p class="bluf-line">A/C doesn't make cold. It moves heat, using a refrigerant's phase changes as the vehicle. Four components, one loop, and every pressure/temp question falls out of it.</p>
+<div class="seg-body">
+<p>Start at the compressor and ride the loop:</p>
+<ul>
+<li><strong>Compressor</strong> — takes <span class="lo">low-pressure superheated vapor</span>, squeezes it into <span class="hi">high-pressure hot vapor</span>. Only place work is added. Vapor only: liquid entering a compressor is <strong>slugging</strong> and destroys it.</li>
+<li><strong>Condenser</strong> — hot-side coil (front of the car, ahead of the radiator). Hot vapor rejects heat to ambient air and condenses to <span class="hi">high-pressure liquid</span>. Heat leaves the system here.</li>
+<li><strong>Metering device</strong> — TXV or orifice tube. High-pressure liquid forced through a restriction, pressure collapses, part of it flash-boils, and what exits is a <span class="lo">cold low-pressure liquid/vapor mist</span>. No heat moves here; it just sets up the evaporator.</li>
+<li><strong>Evaporator</strong> — cold-side coil in the dash. Cold refrigerant absorbs cabin heat and boils to <span class="lo">low-pressure vapor</span>. Heat enters the system here. Back to the compressor.</li>
+</ul>
+<div class="diagram">
+<svg viewBox="0 0 680 340" width="100%" role="img" aria-label="Refrigeration cycle loop">
+<defs><marker id="arr1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.6" stroke-linecap="round"/></marker></defs>
+<rect x="240" y="30" width="200" height="54" rx="12" fill="none" stroke="var(--hi-red)" stroke-width="1.4"/>
+<text x="340" y="52" text-anchor="middle" fill="var(--ink)" font-weight="800" font-size="15">Condenser</text>
+<text x="340" y="72" text-anchor="middle" fill="var(--ink-faint)" font-size="12">rejects heat · vapor → liquid</text>
+<rect x="480" y="145" width="160" height="54" rx="12" fill="none" stroke="var(--hi-red)" stroke-width="1.4"/>
+<text x="560" y="167" text-anchor="middle" fill="var(--ink)" font-weight="800" font-size="15">Compressor</text>
+<text x="560" y="187" text-anchor="middle" fill="var(--ink-faint)" font-size="12">adds work · raises P</text>
+<rect x="40" y="145" width="170" height="54" rx="12" fill="none" stroke="var(--lo-blue)" stroke-width="1.4"/>
+<text x="125" y="167" text-anchor="middle" fill="var(--ink)" font-weight="800" font-size="15">Metering device</text>
+<text x="125" y="187" text-anchor="middle" fill="var(--ink-faint)" font-size="12">restriction · P drops</text>
+<rect x="240" y="258" width="200" height="54" rx="12" fill="none" stroke="var(--lo-blue)" stroke-width="1.4"/>
+<text x="340" y="280" text-anchor="middle" fill="var(--ink)" font-weight="800" font-size="15">Evaporator</text>
+<text x="340" y="300" text-anchor="middle" fill="var(--ink-faint)" font-size="12">absorbs heat · liquid boils</text>
+<path d="M440 285 L560 285 L560 199" fill="none" stroke="var(--lo-blue)" stroke-width="1.6" marker-end="url(#arr1)"/>
+<path d="M560 145 L560 57 L440 57" fill="none" stroke="var(--hi-red)" stroke-width="1.6" marker-end="url(#arr1)"/>
+<path d="M240 57 L125 57 L125 145" fill="none" stroke="var(--hi-red)" stroke-width="1.6" marker-end="url(#arr1)"/>
+<path d="M125 199 L125 285 L240 285" fill="none" stroke="var(--lo-blue)" stroke-width="1.6" marker-end="url(#arr1)"/>
+<text x="612" y="250" text-anchor="middle" fill="var(--lo-blue)" font-size="11" font-weight="700">suction</text>
+<text x="612" y="95" text-anchor="middle" fill="var(--hi-red)" font-size="11" font-weight="700">discharge</text>
+<text x="78" y="95" text-anchor="middle" fill="var(--hi-red)" font-size="11" font-weight="700">liquid line</text>
+</svg>
+<div class="dcap">Red = high side (compressor discharge → metering inlet). Blue = low side (metering outlet → compressor suction).</div>
+</div>
+<h3>Flash gas, the concept people fumble</h3>
+<p>On the high side you have liquid at ~180 psig and 110°F; at that pressure it boils at ~125°F, so it's stable. Squeeze it through the orifice to 30 psig, where the boiling point is ~35°F, and it's suddenly 75°F <em>above</em> its boiling point. Part of it boils instantly. That boiling steals latent heat from the rest of the liquid, chilling it to the new saturation temp. Roughly 20-25% flashes; that vapor is dead weight, only the surviving liquid absorbs cabin heat. Colder liquid in = less flash = more capacity, which is why subcooling matters.</p>
+<h3>Anchors</h3>
+<ul>
+<li>Pressure and temperature are locked together at saturation. That's Segment 3's whole job.</li>
+<li>Superheat proves no liquid reaches the compressor. Subcooling proves solid liquid feeds the metering device. That's Segment 4.</li>
+<li>Low side big fitting on the suction line, high side small fitting on the liquid line, sized differently so you can't cross-connect.</li>
+</ul>
+<p class="kicker">Go deeper</p>
+<div class="res-grid">
+<a class="res" href="https://theengineeringmindset.com/the-refrigeration-cycle-essential-knowledge/" target="_blank" rel="noopener"><b>Engineering Mindset: cycle essentials</b><span>Best animated walkthrough on the internet</span></a>
+<a class="res" href="https://www.youtube.com/results?search_query=refrigeration+cycle+101+animation" target="_blank" rel="noopener"><b>YouTube: Refrigeration Cycle 101</b><span>Watch one full animation before splitting</span></a>
+<a class="res" href="https://hvacrschool.com/?s=refrigeration+cycle" target="_blank" rel="noopener"><b>HVAC School: cycle articles</b><span>Bryan Orr's site, tech-level depth</span></a>
+</div>
+<div class="quiz" id="quiz1"></div>
+</div>
+</div>
+
+<!-- ============ SEGMENT 2 ============ -->
+<div class="card segment" id="seg2">
+<div class="seg-head"><span class="seg-num">SEG 02</span><h2>Refrigerants</h2><span class="seg-par">par 0:40</span><button class="btn split-btn" onclick="splitSeg(2)">SPLIT ✓</button></div>
+<p class="bluf-line">Family name tells you the halogens, the halogens tell you the environmental sin, the sin tells you the regulation. CFC → HCFC → HFC → HFO is the whole industry arc.</p>
+<div class="seg-body">
+<div class="tscroll"><table>
+<thead><tr><th>Family</th><th>Chemistry</th><th>Examples</th><th>Problem</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><strong>CFC</strong></td><td>C + Cl + F, no hydrogen, ultra-stable</td><td>R-12, R-11, R-502</td><td>Chlorine reaches stratosphere, shreds ozone (~100k molecules per Cl atom)</td><td>Production banned 1996</td></tr>
+<tr><td><strong>HCFC</strong></td><td>Adds H, breaks down lower in atmosphere</td><td>R-22</td><td>Still some chlorine</td><td>Production banned 2020, service from reclaim only</td></tr>
+<tr><td><strong>HFC</strong></td><td>No chlorine at all</td><td>R-134a, R-410A, R-404A</td><td>Zero ODP but potent greenhouse gas</td><td>AIM Act phasedown in progress</td></tr>
+<tr><td><strong>HFO</strong></td><td>HFC with a C=C double bond, falls apart in days</td><td>R-1234yf</td><td>Mildly flammable (A2L)</td><td>Current MVAC standard</td></tr>
+</tbody></table></div>
+<h3>The two report cards</h3>
+<p><strong>ODP</strong> (ozone depletion potential): R-11 = 1.0 by definition. R-12 ≈ 1.0, R-22 ≈ 0.055, anything chlorine-free = 0. <strong>GWP</strong> (global warming potential): CO₂ = 1. R-12 ≈ 10,900. <strong>R-134a ≈ 1,430</strong>. R-410A ≈ 2,088. <strong>R-1234yf ≈ 4</strong>. The yf number is why every new car uses it: same pressures as R-134a (within a few psi), 99.7% less warming, achieved by an atmospheric lifetime of ~11 days vs ~14 years.</p>
+<h3>Safety classes</h3>
+<p>Letter = toxicity (A low, B high). Number = flammability (1 none, 2L mildly flammable with low burn velocity, 2 flammable, 3 very flammable). R-134a = <strong>A1</strong>. R-1234yf = <strong>A2L</strong>. R-410A = A1. R-32 = A2L. R-290 (propane) = A3. R-717 (ammonia) = B2L. The whole industry is drifting to A2L, dragging new leak sensors, handling rules, and machine specs with it.</p>
+<h3>Numbering shortcuts</h3>
+<ul>
+<li><strong>400-series</strong> = zeotropic blends. Components have different boiling points, so they <strong>fractionate</strong>: vapor leaks change the mix, and you must <strong>charge as liquid</strong>. They have temperature <strong>glide</strong>. R-410A = 50/50 R-32 + R-125.</li>
+<li><strong>500-series</strong> = azeotropic blends, behave as a single compound.</li>
+<li><strong>600/700-series</strong> = organics and naturals. R-600a isobutane, R-717 ammonia, R-744 CO₂, R-290 propane.</li>
+</ul>
+<h3>Oil, the silent killer topic</h3>
+<p>Mineral oil worked with CFC/HCFC. HFCs won't carry it, they need <strong>PAG</strong> (automotive) or <strong>POE</strong> (stationary). Both are hygroscopic, they pull moisture straight out of the air, and moisture + POE = acid = dead compressor. That's why open systems get sealed fast, driers get replaced every time a system is opened, and deep vacuum exists. MVAC specifics: R-134a uses PAG, R-1234yf uses its own PAG spec, and <strong>hybrid/EV electric compressors use POE</strong> because PAG conducts, and a conductive oil film in a high-voltage compressor is an isolation fault waiting to happen. Cross-contaminate PAG into an electric compressor system and you can total the compressor and trip HV isolation faults.</p>
+<h3>MVAC timeline</h3>
+<p>R-12 until ~1994 → R-134a from ~1994 → R-1234yf phasing in from 2015, essentially all new vehicles by 2021. Every transition changed the service fittings on purpose so the wrong machine physically can't connect. Retrofits require new fittings and an under-hood label.</p>
+<p class="kicker">Go deeper</p>
+<div class="res-grid">
+<a class="res" href="https://hvacptcharts.com/refrigerant/r-1234yf/" target="_blank" rel="noopener"><b>hvacptcharts.com: R-1234yf</b><span>Full PT tables + chemistry, CSV/JSON downloads</span></a>
+<a class="res" href="https://www.epa.gov/mvac" target="_blank" rel="noopener"><b>EPA MVAC program</b><span>The primary source for everything Segment 8 covers</span></a>
+<a class="res" href="https://refrigeranthq.com/r-1234yf-refrigerant-pt-chart/" target="_blank" rel="noopener"><b>RefrigerantHQ: yf fact sheet</b><span>History + PT chart</span></a>
+<a class="res" href="https://www.youtube.com/results?search_query=refrigerant+types+explained+CFC+HCFC+HFC+HFO" target="_blank" rel="noopener"><b>YouTube: refrigerant families</b><span>One video to lock the taxonomy</span></a>
+</div>
+<div class="quiz" id="quiz2"></div>
+</div>
+</div>
+
+<!-- ============ SEGMENT 3 ============ -->
+<div class="card segment" id="seg3">
+<div class="seg-head"><span class="seg-num">SEG 03</span><h2>PT charts &amp; gauges</h2><span class="seg-par">par 0:40</span><button class="btn split-btn" onclick="splitSeg(3)">SPLIT ✓</button></div>
+<p class="bluf-line">At saturation, pressure and temperature are the same fact wearing two hats. The PT chart is the translator, and your gauges are just PT chart hardware.</p>
+<div class="seg-body">
+<h3>Pressure vocabulary</h3>
+<ul>
+<li><strong>psig</strong> = gauge pressure, zero at atmospheric. What your gauges read.</li>
+<li><strong>psia</strong> = absolute. psia = psig + 14.7. Physics happens in absolute.</li>
+<li>Below 0 psig, we switch units to <strong>inches of mercury vacuum</strong> (inHg). Perfect vacuum ≈ 29.92 inHg. Deep-vacuum work switches to <strong>microns</strong> (Segment 6).</li>
+</ul>
+<h3>Manifold anatomy</h3>
+<p><span class="lo">Blue = low side</span>, a <strong>compound gauge</strong> (reads vacuum AND pressure, because the low side can pull into vacuum). <span class="hi">Red = high side</span>, pressure only. Center yellow hose goes to the machine, vacuum pump, or jug. Both hand valves closed = you're just reading; open a valve and the center port is connected to that side. The gauge faces have PT scales printed on the dial rings for common refrigerants: the needle is literally answering "what temperature is my saturated refrigerant" in real time.</p>
+<h3>What the chart is for</h3>
+<ul>
+<li><strong>Saturation only.</strong> The PT relationship holds only where liquid and vapor coexist: inside the evaporator, inside the condenser, inside a jug that has both phases. Fully superheated vapor or fully subcooled liquid are off the chart, that's the whole trick behind Segment 4.</li>
+<li><strong>Static pressure check.</strong> Engine off, system rested: gauge pressure should match the PT value for ambient temp. 85°F day, R-134a should sit ~92 psig static. Way low = you've lost charge, near zero = it's empty and air is probably in it.</li>
+<li><strong>Jug ID.</strong> A mystery jug at a known temp has a known pressure signature per refrigerant. (Shops use identifier machines for legal certainty, but PT gets you a strong prior.)</li>
+<li><strong>Running targets.</strong> MVAC rules of thumb at ~1,500 rpm, doors open, A/C max: low side ~<strong>25-40 psig</strong>, high side ≈ <strong>2.2-2.5 × ambient °F</strong> (95°F day → ~210-240 psig on R-134a). These are sanity bands, not gospel; the vehicle's service data wins.</li>
+</ul>
+<div class="tool">
+<h4>⌘ PT Explorer</h4>
+<div class="tool-grid">
+<div>
+<label>Refrigerant</label>
+<select id="pt-ref" onchange="ptUpdate()"><option value="r134a">R-134a</option><option value="r1234yf">R-1234yf</option><option value="r410a">R-410A</option><option value="r22">R-22</option></select>
+<label>Saturation temp: <span id="pt-t-lab" class="mono">40°F</span></label>
+<input type="range" id="pt-t" min="-10" max="150" value="40" step="1" oninput="ptUpdate()">
+<div class="readout" id="pt-out">35 psig</div>
+</div>
+<div>
+<label>Reverse: pressure → sat temp</label>
+<input type="number" id="pt-p" value="35" step="1" oninput="ptReverse()"> <span class="mono" style="font-size:0.85rem">psig</span>
+<div class="readout" id="pt-rev">40°F <small>saturation</small></div>
+<p style="font-size:0.8rem;color:var(--ink-faint);margin-top:8px">Chart-grade approximations (±2 psi). Field work: use the machine's tables or a real PT card.</p>
+</div>
+</div>
+</div>
+<p><strong>Drill this until it's boring:</strong> pick a temp, guess the pressure, check. You want R-134a's spine memorized: 32°F ≈ 28, 40°F ≈ 35, 70°F ≈ 71, 100°F ≈ 124, 130°F ≈ 199 psig. Notice 70°F ≈ 71 psig, the freebie anchor.</p>
+<p class="kicker">Go deeper</p>
+<div class="res-grid">
+<a class="res" href="https://hvacptcharts.com/" target="_blank" rel="noopener"><b>hvacptcharts.com</b><span>Every refrigerant, 1° increments, printable</span></a>
+<a class="res" href="https://reftools.danfoss.com/" target="_blank" rel="noopener"><b>Danfoss Ref Tools</b><span>The PT app every tech runs, free</span></a>
+<a class="res" href="https://www.hudsontech.com/pdfs/pt-charts/R-1234yf-Pressure-Temperature-Chart.pdf" target="_blank" rel="noopener"><b>Hudson yf PT card (PDF)</b><span>Print for the glovebox</span></a>
+</div>
+<div class="quiz" id="quiz3"></div>
+</div>
+</div>
+
+<!-- ============ SEGMENT 4 ============ -->
+<div class="card segment" id="seg4">
+<div class="seg-head"><span class="seg-num">SEG 04</span><h2>Superheat &amp; subcooling</h2><span class="seg-par">par 0:45</span><button class="btn split-btn" onclick="splitSeg(4)">SPLIT ✓</button></div>
+<p class="bluf-line">Two numbers diagnose 80% of charge problems. Superheat says what's happening at the evaporator exit, subcooling says what's happening at the condenser exit.</p>
+<div class="seg-body">
+<h3>Definitions, cold</h3>
+<ul>
+<li><strong>Superheat (SH)</strong> = actual suction line temp − saturation temp for the low-side pressure. Measured at the evaporator outlet. It exists only in vapor. <strong>Some SH is mandatory</strong>: it proves every drop of liquid boiled off before the compressor.</li>
+<li><strong>Subcooling (SC)</strong> = saturation temp for the high-side pressure − actual liquid line temp. Measured at the condenser outlet. It exists only in liquid. <strong>Some SC is mandatory</strong>: it proves a solid liquid column feeds the metering device (no bubbles, no flash gas upstream).</li>
+</ul>
+<p>Procedure: clamp a thermocouple on the line, read the matching gauge, convert pressure → saturation temp on the PT chart, subtract. That's it. The entire mystique of "checking the charge" is two subtraction problems.</p>
+<h3>The four-corner logic</h3>
+<div class="tscroll"><table>
+<thead><tr><th>Reading</th><th>Meaning</th><th>Usual suspects</th></tr></thead>
+<tbody>
+<tr><td><strong>High SH</strong></td><td>Evaporator starved, refrigerant finished boiling too early</td><td>Undercharge, restriction, TXV underfeeding</td></tr>
+<tr><td><strong>Low / zero SH</strong></td><td>Evaporator flooded, liquid surviving to the suction line</td><td>Overcharge, TXV overfeeding, low airflow over evap</td></tr>
+<tr><td><strong>High SC</strong></td><td>Liquid backing up in the condenser</td><td>Overcharge, restriction downstream (liquid line / metering)</td></tr>
+<tr><td><strong>Low SC</strong></td><td>Not enough liquid formed</td><td>Undercharge, huge heat load, condenser airflow problems</td></tr>
+</tbody></table></div>
+<p>Combos are the diagnosis: <strong>high SH + low SC = undercharge</strong>. <strong>Low SH + high SC = overcharge</strong>. <strong>High SH + high SC = restriction</strong> (liquid piles up behind the blockage, evaporator starves ahead of it). Burn those three into memory.</p>
+<h3>Which number to charge by</h3>
+<ul>
+<li><strong>TXV system → charge by subcooling.</strong> The TXV actively holds superheat constant, so SH stops responding to charge; SC becomes your signal. Residential targets typically ~10-12°F SC (nameplate wins).</li>
+<li><strong>Fixed orifice → charge by superheat.</strong> Nothing regulates flow, so SH swings with charge and load. Stationary side uses target-superheat tables (indoor wet bulb × outdoor dry bulb).</li>
+<li><strong>MVAC → charge by weight, always.</strong> The under-hood label gives grams/ounces; a J2788 machine delivers ±0.5 oz. Cars are too small and too variable-speed to charge by feel; gauges and SH/SC are for <em>diagnosis</em>, the scale is for <em>charging</em>. A 10% undercharge on a 1.5 lb system is a visible performance hit.</li>
+</ul>
+<div class="tool">
+<h4>⌘ SH / SC Calculator</h4>
+<div class="tool-grid">
+<div>
+<label>Refrigerant</label>
+<select id="shsc-ref"><option value="r134a">R-134a</option><option value="r1234yf">R-1234yf</option><option value="r410a">R-410A</option><option value="r22">R-22</option></select>
+<label>Low-side pressure (psig)</label><input type="number" id="sh-p" value="30">
+<label>Suction line temp (°F)</label><input type="number" id="sh-t" value="48">
+</div>
+<div>
+<label>High-side pressure (psig)</label><input type="number" id="sc-p" value="225">
+<label>Liquid line temp (°F)</label><input type="number" id="sc-t" value="108">
+<label>&nbsp;</label><button class="btn btn-primary" onclick="shscCalc()">Compute</button>
+</div>
+</div>
+<div class="readout" id="shsc-out" style="font-size:1.1rem"></div>
+<div class="verdict" id="shsc-verdict"></div>
+</div>
+<p>Default numbers above: run them. You should get ~14°F SH and ~31°F SC on R-134a, and the verdict should smell like a restriction/overcharge pattern. Then plug in a healthy set (30 psig / 42°F suction, 225 psig / 128°F liquid) and watch it normalize.</p>
+<p class="kicker">Go deeper</p>
+<div class="res-grid">
+<a class="res" href="https://hvacrschool.com/?s=superheat" target="_blank" rel="noopener"><b>HVAC School: superheat</b><span>Articles + podcast episodes, tech depth</span></a>
+<a class="res" href="https://hvacrschool.com/?s=subcooling" target="_blank" rel="noopener"><b>HVAC School: subcooling</b><span>Same treatment for the other number</span></a>
+<a class="res" href="https://www.youtube.com/results?search_query=AC+Service+Tech+superheat+subcooling+explained" target="_blank" rel="noopener"><b>AC Service Tech (YouTube)</b><span>Craig Migliaccio, the best measurement demos</span></a>
+</div>
+<div class="quiz" id="quiz4"></div>
+</div>
+</div>
+
+<!-- ============ SEGMENT 5 ============ -->
+<div class="card segment" id="seg5">
+<div class="seg-head"><span class="seg-num">SEG 05</span><h2>MVAC architectures</h2><span class="seg-par">par 0:40</span><button class="btn split-btn" onclick="splitSeg(5)">SPLIT ✓</button></div>
+<p class="bluf-line">Every car is one of two layouts: orifice tube + accumulator, or TXV + receiver-drier. Learn which side of the loop the tank sits on and you can't confuse them.</p>
+<div class="seg-body">
+<div class="tscroll"><table>
+<thead><tr><th></th><th>CCOT (orifice) system</th><th>TXV system</th></tr></thead>
+<tbody>
+<tr><td><strong>Metering</strong></td><td>Fixed orifice tube (color-coded plastic, in the liquid line near the evap or condenser outlet)</td><td>Thermostatic expansion valve at the evaporator, modulates by sensing outlet temp/pressure</td></tr>
+<tr><td><strong>Storage/protection</strong></td><td><strong>Accumulator</strong> on the LOW side (suction line at evap outlet). Catches liquid before the compressor, holds desiccant</td><td><strong>Receiver-drier</strong> on the HIGH side (liquid line at condenser outlet). Stores liquid, holds desiccant, may have sight glass</td></tr>
+<tr><td><strong>Flow control</strong></td><td>None at the orifice, so the compressor clutch cycles on a low-pressure switch (CCOT = clutch-cycling orifice tube)</td><td>TXV holds superheat, compressor can run continuously</td></tr>
+<tr><td><strong>Tell</strong></td><td>Fat canister on the suction line, cold to the touch</td><td>Slim can near the condenser, block valve at the evap firewall</td></tr>
+</tbody></table></div>
+<p>Mnemonic: <strong>O-A-L</strong>, Orifice gets an Accumulator on the Low side. TXV gets the other tank on the other side.</p>
+<h3>Compressors</h3>
+<ul>
+<li><strong>Fixed displacement + clutch</strong>: pumps a fixed volume per rev, capacity controlled by cycling the electromagnetic clutch. The AC "click" you hear.</li>
+<li><strong>Variable displacement</strong>: swash plate changes angle to vary stroke, runs continuously, smoother. Many are externally controlled by the ECM via a solenoid valve, no clutch at all.</li>
+<li><strong>Electric (hybrids/EVs)</strong>: high-voltage sealed scroll compressor, its own inverter, <strong>POE oil only</strong>. PAG conducts; contaminating an HV compressor with PAG risks isolation faults. Dedicated or scrupulously flushed equipment only.</li>
+</ul>
+<h3>R-1234yf system differences</h3>
+<ul>
+<li>Unique service fittings (again, deliberate incompatibility).</li>
+<li>Machines must meet <strong>SAE J2843</strong> (vs J2788 for R-134a): they leak-check the vehicle before recharging and refuse to charge a leaking system, because the refrigerant is A2L and costs 5-10x more.</li>
+<li>Many systems add an internal heat exchanger (IHX) between suction and liquid lines to claw back efficiency.</li>
+<li>Some vehicles run evap-area sensors and design rules to keep any burning yf byproducts (HF, nasty) out of the cabin.</li>
+</ul>
+<h3>Other layouts you'll meet</h3>
+<p><strong>Rear/dual-evap</strong> systems (minivans, SUVs, your work vans): two evaporators, one condenser, more charge, more line length, more leak points at the rear connections. <strong>EV heat pumps</strong>: same loop with a reversing strategy so the "evaporator" and "condenser" swap roles for cabin heat; resistive heat is the fallback. <strong>Condensers with integrated receiver + subcool loop</strong> are the modern norm: the last passes re-subcool the liquid after the receiver for exactly the flash-gas reasons from Segment 1.</p>
+<h3>The safety switches</h3>
+<p>A <strong>low-pressure cutoff</strong> (~25 psig) keeps the compressor from running on a starved system, no refrigerant means no oil circulation. A <strong>high-pressure cutoff</strong> (~375-425+ psig) protects against blockage/overcharge/fan failure, and a mid-range <strong>pressure transducer</strong> stages the condenser fans. Modern cars replace discrete switches with one transducer feeding the ECM. When your clutch short-cycles every few seconds, it's almost always the low-pressure switch doing its job on an undercharged system.</p>
+<p class="kicker">Go deeper</p>
+<div class="res-grid">
+<a class="res" href="https://macsmobileairclimate.org/" target="_blank" rel="noopener"><b>MACS Worldwide</b><span>The MVAC industry body, training + tech tips</span></a>
+<a class="res" href="https://www.youtube.com/results?search_query=orifice+tube+vs+expansion+valve+car+ac" target="_blank" rel="noopener"><b>YouTube: orifice vs TXV</b><span>See both layouts on real cars</span></a>
+<a class="res" href="https://www.youtube.com/results?search_query=variable+displacement+ac+compressor+how+it+works" target="_blank" rel="noopener"><b>YouTube: variable displacement</b><span>Swash plate animation, worth 8 minutes</span></a>
+</div>
+<div class="quiz" id="quiz5"></div>
+</div>
+</div>
+
+<!-- ============ SEGMENT 6 ============ -->
+<div class="card segment" id="seg6">
+<div class="seg-head"><span class="seg-num">SEG 06</span><h2>Service procedures</h2><span class="seg-par">par 0:45</span><button class="btn split-btn" onclick="splitSeg(6)">SPLIT ✓</button></div>
+<p class="bluf-line">Recover → repair → evacuate → charge by weight. Every step exists to keep three enemies out: air, moisture, and the atmosphere out of your refrigerant.</p>
+<div class="seg-body">
+<h3>1. Recover</h3>
+<p>Never open a charged system. Machine pulls the charge into a tank, filtering as it goes. <strong>SAE J2788</strong> (R-134a) machines must recover <strong>95%+ of the charge in 30 minutes</strong> and recharge to <strong>±0.5 oz</strong> accuracy; <strong>J2843</strong> is the yf equivalent with mandatory pre-charge leak checks. "Recycle" = the machine's on-board filtration for same-shop reuse. "Reclaim" = sending it off-site to be reprocessed to like-new purity spec (AHRI 700). MVAC shops recycle on the machine daily; badly contaminated refrigerant gets sent out for reclamation or destruction.</p>
+<p><strong>Never mix refrigerants.</strong> Cross-contaminated refrigerant can be unrecyclable, can wreck the recovery tank's whole contents, and sequential contamination can trash the machine. Shops use refrigerant identifiers on unknown vehicles before hooking up, one DIY "stop leak + mystery gas" car can cost a shop thousands.</p>
+<h3>2. Evacuate, and why microns</h3>
+<p>Vacuum doesn't "suck out air" so much as it <strong>boils water</strong>. At 29.92 inHg-ish absolute vacuum levels, water boils at room temperature and leaves as vapor. Gauge needles are useless down there, so we switch to <strong>microns</strong> (1 inHg ≈ 25,400 microns; atmosphere ≈ 760,000). Stationary standard: pull to <strong>500 microns or below</strong>, measured with an electronic micron gauge at the system (not at the pump). MVAC practice: pull ~29.5 inHg for 30+ minutes minimum, longer if the system sat open, and the machine automates it.</p>
+<p><strong>Vacuum decay test</strong>: valve off the pump, watch the micron gauge. Rises and keeps climbing past ~1,000+ = leak. Rises then plateaus = moisture still boiling off, keep pulling. Holds = tight and dry. This is the cheapest leak test you'll ever run.</p>
+<h3>3. Charge</h3>
+<ul>
+<li><strong>By weight, from the label.</strong> Scale or machine meters the exact grams. Blends and liquid-charging: jug inverted or dip-tube so liquid leaves the jug (Segment 2's fractionation), metered carefully into the high side or throttled into the low side while running, never dump liquid into the suction of a running compressor.</li>
+<li><strong>Oil balance:</strong> measure what came out during recovery/component replacement, put the same amount of the correct oil back. New condenser/accumulator instructions specify per-component ounces. Too little oil kills the compressor; too much coats the heat exchangers and kills capacity.</li>
+<li><strong>Nitrogen</strong> is your friend between recover and evacuate: sweep/pressurize with dry nitrogen to push moisture out and leak-test (Segment 7). Nitrogen is inert and cheap. <strong>Never pressurize with compressed air or oxygen</strong>: oil + oxygen + pressure is a genuine explosion mechanism, and air is wet.</li>
+</ul>
+<h3>Air in the system: the symptom</h3>
+<p>Air is a <strong>non-condensable</strong>. It collects in the condenser, can't condense, and squats on head pressure: signature is <strong>high high-side with mediocre cooling and noisy/hot operation</strong>, plus static pressure that reads above the PT value for ambient. Fix is recover, evacuate properly, recharge. On the 609 exam, "excess air" answers cluster around exactly this.</p>
+<p class="kicker">Go deeper</p>
+<div class="res-grid">
+<a class="res" href="https://hvacrschool.com/?s=vacuum" target="_blank" rel="noopener"><b>HVAC School: evacuation</b><span>The micron gospel, core hoses, decay testing</span></a>
+<a class="res" href="https://www.youtube.com/results?search_query=deep+vacuum+evacuation+micron+gauge+hvac" target="_blank" rel="noopener"><b>YouTube: deep vacuum demos</b><span>Watch a decay test run</span></a>
+<a class="res" href="https://www.youtube.com/results?search_query=SAE+J2788+recovery+machine+how+to" target="_blank" rel="noopener"><b>YouTube: RRR machine walkthrough</b><span>See the full recover/vac/charge cycle</span></a>
+</div>
+<div class="quiz" id="quiz6"></div>
+</div>
+</div>
+
+<!-- ============ SEGMENT 7 ============ -->
+<div class="card segment" id="seg7">
+<div class="seg-head"><span class="seg-num">SEG 07</span><h2>Leak detection</h2><span class="seg-par">par 0:30</span><button class="btn split-btn" onclick="splitSeg(7)">SPLIT ✓</button></div>
+<p class="bluf-line">Refrigerant is heavier than air and leaks live at the bottom of fittings. Probe low, probe slow, and know which tool finds which leak.</p>
+<div class="seg-body">
+<h3>Where cars leak, ranked</h3>
+<ul>
+<li><strong>Compressor shaft seal</strong> — #1. Spinning seal, engine heat, sits unused all winter and dries out.</li>
+<li><strong>Condenser</strong> — front of the car, eats rocks and road debris.</li>
+<li><strong>Evaporator core</strong> — worst-case labor (dash out); electronic detection via the drain tube or a borescope through a vent.</li>
+<li><strong>Hose crimps, o-rings, Schrader valves, pressure switch seals</strong> — everything with rubber, aged by heat cycles.</li>
+</ul>
+<h3>The toolkit</h3>
+<div class="tscroll"><table>
+<thead><tr><th>Method</th><th>Best for</th><th>Reality check</th></tr></thead>
+<tbody>
+<tr><td><strong>Electronic sniffer</strong> (heated diode / infrared)</td><td>Pinpointing active leaks, evap cores via drain</td><td>Move ~1 in/sec, bottom of joints, no wind, no shop chemicals nearby. SAE-spec detectors resolve fractions of an oz/yr. Heated diode = sensitive but poisons over time; infrared = long-lived.</td></tr>
+<tr><td><strong>UV dye</strong></td><td>Slow seepers, comes-back-next-summer leaks</td><td>Many cars have factory dye already. Correct dose only, dye is oil, overdosing is overcharging oil. Glows at the leak under UV + yellow glasses.</td></tr>
+<tr><td><strong>Nitrogen pressure test</strong></td><td>Empty/open systems, proof-testing repairs</td><td>Regulated dry nitrogen, pressure per spec, listen + soap the joints. Big leaks announce themselves audibly.</td></tr>
+<tr><td><strong>Soap bubbles</strong></td><td>Accessible fittings, dirt cheap</td><td>Still legitimately effective. Bubbles don't lie.</td></tr>
+<tr><td><strong>Vacuum decay</strong></td><td>Confirming tightness before charging</td><td>Finds that a leak exists, not where. Micron gauge rise pattern separates leak from moisture (Segment 6).</td></tr>
+</tbody></table></div>
+<p>Yf machines (J2843) run their own leak check before they'll recharge. That's the regulation absorbing the lesson: don't feed refrigerant to a leaking system.</p>
+<h3>Stationary-side legal layer (608 flavor)</h3>
+<p>For appliances above the size threshold, EPA leak-rate rules kick in: calculated annualized leak rate above <strong>10% (comfort cooling), 20% (commercial refrigeration), 30% (industrial process)</strong> triggers mandatory repair/retrofit/retirement timelines and record keeping. The 2024-25 AIM Act rules extend leak-repair obligations to HFC systems with <strong>15+ lbs</strong> of charge. Cars have no leak-rate mandate; the yf machine's refuse-to-charge behavior is the MVAC equivalent.</p>
+<p class="kicker">Go deeper</p>
+<div class="res-grid">
+<a class="res" href="https://www.youtube.com/results?search_query=car+ac+leak+detection+uv+dye+electronic" target="_blank" rel="noopener"><b>YouTube: MVAC leak hunting</b><span>Dye + sniffer on real cars</span></a>
+<a class="res" href="https://hvacrschool.com/?s=leak+detection" target="_blank" rel="noopener"><b>HVAC School: leak detection</b><span>Detector physics + technique</span></a>
+<a class="res" href="https://www.epa.gov/section608/stationary-refrigeration-leak-repair-requirements" target="_blank" rel="noopener"><b>EPA: leak repair rules</b><span>The stationary thresholds, primary source</span></a>
+</div>
+<div class="quiz" id="quiz7"></div>
+</div>
+</div>
+
+<!-- ============ SEGMENT 8 ============ -->
+<div class="card segment" id="seg8">
+<div class="seg-head"><span class="seg-num">SEG 08</span><h2>The law: 609 &amp; 608</h2><span class="seg-par">par 0:40</span><button class="btn split-btn" onclick="splitSeg(8)">SPLIT ✓</button></div>
+<p class="bluf-line">One prohibition (never vent), one credential per domain (609 mobile, 608 stationary), one paper trail. This segment is most of the actual exam.</p>
+<div class="seg-body">
+<h3>The venting prohibition</h3>
+<p>Clean Air Act §608(c): knowingly venting refrigerant during service, maintenance, repair, or disposal has been illegal since <strong>July 1, 1992</strong> for ozone-depleting refrigerants, and since <strong>November 15, 1995</strong> for substitutes (HFCs, HFOs). <strong>De minimis</strong> releases, the wisps that escape despite good-faith recovery with approved equipment (hose disconnects, gauge purges), are not violations. Deliberate venting is, and the classic penalty framing is fines up to the tens of thousands of dollars <em>per violation, per day</em> (inflation-adjusted, currently north of $40k), plus a CAA <strong>award of up to $10,000</strong> for informants whose tips lead to conviction. Yes, snitches get paid.</p>
+<h3>609 in one box</h3>
+<ul>
+<li>Required since <strong>January 1993</strong> for anyone servicing MVACs <strong>for consideration</strong> (money or barter). Certification is <strong>lifetime</strong>, no renewal.</li>
+<li><strong>MVAC</strong> = vapor-compression A/C cooling the driver/passenger compartment of a motor vehicle. <strong>MVAC-like</strong> = same tech on off-road/ag/construction equipment cabs, also serviced under 609.</li>
+<li><strong>Not</strong> 609: refrigerated cargo boxes (reefer trailers) and passenger bus A/C running R-22, those are stationary-style systems under <strong>608</strong>.</li>
+<li>Test: 25 questions, open book, <strong>84% (21/25) to pass</strong>. Providers: MACS, Mainstream Engineering (epatest.com), SkillCat, ESCO.</li>
+<li>Equipment must be EPA-approved/SAE-spec (J2788 for R-134a, J2843 for yf), and shops certify equipment ownership to EPA.</li>
+</ul>
+<h3>Sales restrictions, the fiddly part</h3>
+<ul>
+<li>Small cans of R-134a (<strong>under 2 lbs</strong>) may be sold to uncertified DIYers, federal rule, but cans manufactured after <strong>Jan 1, 2018</strong> must have a <strong>self-sealing valve</strong>. (Some states go further; California restricts DIY cans.)</li>
+<li>Containers <strong>2 lbs and over</strong>: 609 (or 608) certification required to purchase. Your 609 card is literally a refrigerant-buying license.</li>
+<li>R-12 sales have been certified-tech-only since <strong>November 14, 1994</strong>.</li>
+<li>Retailers/wholesalers keep purchase records; shops keep tech certifications on file. Records generally retained <strong>3 years</strong>.</li>
+</ul>
+<h3>608 in one box (you hold Universal, keep it warm)</h3>
+<ul>
+<li><strong>Type I</strong> small appliances (≤5 lbs, factory-sealed), <strong>Type II</strong> high-pressure (splits, heat pumps, R-410A world), <strong>Type III</strong> low-pressure (centrifugal chillers), <strong>Universal</strong> = all three. Core + type exams, closed book except Type I online option.</li>
+<li>Recovery equipment must be EPA-certified; systems must be evacuated to specified levels before opening; appliances must have refrigerant recovered before disposal, with documentation.</li>
+<li><strong>AIM Act (2020)</strong>: HFC production/import phasedown, 40% cut in 2024 stepping to 85% by 2036, allowance system, refillable-cylinder and tracking rules incoming, tech-transition GWP limits (new residential AC ≤700 GWP from 2025, hello R-454B and R-32). This is why R-410A prices are climbing the R-22 staircase.</li>
+</ul>
+<h3>Mindset for the exam</h3>
+<p>When in doubt, the correct answer is the one where refrigerant never touches the atmosphere, records exist, and the machine has an SAE number. Distractors are usually "vent it a little," "top it off without finding the leak," or "any gauge set works."</p>
+<p class="kicker">Go deeper</p>
+<div class="res-grid">
+<a class="res" href="https://www.epa.gov/mvac/section-609-technician-training-and-certification-programs" target="_blank" rel="noopener"><b>EPA: 609 programs list</b><span>Primary source, approved providers</span></a>
+<a class="res" href="https://ww2.epatest.com/epa-609-mvac/" target="_blank" rel="noopener"><b>Mainstream 609 ($19.95)</b><span>Free manual, open-book online test, same-day cert</span></a>
+<a class="res" href="https://macsmobileairclimate.org/about-609-certification/" target="_blank" rel="noopener"><b>MACS 609</b><span>Study guide + free 10-question practice test</span></a>
+<a class="res" href="https://www.skillcatapp.com/epa-609-certification-online" target="_blank" rel="noopener"><b>SkillCat 609</b><span>Same platform as your 608, do it today</span></a>
+<a class="res" href="https://www.epa.gov/climate-hfcs-reduction" target="_blank" rel="noopener"><b>EPA: AIM Act hub</b><span>The HFC phasedown, primary source</span></a>
+</div>
+<div class="quiz" id="quiz8"></div>
+</div>
+</div>
+
+<!-- ============ SEGMENT 9 ============ -->
+<div class="card segment" id="seg9">
+<div class="seg-head"><span class="seg-num">SEG 09</span><h2>Electrical for HVAC</h2><span class="seg-par">par 0:45</span><button class="btn split-btn" onclick="splitSeg(9)">SPLIT ✓</button></div>
+<p class="bluf-line">The refrigerant loop is half the machine. The other half is a low-voltage brain switching a high-voltage muscle, and it's where most service calls actually live.</p>
+<div class="seg-body">
+<h3>Residential control chain (24V world)</h3>
+<p>A transformer steps 120/240V down to <strong>24VAC control power</strong>. The thermostat is just a switch panel: <strong>R</strong> = 24V hot, <strong>C</strong> = common (return path), <strong>Y</strong> = cooling call, <strong>G</strong> = fan, <strong>W</strong> = heat. Close R-to-Y and 24V energizes the <strong>contactor coil</strong> outside; the contactor's contacts slam shut and put 240V across the compressor and condenser fan. Close R-to-G and the furnace board runs the blower. That's the whole sequence of operation for cooling: stat calls → contactor pulls in → compressor + fans run → stat satisfied → contactor drops.</p>
+<h3>Capacitors, the #1 part you'll ever replace</h3>
+<ul>
+<li><strong>Run capacitor</strong>: stays in circuit, phase-shifts the start winding to keep single-phase motors turning efficiently. Rated in <strong>microfarads (µF)</strong> and voltage. Dual round caps serve compressor + fan: terminals <strong>C</strong> (common), <strong>HERM</strong> (compressor), <strong>FAN</strong>.</li>
+<li>Test with a meter's capacitance mode, out of circuit, discharged. Replace when reading falls outside <strong>±6%</strong> of rating. Symptoms: humming motor that won't start, fan that needs a stick-push, breaker trips.</li>
+<li><strong>Start capacitor/hard-start kit</strong>: high µF, in circuit only for the first fraction of a second via a potential relay.</li>
+<li><strong>Discharge before touching.</strong> Insulated screwdriver across terminals is the field method; a resistor is the polite method.</li>
+</ul>
+<h3>MVAC electrical chain</h3>
+<p>Button press → HVAC control head requests → <strong>ECM/BCM sanity-checks</strong>: pressure transducer in range (not too low, not too high), evaporator temp sensor above freeze-up threshold (~34°F), engine not at wide-open throttle → computer grounds the <strong>compressor clutch relay</strong> → relay feeds 12V to the clutch coil → clutch locks the pulley to the shaft. Every "AC quit" diagnosis walks that chain: fuse → relay → pressure switch/transducer → clutch coil resistance (~3-5Ω typical) → commanded ground from the ECM. A clutch that clicks rapidly is the low-pressure cutoff protecting a starved system, electrical symptom, refrigerant cause.</p>
+<h3>Meter skills that separate duct guys from service techs</h3>
+<ul>
+<li><strong>Voltage checks live circuits, continuity checks dead ones.</strong> Never ohm a live circuit.</li>
+<li><strong>Voltage drop</strong> across a closed switch/contactor should be ~0V; reading source voltage across it means it's open. Fastest diagnostic logic there is.</li>
+<li><strong>Amp clamp</strong> on the compressor common vs nameplate <strong>RLA</strong> (rated load amps); locked rotor pulls <strong>LRA</strong> for an instant. Chronic near-LRA = failing start components or a dying compressor.</li>
+<li>Sequence: verify 24V at the stat wires, verify contactor coil voltage, verify line voltage through the contactor, verify capacitor, then condemn the motor. In that order, cheap to expensive.</li>
+</ul>
+<p class="kicker">Go deeper</p>
+<div class="res-grid">
+<a class="res" href="https://theengineeringmindset.com/" target="_blank" rel="noopener"><b>Engineering Mindset: electrical</b><span>Capacitors, contactors, motors, animated</span></a>
+<a class="res" href="https://www.youtube.com/results?search_query=AC+Service+Tech+dual+run+capacitor+testing" target="_blank" rel="noopener"><b>YouTube: capacitor testing</b><span>Meter on a dual cap, 10 minutes</span></a>
+<a class="res" href="https://www.youtube.com/results?search_query=car+ac+compressor+clutch+not+engaging+diagnosis" target="_blank" rel="noopener"><b>YouTube: clutch diagnosis</b><span>The 12V chain on a real car</span></a>
+<a class="res" href="https://hvacrschool.com/?s=contactor" target="_blank" rel="noopener"><b>HVAC School: contactors + caps</b><span>Component-level articles</span></a>
+</div>
+<div class="quiz" id="quiz9"></div>
+</div>
+</div>
+
+<!-- ============ SEGMENT 10: BOSS ============ -->
+<div class="card segment" id="seg10">
+<div class="seg-head"><span class="seg-num">SEG 10</span><h2>Boss: diagnosis gauntlet + final exam</h2><span class="seg-par">par 1:00</span><button class="btn split-btn" onclick="splitSeg(10)">SPLIT ✓</button></div>
+<p class="bluf-line">Eight real-world scenarios, then a 25-question exam scored at the real 609 standard. Pass this and the actual cert test is a formality.</p>
+<div class="seg-body">
+<h3>The gauntlet</h3>
+<p>Read the facts, commit to a diagnosis out loud, then reveal. Committing before revealing is the entire trick; passive reading teaches nothing.</p>
+<div id="gauntlet"></div>
+<h3 style="margin-top:34px">Final exam</h3>
+<p>25 questions, everything fair game. 21 correct = pass, same as the real thing. No takebacks per question; answer all, then submit.</p>
+<div id="final-exam"></div>
+<div id="final-result" style="margin-top:16px"></div>
+</div>
+</div>
+
+<div class="card">
+<h3 style="font-size:1.2rem">After the run</h3>
+<p style="margin-top:10px">Same-day cert: <a href="https://ww2.epatest.com/epa-609-mvac/" target="_blank" rel="noopener">Mainstream's 609</a> is $19.95, open book, online, with a free manual, or <a href="https://www.skillcatapp.com/epa-609-certification-online" target="_blank" rel="noopener">SkillCat</a> where the 608 was done. If today's material stuck, the exam is a 20-minute victory lap. Then the paper says what the head already knows.</p>
+</div>
+
+<footer>MVAC SPEEDRUN · built for one very long, very productive day · pressures approximate, physics exact</footer>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const PT = {
+ r134a:{label:"R-134a",t:[-10,0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150],p:[1.9,6.5,11.9,18.4,26.1,35.0,45.4,57.4,71.1,86.7,104.3,124.2,146.4,171.2,198.7,229.2,262.9]},
+ r1234yf:{label:"R-1234yf",t:[-10,0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150],p:[3.8,8.7,14.3,21.0,29.0,38.2,48.8,61.0,74.5,89.5,106.0,124.5,145.0,167.5,192.5,220.0,250.0]},
+ r410a:{label:"R-410A",t:[-10,0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150],p:[36.1,48.2,62.3,78.3,96.8,118.1,142.2,169.6,200.6,235.9,274.9,317.5,365.0,417.4,475.0,539.0,609.0]},
+ r22:{label:"R-22",t:[-10,0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150],p:[16.5,24.0,32.8,43.0,54.9,68.5,84.0,101.6,121.4,143.6,168.4,195.9,226.4,259.9,296.8,337.2,381.5]}
+};
+function satP(ref,t){const d=PT[ref];if(t<=d.t[0])return d.p[0];if(t>=d.t[d.t.length-1])return d.p[d.p.length-1];
+ for(let i=0;i<d.t.length-1;i++){if(t>=d.t[i]&&t<=d.t[i+1]){const f=(t-d.t[i])/(d.t[i+1]-d.t[i]);return d.p[i]+f*(d.p[i+1]-d.p[i]);}}return NaN;}
+function satT(ref,p){const d=PT[ref];if(p<=d.p[0])return d.t[0];if(p>=d.p[d.p.length-1])return d.t[d.t.length-1];
+ for(let i=0;i<d.p.length-1;i++){if(p>=d.p[i]&&p<=d.p[i+1]){const f=(p-d.p[i])/(d.p[i+1]-d.p[i]);return d.t[i]+f*(d.t[i+1]-d.t[i]);}}return NaN;}
+
+const SEGMENTS=[
+ {n:1,t:"The refrigeration cycle",par:30},{n:2,t:"Refrigerants",par:40},{n:3,t:"PT charts & gauges",par:40},
+ {n:4,t:"Superheat & subcooling",par:45},{n:5,t:"MVAC architectures",par:40},{n:6,t:"Service procedures",par:45},
+ {n:7,t:"Leak detection",par:30},{n:8,t:"The law: 609 & 608",par:40},{n:9,t:"Electrical for HVAC",par:45},
+ {n:10,t:"Boss: gauntlet + exam",par:60}];
+
+const QUIZ={
+1:[
+{q:"Work (energy input) is added to the refrigeration loop at the:",o:["Compressor","Condenser","Evaporator","Metering device"],a:0,e:"Only the compressor adds work. Everything else moves or throttles heat that's already there."},
+{q:"Refrigerant entering the compressor must be:",o:["Superheated vapor","Saturated liquid","Subcooled liquid","A liquid/vapor mix"],a:0,e:"Liquid in a compressor is slugging and mechanically destroys it. Superheat is the proof of full vaporization."},
+{q:"Heat leaves the system at the:",o:["Condenser","Evaporator","Compressor","Accumulator"],a:0,e:"Condenser rejects heat to ambient; evaporator absorbs it from the cabin."},
+{q:"What exits the metering device?",o:["A cold low-pressure liquid/vapor mist","High-pressure vapor","Liquid at the same temperature","Superheated vapor"],a:0,e:"Pressure collapse flashes ~20-25% to vapor and chills the surviving liquid to the new saturation temp."},
+{q:"Flash gas forms because the pressure drop:",o:["Lowers the boiling point below the liquid's actual temp","Adds heat at the orifice","Compresses the liquid","Cools the liquid below saturation"],a:0,e:"The liquid is suddenly far above its (new) boiling point, so part of it boils instantly using heat stolen from the rest."},
+{q:"The low side of the system runs from:",o:["Metering outlet to compressor suction","Compressor to condenser","Condenser to metering device","Compressor to evaporator"],a:0,e:"High side: discharge → condenser → metering inlet. Low side: metering outlet → evaporator → suction."}
+],
+2:[
+{q:"Which family has zero ODP but a high GWP?",o:["HFC","CFC","HCFC","HFO"],a:0,e:"HFCs (R-134a, R-410A) dropped chlorine entirely, then became the greenhouse-gas problem the AIM Act targets."},
+{q:"R-1234yf's ASHRAE safety classification:",o:["A2L","A1","A3","B2"],a:0,e:"Low toxicity, mildly flammable with low burn velocity. The 2L is why yf machines leak-check first."},
+{q:"400-series blends must be charged as liquid because:",o:["Vapor charging fractionates the blend","Liquid charges faster","Vapor is too cold","Oil only travels in liquid"],a:0,e:"Zeotropic components boil at different rates; taking vapor off the jug changes the mixture."},
+{q:"Electric compressors in hybrids/EVs require which oil?",o:["POE","PAG","Mineral","Any, they're sealed"],a:0,e:"PAG is conductive. In a high-voltage compressor, a conductive oil film risks isolation faults. POE only."},
+{q:"The R-134a → R-1234yf transition was driven by:",o:["GWP","ODP","Toxicity","Cost"],a:0,e:"R-134a has zero ODP. Its GWP of ~1,430 vs yf's ~4 is the whole story."},
+{q:"HFOs break down in days because of:",o:["A carbon-carbon double bond","Chlorine content","High density","Added hydrogen only"],a:0,e:"The olefin double bond is reactive; atmospheric radicals tear it apart in ~11 days."}
+],
+3:[
+{q:"Absolute pressure equals gauge pressure plus about:",o:["14.7 psi","29.9 psi","7.5 psi","1 psi"],a:0,e:"psia = psig + atmospheric (14.7 at sea level). Physics runs on absolute."},
+{q:"The low-side gauge is a compound gauge because:",o:["The low side can pull into vacuum","It reads two refrigerants","It's more accurate","High pressure would break it"],a:0,e:"Compound = reads both vacuum (inHg) and pressure (psig)."},
+{q:"The PT relationship holds only when:",o:["Liquid and vapor coexist (saturation)","The system is off","Vapor is superheated","Liquid is subcooled"],a:0,e:"Off saturation, temperature and pressure decouple, which is exactly what SH and SC measure."},
+{q:"Static pressure far below the PT value for ambient temp means:",o:["Lost charge","Overcharge","Bad compressor","Normal"],a:0,e:"A resting system with both phases present must sit at saturation pressure for its temperature. Low = missing refrigerant."},
+{q:"R-134a at 70°F sits near:",o:["71 psig","35 psig","124 psig","20 psig"],a:0,e:"The freebie anchor: ~70°F ≈ ~71 psig. Memorize the spine: 32→28, 40→35, 100→124, 130→199."},
+{q:"Rule-of-thumb high side for R-134a:",o:["2.2-2.5 × ambient °F","Equal to ambient","10 × low side","Always 300 psig"],a:0,e:"95°F day → roughly 210-240 psig. A sanity band, not a spec; service data wins."}
+],
+4:[
+{q:"Superheat is measured at the:",o:["Evaporator outlet / suction line","Condenser outlet","Compressor discharge","Receiver-drier"],a:0,e:"SH = suction line temp minus saturation temp for low-side pressure."},
+{q:"High superheat + low subcooling =",o:["Undercharge","Overcharge","Restriction","Dirty condenser"],a:0,e:"Not enough refrigerant: evaporator finishes boiling early (high SH) and little liquid stacks in the condenser (low SC)."},
+{q:"Low superheat + high subcooling =",o:["Overcharge","Undercharge","Restriction","Low airflow"],a:0,e:"Too much refrigerant: liquid floods toward the compressor and backs up in the condenser."},
+{q:"High superheat + high subcooling =",o:["Restriction","Overcharge","Undercharge","Weak compressor"],a:0,e:"Liquid piles up behind the blockage (high SC) while the evaporator starves ahead of it (high SH)."},
+{q:"A TXV system is charged by:",o:["Subcooling","Superheat","Sight glass only","Suction pressure only"],a:0,e:"The TXV holds SH constant, so SH stops responding to charge level. SC becomes the signal."},
+{q:"An MVAC system is properly charged by:",o:["Weight from the under-hood label","Superheat","Vent temperature","Bubbles in the sight glass"],a:0,e:"J2788 machines meter to ±0.5 oz. Gauges diagnose; the scale charges."}
+],
+5:[
+{q:"The accumulator lives on the:",o:["Low side, at the evaporator outlet","High side, at the condenser outlet","Discharge line","Liquid line"],a:0,e:"O-A-L: Orifice systems put an Accumulator on the Low side to catch liquid before the compressor."},
+{q:"A receiver-drier pairs with:",o:["A TXV","An orifice tube","An accumulator","A heat pump only"],a:0,e:"TXV systems store liquid + desiccant on the high side."},
+{q:"CCOT systems control capacity by:",o:["Cycling the clutch on a low-pressure switch","Modulating the orifice","Varying fan speed","Bypassing the condenser"],a:0,e:"The fixed orifice can't modulate, so the compressor cycles. That's the CC in CCOT."},
+{q:"SAE J2843 (yf) machines must, before recharging:",o:["Leak-check the vehicle and refuse if leaking","Heat the refrigerant","Vent residual charge","Add dye automatically"],a:0,e:"A2L class + expensive refrigerant = the machine enforces no-charge-on-a-leaker."},
+{q:"A compressor clutch engaging and dropping every few seconds usually means:",o:["Low charge tripping the low-pressure cutoff","Bad thermostat","Overcharge","Failed blower"],a:0,e:"Short-cycling is the low-pressure switch protecting a starved compressor. Electrical symptom, refrigerant cause."},
+{q:"A variable displacement compressor changes capacity via:",o:["Swash plate angle","Clutch slip","Gearbox","Suction throttling only"],a:0,e:"Plate angle changes piston stroke; many are ECM-controlled with no clutch at all."}
+],
+6:[
+{q:"SAE J2788 requires recovery machines to capture:",o:["95% of the charge in 30 minutes","50% in an hour","99.9% instantly","80% in 15 minutes"],a:0,e:"Plus recharge accuracy of ±0.5 oz. That spec is why charging by weight works."},
+{q:"The primary purpose of a deep vacuum is to:",o:["Boil off moisture","Test the compressor","Remove oil","Cool the system"],a:0,e:"At deep vacuum, water boils at room temp and leaves as vapor. Moisture + POE/PAG = acid."},
+{q:"Standard deep-vacuum target on stationary work:",o:["500 microns or below","5,000 microns","29 inHg on the manifold","50 microns exactly"],a:0,e:"Measured with a micron gauge at the system. Manifold needles are blind at these levels."},
+{q:"During decay testing, vacuum rises then plateaus. That means:",o:["Moisture is still boiling off","A leak","Perfectly dry","Pump failure"],a:0,e:"Continuous climb = leak. Rise-and-plateau = water vapor still coming out; keep pulling."},
+{q:"Acceptable gas for pressure-testing:",o:["Dry nitrogen","Compressed shop air","Oxygen","CO2 from an extinguisher"],a:0,e:"Air is wet; oxygen + oil + pressure can detonate. Regulated dry nitrogen only."},
+{q:"Air (non-condensables) in a system causes:",o:["High head pressure and poor cooling","Low pressure both sides","Frozen evaporator","Nothing measurable"],a:0,e:"Air squats in the condenser and can't condense, driving discharge pressure up."}
+],
+7:[
+{q:"The most common MVAC leak point:",o:["Compressor shaft seal","Evaporator core","Schrader valve","Drier bag"],a:0,e:"A spinning seal in engine heat that sits dry all winter. Condenser rock strikes are #2."},
+{q:"Electronic sniffing technique:",o:["Probe below fittings, move slowly","Probe above fittings quickly","Only with engine running at speed","Only outdoors in wind"],a:0,e:"Refrigerant is heavier than air, it pools at the bottom of joints. ~1 inch/second."},
+{q:"The caution with UV dye:",o:["It's oil, so dose correctly","It voids warranties","It damages seals instantly","It only works on R-12"],a:0,e:"Overdosing dye is overcharging oil, which coats heat exchangers and cuts capacity."},
+{q:"A vacuum decay test tells you:",o:["That a leak exists, not where","Exact leak location","Leak size in oz/yr","Refrigerant type"],a:0,e:"It's a pass/fail tightness check. Finding the hole takes dye, sniffer, nitrogen, or soap."},
+{q:"Stationary comfort-cooling appliances above the size threshold trigger mandatory leak repair at:",o:["10% annualized leak rate","30%","50%","Any leak at all"],a:0,e:"10% comfort cooling, 20% commercial refrigeration, 30% industrial process."},
+{q:"An evaporator core leak is often confirmed by:",o:["Sniffing the condensate drain tube","Removing the dash first","Pressure-testing the cabin","Listening at the vents"],a:0,e:"Refrigerant sinks and exits with the condensate. Cheapest access point to the worst-labor component."}
+],
+8:[
+{q:"Venting substitute refrigerants (HFC/HFO) became illegal on:",o:["November 15, 1995","July 1, 1992","January 1, 2018","January 1, 1980"],a:0,e:"ODS venting was banned July 1, 1992; substitutes followed November 15, 1995."},
+{q:"Passing score on the 609 exam:",o:["21 of 25 (84%)","18 of 25","25 of 25","15 of 25"],a:0,e:"25 questions, open book with most providers. 84% to pass."},
+{q:"Section 609 certification is valid for:",o:["Life","2 years","5 years","Until the next rule change"],a:0,e:"Lifetime credential. EPA currently requires no recertification."},
+{q:"Uncertified DIYers may buy:",o:["R-134a cans under 2 lbs with self-sealing valves","Any 30 lb cylinder","R-12 in any size","Nothing at all, ever"],a:0,e:"The federal small-can exemption; cans made after Jan 1, 2018 need self-sealing valves. Some states restrict further."},
+{q:"A refrigerated trailer (reefer) unit falls under:",o:["Section 608","Section 609","Neither","DOT rules only"],a:0,e:"609 covers passenger-compartment comfort cooling. Cargo refrigeration and R-22 bus systems are 608 territory."},
+{q:"The Clean Air Act pays informants up to:",o:["$10,000","$500","$1 million","Nothing"],a:0,e:"Awards up to $10,000 for information leading to conviction of venting violations."}
+],
+9:[
+{q:"Thermostat terminal Y calls for:",o:["Cooling","Fan only","Heat","Common"],a:0,e:"R = 24V hot, C = common, Y = cool, G = fan, W = heat."},
+{q:"A contactor is:",o:["A 24V coil switching line voltage","A capacitor variant","A refrigerant valve","A 240V thermostat"],a:0,e:"The low-voltage brain (stat) energizes the coil; the contacts carry the 240V muscle."},
+{q:"Replace a run capacitor when it reads outside:",o:["±6% of rated µF","±50%","±0.5%","Any drift at all"],a:0,e:"Test discharged and out of circuit with the meter's capacitance mode."},
+{q:"Voltage measured across a CLOSED switch should be:",o:["~0V","Source voltage","Half of source","24V always"],a:0,e:"Reading source voltage across a switch means it's open. Voltage-drop logic is the fastest diagnostic there is."},
+{q:"Dual run capacitor terminals:",o:["C, HERM, FAN","L1, L2, L3","R, Y, G","IN, OUT, GND"],a:0,e:"Common, compressor (hermetic), condenser fan."},
+{q:"MVAC clutch diagnosis starts with:",o:["Fuse and relay","Replacing the compressor","Recovering the charge","Swapping the control head"],a:0,e:"Walk the chain cheap-to-expensive: fuse → relay → pressure switch → clutch coil → ECM command."}
+]
+};
+
+const SCEN=[
+{t:"Scenario 1 · R-134a sedan",f:"Ambient 95°F\nLow side 22 psig · High side 145 psig\nVents 68°F · Clutch cycles every few seconds",a:"Undercharge",w:"Both pressures low, poor vent temp, and the low-pressure cutoff is short-cycling the clutch. Recover, weigh what came out, leak-check, repair, evacuate, recharge by label weight."},
+{t:"Scenario 2 · R-134a SUV at idle",f:"Ambient 95°F\nLow 50 psig · High 310 psig\nVents 60°F at idle, improves when driving\nCondenser fan not spinning at idle",a:"Condenser airflow failure (fan)",w:"High side spikes when there's no ram air and no fan. Driving restores airflow. Fix the fan circuit, not the charge."},
+{t:"Scenario 3 · R-134a pickup",f:"Ambient 90°F\nLow side pulls down toward 5 psig, high side ~180\nFrost forming at one spot on the liquid line near the evap\nHigh subcooling",a:"Restricted orifice tube / liquid line",w:"Frost at the restriction is the pressure drop happening where it shouldn't. Liquid backs up (high SC) while the evap starves. Replace the orifice, inspect for debris, find what shed it."},
+{t:"Scenario 4 · R-134a minivan",f:"Ambient 85°F\nLow 90 psig · High 110 psig\nEngine running, compressor commanded on, no cooling",a:"Dead compressor (not pumping)",w:"Pressures nearly equalized with the system running = nothing is compressing. Confirm clutch engagement first; if it's spinning and pressures won't spread, it's internal."},
+{t:"Scenario 5 · R-134a coupe",f:"Ambient 95°F\nLow 55 psig · High 340 psig\nVents 58°F driving, warm at long idles\nSubcooling 28°F · Fans work",a:"Overcharge",w:"High both sides, fat subcooling, and heat-soak misery at idle. Someone topped it off by feel. Recover it all, recharge by weight."},
+{t:"Scenario 6 · R-134a wagon, intermittent",f:"Cools fine on cool mornings\nQuits on hot afternoons, then recovers after sitting\nStatic pressure normal · Charge weight verified",a:"Moisture freezing at the metering device",w:"Water ice forms at the orifice when things get cold enough, blocks flow, melts when it warms, repeats. Desiccant is saturated: recover, replace accumulator/drier, deep vacuum with decay test, recharge."},
+{t:"Scenario 7 · Residential R-410A split (608 flavor)",f:"TXV system\nSuperheat 25°F · Subcooling 2°F",a:"Undercharge",w:"High SH + low SC is the undercharge signature. On a TXV system, SC is the charge signal, and 2°F says there's no liquid seal. Find the leak before adding a pound."},
+{t:"Scenario 8 · Residential R-410A split",f:"TXV system\nSuperheat 3°F · Subcooling 18°F\nSweating suction line back to the compressor",a:"Overcharge / TXV overfeeding",w:"Low SH + high SC = too much refrigerant in play. Liquid is flirting with the compressor. Verify TXV bulb mounting/insulation, then weigh the charge out and back in."}
+];
+
+const FINAL=[
+{q:"An MVAC is defined as vapor-compression equipment cooling the:",o:["Driver/passenger compartment","Cargo box","Engine bay","Battery pack only"]},
+{q:"Servicing MVACs for payment without 609 certification has been illegal since:",o:["January 1993","January 2018","November 1995","July 1992"]},
+{q:"Knowingly venting an ozone-depleting refrigerant during service became illegal on:",o:["July 1, 1992","November 15, 1995","January 1, 1996","January 1, 2018"]},
+{q:"De minimis releases are:",o:["Good-faith wisps during proper recovery, not violations","Any release under 1 lb","Legal on weekends","Fines waived for first offense"]},
+{q:"Sales of R-12 have been restricted to certified technicians since:",o:["November 14, 1994","January 1, 1993","July 1, 1992","2010"]},
+{q:"Refrigerant purchase/service records are generally kept for:",o:["3 years","6 months","10 years","Forever"]},
+{q:"R-134a recovery/recycle machines must meet:",o:["SAE J2788","SAE J2843","AHRI 700","UL 2075"]},
+{q:"J2788 machines must recover what portion of the charge?",o:["95% in 30 minutes","80% in 60 minutes","99% in 10 minutes","100% always"]},
+{q:"Which pairing is correct?",o:["Orifice tube + accumulator","Orifice tube + receiver-drier","TXV + accumulator","TXV + no drier"]},
+{q:"The receiver-drier sits on the:",o:["High side liquid line","Suction line","Discharge line","Evaporator inlet"]},
+{q:"R-1234yf's approximate GWP:",o:["4","1,430","2,088","10,900"]},
+{q:"R-1234yf flammability class:",o:["A2L","A1","A3","B1"]},
+{q:"Blended (400-series) refrigerants must be charged:",o:["As liquid","As vapor","Only when hot","Only into the high side"]},
+{q:"Hybrid/EV electric compressor oil:",o:["POE","PAG","Mineral","ATF"]},
+{q:"The deep vacuum step exists primarily to:",o:["Remove moisture as vapor","Test hoses","Chill the system","Remove oil"]},
+{q:"A micron gauge that climbs steadily and never plateaus after isolation indicates:",o:["A leak","Moisture","Normal behavior","Pump success"]},
+{q:"Pressure testing must use:",o:["Dry nitrogen","Shop air","Oxygen","Propane"]},
+{q:"Air in the system shows up as:",o:["High head pressure","Low head pressure","High superheat only","Frozen suction line"]},
+{q:"Refrigerant identifiers are used before recovery to:",o:["Protect the machine and tank from contamination","Measure charge weight","Check oil level","Satisfy insurance"]},
+{q:"High superheat + high subcooling indicates:",o:["A restriction","Undercharge","Overcharge","Bad fan"]},
+{q:"MVAC systems are charged by:",o:["Weight from the vehicle label","Superheat","Vent temp","Sight glass"]},
+{q:"A bus A/C system using R-22 is serviced under:",o:["Section 608","Section 609","Either","Neither"]},
+{q:"Small cans of R-134a manufactured after Jan 1, 2018 must have:",o:["Self-sealing valves","Left-hand threads","2 lb minimum fill","Dye added"]},
+{q:"Under the AIM Act, HFC supply stepped down in 2024 by:",o:["40% from baseline","10%","85%","No change until 2030"]},
+{q:"The maximum CAA award for reporting venting violations:",o:["$10,000","$1,000","$100,000","$44,539"]}
+];
+const FINAL_A=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+
+/* ================= ENGINE ================= */
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+
+function toggleTheme(){const h=document.documentElement;const n=h.getAttribute('data-theme')==='dark'?'light':'dark';h.setAttribute('data-theme',n);try{localStorage.setItem('mvac-theme',n);}catch(e){}}
+
+/* timer */
+let run=LS.get('mvac-run',{running:false,start:0,elapsed:0});
+let splits=LS.get('mvac-splits',{});
+let done=LS.get('mvac-done',[]);
+function fmt(ms){ms=Math.max(0,ms);const s=Math.floor(ms/1000);const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),x=s%60;return h+':'+String(m).padStart(2,'0')+':'+String(x).padStart(2,'0');}
+function elapsedNow(){return run.running?(Date.now()-run.start):run.elapsed;}
+function tick(){const e=fmt(elapsedNow());document.getElementById('run-clock').textContent=e;document.getElementById('big-clock').textContent=e;}
+setInterval(tick,300);
+function startRun(){if(run.running)return;run.start=Date.now()-run.elapsed;run.running=true;LS.set('mvac-run',run);document.getElementById('start-btn').textContent='RUNNING…';}
+function resetRun(){if(!confirm('Reset the run? Splits and completion wipe.'))return;run={running:false,start:0,elapsed:0};splits={};done=[];LS.set('mvac-run',run);LS.set('mvac-splits',splits);LS.set('mvac-done',done);document.getElementById('start-btn').textContent='▶ START RUN';renderSplits();renderRoute();markDoneButtons();updateProgress();tick();}
+function splitSeg(n){if(!run.running)startRun();if(!done.includes(n)){done.push(n);splits[n]=elapsedNow();LS.set('mvac-done',done);LS.set('mvac-splits',splits);}renderSplits();renderRoute();markDoneButtons();updateProgress();}
+function markDoneButtons(){document.querySelectorAll('.segment').forEach(seg=>{const id=parseInt(seg.id.replace('seg',''));const b=seg.querySelector('.split-btn');if(!b)return;if(done.includes(id)){b.classList.add('done');b.textContent='DONE ✓';}else{b.classList.remove('done');b.textContent='SPLIT ✓';}});}
+function updateProgress(){document.getElementById('pbar-fill').style.width=(done.length/SEGMENTS.length*100)+'%';}
+function renderRoute(){const el=document.getElementById('route-list');el.innerHTML=SEGMENTS.map(s=>'<a href="#seg'+s.n+'"><span class="rn">'+String(s.n).padStart(2,'0')+'</span><span class="rt">'+s.t+'</span><span class="rp">par '+s.par+'m</span><span class="rd">'+(done.includes(s.n)?'✅':'▫️')+'</span></a>').join('');}
+function renderSplits(){const tb=document.getElementById('splits-body');let prev=0;tb.innerHTML=SEGMENTS.map(s=>{const cum=splits[s.n];let split='—',delta='';let segMs=null;if(cum!==undefined){const sorted=Object.keys(splits).map(Number).filter(k=>splits[k]<=cum&&k!==s.n).map(k=>splits[k]);const prior=sorted.length?Math.max(...sorted.filter(v=>v<cum),0):0;segMs=cum-prior;split=fmt(cum);const d=segMs-s.par*60000;const sign=d<=0?'−':'+';delta='<span class="'+(d<=0?'delta-ahead':'delta-behind')+'">'+sign+fmt(Math.abs(d))+'</span>';}
+return '<tr><td>'+s.n+'</td><td>'+s.t+'</td><td>'+s.par+':00</td><td>'+split+'</td><td>'+delta+'</td></tr>';}).join('');}
+
+/* quizzes */
+function shuffledOrder(n){const idx=[...Array(n).keys()];for(let i=idx.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}return idx;}
+function renderQuiz(segn){const bank=QUIZ[segn];const host=document.getElementById('quiz'+segn);if(!host||!bank)return;let html='<p class="kicker">Quick check</p>';bank.forEach((item,qi)=>{const ord=shuffledOrder(item.o.length);html+='<div class="q" id="q'+segn+'_'+qi+'"><div class="qt">'+(qi+1)+'. '+item.q+'</div><div class="opts">';ord.forEach(oi=>{html+='<button class="opt" onclick="answer('+segn+','+qi+','+oi+',this)">'+item.o[oi]+'</button>';});html+='</div><div class="expl">'+item.e+'</div></div>';});html+='<div class="quiz-score" id="qs'+segn+'">0 / '+bank.length+'</div>';host.innerHTML=html;}
+const quizState={};
+function answer(segn,qi,oi,btn){const box=document.getElementById('q'+segn+'_'+qi);if(box.classList.contains('answered'))return;box.classList.add('answered');const correct=QUIZ[segn][qi].a===oi;quizState[segn]=quizState[segn]||{right:0,total:0};quizState[segn].total++;if(correct){quizState[segn].right++;btn.classList.add('correct');}else{btn.classList.add('wrong');box.querySelectorAll('.opt').forEach(b=>{if(b.textContent===QUIZ[segn][qi].o[QUIZ[segn][qi].a])b.classList.add('correct');});}
+box.querySelectorAll('.opt').forEach(b=>b.disabled=true);document.getElementById('qs'+segn).textContent=quizState[segn].right+' / '+QUIZ[segn].length+(quizState[segn].total===QUIZ[segn].length?(quizState[segn].right===QUIZ[segn].length?'  ·  clean split':'  ·  reread the misses'):'');}
+
+/* gauntlet */
+function renderGauntlet(){const host=document.getElementById('gauntlet');host.innerHTML=SCEN.map((s,i)=>'<div class="scenario" id="sc'+i+'"><b>'+s.t+'</b><div class="facts">'+s.f+'</div><button class="btn btn-coral" style="margin-top:12px" onclick="document.getElementById(\'sc'+i+'\').classList.add(\'revealed\');this.remove()">Reveal diagnosis</button><div class="ans"><b>'+s.a+'.</b> '+s.w+'</div></div>').join('');}
+
+/* final exam */
+let finalPick={};
+function renderFinal(){const host=document.getElementById('final-exam');let html='';FINAL.forEach((item,qi)=>{const ord=shuffledOrder(item.o.length);html+='<div class="q"><div class="qt">'+(qi+1)+'. '+item.q+'</div><div class="opts" id="f'+qi+'">';ord.forEach(oi=>{html+='<button class="opt" onclick="pickFinal('+qi+','+oi+',this)">'+item.o[oi]+'</button>';});html+='</div></div>';});html+='<button class="btn btn-primary" style="margin-top:16px" onclick="gradeFinal()">Submit exam</button>';host.innerHTML=html;}
+function pickFinal(qi,oi,btn){finalPick[qi]=oi;document.querySelectorAll('#f'+qi+' .opt').forEach(b=>b.style.outline='');btn.style.outline='2px solid var(--teal)';}
+function gradeFinal(){let right=0;FINAL.forEach((item,qi)=>{const opts=document.querySelectorAll('#f'+qi+' .opt');opts.forEach(b=>{b.disabled=true;if(b.textContent===item.o[FINAL_A[qi]]){b.classList.add('correct');}else if(finalPick[qi]!==undefined&&b.textContent===item.o[finalPick[qi]]&&finalPick[qi]!==FINAL_A[qi]){b.classList.add('wrong');}});if(finalPick[qi]===FINAL_A[qi])right++;});const el=document.getElementById('final-result');const pass=right>=21;el.innerHTML='<div class="card" style="margin-top:10px;text-align:center"><div style="font-family:var(--mono);font-size:2rem;font-weight:700;color:'+(pass?'var(--ok)':'var(--bad)')+'">'+right+' / 25</div><div style="font-weight:800;margin-top:6px">'+(pass?'PASS at real 609 standards. Go take the actual test today.':'Under 21. Reread the missed segments, retake. The real exam is open book anyway.')+'</div></div>';el.scrollIntoView({behavior:'smooth'});}
+
+/* tools */
+function ptUpdate(){const ref=document.getElementById('pt-ref').value;const t=parseInt(document.getElementById('pt-t').value);document.getElementById('pt-t-lab').textContent=t+'°F';const p=satP(ref,t);document.getElementById('pt-out').textContent=(p<0.5?'~0 (vacuum territory)':p.toFixed(0)+' psig');ptReverse();}
+function ptReverse(){const ref=document.getElementById('pt-ref').value;const p=parseFloat(document.getElementById('pt-p').value);if(isNaN(p)){document.getElementById('pt-rev').innerHTML='—';return;}const t=satT(ref,p);document.getElementById('pt-rev').innerHTML=t.toFixed(0)+'°F <small>saturation</small>';}
+function shscCalc(){const ref=document.getElementById('shsc-ref').value;const lp=parseFloat(document.getElementById('sh-p').value),lt=parseFloat(document.getElementById('sh-t').value),hp=parseFloat(document.getElementById('sc-p').value),ht=parseFloat(document.getElementById('sc-t').value);if([lp,lt,hp,ht].some(isNaN)){document.getElementById('shsc-out').textContent='Fill all four numbers.';return;}
+const lowSat=satT(ref,lp),highSat=satT(ref,hp);const sh=lt-lowSat,sc=highSat-ht;
+document.getElementById('shsc-out').innerHTML='SH = '+lt+' − '+lowSat.toFixed(0)+' = <b>'+sh.toFixed(0)+'°F</b> &nbsp;·&nbsp; SC = '+highSat.toFixed(0)+' − '+ht+' = <b>'+sc.toFixed(0)+'°F</b>';
+let v='',c='var(--teal-deep)';
+if(sh>20&&sc<8){v='High SH + low SC → undercharge signature. Find the leak before adding refrigerant.';c='var(--bad)';}
+else if(sh<5&&sc>20){v='Low SH + high SC → overcharge / overfeeding. Liquid is threatening the compressor.';c='var(--bad)';}
+else if(sh>20&&sc>20){v='High SH + high SC → restriction. Liquid stacking behind a blockage, evaporator starving ahead of it.';c='var(--bad)';}
+else if(sh<5&&sc<8){v='Low SH + low SC → flooded coil with no liquid seal. Re-verify measurements; possible compressor/metering fault.';c='var(--bad)';}
+else if(sc>20){v='SC is high with reasonable SH → leaning overcharge or downstream restriction. Compare against nameplate/label.';c='var(--amber)';}
+else if(sc<8){v='SC is thin → leaning undercharge or condenser struggling. Watch for bubbles/flash gas at the metering device.';c='var(--amber)';}
+else if(sh>20){v='SH is high with decent SC → evaporator starving: airflow, TXV underfeed, or partial restriction.';c='var(--amber)';}
+else{v='Healthy envelope. SH proves dry vapor to the compressor, SC proves a solid liquid column. Ship it.';c='var(--ok)';}
+document.getElementById('shsc-verdict').innerHTML='<span style="color:'+c+'">'+v+'</span>';}
+
+/* boot */
+for(let i=1;i<=9;i++)renderQuiz(i);
+renderGauntlet();renderFinal();renderRoute();renderSplits();markDoneButtons();updateProgress();ptUpdate();
+if(run.running)document.getElementById('start-btn').textContent='RUNNING…';
+tick();
+</script>
+</body>
+</html>
