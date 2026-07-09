@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: MacBook Air Repair (Speakers + F Key)</title>
+<meta property="og:title" content="Proposal: MacBook Air Repair (Speakers + F Key)">
+<meta property="og:description" content="Fix the M1 Air blown speakers and mushy F key. Free keycap clean, ~$30 speaker swap via iFixit guides, with a mandatory resonance test before buying parts.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-proposals-hub-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/proposal-macbook-air-repair.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/og-proposals-hub-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { overflow-x: hidden; }
+:root {
+  --bark: #2C1810; --loam: #3D2914; --timber: #4A3320; --fence: #5C4033;
+  --wire: #8B7355; --hay: #D4A843; --straw: #E8C878; --cream: #F5F0E1;
+  --milk: #FDF8EF; --grass: #4A7C3F; --rust: #A0522D; --info: #2980B9;
+  --danger: #C0392B;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Source Sans 3', system-ui, sans-serif; background: var(--milk); color: var(--bark); line-height: 1.75; font-size: 17px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 500; color: var(--fence); text-decoration: none; letter-spacing: 0.5px; text-transform: uppercase; }
+.back-link:hover { color: var(--hay); }
+.hero { position: relative; padding: 4rem 1.5rem 3rem; background: linear-gradient(135deg, #2b1a12 0%, #5c2e1f 50%, #7a3a22 100%); color: var(--cream); overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(-45deg, transparent 0px, transparent 20px, rgba(255,255,255,0.015) 20px, rgba(255,255,255,0.015) 22px); }
+.hero-inner { position: relative; max-width: 800px; margin: 0 auto; }
+.badge { display: inline-block; background: var(--hay); color: var(--bark); font-size: 0.7rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; margin-bottom: 1rem; }
+.badge.draft { background: #E2E3E5; color: #383D41; }
+.hero h1 { font-family: 'Fraunces', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; line-height: 1.15; margin-bottom: 0.75rem; }
+.hero .subtitle { font-size: 1.1rem; font-weight: 300; color: var(--straw); max-width: 600px; }
+.meta-bar { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.12); }
+.meta-item { display: flex; flex-direction: column; gap: 2px; }
+.meta-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.meta-value { font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 500; color: var(--straw); }
+.meta-value.cost { color: var(--hay); }
+.content { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.section { margin-bottom: 3rem; }
+.section h2 { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 500; color: var(--loam); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--hay); }
+p { margin-bottom: 1rem; }
+p:last-child { margin-bottom: 0; }
+.callout { background: #FFF8E7; border-left: 3px solid var(--hay); padding: 1rem 1.25rem; margin: 1.25rem 0; border-radius: 0 4px 4px 0; font-size: 0.95rem; }
+.callout.info { background: #EFF6FF; border-left-color: var(--info); }
+.callout.warn { background: #FEF2F2; border-left-color: var(--danger); }
+.callout.pet { background: #F0F7EC; border-left-color: var(--grass); }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.25rem 0; }
+.materials-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; min-width: 480px; }
+.materials-table th { background: var(--loam); color: var(--cream); text-align: left; padding: 0.6rem 0.8rem; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.5px; text-transform: uppercase; }
+.materials-table td { padding: 0.6rem 0.8rem; border-bottom: 1px solid #E8DFC8; vertical-align: top; }
+.materials-table tr:nth-child(even) td { background: #FBF6E9; }
+.materials-table td.price { font-family: 'Fraunces', serif; font-weight: 500; color: var(--rust); white-space: nowrap; }
+.materials-table tfoot td { background: var(--straw); font-weight: 600; border-top: 2px solid var(--hay); }
+.steps { counter-reset: step; margin: 1.25rem 0; }
+.step { position: relative; padding: 0 0 1.4rem 3.2rem; }
+.step:not(:last-child)::after { content: ''; position: absolute; left: 1.05rem; top: 2.3rem; bottom: 0; width: 2px; background: #E8DFC8; }
+.step::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 0; width: 2.2rem; height: 2.2rem; background: var(--hay); color: var(--bark); font-family: 'Fraunces', serif; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.step-content strong { color: var(--loam); }
+@media (max-width: 600px) { .hero { padding: 3rem 1.25rem 2rem; } .content { padding: 2rem 1.25rem 3rem; } }
+</style>
+</head>
+<body>
+
+<a href="/proposals" class="back-link">← All Proposals</a>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="badge">Proposal #027 — Proposed</span>
+    <h1>MacBook Air Repair: Speakers + F Key</h1>
+    <p class="subtitle">The M1 Air works fine except the speakers sound blown and the F key feels mushy. Both are cheap DIY fixes: the key is a pop-off-and-clean job, the speakers are one of the easiest internal repairs on this machine. Diagnose first though, because there's a known M1 Air gotcha where "blown speakers" is actually chassis rattle and new drivers fix nothing.</p>
+    <div class="meta-bar">
+      <div class="meta-item">
+        <span class="meta-label">Est. Cost</span>
+        <span class="meta-value cost">$10–75</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Difficulty</span>
+        <span class="meta-value">2/5</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Time</span>
+        <span class="meta-value">One evening</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Machine</span>
+        <span class="meta-value">A2337 (M1, 2020)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+<div class="section">
+  <h2>The Problem</h2>
+  <p>Two independent faults on the M1 MacBook Air. One: the speakers distort, described as blown-out. Two: the F key is mushy, it presses but the tactile response is gone or gummy. Neither stops the laptop from working, both make it annoying to use daily, and both are squarely in DIY territory. Apple would quote a top-case-adjacent repair bill; the actual parts cost is lunch money.</p>
+</div>
+
+<div class="section">
+  <h2>Diagnose the Speakers First</h2>
+  <div class="callout warn">
+    <strong>The resonance trap.</strong> There is a documented M1 Air issue where speakers rattle and distort (piano music is the classic trigger, even at 25% volume) and the cause is not the speaker drivers. Multiple owners on iFixit replaced their speakers and got the exact same distortion from the new ones. One found the speakers sounded perfect when connected but not screwed into the chassis, meaning something in the case resonates. If that's our failure mode, buying speakers is burning $30.
+  </div>
+  <p>Two-minute test before ordering anything: play a bass-heavy track or a sine sweep at the volume where distortion shows up, then press firmly around the keyboard edges and palm rest. If the buzz changes or stops under pressure, it's resonance, and the fix is the software mitigation below, not parts. Also A/B against headphones: distortion through headphones too means audio board, not speakers (unlikely, but free to rule out).</p>
+  <p>Genuinely blown drivers sound like: crackle at all volumes, one side dead or clearly quieter, distortion that doesn't change no matter where you press. That's a parts order.</p>
+</div>
+
+<div class="section">
+  <h2>What We Buy</h2>
+  <p>Worst case, everything below. Best case (resonance + sticky residue under the key), the bill is $0 plus isopropyl we already own. The iFixit-branded speakers are the safe buy; eBay pulls run $10-20 a side but are used parts with used-part risk. Replace both sides in one session either way, they age together and the laptop is already open.</p>
+  <div class="table-wrap">
+    <table class="materials-table">
+      <thead>
+        <tr><th>Item</th><th>Why</th><th>Price</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Left + right speaker pair (eBay pulls or iFixit OEM)</td><td>Only if the press test says drivers, not resonance. iFixit sells A2337-specific left and right units.</td><td class="price">$20–60</td></tr>
+        <tr><td>P5 pentalobe + small Torx driver set</td><td>P5 for the bottom case screws, Torx for internals. Any $10 precision kit covers it. Skip if the shop already has one.</td><td class="price">$0–12</td></tr>
+        <tr><td>A2337 keycap + scissor clip set</td><td>Only if the F key mechanism or cap is actually broken. Cleaning fixes most mush.</td><td class="price">$0–8</td></tr>
+        <tr><td>Isopropyl, Q-tips, compressed air (owned)</td><td>Key well cleaning.</td><td class="price">$0</td></tr>
+        <tr><td>Spudger or guitar pick (owned)</td><td>Popping the lower case and keycap.</td><td class="price">$0</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td colspan="2">Total</td><td class="price">$10–75 (likely ~$30)</td></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <h2>The Plan: F Key</h2>
+  <div class="steps">
+    <div class="step"><div class="step-content"><strong>Power off.</strong> Fully shut down, not sleep.</div></div>
+    <div class="step"><div class="step-content"><strong>Pop the keycap.</strong> Slip a fingernail or thin pick under the top edge and lift gently. Scissor-switch caps release with light force, the clips are along the bottom edge. If the scissor mechanism comes off with the cap, unclip it and set it aside, it goes back in first.</div></div>
+    <div class="step"><div class="step-content"><strong>Clean.</strong> Isopropyl on a Q-tip: the key well, the rubber dome, the underside of the cap. Compressed air for crumbs. Mushy almost always means drink residue or grit under the dome, not a broken part.</div></div>
+    <div class="step"><div class="step-content"><strong>Inspect the dome.</strong> Torn or collapsed dome = the rare bad outcome. Domes aren't sold alone but a full keycap/scissor set is $8 and the dome usually survives, it's the residue.</div></div>
+    <div class="step"><div class="step-content"><strong>Reassemble.</strong> Scissor clips into the metal hooks first, flat side down. Then press the cap on until it clicks at all four corners. Test feel before closing the lid and calling it done.</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>The Plan: Speakers (If the Press Test Says Drivers)</h2>
+  <p>Follow the iFixit guides step-by-step, they're written for the exact A2337 board layout:</p>
+  <div class="callout info">
+    <strong>Guides:</strong> <a href="https://www.ifixit.com/Guide/MacBook+Air+13-Inch+Late+2020+Right+Speaker+Replacement/142557">Right speaker</a> · <a href="https://www.ifixit.com/Guide/MacBook+Air+13-Inch+Late+2020+Left+Speaker+Replacement/142558">Left speaker</a><br>
+    <strong>Parts:</strong> <a href="https://www.ifixit.com/products/macbook-air-13-a2337-late-2020-right-speaker">Right speaker unit</a> · <a href="https://www.ifixit.com/products/macbook-air-13-a2337-late-2020-left-speaker">Left speaker unit</a> · <a href="https://www.ifixit.com/Device/MacBook_Air_13%22_Late_2020">Full A2337 device page</a>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="step-content"><strong>Prep.</strong> Full shutdown, unplug, lid closed, flip it. iFixit recommends disabling Auto Boot first since opening the lid mid-repair can power it on.</div></div>
+    <div class="step"><div class="step-content"><strong>Open the bottom case.</strong> Pull the P5 pentalobe screws (track which hole each came from, lengths differ), then pull the lower case free.</div></div>
+    <div class="step"><div class="step-content"><strong>Disconnect the battery.</strong> First thing after the case is off, before touching anything else.</div></div>
+    <div class="step"><div class="step-content"><strong>Swap the speakers.</strong> They sit right under the bottom panel, no logic board removal. Disconnect cable, pull screws, lift unit, drop in replacement. Repeat other side.</div></div>
+    <div class="step"><div class="step-content"><strong>Reassemble and test.</strong> Battery back on, case on, screws home. Play the same track that exposed the distortion before declaring victory.</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>If It's Resonance, Not Drivers</h2>
+  <p>No parts fix known for the chassis rattle, so mitigate in software: cap max volume, and use eqMac (free) to notch out the band that excites the buzz, typically somewhere in the 200-600 Hz range on these. Gets the speakers to maybe 80% listenable. External speakers or headphones for anything that matters. Not satisfying, but it's the honest answer and it costs nothing.</p>
+</div>
+
+<div class="section">
+  <h2>Decision for Bekah</h2>
+  <p>Low stakes. The key fix is free and happens regardless. The only spend decision is the ~$30 speaker pair, and that only gets ordered <strong>after</strong> the press test confirms the drivers are actually the problem. If the test says resonance, total project cost is zero and we live with EQ.</p>
+</div>
+
+</div>
+</body>
+</html>
