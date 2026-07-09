@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The 30-Day Organization Pact</title>
+<meta property="og:title" content="The 30-Day Organization Pact">
+<meta property="og:description" content="Benny vs Laurel. 30 days to organize our stuff. Penalty: non-lethal (negotiated). Deadline: August 8, 2026.">
+<meta property="og:url" content="https://niggerfaggot.club/org-pact.html">
+<meta name="twitter:card" content="summary">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #cfe9f5 0%, #a8d8e8 30%, #9fd6cf 65%, #e8dcc8 100%);
+    background-attachment: fixed;
+    color: #1e3a45;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+  .glass {
+    background: rgba(255,255,255,0.45);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(30,58,69,0.08);
+    padding: 20px 22px;
+  }
+  h1 { font-size: 26px; letter-spacing: -0.5px; }
+  .sub { font-size: 14px; color: #3d6270; margin-top: 4px; }
+  .countdown { display: flex; align-items: baseline; gap: 10px; margin-top: 14px; }
+  .countdown .big { font-size: 46px; font-weight: 800; color: #0e6f7e; line-height: 1; }
+  .countdown .label { font-size: 14px; color: #3d6270; }
+  .pact { font-size: 14.5px; line-height: 1.55; }
+  .pact b { color: #0e6f7e; }
+  .players { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 560px) { .players { grid-template-columns: 1fr; } }
+  .pname { font-weight: 700; font-size: 17px; display: flex; justify-content: space-between; align-items: baseline; }
+  .pcount { font-size: 13px; color: #3d6270; font-weight: 500; }
+  .dots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 12px; }
+  .dot {
+    aspect-ratio: 1; border-radius: 6px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(30,58,69,0.1);
+    position: relative;
+  }
+  .dot.hit { background: #17a2a8; border-color: #17a2a8; }
+  .dot.today { outline: 2px solid #0e6f7e; outline-offset: 1px; }
+  .dot span {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 9px; color: rgba(30,58,69,0.45); font-weight: 600;
+  }
+  .dot.hit span { color: rgba(255,255,255,0.9); }
+  form { display: flex; flex-direction: column; gap: 12px; }
+  .who-row { display: flex; gap: 10px; }
+  .who-btn {
+    flex: 1; padding: 10px; border-radius: 12px; font-size: 15px; font-weight: 600;
+    border: 1px solid rgba(30,58,69,0.15); background: rgba(255,255,255,0.5);
+    color: #3d6270; cursor: pointer; transition: all 0.15s;
+  }
+  .who-btn.on { background: #0e6f7e; color: #fff; border-color: #0e6f7e; }
+  input[type=date], textarea {
+    width: 100%; padding: 11px 13px; border-radius: 12px; font-size: 15px;
+    border: 1px solid rgba(30,58,69,0.15); background: rgba(255,255,255,0.6);
+    color: #1e3a45; font-family: inherit; outline: none;
+  }
+  textarea { resize: vertical; min-height: 64px; }
+  .submit {
+    padding: 13px; border-radius: 12px; border: none; font-size: 16px; font-weight: 700;
+    background: linear-gradient(135deg, #0e6f7e, #17a2a8); color: #fff; cursor: pointer;
+  }
+  .submit:active { transform: scale(0.98); }
+  .feed { display: flex; flex-direction: column; gap: 10px; }
+  .entry {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 12px 14px; border-radius: 14px;
+    background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.6);
+  }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: #fff;
+  }
+  .avatar.benny { background: #0e6f7e; }
+  .avatar.laurel { background: #c98a4b; }
+  .ebody { flex: 1; min-width: 0; }
+  .emeta { font-size: 12px; color: #3d6270; margin-bottom: 2px; }
+  .etext { font-size: 14.5px; line-height: 1.45; word-wrap: break-word; }
+  .del {
+    background: none; border: none; color: rgba(30,58,69,0.3); cursor: pointer;
+    font-size: 16px; padding: 2px 6px; flex-shrink: 0;
+  }
+  .del:hover { color: #c0392b; }
+  .empty { text-align: center; color: #3d6270; font-size: 14px; padding: 10px 0; }
+  h2 { font-size: 16px; margin-bottom: 12px; color: #0e6f7e; }
+  .foot { text-align: center; font-size: 12px; color: rgba(30,58,69,0.5); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="glass">
+    <h1>The 30-Day Organization Pact</h1>
+    <div class="sub">Benny &amp; Laurel &middot; July 9 &ndash; August 8, 2026</div>
+    <div class="countdown"><span class="big" id="days-left">–</span><span class="label">days left to get organized</span></div>
+  </div>
+
+  <div class="glass pact">
+    <b>The terms:</b> Both parties shall organize their stuff by end of day <b>August 8, 2026</b>.
+    Original penalty (honor killing) was rejected in negotiation. Current penalty: <b>non-lethal, TBD</b>.
+    Laurel notes she has "a few years more of accumulation to process" but is committed to making a good dent. Log what you organize below. The dots don't lie.
+  </div>
+
+  <div class="players">
+    <div class="glass">
+      <div class="pname">Benny <span class="pcount" id="benny-count"></span></div>
+      <div class="dots" id="benny-dots"></div>
+    </div>
+    <div class="glass">
+      <div class="pname">Laurel <span class="pcount" id="laurel-count"></span></div>
+      <div class="dots" id="laurel-dots"></div>
+    </div>
+  </div>
+
+  <div class="glass">
+    <h2>Log today's damage</h2>
+    <form id="log-form">
+      <div class="who-row">
+        <button type="button" class="who-btn" data-who="benny">Benny</button>
+        <button type="button" class="who-btn" data-who="laurel">Laurel</button>
+      </div>
+      <input type="date" id="date" min="2026-07-09" max="2026-08-08">
+      <textarea id="text" placeholder="What did you organize? (e.g. 'cleared the garage workbench', 'purged 3 boxes from the basement')" maxlength="500"></textarea>
+      <button type="submit" class="submit">Log it</button>
+    </form>
+  </div>
+
+  <div class="glass">
+    <h2>The record</h2>
+    <div class="feed" id="feed"><div class="empty">Loading…</div></div>
+  </div>
+
+  <div class="foot">No microwaves were harmed in the making of this pact.</div>
+</div>
+
+<script>
+const API = "https://org-pact.bennyforeman1.workers.dev";
+const START = new Date(2026, 6, 9);
+const DEADLINE_END = new Date(2026, 7, 8, 23, 59, 59);
+const TOTAL_DAYS = 31;
+
+let who = localStorage.getItem("pact-who") || null;
+
+function fmtDate(d) {
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+const TODAY = fmtDate(new Date());
+
+document.getElementById("days-left").textContent = Math.max(0, Math.ceil((DEADLINE_END - new Date()) / 86400000));
+document.getElementById("date").value = TODAY <= "2026-08-08" && TODAY >= "2026-07-09" ? TODAY : "2026-07-09";
+
+const whoBtns = document.querySelectorAll(".who-btn");
+function setWho(w) {
+  who = w;
+  localStorage.setItem("pact-who", w);
+  whoBtns.forEach(b => b.classList.toggle("on", b.dataset.who === w));
+}
+whoBtns.forEach(b => b.addEventListener("click", () => setWho(b.dataset.who)));
+if (who) setWho(who);
+
+function render(state) {
+  const entries = state.entries.sort((a,b) => b.ts - a.ts);
+  for (const p of ["benny", "laurel"]) {
+    const days = new Set(entries.filter(e => e.who === p).map(e => e.date));
+    const grid = document.getElementById(p + "-dots");
+    grid.innerHTML = "";
+    for (let i = 0; i < TOTAL_DAYS; i++) {
+      const d = new Date(START); d.setDate(d.getDate() + i);
+      const ds = fmtDate(d);
+      const dot = document.createElement("div");
+      dot.className = "dot" + (days.has(ds) ? " hit" : "") + (ds === TODAY ? " today" : "");
+      dot.innerHTML = "<span>" + d.getDate() + "</span>";
+      dot.title = ds;
+      grid.appendChild(dot);
+    }
+    document.getElementById(p + "-count").textContent =
+      days.size + " day" + (days.size === 1 ? "" : "s") + " · " + entries.filter(e => e.who === p).length + " entries";
+  }
+  const feed = document.getElementById("feed");
+  if (!entries.length) { feed.innerHTML = '<div class="empty">Nothing logged yet. The clutter is winning.</div>'; return; }
+  feed.innerHTML = "";
+  for (const e of entries) {
+    const div = document.createElement("div");
+    div.className = "entry";
+    const name = e.who === "benny" ? "Benny" : "Laurel";
+    const init = e.who === "benny" ? "B" : "L";
+    div.innerHTML =
+      '<div class="avatar ' + e.who + '">' + init + '</div>' +
+      '<div class="ebody"><div class="emeta">' + name + " · " + e.date + '</div>' +
+      '<div class="etext"></div></div>' +
+      '<button class="del" title="Delete">×</button>';
+    div.querySelector(".etext").textContent = e.text;
+    div.querySelector(".del").addEventListener("click", async () => {
+      if (!confirm("Delete this entry?")) return;
+      const r = await fetch(API + "/delete", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ id: e.id }) });
+      render(await r.json());
+    });
+    feed.appendChild(div);
+  }
+}
+
+async function load() {
+  try { render(await (await fetch(API + "/state")).json()); }
+  catch { document.getElementById("feed").innerHTML = '<div class="empty">Couldn\'t reach the server. Refresh to retry.</div>'; }
+}
+
+document.getElementById("log-form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const text = document.getElementById("text").value.trim();
+  const date = document.getElementById("date").value;
+  if (!who) { alert("Pick who you are first."); return; }
+  if (!text) { alert("Write what you organized."); return; }
+  const btn = ev.target.querySelector(".submit");
+  btn.disabled = true; btn.textContent = "Logging…";
+  try {
+    const r = await fetch(API + "/log", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ who, date, text }) });
+    render(await r.json());
+    document.getElementById("text").value = "";
+  } catch { alert("Failed to save. Try again."); }
+  btn.disabled = false; btn.textContent = "Log it";
+});
+
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
