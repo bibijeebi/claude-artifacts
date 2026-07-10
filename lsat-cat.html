@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Adaptive Mock LSAT</title>
+<meta property="og:title" content="Adaptive Mock LSAT">
+<meta property="og:description" content="A computer-adaptive LSAT-style practice test. EAP ability estimation over an original item bank, mapped to a synthetic 120-180 scaled score with a standard-error band.">
+<meta property="og:url" content="https://niggerfaggot.club/lsat-cat">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/lsat-cat-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/lsat-cat-og.jpg">
+<style>
+:root{
+  --bg:#e9edf0; --panel:#fff; --ink:#1c2733; --sub:#5b6b7a;
+  --teal:#159fc9; --green:#43a047; --red:#e23b3b; --amber:#e8a33d;
+  --line:#dbe2e8; --pick:#eef6fb;
+}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.2px}
+.sub{font-size:12px;color:var(--sub);margin-top:2px}
+.reset{font-size:12px;color:var(--sub);text-decoration:none;border:1px solid var(--line);
+  padding:5px 10px;border-radius:8px;background:#fff;cursor:pointer}
+.reset:hover{color:var(--red);border-color:var(--red)}
+
+.bar{height:6px;background:#d6dee5;border-radius:6px;overflow:hidden;margin:6px 0 16px}
+.bar>i{display:block;height:100%;width:0;background:var(--teal);transition:width .3s}
+
+.meta{display:flex;gap:14px;font-size:12px;color:var(--sub);margin-bottom:10px;flex-wrap:wrap}
+.meta b{color:var(--ink)}
+.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;
+  color:var(--teal);background:var(--pick);border:1px solid #cfe7f2;padding:3px 8px;border-radius:6px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:18px 18px 16px;box-shadow:0 1px 2px rgba(20,40,60,.05)}
+.passage{background:#f6f8fa;border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  font-size:14px;max-height:210px;overflow-y:auto;margin:12px 0 4px;color:#2a3948}
+.stim{font-size:15.5px;margin:12px 0}
+.stem{font-size:15.5px;font-weight:600;margin:12px 0 14px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.ans{display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;
+  background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 13px;
+  font:inherit;font-size:15px;color:var(--ink);cursor:pointer;transition:.12s}
+.ans:hover{border-color:var(--teal);background:var(--pick)}
+.ans .ltr{flex:0 0 22px;height:22px;border-radius:6px;background:#eef2f6;color:var(--sub);
+  font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.ans.correct{border-color:var(--green);background:#edf7ee}
+.ans.correct .ltr{background:var(--green);color:#fff}
+.ans.wrong{border-color:var(--red);background:#fcecec}
+.ans.wrong .ltr{background:var(--red);color:#fff}
+.ans.dim{opacity:.55}
+.ans:disabled{cursor:default}
+
+.expl{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:14px;display:none}
+.expl.show{display:block}
+.expl.ok{background:#edf7ee;border:1px solid #bfe3c2}
+.expl.no{background:#fcecec;border:1px solid #f0c4c4}
+.expl .h{font-weight:700;margin-bottom:3px}
+.next{margin-top:14px;display:none;width:100%;background:var(--teal);color:#fff;border:0;
+  border-radius:10px;padding:13px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.next.show{display:block}
+.next:hover{filter:brightness(1.05)}
+
+/* results */
+.result{text-align:center}
+.score{font-size:64px;font-weight:800;letter-spacing:-1px;line-height:1;margin:6px 0}
+.band{font-size:14px;color:var(--sub);margin-bottom:4px}
+.scale{position:relative;height:10px;background:linear-gradient(90deg,#e2b4b4,#e8d7a3,#bfe3c2);
+  border-radius:8px;margin:18px 4px 6px}
+.scale .tick{position:absolute;top:-4px;width:3px;height:18px;background:var(--ink);border-radius:2px;transform:translateX(-50%)}
+.scale .se{position:absolute;top:1px;height:8px;background:rgba(28,39,51,.25);border-radius:6px}
+.scaleL{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin:0 4px}
+.tbl{width:100%;border-collapse:collapse;margin-top:18px;font-size:13.5px}
+.tbl th,.tbl td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}
+.tbl th{color:var(--sub);font-weight:600;font-size:12px}
+.tbl td.n{text-align:right;font-variant-numeric:tabular-nums}
+.spark{margin:16px 0 4px}
+.note{font-size:12px;color:var(--sub);margin-top:14px;line-height:1.5}
+.again{margin-top:18px;background:var(--teal);color:#fff;border:0;border-radius:10px;
+  padding:13px 22px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Adaptive Mock LSAT</h1>
+      <div class="sub">CAT engine over an original LSAT-style bank</div>
+    </div>
+    <button class="reset" id="resetBtn">reset</button>
+  </header>
+
+  <div class="bar"><i id="prog"></i></div>
+
+  <div id="test">
+    <div class="meta">
+      <span>Item <b id="qnum">1</b></span>
+      <span id="secLbl"></span>
+    </div>
+    <div class="card" id="card"></div>
+  </div>
+
+  <div id="results" class="hide"></div>
+</div>
+
+<script>
+/* ---------- item bank ----------
+   [id, type, section, b, passageId|null, stimulus, stem, [5 options], correctIndex, explanation]
+   b = Rasch difficulty (logits). section: "LR" or "RC". */
+const PASSAGES = {
+  eco:"For decades, ecologists assumed that biodiversity rose steadily with a habitat's size: bigger islands, more species. Recent long-term surveys complicate this picture. On several island chains, mid-sized islands host more species than the largest islands nearby. Researchers propose that the largest islands, precisely because they support large populations of a few dominant predators, may drive smaller competing species to local extinction. Mid-sized islands, lacking the resources to sustain such predators, leave room for a wider variety of species to coexist. The finding does not overturn the size-diversity relationship so much as qualify it: size increases the capacity for diversity, but other factors, including predation, determine whether that capacity is realized.",
+  cpy:"Early copyright law protected only against exact reproduction of a text. A rival could copy an author's ideas freely, provided the wording differed. Over the nineteenth century, courts expanded protection to cover close paraphrase and, eventually, a work's distinctive structure and expression, though never the underlying ideas themselves. Critics argue this expansion, meant to reward creators, increasingly restricts the very borrowing on which new creative work depends. Defenders reply that without such protection, authors would have little incentive to produce original work at all. The debate persists because both sides appeal to the same goal, the flourishing of creative production, while disagreeing about which rules best serve it."
+};
+
+const BANK = [
+["l1","Weaken","LR",-1.6,null,
+ "After Riverside Elementary switched to a later start time, average student test scores rose the following year. The principal concluded the later start time improved academic performance.",
+ "Which one of the following, if true, most weakens the principal's conclusion?",
+ ["The later start time was popular with parents.",
+  "That same year the school also hired several experienced teachers and cut class sizes.",
+  "Test scores are only one measure of academic performance.",
+  "Some students still arrived late despite the new start time.",
+  "A neighboring school kept its original start time."],1,
+ "The gains have a strong alternative cause (better teachers, smaller classes) that arrived at the same time, so the start time need not be doing the work."],
+
+["l2","Strengthen","LR",-1.4,null,
+ "A supplement maker claims its vitamin D pills prevent colds. In a study, people who took the pills daily reported fewer colds than those who did not.",
+ "Which one of the following, if true, most strengthens the claim?",
+ ["The pills are inexpensive to produce.",
+  "Pill-takers were otherwise similar in age, diet, and health to non-takers.",
+  "Vitamin D is found naturally in sunlight.",
+  "The study lasted only one winter.",
+  "Some participants disliked swallowing pills."],1,
+ "Ruling out obvious confounders (the two groups were otherwise alike) makes the pills the more likely cause of the difference."],
+
+["l3","Flaw","LR",-1.0,null,
+ "Every philosophy major I have met enjoys debate. Therefore anyone who enjoys debate is probably a philosophy major.",
+ "The reasoning is flawed because it",
+ ["relies on a sample too small to support any conclusion.",
+  "confuses a claim that one thing leads to another with the claim that the second leads to the first.",
+  "assumes what it sets out to prove.",
+  "draws a conclusion about a group from facts about one individual.",
+  "uses a key term in two different senses."],1,
+ "It reverses the conditional: 'majors enjoy debate' does not give you 'debate-lovers are majors.'"],
+
+["l4","Inference","LR",-0.8,null,
+ "All the paintings in the east wing are landscapes. None of the landscapes in the museum are for sale. Some paintings in the east wing were donated by the founder.",
+ "If the statements are true, which one must also be true?",
+ ["All donated paintings are landscapes.",
+  "Some paintings donated by the founder are not for sale.",
+  "The east wing holds every landscape in the museum.",
+  "No paintings in the museum are for sale.",
+  "The founder donated only landscapes."],1,
+ "East-wing paintings are landscapes, landscapes aren't for sale, and some east-wing paintings are founder-donated, so some founder-donated paintings aren't for sale."],
+
+["l5","Assumption","LR",-0.9,null,
+ "Maria will make an excellent lawyer. She is a superb public speaker.",
+ "The argument assumes which one of the following?",
+ ["Being a superb public speaker contributes to being an excellent lawyer.",
+  "All lawyers are public speakers.",
+  "Maria wants to be a lawyer.",
+  "Public speaking is difficult to learn.",
+  "Excellent lawyers are rare."],0,
+ "The argument only works if the one cited trait actually bears on being a good lawyer; otherwise the premise is irrelevant to the conclusion."],
+
+["l6","Assumption","LR",-0.4,null,
+ "The new highway will reduce downtown traffic, because it gives commuters a faster route around the city center.",
+ "The argument assumes which one of the following?",
+ ["The highway will be the fastest route for all commuters.",
+  "At least some commuters who now drive downtown will use the new route instead.",
+  "Downtown traffic is the worst in the region.",
+  "The highway will be free to use.",
+  "No new commuters will move to the area."],1,
+ "A bypass only cuts downtown traffic if some current downtown drivers actually switch to it."],
+
+["l7","Resolve","LR",-0.2,null,
+ "Bookstore A and Bookstore B sell the same books at the same prices. Yet customers consistently report spending less per visit at Store A than at Store B.",
+ "Which one, if true, most helps explain the difference?",
+ ["Store A is larger than Store B.",
+  "Store B is located near a busy shopping mall.",
+  "Store A puts few books near the register, while Store B lines its checkout with impulse buys.",
+  "Both stores run frequent sales.",
+  "Store A has been open longer than Store B."],2,
+ "Impulse purchases at B's checkout explain higher per-visit spending despite identical prices."],
+
+["l8","Main Point","LR",-0.6,null,
+ "Critics say the ferry loses money and should be cut. But the ferry lets hundreds of workers reach jobs they could not otherwise reach, and the taxes those workers pay exceed the ferry's operating deficit. Cutting it would cost the city more than it saves.",
+ "Which one most accurately expresses the main conclusion?",
+ ["The ferry service loses money each year.",
+  "Hundreds of workers depend on the ferry.",
+  "Eliminating the ferry would cost the city more than keeping it.",
+  "Ferry riders pay taxes.",
+  "Critics are mistaken about ridership."],2,
+ "The other statements are premises; the final claim (cutting costs more than it saves) is what they support."],
+
+["l9","Parallel","LR",0.4,null,
+ "If the bridge were safe, it would have passed inspection. It did not pass inspection. So the bridge is not safe.",
+ "Which one is most similar in its reasoning?",
+ ["If it rained, the streets would be wet. The streets are wet. So it rained.",
+  "If the cake were done, a toothpick would come out clean. It did not. So the cake is not done.",
+  "If she studied, she passed. She passed. So she studied.",
+  "All dogs bark. Rex barks. So Rex is a dog.",
+  "If the alarm works, it will sound. It sounded. So it works."],1,
+ "The original is valid modus tollens (if P then Q; not Q; so not P). Only the cake argument matches that exact form."],
+
+["l10","Principle","LR",0.2,null,
+ "Principle: A person should not be blamed for an outcome they could not reasonably have foreseen.",
+ "Which judgment best conforms to the principle?",
+ ["A driver who ran a red light and caused a crash should not be blamed, since crashes are common.",
+  "A chef should not be blamed for a guest's reaction to an undisclosed, uncommon allergen.",
+  "A contractor should not be blamed for using materials known to be defective.",
+  "A student should not be blamed for failing a test they never studied for.",
+  "A pilot should be blamed for a delay caused by a sudden, unpredicted storm."],1,
+ "Only the chef faced something genuinely unforeseeable; the others involve foreseeable or known risks, or misapply the principle."],
+
+["l11","Weaken","LR",0.6,null,
+ "Since installing security cameras, the parking garage recorded 40% fewer thefts. Clearly the cameras deter theft.",
+ "Which one, if true, most weakens the argument?",
+ ["The cameras were expensive to install.",
+  "Citywide garage thefts fell 40% that year after a major theft ring was arrested.",
+  "Some drivers dislike being recorded.",
+  "The cameras record in high definition.",
+  "A few thefts still occurred after installation."],1,
+ "A citywide drop of the same size points to a common external cause, undercutting the claim that these cameras did it."],
+
+["l12","Assumption","LR",0.8,null,
+ "The museum's new exhibit will succeed. It features the most popular living artists, and popular artists draw large crowds.",
+ "The argument depends on assuming which one?",
+ ["The exhibit's success depends, at least in part, on drawing large crowds.",
+  "These artists are more popular than any artists of the past.",
+  "The exhibit will be free to enter.",
+  "No other museum features these artists.",
+  "Every popular artist draws a large crowd."],0,
+ "If attendance had nothing to do with what counts as success here, drawing crowds would not support the conclusion at all."],
+
+["l13","Method","LR",1.0,null,
+ "Opponents argue that raising the minimum wage kills jobs. But when our state raised its minimum wage last year, employment actually grew. So the opponents are wrong.",
+ "The argument responds to the opponents by",
+ ["attacking the opponents' motives rather than their claim.",
+  "citing a case whose outcome conflicts with the opponents' prediction.",
+  "redefining a key term the opponents use.",
+  "appealing to the opinion of experts.",
+  "showing the opponents' argument is circular."],1,
+ "It offers a counterexample: an actual wage hike that was followed by job growth, contrary to the prediction."],
+
+["l14","Inference","LR",1.2,null,
+ "No member of the debate team is on the chess team. Every student in Ms. Lee's class is on the chess team. Some students on the debate team have won awards.",
+ "Which one must be true?",
+ ["No student in Ms. Lee's class is on the debate team.",
+  "Some award winners are in Ms. Lee's class.",
+  "Every chess team member is in Ms. Lee's class.",
+  "No award winner is on the chess team.",
+  "Some students in Ms. Lee's class have won awards."],0,
+ "Ms. Lee's students are all on chess, and chess and debate share no members, so none of her students are on debate."],
+
+["l15","Parallel Flaw","LR",1.4,null,
+ "This medicine must be effective. It is the most expensive one on the shelf, and expensive products are usually high quality.",
+ "Which argument is most similar in its flawed reasoning?",
+ ["This car must be fast, because it is red, and red cars get more tickets.",
+  "This restaurant must be good, because it is crowded, and crowds show popularity.",
+  "This wine must be excellent, because it has the highest price, and pricey wines are generally superior.",
+  "This book must be long, because it is heavy, and heavy books have many pages.",
+  "This phone must be new, because its screen is cracked."],2,
+ "Both infer a specific quality from high price via a loose 'usually/generally' link; the wine argument mirrors that structure exactly."],
+
+["l16","Strengthen","LR",1.6,null,
+ "Researchers found that people who meditate daily have lower blood pressure than those who do not, and concluded that meditation lowers blood pressure.",
+ "Which one most strengthens the argument?",
+ ["Meditation is practiced worldwide.",
+  "Non-meditators who took up meditation showed measurable drops over six months, while a matched control group did not.",
+  "People with low blood pressure often feel calmer.",
+  "Meditation requires no equipment.",
+  "Blood pressure varies throughout the day."],1,
+ "A before/after change in the same people, with a control group holding steady, supports the causal direction the argument needs."],
+
+["l17","Assumption","LR",1.8,null,
+ "Any candidate who wins the primary and raises enough money will win the general election. Chen won the primary. So Chen will win the general election.",
+ "The argument assumes which one of the following?",
+ ["Chen will raise enough money.",
+  "No other candidate raised enough money.",
+  "Winning the primary is difficult.",
+  "Chen is the strongest candidate.",
+  "Raising money guarantees winning the primary."],0,
+ "The rule needs both conditions; only the primary win is stated, so the argument silently supplies the missing money condition."],
+
+["l18","Flaw","LR",2.0,null,
+ "The survey shows most residents want lower taxes. It also shows most residents want more public services. Therefore most residents hold contradictory views.",
+ "The reasoning is most vulnerable to the criticism that it",
+ ["assumes lower taxes and more services cannot both be achieved, when they might be, e.g. by cutting waste.",
+  "relies on a survey with a biased sample.",
+  "confuses what most people want with what is best.",
+  "treats two separate surveys as one.",
+  "generalizes from an unrepresentative group."],0,
+ "Wanting both is only contradictory if the two goals are truly incompatible; the argument just assumes that without support."],
+
+["l19","Weaken","LR",-0.5,null,
+ "Brand X batteries last longer than Brand Y, because in our test a Brand X battery powered a flashlight for 10 hours while a Brand Y lasted only 8.",
+ "Which one, if true, most weakens the argument?",
+ ["The test used a single battery of each brand.",
+  "Brand X costs more than Brand Y.",
+  "Both brands are widely sold.",
+  "The flashlight was new.",
+  "Brand Y is more popular."],0,
+ "A one-vs-one test can't support a general claim; a single unit could be an outlier either way."],
+
+["l20","Inference","LR",0.0,null,
+ "All the apples in the basket are ripe. Every ripe apple in the basket is red. Some apples in the basket are from Ms. Ortiz's orchard.",
+ "Which one must be true?",
+ ["Some red apples in the basket are from Ms. Ortiz's orchard.",
+  "All apples from Ms. Ortiz's orchard are red.",
+  "Every red apple in the basket is from Ms. Ortiz's orchard.",
+  "No unripe apples are red.",
+  "The basket holds only Ortiz apples."],0,
+ "Every basket apple is ripe and thus red; some basket apples are Ortiz's, so some red basket apples are Ortiz's."],
+
+["l21","Principle","LR",0.9,null,
+ "Principle: An action is fair only if the rules governing it were announced before the action took place.",
+ "Which judgment conforms to the principle?",
+ ["A teacher lowered a grade under a rule posted only after the work was submitted; this was fair.",
+  "A referee penalized a player under a rule announced at the start of the season; this was fair.",
+  "A landlord raised rent without notice; this was fair.",
+  "A manager fired an employee under a policy created that morning; this was fair.",
+  "A judge applied a law passed after the crime; this was fair."],1,
+ "Only the referee's rule was announced beforehand, satisfying the principle's requirement."],
+
+["l22","Strengthen","LR",0.3,null,
+ "Towns that fluoridate their water have fewer cavities per capita than towns that do not. Fluoridation must reduce cavities.",
+ "Which one most strengthens the argument?",
+ ["Fluoride is a naturally occurring mineral.",
+  "Among towns that later stopped fluoridating, cavity rates rose afterward.",
+  "Fluoridation is inexpensive.",
+  "Some people prefer bottled water.",
+  "Dentists recommend brushing twice daily."],1,
+ "Cavities rising when fluoridation stops adds a reversal that supports the causal claim rather than mere correlation."],
+
+["l23","Flaw","LR",1.5,null,
+ "Hospital A has a higher percentage of patients who recover than Hospital B. So Hospital A saves more patients than Hospital B each year.",
+ "The reasoning is flawed because it overlooks that",
+ ["Hospital B may treat far more patients, so a lower percentage could still be a greater number.",
+  "recovery is not the only measure of care.",
+  "some patients recover without treatment.",
+  "the hospitals may charge different prices.",
+  "percentages can be miscalculated."],0,
+ "A higher rate over a smaller caseload can still be fewer patients than a lower rate over a much larger one."],
+
+["l24","Resolve","LR",1.1,null,
+ "Umbrella sales at the store were higher in July than in April, even though far more rain fell in April than in July.",
+ "Which one most helps resolve the discrepancy?",
+ ["Umbrellas were on sale in April.",
+  "The store ran out of umbrellas for much of April and restocked heavily in July, when a festival drew record foot traffic.",
+  "April has fewer days than July.",
+  "Rain is common in the region.",
+  "Umbrellas are cheaper than raincoats."],1,
+ "Empty shelves in April plus a July traffic spike explain higher July sales despite the wetter April."],
+
+/* ---- RC: ecology ---- */
+["r1","Main Point","RC",0.3,"eco",null,
+ "Which one most accurately states the main point of the passage?",
+ ["Larger islands always support more species than smaller ones.",
+  "Predators are the single most important factor in biodiversity.",
+  "Habitat size sets a ceiling on possible diversity, but factors like predation determine actual diversity.",
+  "Ecologists were entirely wrong about island biodiversity.",
+  "Mid-sized islands are the most important habitats to protect."],2,
+ "The passage says size gives capacity for diversity while other factors decide whether it's realized, which is exactly option 3."],
+
+["r2","Inference","RC",0.8,"eco",null,
+ "The passage suggests that a large island with few dominant predators would most likely",
+ ["support fewer species than a mid-sized island.",
+  "support a relatively high diversity of species.",
+  "lose all its species over time.",
+  "be indistinguishable from a small island.",
+  "support only predator species."],1,
+ "Large islands have high capacity; without the predators that suppress diversity, that capacity should be realized as high diversity."],
+
+["r3","Function","RC",1.0,"eco",null,
+ "The author mentions that mid-sized islands host more species primarily to",
+ ["prove island size is irrelevant to diversity.",
+  "present evidence that complicates the simple size-diversity assumption.",
+  "argue that predators should be removed from large islands.",
+  "show that ecologists rarely survey islands.",
+  "recommend protecting mid-sized islands."],1,
+ "The observation is offered as the surprising data that 'complicates this picture,' not as a policy recommendation or a claim that size is irrelevant."],
+
+/* ---- RC: copyright ---- */
+["r4","Main Point","RC",0.5,"cpy",null,
+ "The passage is primarily concerned with",
+ ["proving that copyright law is unjust.",
+  "describing how copyright protection expanded and the debate over that expansion.",
+  "arguing that ideas should be copyrightable.",
+  "explaining how to register a copyright.",
+  "comparing copyright law across countries."],1,
+ "The passage traces the expansion of protection and lays out both sides of the resulting debate, without taking a side."],
+
+["r5","Inference","RC",1.1,"cpy",null,
+ "It can be inferred that under early copyright law, a writer who rephrased another's book in different words would",
+ ["have violated the original author's copyright.",
+  "not have violated the original author's copyright.",
+  "have been unable to publish the work.",
+  "have owned the original author's ideas.",
+  "have faced criminal charges."],1,
+ "Early law protected only exact reproduction, so different wording, even of the same content, would not have infringed."],
+
+["r6","Disagreement","RC",1.6,"cpy",null,
+ "According to the passage, critics and defenders of expanded copyright disagree primarily about",
+ ["whether creative production is a worthwhile goal.",
+  "which rules best promote creative production, though they share the same goal.",
+  "whether ideas themselves should be protected.",
+  "how copyright is enforced internationally.",
+  "whether early copyright law existed."],1,
+ "The passage explicitly says both sides share the goal of flourishing creative production and differ over which rules serve it."]
+];
+
+/* ---------- adaptive engine (Rasch + EAP) ---------- */
+const MIN_ITEMS=12, MAX_ITEMS=22, SE_STOP=0.42;
+const GRID=[]; for(let t=-4;t<=4.0001;t+=0.1) GRID.push(+t.toFixed(2));
+const PRIOR=GRID.map(t=>Math.exp(-0.5*(t/1.5)*(t/1.5)));
+const P=(t,b)=>1/(1+Math.exp(-(t-b)));
+
+let STATE, curOpts=[], curItem=null, waiting=false, locked=false;
+
+function fresh(){
+  return {given:[], resp:[], theta:0, se:1.5, traj:[], done:false};
+}
+function eap(resp){
+  let post=PRIOR.slice();
+  for(const r of resp){
+    for(let i=0;i<GRID.length;i++){
+      const p=P(GRID[i],r.b);
+      post[i]*= r.x? p : (1-p);
+    }
+  }
+  let s=0; for(const w of post) s+=w;
+  let mean=0; for(let i=0;i<GRID.length;i++) mean+=GRID[i]*post[i]/s;
+  let v=0; for(let i=0;i<GRID.length;i++) v+=(GRID[i]-mean)*(GRID[i]-mean)*post[i]/s;
+  return {theta:mean, se:Math.sqrt(v)};
+}
+function selectNext(){
+  const t=STATE.theta;
+  const pool=BANK.filter(it=>!STATE.given.includes(it[0]));
+  if(!pool.length) return null;
+  pool.sort((a,b)=>{
+    const ia=P(t,a[3])*(1-P(t,a[3])), ib=P(t,b[3])*(1-P(t,b[3]));
+    return ib-ia;
+  });
+  const top=pool.slice(0,Math.min(3,pool.length));
+  return top[Math.floor(Math.random()*top.length)];
+}
+function stop(){
+  const n=STATE.given.length;
+  if(n>=MAX_ITEMS) return true;
+  if(n>=MIN_ITEMS && STATE.se<SE_STOP) return true;
+  if(n>=BANK.length) return true;
+  return false;
+}
+
+/* ---------- rendering ---------- */
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const LTR=["A","B","C","D","E"];
+
+function renderItem(it){
+  curItem=it; waiting=false; locked=false;
+  $("qnum").textContent=STATE.given.length+1;
+  $("secLbl").textContent=it[2]==="RC"?"Reading Comprehension":"Logical Reasoning";
+  $("prog").style.width=Math.min(100,(STATE.given.length/MAX_ITEMS)*100)+"%";
+
+  curOpts=shuffle(it[7].map((text,oi)=>({oi,text})));
+  const passage= it[4]? `<div class="passage">${PASSAGES[it[4]]}</div>` : "";
+  const optsHtml=curOpts.map((o,di)=>
+    `<button class="ans" data-disp="${di}"><span class="ltr">${LTR[di]}</span><span>${o.text}</span></button>`
+  ).join("");
+  $("card").innerHTML=
+    `<span class="badge">${it[1]}</span>`+passage+
+    (it[5]?`<div class="stim">${it[5]}</div>`:"")+
+    `<div class="stem">${it[6]}</div>`+
+    `<div class="opts" id="opts">${optsHtml}</div>`+
+    `<div class="expl" id="expl"></div>`+
+    `<button class="next" id="nextBtn">Next</button>`;
+  document.querySelectorAll("#opts .ans").forEach(b=>b.onclick=()=>choose(+b.dataset.disp));
+  $("nextBtn").onclick=advance;
+}
+
+function choose(di){
+  if(locked) return; locked=true;
+  const chosen=curOpts[di];
+  const correctOi=curItem[8];
+  const isRight=chosen.oi===correctOi;
+  document.querySelectorAll("#opts .ans").forEach(b=>{
+    const o=curOpts[+b.dataset.disp];
+    b.disabled=true;
+    if(o.oi===correctOi) b.classList.add("correct");
+    else if(+b.dataset.disp===di) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  STATE.given.push(curItem[0]);
+  STATE.resp.push({b:curItem[3], x:isRight?1:0});
+  const est=eap(STATE.resp);
+  STATE.theta=est.theta; STATE.se=est.se;
+  STATE.traj.push(est.theta);
+
+  const e=$("expl");
+  e.className="expl show "+(isRight?"ok":"no");
+  e.innerHTML=`<div class="h">${isRight?"Correct":"Incorrect"}</div>${curItem[9]}`;
+  $("nextBtn").classList.add("show");
+  waiting=true;
+  save();
+}
+
+function advance(){
+  if(stop()){ finish(); return; }
+  renderItem(selectNext());
+}
+
+/* ---------- results ---------- */
+function scaleScore(theta){return Math.max(120,Math.min(180,Math.round(150+theta*10.5)));}
+function finish(){
+  STATE.done=true; save();
+  $("test").classList.add("hide");
+  const box=$("results"); box.classList.remove("hide");
+  const sc=scaleScore(STATE.theta);
+  const bandPts=Math.max(1,Math.round(STATE.se*10.5));
+  const lo=Math.max(120,sc-bandPts), hi=Math.min(180,sc+bandPts);
+  const pct=(v)=>((v-120)/60)*100;
+
+  // per-type accuracy
+  const rows={};
+  STATE.resp.forEach((r,i)=>{
+    const it=BANK.find(b=>b[0]===STATE.given[i]);
+    const k=it[1];
+    rows[k]=rows[k]||{n:0,c:0};
+    rows[k].n++; rows[k].c+=r.x;
+  });
+  const trows=Object.entries(rows).sort((a,b)=>b[1].n-a[1].n).map(([k,v])=>
+    `<tr><td>${k}</td><td class="n">${v.c}/${v.n}</td></tr>`).join("");
+  const totC=STATE.resp.reduce((s,r)=>s+r.x,0);
+
+  // sparkline of theta trajectory
+  const W=320,H=64,pad=6;
+  const ts=STATE.traj;
+  const mn=Math.min(-2,...ts), mx=Math.max(2,...ts);
+  const pts=ts.map((t,i)=>{
+    const x=pad+(i/(Math.max(1,ts.length-1)))*(W-2*pad);
+    const y=H-pad-((t-mn)/(mx-mn))*(H-2*pad);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+
+  box.innerHTML=`
+    <div class="card result">
+      <div class="band">Estimated LSAT score</div>
+      <div class="score">${sc}</div>
+      <div class="band">68% confidence band: ${lo}–${hi} &nbsp;·&nbsp; ${STATE.given.length} items · ${totC}/${STATE.given.length} correct</div>
+      <div class="scale">
+        <div class="se" style="left:${pct(lo)}%;width:${pct(hi)-pct(lo)}%"></div>
+        <div class="tick" style="left:${pct(sc)}%"></div>
+      </div>
+      <div class="scaleL"><span>120</span><span>150</span><span>180</span></div>
+
+      <div class="spark">
+        <svg width="100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="max-width:340px">
+          <line x1="${pad}" y1="${(H-pad-((0-mn)/(mx-mn))*(H-2*pad)).toFixed(1)}" x2="${W-pad}" y2="${(H-pad-((0-mn)/(mx-mn))*(H-2*pad)).toFixed(1)}" stroke="#d6dee5" stroke-width="1"/>
+          <polyline points="${pts}" fill="none" stroke="#159fc9" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        <div class="band">Ability estimate over the test (θ)</div>
+      </div>
+
+      <table class="tbl"><thead><tr><th>Question type</th><th class="n">Score</th></tr></thead>
+        <tbody>${trows}</tbody></table>
+
+      <div class="note">Synthetic mapping. θ is the EAP ability estimate in logits; scaled score = 150 + 10.5·θ, clamped to 120–180. Items are original LSAT-style, not real LSAC questions, and difficulties are hand-tagged, so treat this as directional practice, not a predicted official score.</div>
+      <button class="again" id="againBtn">Take it again</button>
+    </div>`;
+  $("againBtn").onclick=()=>{restart();};
+  window.scrollTo(0,0);
+}
+
+/* ---------- persistence / lifecycle ---------- */
+const LS="lsatcat_v1";
+function save(){try{localStorage.setItem(LS,JSON.stringify(STATE));}catch(e){}}
+function load(){try{const s=localStorage.getItem(LS);return s?JSON.parse(s):null;}catch(e){return null;}}
+function restart(){
+  localStorage.removeItem(LS);
+  STATE=fresh();
+  $("results").classList.add("hide"); $("results").innerHTML="";
+  $("test").classList.remove("hide");
+  renderItem(selectNext());
+}
+$("resetBtn").onclick=()=>{ if(confirm("Reset this test and clear progress?")) restart(); };
+
+document.addEventListener("keydown",e=>{
+  if(STATE&&STATE.done) return;
+  if(waiting && (e.key==="Enter"||e.key===" ")){e.preventDefault();advance();return;}
+  if(!locked){
+    const k=e.key.toUpperCase();
+    const idx="ABCDE".indexOf(k); const num="12345".indexOf(e.key);
+    const di= idx>=0?idx : num;
+    if(di>=0 && di<curOpts.length) choose(di);
+  }
+});
+
+(function init(){
+  const saved=load();
+  if(saved && !saved.done && saved.given.length){
+    STATE=saved;
+    if(stop()){ finish(); return; }
+    renderItem(selectNext());
+  } else if(saved && saved.done){
+    STATE=saved; finish();
+  } else {
+    STATE=fresh();
+    renderItem(selectNext());
+  }
+})();
+</script>
+</body>
+</html>
