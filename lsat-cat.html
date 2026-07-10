@@ -1,622 +1,415 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Adaptive Mock LSAT</title>
-<meta property="og:title" content="Adaptive Mock LSAT">
-<meta property="og:description" content="A computer-adaptive LSAT-style practice test. EAP ability estimation over an original item bank, mapped to a synthetic 120-180 scaled score with a standard-error band.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LSAT CAT — Adaptive Mock</title>
+<meta property="og:title" content="LSAT CAT — Computer Adaptive Mock LSAT">
+<meta property="og:description" content="Adaptive LSAT Logical Reasoning mock: 20 questions in 35 minutes, difficulty adjusts to you, IRT scoring on the 120-180 scale with full review.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/lsat-cat-og-wide.jpg">
 <meta property="og:url" content="https://niggerfaggot.club/lsat-cat">
-<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/lsat-cat-og.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/lsat-cat-og.jpg">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/lsat-cat-og-wide.jpg">
+<script>
+(function(){try{var s=localStorage.getItem('cg-theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.setAttribute('data-theme', s||(m?'dark':'light'));}catch(e){}})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#e9edf0; --panel:#fff; --ink:#1c2733; --sub:#5b6b7a;
-  --teal:#159fc9; --green:#43a047; --red:#e23b3b; --amber:#e8a33d;
-  --line:#dbe2e8; --pick:#eef6fb;
+  --grad:linear-gradient(158deg,#c4e6f4 0%,#dcefe8 50%,#f5eddf 100%);
+  --blob-a:#f6a8a0; --blob-b:#a3ddc6; --blob-c:#c4b4e6; --blob-d:#f4d79a; --blob-op:.5;
+  --text:#163a5f; --slate:#5b7a99; --muted:#8aa3b8; --navy:#163a5f;
+  --sky:#1f93cc; --sky-deep:#13567a; --sky-tint:rgba(31,147,204,0.16);
+  --coral:#f6a8a0; --mint:#a3ddc6; --butter:#f4d79a; --lav:#c4b4e6;
+  --cta-bg:#163a5f; --cta-fg:#ffffff; --cta-bg-h:#1f4d77;
+  --glass:rgba(255,255,255,0.52); --glass-strong:rgba(255,255,255,0.68); --glass-hover:#ffffff; --glass-solid:#f4f8fb;
+  --field:rgba(255,255,255,0.55); --field-solid:#ffffff;
+  --hair:rgba(255,255,255,0.55);
+  --shadow:0 8px 28px rgba(20,55,90,0.16);
+  --specular:inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(120,150,180,0.14);
+  --row-line:rgba(120,150,180,0.14); --row-line-2:rgba(120,150,180,0.25);
+  --coral-tint:rgba(246,168,160,0.28); --coral-ink:#9c3a30;
+  --mint-tint:rgba(163,221,198,0.30); --mint-ink:#2f6b54;
+  --butter-tint:rgba(244,215,154,0.36); --butter-ink:#7a5a13;
+  --lav-tint:rgba(196,180,230,0.32); --lav-ink:#5a4a86;
+  --good:#2f6b54; --bad:#9c3a30;
+  --radius:16px; --radius-lg:22px; --bg-base:#c4e6f4;
 }
-*{box-sizing:border-box}
-html,body{overflow-x:hidden}
-body{margin:0;background:var(--bg);color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  -webkit-font-smoothing:antialiased;line-height:1.5}
-.wrap{max-width:760px;margin:0 auto;padding:18px 16px 60px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-h1{font-size:19px;margin:0;font-weight:700;letter-spacing:-.2px}
-.sub{font-size:12px;color:var(--sub);margin-top:2px}
-.reset{font-size:12px;color:var(--sub);text-decoration:none;border:1px solid var(--line);
-  padding:5px 10px;border-radius:8px;background:#fff;cursor:pointer}
-.reset:hover{color:var(--red);border-color:var(--red)}
-
-.bar{height:6px;background:#d6dee5;border-radius:6px;overflow:hidden;margin:6px 0 16px}
-.bar>i{display:block;height:100%;width:0;background:var(--teal);transition:width .3s}
-
-.meta{display:flex;gap:14px;font-size:12px;color:var(--sub);margin-bottom:10px;flex-wrap:wrap}
-.meta b{color:var(--ink)}
-.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;
-  color:var(--teal);background:var(--pick);border:1px solid #cfe7f2;padding:3px 8px;border-radius:6px}
-
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
-  padding:18px 18px 16px;box-shadow:0 1px 2px rgba(20,40,60,.05)}
-.passage{background:#f6f8fa;border:1px solid var(--line);border-radius:10px;padding:12px 14px;
-  font-size:14px;max-height:210px;overflow-y:auto;margin:12px 0 4px;color:#2a3948}
-.stim{font-size:15.5px;margin:12px 0}
-.stem{font-size:15.5px;font-weight:600;margin:12px 0 14px}
-.opts{display:flex;flex-direction:column;gap:9px}
-.ans{display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;
-  background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 13px;
-  font:inherit;font-size:15px;color:var(--ink);cursor:pointer;transition:.12s}
-.ans:hover{border-color:var(--teal);background:var(--pick)}
-.ans .ltr{flex:0 0 22px;height:22px;border-radius:6px;background:#eef2f6;color:var(--sub);
-  font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:1px}
-.ans.correct{border-color:var(--green);background:#edf7ee}
-.ans.correct .ltr{background:var(--green);color:#fff}
-.ans.wrong{border-color:var(--red);background:#fcecec}
-.ans.wrong .ltr{background:var(--red);color:#fff}
-.ans.dim{opacity:.55}
-.ans:disabled{cursor:default}
-
-.expl{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:14px;display:none}
-.expl.show{display:block}
-.expl.ok{background:#edf7ee;border:1px solid #bfe3c2}
-.expl.no{background:#fcecec;border:1px solid #f0c4c4}
-.expl .h{font-weight:700;margin-bottom:3px}
-.next{margin-top:14px;display:none;width:100%;background:var(--teal);color:#fff;border:0;
-  border-radius:10px;padding:13px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
-.next.show{display:block}
-.next:hover{filter:brightness(1.05)}
-
+:root[data-theme="dark"]{
+  --grad:linear-gradient(158deg,#0c2733 0%,#0e1f33 52%,#10182a 100%);
+  --blob-a:#c2685f; --blob-b:#2f7d6a; --blob-c:#6a5a96; --blob-d:#9a7a3a; --blob-op:.4;
+  --text:#e8f0f7; --slate:#9fb4c8; --muted:#6f8aa3;
+  --sky:#46b4e6; --sky-deep:#a6daf0; --sky-tint:rgba(70,180,230,0.18);
+  --cta-bg:#34a9dd; --cta-fg:#08243a; --cta-bg-h:#52b9e8;
+  --glass:rgba(26,50,76,0.5); --glass-strong:rgba(34,60,90,0.66); --glass-hover:rgba(42,70,102,0.82); --glass-solid:#15263a;
+  --field:rgba(255,255,255,0.07); --field-solid:#1b3046;
+  --hair:rgba(255,255,255,0.14);
+  --shadow:0 10px 34px rgba(0,10,25,0.45);
+  --specular:inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,18,36,0.3);
+  --row-line:rgba(255,255,255,0.08); --row-line-2:rgba(255,255,255,0.16);
+  --coral-ink:#f2a69e; --mint-ink:#a6e0c9; --butter-ink:#f3d99f; --lav-ink:#c9bbe9;
+  --good:#a6e0c9; --bad:#f2a69e; --bg-base:#0c2733;
+}
+*{box-sizing:border-box;}
+html{background-image:var(--grad);background-color:var(--bg-base);min-height:100%;}
+html,body{overflow-x:hidden;}
+body{margin:0;color:var(--text);font-family:'Nunito',system-ui,sans-serif;font-size:16px;line-height:1.6;background:transparent;min-height:100vh;-webkit-font-smoothing:antialiased;transition:color .25s ease;}
+.bg-blobs{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;}
+.bg-blobs span{position:absolute;border-radius:50%;filter:blur(60px);opacity:var(--blob-op);transition:background .3s ease;}
+.b1{width:46vw;height:46vw;background:var(--blob-a);top:-10vw;right:-8vw;}
+.b2{width:42vw;height:42vw;background:var(--blob-b);bottom:-12vw;left:-6vw;}
+.b3{width:30vw;height:30vw;background:var(--blob-c);top:40vh;right:18vw;}
+.b4{width:26vw;height:26vw;background:var(--blob-d);top:62vh;left:10vw;}
+h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;line-height:1.12;color:var(--text);margin:0;}
+.mono{font-family:'JetBrains Mono',monospace;}
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);border:1px solid var(--hair);box-shadow:var(--specular),var(--shadow);transition:background .25s ease,border-color .25s ease;}
+nav{position:sticky;top:12px;z-index:50;margin:12px auto 0;max-width:820px;padding:0 16px;}
+.navbar{display:flex;align-items:center;gap:12px;border-radius:18px;padding:10px 16px;}
+.brand{font-family:'Fraunces',serif;font-weight:600;font-size:18px;color:var(--text);}
+.nav-spacer{flex:1;}
+.ghost-btn{width:34px;height:34px;border-radius:50%;background:var(--glass-strong);border:1px solid var(--hair);color:var(--text);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);}
+.ghost-btn:hover{background:var(--glass-hover);}
+.wrap{max-width:820px;margin:0 auto;padding:24px 16px 60px;}
+.btn{font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;border-radius:14px;padding:12px 24px;cursor:pointer;border:1px solid transparent;transition:transform .08s ease,background .15s ease;display:inline-flex;align-items:center;gap:8px;}
+.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--cta-bg);color:var(--cta-fg);}
+.btn-primary:hover{background:var(--cta-bg-h);}
+.btn-glass{background:var(--glass-strong);color:var(--text);border-color:var(--hair);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+.panel{border-radius:var(--radius-lg);padding:26px;}
+.pill{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;padding:4px 10px;border-radius:10px;display:inline-block;}
+.p-sky{background:var(--sky-tint);color:var(--sky-deep);}
+.p-coral{background:var(--coral-tint);color:var(--coral-ink);}
+.p-mint{background:var(--mint-tint);color:var(--mint-ink);}
+.p-butter{background:var(--butter-tint);color:var(--butter-ink);}
+.p-lav{background:var(--lav-tint);color:var(--lav-ink);}
+.screen{display:none;}
+.screen.on{display:block;}
+/* start */
+.hero h1{font-size:clamp(34px,7vw,52px);letter-spacing:-.01em;}
+.hero p.lede{font-size:17px;color:var(--slate);margin:12px 0 20px;font-weight:500;max-width:52ch;}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0 24px;}
+.spec{border-radius:var(--radius);padding:14px 16px;}
+.spec .lbl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;}
+.spec .val{font-family:'Fraunces',serif;font-size:24px;font-weight:600;margin-top:2px;}
+.hist{margin-top:26px;}
+.hist h3{font-size:17px;margin-bottom:8px;}
+.hist-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--row-line);font-size:14px;color:var(--slate);}
+.hist-row .sc{font-family:'JetBrains Mono',monospace;color:var(--text);font-weight:600;}
+/* test */
+.hud{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.hud .qnum{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--slate);}
+.hud .timer{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;margin-left:auto;padding:5px 12px;border-radius:10px;background:var(--sky-tint);color:var(--sky-deep);}
+.hud .timer.low{background:var(--coral-tint);color:var(--coral-ink);}
+.prog{height:5px;border-radius:3px;background:var(--row-line);overflow:hidden;margin-bottom:18px;}
+.prog i{display:block;height:100%;background:var(--sky);border-radius:3px;transition:width .3s ease;}
+.stim{font-size:16.5px;margin:0 0 16px;}
+.stem{font-weight:700;font-size:15.5px;margin:0 0 16px;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;font-family:'Nunito',sans-serif;font-size:15px;line-height:1.5;color:var(--text);background:var(--field);border:1px solid var(--hair);border-radius:14px;padding:12px 14px;cursor:pointer;transition:background .12s ease,border-color .12s ease;}
+.opt:hover{border-color:var(--sky);background:var(--glass-hover);}
+.opt .ltr{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:13px;flex:0 0 26px;height:26px;border-radius:8px;background:var(--sky-tint);color:var(--sky-deep);display:inline-flex;align-items:center;justify-content:center;margin-top:1px;}
 /* results */
-.result{text-align:center}
-.score{font-size:64px;font-weight:800;letter-spacing:-1px;line-height:1;margin:6px 0}
-.band{font-size:14px;color:var(--sub);margin-bottom:4px}
-.scale{position:relative;height:10px;background:linear-gradient(90deg,#e2b4b4,#e8d7a3,#bfe3c2);
-  border-radius:8px;margin:18px 4px 6px}
-.scale .tick{position:absolute;top:-4px;width:3px;height:18px;background:var(--ink);border-radius:2px;transform:translateX(-50%)}
-.scale .se{position:absolute;top:1px;height:8px;background:rgba(28,39,51,.25);border-radius:6px}
-.scaleL{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin:0 4px}
-.tbl{width:100%;border-collapse:collapse;margin-top:18px;font-size:13.5px}
-.tbl th,.tbl td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left}
-.tbl th{color:var(--sub);font-weight:600;font-size:12px}
-.tbl td.n{text-align:right;font-variant-numeric:tabular-nums}
-.spark{margin:16px 0 4px}
-.note{font-size:12px;color:var(--sub);margin-top:14px;line-height:1.5}
-.again{margin-top:18px;background:var(--teal);color:#fff;border:0;border-radius:10px;
-  padding:13px 22px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
-.hide{display:none}
+.score-big{font-family:'Fraunces',serif;font-size:clamp(60px,15vw,96px);font-weight:600;line-height:1;}
+.score-sub{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--slate);margin-top:6px;}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:20px 0;}
+canvas{width:100%;height:220px;display:block;}
+.rev-item{border-radius:var(--radius);margin-bottom:10px;overflow:hidden;}
+.rev-head{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;font-size:14px;font-weight:600;}
+.rev-head .mk{font-family:'JetBrains Mono',monospace;font-weight:600;}
+.rev-head .mk.good{color:var(--good);}
+.rev-head .mk.bad{color:var(--bad);}
+.rev-body{display:none;padding:0 16px 16px;font-size:14.5px;color:var(--text);}
+.rev-item.open .rev-body{display:block;}
+.rev-body .ro{padding:7px 10px;border-radius:10px;margin:4px 0;border:1px solid transparent;}
+.rev-body .ro.key{background:var(--mint-tint);border-color:var(--mint);color:var(--text);font-weight:600;}
+.rev-body .ro.yours{border-color:var(--coral);background:var(--coral-tint);}
+.rev-body .expl{margin-top:10px;font-size:14px;color:var(--slate);border-top:1px solid var(--row-line);padding-top:10px;}
+svg.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.sun{display:none;} .moon{display:inline-flex;}
+:root[data-theme="dark"] .sun{display:inline-flex;} :root[data-theme="dark"] .moon{display:none;}
+@supports not ((backdrop-filter:blur(4px)) or (-webkit-backdrop-filter:blur(4px))){
+  .glass,.btn-glass,.ghost-btn{background:var(--glass-solid);}
+}
+@media (prefers-reduced-transparency:reduce){
+  .glass,.btn-glass,.ghost-btn{background:var(--glass-solid);-webkit-backdrop-filter:none;backdrop-filter:none;}
+  .opt{background:var(--field-solid);}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>Adaptive Mock LSAT</h1>
-      <div class="sub">CAT engine over an original LSAT-style bank</div>
-    </div>
-    <button class="reset" id="resetBtn">reset</button>
-  </header>
+<div class="bg-blobs"><span class="b1"></span><span class="b2"></span><span class="b3"></span><span class="b4"></span></div>
+<nav><div class="navbar glass">
+  <span class="brand">LSAT CAT</span>
+  <span class="pill p-lav">adaptive</span>
+  <span class="nav-spacer"></span>
+  <button class="ghost-btn" id="themeBtn" aria-label="Toggle theme">
+    <svg class="ic sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    <svg class="ic moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+  </button>
+</div></nav>
+<main class="wrap">
 
-  <div class="bar"><i id="prog"></i></div>
-
-  <div id="test">
-    <div class="meta">
-      <span>Item <b id="qnum">1</b></span>
-      <span id="secLbl"></span>
-    </div>
-    <div class="card" id="card"></div>
+<section id="start" class="screen on">
+  <div class="hero">
+    <h1>Adaptive Mock LSAT</h1>
+    <p class="lede">One Logical Reasoning section, computer adaptive. Every answer updates an ability estimate and the next question is picked to match it. Right answers pull harder items, wrong answers pull easier ones. No going back, no skipping, same as a real CAT.</p>
   </div>
+  <div class="specs">
+    <div class="spec glass"><div class="lbl">Questions</div><div class="val">20</div></div>
+    <div class="spec glass"><div class="lbl">Time</div><div class="val">35:00</div></div>
+    <div class="spec glass"><div class="lbl">Scale</div><div class="val">120–180</div></div>
+    <div class="spec glass"><div class="lbl">Model</div><div class="val mono" style="font-size:16px;padding-top:6px">Rasch / EAP</div></div>
+  </div>
+  <button class="btn btn-primary" id="startBtn">Start section</button>
+  <div class="hist" id="histBox" style="display:none">
+    <h3>Past attempts</h3>
+    <div id="histRows"></div>
+  </div>
+</section>
 
-  <div id="results" class="hide"></div>
-</div>
+<section id="test" class="screen">
+  <div class="hud">
+    <span class="qnum" id="qnum">Question 1 of 20</span>
+    <span class="pill p-butter" id="qtype"></span>
+    <span class="timer" id="timer">35:00</span>
+  </div>
+  <div class="prog"><i id="progBar" style="width:0%"></i></div>
+  <div class="panel glass">
+    <p class="stim" id="stim"></p>
+    <p class="stem" id="stem"></p>
+    <div class="opts" id="opts"></div>
+  </div>
+</section>
 
+<section id="results" class="screen">
+  <div class="panel glass" style="text-align:center">
+    <div class="pill p-sky">scaled score</div>
+    <div class="score-big" id="scoreBig">150</div>
+    <div class="score-sub" id="scoreSub"></div>
+  </div>
+  <div class="res-grid">
+    <div class="spec glass"><div class="lbl">Correct</div><div class="val" id="rCorrect"></div></div>
+    <div class="spec glass"><div class="lbl">Ability θ</div><div class="val mono" id="rTheta" style="font-size:20px;padding-top:4px"></div></div>
+    <div class="spec glass"><div class="lbl">SEM</div><div class="val mono" id="rSem" style="font-size:20px;padding-top:4px"></div></div>
+    <div class="spec glass"><div class="lbl">Time used</div><div class="val mono" id="rTime" style="font-size:20px;padding-top:4px"></div></div>
+  </div>
+  <div class="panel glass" style="margin-bottom:20px">
+    <h3 style="font-size:17px;margin-bottom:6px">Ability trace</h3>
+    <p style="font-size:13px;color:var(--slate);margin:0 0 8px">Estimate after each question. Green = correct, red = miss. Band = ±1 SEM.</p>
+    <canvas id="trace" width="760" height="220"></canvas>
+  </div>
+  <h3 style="font-size:18px;margin-bottom:10px">Review</h3>
+  <div id="review"></div>
+  <div style="margin-top:20px;display:flex;gap:10px">
+    <button class="btn btn-primary" id="againBtn">Take another</button>
+  </div>
+</section>
+
+</main>
 <script>
-/* ---------- item bank ----------
-   [id, type, section, b, passageId|null, stimulus, stem, [5 options], correctIndex, explanation]
-   b = Rasch difficulty (logits). section: "LR" or "RC". */
-const PASSAGES = {
-  eco:"For decades, ecologists assumed that biodiversity rose steadily with a habitat's size: bigger islands, more species. Recent long-term surveys complicate this picture. On several island chains, mid-sized islands host more species than the largest islands nearby. Researchers propose that the largest islands, precisely because they support large populations of a few dominant predators, may drive smaller competing species to local extinction. Mid-sized islands, lacking the resources to sustain such predators, leave room for a wider variety of species to coexist. The finding does not overturn the size-diversity relationship so much as qualify it: size increases the capacity for diversity, but other factors, including predation, determine whether that capacity is realized.",
-  cpy:"Early copyright law protected only against exact reproduction of a text. A rival could copy an author's ideas freely, provided the wording differed. Over the nineteenth century, courts expanded protection to cover close paraphrase and, eventually, a work's distinctive structure and expression, though never the underlying ideas themselves. Critics argue this expansion, meant to reward creators, increasingly restricts the very borrowing on which new creative work depends. Defenders reply that without such protection, authors would have little incentive to produce original work at all. The debate persists because both sides appeal to the same goal, the flourishing of creative production, while disagreeing about which rules best serve it."
-};
-
-const BANK = [
-["l1","Weaken","LR",-1.6,null,
- "After Riverside Elementary switched to a later start time, average student test scores rose the following year. The principal concluded the later start time improved academic performance.",
- "Which one of the following, if true, most weakens the principal's conclusion?",
- ["The later start time was popular with parents.",
-  "That same year the school also hired several experienced teachers and cut class sizes.",
-  "Test scores are only one measure of academic performance.",
-  "Some students still arrived late despite the new start time.",
-  "A neighboring school kept its original start time."],1,
- "The gains have a strong alternative cause (better teachers, smaller classes) that arrived at the same time, so the start time need not be doing the work."],
-
-["l2","Strengthen","LR",-1.4,null,
- "A supplement maker claims its vitamin D pills prevent colds. In a study, people who took the pills daily reported fewer colds than those who did not.",
- "Which one of the following, if true, most strengthens the claim?",
- ["The pills are inexpensive to produce.",
-  "Pill-takers were otherwise similar in age, diet, and health to non-takers.",
-  "Vitamin D is found naturally in sunlight.",
-  "The study lasted only one winter.",
-  "Some participants disliked swallowing pills."],1,
- "Ruling out obvious confounders (the two groups were otherwise alike) makes the pills the more likely cause of the difference."],
-
-["l3","Flaw","LR",-1.0,null,
- "Every philosophy major I have met enjoys debate. Therefore anyone who enjoys debate is probably a philosophy major.",
- "The reasoning is flawed because it",
- ["relies on a sample too small to support any conclusion.",
-  "confuses a claim that one thing leads to another with the claim that the second leads to the first.",
-  "assumes what it sets out to prove.",
-  "draws a conclusion about a group from facts about one individual.",
-  "uses a key term in two different senses."],1,
- "It reverses the conditional: 'majors enjoy debate' does not give you 'debate-lovers are majors.'"],
-
-["l4","Inference","LR",-0.8,null,
- "All the paintings in the east wing are landscapes. None of the landscapes in the museum are for sale. Some paintings in the east wing were donated by the founder.",
- "If the statements are true, which one must also be true?",
- ["All donated paintings are landscapes.",
-  "Some paintings donated by the founder are not for sale.",
-  "The east wing holds every landscape in the museum.",
-  "No paintings in the museum are for sale.",
-  "The founder donated only landscapes."],1,
- "East-wing paintings are landscapes, landscapes aren't for sale, and some east-wing paintings are founder-donated, so some founder-donated paintings aren't for sale."],
-
-["l5","Assumption","LR",-0.9,null,
- "Maria will make an excellent lawyer. She is a superb public speaker.",
- "The argument assumes which one of the following?",
- ["Being a superb public speaker contributes to being an excellent lawyer.",
-  "All lawyers are public speakers.",
-  "Maria wants to be a lawyer.",
-  "Public speaking is difficult to learn.",
-  "Excellent lawyers are rare."],0,
- "The argument only works if the one cited trait actually bears on being a good lawyer; otherwise the premise is irrelevant to the conclusion."],
-
-["l6","Assumption","LR",-0.4,null,
- "The new highway will reduce downtown traffic, because it gives commuters a faster route around the city center.",
- "The argument assumes which one of the following?",
- ["The highway will be the fastest route for all commuters.",
-  "At least some commuters who now drive downtown will use the new route instead.",
-  "Downtown traffic is the worst in the region.",
-  "The highway will be free to use.",
-  "No new commuters will move to the area."],1,
- "A bypass only cuts downtown traffic if some current downtown drivers actually switch to it."],
-
-["l7","Resolve","LR",-0.2,null,
- "Bookstore A and Bookstore B sell the same books at the same prices. Yet customers consistently report spending less per visit at Store A than at Store B.",
- "Which one, if true, most helps explain the difference?",
- ["Store A is larger than Store B.",
-  "Store B is located near a busy shopping mall.",
-  "Store A puts few books near the register, while Store B lines its checkout with impulse buys.",
-  "Both stores run frequent sales.",
-  "Store A has been open longer than Store B."],2,
- "Impulse purchases at B's checkout explain higher per-visit spending despite identical prices."],
-
-["l8","Main Point","LR",-0.6,null,
- "Critics say the ferry loses money and should be cut. But the ferry lets hundreds of workers reach jobs they could not otherwise reach, and the taxes those workers pay exceed the ferry's operating deficit. Cutting it would cost the city more than it saves.",
- "Which one most accurately expresses the main conclusion?",
- ["The ferry service loses money each year.",
-  "Hundreds of workers depend on the ferry.",
-  "Eliminating the ferry would cost the city more than keeping it.",
-  "Ferry riders pay taxes.",
-  "Critics are mistaken about ridership."],2,
- "The other statements are premises; the final claim (cutting costs more than it saves) is what they support."],
-
-["l9","Parallel","LR",0.4,null,
- "If the bridge were safe, it would have passed inspection. It did not pass inspection. So the bridge is not safe.",
- "Which one is most similar in its reasoning?",
- ["If it rained, the streets would be wet. The streets are wet. So it rained.",
-  "If the cake were done, a toothpick would come out clean. It did not. So the cake is not done.",
-  "If she studied, she passed. She passed. So she studied.",
-  "All dogs bark. Rex barks. So Rex is a dog.",
-  "If the alarm works, it will sound. It sounded. So it works."],1,
- "The original is valid modus tollens (if P then Q; not Q; so not P). Only the cake argument matches that exact form."],
-
-["l10","Principle","LR",0.2,null,
- "Principle: A person should not be blamed for an outcome they could not reasonably have foreseen.",
- "Which judgment best conforms to the principle?",
- ["A driver who ran a red light and caused a crash should not be blamed, since crashes are common.",
-  "A chef should not be blamed for a guest's reaction to an undisclosed, uncommon allergen.",
-  "A contractor should not be blamed for using materials known to be defective.",
-  "A student should not be blamed for failing a test they never studied for.",
-  "A pilot should be blamed for a delay caused by a sudden, unpredicted storm."],1,
- "Only the chef faced something genuinely unforeseeable; the others involve foreseeable or known risks, or misapply the principle."],
-
-["l11","Weaken","LR",0.6,null,
- "Since installing security cameras, the parking garage recorded 40% fewer thefts. Clearly the cameras deter theft.",
- "Which one, if true, most weakens the argument?",
- ["The cameras were expensive to install.",
-  "Citywide garage thefts fell 40% that year after a major theft ring was arrested.",
-  "Some drivers dislike being recorded.",
-  "The cameras record in high definition.",
-  "A few thefts still occurred after installation."],1,
- "A citywide drop of the same size points to a common external cause, undercutting the claim that these cameras did it."],
-
-["l12","Assumption","LR",0.8,null,
- "The museum's new exhibit will succeed. It features the most popular living artists, and popular artists draw large crowds.",
- "The argument depends on assuming which one?",
- ["The exhibit's success depends, at least in part, on drawing large crowds.",
-  "These artists are more popular than any artists of the past.",
-  "The exhibit will be free to enter.",
-  "No other museum features these artists.",
-  "Every popular artist draws a large crowd."],0,
- "If attendance had nothing to do with what counts as success here, drawing crowds would not support the conclusion at all."],
-
-["l13","Method","LR",1.0,null,
- "Opponents argue that raising the minimum wage kills jobs. But when our state raised its minimum wage last year, employment actually grew. So the opponents are wrong.",
- "The argument responds to the opponents by",
- ["attacking the opponents' motives rather than their claim.",
-  "citing a case whose outcome conflicts with the opponents' prediction.",
-  "redefining a key term the opponents use.",
-  "appealing to the opinion of experts.",
-  "showing the opponents' argument is circular."],1,
- "It offers a counterexample: an actual wage hike that was followed by job growth, contrary to the prediction."],
-
-["l14","Inference","LR",1.2,null,
- "No member of the debate team is on the chess team. Every student in Ms. Lee's class is on the chess team. Some students on the debate team have won awards.",
- "Which one must be true?",
- ["No student in Ms. Lee's class is on the debate team.",
-  "Some award winners are in Ms. Lee's class.",
-  "Every chess team member is in Ms. Lee's class.",
-  "No award winner is on the chess team.",
-  "Some students in Ms. Lee's class have won awards."],0,
- "Ms. Lee's students are all on chess, and chess and debate share no members, so none of her students are on debate."],
-
-["l15","Parallel Flaw","LR",1.4,null,
- "This medicine must be effective. It is the most expensive one on the shelf, and expensive products are usually high quality.",
- "Which argument is most similar in its flawed reasoning?",
- ["This car must be fast, because it is red, and red cars get more tickets.",
-  "This restaurant must be good, because it is crowded, and crowds show popularity.",
-  "This wine must be excellent, because it has the highest price, and pricey wines are generally superior.",
-  "This book must be long, because it is heavy, and heavy books have many pages.",
-  "This phone must be new, because its screen is cracked."],2,
- "Both infer a specific quality from high price via a loose 'usually/generally' link; the wine argument mirrors that structure exactly."],
-
-["l16","Strengthen","LR",1.6,null,
- "Researchers found that people who meditate daily have lower blood pressure than those who do not, and concluded that meditation lowers blood pressure.",
- "Which one most strengthens the argument?",
- ["Meditation is practiced worldwide.",
-  "Non-meditators who took up meditation showed measurable drops over six months, while a matched control group did not.",
-  "People with low blood pressure often feel calmer.",
-  "Meditation requires no equipment.",
-  "Blood pressure varies throughout the day."],1,
- "A before/after change in the same people, with a control group holding steady, supports the causal direction the argument needs."],
-
-["l17","Assumption","LR",1.8,null,
- "Any candidate who wins the primary and raises enough money will win the general election. Chen won the primary. So Chen will win the general election.",
- "The argument assumes which one of the following?",
- ["Chen will raise enough money.",
-  "No other candidate raised enough money.",
-  "Winning the primary is difficult.",
-  "Chen is the strongest candidate.",
-  "Raising money guarantees winning the primary."],0,
- "The rule needs both conditions; only the primary win is stated, so the argument silently supplies the missing money condition."],
-
-["l18","Flaw","LR",2.0,null,
- "The survey shows most residents want lower taxes. It also shows most residents want more public services. Therefore most residents hold contradictory views.",
- "The reasoning is most vulnerable to the criticism that it",
- ["assumes lower taxes and more services cannot both be achieved, when they might be, e.g. by cutting waste.",
-  "relies on a survey with a biased sample.",
-  "confuses what most people want with what is best.",
-  "treats two separate surveys as one.",
-  "generalizes from an unrepresentative group."],0,
- "Wanting both is only contradictory if the two goals are truly incompatible; the argument just assumes that without support."],
-
-["l19","Weaken","LR",-0.5,null,
- "Brand X batteries last longer than Brand Y, because in our test a Brand X battery powered a flashlight for 10 hours while a Brand Y lasted only 8.",
- "Which one, if true, most weakens the argument?",
- ["The test used a single battery of each brand.",
-  "Brand X costs more than Brand Y.",
-  "Both brands are widely sold.",
-  "The flashlight was new.",
-  "Brand Y is more popular."],0,
- "A one-vs-one test can't support a general claim; a single unit could be an outlier either way."],
-
-["l20","Inference","LR",0.0,null,
- "All the apples in the basket are ripe. Every ripe apple in the basket is red. Some apples in the basket are from Ms. Ortiz's orchard.",
- "Which one must be true?",
- ["Some red apples in the basket are from Ms. Ortiz's orchard.",
-  "All apples from Ms. Ortiz's orchard are red.",
-  "Every red apple in the basket is from Ms. Ortiz's orchard.",
-  "No unripe apples are red.",
-  "The basket holds only Ortiz apples."],0,
- "Every basket apple is ripe and thus red; some basket apples are Ortiz's, so some red basket apples are Ortiz's."],
-
-["l21","Principle","LR",0.9,null,
- "Principle: An action is fair only if the rules governing it were announced before the action took place.",
- "Which judgment conforms to the principle?",
- ["A teacher lowered a grade under a rule posted only after the work was submitted; this was fair.",
-  "A referee penalized a player under a rule announced at the start of the season; this was fair.",
-  "A landlord raised rent without notice; this was fair.",
-  "A manager fired an employee under a policy created that morning; this was fair.",
-  "A judge applied a law passed after the crime; this was fair."],1,
- "Only the referee's rule was announced beforehand, satisfying the principle's requirement."],
-
-["l22","Strengthen","LR",0.3,null,
- "Towns that fluoridate their water have fewer cavities per capita than towns that do not. Fluoridation must reduce cavities.",
- "Which one most strengthens the argument?",
- ["Fluoride is a naturally occurring mineral.",
-  "Among towns that later stopped fluoridating, cavity rates rose afterward.",
-  "Fluoridation is inexpensive.",
-  "Some people prefer bottled water.",
-  "Dentists recommend brushing twice daily."],1,
- "Cavities rising when fluoridation stops adds a reversal that supports the causal claim rather than mere correlation."],
-
-["l23","Flaw","LR",1.5,null,
- "Hospital A has a higher percentage of patients who recover than Hospital B. So Hospital A saves more patients than Hospital B each year.",
- "The reasoning is flawed because it overlooks that",
- ["Hospital B may treat far more patients, so a lower percentage could still be a greater number.",
-  "recovery is not the only measure of care.",
-  "some patients recover without treatment.",
-  "the hospitals may charge different prices.",
-  "percentages can be miscalculated."],0,
- "A higher rate over a smaller caseload can still be fewer patients than a lower rate over a much larger one."],
-
-["l24","Resolve","LR",1.1,null,
- "Umbrella sales at the store were higher in July than in April, even though far more rain fell in April than in July.",
- "Which one most helps resolve the discrepancy?",
- ["Umbrellas were on sale in April.",
-  "The store ran out of umbrellas for much of April and restocked heavily in July, when a festival drew record foot traffic.",
-  "April has fewer days than July.",
-  "Rain is common in the region.",
-  "Umbrellas are cheaper than raincoats."],1,
- "Empty shelves in April plus a July traffic spike explain higher July sales despite the wetter April."],
-
-/* ---- RC: ecology ---- */
-["r1","Main Point","RC",0.3,"eco",null,
- "Which one most accurately states the main point of the passage?",
- ["Larger islands always support more species than smaller ones.",
-  "Predators are the single most important factor in biodiversity.",
-  "Habitat size sets a ceiling on possible diversity, but factors like predation determine actual diversity.",
-  "Ecologists were entirely wrong about island biodiversity.",
-  "Mid-sized islands are the most important habitats to protect."],2,
- "The passage says size gives capacity for diversity while other factors decide whether it's realized, which is exactly option 3."],
-
-["r2","Inference","RC",0.8,"eco",null,
- "The passage suggests that a large island with few dominant predators would most likely",
- ["support fewer species than a mid-sized island.",
-  "support a relatively high diversity of species.",
-  "lose all its species over time.",
-  "be indistinguishable from a small island.",
-  "support only predator species."],1,
- "Large islands have high capacity; without the predators that suppress diversity, that capacity should be realized as high diversity."],
-
-["r3","Function","RC",1.0,"eco",null,
- "The author mentions that mid-sized islands host more species primarily to",
- ["prove island size is irrelevant to diversity.",
-  "present evidence that complicates the simple size-diversity assumption.",
-  "argue that predators should be removed from large islands.",
-  "show that ecologists rarely survey islands.",
-  "recommend protecting mid-sized islands."],1,
- "The observation is offered as the surprising data that 'complicates this picture,' not as a policy recommendation or a claim that size is irrelevant."],
-
-/* ---- RC: copyright ---- */
-["r4","Main Point","RC",0.5,"cpy",null,
- "The passage is primarily concerned with",
- ["proving that copyright law is unjust.",
-  "describing how copyright protection expanded and the debate over that expansion.",
-  "arguing that ideas should be copyrightable.",
-  "explaining how to register a copyright.",
-  "comparing copyright law across countries."],1,
- "The passage traces the expansion of protection and lays out both sides of the resulting debate, without taking a side."],
-
-["r5","Inference","RC",1.1,"cpy",null,
- "It can be inferred that under early copyright law, a writer who rephrased another's book in different words would",
- ["have violated the original author's copyright.",
-  "not have violated the original author's copyright.",
-  "have been unable to publish the work.",
-  "have owned the original author's ideas.",
-  "have faced criminal charges."],1,
- "Early law protected only exact reproduction, so different wording, even of the same content, would not have infringed."],
-
-["r6","Disagreement","RC",1.6,"cpy",null,
- "According to the passage, critics and defenders of expanded copyright disagree primarily about",
- ["whether creative production is a worthwhile goal.",
-  "which rules best promote creative production, though they share the same goal.",
-  "whether ideas themselves should be protected.",
-  "how copyright is enforced internationally.",
-  "whether early copyright law existed."],1,
- "The passage explicitly says both sides share the goal of flourishing creative production and differ over which rules serve it."]
+// bank rows: [b, type, stimulus, stem, [A..E], keyIndex, explanation]
+const BANK=[
+[-1.6,"Main Conclusion","Editorial: The city council insists that the proposed stadium will pay for itself through increased tourism. Yet independent audits of twelve comparable stadiums found that not one generated enough tourism revenue to cover its construction costs. The council's insistence is therefore almost certainly misplaced.","Which one of the following most accurately expresses the main conclusion of the argument?",["The proposed stadium will substantially increase tourism to the city.","The council's claim that the stadium will pay for itself is almost certainly wrong.","Independent audits are the most reliable way to evaluate stadium proposals.","Twelve comparable stadiums failed to cover their construction costs through tourism revenue.","The city should abandon the proposal to build the stadium."],1,"The final sentence is the conclusion; the audit results are support, and the argument makes no recommendation about whether to build."],
+[-1.6,"Must Be True","Every employee who completed this year's safety training received a certificate by email. Dana, an employee, never received a certificate by email.","If the statements above are true, which one of the following must also be true?",["Dana did not complete this year's safety training.","Dana was never enrolled in this year's safety training.","Some employees who completed the training did not receive certificates.","Dana's certificate was lost in transit.","Every employee who received a certificate completed the training."],0,"Contrapositive: completed training guarantees a certificate, so no certificate means Dana did not complete it."],
+[-1.6,"Weaken","After Trellis Software began advertising on social media in March, its quarterly sales rose 20 percent. Clearly, the advertising campaign caused the increase.","Which one of the following, if true, most seriously weakens the argument?",["Trellis's advertising budget was smaller than those of its competitors.","Industry-wide software sales rose 30 percent during the same quarter.","Some customers report disliking social media advertising.","Trellis's sales had also risen slightly the previous year.","The campaign ran on only two social media platforms."],1,"If the whole industry rose 30 percent, Trellis underperformed the market; the rise is explained without the ads."],
+[-1.6,"Strengthen","Volunteers who drank Somnia herbal tea each night for two weeks reported falling asleep 15 minutes faster on average. Researchers concluded that the tea improves sleep onset.","Which one of the following, if true, most strengthens the researchers' conclusion?",["A control group that drank an identical-tasting placebo tea showed no change in sleep onset.","Somnia tea contains chamomile, an ingredient many people enjoy.","Most of the volunteers reported liking the tea's flavor.","Some volunteers also began exercising regularly during the study.","All of the volunteers were habitual tea drinkers before the study."],0,"A placebo control rules out expectation effects, isolating the tea itself as the cause of the improvement."],
+[-1.6,"Must Be True","If it is not summer, the Harbor Museum is closed on weekends. Today is a weekend, and the museum is open.","If the statements above are true, which one of the following must be true?",["It is summer.","The museum is open every day during summer.","The museum is closed on weekdays.","Today is a Saturday.","The museum will be open next weekend."],0,"An open museum on a weekend contradicts the rule for non-summer, so it must be summer."],
+[-1.6,"Flaw","Councilwoman Ortiz's proposal to reform the city's tax code should be rejected. After all, Ortiz herself was once fined for filing her taxes late.","The reasoning in the argument is most vulnerable to criticism on the grounds that it",["attacks the proposer's personal conduct rather than addressing the merits of the proposal","assumes that the current tax code cannot be improved","generalizes from one city's tax code to all tax codes","confuses a necessary condition with a sufficient condition","appeals to the proposal's unpopularity rather than to evidence"],0,"Classic ad hominem: Ortiz's filing history says nothing about whether her reform is a good one."],
+[-1.6,"Paradox","Over the past year, Meridian Bank doubled the number of customer service representatives at its call center, yet the average time customers spend waiting on hold has increased.","Which one of the following, if true, most helps to explain the increase in wait times?",["Call volume more than tripled after the bank closed its in-branch service desks.","The new representatives received the same training as existing representatives.","Most customers call during regular business hours.","The bank recently updated its hold music.","Competing banks report shorter average wait times."],0,"If calls more than tripled while staff only doubled, waits grow despite the hiring."],
+[-1.6,"Method","Naturalist: Some claim that no mammal lays eggs. But the platypus, a mammal, lays eggs. So the claim is false.","The naturalist's argument proceeds by",["presenting a counterexample to a general claim","attacking the motives of those who make the claim","showing that the claim contradicts itself","appealing to a consensus of experts","redefining the term at issue"],0,"One egg-laying mammal is a direct counterexample to the universal claim."],
+[-0.8,"Necessary Assumption","The new Route 9 bypass will reduce rush-hour commute times between Milldale and the city center, since it adds two lanes of capacity along that corridor.","The argument requires the assumption of which one of the following?",["Current rush-hour delays on the corridor are due at least in part to insufficient road capacity.","The bypass will be free of tolls.","Most commuters will switch their routes to the new bypass.","No other road projects are planned in the region.","Commute times in Milldale are longer than the regional average."],0,"If capacity shortfall plays no role in the delays, adding capacity cannot reduce them. 'Most commuters' is stronger than the argument needs."],
+[-0.8,"Weaken","A financial magazine surveyed its subscribers and found that 78 percent favor eliminating the capital gains tax. The magazine concluded that most of the country's adults favor eliminating the tax.","Which one of the following, if true, most seriously weakens the argument?",["The magazine's subscribers are far more likely than average adults to own taxable investments.","Some subscribers did not respond to the survey.","The survey was conducted online rather than by mail.","Capital gains tax rates vary by income bracket.","The magazine has published editorials supporting tax cuts."],0,"The sample is unrepresentative: subscribers have a financial stake most adults lack, so their views cannot be projected onto the country."],
+[-0.8,"Strengthen","Households that installed smart thermostats used 12 percent less energy the following year than similar households that did not. Utility analysts concluded that the thermostats caused the savings.","Which one of the following, if true, most strengthens the analysts' conclusion?",["The two groups were matched for income, home size, and past energy use before the comparison began.","Smart thermostats have become increasingly popular in recent years.","Energy prices rose during the year of the study.","Some households rarely adjusted their thermostats' settings.","The thermostat manufacturer helped fund the analysis."],0,"Matching the groups beforehand rules out preexisting differences as an alternative explanation for the gap."],
+[-0.8,"Flaw","People who keep detailed budgets have, on average, higher savings than people who do not. Therefore, keeping a detailed budget causes people to save more.","The argument is most vulnerable to criticism on the grounds that it",["overlooks the possibility that people already inclined to save are also more likely to keep budgets","relies on a sample of budget keepers that is too small","assumes that savings are the only measure of financial health","fails to distinguish money saved from money invested","generalizes from one household's experience to all households"],0,"Correlation is read as causation while ignoring that a saving-prone disposition could produce both behaviors."],
+[-0.8,"Must Be True","Most of the Halvorsen Lab's research grants come from federal agencies. Every grant from a federal agency requires an annual financial audit.","If the statements above are true, which one of the following must be true?",["Most of the lab's grants require an annual financial audit.","All of the lab's grants require an annual financial audit.","The lab has passed every audit it has undergone.","Some federal agencies fund only laboratories.","Most federal grants nationwide go to labs like Halvorsen's."],0,"The 'most' that are federal all carry the audit requirement, so most of the lab's grants require audits."],
+[-0.8,"Principle","Principle: A reviewer should disclose any financial relationship with a company whose product the reviewer evaluates. Application: Kim must disclose that she owns stock in Volta Motors.","The application of the principle is most justified if which one of the following is true?",["Kim is writing an evaluation of a vehicle made by Volta Motors.","Kim's stock in Volta Motors has recently increased in value.","Kim has previously reviewed vehicles made by Volta's competitors.","Volta Motors is a publicly traded company.","Kim discloses all of her stock holdings once a year."],0,"The principle triggers only when the reviewer evaluates that company's product; A supplies exactly that condition."],
+[-0.8,"Paradox","Gorman's Grocery cut prices on nearly every item by 10 percent, expecting higher revenue from increased sales. Instead, total revenue for the following month was lower than in any month of the previous year.","Which one of the following, if true, most helps to resolve the apparent discrepancy?",["A water main break closed the street in front of the store for most of that month.","Gorman's competitors kept their prices unchanged.","Most households purchase groceries on a regular schedule.","The price cuts were advertised widely throughout the area.","Gorman's had raised its prices two years earlier."],0,"Blocked access suppresses customer traffic regardless of price, explaining why revenue fell despite the cuts."],
+[-0.8,"Method","Detective: The window was broken from the inside, so the vandal was not an outsider. The only people inside that night were the two guards. Guard Reyes was on camera in the lobby all night. Therefore, Guard Okafor broke the window.","The detective's argument proceeds by",["eliminating all alternative possibilities in order to establish a conclusion","generalizing from a representative sample of similar cases","appealing to an authority on vandalism","drawing an analogy between two similar crimes","inferring a general rule from a single instance"],0,"Each rival suspect is ruled out until only one remains: argument by elimination."],
+[0,"Necessary Assumption","Ravenswood College should replace its large lecture courses with seminars, because students learn more in courses where they regularly discuss the material with their instructors.","The argument requires the assumption of which one of the following?",["Ravenswood's seminars would give students regular opportunities to discuss course material with instructors.","Lecture courses never involve any discussion between students and instructors.","Seminars are less expensive for the college to run than lectures.","Most Ravenswood students would prefer seminars to lectures.","Increasing learning is the only legitimate goal of a college course."],0,"Negate it: if seminars did not provide regular discussion, the cited benefit would not apply and the recommendation collapses. B and E are stronger than needed."],
+[0,"Sufficient Assumption","Any policy that discourages innovation will harm the economy in the long run. Therefore, the proposed tariff will harm the economy in the long run.","The conclusion follows logically if which one of the following is assumed?",["The proposed tariff discourages innovation.","The proposed tariff will raise prices for consumers.","Policies that harm the economy in the long run discourage innovation.","Some tariffs discourage innovation.","Innovation benefits the economy in the long run."],0,"A bridges the tariff into the rule's trigger. C is the reversed conditional and proves nothing."],
+[0,"Flaw","Every member of the negotiating team is an excellent negotiator. Therefore, the team as a whole will negotiate excellently.","The reasoning is most vulnerable to criticism on the grounds that it",["assumes that what is true of each member of a group must be true of the group as a whole","relies on the judgment of an unqualified authority","draws a conclusion about one team from facts about a different team","confuses excellence in negotiation with years of experience","presumes that the outcome of a negotiation depends only on the negotiators"],0,"Composition flaw: individually excellent members can still coordinate poorly as a unit."],
+[0,"Weaken","Cities that added protected bike lanes over the past decade saw cycling injuries fall by 25 percent. Planners concluded that protected lanes make cycling safer.","Which one of the following, if true, most seriously weakens the planners' argument?",["During the same decade, those cities also lowered speed limits on nearly all streets where cycling injuries had been most common.","Cycling injuries include some incidents that do not involve motor vehicles.","Protected lanes cost far more to build than painted lanes.","A few cyclists prefer to ride outside protected lanes.","Cycling ridership grew substantially in the cities that added lanes."],0,"The concurrent speed-limit reductions are an alternative cause for the injury decline. E, if anything, strengthens: injuries fell even as riders increased."],
+[0,"Must Be True","If the festival is held downtown, Main Street will be closed. If Main Street is closed, the bus routes will be detoured. The bus routes will not be detoured this weekend.","If the statements above are true, which one of the following must be true?",["The festival will not be held downtown this weekend.","Main Street will be closed this weekend.","The festival has been canceled this weekend.","If the festival is not held downtown, the buses will run their normal routes.","The festival is held downtown every year."],0,"Chain the contrapositive: no detour means Main Street is open, which means no downtown festival."],
+[0,"Parallel Reasoning","All of the bakery's sourdough loaves are baked before dawn. None of the loaves baked before dawn contain preservatives. So none of the bakery's sourdough loaves contain preservatives.","Which one of the following arguments is most similar in its reasoning?",["All of the firm's senior partners studied at Halden Law. No one who studied at Halden Law practices patent law. So none of the firm's senior partners practice patent law.","All roses need sunlight. Some plants that need sunlight bloom in spring. So some roses bloom in spring.","No cats are reptiles. All iguanas are reptiles. So some iguanas are not cats.","All of the museum's paintings are insured. Some insured paintings are forgeries. So some of the museum's paintings are forgeries.","All marathoners train daily. No one who trains daily skips breakfast. So some marathoners eat large breakfasts."],0,"Structure: all A are B, no B are C, so no A are C. Only A matches; B and D commit the some-overlap error."],
+[0,"Principle","Principle: A public official should recuse herself from any vote in which she has a direct financial interest, unless that interest is shared roughly equally by nearly all of her constituents.","Which one of the following judgments conforms most closely to the principle?",["Mayor Chen need not recuse herself from a vote on a citywide property tax cut, because she owns a home, as do nearly all residents of her city.","Councilman Voss should recuse himself from a vote on the sales tax, because every resident of his district pays sales tax.","Commissioner Ade may vote on a zoning change affecting her own restaurant, because she knows the neighborhood well.","Treasurer Lin should recuse himself from every vote that involves public spending.","Mayor Chen should recuse herself from a vote on parkland acquisition, because she frequently uses the parks."],0,"Chen's interest is shared by nearly all constituents, so the exception applies. B misfires: a shared interest removes the recusal requirement."],
+[0,"Paradox","Hospital records show that Ellsworth Clinic, which treats the region's most serious trauma cases, has a higher patient mortality rate than any other hospital in the region. Yet medical experts agree that Ellsworth provides the region's best trauma care.","Which one of the following, if true, most helps to resolve the apparent conflict?",["A patient's likelihood of dying depends more on the severity of the injury than on the quality of the care received.","Ellsworth has the region's most modern medical equipment.","Ellsworth's mortality rate has declined slightly over the past decade.","Ellsworth trains many of the region's trauma surgeons.","Most trauma patients in the region survive their injuries."],0,"If severity dominates outcomes, the hospital taking the worst cases will show the worst rate even while giving the best care."],
+[0.8,"Necessary Assumption","The Brindle Foundation gives grants only to charities that spend at least 80 percent of donations directly on program services. Since Harborlight Charity received a Brindle grant this year, at least 80 percent of the donations Harborlight received this year were spent directly on program services.","The argument requires the assumption of which one of the following?",["Brindle's spending requirement is applied to a charity's donations in the year the grant is awarded.","Harborlight spent none of its donations on fundraising this year.","Brindle audits the finances of every charity it funds.","Harborlight received no grants from any other foundation this year.","Most charities fail to meet Brindle's spending requirement."],0,"The rule could be based on prior years' spending; the conclusion is about this year, so the argument needs the criterion to apply to this year."],
+[0.8,"Parallel Flaw","Anyone who wins the regional spelling bee is invited to the national bee. Priya was invited to the national bee. Therefore, Priya won the regional bee.","Which one of the following exhibits flawed reasoning most similar to that above?",["Anyone who donates over $500 to the shelter receives a plaque. Marcus received a plaque. Therefore, Marcus donated over $500.","Anyone who speeds on Route 4 gets a ticket. Lena did not speed on Route 4. Therefore, Lena did not get a ticket.","Everyone at the gala wore formal attire. Tom was at the gala. Therefore, Tom wore formal attire.","All violinists read music. Some pianists read music. Therefore, some pianists are violinists.","If it rains, the match is postponed. It rained. Therefore, the match was postponed."],0,"Both affirm the consequent: the invitation (plaque) could have another source. B denies the antecedent; C and E are valid."],
+[0.8,"Must Be True","Most of the orchard's trees are apple trees. Most of the orchard's trees were planted more than twenty years ago.","If the statements above are true, which one of the following must be true?",["At least one of the orchard's apple trees was planted more than twenty years ago.","Most of the orchard's apple trees were planted more than twenty years ago.","Every tree planted more than twenty years ago is an apple tree.","Some of the orchard's trees are not apple trees.","The orchard contains no trees planted within the past decade."],0,"Two majorities of the same set must overlap in at least one tree. B is not forced, and D fails because 'most' could be 'all.'"],
+[0.8,"Strengthen","Field mice avoid gardens where barn owls nest nearby. Researchers hypothesize that the mice detect and avoid the owls' calls, rather than the sight or scent of the owls.","Which one of the following, if true, most strengthens the researchers' hypothesis?",["Mice also avoided gardens where recorded barn owl calls were played but no owls were present.","Barn owls do most of their hunting at night.","Field mice are known to have an acute sense of smell.","The owls in the study nested in locations visible from the gardens.","Some gardens near owl nests contained no mice even before the owls arrived."],0,"Calls alone, with no owl to see or smell, reproduce the avoidance, isolating sound as the trigger."],
+[0.8,"Flaw","The law requires that drivers yield to pedestrians in a crosswalk. Since laws cannot be broken, drivers cannot fail to yield to pedestrians in crosswalks.","The reasoning is most vulnerable to criticism on the grounds that it",["treats two different senses of the word 'law' as though they were the same","generalizes from crosswalks to all road situations","presumes, without justification, that pedestrians always use crosswalks","confuses a moral obligation with a legal obligation","draws a conclusion about all drivers from facts about only some drivers"],0,"Equivocation: statutes can be violated, laws of nature cannot; the argument slides between the two senses."],
+[0.8,"Sufficient Assumption","Ethicist: Withholding information from a client is wrong whenever the client has a right to that information and the withholding deceives the client. Therefore, Alvarez acted wrongly when he withheld the appraisal report from his client.","The conclusion follows logically if which one of the following is assumed?",["Alvarez's client had a right to the information in the appraisal report, and withholding it deceived the client.","Alvarez withheld the report in order to protect his own commission.","Clients generally have a right to see appraisal reports.","Deceiving a client is the most serious violation a professional can commit.","Alvarez's client suffered a financial loss as a result of the withholding."],0,"The rule has two triggering conditions; A supplies both, making the conclusion follow deductively. C's 'generally' leaves a gap."],
+[0.8,"Weaken","In a study, adults who took a daily multivitamin for five years scored higher on memory tests than adults who took none. The researchers concluded that multivitamins improve memory in adults.","Which one of the following, if true, most seriously weakens the researchers' conclusion?",["Participants chose for themselves whether to take the multivitamin, and those who chose to take it also exercised more and slept better than the others.","Standard memory tests measure only certain kinds of memory.","Five years is a long time to sustain any daily habit.","Multivitamin formulations vary widely in their ingredients.","A few participants occasionally forgot to take their daily vitamin."],0,"Self-selection confounds the result: the vitamin takers differed in other memory-relevant habits, which could fully explain the gap."],
+[0.8,"Role","Urban trees reduce summer cooling costs. Shade from mature trees can lower the surrounding air temperature by several degrees. Consequently, the city's plan to remove hundreds of mature street trees is likely to raise residents' electricity bills.","The claim that shade from mature trees can lower the surrounding air temperature plays which one of the following roles in the argument?",["It is a premise offered in support of the argument's main conclusion.","It is the main conclusion of the argument.","It is a hypothesis that the argument goes on to reject.","It is a concession to an opposing point of view.","It is an intermediate conclusion supported by the claim about electricity bills."],0,"It explains the mechanism supporting the prediction about bills, which is the conclusion (signaled by 'consequently')."],
+[1.6,"Parallel Reasoning","All of the plants in the greenhouse are orchids. No orchids tolerate frost. Therefore, if a plant tolerates frost, it is not in the greenhouse.","Which one of the following arguments is most similar in its reasoning?",["All of the files on this server are encrypted. No encrypted file can be read without a key. Therefore, if a file can be read without a key, it is not on this server.","All comets orbit the sun. Some things that orbit the sun are planets. Therefore, some comets are planets.","No trains stop at Elm Station after midnight. This train stops at Elm Station. Therefore, it is not yet midnight.","All of the singers in the choir read music. Some people who read music play piano. Therefore, some choir singers play piano.","All bees are insects. Some insects sting. Therefore, some bees sting."],0,"Chain the two universals, then take the contrapositive. C is the trap: valid, but built from a single universal premise, not a chained pair."],
+[1.6,"Flaw","Whenever the reservoir drops below 40 percent capacity, the county issues water restrictions. No restrictions have been issued this month. It follows that if restrictions are issued next month, the reservoir will have dropped below 40 percent capacity.","The reasoning is most vulnerable to criticism on the grounds that it",["treats a condition that guarantees restrictions as though it were the only condition under which restrictions occur","assumes that the reservoir's level will not change from month to month","bases a prediction about the future on data from only a single month","contradicts itself about whether restrictions have been issued","overlooks the possibility that water restrictions are unpopular with residents"],0,"Low water is sufficient for restrictions, not necessary: the county could impose them next month for other reasons, such as a contamination event."],
+[1.6,"Necessary Assumption","This Italian fresco must have been painted after 1515, because it depicts a rhinoceros, and no rhinoceros was seen in Europe in modern times until one arrived in Lisbon in 1515.","The argument requires the assumption of which one of the following?",["The fresco's painter could not have depicted a rhinoceros based solely on descriptions or images produced before 1515.","The fresco's painter personally traveled to Lisbon to see the rhinoceros.","Rhinoceroses became common subjects of European art after 1515.","The Lisbon rhinoceros was the only rhinoceros brought to Europe during the sixteenth century.","The fresco's painter saw the Lisbon rhinoceros with his own eyes."],0,"If ancient texts or earlier images could have supplied the depiction, the 1515 arrival proves nothing about the fresco's date. B and E are far stronger than the argument needs."],
+[1.6,"Must Be True","Every proposal the committee approved this year was reviewed by legal counsel. Most proposals reviewed by legal counsel required revisions. No proposal that required revisions was approved without a second vote.","If the statements above are true, which one of the following must be true?",["Any proposal the committee approved this year without a second vote did not require revisions.","Most of the proposals the committee approved this year required revisions.","Every proposal reviewed by legal counsel was eventually approved.","Some proposals approved this year were not reviewed by legal counsel.","Most proposals reviewed by legal counsel received a second vote."],0,"Contrapositive of the third statement. B confuses 'most reviewed proposals' with 'most approved proposals'; the overlap isn't forced."],
+[1.6,"Sufficient Assumption","Some of the manuscripts in the archive are written in Old Norse. Therefore, some of the manuscripts in the archive were composed before the thirteenth century.","The conclusion follows logically if which one of the following is assumed?",["All manuscripts written in Old Norse were composed before the thirteenth century.","Some manuscripts composed before the thirteenth century are written in Old Norse.","Most of the archive's manuscripts were composed before the thirteenth century.","Old Norse had ceased to be a spoken language by the thirteenth century.","Some of the archive's manuscripts are copies of much older works."],0,"A converts every archived Old Norse manuscript into a pre-thirteenth-century one. B points the wrong direction: those manuscripts may not be in the archive."],
+[1.6,"Flaw","Ninety percent of the drivers involved in nighttime collisions on Route 7 last year were sober, while only ten percent were intoxicated. A columnist concluded that driving sober at night on Route 7 is more dangerous than driving intoxicated.","The columnist's reasoning is flawed because it overlooks the possibility that",["sober drivers vastly outnumber intoxicated drivers on Route 7 at night","some nighttime collisions on Route 7 go unreported","Route 7 is more poorly lit than comparable roads","daytime collision figures for Route 7 differ from nighttime figures","the collisions involving intoxicated drivers were more severe"],0,"Base-rate neglect: if 99 percent of nighttime drivers are sober, sober drivers can dominate the collision count while having a far lower per-driver risk."],
+[1.6,"Flaw","Reformer: A regulation is justified only if the harm it prevents is greater than the burden it imposes. The proposed labeling regulation imposes minimal burdens on producers, and mislabeled products have caused substantial harm to consumers. Therefore, the regulation is justified.","The reformer's reasoning is most vulnerable to criticism on the grounds that it",["treats a necessary condition for a regulation's being justified as though it were a sufficient condition","underestimates the burden the regulation would impose on producers","assumes that consumers read and understand product labels","appeals to the emotions of consumers rather than to evidence","relies on an ambiguous use of the word 'harm'"],0,"'Only if' states a requirement, not a guarantee: meeting the harm-versus-burden test doesn't by itself establish justification."],
+[1.6,"Method","Philosopher: Suppose, as my opponent claims, that every event has a cause distinct from itself. Then the chain of causes would extend backward without end, and no event's occurrence could ever be fully accounted for. Since some events plainly can be fully accounted for, my opponent's claim must be false.","The philosopher's argument proceeds by",["deriving from a claim a consequence that conflicts with something taken to be true, and rejecting the claim on that basis","offering a counterexample drawn from everyday experience","demonstrating that the opponent's claim is internally self-contradictory","questioning the sincerity with which the opponent advances the claim","defending the opponent's claim in a suitably revised form"],0,"Reductio: assume the claim, derive an unacceptable consequence, reject the claim. C is the trap: the conflict is with an external truth, not within the claim itself."]
 ];
 
-/* ---------- adaptive engine (Rasch + EAP) ---------- */
-const MIN_ITEMS=12, MAX_ITEMS=22, SE_STOP=0.42;
+const N_ITEMS=20, TIME_LIMIT=35*60, LS_HIST='lsatcat_hist_v1';
 const GRID=[]; for(let t=-4;t<=4.0001;t+=0.1) GRID.push(+t.toFixed(2));
-const PRIOR=GRID.map(t=>Math.exp(-0.5*(t/1.5)*(t/1.5)));
-const P=(t,b)=>1/(1+Math.exp(-(t-b)));
+const PRIOR=GRID.map(t=>Math.exp(-t*t/2));
+const P=(th,b)=>1/(1+Math.exp(-(th-b)));
 
-let STATE, curOpts=[], curItem=null, waiting=false, locked=false;
+let responses=[], theta=0, sem=1, used=new Set(), curIdx=-1, qCount=0, secsLeft=TIME_LIMIT, tickHandle=null, startTs=0, trace=[];
 
-function fresh(){
-  return {given:[], resp:[], theta:0, se:1.5, traj:[], done:false};
-}
-function eap(resp){
+function eap(){
   let post=PRIOR.slice();
-  for(const r of resp){
+  for(const r of responses){
     for(let i=0;i<GRID.length;i++){
       const p=P(GRID[i],r.b);
-      post[i]*= r.x? p : (1-p);
+      post[i]*= r.correct? p : 1-p;
     }
   }
-  let s=0; for(const w of post) s+=w;
-  let mean=0; for(let i=0;i<GRID.length;i++) mean+=GRID[i]*post[i]/s;
-  let v=0; for(let i=0;i<GRID.length;i++) v+=(GRID[i]-mean)*(GRID[i]-mean)*post[i]/s;
-  return {theta:mean, se:Math.sqrt(v)};
+  let s=0,m=0; for(let i=0;i<GRID.length;i++){s+=post[i];m+=GRID[i]*post[i];}
+  const mean=m/s;
+  let v=0; for(let i=0;i<GRID.length;i++){v+=post[i]*(GRID[i]-mean)*(GRID[i]-mean);}
+  theta=mean; sem=Math.sqrt(v/s);
 }
-function selectNext(){
-  const t=STATE.theta;
-  const pool=BANK.filter(it=>!STATE.given.includes(it[0]));
-  if(!pool.length) return null;
-  pool.sort((a,b)=>{
-    const ia=P(t,a[3])*(1-P(t,a[3])), ib=P(t,b[3])*(1-P(t,b[3]));
-    return ib-ia;
-  });
-  const top=pool.slice(0,Math.min(3,pool.length));
-  return top[Math.floor(Math.random()*top.length)];
+function pickNext(){
+  const cands=BANK.map((q,i)=>({i,d:Math.abs(q[0]-theta)})).filter(c=>!used.has(c.i));
+  cands.sort((a,b)=>a.d-b.d);
+  const top=cands.slice(0,Math.min(3,cands.length));
+  return top[Math.floor(Math.random()*top.length)].i;
 }
-function stop(){
-  const n=STATE.given.length;
-  if(n>=MAX_ITEMS) return true;
-  if(n>=MIN_ITEMS && STATE.se<SE_STOP) return true;
-  if(n>=BANK.length) return true;
-  return false;
-}
+function lsatScore(th){ return Math.max(120,Math.min(180,Math.round(151+9*th))); }
 
-/* ---------- rendering ---------- */
 const $=id=>document.getElementById(id);
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-const LTR=["A","B","C","D","E"];
+function show(id){ for(const s of document.querySelectorAll('.screen')) s.classList.remove('on'); $(id).classList.add('on'); window.scrollTo(0,0); }
 
-function renderItem(it){
-  curItem=it; waiting=false; locked=false;
-  $("qnum").textContent=STATE.given.length+1;
-  $("secLbl").textContent=it[2]==="RC"?"Reading Comprehension":"Logical Reasoning";
-  $("prog").style.width=Math.min(100,(STATE.given.length/MAX_ITEMS)*100)+"%";
-
-  curOpts=shuffle(it[7].map((text,oi)=>({oi,text})));
-  const passage= it[4]? `<div class="passage">${PASSAGES[it[4]]}</div>` : "";
-  const optsHtml=curOpts.map((o,di)=>
-    `<button class="ans" data-disp="${di}"><span class="ltr">${LTR[di]}</span><span>${o.text}</span></button>`
-  ).join("");
-  $("card").innerHTML=
-    `<span class="badge">${it[1]}</span>`+passage+
-    (it[5]?`<div class="stim">${it[5]}</div>`:"")+
-    `<div class="stem">${it[6]}</div>`+
-    `<div class="opts" id="opts">${optsHtml}</div>`+
-    `<div class="expl" id="expl"></div>`+
-    `<button class="next" id="nextBtn">Next</button>`;
-  document.querySelectorAll("#opts .ans").forEach(b=>b.onclick=()=>choose(+b.dataset.disp));
-  $("nextBtn").onclick=advance;
-}
-
-function choose(di){
-  if(locked) return; locked=true;
-  const chosen=curOpts[di];
-  const correctOi=curItem[8];
-  const isRight=chosen.oi===correctOi;
-  document.querySelectorAll("#opts .ans").forEach(b=>{
-    const o=curOpts[+b.dataset.disp];
-    b.disabled=true;
-    if(o.oi===correctOi) b.classList.add("correct");
-    else if(+b.dataset.disp===di) b.classList.add("wrong");
-    else b.classList.add("dim");
+function renderQ(){
+  curIdx=pickNext(); used.add(curIdx); qCount++;
+  const q=BANK[curIdx];
+  $('qnum').textContent=`Question ${qCount} of ${N_ITEMS}`;
+  $('qtype').textContent=q[1];
+  $('progBar').style.width=((qCount-1)/N_ITEMS*100)+'%';
+  $('stim').textContent=q[2];
+  $('stem').textContent=q[3];
+  const box=$('opts'); box.innerHTML='';
+  q[4].forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="ltr">${'ABCDE'[i]}</span><span>${txt}</span>`;
+    b.onclick=()=>answer(i);
+    box.appendChild(b);
   });
-  STATE.given.push(curItem[0]);
-  STATE.resp.push({b:curItem[3], x:isRight?1:0});
-  const est=eap(STATE.resp);
-  STATE.theta=est.theta; STATE.se=est.se;
-  STATE.traj.push(est.theta);
-
-  const e=$("expl");
-  e.className="expl show "+(isRight?"ok":"no");
-  e.innerHTML=`<div class="h">${isRight?"Correct":"Incorrect"}</div>${curItem[9]}`;
-  $("nextBtn").classList.add("show");
-  waiting=true;
-  save();
 }
-
-function advance(){
-  if(stop()){ finish(); return; }
-  renderItem(selectNext());
+function answer(i){
+  const q=BANK[curIdx];
+  responses.push({idx:curIdx,b:q[0],pick:i,correct:i===q[5]});
+  eap();
+  trace.push({theta,sem,correct:i===q[5]});
+  if(qCount>=N_ITEMS) finish(); else renderQ();
 }
-
-/* ---------- results ---------- */
-function scaleScore(theta){return Math.max(120,Math.min(180,Math.round(150+theta*10.5)));}
+function fmt(s){ const m=Math.floor(s/60),ss=s%60; return `${m}:${String(ss).padStart(2,'0')}`; }
+function tick(){
+  secsLeft--;
+  const t=$('timer'); t.textContent=fmt(Math.max(0,secsLeft));
+  if(secsLeft<=300) t.classList.add('low');
+  if(secsLeft<=0) finish();
+}
+function start(){
+  responses=[]; used=new Set(); theta=0; sem=1; qCount=0; trace=[]; secsLeft=TIME_LIMIT; startTs=Date.now();
+  $('timer').textContent=fmt(TIME_LIMIT); $('timer').classList.remove('low');
+  show('test'); renderQ();
+  tickHandle=setInterval(tick,1000);
+}
 function finish(){
-  STATE.done=true; save();
-  $("test").classList.add("hide");
-  const box=$("results"); box.classList.remove("hide");
-  const sc=scaleScore(STATE.theta);
-  const bandPts=Math.max(1,Math.round(STATE.se*10.5));
-  const lo=Math.max(120,sc-bandPts), hi=Math.min(180,sc+bandPts);
-  const pct=(v)=>((v-120)/60)*100;
-
-  // per-type accuracy
-  const rows={};
-  STATE.resp.forEach((r,i)=>{
-    const it=BANK.find(b=>b[0]===STATE.given[i]);
-    const k=it[1];
-    rows[k]=rows[k]||{n:0,c:0};
-    rows[k].n++; rows[k].c+=r.x;
+  clearInterval(tickHandle);
+  if(responses.length===0){ show('start'); return; }
+  eap();
+  const score=lsatScore(theta);
+  const nC=responses.filter(r=>r.correct).length;
+  $('scoreBig').textContent=score;
+  $('scoreSub').textContent=`band ${lsatScore(theta-sem)}\u2013${lsatScore(theta+sem)} (\u00b11 SEM) \u00b7 ${responses.length} answered`;
+  $('rCorrect').textContent=`${nC}/${responses.length}`;
+  $('rTheta').textContent=(theta>=0?'+':'')+theta.toFixed(2);
+  $('rSem').textContent=sem.toFixed(2);
+  $('rTime').textContent=fmt(Math.min(TIME_LIMIT,Math.round((Date.now()-startTs)/1000)));
+  drawTrace(); buildReview(); saveHist(score,nC);
+  show('results');
+}
+function drawTrace(){
+  let ctx; const cv=$('trace');
+  try{ ctx=cv.getContext('2d'); }catch(e){}
+  if(!ctx){ cv.style.display='none'; return; }
+  const W=cv.width, H=cv.height, padL=34, padR=10, padT=12, padB=22;
+  ctx.clearRect(0,0,W,H);
+  const cs=getComputedStyle(document.documentElement);
+  const cText=cs.getPropertyValue('--slate').trim(), cSky=cs.getPropertyValue('--sky').trim(),
+        cGood=cs.getPropertyValue('--good').trim(), cBad=cs.getPropertyValue('--bad').trim(),
+        cLine=cs.getPropertyValue('--row-line-2').trim();
+  const n=trace.length, yMin=-3, yMax=3;
+  const x=i=>padL+(W-padL-padR)*(n===1?0.5:i/(n-1));
+  const y=t=>padT+(H-padT-padB)*(1-(t-yMin)/(yMax-yMin));
+  ctx.strokeStyle=cLine; ctx.fillStyle=cText; ctx.font='11px JetBrains Mono, monospace'; ctx.lineWidth=1;
+  for(const g of [-2,0,2]){ ctx.beginPath(); ctx.moveTo(padL,y(g)); ctx.lineTo(W-padR,y(g)); ctx.stroke(); ctx.fillText((g>0?'+':'')+g, 4, y(g)+4); }
+  ctx.fillStyle=cSky; ctx.globalAlpha=0.15;
+  ctx.beginPath();
+  trace.forEach((p,i)=>{ const yy=y(Math.min(yMax,p.theta+p.sem)); i?ctx.lineTo(x(i),yy):ctx.moveTo(x(0),yy); });
+  for(let i=n-1;i>=0;i--) ctx.lineTo(x(i),y(Math.max(yMin,trace[i].theta-trace[i].sem)));
+  ctx.closePath(); ctx.fill(); ctx.globalAlpha=1;
+  ctx.strokeStyle=cSky; ctx.lineWidth=2; ctx.beginPath();
+  trace.forEach((p,i)=>{ i?ctx.lineTo(x(i),y(p.theta)):ctx.moveTo(x(0),y(p.theta)); });
+  ctx.stroke();
+  trace.forEach((p,i)=>{
+    ctx.fillStyle=p.correct?cGood:cBad;
+    ctx.beginPath(); ctx.arc(x(i),y(p.theta),4,0,7); ctx.fill();
   });
-  const trows=Object.entries(rows).sort((a,b)=>b[1].n-a[1].n).map(([k,v])=>
-    `<tr><td>${k}</td><td class="n">${v.c}/${v.n}</td></tr>`).join("");
-  const totC=STATE.resp.reduce((s,r)=>s+r.x,0);
-
-  // sparkline of theta trajectory
-  const W=320,H=64,pad=6;
-  const ts=STATE.traj;
-  const mn=Math.min(-2,...ts), mx=Math.max(2,...ts);
-  const pts=ts.map((t,i)=>{
-    const x=pad+(i/(Math.max(1,ts.length-1)))*(W-2*pad);
-    const y=H-pad-((t-mn)/(mx-mn))*(H-2*pad);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
-
-  box.innerHTML=`
-    <div class="card result">
-      <div class="band">Estimated LSAT score</div>
-      <div class="score">${sc}</div>
-      <div class="band">68% confidence band: ${lo}–${hi} &nbsp;·&nbsp; ${STATE.given.length} items · ${totC}/${STATE.given.length} correct</div>
-      <div class="scale">
-        <div class="se" style="left:${pct(lo)}%;width:${pct(hi)-pct(lo)}%"></div>
-        <div class="tick" style="left:${pct(sc)}%"></div>
-      </div>
-      <div class="scaleL"><span>120</span><span>150</span><span>180</span></div>
-
-      <div class="spark">
-        <svg width="100%" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="max-width:340px">
-          <line x1="${pad}" y1="${(H-pad-((0-mn)/(mx-mn))*(H-2*pad)).toFixed(1)}" x2="${W-pad}" y2="${(H-pad-((0-mn)/(mx-mn))*(H-2*pad)).toFixed(1)}" stroke="#d6dee5" stroke-width="1"/>
-          <polyline points="${pts}" fill="none" stroke="#159fc9" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-        </svg>
-        <div class="band">Ability estimate over the test (θ)</div>
-      </div>
-
-      <table class="tbl"><thead><tr><th>Question type</th><th class="n">Score</th></tr></thead>
-        <tbody>${trows}</tbody></table>
-
-      <div class="note">Synthetic mapping. θ is the EAP ability estimate in logits; scaled score = 150 + 10.5·θ, clamped to 120–180. Items are original LSAT-style, not real LSAC questions, and difficulties are hand-tagged, so treat this as directional practice, not a predicted official score.</div>
-      <button class="again" id="againBtn">Take it again</button>
-    </div>`;
-  $("againBtn").onclick=()=>{restart();};
-  window.scrollTo(0,0);
+  ctx.fillStyle=cText;
+  ctx.fillText('Q1', padL, H-6); ctx.fillText('Q'+n, W-padR-24, H-6);
 }
-
-/* ---------- persistence / lifecycle ---------- */
-const LS="lsatcat_v1";
-function save(){try{localStorage.setItem(LS,JSON.stringify(STATE));}catch(e){}}
-function load(){try{const s=localStorage.getItem(LS);return s?JSON.parse(s):null;}catch(e){return null;}}
-function restart(){
-  localStorage.removeItem(LS);
-  STATE=fresh();
-  $("results").classList.add("hide"); $("results").innerHTML="";
-  $("test").classList.remove("hide");
-  renderItem(selectNext());
+function buildReview(){
+  const box=$('review'); box.innerHTML='';
+  responses.forEach((r,n)=>{
+    const q=BANK[r.idx];
+    const el=document.createElement('div');
+    el.className='rev-item glass';
+    const tier=q[0]<=-1.6?'p-mint':q[0]<=-0.8?'p-sky':q[0]<=0?'p-butter':q[0]<=0.8?'p-coral':'p-lav';
+    const tierLbl=['1','2','3','4','5'][[-1.6,-0.8,0,0.8,1.6].indexOf(q[0])];
+    let opts='';
+    q[4].forEach((t,i)=>{
+      const cls=i===q[5]?'ro key':(i===r.pick?'ro yours':'ro');
+      opts+=`<div class="${cls}"><span class="mono" style="font-size:12px">${'ABCDE'[i]}</span>&nbsp; ${t}</div>`;
+    });
+    el.innerHTML=`<div class="rev-head"><span class="mk ${r.correct?'good':'bad'}">${r.correct?'\u2713':'\u2717'}</span><span>Q${n+1} \u00b7 ${q[1]}</span><span class="pill ${tier}" style="margin-left:auto">tier ${tierLbl}</span></div>
+      <div class="rev-body"><p style="margin-top:0">${q[2]}</p><p style="font-weight:700">${q[3]}</p>${opts}<div class="expl"><b>Why:</b> ${q[6]}</div></div>`;
+    el.querySelector('.rev-head').onclick=()=>el.classList.toggle('open');
+    box.appendChild(el);
+  });
 }
-$("resetBtn").onclick=()=>{ if(confirm("Reset this test and clear progress?")) restart(); };
-
-document.addEventListener("keydown",e=>{
-  if(STATE&&STATE.done) return;
-  if(waiting && (e.key==="Enter"||e.key===" ")){e.preventDefault();advance();return;}
-  if(!locked){
-    const k=e.key.toUpperCase();
-    const idx="ABCDE".indexOf(k); const num="12345".indexOf(e.key);
-    const di= idx>=0?idx : num;
-    if(di>=0 && di<curOpts.length) choose(di);
-  }
-});
-
-(function init(){
-  const saved=load();
-  if(saved && !saved.done && saved.given.length){
-    STATE=saved;
-    if(stop()){ finish(); return; }
-    renderItem(selectNext());
-  } else if(saved && saved.done){
-    STATE=saved; finish();
-  } else {
-    STATE=fresh();
-    renderItem(selectNext());
-  }
-})();
+function saveHist(score,nC){
+  try{
+    const h=JSON.parse(localStorage.getItem(LS_HIST)||'[]');
+    h.unshift({s:score,c:nC,n:responses.length,d:new Date().toISOString().slice(0,10)});
+    localStorage.setItem(LS_HIST,JSON.stringify(h.slice(0,20)));
+  }catch(e){}
+}
+function renderHist(){
+  try{
+    const h=JSON.parse(localStorage.getItem(LS_HIST)||'[]');
+    if(!h.length) return;
+    $('histBox').style.display='block';
+    $('histRows').innerHTML=h.slice(0,5).map(r=>`<div class="hist-row"><span>${r.d}</span><span>${r.c}/${r.n} correct</span><span class="sc">${r.s}</span></div>`).join('');
+  }catch(e){}
+}
+$('startBtn').onclick=start;
+$('againBtn').onclick=()=>{ renderHist(); start(); };
+$('themeBtn').onclick=()=>{
+  const root=document.documentElement;
+  const next=root.getAttribute('data-theme')==='dark'?'light':'dark';
+  root.setAttribute('data-theme',next);
+  try{localStorage.setItem('cg-theme',next);}catch(e){}
+  if($('results').classList.contains('on')) drawTrace();
+};
+renderHist();
 </script>
 </body>
 </html>
