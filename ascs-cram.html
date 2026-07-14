@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ASCS Cram Lab — NADCA Air Systems Cleaning Specialist</title>
+<meta name="description" content="Blueprint-weighted mastery drill and timed 150-question exam simulator for the NADCA ASCS certification, grounded in ACR, The NADCA Standard 2025.">
+<meta property="og:title" content="ASCS Cram Lab — NADCA Duct Cleaning Cert Trainer">
+<meta property="og:description" content="230 questions grounded in ACR 2025. HamStudy-style mastery drill + timed 150Q exam sim weighted to the real ASCS blueprint. Cleaning & Restoration is 42%.">
+<meta property="og:url" content="https://niggerfaggot.club/ascs-cram">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{
+  --bg:#e9edf0; --panel:#fff; --ink:#1d2733; --muted:#6a7581; --line:#d7dee4;
+  --teal:#159fc9; --green:#43a047; --red:#e23b3b; --amber:#e8a33d;
+  --radius:12px; --shadow:0 1px 3px rgba(18,38,63,.10),0 6px 20px rgba(18,38,63,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+a{color:var(--teal)}
+.wrap{max-width:820px;margin:0 auto;padding:16px 14px 60px}
+header.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+header.top h1{font-size:19px;margin:0;letter-spacing:-.2px}
+header.top .tag{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+.modes{display:flex;gap:8px;margin-left:auto}
+.modebtn{border:1px solid var(--line);background:var(--panel);color:var(--muted);
+  padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer}
+.modebtn.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+.card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.hide{display:none!important}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+button{font-family:inherit}
+
+/* ---- rings / stats ---- */
+.stats{display:flex;gap:14px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.ring{--v:0;--c:var(--teal);width:66px;height:66px;border-radius:50%;flex:0 0 auto;
+  background:conic-gradient(var(--c) calc(var(--v)*1%), #e6ecf1 0);
+  display:flex;align-items:center;justify-content:center;position:relative}
+.ring::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--panel)}
+.ring b{position:relative;z-index:1;font-size:15px}
+.ringlab{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:3px;text-align:center}
+.statcol{display:flex;flex-direction:column;align-items:center;gap:2px}
+.rightstats{margin-left:auto;text-align:right;font-size:12.5px;color:var(--muted);line-height:1.7}
+.rightstats b{color:var(--ink)}
+
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+select,.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;
+  padding:8px 10px;font-size:13px;color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--teal)}
+.btn.ghost{color:var(--muted)}
+.topicpill{font-size:11px;color:var(--muted)}
+
+/* ---- question ---- */
+.qmeta{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:8px}
+.qmeta .dom{color:var(--teal)}
+.qtext{font-size:17px;font-weight:600;margin:2px 0 14px;line-height:1.45}
+.opts{display:flex;flex-direction:column;gap:9px}
+.ans{display:flex;gap:11px;align-items:flex-start;text-align:left;width:100%;
+  border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:12px 13px;
+  font-size:15px;cursor:pointer;transition:border-color .12s,background .12s}
+.ans:hover{border-color:var(--teal)}
+.ans .ltr{flex:0 0 auto;width:24px;height:24px;border-radius:6px;background:#eef3f7;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.ans.correct{border-color:var(--green);background:#eaf6ea}
+.ans.correct .ltr{background:var(--green);color:#fff}
+.ans.wrong{border-color:var(--red);background:#fbeaea}
+.ans.wrong .ltr{background:var(--red);color:#fff}
+.ans.dim{opacity:.55}
+.ans[disabled]{cursor:default}
+.ans b.mark{font-weight:800}
+.explain{margin-top:14px;border-left:4px solid var(--amber);background:#fdf6e9;
+  padding:11px 13px;border-radius:0 8px 8px 0;font-size:14px;display:none}
+.explain.show{display:block}
+.explain .lab{font-weight:800;color:#9a6a12;text-transform:uppercase;font-size:11px;letter-spacing:.5px}
+.contbar{margin-top:14px;display:none;align-items:center;gap:10px}
+.contbar.show{display:flex}
+.contbar .go{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:11px 20px;
+  font-size:14px;font-weight:700;cursor:pointer}
+.kbd{font-size:11px;color:var(--muted)}
+.done{text-align:center;padding:26px 10px}
+.done h2{margin:.2em 0}
+.done .big{font-size:44px;font-weight:800;color:var(--green)}
+
+/* ---- exam sim ---- */
+.examhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:19px}
+.timer.warn{color:var(--amber)} .timer.crit{color:var(--red)}
+.progress{height:6px;background:#e0e7ec;border-radius:6px;overflow:hidden;margin:8px 0 4px}
+.progress > i{display:block;height:100%;background:var(--teal);width:0}
+.exnav{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:16px;flex-wrap:wrap}
+.exnav .navbtns{display:flex;gap:8px}
+.navbtn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:10px 16px;
+  font-size:14px;font-weight:700;cursor:pointer}
+.navbtn.primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.navbtn:disabled{opacity:.4;cursor:default}
+.flagbtn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:10px 14px;font-size:13px;cursor:pointer}
+.flagbtn.on{background:#fdf1dd;border-color:var(--amber);color:#9a6a12;font-weight:700}
+.exgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(30px,1fr));gap:6px;margin-top:14px}
+.exgrid button{aspect-ratio:1;border:1px solid var(--line);background:var(--panel);border-radius:6px;
+  font-size:12px;cursor:pointer;color:var(--muted);font-weight:700}
+.exgrid button.answered{background:#e5f4f9;border-color:var(--teal);color:var(--teal)}
+.exgrid button.flagged{background:#fdf1dd;border-color:var(--amber);color:#9a6a12}
+.exgrid button.cur{outline:2px solid var(--ink);outline-offset:1px}
+.exopt{display:flex;gap:11px;align-items:flex-start;border:1.5px solid var(--line);border-radius:10px;
+  padding:12px 13px;font-size:15px;cursor:pointer;margin-bottom:9px}
+.exopt.sel{border-color:var(--teal);background:#eaf6fb}
+.exopt .ltr{flex:0 0 auto;width:24px;height:24px;border-radius:6px;background:#eef3f7;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.exopt.sel .ltr{background:var(--teal);color:#fff}
+.dombar{display:flex;flex-direction:column;gap:9px;margin:14px 0}
+.dombar .row{display:flex;align-items:center;gap:10px;font-size:13px}
+.dombar .row .nm{flex:0 0 190px}
+.dombar .row .track{flex:1;height:16px;background:#e0e7ec;border-radius:8px;overflow:hidden}
+.dombar .row .track > i{display:block;height:100%}
+.dombar .row .pc{flex:0 0 92px;text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.review .rq{border-top:1px solid var(--line);padding:14px 0}
+.review .rq .q{font-weight:600;margin-bottom:8px}
+.review .rq .line{font-size:14px;margin:3px 0}
+.review .rq .yours{color:var(--red)} .review .rq .right{color:var(--green)}
+.pillbtn{display:inline-block;background:var(--teal);color:#fff;border:none;border-radius:8px;
+  padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer}
+.pillbtn.grey{background:#5b6570}
+.note{font-size:12.5px;color:var(--muted);margin-top:10px}
+footer{margin-top:22px;text-align:center;font-size:11.5px;color:var(--muted);line-height:1.7}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>ASCS Cram Lab</h1>
+      <div class="tag">NADCA Air Systems Cleaning Specialist · ACR 2025</div>
+    </div>
+    <div class="modes">
+      <button class="modebtn on" id="mDrill" onclick="setMode('drill')">Drill</button>
+      <button class="modebtn" id="mExam" onclick="setMode('exam')">Exam Sim</button>
+    </div>
+  </header>
+
+  <!-- ============ DRILL ============ -->
+  <section id="drill">
+    <div class="card">
+      <div class="stats">
+        <div class="statcol">
+          <div class="ring" id="ringSeen" style="--c:var(--teal)"><b id="seenPct">0%</b></div>
+          <div class="ringlab">Seen</div>
+        </div>
+        <div class="statcol">
+          <div class="ring" id="ringApt" style="--c:var(--green)"><b id="aptPct">0%</b></div>
+          <div class="ringlab">Aptitude</div>
+        </div>
+        <div class="rightstats">
+          <div><b id="masteredN">0</b> mastered · <b id="poolN">0</b> in pool</div>
+          <div><b id="inQ">0</b> in rotation · <b id="answeredN">0</b> answers</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <select id="topic" onchange="applyTopic()"></select>
+        <button class="btn ghost" onclick="resetDrill()">Reset progress</button>
+        <span class="topicpill" id="topicHint"></span>
+      </div>
+      <div id="qbox"></div>
+    </div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--teal)"></i>Seen = fraction of pool viewed once</span>
+      <span><i class="dot" style="background:var(--green)"></i>Aptitude = confidence (retire at 2 in a row)</span>
+    </div>
+    <p class="note">Answer with <b>1–4</b> or <b>A–D</b>. On a miss, read the explain box and press <b>space</b> to continue. Miss a question and it comes back soon; get it right twice in a row and it retires. Progress saves automatically on this device.</p>
+  </section>
+
+  <!-- ============ EXAM SIM ============ -->
+  <section id="exam" class="hide">
+    <!-- start screen -->
+    <div class="card" id="exStart">
+      <h2 style="margin-top:4px">Timed Exam Simulator</h2>
+      <p class="small muted" style="margin-top:-6px">Mirrors the real ASCS: <b>150 questions</b>, <b>3 hours 30 minutes</b>, sampled to the official 2026 domain weights. Pace target is ~84 seconds per question.</p>
+      <div class="dombar" id="exBlueprint"></div>
+      <button class="pillbtn" onclick="startExam()">Start 150-question exam</button>
+      <div class="note">The clock counts down and auto-submits at zero. You can flag questions and jump around. Nothing is graded until you submit. NADCA does not publish an official passing score, so this reports your raw percentage and a per-domain breakdown.</div>
+    </div>
+
+    <!-- running exam -->
+    <div id="exRun" class="hide">
+      <div class="card">
+        <div class="examhead">
+          <div class="small muted">Question <b id="exPos">1</b> / 150 <span id="exFlagCount"></span></div>
+          <div class="timer" id="exTimer">3:30:00</div>
+        </div>
+        <div class="progress"><i id="exProg"></i></div>
+        <div class="qmeta"><span class="dom" id="exDom"></span><span id="exAnsweredMeta"></span></div>
+        <div class="qtext" id="exQ"></div>
+        <div id="exOpts"></div>
+        <div class="exnav">
+          <button class="flagbtn" id="exFlag" onclick="toggleFlag()">⚑ Flag</button>
+          <div class="navbtns">
+            <button class="navbtn" id="exPrev" onclick="exMove(-1)">Prev</button>
+            <button class="navbtn primary" id="exNext" onclick="exMove(1)">Next</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="small muted" style="margin-bottom:2px;font-weight:700">Question map — tap to jump</div>
+        <div class="exgrid" id="exMap"></div>
+        <div style="margin-top:14px;text-align:right">
+          <button class="pillbtn grey" onclick="submitExam(false)">Submit exam</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- results -->
+    <div id="exResult" class="hide"></div>
+  </section>
+
+  <footer>
+    Grounded in <b>ACR, The NADCA Standard — 2025 Edition</b> + the 2026/2023 ASCS Candidate Guides.
+    Authored study questions, not actual exam items. Study the source docs too.
+  </footer>
+</div>
+
+<script>
+// ASCS question bank — grounded in ACR, The NADCA Standard 2025 Edition + 2026/2023 Candidate Guides.
+// Blueprint-weighted to the 2026 six-domain outline. Format:
+// ["question", ["A","B","C","D"], correctIndex(0-based into ORIGINAL order), "explanation", "Domain"]
+const MCQS = [
+
+// ============================================================
+// DOMAIN 1 — BENEFITS OF HVAC SYSTEM CLEANING (16% ≈ 32 Q)
+// ============================================================
+["NADCA's founding mission promoted which method as the only acceptable way to clean an HVAC system?",
+ ["Source removal","Chemical encapsulation","Sanitizing fogging","Filter replacement"],0,
+ "NADCA was formed in 1989 to promote source removal — physically dislodging and removing contaminants — as the only acceptable cleaning method.","Benefits"],
+
+["An ASCS is qualified to serve as project manager for residential and commercial HVAC cleaning and also as a:",
+ ["Licensed HVAC installer","Ventilation system mold remediator","Structural engineer","Certified industrial hygienist"],1,
+ "Per the candidate guide, an ASCS is qualified to serve as project manager for cleaning/restoration and as a ventilation system mold remediator.","Benefits"],
+
+["Which is a primary benefit customers gain from proper HVAC system cleaning?",
+ ["Guaranteed elimination of all allergens","Improved indoor air quality","A permanent warranty on the equipment","Reduced need to ever change filters"],1,
+ "Improved indoor air quality is a core benefit. NADCA and the ACR standard specifically avoid guaranteeing IAQ or energy outcomes.","Benefits"],
+
+["Removing accumulated particulate from HVAC components can improve system efficiency primarily by:",
+ ["Increasing the refrigerant charge","Restoring designed airflow and heat transfer","Raising the thermostat setpoint","Eliminating the need for coils"],1,
+ "Debris on coils and in ducts restricts airflow and insulates heat-transfer surfaces; removing it restores designed performance, which can save energy.","Benefits"],
+
+["Which outcome does the ACR Standard explicitly refuse to warrant or guarantee will result from cleaning?",
+ ["That work follows the standard of care","Energy savings or correction of IAQ concerns","That documentation will be produced","That negative pressure will be used"],1,
+ "The ACR disclaimer states NADCA does not warrant that adherence will result in energy savings or correct any IAQ-related concerns.","Benefits"],
+
+["Cleaning HVAC components can extend equipment lifespan mainly because it:",
+ ["Reduces strain from restricted airflow and fouled surfaces","Adds a protective antimicrobial layer","Replaces worn mechanical parts","Upgrades the system to a higher SEER"],0,
+ "Fouled coils and blocked ducts make blowers and compressors work harder; removing that load reduces wear and can extend service life.","Benefits"],
+
+["Managing customer expectations before a project is important because HVAC cleaning:",
+ ["Guarantees a specific IAQ number","Cannot fix mechanical defects outside the cleaning scope","Always eliminates all odors permanently","Is a substitute for filter maintenance"],1,
+ "Cleaning removes non-adhered contaminants; it does not repair mechanical malfunctions or guarantee odor/IAQ numbers. Setting expectations avoids disputes.","Benefits"],
+
+["A newly installed duct system that became contaminated with construction dust is a recognized reason to:",
+ ["Void the manufacturer warranty","Clean the HVAC components before the system operates","Skip inspection since it is new","Replace all ductwork"],1,
+ "The ACR lists construction/newly-installed contamination as a trigger to clean before the system is permitted to operate.","Benefits"],
+
+["Which of the following is a recognized cause of HVAC system contamination?",
+ ["Bird, rodent, or insect infestation and their byproducts","Correctly sized filters","Balanced airflow","Routine visual inspection"],0,
+ "Infestation by birds, rodents, or insects and their byproducts is one of the ACR-listed conditions indicating a need to clean.","Benefits"],
+
+["Fire, smoke, and water damage are listed by the ACR Standard as conditions that:",
+ ["Require only deodorizing","Indicate the HVAC components may need cleaning/restoration","Are outside any NADCA scope","Automatically require full replacement"],1,
+ "Contamination from fire, smoke, and/or water damage is an ACR-listed condition indicating the components should be cleaned and restored.","Benefits"],
+
+["Which is NOT one of the ACR-listed conditions that indicate a need to clean HVAC components?",
+ ["Presence of particulate on components","Components discharging visible dirt into the space","The building recently changed ownership","Microbial contamination reaching Condition 2 or 3"],2,
+ "A change in ownership is not a listed trigger. Particulate, visible discharge, and Condition 2/3 microbial contamination all are.","Benefits"],
+
+["Cleaning HVAC components can be pursued as a component to achieve which building certification?",
+ ["OSHA VPP","LEED Certification","UL Listing","ISO 9001"],1,
+ "The ACR lists achieving LEED Certification among the reasons a component may be cleaned.","Benefits"],
+
+["When particulate accumulation compromises component performance, the ACR treats this as:",
+ ["A cosmetic issue only","A recognized reason to clean","A reason to increase fan speed","Outside the standard"],1,
+ "Compromised performance due to particulate accumulation is one of the listed conditions indicating a need for cleaning.","Benefits"],
+
+["Odors traced to HVAC components are addressed by the ACR as:",
+ ["Always requiring antimicrobial coating","A condition that may indicate the need to clean","Never within cleaning scope","Requiring only filter changes"],1,
+ "When components are determined to be a source of unacceptable odors, that is a listed condition indicating a need to clean.","Benefits"],
+
+["Proactively cleaning as part of an energy management program reflects which benefit theme?",
+ ["Regulatory penalty avoidance","Energy savings / efficiency","Warranty extension","Mold remediation"],1,
+ "Cleaning as part of a proactive energy management program ties to the energy-savings benefit of maintaining clean, unobstructed components.","Benefits"],
+
+["Which statement about HVAC cleaning and indoor air quality is most defensible?",
+ ["Cleaning guarantees healthy IAQ","Cleaning can contribute to improved IAQ but is not a guarantee","Cleaning has no relationship to IAQ","IAQ is unaffected by particulate"],1,
+ "Cleaning supports improved IAQ by removing contaminant sources, but neither NADCA nor the ACR guarantees an IAQ result.","Benefits"],
+
+["A proactive indoor air quality management program is listed by the ACR as a reason to:",
+ ["Avoid inspections","Clean HVAC components","Disable filtration","Increase duct velocity"],1,
+ "Cleaning as part of a proactive IAQ management program is one of the ACR's listed conditions.","Benefits"],
+
+["Contaminants that can be removed by an agitation device and vacuum are classified as:",
+ ["Adhered substances","Non-adhered substances","Structural materials","Coatings"],1,
+ "Non-adhered substances are those removable by cleaning/restoration; adhered substances (paint, mastic, stains) are not.","Benefits"],
+
+["Which is an example of an ADHERED substance that cleaning will not remove?",
+ ["Settled dust","Loose debris","Paint or mastic","Lint"],2,
+ "Adhered substances include paint, mastic, sealant, and stains — materials not removed by standard cleaning procedures.","Benefits"],
+
+["Deterioration of fibrous glass duct liner or duct board is listed as a condition that:",
+ ["Requires no action","Indicates a need to clean/address the components","Improves airflow","Is outside the ACR scope"],1,
+ "Deterioration of fibrous glass liner, duct board, or other porous components is an ACR-listed condition indicating a need to clean.","Benefits"],
+
+["Which best describes 'particulate' as defined by the ACR Standard?",
+ ["Any adhered coating","A non-adhered substance removable by an agitation device","A structural duct component","A type of sealant"],1,
+ "Particulate is any non-adhered substance in the system that can be removed using an agitation device.","Benefits"],
+
+["A 'contaminant' under the ACR Standard is:",
+ ["Only microbial growth","Any substance not intended to be present in the HVAC system","Only visible dust","Only construction debris"],1,
+ "A contaminant is any substance not intended to be present within the HVAC system.","Benefits"],
+
+["'Debris' under the ACR is defined as:",
+ ["Adhered mastic","Non-adhered substances not intended to be present in the system","Insulation banding","Coil fins"],1,
+ "Debris is non-adhered substances not intended to be present within the HVAC system.","Benefits"],
+
+["Which is a defensible way to describe the energy benefit of coil cleaning to a customer?",
+ ["It will cut your bill by exactly 30%","Restoring heat transfer can improve efficiency, though savings vary","It replaces the need for a new unit","It guarantees LEED points"],1,
+ "Honest expectation-setting: clean coils restore heat transfer and airflow, which can improve efficiency, but specific savings are not guaranteed.","Benefits"],
+
+["When should an ASCS avoid promising a specific indoor air quality result?",
+ ["Always — IAQ outcomes are not guaranteed by cleaning","Only for residential jobs","Only for healthcare jobs","Never — always promise clean air"],0,
+ "IAQ outcomes are influenced by many factors; the ACR explicitly declines to guarantee them, so an ASCS should not promise a specific result.","Benefits"],
+
+["Construction, retrofit, and remodel activity is significant to HVAC cleaning because components:",
+ ["Never collect debris during construction","Often collect significant debris and particulate during construction","Are self-cleaning when new","Cannot be inspected until occupied"],1,
+ "HVAC components often collect significant debris during construction; the ACR recommends inspecting before the system operates.","Benefits"],
+
+["Which is a legitimate driver for HVAC cleaning tied to occupant comfort and health?",
+ ["Discharge of visible dirt or debris into conditioned space","Lower thermostat setpoints","Adding refrigerant","Painting the ductwork"],0,
+ "Components discharging visible dirt/debris into the conditioned space is a listed condition and a comfort/health driver.","Benefits"],
+
+["The benefit of increased equipment lifespan is realized primarily on which components?",
+ ["Only the thermostat","Air handling units and the broader HVAC system","Only the ductwork exterior","Only the filters"],1,
+ "Reducing fouling load benefits the air handling unit and HVAC system as a whole, supporting longer service life.","Benefits"],
+
+["Which of these is a 'cause and type of contamination' an ASCS should understand?",
+ ["Construction particulate and microbial growth","Refrigerant type only","Thermostat brand","Duct color"],0,
+ "Understanding causes/types of contamination (construction particulate, microbial growth, infestation, fire/smoke/water) is part of the Benefits domain.","Benefits"],
+
+["Why does NADCA emphasize source removal over sanitizing alone?",
+ ["Sanitizing is illegal","Source removal physically eliminates the contaminant rather than masking it","Sanitizing is always cheaper","Source removal requires no equipment"],1,
+ "Source removal eliminates contaminants at their origin, preventing re-entrainment; sanitizing without removal leaves the source in place.","Benefits"],
+
+["A customer asks whether duct cleaning will 'fix' a broken blower motor. The best answer is:",
+ ["Yes, cleaning repairs mechanical parts","No — cleaning removes contaminants; mechanical repair is a separate scope","Yes, if you add a coating","Only in commercial buildings"],1,
+ "Cleaning addresses contaminants, not mechanical repair. Repair/replacement of malfunctioning devices is outside the cleaning scope (managing expectations).","Benefits"],
+
+["Which is the most accurate benefits statement for a proactive HVAC maintenance program?",
+ ["It eliminates the need for any future service","It supports IAQ, efficiency, and equipment life as part of a managed plan","It guarantees zero contamination forever","It replaces the need for filters"],1,
+ "Proactive cleaning as part of a maintenance/energy/IAQ plan supports air quality, efficiency, and equipment life — without absolute guarantees.","Benefits"],
+
+// ============================================================
+// DOMAIN 2 — MECHANICAL SYSTEMS (15% ≈ 30 Q)
+// ============================================================
+["What components would an ASCS expect to find in a fan coil unit?",
+ ["Diffuser, damper and grille","Blower, coil and filter","Blower, valve and filter","Damper, compressor and evaporator coil"],1,
+ "A fan coil unit contains a blower, a coil, and a filter. (NADCA official practice question.)","Mechanical"],
+
+["An air-handling unit (AHU) is best defined as:",
+ ["A passageway for air distribution","A packaged assembly, usually connected to ductwork, that moves and may condition air","A portable HEPA scrubber","A type of duct access door"],1,
+ "The ACR defines an AHU as a packaged assembly, usually connected to ductwork, that moves air and may also clean and condition it.","Mechanical"],
+
+["Coils in an HVAC system function to:",
+ ["Seal duct joints","Temper and/or dehumidify the air","Provide structural support","Filter particulate"],1,
+ "Coils are heat exchangers that temper (heat/cool) and/or dehumidify the air handled by the system.","Mechanical"],
+
+["A VAV box is a component associated with which part of the system?",
+ ["Supply air distribution","The condensate drain","The exterior duct wrap","The fuel-powered generator"],0,
+ "Variable Air Volume (VAV) boxes are supply-side terminal devices; supply duct inspections include VAV boxes and fan-powered terminal boxes.","Mechanical"],
+
+["Which of the following is a POROUS HVAC component?",
+ ["Galvanized sheet metal duct","Aluminum foil facing","Fibrous glass duct liner","Polymeric film flex-duct core"],2,
+ "Porous components can be penetrated by water or air — fibrous glass duct liner/board, sound-attenuated duct, wood, concrete.","Mechanical"],
+
+["Which of the following is a NON-POROUS HVAC component?",
+ ["Fibrous glass duct board","Sound-attenuated duct","Sheet metal duct","Wood plenum"],2,
+ "Non-porous components (sheet metal, aluminum foil, polymeric film flex liner) cannot be penetrated by water or air.","Mechanical"],
+
+["A 'duct liner' is typically made of what material and applied where?",
+ ["Sheet metal on the duct exterior","Fibrous glass applied to the inside of a metal duct","Rubber gasket at joints","Mastic at seams"],1,
+ "Duct liner is insulation, usually fibrous glass, applied to the inside of a metal duct for thermal retention and sound attenuation.","Mechanical"],
+
+["'Duct wrap' differs from duct liner in that duct wrap is:",
+ ["Applied inside the duct","Applied to the exterior of ducts with sealed seams for a vapor barrier","A type of coil","A fastening screw"],1,
+ "Duct wrap is exterior insulation with all seams/joints sealed to provide a continuous vapor barrier.","Mechanical"],
+
+["A negative air machine is best described as:",
+ ["A non-filtered blower","A HEPA-filtered AFD that collects particulate and controls workspace pressure differentials","A humidifier","A coil cleaning chemical"],1,
+ "A negative air machine is a HEPA-filtered air filtration device that collects particulate and controls workspace pressure; may or may not be ducted outside.","Mechanical"],
+
+["An 'air scrubber' is an AFD that:",
+ ["Creates negative pressure only","Uses HEPA filtration to re-circulate air within a defined space","Heats the supply air","Is the same as a coil"],1,
+ "An air scrubber is an AFD using HEPA filtration configured to re-circulate air within a defined space (contrast: negative air machine creates negative pressure).","Mechanical"],
+
+["A make-up air (MUA) unit's purpose is to:",
+ ["Recirculate return air only","Supply tempered fresh air to replace exhausted air","Dehumidify the crawlspace","Store contaminated debris"],1,
+ "A make-up air unit supplies tempered fresh air to replace air that is exhausted, using direct gas-fired, electric, or water heater sections.","Mechanical"],
+
+["Which components are part of the return side of an HVAC system?",
+ ["Supply diffusers and reheat coils","Return air grilles, return air ducts, and return plenums","Make-up air heaters","Exterior duct wrap"],1,
+ "Return-side components include return air grilles, return air ducts, and return plenums.","Mechanical"],
+
+["Dampers and other air-directional mechanical devices are used to:",
+ ["Filter particulate","Control or direct airflow within the system","Provide thermal insulation","Seal service openings"],1,
+ "Dampers are air-directional devices controlling airflow; their position must be marked before cleaning and restored afterward.","Mechanical"],
+
+["Which is considered part of the HVAC system per the ACR definition?",
+ ["Non-ducted open air plenums","The condensate drain pans and mixing box","Building structural columns","Exterior landscaping"],1,
+ "The HVAC system includes AHU interior, mixing box, coil compartment, condensate drain pans, supply/return ducts, fans, etc. Non-ducted open air plenums are excluded.","Mechanical"],
+
+["'Airside surface' refers to:",
+ ["The exterior of the duct wrap","The internal surface that air impacts while traveling through the system","The roof-mounted condenser","The thermostat face"],1,
+ "The airside surface is the internal surface of the system, ductwork, and components that air impacts while traveling through — excluding open air plenums.","Mechanical"],
+
+["A reheat coil is typically found on which side of the system?",
+ ["Return only","Supply air distribution (e.g., with VAV/terminal boxes)","Exhaust only","Outside the building"],1,
+ "Reheat coils are part of supply air distribution and are inspected with supply ducts, mixing boxes, and VAV/terminal boxes.","Mechanical"],
+
+["Which describes a central-station air-handling unit?",
+ ["A ductless mini-split","A factory-made encased assembly of fan(s) and equipment that circulates, cleans, heats, cools, humidifies, or mixes air","A portable air scrubber","A condensate pump"],1,
+ "A central-station AHU is a factory-made encased assembly performing one or more functions of circulating, cleaning, conditioning, and mixing air.","Mechanical"],
+
+["A ductless mini-split, PTAC, or window unit falls under which ACR definition?",
+ ["Make-up air unit","Cooling-heating unit","Open air plenum","Sound attenuator"],1,
+ "A cooling-heating unit includes means for cooling and heating and covers ductless mini-splits, PTACs, wall/window units, fan coil units, and split systems.","Mechanical"],
+
+["Sound attenuators in a duct system primarily serve to:",
+ ["Increase airflow velocity","Reduce noise transmitted through the ductwork","Filter microbial growth","Provide structural bracing"],1,
+ "Sound attenuators (and sound-attenuated duct/liner) reduce noise; they are addressed in inspection manuals and can be porous.","Mechanical"],
+
+["A duct access door with cam locks that mounts flush and extends into the duct, externally flush with the wall, is a:",
+ ["Surface Mount door","Flush Mount door","Spin door","Sandwich door"],1,
+ "A Flush Mount access door and frame extends into the duct and is externally flush with the outside duct wall.","Mechanical"],
+
+["A round access door installed by spinning the frame into a round opening is called a:",
+ ["Hinged door","Sandwich door","Spin door","Surface Mount door"],2,
+ "A spin door is a round access door and frame installed by spinning the frame into a round opening.","Mechanical"],
+
+["A two-part closure device mechanically fastened on both sides of the duct wall is a:",
+ ["Sandwich door","Flush Mount door","Spin door","Hinged door"],0,
+ "A sandwich access door is a two-part closure fastened together on both sides of the duct wall at the service-opening perimeter.","Mechanical"],
+
+["'Duct board' is best described as:",
+ ["Sheet metal panel","Rigid insulation board faced on one or both sides with a finishing/vapor barrier material","A coil section","A flexible connector"],1,
+ "Duct board is rigid insulation material faced with a finishing material, the outer facing normally serving as a vapor (and possibly air) barrier.","Mechanical"],
+
+["Which unit type includes means for cooling only but may include other air-handling functions?",
+ ["Heating unit","Cooling unit","Make-up air unit","Ventilating unit"],1,
+ "A cooling unit includes means for cooling and may also include other air-handling unit functions.","Mechanical"],
+
+["A contact vacuum is characterized by:",
+ ["A HEPA exhaust ducted outdoors only","A nylon brush nozzle applied directly to a surface for agitation and cleaning","A two-chamber decontamination unit","A fuel-powered engine"],1,
+ "A contact vacuum is a portable collection device with a nylon brush nozzle applied directly to a surface for mechanical agitation and cleaning.","Mechanical"],
+
+["Which best defines an 'air duct' per the ACR?",
+ ["Any building cavity","A passageway for distribution and extraction of air (excluding non-SMACNA plenums)","A coil compartment","A filter housing"],1,
+ "An air duct is a passageway for distribution and extraction of air, excluding plenums not installed per SMACNA standards.","Mechanical"],
+
+["Turning vanes, filter housings, and fan blades are:",
+ ["Not part of the HVAC system","Considered part of the HVAC system components","Only found in plenums","Structural building elements"],1,
+ "Turning vanes, filters, filter housings, fan blades, and fan housings are all listed as HVAC system components.","Mechanical"],
+
+["An air filtration device (AFD) that filters and creates negative pressure is referred to as a:",
+ ["Air scrubber","Negative air machine","Make-up air unit","Contact vacuum"],1,
+ "An AFD that filters air and creates negative pressure is a negative air machine; one that filters and re-circulates within a space is an air scrubber.","Mechanical"],
+
+["Condensate drain pans and drain lines are associated with which component group?",
+ ["Return grilles","Air-handling unit / coil section","Duct wrap","Sound attenuators"],1,
+ "Condensate pans and drain lines are AHU/coil-section components inspected during AHU cleanliness inspections.","Mechanical"],
+
+["Which statement about mixing boxes is correct?",
+ ["They are outside the HVAC system","They are part of the system and inspected with supply ducts","They filter refrigerant","They replace VAV boxes"],1,
+ "The mixing box is part of the HVAC system; supply duct inspections include mixing boxes, VAV boxes, and fan-powered terminal boxes.","Mechanical"],
+
+// ============================================================
+// DOMAIN 3 — UNDERSTANDING ASSESSMENTS / INSPECTIONS (12% ≈ 24 Q)
+// ============================================================
+["Per the ACR, HVAC systems in HEALTHCARE facilities should be visually inspected for cleanliness at a minimum interval of:",
+ ["6 months","1 year","2 years","2.5 years"],1,
+ "Table 1 recommends a 1-year interval for the AHU, supply, and return ducts in healthcare (and commercial and industrial) classifications.","Assessments"],
+
+["For a RESIDENTIAL building, the ACR's recommended minimum inspection interval for supply and return ducts is:",
+ ["1 year","2 years","3 years","6 months"],1,
+ "Residential: AHU every 1 year, but supply and return/exhaust ducts every 2 years (Table 1).","Assessments"],
+
+["The cleanliness inspection shall include, at minimum, what portion of the HVAC system components?",
+ ["5%","10%","25%","100%"],1,
+ "The cleanliness inspection shall include at minimum 10% of the components — unless it's a microbial remediation project per S520, when ALL components are inspected.","Assessments"],
+
+["When an inspection is part of a microbial remediation project under ANSI/IICRC S520, how much of the system must be inspected?",
+ ["10%","25%","50%","All components"],3,
+ "If conducted as part of a microbial remediation project per S520, ALL components of the HVAC system shall be inspected (not just 10%).","Assessments"],
+
+["Inspections shall be performed at which points relative to a cleaning project?",
+ ["Only before","Only after","Before and after","Neither"],2,
+ "Inspections shall be performed both before and after HVAC cleaning and restoration; routine inspections are also recommended.","Assessments"],
+
+["Which certification is specifically named by the ACR as a qualified HVAC inspector?",
+ ["EPA 608","Certified Ventilation Inspector (CVI)","OSHA 30","LEED AP"],1,
+ "The ACR names ASCS, CVI, or equivalent as qualified to determine preliminary component cleanliness.","Assessments"],
+
+["If suspect microbial contamination (mold) is observed during inspection, the ASCS should:",
+ ["Ignore it if minor","Note a preliminary Condition (1, 2, or 3) and recommend further IEP assessment","Immediately fog with biocide","Shut the building down"],1,
+ "It's recommended a preliminary Condition determination be noted and the cause/extent further assessed by an IEP or appropriate professional.","Assessments"],
+
+["Condition 1 in the ACR/S520 framework describes:",
+ ["Actual active microbial growth","A normal fungal ecology for a similar indoor environment","Settled spores from a Condition 3 area","A flooded building"],1,
+ "Condition 1 is a normal fungal ecology — may have settled spores or traces, but reflective of normal for a similar indoor environment.","Assessments"],
+
+["Condition 2 describes an environment primarily contaminated with:",
+ ["Actual growth","Settled spores or fungal fragments dispersed from a Condition 3 area","Only construction dust","Refrigerant vapor"],1,
+ "Condition 2 is primarily settled spores/fungal fragments dispersed (directly or indirectly) from a Condition 3 area, possibly with traces of growth.","Assessments"],
+
+["Condition 3 describes an environment with:",
+ ["Normal fungal ecology","Actual microbial growth (active or dormant, visible or hidden)","Only settled spores","No contamination"],1,
+ "Condition 3 is actual microbial growth — active or dormant, visible or hidden — with associated spores and fragments.","Assessments"],
+
+["An Indoor Environmental Professional (IEP) is qualified to do all EXCEPT:",
+ ["Determine Condition 1, 2, and 3 status","Create a sampling strategy and interpret lab data","Perform the mechanical duct cleaning as the ASCS","Verify return of fungal ecology to Condition 1"],2,
+ "An IEP assesses fungal ecology, samples, interprets data, and determines Conditions — a role distinct from the ASCS performing the cleaning.","Assessments"],
+
+["An AHU cleanliness inspection shall include, at minimum:",
+ ["Only the filters","Filters, coils, condensate pans/drains, humidification, insulation, fans, dampers, gaskets, and unit integrity","Only the fan","Only the exterior cabinet"],1,
+ "The AHU inspection covers filters/bypass, heating/cooling coils, condensate pans and drains, humidification, acoustic insulation, fans and compartments, dampers, gaskets, and general integrity.","Assessments"],
+
+["If an AHU inspection reveals suspect microbial contamination, the supply and return ducts shall be:",
+ ["Inspected later per Table 1 intervals","Inspected during that same inspection time","Ignored","Cleaned without inspection"],1,
+ "Per 1.9.1, if the AHU shows suspect microbial contamination, the supply and return ducts shall be inspected during that same inspection rather than on interval.","Assessments"],
+
+["Both building floor plans and mechanical plans, if available, shall be used:",
+ ["Only for commercial jobs","During inspection, cleaning, and restoration work","Only after the job is done","Never — they are optional"],1,
+ "The pre-inspection uses mechanical and building plans; both floor and mechanical plans, if available, shall be used during inspection, cleaning, and restoration.","Assessments"],
+
+["The system component assessment must include a recommendation on the need for cleaning and:",
+ ["A fixed price quote only","A clearly defined scope of work, cleaning techniques, and required engineering controls","The technician's lunch schedule","A refrigerant charge log"],1,
+ "The assessment includes need-to-clean recommendation, a defined scope of work, recommended techniques, required engineering controls, and any unique requirements.","Assessments"],
+
+["Before conducting an inspection, the inspector must understand:",
+ ["The building's resale value","The impact the inspection process may have on the building environment and occupants","The owner's credit score","The duct manufacturer's stock price"],1,
+ "The 1.2.1 risk assessment requires the inspector to understand the impact the inspection may have on the building environment and its occupants.","Assessments"],
+
+["During an inspection, appropriate engineering controls are used chiefly to manage:",
+ ["Lighting levels","Disturbance and release of settled particulate into occupied areas","Water temperature","Fan RPM"],1,
+ "Inspection can disturb settled particulate; appropriate engineering controls manage the workspace to prevent release into occupied areas.","Assessments"],
+
+["If a Method 1 visual inspection is inconclusive or disputed, the recommended next step is:",
+ ["Repaint the duct","Use Method 2 (Surface Comparison) or Method 3 (NADCA Vacuum Test)","Declare it clean","Skip verification"],1,
+ "When visual inspection is inconclusive/disputed, Method 2 (Surface Comparison Test) or Method 3 (NADCA Vacuum Test) is recommended to verify cleanliness.","Assessments"],
+
+["Damaged or unsafe components observed during inspection shall be:",
+ ["Repaired immediately without notice","Documented","Ignored if outside scope","Hidden from the client"],1,
+ "Damaged or unsafe components observed during the inspection shall be documented (1.7.6); pre-existing damage is brought to the client's attention.","Assessments"],
+
+["Exhaust air ducts (general, bathroom, heat recovery) are:",
+ ["Excluded from inspection","Considered part of the ventilation system and part of the overall inspection","Only inspected in healthcare","Never cleaned"],1,
+ "General, bathroom, and heat-recovery exhaust are part of the ventilation system and part of the overall inspection (1.7.5).","Assessments"],
+
+["The NADCA Surface Comparison Test or Vacuum Test may be performed specifically to:",
+ ["Set the project price","Determine the need for cleaning when there is a question","Replace the work plan","Certify the technician"],1,
+ "Per the 'Determining the Need' note, if there's any question on the need to clean, Method 2 or Method 3 may be performed.","Assessments"],
+
+["A qualified HVAC inspector must, at minimum, have a verifiable working knowledge of:",
+ ["Only marketing","Basic HVAC design, engineering practices, current cleaning/restoration techniques, and applicable standards","Only electrical code","Only refrigerant handling"],1,
+ "At minimum the inspector shall have verifiable working knowledge of basic HVAC design, fundamental engineering practices, current cleaning/restoration techniques, and applicable standards.","Assessments"],
+
+["Information gathered from an HVAC inspection is used primarily to:",
+ ["Determine the need for cleaning and define the scope, controls, and equipment needed","Set the thermostat","Bill the customer twice","Register the warranty"],0,
+ "Inspection determines the need for cleaning and defines the scope of work, engineering controls, safety measures, and tools/equipment required.","Assessments"],
+
+["For a COMMERCIAL building, the recommended AHU inspection interval is:",
+ ["2 years","1 year","3 years","6 months"],1,
+ "Commercial classification recommends 1-year intervals across the AHU, supply, and return/exhaust ducts.","Assessments"],
+
+// ============================================================
+// DOMAIN 4 — CLEANING & RESTORATION PROCEDURES (42% ≈ 84 Q)
+// ============================================================
+["The fundamental cleaning method in the ACR Standard is to dislodge non-adhered substances with an agitation device and then:",
+ ["Let them settle","Capture the dislodged debris with a vacuum collection device","Blow them out the registers","Seal them behind a coating"],1,
+ "HVAC systems are cleaned by using a suitable agitation device to dislodge non-adhered substances, then capturing them with a vacuum collection device (4.3).","Cleaning & Restoration"],
+
+["Prior to and throughout the cleaning process, the duct system shall be kept at:",
+ ["Positive pressure","An appropriate negative pressure differential relative to the indoor non-work area","Atmospheric pressure","Any pressure the tech prefers"],1,
+ "Section 4.1 requires an appropriate negative pressure differential between the portion being cleaned and surrounding indoor occupant spaces.","Cleaning & Restoration"],
+
+["Under all circumstances during the project, the ASCS shall:",
+ ["Assume negative pressure is present","Verify the pressurization differential","Rely on the equipment specs","Skip verification for small jobs"],1,
+ "Section 4.1.1: under all circumstances you shall verify pressurization differential during the project.","Cleaning & Restoration"],
+
+["Vacuum collection equipment exhausting INDOORS shall:",
+ ["Be HEPA-filtered and capable of retaining dislodged debris","Vent to the return duct","Use a standard shop filter","Be exempt from filtration"],0,
+ "Equipment exhausting indoors shall be HEPA-filtered and capable of retaining dislodged debris (4.1.2).","Cleaning & Restoration"],
+
+["Equipment used to create negative duct pressurization that does NOT have HEPA filtration shall be:",
+ ["Used indoors freely","Exhausted outdoors","Run at low speed","Wrapped in plastic"],1,
+ "All negative-pressurization equipment lacking HEPA filtration shall be exhausted outdoors (4.1.3).","Cleaning & Restoration"],
+
+["To be considered clean by the NADCA Vacuum Test, the net weight of debris on the filter media must not exceed:",
+ ["0.75 mg/100 cm²","0.85 mg/100 cm²","1.00 mg/100 cm²","1.02 mg/100 cm²"],0,
+ "Section 5.5: the net weight of debris collected shall not exceed 0.75 mg per 100 cm² to pass the NADCA Vacuum Test.","Cleaning & Restoration"],
+
+["The NADCA Vacuum Test applies to which components?",
+ ["Porous components only","Non-porous HVAC component surfaces only","Both porous and non-porous","Only fibrous glass"],1,
+ "The NADCA Vacuum Test (Method 3) scientifically evaluates particulate on NON-porous surfaces; it does not apply to porous components.","Cleaning & Restoration"],
+
+["Which verification method can be used on BOTH porous and non-porous surfaces?",
+ ["Method 3 - NADCA Vacuum Test","Method 2 - Surface Comparison Test","Static pressure drop only","Refrigerant analysis"],1,
+ "The Surface Comparison Test (Method 2) may be used to determine cleanliness of both porous and non-porous component surfaces.","Cleaning & Restoration"],
+
+["In the Surface Comparison Test, the brush is passed over the test area how many times?",
+ ["Two times","Three times","Four times","Six times"],2,
+ "Section 5.3.1: the brush is passed over the surface test area four (4) times using light to moderate pressure.","Cleaning & Restoration"],
+
+["The contact vacuum used in the Surface Comparison Test must be HEPA-filtered and capable of a minimum static lift of:",
+ ["40 inches WC","60 inches WC","80 inches WC","100 inches WC"],2,
+ "The testing contact vacuum shall be HEPA-filtered and capable of achieving a minimum of 80 inches of static lift (WC), with a 2.5-inch round nylon brush.","Cleaning & Restoration"],
+
+["When cleanliness is verified by visual inspection, an interior surface is considered visibly clean when it is:",
+ ["Freshly painted","Free from non-adhered substances and debris","Coated with antimicrobial","Below 0.75 mg/100 cm²"],1,
+ "Visibly clean means the interior surfaces are free of non-adhered substances and debris (Method 1 / definitions).","Cleaning & Restoration"],
+
+["Cleanliness verification shall be performed:",
+ ["A week after the job","Immediately after cleaning and prior to system operation","Only if the client requests it","Before cleaning begins"],1,
+ "Section 5.1: perform cleanliness verification immediately after component cleaning and prior to system operation.","Cleaning & Restoration"],
+
+["Level 1 containment is defined by the ACR as:",
+ ["The maximum containment level","The minimum level of containment used on ALL HVAC cleaning projects","Only for microbial jobs","Optional"],1,
+ "Level 1 is the minimum containment that shall be used on all HVAC system component cleaning projects (3.9).","Cleaning & Restoration"],
+
+["Temporary containment barriers under Level 2 are recommended to be built from:",
+ ["4-mil clear poly","6-mil fire retardant polyethylene sheeting or equivalent","Cardboard","Drywall only"],1,
+ "Section 3.10.2.3 recommends containment barriers be erected from 6-mil fire retardant polyethylene sheeting or equivalent.","Cleaning & Restoration"],
+
+["A Level 2 containment floor is a two-layer 6-mil floor that extends up the side walls at least:",
+ ["2 inches (5 cm)","6 inches (15.2 cm)","12 inches (30 cm)","24 inches (61 cm)"],1,
+ "Section 3.10.3: the two-layer 6-mil floor shall extend at least 6 inches (15.2 cm) up the containment side walls, sealed airtight.","Cleaning & Restoration"],
+
+["To validate negative pressurization of a containment, the ACR requires use of a:",
+ ["Thermometer","Manometer or airflow measuring/monitoring device","Tape measure","pH meter"],1,
+ "Section 3.10.6: a manometer or airflow measuring/monitoring device shall be used to validate negative pressurization.","Cleaning & Restoration"],
+
+["Ambient air cleaning in a Level 2 containment shall maintain a minimum of how many air changes per hour?",
+ ["2 ACH","4 ACH","6 ACH","10 ACH"],1,
+ "Section 3.10.7: ambient air cleaning with HEPA-filtered air scrubbers shall maintain at minimum four (4) air changes per hour.","Cleaning & Restoration"],
+
+["A Level 3 containment includes a decontamination unit with how many chambers?",
+ ["Single chamber","Two chambers","Three chambers","No decon unit"],0,
+ "Level 3 is a containment with a single-chamber decontamination unit (3.11).","Cleaning & Restoration"],
+
+["A Level 4 containment is distinguished by:",
+ ["No monitoring","A two-chamber decontamination unit with a constant recording pressurization monitor and alarm","Positive pressure","4-mil sheeting"],1,
+ "Level 4 has a two-chamber decontamination unit and adds a constant recording pressurization monitor with an appropriate alarm (3.12).","Cleaning & Restoration"],
+
+["Level 3 containment areas shall be monitored for negative pressure:",
+ ["Once at start-up","On a continuous basis with a sensitive instrument","Only if the client asks","Weekly"],1,
+ "Section 3.11.3: Level 3 areas shall be continuously monitored for negative pressure with an instrument sensitive enough to detect a loss.","Cleaning & Restoration"],
+
+["When cleaning electric resistance coils, the power source shall first be:",
+ ["Left energized for testing","De-energized and locked out/tagged out","Increased to full load","Disconnected from ground"],1,
+ "Section 4.11.8: when cleaning electric resistance coils, the power source shall be de-energized and locked out/tagged out.","Cleaning & Restoration"],
+
+["When coil cleaning is performed, which sides of the coil must be accessed?",
+ ["Upstream only","Downstream only","Both upstream and downstream sides","Neither — clean from the duct"],2,
+ "Section 4.11: both upstream and downstream sides of each coil section shall be accessed; if not accessible, removal/replacement may be required.","Cleaning & Restoration"],
+
+["Type 1 coil cleaning refers to:",
+ ["Wet cleaning","Dry cleaning for loose dust, dirt, or debris","Chemical fogging","Steam only"],1,
+ "Type 1 (Dry Cleaning) methods remove loose dust, dirt, or debris from coil surfaces, with negative air machines running continuously.","Cleaning & Restoration"],
+
+["If a preliminary coil inspection reveals suspect microbial contamination on the coil or drain pan, which method is required?",
+ ["Type 1 (Dry Cleaning)","Type 2 (Wet Cleaning)","Encapsulation only","No cleaning"],1,
+ "Section 4.11.1.2: if suspect microbial contamination is found on any portion of the coil or drain pan, Type 2 (Wet Cleaning) shall be performed.","Cleaning & Restoration"],
+
+["During Type 1 dry coil cleaning, the coil shall be isolated from the duct system to:",
+ ["Improve airflow","Ensure disrupted particulate does not migrate to or redeposit on unintended areas","Save chemicals","Speed drying"],1,
+ "The coil is isolated during Type 1 cleaning so disrupted particulate doesn't migrate to or redeposit on unintended areas (4.11.2).","Cleaning & Restoration"],
+
+["It is recommended that coil cleaning solutions be:",
+ ["Highly acidic","Highly alkaline","As close to pH neutral as possible","Undiluted"],2,
+ "Section 4.11.4.2 recommends only coil cleaning solutions as close to pH neutral as possible, that don't damage/erode the coil or fins.","Cleaning & Restoration"],
+
+["To measure the effectiveness of coil cleaning objectively, the ACR recommends obtaining:",
+ ["A refrigerant sample","A static pressure drop measurement before and after cleaning","A decibel reading","A moisture meter reading of the wall"],1,
+ "Because visual observation can mislead, a static pressure drop measurement before and after cleaning is recommended to demonstrate effectiveness (4.11.6).","Cleaning & Restoration"],
+
+["Dampers and air-directional devices shall have their position marked prior to cleaning and:",
+ ["Left in the closed position","Restored to their marked position after cleaning","Removed permanently","Set to fully open"],1,
+ "Section 4.8: dampers shall have their position marked before cleaning and be restored to that marked position afterward.","Cleaning & Restoration"],
+
+["Cleaning agents or water shall NEVER be applied to which components?",
+ ["Sheet metal ducts","Electrical, fibrous glass, or other porous components","Non-porous coils","Access doors"],1,
+ "Section 4.4: cleaning agents or water shall never be applied to electrical, fibrous glass, or other porous HVAC components.","Cleaning & Restoration"],
+
+["Vacuum collection equipment shall be operated in what manner during cleaning?",
+ ["Intermittently","Continuously during cleaning","Only at the end","Only during setup"],1,
+ "Section 4.5: vacuum collection equipment shall be operated continuously during cleaning, in conjunction with agitation tools.","Cleaning & Restoration"],
+
+["Service openings shall NOT be made in which type of ductwork?",
+ ["Rigid sheet metal","Fibrous glass duct board","Flexible ductwork","Spiral duct"],2,
+ "Section 4.2.9: service openings shall not be made in flexible ductwork; manufacturers' instructions are followed for disconnecting/reattaching flex.","Cleaning & Restoration"],
+
+["Service panels used to close service openings shall be mechanically fastened at minimum every:",
+ ["2 inches on center","4 inches on center","8 inches on center","12 inches on center"],1,
+ "Section 4.2.5.2: service panels shall be mechanically fastened (screwed or riveted) at minimum every 4 inches on center.","Cleaning & Restoration"],
+
+["A service panel closing a service opening shall overlap the ductwork surfaces by a minimum of:",
+ ["1 inch on all sides","2 inches on all sides","0.5 inch on all sides","4 inches on all sides"],0,
+ "Section 4.2.5.2: the panel shall overlap the ductwork surfaces by a minimum of 1 inch on all sides.","Cleaning & Restoration"],
+
+["Service panels used for closing openings shall be of what gauge relative to the duct?",
+ ["Lighter gauge to save weight","Equivalent gauge or heavier","Any gauge available","Only aluminum foil"],1,
+ "Section 4.2.5.1: service panels shall be of an equivalent gauge or heavier so as not to compromise the duct's structural integrity.","Cleaning & Restoration"],
+
+["Tapes and mastics used in the closure of service openings shall meet the requirements of:",
+ ["UL 723","UL 181A/B","NFPA 96","ASTM E84 only"],1,
+ "Section 4.2.5.4: all tapes and mastics used in closing service openings shall meet the requirements of UL 181A/B.","Cleaning & Restoration"],
+
+["Materials used to fabricate duct access doors (exposed to the airstream) must have a flame-spread rating not over:",
+ ["10","25","50","75"],1,
+ "Section 4.2.7: a flame-spread rating not over 25 and smoke-developed rating not over 50 (per UL 723).","Cleaning & Restoration"],
+
+["Those same access-door materials must have a smoke-developed rating not over:",
+ ["25","50","100","200"],1,
+ "Flame-spread not over 25 and smoke-developed not over 50, as determined by UL 723 (4.2.7).","Cleaning & Restoration"],
+
+["Service openings installed into the system shall NOT:",
+ ["Allow proper closure","Degrade the structural, thermal, or functional integrity of the components","Comply with codes","Be sized for cleaning tools"],1,
+ "Section 4.2.1: service openings shall not degrade the structural, thermal, or functional integrity of the system components.","Cleaning & Restoration"],
+
+["Air ducts shall be cleaned to remove all non-adhered substances and be capable of:",
+ ["Passing NADCA cleanliness verification tests","Holding positive pressure","Resisting UV light","Supporting foot traffic"],0,
+ "Section 4.7: air ducts shall be cleaned to remove all non-adhered substances and be capable of passing NADCA cleanliness verification tests.","Cleaning & Restoration"],
+
+["Restoration procedures shall only be performed:",
+ ["Before any cleaning","After mechanical cleaning","Instead of cleaning","During the assessment"],1,
+ "Section 4.14: restoration and repair of mechanical systems shall only be performed after mechanical cleaning.","Cleaning & Restoration"],
+
+["The scope of work must clearly identify:",
+ ["Only the price","Which HVAC components are to be cleaned or restored, plus required engineering controls","The technician's certifications only","The building's square footage only"],1,
+ "Section 2.2: the scope of work shall clearly identify which components are to be cleaned/restored and the required engineering controls and unique requirements.","Cleaning & Restoration"],
+
+["Before any cleaning work, the HVAC cleaning contractor shall provide a:",
+ ["Verbal estimate only","Written work plan","Marketing brochure","Refrigerant log"],1,
+ "Section 2.0: prior to commencement of any cleaning work, the contractor shall provide a written work plan based on the inspection and assessment.","Cleaning & Restoration"],
+
+["The work plan shall include Safety Data Sheets (SDS) for:",
+ ["Only flammable products","All chemical products to be used on the project","Nothing — SDS are optional","Only products used indoors"],1,
+ "Section 2.7.1: the work plan shall include SDS for all chemical products to be used, and SDS shall be maintained on-site for the project duration.","Cleaning & Restoration"],
+
+// -- (second half of Cleaning & Restoration continues) --
+["When air-handling coils, fans, condensate pans and drains are cleaned, the ACR recommends they be:",
+ ["Left dry-brushed only","Wet cleaned in conjunction with mechanical methods","Painted","Replaced automatically"],1,
+ "Section 4.6: it's recommended that non-porous AHU surfaces (coils, fans, condensate pans, drains) be wet cleaned in conjunction with mechanical methods.","Cleaning & Restoration"],
+
+["Porous materials with microbial growth (Condition 3) are recommended to be:",
+ ["Treated with biocide and left in place","Properly removed and replaced","Encapsulated only","Vacuumed and reused"],1,
+ "Section 4.16: porous materials with Condition 3 microbial growth are recommended to be properly removed and replaced, followed by surface cleaning.","Cleaning & Restoration"],
+
+["Remediation of microbial contamination shall be performed in accordance with:",
+ ["NFPA 90A","ANSI/IICRC S520","ASHRAE 62.1","UL 181"],1,
+ "Section 4.13: remediating microbial contamination shall follow ANSI/IICRC S520, alongside the ACR's cleaning/restoration provisions.","Cleaning & Restoration"],
+
+["Surface treatments (coatings) shall only be applied after:",
+ ["The system is contaminated","Confirming the system has been cleaned and passed cleanliness verification","The client pays in full","The coils are removed"],1,
+ "Section 4.15: surface treatments shall only be applied after confirming the system has been cleaned and passed the specified level of cleanliness verification.","Cleaning & Restoration"],
+
+["Surface treatments used in the HVAC system shall meet the requirements of:",
+ ["UL 181","NFPA 96","ASTM E84","IICRC S500"],0,
+ "Section 4.15.1: surface treatments shall meet the requirements of UL 181.","Cleaning & Restoration"],
+
+["Wet cleaning, power washing, and steam cleaning shall not:",
+ ["Use any water","Damage or result in subsequent damage to the components or facility equipment","Be documented","Be used on non-porous surfaces"],1,
+ "Section 4.4: wet/steam/power cleaning shall not damage or cause subsequent damage to components or equipment; never applied to electrical/porous surfaces.","Cleaning & Restoration"],
+
+["When mechanically cleaning fibrous glass duct liner or duct board, the method selected shall NOT:",
+ ["Remove particulate","Create abrasions, breaks, or tears to the fibrous glass surfaces","Use a vacuum","Follow Section 4.7"],1,
+ "Section 4.17.1: the mechanical cleaning methods for duct liner/duct board shall not create abrasions, breaks, or tears to the fibrous glass surfaces.","Cleaning & Restoration"],
+
+["Cleaning of fibrous glass duct liner or duct board shall be performed in accordance with which ACR section?",
+ ["Section 3.4","Section 4.7 (Air Duct Cleaning)","Section 5.5","Section 2.2"],1,
+ "Section 4.17: cleaning of fibrous glass duct liner or duct board present in equipment or ducts shall follow Section 4.7 of the Standard.","Cleaning & Restoration"],
+
+["If fibrous glass removal was due to microbial contamination, the base surface shall be cleaned to what status before reapplying insulation?",
+ ["Condition 3","Condition 2","Condition 1","Any condition"],2,
+ "Section 4.20.1: if removal was due to microbial contamination, the base surface shall be cleaned to a Condition 1 status prior to reapplying fibrous glass products.","Cleaning & Restoration"],
+
+["Registers, grilles, and diffusers should be handled during cleaning by:",
+ ["Leaving them installed and painting over","Removing them if possible, cleaning, and restoring to their previous position","Discarding them","Sealing them shut"],1,
+ "Section 4.9: it's recommended registers, grilles, diffusers be removed if possible, properly cleaned, and restored to their previous position.","Cleaning & Restoration"],
+
+["Cleaning activities shall not impair, alter, or damage which safety equipment?",
+ ["Exit signs","Smoke and fire detection equipment","Fire extinguishers","Emergency lighting"],1,
+ "Section 4.10: cleaning activities shall not impair, alter, or damage smoke/fire detection equipment in the facility or serving the components.","Cleaning & Restoration"],
+
+["The condensate drain pan and drain line during Type 2 wet cleaning shall be:",
+ ["Left untouched","Cleaned and flushed, then inspected and tested to verify drainage","Sealed permanently","Replaced with PVC only"],1,
+ "Section 4.11.4.1: the condensate drain pan and line shall be cleaned and flushed; the pan inspected and tested to verify drainage before and after cleaning.","Cleaning & Restoration"],
+
+["If debris cannot be removed from a coil using Type 2 (Wet Cleaning) methods, the ACR indicates:",
+ ["The coil is acceptable","Replacement may be necessary","Type 1 must be repeated indefinitely","Encapsulate the debris"],1,
+ "Section 4.11.4: when debris cannot be removed using Type 2 methods, replacement may be necessary.","Cleaning & Restoration"],
+
+["Fuel-powered equipment (generators, vacuum trucks, compressors) shall be positioned to:",
+ ["Maximize noise","Prevent combustion and exhaust emissions from entering an occupied space","Block the entrance","Stay indoors near the work"],1,
+ "Section 3.2: fuel-powered equipment shall be positioned to prevent combustion and air-exhaust emissions from entering an occupied space.","Cleaning & Restoration"],
+
+["Vacuum collection equipment exhausting within the building envelope shall use HEPA filtration with what efficiency?",
+ ["95% at 1.0 micron","99.0% at 0.5 micron","99.97% at 0.3 micron","99.99% at 0.1 micron"],2,
+ "Section 3.3: HEPA filtration with 99.97% collection efficiency at 0.3-micron particle size when exhausting indoors.","Cleaning & Restoration"],
+
+["A continuous negative pressure during cleaning shall be maintained and:",
+ ["Assumed based on fan size","Verifiable at representative locations during cleaning","Measured only once","Left to the client"],1,
+ "Section 3.4: continuous negative pressure shall be maintained and be verifiable at representative locations during the cleaning process.","Cleaning & Restoration"],
+
+["All contaminated materials removed from the components shall be:",
+ ["Left on-site loose","Properly contained prior to removal from the building","Burned on-site","Blown outdoors"],1,
+ "Section 3.5: to prevent cross-contamination, all contaminated materials removed shall be properly contained prior to removal from the building.","Cleaning & Restoration"],
+
+["It is recommended that redundant equipment be available on-site in the event of:",
+ ["A coffee break","Negative pressure failure","A billing dispute","A power surge"],1,
+ "Section 3.8: it's recommended that redundant equipment be available on-site in the event of negative pressure failure.","Cleaning & Restoration"],
+
+["Ambient air cleaning as a supplemental engineering control uses:",
+ ["Ozone generators","HEPA-filtered air scrubbers","Positive-pressure fans","UV lamps only"],1,
+ "Section 3.6: ambient air cleaning uses HEPA-filtered air scrubbers as a supplemental control for particle reduction during and after work.","Cleaning & Restoration"],
+
+["Before equipment is brought onto the work site it shall be:",
+ ["Painted","Cleaned and inspected so it won't introduce contaminants","Weighed","Registered with NADCA"],1,
+ "Section 3.1.1: before any equipment is brought onto the work site it shall be cleaned and inspected to ensure it won't introduce contaminants.","Cleaning & Restoration"],
+
+["Opening contaminated vacuum collection equipment on-site (for servicing or filter maintenance) shall be done:",
+ ["In the occupied space","In an appropriate containment area or outside the building","Anywhere convenient","Only at night"],1,
+ "Section 3.1.2.1: any activity opening contaminated vacuum equipment on-site shall be performed in an appropriate containment area or outside the building.","Cleaning & Restoration"],
+
+["The NADCA Vacuum Test uses a template applied over two openings measuring:",
+ ["1 cm x 25 cm","2 cm x 25 cm","2 cm x 50 cm","5 cm x 10 cm"],1,
+ "Section 5.4: the closed-face vacuum cassette is passed over two (2) 2 cm x 25 cm openings within the template.","Cleaning & Restoration"],
+
+["The NADCA Vacuum Test air sampling pump must draw a minimum of:",
+ ["5 liters per minute","10 liters per minute","15 liters per minute","25 liters per minute"],2,
+ "Section 5.4.1: an air sampling pump capable of drawing a minimum of 15 liters per minute through a closed-face cassette shall be used.","Cleaning & Restoration"],
+
+["During NADCA Vacuum Test sampling, airflow is adjusted to:",
+ ["10 L/min ± 2","17 liters per minute ± 2","25 L/min ± 5","30 L/min ± 2"],1,
+ "The sampling protocol adjusts airflow with a calibration device to 17 liters per minute ± 2 L/min.","Cleaning & Restoration"],
+
+["The NADCA Vacuum Test cassette is moved at a rate not greater than:",
+ ["2 cm per second","5 cm per second","10 cm per second","1 cm per second"],1,
+ "The cassette is slid at a rate not greater than 5 cm per second (5 seconds per slot each direction), and each opening is vacuumed twice.","Cleaning & Restoration"],
+
+["The NADCA Vacuum Test filter media are 37 mm matched-weight filters made of:",
+ ["Glass fiber","Mixed cellulose ester (MCE)","PTFE","Polycarbonate"],1,
+ "Section 5.4.1: filter media are 37 mm mixed cellulose ester (MCE) matched-weight filters (0.8 or 0.45 micron pore size).","Cleaning & Restoration"],
+
+["The NADCA Vacuum Test pump shall be calibrated to an accuracy of:",
+ ["±1% at 15 L/min","±5% at 15 L/min","±10% at 15 L/min","±5% at 30 L/min"],1,
+ "Section 5.4.1: the vacuum pump shall be calibrated using a device accurate to ±5% at 15 liters per minute.","Cleaning & Restoration"],
+
+["Analysis of the NADCA Vacuum Test sample is based on which method?",
+ ["EPA Method 5","NIOSH Method 0500 (total nuisance dust)","ASTM D3195","OSHA ID-160"],1,
+ "Section 5.4: analysis is based on NIOSH Method 0500 (total nuisance dust); results reported in mg per 100 cm².","Cleaning & Restoration"],
+
+["The NADCA Vacuum Test template thickness specification is:",
+ ["5 mil","10 mil","15 mil (0.381 mm)","25 mil"],2,
+ "Section 5.4.1: the template shall be 15 mil thick (0.381 mm), providing a 100 cm² sampling area of two 2 cm x 25 cm slots at least 2.5 cm apart.","Cleaning & Restoration"],
+
+["During NADCA Vacuum Test sampling, the air-handler shall be:",
+ ["Running at full speed","Not running while the sample is collected","Set to recirculate","In heating mode"],1,
+ "The template shall lay flat on a dry surface and the air-handler shall NOT be running when the sampling is conducted.","Cleaning & Restoration"],
+
+["Each NADCA Vacuum Test template opening shall be vacuumed:",
+ ["Once","Twice (once in each direction)","Three times","Until visibly clean"],1,
+ "Each template opening shall be vacuumed twice — once in each direction — with the cassette edges resting on the template, not touching the duct surface.","Cleaning & Restoration"],
+
+["The scale used to weigh NADCA Vacuum Test filters shall have a sensitivity of:",
+ ["≥ 0.1 mg","≥ 0.7 mg","≥ 1.0 mg","≥ 5.0 mg"],1,
+ "Section 5.4: scale sensitivity shall be equal to or greater than 0.7 milligram, calibrated per the manufacturer's recommendations.","Cleaning & Restoration"],
+
+["If the NADCA Vacuum Test is used for verification, the documentation shall include:",
+ ["Only a photo","A copy of the lab results","Nothing extra","The technician's resume"],1,
+ "Section 5.6.1: if the NADCA Vacuum Test is used, a copy of the lab results shall be included with the post-project documentation.","Cleaning & Restoration"],
+
+["If Method 2 Surface Comparison testing is inconclusive or disputed, the final determination can be made using:",
+ ["A second visual inspection","Method 3 - NADCA Vacuum Test","Static pressure only","Client opinion"],1,
+ "Section 5.3.3: if Method 2 is inconclusive/disputed, Method 3 (NADCA Vacuum Test) may make the final cleanliness determination (non-porous only).","Cleaning & Restoration"],
+
+["When contaminated materials are transported/relocated within the building, tools and vacuums shall be:",
+ ["Left uncovered","Cleaned or sealed before relocating and before removal","Rinsed with water only","Wrapped in newspaper"],1,
+ "Section 3.1.3: all collection devices, vacuums, and tools shall be cleaned or sealed before relocating to different areas and before removal from the building.","Cleaning & Restoration"],
+
+["Interior surfaces of a containment enclosure shall be wet-wiped and/or HEPA vacuumed:",
+ ["Only if visibly dirty","Before moving or dismantling the containment enclosure","After the client leaves","Never"],1,
+ "Section 3.10.8: interior surfaces of the containment enclosure shall be wet-wiped and/or HEPA vacuumed before moving or dismantling it.","Cleaning & Restoration"],
+
+["In a Level 3 containment, background monitoring for total particulate shall be performed:",
+ ["After the job only","Prior to set-up of containment to establish a baseline","Never","Only in healthcare"],1,
+ "Section 3.11.3: background total-particulate monitoring shall be performed prior to containment set-up to establish baseline airborne concentrations.","Cleaning & Restoration"],
+
+["In a Level 3 containment, if airborne particulate exceeds background levels, work shall:",
+ ["Continue faster","Cease until levels are reduced and the cause found and corrected","Switch to positive pressure","Move to another room"],1,
+ "Section 3.11.3: if airborne particulate exceeds background, work shall cease until levels are reduced to background and the cause is found and corrected.","Cleaning & Restoration"],
+
+["The most common Level 2 containment access is:",
+ ["An open doorway","A zipper-type access with a single flap covering the zipper","A revolving door","A vertical cut with no flaps"],1,
+ "Section 3.10.4: a zipper-type access with a single flap covering the zipper is the most common work practice; a two-flap vertical cut is the alternative.","Cleaning & Restoration"],
+
+["Project assessment before defining scope is intended to determine:",
+ ["Only the crew size","The need for cleaning, techniques, equipment, and required engineering controls","The building's age only","The client's budget only"],1,
+ "Section 4 project assessment (and the assessment definition) determines the need to clean, techniques, equipment/products/methods, and engineering controls.","Cleaning & Restoration"],
+
+["Post-project documentation is recommended to include organized, legible:",
+ ["Written and visual records showing compliance with the Standard","Only invoices","Only the SDS","Only a business card"],0,
+ "Section 5.6: documentation showing compliance with the Standard is recommended for all work, including written and visual records.","Cleaning & Restoration"],
+
+["Waste water generated during wet cleaning must be captured, contained, tested, and disposed of:",
+ ["However convenient","In accordance with applicable local, regional, state, and federal regulations","Down the nearest drain","Onto the roof"],1,
+ "Section 4.6.2: capture, containment, testing, and disposal of wet-cleaning waste water shall follow applicable local, regional, state, and federal regulations.","Cleaning & Restoration"],
+
+["'Source removal' is best defined as:",
+ ["Masking odors with fragrance","Physically dislodging contaminants and removing them with vacuum collection","Coating surfaces to trap debris","Increasing filter MERV only"],1,
+ "Source removal is the mechanical process of physically dislodging contaminants from components and removing them with vacuum collection to prevent re-entrainment.","Cleaning & Restoration"],
+
+["When both sides of a coil are NOT accessible for cleaning, the ACR indicates:",
+ ["Clean one side only and pass it","Removal and/or replacement may be required","Skip the coil","Paint it"],1,
+ "Section 4.11: when both sides of a coil aren't accessible for cleaning, removal and/or replacement may be required.","Cleaning & Restoration"],
+
+["Type 1 (Dry Cleaning) physical removal methods may include all of the following EXCEPT:",
+ ["HEPA-filtered contact vacuuming","Brushes for penetrating between coil fins","Compressed air","Flooding the coil with water"],3,
+ "Type 1 methods include HEPA contact vacuuming, brushes between fins, compressed air, and fin-straightening tools — not flooding (that's Type 2 wet cleaning).","Cleaning & Restoration"],
+
+["A Type 1 post-cleaning inspection that finds remaining debris or an impacted coil requires:",
+ ["Signing off as clean","Performing Type 2 (Wet Cleaning)","Repeating Type 1 five times","Replacing the duct"],1,
+ "Section 4.11.3: if debris remains or the coil is impacted after Type 1, Type 2 (Wet Cleaning) shall be performed.","Cleaning & Restoration"],
+
+["When life-safety detection equipment must be taken off-line during cleaning, the work plan shall:",
+ ["Ignore it","Address life-safety concerns, likely requiring input of others","Delegate to the newest tech","Disable it permanently"],1,
+ "Section 2.8: when life-safety detection (duct sensors, smoke detectors) must be off-line, the work plan shall address life-safety concerns, likely needing others' input.","Cleaning & Restoration"],
+
+["Access and closure of service openings in fibrous glass shall be created and closed so that:",
+ ["Fibrous edges are exposed to the airstream","There are no exposed fibrous glass edges within the system common to the airstream","The R-value is reduced","The vapor barrier is removed"],1,
+ "Section 4.2.8.1: openings in fibrous glass shall be created/closed so there are no exposed fibrous glass edges within the system common to the airstream.","Cleaning & Restoration"],
+
+["Any fibrous glass removed to install a service opening shall be repaired or replaced with:",
+ ["Any available scrap","Like material of the same thickness preserving R-value and vapor/air barrier","Sheet metal","Duct tape only"],1,
+ "Section 4.2.8.2: removed fibrous glass shall be repaired/replaced with like material of the same thickness so R-value, service rating, and vapor/air barrier aren't degraded.","Cleaning & Restoration"],
+
+["All service openings shall comply with applicable UL, IMC, SMACNA, and which additional standards?",
+ ["EPA only","NFPA standards and applicable local/regional codes","OSHA VPP","LEED"],1,
+ "Section 4.2.10: all service openings shall comply with applicable UL, IMC, SMACNA, and NFPA standards and applicable local/regional/provincial/national codes.","Cleaning & Restoration"],
+
+["Damaged, deteriorating, or corroded coil fins during cleaning indicate that:",
+ ["Cleaning always fixes them","Replacement may be necessary","They should be painted","Nothing needs documenting"],1,
+ "Section 4.11.1.3: when metal fins are damaged, deteriorating, or corroded, replacement may be necessary; if cleaning will cause further damage, replacement is recommended.","Cleaning & Restoration"],
+
+["Inline (duct-mounted) coils without drain pans require which precaution during wet cleaning?",
+ ["No precaution","Precautions to capture rinse water","Positive pressure only","Skipping wet cleaning"],1,
+ "Section 4.11.7: precautions shall be taken to capture rinse water when wet cleaning duct-mounted coils without drain pans.","Cleaning & Restoration"],
+
+["Non-porous material restoration is recommended when, after cleaning, the surface will continue to:",
+ ["Look shiny","Contribute particulate, odors, or adversely affect air quality","Pass verification","Hold negative pressure"],1,
+ "Section 4.21: if a non-porous surface after cleaning will continue to contribute particulate/odors or adversely affect air quality, restoration is recommended.","Cleaning & Restoration"],
+
+["HVAC components subjected to flooding shall be evaluated and categorized per documents such as:",
+ ["NFPA 90A","ANSI/IICRC S500 (Water Damage Restoration)","UL 723","ASHRAE 170"],1,
+ "Section 4.22: flood/water-damaged components are categorized per industry methods such as ANSI/IICRC S500; the water category dictates methods and controls.","Cleaning & Restoration"],
+
+["Restoration under the ACR does NOT include:",
+ ["Cleaning coils","Sealing air leaks within duct or HVAC systems","Replacing insulation","Coating surfaces"],1,
+ "Section 4.24.1: restoration does not include sealing air leaks within duct systems, nor repair/replacement of malfunctioning mechanical devices (outside scope).","Cleaning & Restoration"],
+
+["Porous surfaces subjected to fire/smoke damage shall be evaluated (after mechanical cleaning) for:",
+ ["Color only","Friability and odor retention","Weight","Electrical continuity"],1,
+ "Section 4.23.1: all porous surfaces subjected to fire/smoke shall be evaluated after mechanical cleaning for friability and odor retention; friable/odorous areas resurfaced or replaced.","Cleaning & Restoration"],
+
+["To determine whether a component is contaminated with soot or smoke from a fire, sampling can be performed per:",
+ ["ASHRAE 62.1","ANSI/IESO/RIA 6001","UL 181B","NFPA 96"],1,
+ "Section 4.23.4: if there is a question about soot/smoke contamination, sampling per ANSI/IESO/RIA 6001 is recommended.","Cleaning & Restoration"],
+
+["Resurfacing/coating of fibrous glass shall NOT be performed if the material:",
+ ["Is clean","Is beyond restoration and cannot provide a long-term bondable surface","Passed verification","Is new"],1,
+ "Section 4.18.2: if fibrous glass is beyond restoration and can't support/provide a long-term bondable surface, resurfacing/coating shall not be performed.","Cleaning & Restoration"],
+
+["When there is evidence of friable or delaminating fibrous glass that cleaning or coating cannot restore, the ACR recommends:",
+ ["Leaving it in place","Replacement","Painting it","Adding more liner over it"],1,
+ "Section 4.19: when damage/deterioration/friability means cleaning or resurfacing can't restore fibrous glass, replacement is recommended.","Cleaning & Restoration"],
+
+["All metal surfaces where degraded thermal-acoustic material was removed shall be:",
+ ["Left as-is","Scraped clean and free of loose, visible debris before installing new insulation","Coated with mastic only","Wrapped externally"],1,
+ "Section 4.20: metal surfaces after removal of degraded thermal-acoustic material shall be scraped clean and free of loose visible debris before new insulation is installed.","Cleaning & Restoration"],
+
+["New fibrous glass surfaces installed as replacement shall be capable of:",
+ ["Only looking clean","Meeting NADCA cleanliness verification requirements","Holding water","Passing UL 723 only"],1,
+ "Section 4.20.4: after installation of replacement materials, all new fibrous glass surfaces shall be capable of meeting NADCA cleanliness verification requirements.","Cleaning & Restoration"],
+
+["Prefabricated duct access door gauge shall be based on:",
+ ["The technician's preference","The pressure class of the duct system, installed per manufacturer specs","The building height","The color of the duct"],1,
+ "Section 4.2.6: the gauge of a prefabricated duct access door shall be based on the duct system's pressure class and installed per manufacturer specifications.","Cleaning & Restoration"],
+
+["The primary purpose of a written work plan is to give all parties a clear understanding of:",
+ ["The company's profit margin","What work tasks and procedures will be performed","The technician's schedule","The building's history"],1,
+ "Section 2.1: the primary purpose of the written work plan is for all involved to have a clear understanding of what work tasks and procedures will be performed.","Cleaning & Restoration"],
+
+["Product submittals in the work plan shall list all products/coatings specific to the project along with:",
+ ["Nothing else","The manufacturer's instructions for use and application, available to workers","Only the price","Only the brand name"],1,
+ "Section 2.7: all general and chemical-type products/coatings shall be listed, with manufacturer's use/application instructions available to workers at all times.","Cleaning & Restoration"],
+
+["A single-chamber decontamination facility (Level 3) shall be:",
+ ["Placed anywhere in the building","Attached and sealed directly to the containment area","Left unsealed","Positive-pressurized"],1,
+ "Section 3.11.2: the single-chamber decon facility shall be attached and sealed directly to the containment area, separated by a zipper/flap access.","Cleaning & Restoration"],
+
+["Appropriate engineering controls on every HVAC cleaning project are considered:",
+ ["Optional extras","Mandatory","Only for microbial jobs","Client's responsibility"],1,
+ "Section 3.13: appropriate engineering controls are mandatory on every HVAC cleaning and restoration project to protect occupants and prevent cross-contamination.","Cleaning & Restoration"],
+
+["Clean protective coverings within the work area shall extend:",
+ ["Only under the ladder","Beyond the work area to protect flooring, equipment, and furniture when necessary","Only over the ductwork","Nowhere — they're optional"],1,
+ "Section 3.9.2: clean protective coverings shall extend beyond the work area to protect flooring, equipment, and furniture whenever necessary.","Cleaning & Restoration"],
+
+["The overall goal of cleaning and restoration procedures is to achieve, at minimum:",
+ ["A fresh coat of paint","Visibly clean or the specified level of cleanliness verification in the contract","Positive pressure","A specific IAQ number"],1,
+ "Section 4.0: all procedures shall achieve the minimum level of visibly clean or the specified level of cleanliness verification defined in the contractual documents.","Cleaning & Restoration"],
+
+["When a coil cannot be properly cleaned by Type 1 (Dry Cleaning), the ACR requires:",
+ ["Leaving it","Type 2 (Wet Cleaning) be performed","Replacing the AHU","Fogging biocide"],1,
+ "Section 4.11.1.1: if it's determined the coil can't be properly cleaned by Type 1, Type 2 (Wet Cleaning) shall be performed.","Cleaning & Restoration"],
+
+["The condensate drain pan shall be inspected and tested to verify drainage:",
+ ["Only before cleaning","Before and after cleaning","Only after cleaning","Never"],1,
+ "Section 4.11.4.1: the condensate drain pan shall be inspected and tested to verify drainage before and after cleaning.","Cleaning & Restoration"],
+
+["Cleaning methods and products used on coils shall conform to:",
+ ["Any generic guidance","Coil manufacturer recommendations when available, without damaging/eroding fins","OSHA only","The technician's habit"],1,
+ "Section 4.11.4.2: cleaning methods/products shall not damage or erode the coil surface or fins and shall conform to coil manufacturer recommendations when available.","Cleaning & Restoration"],
+
+// ============================================================
+// DOMAIN 5 — HEALTH & SAFETY OF EMPLOYEES & OCCUPANTS (7% ≈ 14 Q)
+// ============================================================
+["Before servicing electric resistance coils, the required safety procedure is:",
+ ["Ground fault testing only","Lockout/Tagout of the power source","Wearing gloves only","Posting a warning sign"],1,
+ "Electrical energy must be controlled: de-energize and lockout/tagout the power source before working on electric resistance coils (4.11.8; NADCA Safety Manual pg. 278).","Health & Safety"],
+
+["A confined space in HVAC work is a concern primarily because of:",
+ ["Limited lighting","Restricted entry/exit and potential atmospheric hazards","Small tool clearance","Noise levels"],1,
+ "Confined spaces (Safety Manual pg. 49) pose hazards from restricted entry/exit and potentially hazardous atmospheres; entry procedures and testing are required.","Health & Safety"],
+
+["Respiratory protection is required on HVAC jobs when:",
+ ["Never — dust masks are always enough","Airborne contaminants may exceed safe exposure levels","Only in healthcare","Only outdoors"],1,
+ "Respiratory protection (Safety Manual pg. 332) is used when airborne contaminants (dust, spores, chemicals) may exceed safe exposure limits; selection depends on the hazard.","Health & Safety"],
+
+["A Safety Data Sheet (SDS) provides workers with:",
+ ["The product's retail price","Hazard, handling, PPE, and first-aid information for a chemical","The manufacturer's warranty","Duct sizing charts"],1,
+ "An SDS communicates a chemical's hazards, safe handling, required PPE, and first-aid measures; SDS shall be maintained on-site for all project chemicals.","Health & Safety"],
+
+["Which agency's regulations govern worker safety on U.S. HVAC cleaning job sites?",
+ ["EPA","OSHA","FCC","ASHRAE"],1,
+ "OSHA (Occupational Safety and Health Administration) sets and enforces worker-safety regulations; the candidate guide references OSHA's mold-in-the-workplace guide.","Health & Safety"],
+
+["When there is potential for exposure to hazardous materials during inspection, the ACR recommends:",
+ ["Proceeding without concern","Consulting a qualified IEP or health and safety professional","Wearing sunglasses","Notifying only the client"],1,
+ "Section 1.8: if the inspector or others may be exposed to hazardous materials, consultation with a qualified IEP or health/safety professional is recommended.","Health & Safety"],
+
+["Portable electric tools on the job site should be protected against shock using:",
+ ["Extension cords only","Ground fault protection devices (GFCI)","Duct tape","Higher wattage"],1,
+ "Ground fault protection devices are part of equipment maintenance/safety (3.1; Safety Manual pg. 205, Portable Electric Tools) to protect against electric shock.","Health & Safety"],
+
+["Materials deemed hazardous by governmental agencies shall be handled:",
+ ["However is fastest","In strict accordance with applicable local, regional, provincial, or national codes and regulations","By the client only","Without documentation"],1,
+ "Section 3.5.1: materials deemed hazardous by governmental agencies shall be handled in strict accordance with applicable codes, laws, and regulations.","Health & Safety"],
+
+["Protecting the job site during cleaning primarily aims to:",
+ ["Speed up billing","Prevent cross-contamination and protect occupants and property","Reduce equipment cost","Avoid paperwork"],1,
+ "Health & safety includes protecting the job site: engineering controls and coverings prevent cross-contamination and protect building occupants and property.","Health & Safety"],
+
+["Understanding 'exposure effects' as part of health and safety means knowing that contaminants can:",
+ ["Only affect equipment","Cause adverse health effects to workers and occupants","Improve air quality","Be ignored if invisible"],1,
+ "Exposure effects: microbial and particulate contaminants can produce adverse health effects, so worker/occupant exposure must be controlled.","Health & Safety"],
+
+["Risk management on an HVAC project begins with:",
+ ["Buying insurance only","Identifying hazards and implementing controls before and during work","Finishing the job first","Ignoring low-probability risks"],1,
+ "Understanding risk management means identifying job-site hazards up front and applying appropriate controls (engineering controls, PPE, procedures) throughout the project.","Health & Safety"],
+
+["When wet-process cleaning electric resistance coils, after cleaning the coil shall be:",
+ ["Re-energized while wet","Rinsed free of chemicals and thoroughly dried before being re-energized","Left chemically coated","Immediately painted"],1,
+ "Section 4.11.8: use only non-corrosive detergents, and the coil shall be rinsed free of chemicals and thoroughly dried prior to being re-energized.","Health & Safety"],
+
+["Combustion emissions from fuel-powered equipment are a safety hazard because they can:",
+ ["Improve IAQ","Enter occupied spaces and endanger occupants","Cool the building","Clean the ducts"],1,
+ "Section 3.2: fuel-powered equipment must be positioned so combustion and exhaust emissions don't enter occupied spaces, protecting occupant health.","Health & Safety"],
+
+["The OSHA reference in the candidate guide specifically addresses:",
+ ["Refrigerant recovery","Mold in the workplace","Ladder ANSI ratings","Fire sprinkler design"],1,
+ "The candidate guide's OSHA reference is 'A Brief Guide to Mold in the Workplace,' supporting the health & safety domain.","Health & Safety"],
+
+// ============================================================
+// DOMAIN 6 — STANDARDS & GUIDELINES (8% ≈ 16 Q)
+// ============================================================
+["What does the acronym HEPA stand for as expanded in the ASCS Candidate Guide acronym list?",
+ ["High Efficiency Particulate Air","High Efficiency Particulate Arrestance","Heavy Element Particle Absorber","High Energy Purified Airflow"],1,
+ "The candidate guide's acronym list expands HEPA as 'High Efficiency Particulate Arrestance' (note: the ACR definitions section uses 'Air' — know the guide's version for the exam).","Standards"],
+
+["According to SMACNA duct cleanliness for new construction guidelines, how many general levels of cleanliness are recommended for typical duct installations?",
+ ["One","Two","Three","Four"],2,
+ "SMACNA recommends three general levels of cleanliness for typical duct installations. (NADCA official practice question.)","Standards"],
+
+["Which organization publishes the S520 Standard for Professional Mold Remediation?",
+ ["SMACNA","IICRC","ASHRAE","NFPA"],1,
+ "ANSI/IICRC S520 is the Standard for Professional Mold Remediation, referenced throughout the ACR for microbial work.","Standards"],
+
+["NFPA 90A is the standard for:",
+ ["Mold remediation","Installation of Air-Conditioning and Ventilating Systems","Water damage restoration","Fibrous glass fabrication"],1,
+ "NFPA 90A is the Standard for the Installation of Air-Conditioning and Ventilating Systems.","Standards"],
+
+["NAIMA's AH-122 document covers:",
+ ["Lockout/tagout","Cleaning Fibrous Glass Insulated Air Duct Systems","Respiratory protection","Kitchen exhaust cleaning"],1,
+ "NAIMA AH-122 is 'Cleaning Fibrous Glass Insulated Air Duct Systems,' referenced for fibrous glass work.","Standards"],
+
+["What does SMACNA stand for?",
+ ["Standard Metal and Cooling National Association","Sheet Metal and Air Conditioning Contractors' National Association","System Maintenance and Certification National Authority","Sealed Metal Air Conditioning Network Alliance"],1,
+ "SMACNA is the Sheet Metal and Air Conditioning Contractors' National Association, publisher of HVAC Duct Construction Standards.","Standards"],
+
+["ASHRAE Standard 180 (ANSI/ASHRAE/ACCA) addresses:",
+ ["Mold remediation","Inspection and Maintenance of Commercial Building HVAC Systems","Duct construction gauges","Fire dampers"],1,
+ "ANSI/ASHRAE/ACCA Standard 180 is the Standard Practice for Inspection and Maintenance of Commercial Building HVAC Systems.","Standards"],
+
+["The word SHALL in the ACR Standard denotes:",
+ ["A recommendation","A mandatory requirement with no deviation","An optional practice","A possibility"],1,
+ "SHALL denotes a mandatory requirement; conformance requires no deviation when SHALL is used.","Standards"],
+
+["When the ACR uses RECOMMEND(ED), it means the practice is:",
+ ["Mandatory","Advised or suggested but not a requirement","Prohibited","Illegal"],1,
+ "RECOMMEND(ED) means the practice/procedure is advised or suggested but is not a requirement of the Standard.","Standards"],
+
+["The ACR term MAY signifies:",
+ ["A mandatory action","Permission — permissible but not required","A prohibition","A recommendation"],1,
+ "MAY signifies permission expressed by the document: permissible within the limits of the document but not a requirement of the standard of care.","Standards"],
+
+["The ACR term CAN signifies:",
+ ["A requirement","An ability or possibility, not a requirement","A prohibition","A recommendation"],1,
+ "CAN signifies an ability or possibility open to the user — capable of application but not a requirement of the standard of care.","Standards"],
+
+["UL 181A and UL 181B pertain to:",
+ ["Coil cleaning chemicals","Closure systems for rigid (181A) and flexible (181B) air ducts","Respirator fit","Mold sampling"],1,
+ "UL 181A covers closure systems for rigid air ducts/connectors; UL 181B covers closure systems for flexible air ducts/connectors.","Standards"],
+
+["UL 723 is the test standard for:",
+ ["Surface burning characteristics of building materials","Vacuum motor efficiency","Refrigerant purity","Duct leakage"],0,
+ "UL 723 is the Test for Surface Burning Characteristics of Building Materials (flame-spread and smoke-developed ratings).","Standards"],
+
+["ACR, The NADCA Standard is best described as:",
+ ["A voluntary marketing guide","A performance standard that also provides minimum procedural requirements","A federal law","A product warranty"],1,
+ "The foreword describes ACR as unique: a performance standard that also provides minimum procedural requirements, considered the standard of care for the industry.","Standards"],
+
+["Which organization is ACCA?",
+ ["Air Conditioning Contractors of America","American Cleaning Certification Association","Air Cleaning Compliance Authority","Associated Contractors of Canada and America"],0,
+ "ACCA is the Air Conditioning Contractors of America, a co-sponsor of ANSI/ASHRAE/ACCA Standard 180.","Standards"],
+
+["The 2025 edition of ACR supersedes:",
+ ["Only the 2021 edition","All previous editions of ACR, The NADCA Standard","No prior editions","Only non-ANSI versions"],1,
+ "The purpose statement: ACR 2025 supersedes all previous editions and is considered the standard of care for the industry.","Standards"],
+
+];
+
+
+// ---------- config ----------
+var LS_KEY="ascscram_v1";
+var BLUEPRINT=[ // domain -> weight% (2026 official outline)
+  ["Cleaning & Restoration",42],
+  ["Benefits",16],
+  ["Mechanical",15],
+  ["Assessments",12],
+  ["Standards",8],
+  ["Health & Safety",7]
+];
+var DOM_LABEL={
+  "Cleaning & Restoration":"Cleaning & Restoration Procedures",
+  "Benefits":"Benefits of HVAC System Cleaning",
+  "Mechanical":"Mechanical Systems",
+  "Assessments":"Understanding Assessments",
+  "Standards":"Standards & Guidelines",
+  "Health & Safety":"Health & Safety"
+};
+var DOM_COLOR={
+  "Cleaning & Restoration":"#159fc9","Benefits":"#43a047","Mechanical":"#e8a33d",
+  "Assessments":"#8e6fd6","Standards":"#e2685b","Health & Safety":"#3aa8a0"
+};
+
+// ---------- utils ----------
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function el(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function ltr(i){return String.fromCharCode(65+i);}
+
+// bold the words unique to the correct answer (reveal only)
+function boldUnique(correctText,allTexts){
+  var others=allTexts.filter(function(t){return t!==correctText;}).join(" ").toLowerCase();
+  var ow={}; others.split(/[^a-z0-9]+/).forEach(function(w){if(w)ow[w]=1;});
+  return correctText.split(/(\s+)/).map(function(tok){
+    var key=tok.toLowerCase().replace(/[^a-z0-9]/g,"");
+    if(key && key.length>2 && !ow[key]) return "<b class='mark'>"+esc(tok)+"</b>";
+    return esc(tok);
+  }).join("");
+}
+
+// ================= DRILL ENGINE =================
+var progress={};      // qIndex -> {c, seen, hist:[]}
+var queue=[];         // active indices
+var cur=-1, curOpts=[], waiting=false, autoT=null, curTopic="ALL";
+
+function loadProgress(){try{progress=JSON.parse(localStorage.getItem(LS_KEY))||{};}catch(e){progress={};}}
+function saveProgress(){try{localStorage.setItem(LS_KEY,JSON.stringify(progress));}catch(e){}}
+
+function filteredIdx(){
+  var out=[];for(var i=0;i<MCQS.length;i++){if(curTopic==="ALL"||MCQS[i][4]===curTopic)out.push(i);}return out;
+}
+function buildQueue(){
+  var idx=filteredIdx();
+  // not-yet-mastered first (c<2), shuffled
+  var pending=idx.filter(function(i){return !progress[i]||progress[i].c<2;});
+  queue=shuffle(pending);
+}
+function pick(){
+  if(queue.length===0){renderDone();return;}
+  cur=queue[0];
+  var q=MCQS[cur];
+  curOpts=shuffle(q[1].map(function(t,oi){return {oi:oi,text:t};}));
+  waiting=false;
+  renderQ();
+}
+function renderQ(){
+  var q=MCQS[cur];
+  var h='<div class="qmeta"><span class="dom">'+esc(DOM_LABEL[q[4]]||q[4])+'</span><span>'+queue.length+' in rotation</span></div>';
+  h+='<div class="qtext">'+esc(q[0])+'</div><div class="opts" id="opts">';
+  curOpts.forEach(function(o,di){
+    h+='<button class="ans" data-disp="'+di+'" onclick="answer('+di+')">'
+      +'<span class="ltr">'+ltr(di)+'</span><span>'+esc(o.text)+'</span></button>';
+  });
+  h+='</div><div class="explain" id="explain"></div>'
+    +'<div class="contbar" id="contbar"><button class="go" onclick="next()">Continue</button>'
+    +'<span class="kbd">press space</span></div>';
+  el("qbox").innerHTML=h;
+  updateStats();
+}
+function answer(di){
+  if(waiting)return;
+  var q=MCQS[cur], chosen=curOpts[di], correct=(chosen.oi===q[2]);
+  if(!progress[cur])progress[cur]={c:0,seen:true,hist:[]};
+  progress[cur].seen=true;
+  progress[cur].hist.push(correct?1:0);
+  var btns=document.querySelectorAll("#opts .ans");
+  btns.forEach(function(b){b.setAttribute("disabled","");b.classList.add("dim");});
+  // reveal: bold unique words of correct answer
+  var correctDisp=-1;
+  curOpts.forEach(function(o,i){if(o.oi===q[2])correctDisp=i;});
+  var allTexts=curOpts.map(function(o){return o.text;});
+  var cb=btns[correctDisp];
+  cb.classList.remove("dim");cb.classList.add("correct");
+  cb.querySelector("span:last-child").innerHTML=boldUnique(q[1][q[2]],allTexts);
+
+  if(correct){
+    progress[cur].c=(progress[cur].c||0)+1;
+    saveProgress();updateStats();
+    // requeue or retire
+    queue.shift();
+    if(progress[cur].c<2){ // not yet mastered -> ~10 ahead
+      var pos=Math.min(10,queue.length);queue.splice(pos,0,cur);
+    }
+    waiting=true;
+    autoT=setTimeout(next,430);
+  }else{
+    btns[di].classList.remove("dim");btns[di].classList.add("wrong");
+    progress[cur].c=0;
+    saveProgress();updateStats();
+    var ex=el("explain");
+    ex.innerHTML='<div class="lab">Why</div>'+esc(q[3]);
+    ex.classList.add("show");
+    el("contbar").classList.add("show");
+    queue.shift();
+    var pos2=Math.min(3,queue.length);queue.splice(pos2,0,cur);
+    waiting=true;
+  }
+}
+function next(){
+  if(autoT){clearTimeout(autoT);autoT=null;}
+  waiting=false;pick();
+}
+function updateStats(){
+  var idx=filteredIdx(),total=idx.length,seen=0,aptSum=0,mastered=0;
+  idx.forEach(function(i){
+    var p=progress[i];
+    if(p&&p.seen)seen++;
+    var c=p?Math.min(p.c||0,2):0;aptSum+=c/2;
+    if(p&&p.c>=2)mastered++;
+  });
+  var seenPct=total?Math.round(seen/total*100):0;
+  var aptPct=total?Math.round(aptSum/total*100):0;
+  el("seenPct").textContent=seenPct+"%";el("aptPct").textContent=aptPct+"%";
+  el("ringSeen").style.setProperty("--v",seenPct);
+  el("ringApt").style.setProperty("--v",aptPct);
+  el("masteredN").textContent=mastered;el("poolN").textContent=total;
+  el("inQ").textContent=queue.length;
+  var ans=0;idx.forEach(function(i){if(progress[i])ans+=progress[i].hist.length;});
+  el("answeredN").textContent=ans;
+}
+function renderDone(){
+  el("qbox").innerHTML='<div class="done"><div class="big">✓</div>'
+    +'<h2>Pool mastered</h2><p class="muted">Every question in this filter answered correctly twice in a row.</p>'
+    +'<button class="pillbtn" onclick="studyAgain()">Study this set again</button></div>';
+  updateStats();
+}
+function studyAgain(){
+  filteredIdx().forEach(function(i){if(progress[i])progress[i].c=0;});
+  saveProgress();buildQueue();pick();
+}
+function applyTopic(){curTopic=el("topic").value;buildQueue();
+  el("topicHint").textContent=(curTopic==="ALL"?MCQS.length+" questions total":filteredIdx().length+" in this domain");
+  pick();}
+function resetDrill(){
+  if(!confirm("Wipe all drill progress on this device?"))return;
+  progress={};saveProgress();buildQueue();pick();
+}
+function buildTopics(){
+  var doms={};MCQS.forEach(function(q){doms[q[4]]=(doms[q[4]]||0)+1;});
+  var order=BLUEPRINT.map(function(b){return b[0];});
+  var h='<option value="ALL">All domains ('+MCQS.length+')</option>';
+  order.forEach(function(d){if(doms[d])h+='<option value="'+d+'">'+esc(DOM_LABEL[d]||d)+' ('+doms[d]+')</option>';});
+  el("topic").innerHTML=h;
+}
+
+// ================= EXAM SIM =================
+var exam=null; // {items:[{qi,order:[..],ans:null,flag:false}], pos, endTs, tick}
+function renderBlueprint(){
+  var h='';BLUEPRINT.forEach(function(b){
+    var n=Math.round(150*b[1]/100);
+    h+='<div class="row"><span class="nm">'+esc(DOM_LABEL[b[0]])+'</span>'
+      +'<span class="track"><i style="width:'+b[1]+'%;background:'+DOM_COLOR[b[0]]+'"></i></span>'
+      +'<span class="pc">'+b[1]+'% · ~'+n+'</span></div>';
+  });
+  el("exBlueprint").innerHTML=h;
+}
+function sampleExam(){
+  var pools={};MCQS.forEach(function(q,i){(pools[q[4]]=pools[q[4]]||[]).push(i);});
+  var picks=[],counts={},target=150;
+  BLUEPRINT.forEach(function(b){counts[b[0]]=Math.round(target*b[1]/100);});
+  // fix rounding to hit exactly 150
+  var sum=0;BLUEPRINT.forEach(function(b){sum+=counts[b[0]];});
+  counts[BLUEPRINT[0][0]]+= (target-sum);
+  BLUEPRINT.forEach(function(b){
+    var pool=shuffle(pools[b[0]]||[]);var n=Math.min(counts[b[0]],pool.length);
+    for(var i=0;i<n;i++)picks.push(pool[i]);
+  });
+  picks=shuffle(picks);
+  return picks.map(function(qi){
+    var q=MCQS[qi];
+    return {qi:qi,order:shuffle(q[1].map(function(t,oi){return oi;})),ans:null,flag:false};
+  });
+}
+function startExam(){
+  exam={items:sampleExam(),pos:0,endTs:Date.now()+ (3*3600+30*60)*1000};
+  el("exStart").classList.add("hide");
+  el("exResult").classList.add("hide");
+  el("exRun").classList.remove("hide");
+  exam.tick=setInterval(tickTimer,1000);
+  tickTimer();renderExamQ();buildMap();
+}
+function tickTimer(){
+  var ms=exam.endTs-Date.now();
+  if(ms<=0){submitExam(true);return;}
+  var s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60;
+  var t=el("exTimer");
+  t.textContent=h+":"+String(m).padStart(2,"0")+":"+String(ss).padStart(2,"0");
+  t.className="timer"+(s<300?" crit":(s<900?" warn":""));
+}
+function renderExamQ(){
+  var it=exam.items[exam.pos],q=MCQS[it.qi];
+  el("exPos").textContent=exam.pos+1;
+  el("exDom").textContent=DOM_LABEL[q[4]]||q[4];
+  var answered=exam.items.filter(function(x){return x.ans!==null;}).length;
+  el("exAnsweredMeta").textContent=answered+" answered";
+  el("exProg").style.width=((exam.pos+1)/150*100)+"%";
+  el("exQ").textContent=q[0];
+  var h='';it.order.forEach(function(oi,di){
+    var sel=(it.ans===oi);
+    h+='<div class="exopt'+(sel?' sel':'')+'" onclick="pickExam('+oi+')">'
+      +'<span class="ltr">'+ltr(di)+'</span><span>'+esc(q[1][oi])+'</span></div>';
+  });
+  el("exOpts").innerHTML=h;
+  el("exFlag").classList.toggle("on",it.flag);
+  el("exPrev").disabled=(exam.pos===0);
+  el("exNext").textContent=(exam.pos===149?"Last":"Next");
+  var fc=exam.items.filter(function(x){return x.flag;}).length;
+  el("exFlagCount").textContent=fc?("· "+fc+" flagged"):"";
+  updateMapCur();
+}
+function pickExam(oi){exam.items[exam.pos].ans=oi;renderExamQ();updateMapCell(exam.pos);}
+function toggleFlag(){var it=exam.items[exam.pos];it.flag=!it.flag;renderExamQ();updateMapCell(exam.pos);}
+function exMove(d){var n=exam.pos+d;if(n<0||n>149)return;exam.pos=n;renderExamQ();}
+function buildMap(){
+  var h='';for(var i=0;i<150;i++)h+='<button id="mc'+i+'" onclick="jump('+i+')">'+(i+1)+'</button>';
+  el("exMap").innerHTML=h;for(var j=0;j<150;j++)updateMapCell(j);updateMapCur();
+}
+function updateMapCell(i){
+  var b=el("mc"+i),it=exam.items[i];if(!b)return;
+  b.className=(it.ans!==null?"answered":"")+(it.flag?" flagged":"");
+}
+function updateMapCur(){
+  for(var i=0;i<150;i++){var b=el("mc"+i);if(b)b.classList.toggle("cur",i===exam.pos);}
+}
+function jump(i){exam.pos=i;renderExamQ();}
+function submitExam(auto){
+  if(!auto){
+    var un=exam.items.filter(function(x){return x.ans===null;}).length;
+    if(un>0 && !confirm(un+" question(s) still blank. Submit anyway?"))return;
+  }
+  clearInterval(exam.tick);
+  var correct=0,byDom={},misses=[];
+  exam.items.forEach(function(it){
+    var q=MCQS[it.qi],dom=q[4];
+    byDom[dom]=byDom[dom]||{c:0,n:0};byDom[dom].n++;
+    var ok=(it.ans===q[2]);
+    if(ok){correct++;byDom[dom].c++;}
+    else misses.push({q:q,ans:it.ans});
+  });
+  var pct=Math.round(correct/150*100);
+  var col=pct>=80?"var(--green)":(pct>=70?"var(--amber)":"var(--red)");
+  var h='<div class="card"><div class="done"><div class="big" style="color:'+col+'">'+pct+'%</div>'
+    +'<h2 style="margin:.1em 0">'+correct+' / 150 correct</h2>'
+    +'<p class="muted small">'+(auto?"Time expired — auto-submitted. ":"")
+    +'NADCA does not publish the official cut score. Treat 80%+ as comfortable, below 70% as needs-work.</p></div>';
+  h+='<div class="dombar">';
+  BLUEPRINT.forEach(function(b){
+    var d=byDom[b[0]];if(!d)return;var p=Math.round(d.c/d.n*100);
+    var c=p>=80?"var(--green)":(p>=70?"var(--amber)":"var(--red)");
+    h+='<div class="row"><span class="nm">'+esc(DOM_LABEL[b[0]])+'</span>'
+      +'<span class="track"><i style="width:'+p+'%;background:'+c+'"></i></span>'
+      +'<span class="pc">'+d.c+'/'+d.n+' · '+p+'%</span></div>';
+  });
+  h+='</div><div style="text-align:center;margin-top:6px">'
+    +'<button class="pillbtn" onclick="restartExam()">New exam</button> '
+    +'<button class="pillbtn grey" onclick="drillMisses('+JSON.stringify(misses.map(function(m){return m.q[0];})).replace(/"/g,"&quot;")+')" style="display:none"></button>'
+    +'</div></div>';
+  // review of misses
+  if(misses.length){
+    h+='<div class="card review" style="margin-top:12px"><h2 style="margin:.2em 0">Review your '+misses.length+' miss'+(misses.length>1?'es':'')+'</h2>';
+    misses.forEach(function(m){
+      var q=m.q,yours=(m.ans===null?"(left blank)":q[1][m.ans]);
+      h+='<div class="rq"><div class="q">'+esc(q[0])+'</div>'
+        +'<div class="line yours">Your answer: '+esc(yours)+'</div>'
+        +'<div class="line right">Correct: '+esc(q[1][q[2]])+'</div>'
+        +'<div class="line muted">'+esc(q[3])+'</div>'
+        +'<div class="line small" style="color:'+DOM_COLOR[q[4]]+'">'+esc(DOM_LABEL[q[4]])+'</div></div>';
+    });
+    h+='</div>';
+  }
+  el("exResult").innerHTML=h;
+  el("exRun").classList.add("hide");
+  el("exResult").classList.remove("hide");
+  window.scrollTo(0,0);
+}
+function restartExam(){el("exResult").classList.add("hide");el("exStart").classList.remove("hide");}
+function drillMisses(){setMode('drill');}
+
+// ================= MODE + KEYS =================
+function setMode(m){
+  var d=(m==="drill");
+  el("drill").classList.toggle("hide",!d);
+  el("exam").classList.toggle("hide",d);
+  el("mDrill").classList.toggle("on",d);
+  el("mExam").classList.toggle("on",!d);
+  if(!d && exam){ // return to exam start if not mid-run
+    if(el("exRun").classList.contains("hide")&&el("exResult").classList.contains("hide"))
+      el("exStart").classList.remove("hide");
+  }
+}
+document.addEventListener("keydown",function(e){
+  if(!el("drill").classList.contains("hide")){
+    if(waiting){if(e.key===" "||e.key==="Enter"){e.preventDefault();next();}return;}
+    var k=e.key.toUpperCase(),di=-1;
+    if(k>="1"&&k<="9")di=+k-1; else if(k>="A"&&k<="D")di=k.charCodeAt(0)-65;
+    if(di>=0&&di<curOpts.length){e.preventDefault();answer(di);}
+  }else if(!el("exRun").classList.contains("hide")){
+    if(e.key==="ArrowRight"){exMove(1);}
+    else if(e.key==="ArrowLeft"){exMove(-1);}
+    else{var k=e.key.toUpperCase(),di=-1;
+      if(k>="1"&&k<="9")di=+k-1; else if(k>="A"&&k<="D")di=k.charCodeAt(0)-65;
+      var it=exam.items[exam.pos];if(di>=0&&di<it.order.length){pickExam(it.order[di]);}}
+  }
+});
+
+// ---------- init ----------
+loadProgress();buildTopics();buildQueue();pick();renderBlueprint();
+el("topicHint").textContent=MCQS.length+" questions total";
+</script>
+</body>
+</html>
