@@ -1,0 +1,68 @@
+<!DOCTYPE html><html><head><meta charset="utf8"><style>
+:root{--paper:#EDEBE6;--card:#F7F5F0;--ink:#1C2126;--mut:#6B7076;--hair:#D8D4CB;--patina:#2E6E63;--brass:#A8863C;--alarm:#B5402E;--ok:#3F7A4E;--fd:'Zilla Slab',serif;--fm:'IBM Plex Mono',monospace;--fb:-apple-system,'Segoe UI',sans-serif}
+[data-theme="dark"]{--paper:#171A1D;--card:#20242A;--ink:#E7E4DD;--mut:#8B9096;--hair:#343A42;--patina:#4FA292;--brass:#C7A45A;--alarm:#D06A57;--ok:#6BAF7C}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+html,body{overflow-x:hidden}
+body{margin:0;font-family:var(--fb);color:var(--ink);max-width:880px;margin-left:auto;margin-right:auto;padding-top:28px;padding-bottom:60px;padding-left:18px;padding-right:18px;transition:background .3s}
+h1{font-family:var(--fd);font-weight:700;font-size:26px;margin:0;letter-spacing:-.01em}
+.sub{font-family:var(--fm);font-size:11.5px;color:var(--mut);margin-top:4px;text-transform:uppercase;letter-spacing:.08em}
+.strip{display:flex;gap:16px;align-items:stretch;margin-top:20px;flex-wrap:wrap}
+.dial{background:var(--card);border:1px solid var(--hair);border-radius:14px;padding-top:14px;padding-bottom:14px;padding-left:18px;padding-right:18px;min-width:200px}
+.dial .big{font-family:var(--fm);font-weight:600;font-size:38px;color:var(--brass);line-height:1}
+.dial .lbl{font-family:var(--fm);font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em;margin-top:6px;line-height:1.5}
+.topics{flex:1;background:var(--card);border:1px solid var(--hair);border-radius:14px;padding-top:12px;padding-bottom:12px;padding-left:16px;padding-right:16px;min-width:280px}
+.trow{display:flex;align-items:center;gap:10px;margin-top:4px;margin-bottom:4px;cursor:pointer}
+.trow.on .tn{color:var(--patina);font-weight:600}
+.trow .tn{font-family:var(--fm);font-size:11px;width:72px;color:var(--mut)}
+.tbar{flex:1;height:8px;background:var(--hair);border-radius:4px;overflow:hidden}
+.tbar i{display:block;height:100%;background:var(--patina);border-radius:4px;transition:width .5s}
+.trow .tv{font-family:var(--fm);font-size:11px;width:82px;text-align:right;color:var(--mut)}
+.why{font-family:var(--fm);font-size:11.5px;color:var(--mut);background:var(--card);border:1px dashed var(--hair);border-radius:10px;padding-top:9px;padding-bottom:9px;padding-left:14px;padding-right:14px;margin-top:16px}
+.why b{color:var(--patina)}
+.probe{background:var(--card);border:1px solid var(--hair);border-radius:16px;padding-top:20px;padding-bottom:18px;padding-left:20px;padding-right:20px;margin-top:12px}
+.eyebrow{font-family:var(--fm);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--patina);font-weight:600}
+.eyebrow .src{color:var(--mut);font-weight:400}
+.q{font-family:var(--fd);font-weight:600;font-size:21px;line-height:1.35;margin-top:8px;margin-bottom:14px}
+.ans{display:flex;gap:12px;align-items:baseline;width:100%;text-align:left;background:var(--paper);border:1px solid var(--hair);border-radius:11px;padding-top:12px;padding-bottom:12px;padding-left:14px;padding-right:14px;margin-top:8px;font-size:15.5px;cursor:pointer;font-family:var(--fb);color:var(--ink)}
+.ans .ltr{font-family:var(--fm);font-size:12px;font-weight:600;color:var(--mut)}
+.ans:hover{border-color:var(--patina)}
+.ans.sel{border-color:var(--patina);outline:2px solid var(--patina)}
+.ans.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,var(--paper))}
+.ans.wrong{border-color:var(--alarm);background:color-mix(in srgb,var(--alarm) 12%,var(--paper))}
+.ans.dim{opacity:.5}
+.ans:disabled{cursor:default}
+.conf{display:none;gap:10px;margin-top:14px}
+.conf.show{display:flex}
+.cbtn{flex:1;font-family:var(--fm);font-size:13px;font-weight:600;padding-top:11px;padding-bottom:11px;border-radius:11px;border:1px solid var(--hair);background:var(--paper);color:var(--ink);cursor:pointer}
+.cbtn:hover{border-color:var(--patina)}
+.fb{display:none;margin-top:16px;border-left:3px solid var(--patina);padding-left:14px;font-size:14.5px;line-height:1.5}
+.fb.show{display:block}
+.fb .delta{font-family:var(--fm);font-size:12.5px;font-weight:600}
+.fb .delta.up{color:var(--ok)}.fb .delta.down{color:var(--alarm)}
+.panel{display:none;margin-top:14px;border-radius:11px;padding-top:12px;padding-bottom:12px;padding-left:14px;padding-right:14px;font-size:14px;line-height:1.5;border:1px solid var(--hair)}
+.panel.show{display:block}
+.panel .tag{font-family:var(--fm);font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.1em}
+#refute{background:color-mix(in srgb,var(--alarm) 10%,var(--card))}#refute .tag{color:var(--alarm)}
+#encode{background:color-mix(in srgb,var(--brass) 10%,var(--card))}#encode .tag{color:var(--brass)}
+.next{display:none;margin-top:16px;font-family:var(--fm);font-size:13px;font-weight:600;padding-top:11px;padding-bottom:11px;padding-left:22px;padding-right:22px;border-radius:11px;border:none;background:var(--ink);color:var(--paper);cursor:pointer}
+.next.show{display:inline-block}
+.spin{font-family:var(--fm);font-size:12px;color:var(--mut)}
+.ledger{margin-top:22px}
+.ledger h2{font-family:var(--fd);font-size:16px;font-weight:600;margin-bottom:2px;margin-top:16px}
+.arow{display:flex;align-items:center;gap:10px;padding-top:5px;padding-bottom:5px;border-bottom:1px solid var(--hair)}
+.arow .an{flex:1;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.arow .flag{font-family:var(--fm);font-size:10px;font-weight:600;flex:none}
+.pbar{width:110px;height:8px;background:var(--hair);border-radius:4px;overflow:hidden;flex:none}
+.pbar i{display:block;height:100%;border-radius:4px;transition:width .5s,background .5s}
+.arow .pv{font-family:var(--fm);font-size:11px;width:36px;text-align:right;flex:none}
+footer{margin-top:24px;font-family:var(--fm);font-size:11.5px;color:var(--mut);line-height:2}
+footer a{color:var(--patina);cursor:pointer;text-decoration:underline}
+.themeb{position:fixed;right:14px;bottom:14px;width:38px;height:38px;border-radius:50%;border:1px solid var(--hair);background:var(--card);color:var(--ink);cursor:pointer;font-size:16px}
+@media(max-width:620px){.q{font-size:18px}.dial .big{font-size:30px}.arow .an{font-size:11.5px}.pbar{width:70px}}
+.qcode{font-family:var(--fm);font-size:.82em;background:var(--paper);border:1px solid var(--hair);border-left:3px solid var(--patina);border-radius:6px;padding:10px 12px;margin:10px 0 2px;white-space:pre-wrap;word-break:break-word}
+.qtbl{border-collapse:collapse;margin:10px 0 2px;font-size:.85em}
+.qtbl th{font-family:var(--fm);font-size:.75em;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);text-align:left;padding:4px 14px 4px 0;border-bottom:1px solid var(--hair)}
+.qtbl td{font-family:var(--fm);padding:4px 14px 4px 0;border-bottom:1px solid var(--hair)}
+.ans .mono{font-family:var(--fm);font-size:.9em}
+</style></head><body><div class="wrap"><div class="card"><div class="q">A City table has columns Name, District, Population. A query returns these rows in this exact order. Which ORDER BY clause produced this ordering?<table class="qtbl"><tr><th>Name</th><th>District</th><th>Population</th></tr><tr><td>Barueri</td><td>São Paulo</td><td>208426</td></tr><tr><td>Embu</td><td>São Paulo</td><td>222223</td></tr><tr><td>Mossoró</td><td>Rio Grande do Norte</td><td>214901</td></tr><tr><td>Petrolina</td><td>Pernambuco</td><td>210540</td></tr><tr><td>Várzea Grande</td><td>Mato Grosso</td><td>214435</td></tr></table></div><div class="opts"><button class="ans"><span class="ltr">A</span><span class="mono">ORDER BY Name</span></button><button class="ans"><span class="ltr">B</span><span class="mono">ORDER BY CountryCode</span></button><button class="ans"><span class="ltr">C</span><span class="mono">ORDER BY District</span></button></div></div><br><div class="card"><div class="q">The INSERT statement adds a student to the Student table. How many clauses are in the INSERT statement?<div class="qcode">INSERT INTO Student VALUES (888, 'Smith', 'Jim', 3.0);</div></div><div class="opts"><button class="ans"><span class="ltr">A</span><span>1</span></button><button class="ans"><span class="ltr">B</span><span>2</span></button><button class="ans"><span class="ltr">C</span><span>3</span></button></div></div></div></body></html>
