@@ -224,6 +224,18 @@ input{font-family:inherit;}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;}}
 
+/* lookbook image cards */
+.book-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;
+}
+.book-img{width:100%;display:block;background:var(--sand);}
+.book-body{padding:12px 15px 11px;}
+.piece-line{
+  font-size:12.5px;color:var(--soft);line-height:1.7;margin-top:9px;
+  letter-spacing:.15px;
+}
+
 </style>
 <script>
 /**
@@ -536,6 +548,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 (() => {
   const { useState, useEffect, useRef, useMemo } = React;
   const API = "https://wardrobe-stylist.bennyforeman1.workers.dev";
+  const IMG_BASE = "https://claude-deploy.bennyforeman1.workers.dev/r2/file/lookbook-";
   const CATS = ["Top", "Bottom", "Dress", "Skirt", "Outerwear", "Shoes", "Bag", "Accessory"];
   const VIBES = ["Old money", "Clean girl", "Casual", "Boho", "Sporty", "Going out", "Cozy"];
   const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
@@ -788,6 +801,9 @@ Respond ONLY with JSON, no markdown: {"itemIds": [ids you chose], "rationale": o
       ]
     }
   ];
+  LOOKBOOK.forEach((c) => c.looks.forEach((lk, i) => {
+    lk.n = i + 1;
+  }));
   const NOUN_FAMILIES = [
     ["tank", "cami", "camisole"],
     ["tee", "t-shirt", "tshirt"],
@@ -1016,15 +1032,16 @@ Respond ONLY with JSON, no markdown: {"itemIds": [ids you chose], "rationale": o
     const [saved, setSaved] = useState(false);
     const heroName = lk.hero || coll.hero;
     const heroItem = lk.hero ? matched.get(coll.id + ":" + lk.t + ":hero") : matched.get(coll.id + ":hero");
-    const rows = [{ label: heroName, item: heroItem, isHero: true }].concat(lk.items.map((p, i) => ({ label: p, item: matched.get(coll.id + ":" + lk.t + ":" + i) })));
+    const rows = [{ label: heroName, item: heroItem }].concat(lk.items.map((p, i) => ({ label: p, item: matched.get(coll.id + ":" + lk.t + ":" + i) })));
     const have = rows.filter((r) => r.item).length;
+    const img = IMG_BASE + coll.id + "-" + String(lk.n).padStart(2, "0") + ".webp";
     async function save() {
       const ids = [...new Set(rows.filter((r) => r.item).map((r) => r.item.id))];
       const recipe = rows.map((r) => r.label).join(", ");
       await onSaveLook(ids, `From the Lookbook \u2014 ${coll.piece}, ${lk.t}. Full look: ${recipe}.`, lk.t);
       setSaved(true);
     }
-    return /* @__PURE__ */ React.createElement("div", { className: "look-card" }, /* @__PURE__ */ React.createElement("div", { className: "look-top" }, /* @__PURE__ */ React.createElement("span", { className: "look-occ" }, lk.occ), /* @__PURE__ */ React.createElement("span", { className: "serif look-title" }, lk.t)), /* @__PURE__ */ React.createElement("div", { className: "piece-rows" }, rows.map((r, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "piece-row" + (r.item ? "" : " piece-missing") }, r.item ? /* @__PURE__ */ React.createElement("img", { className: "piece-thumb", src: r.item.img, alt: "" }) : /* @__PURE__ */ React.createElement("span", { className: "piece-dot" }), /* @__PURE__ */ React.createElement("span", { className: "piece-label" }, r.label, r.isHero ? " \xB7" : ""), r.isHero && /* @__PURE__ */ React.createElement("span", { className: "piece-hero-tag" }, "the piece")))), /* @__PURE__ */ React.createElement("div", { className: "look-foot" }, /* @__PURE__ */ React.createElement("span", { className: "look-count" }, have, " of ", rows.length, " in your closet"), /* @__PURE__ */ React.createElement("button", { className: "btn-text", onClick: save, disabled: saved }, saved ? "Saved \u2713" : "Save look")));
+    return /* @__PURE__ */ React.createElement("div", { className: "book-card" }, /* @__PURE__ */ React.createElement("img", { className: "book-img", src: img, alt: coll.piece + " \u2014 " + lk.t, loading: "lazy" }), /* @__PURE__ */ React.createElement("div", { className: "book-body" }, /* @__PURE__ */ React.createElement("div", { className: "look-top" }, /* @__PURE__ */ React.createElement("span", { className: "look-occ" }, lk.occ), /* @__PURE__ */ React.createElement("span", { className: "serif look-title" }, lk.t)), /* @__PURE__ */ React.createElement("div", { className: "piece-line" }, rows.map((r) => r.label).join("  \xB7  ")), /* @__PURE__ */ React.createElement("div", { className: "look-foot" }, /* @__PURE__ */ React.createElement("span", { className: "look-count" }, have, " of ", rows.length, " in your closet"), /* @__PURE__ */ React.createElement("button", { className: "btn-text", onClick: save, disabled: saved }, saved ? "Saved \u2713" : "Save look"))));
   }
   function StyleMe({ items, onSave }) {
     const [occasion, setOccasion] = useState("");
