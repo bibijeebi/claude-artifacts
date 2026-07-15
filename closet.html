@@ -224,16 +224,58 @@ input{font-family:inherit;}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important;}}
 
-/* lookbook image cards */
-.book-card{
-  background:var(--paper);border:1px solid var(--line);border-radius:14px;
-  overflow:hidden;
+/* lookbook masonry grid */
+.masonry{columns:2;column-gap:11px;padding-top:2px;}
+@media(min-width:640px){.masonry{columns:3;}}
+@media(min-width:960px){.masonry{columns:4;}}
+.m-item{
+  display:block;width:100%;break-inside:avoid;margin-bottom:13px;
+  text-align:left;
 }
-.book-img{width:100%;display:block;background:var(--sand);}
-.book-body{padding:12px 15px 11px;}
-.piece-line{
-  font-size:12.5px;color:var(--soft);line-height:1.7;margin-top:9px;
-  letter-spacing:.15px;
+.m-item img{
+  width:100%;height:auto;display:block;border-radius:12px;
+  border:1px solid var(--line);background:var(--sand);
+}
+.m-cap{
+  display:block;font-size:11.5px;color:var(--ink);margin-top:6px;
+  line-height:1.35;letter-spacing:.2px;font-weight:500;
+}
+.m-cap-soft{color:var(--soft);font-weight:400;}
+
+/* look detail */
+.detail{padding-top:2px;}
+.back{
+  font-size:12px;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--wine);font-weight:500;padding:4px 0 14px;
+}
+.detail-img{
+  width:100%;height:auto;display:block;border-radius:14px;
+  border:1px solid var(--line);background:var(--sand);
+}
+.detail-head{text-align:center;padding:16px 4px 18px;}
+.detail-title{font-size:30px;font-weight:500;line-height:1.05;margin-top:4px;}
+.detail-sub{
+  font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+  font-size:15.5px;color:var(--soft);margin-top:6px;
+}
+.match-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;}
+.match-cell{min-width:0;}
+.match-imgwrap{
+  aspect-ratio:3/4;border-radius:10px;overflow:hidden;
+  border:1px solid var(--line);background:var(--paper);
+}
+.match-imgwrap img{width:100%;height:100%;object-fit:cover;display:block;}
+.match-for{
+  font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--soft);margin-top:6px;line-height:1.3;
+}
+.match-name{font-size:14.5px;line-height:1.15;margin-top:2px;}
+.missing{
+  font-size:12.5px;color:var(--soft);line-height:1.6;margin-top:14px;
+  padding-top:12px;border-top:1px solid var(--line);
+}
+.missing-label{
+  font-size:10px;letter-spacing:1.8px;text-transform:uppercase;font-weight:500;
 }
 
 </style>
@@ -549,6 +591,7 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
   const { useState, useEffect, useRef, useMemo } = React;
   const API = "https://wardrobe-stylist.bennyforeman1.workers.dev";
   const IMG_BASE = "https://claude-deploy.bennyforeman1.workers.dev/r2/file/lookbook-";
+  const IMG_DIMS = { "checker-jacket-01": [420, 717], "checker-jacket-02": [420, 743], "checker-jacket-03": [420, 740], "checker-jacket-04": [420, 736], "checker-jacket-05": [420, 740], "checker-jacket-06": [420, 714], "checker-jacket-07": [420, 669], "checker-jacket-08": [420, 693], "checker-jacket-09": [420, 690], "checker-jacket-10": [420, 687], "checker-jacket-11": [420, 690], "checker-jacket-12": [420, 666], "denim-midi-01": [420, 756], "denim-midi-02": [420, 759], "denim-midi-03": [420, 756], "denim-midi-04": [420, 753], "denim-midi-05": [420, 751], "denim-midi-06": [420, 697], "denim-midi-07": [420, 700], "denim-midi-08": [420, 697], "denim-midi-09": [420, 695], "denim-midi-10": [420, 692], "grey-suit-01": [420, 704], "grey-suit-02": [420, 729], "grey-suit-03": [420, 749], "grey-suit-04": [420, 736], "grey-suit-05": [420, 739], "grey-suit-06": [420, 714], "grey-suit-07": [420, 647], "grey-suit-08": [420, 670], "grey-suit-09": [420, 688], "grey-suit-10": [420, 676], "grey-suit-11": [420, 679], "grey-suit-12": [420, 655], "pink-tee-01": [420, 735], "pink-tee-02": [420, 735], "pink-tee-03": [420, 733], "pink-tee-04": [420, 730], "pink-tee-05": [420, 733], "pink-tee-06": [420, 693], "pink-tee-07": [420, 693], "pink-tee-08": [420, 691], "pink-tee-09": [420, 688], "pink-tee-10": [420, 691], "plaid-mini-01": [420, 1018], "plaid-mini-02": [420, 1037], "plaid-mini-03": [420, 1037], "plaid-mini-04": [420, 1037], "plaid-mini-05": [420, 1106], "slip-dress-01": [420, 754], "slip-dress-02": [420, 754], "slip-dress-03": [420, 748], "slip-dress-04": [420, 748], "slip-dress-05": [420, 743], "slip-dress-06": [420, 700], "slip-dress-07": [420, 700], "slip-dress-08": [420, 694], "slip-dress-09": [420, 694], "slip-dress-10": [420, 689], "wine-skirt-01": [420, 736], "wine-skirt-02": [420, 722], "wine-skirt-03": [420, 722], "wine-skirt-04": [420, 722], "wine-skirt-05": [420, 717], "wine-skirt-06": [420, 707], "wine-skirt-07": [420, 694], "wine-skirt-08": [420, 694], "wine-skirt-09": [420, 694], "wine-skirt-10": [420, 689] };
   const CATS = ["Top", "Bottom", "Dress", "Skirt", "Outerwear", "Shoes", "Bag", "Accessory"];
   const VIBES = ["Old money", "Clean girl", "Casual", "Boho", "Sporty", "Going out", "Cozy"];
   const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
@@ -1007,41 +1050,50 @@ Respond ONLY with JSON, no markdown: {"itemIds": [ids you chose], "rationale": o
     const [open, setOpen] = useState(false);
     return /* @__PURE__ */ React.createElement("div", { style: { position: "relative" } }, /* @__PURE__ */ React.createElement("div", { className: "card", onClick: () => setOpen((o) => !o) }, /* @__PURE__ */ React.createElement("div", { className: "card-img" }, /* @__PURE__ */ React.createElement("img", { src: it.img, alt: it.name })), /* @__PURE__ */ React.createElement("div", { className: "card-body" }, /* @__PURE__ */ React.createElement("div", { className: "serif card-name" }, it.name || it.category), /* @__PURE__ */ React.createElement("div", { className: "card-meta" }, it.category, it.colors?.length ? " \xB7 " + it.colors.join(", ") : ""))), open && /* @__PURE__ */ React.createElement("button", { className: "overlay-btn", style: { left: 8 }, onClick: () => onEdit(it) }, "Edit"), open && /* @__PURE__ */ React.createElement("button", { className: "overlay-btn", style: { right: 8 }, onClick: () => onDel(it.id) }, "Remove"));
   }
+  function lookImg(coll, lk) {
+    const key = coll.id + "-" + String(lk.n).padStart(2, "0");
+    const [w, h] = IMG_DIMS[key] || [420, 700];
+    return { src: IMG_BASE + key + ".webp", w, h };
+  }
   function Lookbook({ items, onSaveLook }) {
     const [coll, setColl] = useState("All");
     const [occ, setOcc] = useState("All");
-    const matched = useMemo(() => {
-      const map = /* @__PURE__ */ new Map();
-      for (const c of LOOKBOOK) {
-        map.set(c.id + ":hero", matchPiece(c.hero, items));
-        for (const lk of c.looks) {
-          if (lk.hero) map.set(c.id + ":" + lk.t + ":hero", matchPiece(lk.hero, items));
-          lk.items.forEach((p, i) => map.set(c.id + ":" + lk.t + ":" + i, matchPiece(p, items)));
-        }
+    const [sel, setSel] = useState(null);
+    if (sel) {
+      return /* @__PURE__ */ React.createElement(LookDetail, { coll: sel.coll, lk: sel.lk, items, onSaveLook, onBack: () => setSel(null) });
+    }
+    const shown = [];
+    for (const c of LOOKBOOK) {
+      if (coll !== "All" && c.id !== coll) continue;
+      for (const lk of c.looks) {
+        if (occ !== "All" && lk.occ !== occ) continue;
+        shown.push({ coll: c, lk });
       }
-      return map;
-    }, [items]);
-    const colls = LOOKBOOK.filter((c) => coll === "All" || c.id === coll);
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "chip-row" }, /* @__PURE__ */ React.createElement(Chip, { on: coll === "All", onClick: () => setColl("All") }, "All pieces"), LOOKBOOK.map((c) => /* @__PURE__ */ React.createElement(Chip, { key: c.id, on: coll === c.id, onClick: () => setColl(c.id) }, c.piece))), /* @__PURE__ */ React.createElement("div", { className: "chip-row", style: { paddingTop: 0 } }, /* @__PURE__ */ React.createElement(Chip, { on: occ === "All", onClick: () => setOcc("All") }, "Any occasion"), OCCASIONS.map((o) => /* @__PURE__ */ React.createElement(Chip, { key: o, on: occ === o, onClick: () => setOcc(o) }, o))), colls.map((c) => {
-      const shown = c.looks.filter((lk) => occ === "All" || lk.occ === occ);
-      if (!shown.length) return null;
-      return /* @__PURE__ */ React.createElement("div", { key: c.id, className: "collection" }, /* @__PURE__ */ React.createElement("div", { className: "coll-head" }, /* @__PURE__ */ React.createElement(Eyebrow, null, "Built around"), /* @__PURE__ */ React.createElement("div", { className: "serif coll-title" }, c.piece), /* @__PURE__ */ React.createElement("div", { className: "coll-line" }, c.line)), /* @__PURE__ */ React.createElement("div", { className: "look-list" }, shown.map((lk) => /* @__PURE__ */ React.createElement(LookCard, { key: c.id + lk.t, coll: c, lk, matched, onSaveLook }))));
-    }));
+    }
+    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "chip-row" }, /* @__PURE__ */ React.createElement(Chip, { on: coll === "All", onClick: () => setColl("All") }, "All pieces"), LOOKBOOK.map((c) => /* @__PURE__ */ React.createElement(Chip, { key: c.id, on: coll === c.id, onClick: () => setColl(c.id) }, c.piece))), /* @__PURE__ */ React.createElement("div", { className: "chip-row", style: { paddingTop: 0 } }, /* @__PURE__ */ React.createElement(Chip, { on: occ === "All", onClick: () => setOcc("All") }, "Any occasion"), OCCASIONS.map((o) => /* @__PURE__ */ React.createElement(Chip, { key: o, on: occ === o, onClick: () => setOcc(o) }, o))), /* @__PURE__ */ React.createElement("div", { className: "masonry" }, shown.map(({ coll: c, lk }) => {
+      const im = lookImg(c, lk);
+      return /* @__PURE__ */ React.createElement("button", { key: c.id + lk.t, className: "m-item", onClick: () => setSel({ coll: c, lk }) }, /* @__PURE__ */ React.createElement("img", { src: im.src, width: im.w, height: im.h, alt: c.piece + " \u2014 " + lk.t, loading: "lazy" }), /* @__PURE__ */ React.createElement("span", { className: "m-cap" }, lk.t, /* @__PURE__ */ React.createElement("span", { className: "m-cap-soft" }, " \xB7 ", c.piece)));
+    })));
   }
-  function LookCard({ coll, lk, matched, onSaveLook }) {
+  function LookDetail({ coll, lk, items, onSaveLook, onBack }) {
     const [saved, setSaved] = useState(false);
+    const im = lookImg(coll, lk);
     const heroName = lk.hero || coll.hero;
-    const heroItem = lk.hero ? matched.get(coll.id + ":" + lk.t + ":hero") : matched.get(coll.id + ":hero");
-    const rows = [{ label: heroName, item: heroItem }].concat(lk.items.map((p, i) => ({ label: p, item: matched.get(coll.id + ":" + lk.t + ":" + i) })));
-    const have = rows.filter((r) => r.item).length;
-    const img = IMG_BASE + coll.id + "-" + String(lk.n).padStart(2, "0") + ".webp";
+    const pieces = [heroName, ...lk.items];
+    const rows = pieces.map((p) => ({ label: p, item: matchPiece(p, items) }));
+    const seen = /* @__PURE__ */ new Set();
+    const matchedRows = rows.filter((r) => {
+      if (!r.item || seen.has(r.item.id)) return false;
+      seen.add(r.item.id);
+      return true;
+    });
+    const missing = rows.filter((r) => !r.item).map((r) => r.label);
     async function save() {
-      const ids = [...new Set(rows.filter((r) => r.item).map((r) => r.item.id))];
-      const recipe = rows.map((r) => r.label).join(", ");
-      await onSaveLook(ids, `From the Lookbook \u2014 ${coll.piece}, ${lk.t}. Full look: ${recipe}.`, lk.t);
+      const ids = matchedRows.map((r) => r.item.id);
+      await onSaveLook(ids, `From the Lookbook \u2014 ${coll.piece}, ${lk.t}. Full look: ${pieces.join(", ")}.`, lk.t);
       setSaved(true);
     }
-    return /* @__PURE__ */ React.createElement("div", { className: "book-card" }, /* @__PURE__ */ React.createElement("img", { className: "book-img", src: img, alt: coll.piece + " \u2014 " + lk.t, loading: "lazy" }), /* @__PURE__ */ React.createElement("div", { className: "book-body" }, /* @__PURE__ */ React.createElement("div", { className: "look-top" }, /* @__PURE__ */ React.createElement("span", { className: "look-occ" }, lk.occ), /* @__PURE__ */ React.createElement("span", { className: "serif look-title" }, lk.t)), /* @__PURE__ */ React.createElement("div", { className: "piece-line" }, rows.map((r) => r.label).join("  \xB7  ")), /* @__PURE__ */ React.createElement("div", { className: "look-foot" }, /* @__PURE__ */ React.createElement("span", { className: "look-count" }, have, " of ", rows.length, " in your closet"), /* @__PURE__ */ React.createElement("button", { className: "btn-text", onClick: save, disabled: saved }, saved ? "Saved \u2713" : "Save look"))));
+    return /* @__PURE__ */ React.createElement("div", { className: "detail" }, /* @__PURE__ */ React.createElement("button", { className: "back", onClick: onBack }, "\u2190 Lookbook"), /* @__PURE__ */ React.createElement("img", { className: "detail-img", src: im.src, width: im.w, height: im.h, alt: coll.piece + " \u2014 " + lk.t }), /* @__PURE__ */ React.createElement("div", { className: "detail-head" }, /* @__PURE__ */ React.createElement("div", { className: "look-occ" }, lk.occ), /* @__PURE__ */ React.createElement("div", { className: "serif detail-title" }, lk.t), /* @__PURE__ */ React.createElement("div", { className: "detail-sub" }, "Built around the ", coll.piece.toLowerCase())), /* @__PURE__ */ React.createElement(Eyebrow, null, matchedRows.length ? "From your closet" : "From your closet \u2014 nothing catalogued yet"), matchedRows.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "match-grid" }, matchedRows.map((r) => /* @__PURE__ */ React.createElement("div", { key: r.item.id, className: "match-cell" }, /* @__PURE__ */ React.createElement("div", { className: "match-imgwrap" }, /* @__PURE__ */ React.createElement("img", { src: r.item.img, alt: r.item.name })), /* @__PURE__ */ React.createElement("div", { className: "match-for" }, r.label), /* @__PURE__ */ React.createElement("div", { className: "match-name serif" }, r.item.name)))), missing.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "missing" }, /* @__PURE__ */ React.createElement("span", { className: "missing-label" }, "Still to catalogue or find: "), missing.join(", ")), /* @__PURE__ */ React.createElement("button", { className: "btn-primary", style: { width: "100%", marginTop: 18 }, onClick: save, disabled: saved }, saved ? "Saved to your looks \u2713" : "Save this look"));
   }
   function StyleMe({ items, onSave }) {
     const [occasion, setOccasion] = useState("");
