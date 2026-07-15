@@ -8,26 +8,222 @@
 <meta name="apple-mobile-web-app-title" content="Closet">
 <title>Closet — Bekah's Wardrobe</title>
 <meta property="og:title" content="Closet — Bekah's Wardrobe">
-<meta property="og:description" content="A personal wardrobe, catalogued. Snap each piece, get it tagged, and let it style you a cohesive look from what you actually own.">
+<meta property="og:description" content="A personal wardrobe, catalogued. Snap each piece, browse the lookbook built from your signature pieces, and get styled from what you actually own.">
 <meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-og.jpg">
 <meta property="og:url" content="https://niggerfaggot.club/closet.html">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--sand:#EBE6DC;--paper:#F8F5F0;--ink:#3B362E;--soft:#8C8478;--line:#DBD3C6;--blue:#9FB0BC;--sage:#A7B49A;--blush:#D8C2BD;}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body,#root{height:100%;margin:0;}
-body{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--sand);overscroll-behavior-y:none;}
-.wd-root{font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--sand);min-height:100%;}
-.serif{font-family:'Cormorant','Cormorant Garamond',serif;}
-.wd-scroll{padding:0 18px 120px;}
-button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+:root{
+  --paper:#F9F6EF;
+  --sand:#EFE9DC;
+  --ink:#2F2A21;
+  --soft:#8C8271;
+  --line:#DCD3C1;
+  --wine:#6B2D3A;
+  --wine-deep:#57242F;
+  --sage:#9CA88E;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;}
+html,body{overflow-x:hidden;}
+html,body,#root{height:100%;}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  color:var(--ink);
+  background:var(--sand);
+  overscroll-behavior-y:none;
+  font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;padding:0;}
 input{font-family:inherit;}
-::-webkit-scrollbar{display:none;}
-@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
+.serif{font-family:'Cormorant Garamond',Georgia,serif;}
+.wd-root{height:100%;display:flex;flex-direction:column;}
+.wd-scroll{
+  flex:1;overflow-y:auto;padding:2px 18px 110px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* header */
+.header{padding:calc(20px + env(safe-area-inset-top)) 18px 16px;text-align:center;}
+.mark{
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  color:var(--wine);margin-bottom:10px;
+}
+.mark-text{
+  font-size:10.5px;letter-spacing:3.2px;text-transform:uppercase;
+  color:var(--soft);font-weight:500;
+}
+.title{
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:40px;line-height:1.05;font-weight:500;letter-spacing:.3px;
+}
+.rule{
+  width:132px;margin:14px auto 0;height:5px;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.subline{font-size:12.5px;color:var(--soft);margin-top:11px;letter-spacing:.2px;}
+
+/* text bits */
+.eyebrow{
+  font-size:10.5px;letter-spacing:2.6px;text-transform:uppercase;
+  color:var(--soft);margin-bottom:6px;font-weight:500;
+}
+.lede{font-size:14px;color:var(--soft);line-height:1.55;margin-bottom:16px;}
+.quiet-center{text-align:center;color:var(--soft);margin-top:70px;font-size:14px;line-height:1.5;}
+
+/* chips */
+.chip{
+  padding:6px 13px;border-radius:999px;font-size:12.5px;letter-spacing:.3px;
+  border:1px solid var(--line);background:transparent;color:var(--soft);
+  transition:all .15s;white-space:nowrap;
+}
+.chip-on{border-color:var(--wine);background:var(--wine);color:var(--paper);}
+.chip-row{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 14px;scrollbar-width:none;}
+.chip-row::-webkit-scrollbar{display:none;}
+.chip-wrap{display:flex;flex-wrap:wrap;gap:8px;}
+
+/* inputs & buttons */
+.search{
+  width:100%;padding:12px 15px;border-radius:12px;margin-bottom:12px;
+  border:1px solid var(--line);background:var(--paper);
+  font-size:15px;color:var(--ink);outline:none;
+}
+.search::placeholder{color:var(--soft);}
+.search:focus{border-color:var(--wine);}
+.btn-primary{
+  background:var(--wine);color:var(--paper);
+  padding:13px 22px;border-radius:999px;font-size:14px;font-weight:500;
+  letter-spacing:.4px;transition:background .15s;
+}
+.btn-primary:active{background:var(--wine-deep);}
+.btn-secondary{
+  border:1px solid var(--line);color:var(--soft);background:var(--paper);
+  padding:13px 22px;border-radius:999px;font-size:14px;letter-spacing:.4px;
+}
+.btn-text{
+  color:var(--wine);font-size:13px;font-weight:500;letter-spacing:.3px;
+  padding:6px 2px;
+}
+.btn-text:disabled{color:var(--soft);}
+
+/* closet grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(min-width:640px){.grid2{grid-template-columns:repeat(3,1fr);}}
+.card{
+  background:var(--paper);border-radius:14px;overflow:hidden;
+  border:1px solid var(--line);
+}
+.card-img{aspect-ratio:3/4;overflow:hidden;background:var(--sand);}
+.card-img img{width:100%;height:100%;object-fit:cover;display:block;}
+.card-body{padding:9px 11px 11px;}
+.card-name{font-size:16.5px;line-height:1.15;font-weight:500;}
+.card-meta{font-size:11px;color:var(--soft);margin-top:3px;}
+.overlay-btn{
+  position:absolute;top:8px;background:rgba(47,42,33,.85);color:var(--paper);
+  border-radius:999px;font-size:11px;padding:5px 11px;backdrop-filter:blur(4px);
+}
+
+/* empty states */
+.empty{text-align:center;margin-top:56px;padding:0 8px;}
+.empty-shell{color:var(--wine);opacity:.7;margin-bottom:14px;}
+.empty-title{font-size:27px;margin-bottom:10px;font-weight:500;}
+.empty-body{font-size:14px;color:var(--soft);margin-bottom:24px;line-height:1.55;}
+
+/* lookbook */
+.collection{margin-top:10px;}
+.coll-head{
+  text-align:center;padding:18px 6px 14px;
+}
+.coll-title{font-size:27px;font-weight:500;line-height:1.1;}
+.coll-line{
+  font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+  font-size:15.5px;color:var(--soft);margin-top:7px;line-height:1.45;
+  max-width:340px;margin-left:auto;margin-right:auto;
+}
+.look-list{display:flex;flex-direction:column;gap:14px;}
+@media(min-width:640px){.look-list{display:grid;grid-template-columns:1fr 1fr;align-items:start;}}
+.look-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:14px;
+  padding:14px 15px 12px;
+}
+.look-top{display:flex;align-items:baseline;gap:10px;margin-bottom:11px;}
+.look-occ{
+  font-size:10px;letter-spacing:2.2px;text-transform:uppercase;
+  color:var(--wine);font-weight:500;
+}
+.look-title{font-size:21px;font-weight:500;line-height:1;}
+.piece-rows{display:flex;flex-direction:column;}
+.piece-row{
+  display:flex;align-items:center;gap:10px;padding:5px 0;
+  border-bottom:1px solid rgba(220,211,193,.45);font-size:13.5px;
+}
+.piece-row:last-child{border-bottom:none;}
+.piece-thumb{
+  width:32px;height:32px;border-radius:8px;object-fit:cover;
+  border:1px solid var(--line);flex-shrink:0;
+}
+.piece-dot{
+  width:7px;height:7px;border-radius:999px;border:1px solid var(--soft);
+  margin:0 12.5px;flex-shrink:0;
+}
+.piece-missing .piece-label{color:var(--soft);}
+.piece-label{line-height:1.3;}
+.piece-hero-tag{
+  font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+  font-size:13.5px;color:var(--wine);
+}
+.look-foot{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:10px;padding-top:9px;border-top:1px solid var(--line);
+}
+.look-count{font-size:11.5px;color:var(--soft);letter-spacing:.2px;line-height:1.4;}
+
+/* style me & saved looks */
+.thumb-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:11px;}
+.big-thumb{
+  width:64px;height:80px;border-radius:10px;object-fit:cover;
+  border:1px solid var(--line);
+}
+.rationale{
+  font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+  font-size:16.5px;line-height:1.45;color:var(--ink);
+}
+
+/* add form */
+.draft-img{
+  aspect-ratio:3/4;max-height:300px;margin:4px auto 18px;border-radius:16px;
+  overflow:hidden;border:1px solid var(--line);background:var(--paper);
+}
+.draft-img img{width:100%;height:100%;object-fit:contain;display:block;}
+.tagging{text-align:center;font-size:13px;color:var(--wine);margin-bottom:16px;}
+
+/* nav */
+.nav{
+  position:fixed;bottom:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-around;
+  background:var(--paper);border-top:1px solid var(--line);
+  padding:9px 6px calc(9px + env(safe-area-inset-bottom));
+}
+.nav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--soft);font-size:10px;letter-spacing:.6px;flex:1;
+  padding:2px 0;transition:color .15s;
+}
+.nav-on{color:var(--wine);}
+.nav-add{
+  width:48px;height:48px;border-radius:999px;background:var(--wine);
+  color:var(--paper);font-size:26px;font-weight:300;line-height:1;
+  margin-top:-22px;box-shadow:0 3px 10px rgba(87,36,47,.28);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  border:3px solid var(--sand);
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;}}
+
 </style>
 <script>
 /**
@@ -335,21 +531,580 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
 </script>
 </head>
 <body>
-<div id="root"><div style="text-align:center;padding:90px 24px;font-family:-apple-system,system-ui,sans-serif;color:#8a8276">Opening your closet&hellip;<div style="font-size:13px;margin-top:10px;line-height:1.5">If this stays here, pull down to refresh.</div></div></div>
+<div id="root"><div style="text-align:center;padding:90px 24px;font-family:-apple-system,system-ui,sans-serif;color:#8c8271">Opening your closet&hellip;<div style="font-size:13px;margin-top:10px;line-height:1.5">If this stays here, pull down to refresh.</div></div></div>
 <script>
-(()=>{var{useState:f,useEffect:K,useRef:_}=React,q="https://wardrobe-stylist.bennyforeman1.workers.dev",z=["Top","Bottom","Dress","Skirt","Outerwear","Shoes","Bag","Accessory"],j=["Old money","Clean girl","Casual","Boho","Sporty","Going out","Cozy"],I=["Spring","Summer","Fall","Winter"],D=["Loungewear","Casual","Smart casual","Dressy"],G="wardrobe",b="kv";function B(){return new Promise((e,o)=>{let n=indexedDB.open(G,1);n.onupgradeneeded=()=>n.result.createObjectStore(b),n.onsuccess=()=>e(n.result),n.onerror=()=>o(n.error)})}async function P(e,o){let n=await B();return new Promise((i,r)=>{let t=n.transaction(b,"readwrite");t.objectStore(b).put(o,e),t.oncomplete=()=>i(!0),t.onerror=()=>r(t.error)})}async function W(e){let o=await B();return new Promise(n=>{let r=o.transaction(b,"readonly").objectStore(b).get(e);r.onsuccess=()=>n(r.result??null),r.onerror=()=>n(null)})}async function J(e){let o=await B();return new Promise(n=>{let i=o.transaction(b,"readwrite");i.objectStore(b).delete(e),i.oncomplete=()=>n(),i.onerror=()=>n()})}async function H(e){let o=await B();return new Promise(n=>{let i=[],t=o.transaction(b,"readonly").objectStore(b).openKeyCursor();t.onsuccess=()=>{let a=t.result;a?(String(a.key).startsWith(e)&&i.push(a.key),a.continue()):n(i)},t.onerror=()=>n(i)})}function V(e,o=640,n=.72){return new Promise((i,r)=>{let t=new Image,a=URL.createObjectURL(e);t.onload=()=>{let s=Math.min(1,o/Math.max(t.width,t.height)),g=Math.round(t.width*s),l=Math.round(t.height*s),y=document.createElement("canvas");y.width=g,y.height=l,y.getContext("2d").drawImage(t,0,0,g,l),URL.revokeObjectURL(a),i(y.toDataURL("image/jpeg",n))},t.onerror=()=>{URL.revokeObjectURL(a),r(new Error("bad image"))},t.src=a})}async function M(e){return((await(await fetch(q,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1024,messages:e})})).json()).content||[]).filter(i=>i.type==="text").map(i=>i.text).join(`
-`)}function U(e){let o=e.replace(/```json/g,"").replace(/```/g,"").trim();return JSON.parse(o)}async function X(e){let o=e.split(",")[1],n=`Catalog this single clothing item or accessory. Respond ONLY with JSON, no markdown, no preamble:
+(() => {
+  const { useState, useEffect, useRef, useMemo } = React;
+  const API = "https://wardrobe-stylist.bennyforeman1.workers.dev";
+  const CATS = ["Top", "Bottom", "Dress", "Skirt", "Outerwear", "Shoes", "Bag", "Accessory"];
+  const VIBES = ["Old money", "Clean girl", "Casual", "Boho", "Sporty", "Going out", "Cozy"];
+  const SEASONS = ["Spring", "Summer", "Fall", "Winter"];
+  const FORMALITY = ["Loungewear", "Casual", "Smart casual", "Dressy"];
+  const DB_NAME = "wardrobe";
+  const STORE = "kv";
+  function openDb() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open(DB_NAME, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore(STORE);
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+  }
+  async function kvPut(key, val) {
+    const db = await openDb();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(STORE, "readwrite");
+      tx.objectStore(STORE).put(val, key);
+      tx.oncomplete = () => res(true);
+      tx.onerror = () => rej(tx.error);
+    });
+  }
+  async function kvGet(key) {
+    const db = await openDb();
+    return new Promise((res) => {
+      const r = db.transaction(STORE, "readonly").objectStore(STORE).get(key);
+      r.onsuccess = () => res(r.result ?? null);
+      r.onerror = () => res(null);
+    });
+  }
+  async function kvDel(key) {
+    const db = await openDb();
+    return new Promise((res) => {
+      const tx = db.transaction(STORE, "readwrite");
+      tx.objectStore(STORE).delete(key);
+      tx.oncomplete = () => res();
+      tx.onerror = () => res();
+    });
+  }
+  async function kvKeys(prefix) {
+    const db = await openDb();
+    return new Promise((res) => {
+      const out = [];
+      const cur = db.transaction(STORE, "readonly").objectStore(STORE).openKeyCursor();
+      cur.onsuccess = () => {
+        const c = cur.result;
+        if (c) {
+          if (String(c.key).startsWith(prefix)) out.push(c.key);
+          c.continue();
+        } else res(out);
+      };
+      cur.onerror = () => res(out);
+    });
+  }
+  function shrinkImage(file, max = 640, q = 0.72) {
+    return new Promise((res, rej) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const s = Math.min(1, max / Math.max(img.width, img.height));
+        const w = Math.round(img.width * s), h = Math.round(img.height * s);
+        const c = document.createElement("canvas");
+        c.width = w;
+        c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        res(c.toDataURL("image/jpeg", q));
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        rej(new Error("bad image"));
+      };
+      img.src = url;
+    });
+  }
+  async function askClaude(messages) {
+    const r = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1024, messages })
+    });
+    const d = await r.json();
+    return (d.content || []).filter((c) => c.type === "text").map((c) => c.text).join("\n");
+  }
+  function parseJson(t) {
+    return JSON.parse(t.replace(/```json/g, "").replace(/```/g, "").trim());
+  }
+  async function autoTag(dataUrl) {
+    const b64 = dataUrl.split(",")[1];
+    const prompt = `Catalog this single clothing item or accessory. Respond ONLY with JSON, no markdown, no preamble:
 {"name": short descriptive name (e.g. "light blue tiered maxi skirt"),
-"category": one of ${JSON.stringify(z)},
+"category": one of ${JSON.stringify(CATS)},
 "colors": 1-2 plain color words,
-"vibe": subset of ${JSON.stringify(j)},
-"season": subset of ${JSON.stringify(I)},
-"formality": one of ${JSON.stringify(D)}}`,i=await M([{role:"user",content:[{type:"image",source:{type:"base64",media_type:"image/jpeg",data:o}},{type:"text",text:n}]}]);return U(i)}async function Q(e,o){let n=e.map(t=>({id:t.id,name:t.name,category:t.category,colors:t.colors,vibe:t.vibe,season:t.season,formality:t.formality})),i=`You are a personal stylist with an old-money, clean-girl sensibility: tonal, refined, pastel and neutral.
-From ONLY this wardrobe, build ONE cohesive outfit for: ${o||"a relaxed daytime errand"}.
+"vibe": subset of ${JSON.stringify(VIBES)},
+"season": subset of ${JSON.stringify(SEASONS)},
+"formality": one of ${JSON.stringify(FORMALITY)}}`;
+    const out = await askClaude([{
+      role: "user",
+      content: [
+        { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
+        { type: "text", text: prompt }
+      ]
+    }]);
+    return parseJson(out);
+  }
+  async function styleMe(items, occasion) {
+    const slim = items.map((t) => ({
+      id: t.id,
+      name: t.name,
+      category: t.category,
+      colors: t.colors,
+      vibe: t.vibe,
+      season: t.season,
+      formality: t.formality
+    }));
+    const prompt = `You are a personal stylist with an English coastal, old-money sensibility: refined, tonal, quietly elegant. Her palette is warm soft-autumn: cream, oatmeal, sage, olive, chocolate, cognac, wine, heather pink, with gold jewelry and brown or cognac leather.
+From ONLY this wardrobe, build ONE cohesive outfit for: ${occasion || "a relaxed daytime errand"}.
 Weather: warm and humid, around 80F.
-Rules: pick 2-5 items that genuinely go together. Either one dress/skirt-based look or one top + one bottom, plus optionally shoes, a bag, one accessory. Add outerwear only if it helps. Favor tonal neutrals and soft pastels over loud contrast.
-Wardrobe: ${JSON.stringify(n)}
-Respond ONLY with JSON, no markdown: {"itemIds": [ids you chose], "rationale": one or two warm, concise sentences on why it works}`,r=await M([{role:"user",content:i}]);return U(r)}function C({on:e,children:o,onClick:n}){return React.createElement("button",{onClick:n,style:{padding:"6px 12px",borderRadius:999,fontSize:12.5,letterSpacing:.2,border:`1px solid ${e?"var(--ink)":"var(--line)"}`,background:e?"var(--ink)":"transparent",color:e?"var(--paper)":"var(--soft)",transition:"all .15s"}},o)}function E({children:e}){return React.createElement("div",{style:{fontSize:11,letterSpacing:2.5,textTransform:"uppercase",color:"var(--soft)",marginBottom:6}},e)}function Z(){let[e,o]=f("closet"),[n,i]=f([]),[r,t]=f([]),[a,s]=f(!0),[g,l]=f(null),y=_(null);K(()=>{(async()=>{let d=await H("item:"),v=(await Promise.all(d.map(c=>W(c)))).filter(Boolean);v.sort((c,k)=>k.createdAt-c.createdAt);let u=await H("look:"),h=(await Promise.all(u.map(c=>W(c)))).filter(Boolean);h.sort((c,k)=>k.createdAt-c.createdAt),i(v),t(h),s(!1)})()},[]);async function T(d){let v=Array.from(d.target.files||[]);if(d.target.value="",!v.length)return;let u=v[0],h;try{h=await V(u)}catch{return}let c="i"+Date.now()+Math.random().toString(36).slice(2,6),k={id:c,img:h,name:"",category:"Top",colors:[],vibe:[],season:[],formality:"Casual",createdAt:Date.now(),tagging:!0};l(k),o("add");try{let p=await X(h);l(N=>N&&N.id===c?{...N,name:p.name||"",category:z.includes(p.category)?p.category:"Top",colors:p.colors||[],vibe:(p.vibe||[]).filter(F=>j.includes(F)),season:(p.season||[]).filter(F=>I.includes(F)),formality:D.includes(p.formality)?p.formality:"Casual",tagging:!1}:N)}catch{l(p=>p&&p.id===c?{...p,tagging:!1,tagFail:!0}:p)}}async function R(){let{tagging:d,tagFail:v,...u}=g;await P("item:"+u.id,u),i(h=>[u,...h.filter(c=>c.id!==u.id)]),l(null),o("closet")}async function m(d){await J("item:"+d),i(v=>v.filter(u=>u.id!==d))}async function w(d,v,u){let h="l"+Date.now(),c={id:h,itemIds:d,rationale:v,occasion:u,createdAt:Date.now()};await P("look:"+h,c),t(k=>[c,...k])}async function S(d){await J("look:"+d),t(v=>v.filter(u=>u.id!==d))}return React.createElement("div",{className:"wd-root",style:{height:"100%",overflowY:"auto"}},React.createElement("input",{ref:y,type:"file",accept:"image/*",capture:"environment",onChange:T,style:{display:"none"}}),React.createElement(ee,{tab:e,count:n.length}),React.createElement("div",{className:"wd-scroll"},a?React.createElement(te,null):e==="closet"?React.createElement(oe,{items:n,onAdd:()=>y.current?.click(),onDel:m,onEdit:d=>{l({...d,tagging:!1}),o("add")}}):e==="add"?React.createElement(ie,{draft:g,setDraft:l,onSave:R,onCancel:()=>{l(null),o("closet")}}):e==="style"?React.createElement(ae,{items:n,onSave:w}):React.createElement(re,{looks:r,items:n,onDel:S})),e!=="add"&&React.createElement(se,{tab:e,setTab:o,onAdd:()=>y.current?.click()}))}function ee({tab:e,count:o}){let n={closet:"The Closet",add:"New Piece",style:"Style Me",looks:"Saved Looks"}[e];return React.createElement("div",{style:{padding:"26px 18px 14px"}},React.createElement(E,null,"Bekah's Wardrobe"),React.createElement("div",{className:"serif",style:{fontSize:38,lineHeight:1,fontWeight:500}},n),e==="closet"&&React.createElement("div",{style:{fontSize:13,color:"var(--soft)",marginTop:8}},o," ",o===1?"piece":"pieces"," catalogued"))}function te(){return React.createElement("div",{style:{textAlign:"center",color:"var(--soft)",marginTop:80,fontSize:14}},"Opening your closet\u2026")}function oe({items:e,onAdd:o,onDel:n,onEdit:M2}){let[i,r]=f("All"),t=["All",...z.filter(s=>e.some(g=>g.category===s))],a=i==="All"?e:e.filter(s=>s.category===i);return e.length?React.createElement(React.Fragment,null,React.createElement("div",{style:{display:"flex",gap:8,overflowX:"auto",padding:"4px 0 16px",margin:"0 -2px"}},t.map(s=>React.createElement(C,{key:s,on:i===s,onClick:()=>r(s)},s))),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},a.map(s=>React.createElement(ne,{key:s.id,it:s,onDel:n,onEdit:M2})))):React.createElement("div",{style:{textAlign:"center",marginTop:70}},React.createElement("div",{className:"serif",style:{fontSize:26,marginBottom:10}},"Your closet is empty"),React.createElement("div",{style:{fontSize:14,color:"var(--soft)",marginBottom:24,lineHeight:1.5}},"Snap each piece you own. They get tagged for you,",React.createElement("br",null),"then I can style you from what's really in here."),React.createElement("button",{onClick:o,style:O},"Add your first piece"))}function ne({it:e,onDel:o,onEdit:E2}){let[n,i]=f(!1);return React.createElement("div",{style:{position:"relative"}},React.createElement("div",{onClick:()=>i(r=>!r),style:{background:"var(--paper)",borderRadius:14,overflow:"hidden",border:"1px solid var(--line)"}},React.createElement("div",{style:{aspectRatio:"3/4",overflow:"hidden",background:"var(--sand)"}},React.createElement("img",{src:e.img,alt:e.name,style:{width:"100%",height:"100%",objectFit:"cover"}})),React.createElement("div",{style:{padding:"9px 11px 11px"}},React.createElement("div",{className:"serif",style:{fontSize:16,lineHeight:1.15,fontWeight:500}},e.name||e.category),React.createElement("div",{style:{fontSize:11,color:"var(--soft)",marginTop:3}},e.category,e.colors?.length?" \xB7 "+e.colors.join(", "):""))),n&&React.createElement("button",{onClick:()=>E2(e),style:{position:"absolute",top:8,left:8,background:"rgba(59,54,46,.85)",color:"var(--paper)",borderRadius:999,fontSize:11,padding:"5px 11px",backdropFilter:"blur(4px)"}},"Edit"),n&&React.createElement("button",{onClick:()=>o(e.id),style:{position:"absolute",top:8,right:8,background:"rgba(59,54,46,.85)",color:"var(--paper)",borderRadius:999,fontSize:11,padding:"5px 11px",backdropFilter:"blur(4px)"}},"Remove"))}function ie({draft:e,setDraft:o,onSave:n,onCancel:i}){if(!e)return React.createElement("div",{style:{color:"var(--soft)",textAlign:"center",marginTop:60}},"No piece selected.");let r=(t,a)=>o(s=>{let g=s[t]||[];return{...s,[t]:g.includes(a)?g.filter(l=>l!==a):[...g,a]}});return React.createElement("div",null,React.createElement("div",{style:{aspectRatio:"3/4",maxHeight:300,margin:"4px auto 18px",borderRadius:16,overflow:"hidden",border:"1px solid var(--line)",background:"var(--paper)"}},React.createElement("img",{src:e.img,alt:"",style:{width:"100%",height:"100%",objectFit:"contain"}})),e.tagging&&React.createElement("div",{style:{textAlign:"center",fontSize:13,color:"var(--blue)",marginBottom:16}},"Tagging this piece\u2026"),e.tagFail&&React.createElement("div",{style:{textAlign:"center",fontSize:12.5,color:"var(--soft)",marginBottom:16}},"Couldn't auto-tag. Fill it in below."),React.createElement(x,{label:"Name"},React.createElement("input",{value:e.name,onChange:t=>o(a=>({...a,name:t.target.value})),placeholder:"e.g. cream linen tank",style:$})),React.createElement(x,{label:"Category"},React.createElement("div",{style:A},z.map(t=>React.createElement(C,{key:t,on:e.category===t,onClick:()=>o(a=>({...a,category:t}))},t)))),React.createElement(x,{label:"Vibe"},React.createElement("div",{style:A},j.map(t=>React.createElement(C,{key:t,on:e.vibe?.includes(t),onClick:()=>r("vibe",t)},t)))),React.createElement(x,{label:"Season"},React.createElement("div",{style:A},I.map(t=>React.createElement(C,{key:t,on:e.season?.includes(t),onClick:()=>r("season",t)},t)))),React.createElement(x,{label:"Formality"},React.createElement("div",{style:A},D.map(t=>React.createElement(C,{key:t,on:e.formality===t,onClick:()=>o(a=>({...a,formality:t}))},t)))),React.createElement("div",{style:{display:"flex",gap:10,marginTop:22}},React.createElement("button",{onClick:i,style:{...Y,flex:1}},"Cancel"),React.createElement("button",{onClick:n,disabled:e.tagging,style:{...O,flex:2,opacity:e.tagging?.5:1}},"Save to closet")))}function x({label:e,children:o}){return React.createElement("div",{style:{marginBottom:16}},React.createElement(E,null,e),o)}function ae({items:e,onSave:o}){let[n,i]=f(""),[r,t]=f(!1),[a,s]=f(null),[g,l]=f(""),[y,T]=f(!1);async function R(){if(l(""),T(!1),s(null),e.length<2){l("Add a few more pieces first, I need something to work with.");return}t(!0);try{let m=await Q(e,n),w=(m.itemIds||[]).map(S=>e.find(d=>d.id===S)).filter(Boolean);w.length?s({chosen:w,rationale:m.rationale,ids:w.map(S=>S.id)}):l("Nothing came together that time. Try again.")}catch{l("That didn't go through. Try once more.")}t(!1)}return React.createElement("div",null,React.createElement("div",{style:{fontSize:14,color:"var(--soft)",lineHeight:1.5,marginBottom:16}},"Tell me where you're headed and I'll pull a look from your closet. Leave it blank for an everyday one."),React.createElement("input",{value:n,onChange:m=>i(m.target.value),placeholder:"post office, then mom's house\u2026",style:{...$,marginBottom:12}}),React.createElement("button",{onClick:R,disabled:r,style:{...O,width:"100%",opacity:r?.6:1}},r?"Styling\u2026":"Style me"),g&&React.createElement("div",{style:{marginTop:16,fontSize:13.5,color:"var(--soft)",textAlign:"center"}},g),a&&React.createElement("div",{style:{marginTop:24}},React.createElement("div",{style:{display:"grid",gridTemplateColumns:a.chosen.length>2?"1fr 1fr 1fr":"1fr 1fr",gap:8}},a.chosen.map(m=>React.createElement("div",{key:m.id,style:{background:"var(--paper)",borderRadius:12,overflow:"hidden",border:"1px solid var(--line)"}},React.createElement("div",{style:{aspectRatio:"3/4",background:"var(--sand)"}},React.createElement("img",{src:m.img,alt:m.name,style:{width:"100%",height:"100%",objectFit:"cover"}})),React.createElement("div",{style:{fontSize:10.5,color:"var(--soft)",padding:"6px 7px",textAlign:"center"}},m.name||m.category)))),a.rationale&&React.createElement("div",{className:"serif",style:{fontSize:19,lineHeight:1.35,marginTop:18,fontStyle:"italic"}},"\u201C",a.rationale,"\u201D"),React.createElement("div",{style:{display:"flex",gap:10,marginTop:18}},React.createElement("button",{onClick:R,style:{...Y,flex:1}},"Try again"),React.createElement("button",{disabled:y,onClick:()=>{o(a.ids,a.rationale,n),T(!0)},style:{...O,flex:1,opacity:y?.5:1}},y?"Saved":"Save look"))))}function re({looks:e,items:o,onDel:n}){return e.length?React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:18}},e.map(i=>{let r=i.itemIds.map(t=>o.find(a=>a.id===t)).filter(Boolean);return React.createElement("div",{key:i.id,style:{background:"var(--paper)",borderRadius:16,border:"1px solid var(--line)",padding:14}},i.occasion&&React.createElement(E,null,i.occasion),React.createElement("div",{style:{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}},r.map(t=>React.createElement("img",{key:t.id,src:t.img,alt:"",style:{width:82,height:109,objectFit:"cover",borderRadius:9,flexShrink:0,border:"1px solid var(--line)"}}))),i.rationale&&React.createElement("div",{className:"serif",style:{fontSize:16,fontStyle:"italic",marginTop:10,lineHeight:1.35}},"\u201C",i.rationale,"\u201D"),React.createElement("button",{onClick:()=>n(i.id),style:{fontSize:11.5,color:"var(--soft)",marginTop:10}},"Remove look"))})):React.createElement("div",{style:{textAlign:"center",marginTop:70}},React.createElement("div",{className:"serif",style:{fontSize:24,marginBottom:8}},"No looks saved yet"),React.createElement("div",{style:{fontSize:14,color:"var(--soft)"}},"Style yourself, then keep the ones you love."))}function se({tab:e,setTab:o,onAdd:n}){return React.createElement("div",{style:{position:"fixed",bottom:0,left:0,right:0,height:76,background:"rgba(248,245,240,.92)",backdropFilter:"blur(10px)",borderTop:"1px solid var(--line)",display:"flex",alignItems:"center",justifyContent:"space-around",paddingBottom:"env(safe-area-inset-bottom)",zIndex:10}},React.createElement(L,{label:"Closet",on:e==="closet",onClick:()=>o("closet")}),React.createElement(L,{label:"Style",on:e==="style",onClick:()=>o("style")}),React.createElement("button",{onClick:n,style:{width:52,height:52,borderRadius:999,background:"var(--ink)",color:"var(--paper)",fontSize:26,lineHeight:1,marginTop:-6,boxShadow:"0 4px 14px rgba(59,54,46,.25)"}},"+"),React.createElement(L,{label:"Looks",on:e==="looks",onClick:()=>o("looks")}),React.createElement("div",{style:{width:52}}))}function L({label:e,on:o,onClick:n}){return React.createElement("button",{onClick:n,style:{display:"flex",flexDirection:"column",alignItems:"center",gap:3,width:60}},React.createElement("span",{style:{fontSize:12.5,letterSpacing:.3,color:o?"var(--ink)":"var(--soft)",fontWeight:o?600:400}},e),React.createElement("span",{style:{width:4,height:4,borderRadius:999,background:o?"var(--ink)":"transparent"}}))}var O={background:"var(--ink)",color:"var(--paper)",borderRadius:999,padding:"13px 22px",fontSize:14,fontWeight:500,letterSpacing:.2},Y={background:"transparent",color:"var(--ink)",border:"1px solid var(--line)",borderRadius:999,padding:"13px 22px",fontSize:14},$={width:"100%",padding:"12px 14px",borderRadius:12,border:"1px solid var(--line)",background:"var(--paper)",fontSize:15,color:"var(--ink)",outline:"none"},A={display:"flex",flexWrap:"wrap",gap:8};ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(Z,null));})();
+Rules: pick 2-5 items that genuinely go together. Either one dress/skirt-based look or one top + one bottom, plus optionally shoes, a bag, one accessory. Add outerwear only if it helps. Favor warm tonal neutrals over loud contrast; let gold and cognac warm the look.
+Wardrobe: ${JSON.stringify(slim)}
+Respond ONLY with JSON, no markdown: {"itemIds": [ids you chose], "rationale": one or two warm, concise sentences on why it works}`;
+    return parseJson(await askClaude([{ role: "user", content: prompt }]));
+  }
+  const OCCASIONS = ["Everyday", "Work", "Date night", "Weekend", "Cooler days", "Vacation"];
+  const LOOKBOOK = [
+    {
+      id: "checker-jacket",
+      piece: "Checker Crop Jacket",
+      hero: "black and white checker crop jacket",
+      line: "Versatile, polished, timeless. Let the jacket be the statement and keep the rest simple.",
+      looks: [
+        { t: "Classic Chic", occ: "Everyday", items: ["cream tank", "cream trousers", "brown belt", "brown loafers", "tote bag", "gold jewelry"] },
+        { t: "Soft & Feminine", occ: "Everyday", items: ["heather pink tee", "satin midi skirt", "nude heels", "beige clutch", "gold jewelry"] },
+        { t: "Effortless Everyday", occ: "Everyday", items: ["white linen shirt", "olive linen pants", "brown sandals", "woven tote", "gold jewelry"] },
+        { t: "Date Night", occ: "Date night", items: ["chocolate slip dress", "strappy heels", "clutch bag", "gold hoops"] },
+        { t: "Modern Neutrals", occ: "Everyday", items: ["sage tank", "cream trousers", "brown belt", "loafers", "tote bag", "gold jewelry"] },
+        { t: "Weekend Casual", occ: "Weekend", items: ["white tee", "straight jeans", "white sneakers", "crossbody bag", "gold jewelry"] },
+        { t: "With Warm Whites", occ: "Everyday", items: ["cream sweater", "cream trousers", "brown belt", "loafers", "tote bag", "gold jewelry"] },
+        { t: "With Earthy Tones", occ: "Cooler days", items: ["chocolate cami", "brown trousers", "brown belt", "ankle boots", "tote bag", "gold jewelry"] },
+        { t: "With Olive & Sage", occ: "Everyday", items: ["olive tank", "sage midi skirt", "brown sandals", "woven bag", "gold jewelry"] },
+        { t: "With Denim", occ: "Weekend", items: ["white shirt", "straight jeans", "brown belt", "loafers", "tote bag", "gold jewelry"] },
+        { t: "With Burgundy", occ: "Date night", items: ["wine cami", "wine midi skirt", "nude heels", "clutch bag", "gold jewelry"] },
+        { t: "Casual Layers", occ: "Weekend", items: ["white tee", "sweater over shoulders", "olive pants", "white sneakers", "crossbody bag", "gold jewelry"] }
+      ]
+    },
+    {
+      id: "grey-suit",
+      piece: "Grey Suit Set",
+      hero: "grey suit set",
+      line: "Grey is the supporting player. Let your warm colors be the star and bring warmth with brown or cognac.",
+      looks: [
+        { t: "Soft & Feminine", occ: "Work", hero: "grey blazer", items: ["heather pink cashmere tee", "cream trousers", "brown belt", "brown loafers", "tote bag", "gold jewelry"] },
+        { t: "Effortless Neutrals", occ: "Everyday", hero: "grey blazer", items: ["white linen shirt", "olive linen pants", "brown belt", "brown sandals", "woven tote", "gold jewelry"] },
+        { t: "Modern & Tonal", occ: "Work", hero: "grey blazer", items: ["sage linen tank", "cream trousers", "brown belt", "brown flats", "tote bag", "gold jewelry"] },
+        { t: "Date Night", occ: "Date night", hero: "grey blazer", items: ["chocolate slip dress", "strappy heels", "clutch bag", "gold jewelry"] },
+        { t: "Smart Casual", occ: "Everyday", hero: "grey blazer", items: ["oatmeal knit", "straight jeans", "brown belt", "loafers", "tote bag", "gold jewelry"] },
+        { t: "Weekend Layers", occ: "Weekend", hero: "grey blazer", items: ["white tee", "sweater over shoulders", "olive pants", "white sneakers", "crossbody bag"] },
+        { t: "Everyday Minimal", occ: "Everyday", hero: "grey trousers", items: ["white linen shirt", "brown belt", "sandals", "woven tote", "gold jewelry"] },
+        { t: "Soft & Elevated", occ: "Everyday", hero: "grey trousers", items: ["heather pink cashmere tee", "brown belt", "flats", "tote bag", "gold jewelry"] },
+        { t: "Work Ready", occ: "Work", hero: "grey trousers", items: ["silk blouse", "brown belt", "loafers", "tote bag", "gold jewelry"] },
+        { t: "Layered Neutrals", occ: "Cooler days", hero: "grey trousers", items: ["cream sweater", "trench coat", "brown belt", "loafers", "tote bag", "gold jewelry"] },
+        { t: "Evening Option", occ: "Date night", hero: "grey trousers", items: ["chocolate cami", "brown belt", "strappy heels", "clutch bag", "gold jewelry"] },
+        { t: "Relaxed Weekend", occ: "Weekend", hero: "grey trousers", items: ["sage tank", "white sneakers", "crossbody bag", "gold jewelry"] }
+      ]
+    },
+    {
+      id: "pink-tee",
+      piece: "Pink Cashmere Tee",
+      hero: "heather vintage pink cashmere tee",
+      line: "Soft and versatile. Pair it with warm neutrals, rich browns, creams, denim, and gold accents.",
+      looks: [
+        { t: "Summer Day", occ: "Everyday", items: ["linen trousers", "brown belt", "flat sandals", "woven tote", "gold jewelry"] },
+        { t: "Coffee Run", occ: "Everyday", items: ["straight jeans", "white sneakers", "crossbody bag", "sunglasses", "gold hoops"] },
+        { t: "Date Night", occ: "Date night", items: ["silk midi skirt", "strappy heels", "clutch", "gold jewelry"] },
+        { t: "Early Fall", occ: "Cooler days", items: ["tailored blazer", "loafers", "structured tote", "sunglasses"] },
+        { t: "Polished Casual", occ: "Everyday", items: ["satin midi skirt", "brown belt", "leather bag", "flats", "gold jewelry"] },
+        { t: "Weekend Brunch", occ: "Weekend", items: ["sweater over shoulders", "midi skirt", "brown sandals", "leather bag", "sunglasses"] },
+        { t: "Transition to Fall", occ: "Cooler days", items: ["denim midi skirt", "blazer", "knee-high boots", "brown belt", "tote bag"] },
+        { t: "Work / Business Casual", occ: "Work", items: ["cardigan", "tailored trousers", "pointed flats", "structured tote"] },
+        { t: "Winter Layers", occ: "Cooler days", items: ["long coat", "wide trousers", "ankle boots", "leather bag", "sunglasses"] },
+        { t: "Vacation Mode", occ: "Vacation", items: ["linen shorts", "brown belt", "slide sandals", "woven tote", "sunglasses"] }
+      ]
+    },
+    {
+      id: "slip-dress",
+      piece: "Hot Fudge Slip Dress",
+      hero: "chocolate silk slip dress",
+      line: "The slip dress is your canvas. Layer, accessorize, and switch shoes and bags to take it day to night.",
+      looks: [
+        { t: "Summer Day Out", occ: "Everyday", items: ["linen button-up", "woven tote", "brown sandals", "gold jewelry"] },
+        { t: "Coffee Run", occ: "Everyday", items: ["oversized shirt", "white sneakers", "crossbody bag", "gold hoops"] },
+        { t: "Date Night", occ: "Date night", items: ["strappy heels", "clutch", "gold jewelry"] },
+        { t: "Early Fall", occ: "Cooler days", items: ["oatmeal cardigan", "knee-high boots", "chocolate tote", "gold hoops"] },
+        { t: "Polished Casual", occ: "Everyday", items: ["sweater over shoulders", "loafers", "structured bag", "gold jewelry"] },
+        { t: "Weekend Brunch", occ: "Weekend", items: ["linen button-up", "flat sandals", "woven bag", "sunglasses"] },
+        { t: "Transition to Fall", occ: "Cooler days", items: ["light knit", "leather belt", "tall boots", "tote bag"] },
+        { t: "Work / Business Casual", occ: "Work", items: ["blazer", "pointed flats", "structured tote"] },
+        { t: "Winter Layers", occ: "Cooler days", items: ["turtleneck", "long coat", "knee-high boots", "chocolate tote"] },
+        { t: "Vacation Mode", occ: "Vacation", items: ["wide-brim hat", "light shirt", "sandals", "woven bag"] }
+      ]
+    },
+    {
+      id: "wine-skirt",
+      piece: "Wine Silk Midi Skirt",
+      hero: "wine silk midi skirt",
+      line: "Wine pairs beautifully with neutrals, browns, creams, and gold. Heels and a blazer dress it up; knits and sandals keep it relaxed.",
+      looks: [
+        { t: "Summer Day", occ: "Everyday", items: ["linen button-up", "brown sandals", "woven tote", "gold jewelry"] },
+        { t: "Coffee Run", occ: "Everyday", items: ["ribbed tank", "white sneakers", "crossbody bag", "gold hoops"] },
+        { t: "Date Night", occ: "Date night", items: ["silk cami", "strappy heels", "clutch", "gold jewelry"] },
+        { t: "Early Fall", occ: "Cooler days", items: ["knit sweater", "brown belt", "knee-high boots", "structured tote"] },
+        { t: "Polished Casual", occ: "Everyday", items: ["white tee", "beige cardigan", "loafers", "brown bag"] },
+        { t: "Weekend Brunch", occ: "Weekend", items: ["v-neck sweater", "brown belt", "slide sandals", "woven bag"] },
+        { t: "Transition to Fall", occ: "Cooler days", items: ["blazer", "white tank", "pointed flats", "structured tote"] },
+        { t: "Work / Business Casual", occ: "Work", items: ["silk blouse", "blazer", "pointed heels", "tote bag"] },
+        { t: "Winter Layers", occ: "Cooler days", items: ["turtleneck", "long coat", "boots", "brown bag"] },
+        { t: "Vacation Mode", occ: "Vacation", items: ["tank top", "linen shirt", "strappy sandals", "woven bag"] }
+      ]
+    },
+    {
+      id: "plaid-mini",
+      piece: "Plaid Mini Skirt",
+      hero: "plaid mini skirt",
+      line: "Balance the mini length with more coverage on top. V-necks, open collars, and light fabrics keep it long, flattering, and modest.",
+      looks: [
+        { t: "Linen Button-Up", occ: "Everyday", items: ["white linen shirt", "brown leather belt", "tan leather slides", "burgundy shoulder bag", "gold jewelry"] },
+        { t: "V-Neck Knit Tee", occ: "Weekend", items: ["dusty sage knit tee", "tan leather sneakers", "canvas tote", "gold jewelry"] },
+        { t: "Knit Polo Top", occ: "Everyday", items: ["cream knit polo", "brown woven belt", "woven flats", "burgundy shoulder bag", "gold jewelry"] },
+        { t: "Poplin Shirt", occ: "Everyday", items: ["rust poplin button-up", "brown leather belt", "cognac leather sandals", "woven tote", "gold jewelry"] },
+        { t: "Wrap V-Neck Top", occ: "Date night", items: ["cream wrap top", "tan leather slides", "burgundy shoulder bag", "gold jewelry"] }
+      ]
+    },
+    {
+      id: "denim-midi",
+      piece: "Denim Midi Skirt",
+      hero: "denim midi skirt",
+      line: "The front slit keeps it modern. Add a belt to define the waist and elevate the look.",
+      looks: [
+        { t: "Summer Everyday", occ: "Everyday", items: ["white linen shirt", "cognac sandals", "gold hoops"] },
+        { t: "Coffee Run", occ: "Everyday", items: ["sage linen shirt", "white sneakers"] },
+        { t: "Date Night", occ: "Date night", items: ["cream v-neck knit", "brown mules", "burgundy bag"] },
+        { t: "Early Fall", occ: "Cooler days", items: ["oatmeal cardigan", "loafers", "chocolate tote"] },
+        { t: "Polished Casual", occ: "Everyday", items: ["white poplin shirt", "cognac mules", "gold jewelry"] },
+        { t: "Weekend Brunch", occ: "Weekend", items: ["ribbed tank", "brown belt", "cognac sandals"] },
+        { t: "Transition to Fall", occ: "Cooler days", items: ["chocolate sweater", "knee-high boots", "gold necklace"] },
+        { t: "Work / Business Casual", occ: "Work", items: ["cream blouse", "loafers", "structured tote"] },
+        { t: "Winter Layers", occ: "Cooler days", items: ["wool coat", "sweater", "knee-high boots"] },
+        { t: "Vacation Mode", occ: "Vacation", items: ["black tank", "sweater over shoulders", "woven bag"] }
+      ]
+    }
+  ];
+  const NOUN_FAMILIES = [
+    ["tank", "cami", "camisole"],
+    ["tee", "t-shirt", "tshirt"],
+    ["shirt", "button-up", "buttonup", "blouse", "poplin", "polo"],
+    ["sweater", "knit", "turtleneck", "jumper", "pullover"],
+    ["cardigan"],
+    ["blazer"],
+    ["jacket"],
+    ["coat", "trench", "overcoat"],
+    ["trousers", "pants", "slacks"],
+    ["jeans"],
+    ["shorts"],
+    ["skirt"],
+    ["dress"],
+    ["suit"],
+    ["loafers", "loafer"],
+    ["heels", "heel", "pumps"],
+    ["sandals", "sandal", "slides", "slide", "espadrilles"],
+    ["sneakers", "sneaker", "trainers"],
+    ["mules", "mule"],
+    ["boots", "boot"],
+    ["flats", "flat"],
+    ["belt"],
+    ["tote"],
+    ["clutch"],
+    ["crossbody"],
+    ["bag", "handbag", "purse"],
+    ["jewelry", "hoops", "necklace", "earrings", "bracelet"],
+    ["sunglasses"],
+    ["hat"],
+    ["scarf"],
+    ["top"]
+  ];
+  const FAM_INDEX = {};
+  NOUN_FAMILIES.forEach((fam, i) => fam.forEach((w) => FAM_INDEX[w] = i));
+  const BAG_FAMS = ["tote", "clutch", "crossbody", "bag"].map((w) => FAM_INDEX[w]);
+  const JEWELRY_FAM = FAM_INDEX["jewelry"];
+  const STOP = /* @__PURE__ */ new Set(["a", "the", "with", "and", "over", "of", "leather"]);
+  function tok(s) {
+    return String(s).toLowerCase().replace(/[^a-z0-9\- ]/g, " ").split(/[\s]+/).filter(Boolean);
+  }
+  function famsIn(tokens) {
+    const out = [];
+    tokens.forEach((t) => {
+      if (FAM_INDEX[t] !== void 0) out.push(FAM_INDEX[t]);
+    });
+    return out;
+  }
+  function matchPiece(piece, items) {
+    const ptoks = tok(piece);
+    const pfams = famsIn(ptoks);
+    const primary = pfams.length ? pfams[pfams.length - 1] : null;
+    const extras = ptoks.filter((t) => FAM_INDEX[t] === void 0 && !STOP.has(t));
+    let best = null, bestScore = 0;
+    for (const it of items) {
+      const itoks = tok(`${it.name || ""} ${(it.colors || []).join(" ")} ${it.category || ""}`);
+      const ifams = new Set(famsIn(itoks));
+      let score = 0;
+      if (primary !== null && ifams.has(primary)) score += 2;
+      else if (primary !== null && BAG_FAMS.includes(primary) && it.category === "Bag") score += 1.5;
+      else if (primary === JEWELRY_FAM && it.category === "Accessory") score += 1.5;
+      else continue;
+      const iset = new Set(itoks);
+      extras.forEach((t) => {
+        if (iset.has(t)) score += 0.5;
+      });
+      if (score > bestScore) {
+        bestScore = score;
+        best = it;
+      }
+    }
+    return bestScore >= 1.5 ? best : null;
+  }
+  function Chip({ on, children, onClick }) {
+    return /* @__PURE__ */ React.createElement("button", { className: "chip" + (on ? " chip-on" : ""), onClick }, children);
+  }
+  function Eyebrow({ children }) {
+    return /* @__PURE__ */ React.createElement("div", { className: "eyebrow" }, children);
+  }
+  function Field({ label, children }) {
+    return /* @__PURE__ */ React.createElement("div", { style: { marginBottom: 16 } }, /* @__PURE__ */ React.createElement(Eyebrow, null, label), children);
+  }
+  function Shell({ size = 22 }) {
+    return /* @__PURE__ */ React.createElement(
+      "svg",
+      {
+        width: size,
+        height: size,
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: "1.1",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        "aria-hidden": "true"
+      },
+      /* @__PURE__ */ React.createElement("path", { d: "M12 20 C6.5 20 3 16 3 11.5 C3 7.5 6 4.5 8.5 4.5 C9.6 4.5 10.4 5 12 5 C13.6 5 14.4 4.5 15.5 4.5 C18 4.5 21 7.5 21 11.5 C21 16 17.5 20 12 20 Z" }),
+      /* @__PURE__ */ React.createElement("path", { d: "M12 20 L12 5.2" }),
+      /* @__PURE__ */ React.createElement("path", { d: "M12 20 L7.2 6.2" }),
+      /* @__PURE__ */ React.createElement("path", { d: "M12 20 L16.8 6.2" }),
+      /* @__PURE__ */ React.createElement("path", { d: "M12 20 L4.6 8.8" }),
+      /* @__PURE__ */ React.createElement("path", { d: "M12 20 L19.4 8.8" })
+    );
+  }
+  function App() {
+    const [tab, setTab] = useState("closet");
+    const [items, setItems] = useState([]);
+    const [looks, setLooks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [draft, setDraft] = useState(null);
+    const fileRef = useRef(null);
+    useEffect(() => {
+      (async () => {
+        const ikeys = await kvKeys("item:");
+        const its = (await Promise.all(ikeys.map(kvGet))).filter(Boolean);
+        its.sort((a, b) => b.createdAt - a.createdAt);
+        const lkeys = await kvKeys("look:");
+        const lks = (await Promise.all(lkeys.map(kvGet))).filter(Boolean);
+        lks.sort((a, b) => b.createdAt - a.createdAt);
+        setItems(its);
+        setLooks(lks);
+        setLoading(false);
+      })();
+    }, []);
+    async function onFile(e) {
+      const files = Array.from(e.target.files || []);
+      e.target.value = "";
+      if (!files.length) return;
+      let img;
+      try {
+        img = await shrinkImage(files[0]);
+      } catch {
+        return;
+      }
+      const id = "i" + Date.now() + Math.random().toString(36).slice(2, 6);
+      const d = { id, img, name: "", category: "Top", colors: [], vibe: [], season: [], formality: "Casual", createdAt: Date.now(), tagging: true };
+      setDraft(d);
+      setTab("add");
+      try {
+        const p = await autoTag(img);
+        setDraft((cur) => cur && cur.id === id ? {
+          ...cur,
+          name: p.name || "",
+          category: CATS.includes(p.category) ? p.category : "Top",
+          colors: p.colors || [],
+          vibe: (p.vibe || []).filter((v) => VIBES.includes(v)),
+          season: (p.season || []).filter((v) => SEASONS.includes(v)),
+          formality: FORMALITY.includes(p.formality) ? p.formality : "Casual",
+          tagging: false
+        } : cur);
+      } catch {
+        setDraft((cur) => cur && cur.id === id ? { ...cur, tagging: false, tagFail: true } : cur);
+      }
+    }
+    async function saveDraft() {
+      const { tagging, tagFail, ...item } = draft;
+      await kvPut("item:" + item.id, item);
+      setItems((cur) => [item, ...cur.filter((i) => i.id !== item.id)]);
+      setDraft(null);
+      setTab("closet");
+    }
+    async function delItem(id) {
+      await kvDel("item:" + id);
+      setItems((cur) => cur.filter((i) => i.id !== id));
+    }
+    async function saveLook(itemIds, rationale, occasion) {
+      const id = "l" + Date.now();
+      const look = { id, itemIds, rationale, occasion, createdAt: Date.now() };
+      await kvPut("look:" + id, look);
+      setLooks((cur) => [look, ...cur]);
+    }
+    async function delLook(id) {
+      await kvDel("look:" + id);
+      setLooks((cur) => cur.filter((l) => l.id !== id));
+    }
+    return /* @__PURE__ */ React.createElement("div", { className: "wd-root" }, /* @__PURE__ */ React.createElement("input", { ref: fileRef, type: "file", accept: "image/*", capture: "environment", onChange: onFile, style: { display: "none" } }), /* @__PURE__ */ React.createElement(Header, { tab, count: items.length }), /* @__PURE__ */ React.createElement("div", { className: "wd-scroll" }, loading ? /* @__PURE__ */ React.createElement("div", { className: "quiet-center" }, "Opening your closet\u2026") : tab === "closet" ? /* @__PURE__ */ React.createElement(Closet, { items, onAdd: () => fileRef.current?.click(), onDel: delItem, onEdit: (it) => {
+      setDraft({ ...it, tagging: false });
+      setTab("add");
+    } }) : tab === "add" ? /* @__PURE__ */ React.createElement(AddForm, { draft, setDraft, onSave: saveDraft, onCancel: () => {
+      setDraft(null);
+      setTab("closet");
+    } }) : tab === "book" ? /* @__PURE__ */ React.createElement(Lookbook, { items, onSaveLook: saveLook }) : tab === "style" ? /* @__PURE__ */ React.createElement(StyleMe, { items, onSave: saveLook }) : /* @__PURE__ */ React.createElement(SavedLooks, { looks, items, onDel: delLook })), tab !== "add" && /* @__PURE__ */ React.createElement(Nav, { tab, setTab, onAdd: () => fileRef.current?.click() }));
+  }
+  function Header({ tab, count }) {
+    const title = { closet: "The Closet", add: "New Piece", book: "The Lookbook", style: "Style Me", looks: "Saved Looks" }[tab];
+    return /* @__PURE__ */ React.createElement("div", { className: "header" }, /* @__PURE__ */ React.createElement("div", { className: "mark" }, /* @__PURE__ */ React.createElement(Shell, { size: 20 }), /* @__PURE__ */ React.createElement("span", { className: "mark-text" }, "Bekah's Wardrobe"), /* @__PURE__ */ React.createElement(Shell, { size: 20 })), /* @__PURE__ */ React.createElement("h1", { className: "title" }, title), /* @__PURE__ */ React.createElement("div", { className: "rule" }), tab === "closet" && /* @__PURE__ */ React.createElement("div", { className: "subline" }, count, " ", count === 1 ? "piece" : "pieces", " catalogued"), tab === "book" && /* @__PURE__ */ React.createElement("div", { className: "subline" }, "Sixty-nine ways to wear your seven signature pieces"));
+  }
+  function Closet({ items, onAdd, onDel, onEdit }) {
+    const [cat, setCat] = useState("All");
+    const [q, setQ] = useState("");
+    const cats = ["All", ...CATS.filter((c) => items.some((i) => i.category === c))];
+    let shown = cat === "All" ? items : items.filter((i) => i.category === cat);
+    if (q.trim()) {
+      const needle = q.trim().toLowerCase();
+      shown = shown.filter((i) => `${i.name} ${(i.colors || []).join(" ")} ${i.category}`.toLowerCase().includes(needle));
+    }
+    if (!items.length) return /* @__PURE__ */ React.createElement("div", { className: "empty" }, /* @__PURE__ */ React.createElement("div", { className: "empty-shell" }, /* @__PURE__ */ React.createElement(Shell, { size: 34 })), /* @__PURE__ */ React.createElement("div", { className: "serif empty-title" }, "Your closet is empty"), /* @__PURE__ */ React.createElement("div", { className: "empty-body" }, "Snap each piece you own. They get tagged for you,", /* @__PURE__ */ React.createElement("br", null), "then I can style you from what's really in here."), /* @__PURE__ */ React.createElement("button", { className: "btn-primary", onClick: onAdd }, "Add your first piece"));
+    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("input", { className: "search", value: q, onChange: (e) => setQ(e.target.value), placeholder: "Search your pieces\u2026" }), /* @__PURE__ */ React.createElement("div", { className: "chip-row" }, cats.map((c) => /* @__PURE__ */ React.createElement(Chip, { key: c, on: cat === c, onClick: () => setCat(c) }, c))), shown.length ? /* @__PURE__ */ React.createElement("div", { className: "grid2" }, shown.map((it) => /* @__PURE__ */ React.createElement(ItemCard, { key: it.id, it, onDel, onEdit }))) : /* @__PURE__ */ React.createElement("div", { className: "quiet-center" }, "Nothing matches that search."));
+  }
+  function ItemCard({ it, onDel, onEdit }) {
+    const [open, setOpen] = useState(false);
+    return /* @__PURE__ */ React.createElement("div", { style: { position: "relative" } }, /* @__PURE__ */ React.createElement("div", { className: "card", onClick: () => setOpen((o) => !o) }, /* @__PURE__ */ React.createElement("div", { className: "card-img" }, /* @__PURE__ */ React.createElement("img", { src: it.img, alt: it.name })), /* @__PURE__ */ React.createElement("div", { className: "card-body" }, /* @__PURE__ */ React.createElement("div", { className: "serif card-name" }, it.name || it.category), /* @__PURE__ */ React.createElement("div", { className: "card-meta" }, it.category, it.colors?.length ? " \xB7 " + it.colors.join(", ") : ""))), open && /* @__PURE__ */ React.createElement("button", { className: "overlay-btn", style: { left: 8 }, onClick: () => onEdit(it) }, "Edit"), open && /* @__PURE__ */ React.createElement("button", { className: "overlay-btn", style: { right: 8 }, onClick: () => onDel(it.id) }, "Remove"));
+  }
+  function Lookbook({ items, onSaveLook }) {
+    const [coll, setColl] = useState("All");
+    const [occ, setOcc] = useState("All");
+    const matched = useMemo(() => {
+      const map = /* @__PURE__ */ new Map();
+      for (const c of LOOKBOOK) {
+        map.set(c.id + ":hero", matchPiece(c.hero, items));
+        for (const lk of c.looks) {
+          if (lk.hero) map.set(c.id + ":" + lk.t + ":hero", matchPiece(lk.hero, items));
+          lk.items.forEach((p, i) => map.set(c.id + ":" + lk.t + ":" + i, matchPiece(p, items)));
+        }
+      }
+      return map;
+    }, [items]);
+    const colls = LOOKBOOK.filter((c) => coll === "All" || c.id === coll);
+    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "chip-row" }, /* @__PURE__ */ React.createElement(Chip, { on: coll === "All", onClick: () => setColl("All") }, "All pieces"), LOOKBOOK.map((c) => /* @__PURE__ */ React.createElement(Chip, { key: c.id, on: coll === c.id, onClick: () => setColl(c.id) }, c.piece))), /* @__PURE__ */ React.createElement("div", { className: "chip-row", style: { paddingTop: 0 } }, /* @__PURE__ */ React.createElement(Chip, { on: occ === "All", onClick: () => setOcc("All") }, "Any occasion"), OCCASIONS.map((o) => /* @__PURE__ */ React.createElement(Chip, { key: o, on: occ === o, onClick: () => setOcc(o) }, o))), colls.map((c) => {
+      const shown = c.looks.filter((lk) => occ === "All" || lk.occ === occ);
+      if (!shown.length) return null;
+      return /* @__PURE__ */ React.createElement("div", { key: c.id, className: "collection" }, /* @__PURE__ */ React.createElement("div", { className: "coll-head" }, /* @__PURE__ */ React.createElement(Eyebrow, null, "Built around"), /* @__PURE__ */ React.createElement("div", { className: "serif coll-title" }, c.piece), /* @__PURE__ */ React.createElement("div", { className: "coll-line" }, c.line)), /* @__PURE__ */ React.createElement("div", { className: "look-list" }, shown.map((lk) => /* @__PURE__ */ React.createElement(LookCard, { key: c.id + lk.t, coll: c, lk, matched, onSaveLook }))));
+    }));
+  }
+  function LookCard({ coll, lk, matched, onSaveLook }) {
+    const [saved, setSaved] = useState(false);
+    const heroName = lk.hero || coll.hero;
+    const heroItem = lk.hero ? matched.get(coll.id + ":" + lk.t + ":hero") : matched.get(coll.id + ":hero");
+    const rows = [{ label: heroName, item: heroItem, isHero: true }].concat(lk.items.map((p, i) => ({ label: p, item: matched.get(coll.id + ":" + lk.t + ":" + i) })));
+    const have = rows.filter((r) => r.item).length;
+    async function save() {
+      const ids = [...new Set(rows.filter((r) => r.item).map((r) => r.item.id))];
+      const recipe = rows.map((r) => r.label).join(", ");
+      await onSaveLook(ids, `From the Lookbook \u2014 ${coll.piece}, ${lk.t}. Full look: ${recipe}.`, lk.t);
+      setSaved(true);
+    }
+    return /* @__PURE__ */ React.createElement("div", { className: "look-card" }, /* @__PURE__ */ React.createElement("div", { className: "look-top" }, /* @__PURE__ */ React.createElement("span", { className: "look-occ" }, lk.occ), /* @__PURE__ */ React.createElement("span", { className: "serif look-title" }, lk.t)), /* @__PURE__ */ React.createElement("div", { className: "piece-rows" }, rows.map((r, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "piece-row" + (r.item ? "" : " piece-missing") }, r.item ? /* @__PURE__ */ React.createElement("img", { className: "piece-thumb", src: r.item.img, alt: "" }) : /* @__PURE__ */ React.createElement("span", { className: "piece-dot" }), /* @__PURE__ */ React.createElement("span", { className: "piece-label" }, r.label, r.isHero ? " \xB7" : ""), r.isHero && /* @__PURE__ */ React.createElement("span", { className: "piece-hero-tag" }, "the piece")))), /* @__PURE__ */ React.createElement("div", { className: "look-foot" }, /* @__PURE__ */ React.createElement("span", { className: "look-count" }, have, " of ", rows.length, " in your closet"), /* @__PURE__ */ React.createElement("button", { className: "btn-text", onClick: save, disabled: saved }, saved ? "Saved \u2713" : "Save look")));
+  }
+  function StyleMe({ items, onSave }) {
+    const [occasion, setOccasion] = useState("");
+    const [busy, setBusy] = useState(false);
+    const [result, setResult] = useState(null);
+    const [note, setNote] = useState("");
+    const [saved, setSaved] = useState(false);
+    async function go() {
+      setNote("");
+      setSaved(false);
+      setResult(null);
+      if (items.length < 2) {
+        setNote("Add a few more pieces first, I need something to work with.");
+        return;
+      }
+      setBusy(true);
+      try {
+        const out = await styleMe(items, occasion);
+        const chosen = (out.itemIds || []).map((id) => items.find((i) => i.id === id)).filter(Boolean);
+        if (chosen.length) setResult({ chosen, rationale: out.rationale, ids: chosen.map((c) => c.id) });
+        else setNote("Nothing came together that time. Try again.");
+      } catch {
+        setNote("That didn't go through. Try once more.");
+      }
+      setBusy(false);
+    }
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "lede" }, "Tell me where you're headed and I'll pull a look from your closet. Leave it blank for an everyday one."), /* @__PURE__ */ React.createElement("input", { className: "search", value: occasion, onChange: (e) => setOccasion(e.target.value), placeholder: "e.g. Sunday lunch by the water" }), /* @__PURE__ */ React.createElement("button", { className: "btn-primary", style: { width: "100%", marginTop: 6 }, onClick: go, disabled: busy }, busy ? "Putting it together\u2026" : "Style me"), note && /* @__PURE__ */ React.createElement("div", { className: "quiet-center", style: { marginTop: 24 } }, note), result && /* @__PURE__ */ React.createElement("div", { className: "look-card", style: { marginTop: 22 } }, /* @__PURE__ */ React.createElement("div", { className: "thumb-row" }, result.chosen.map((it) => /* @__PURE__ */ React.createElement("img", { key: it.id, className: "big-thumb", src: it.img, alt: it.name }))), /* @__PURE__ */ React.createElement("div", { className: "rationale" }, result.rationale), /* @__PURE__ */ React.createElement("div", { className: "look-foot" }, /* @__PURE__ */ React.createElement("span", { className: "look-count" }, result.chosen.map((i) => i.name).join(" \xB7 ")), /* @__PURE__ */ React.createElement("button", { className: "btn-text", disabled: saved, onClick: async () => {
+      await onSave(result.ids, result.rationale, occasion || "Everyday");
+      setSaved(true);
+    } }, saved ? "Saved \u2713" : "Save look"))));
+  }
+  function SavedLooks({ looks, items, onDel }) {
+    if (!looks.length) return /* @__PURE__ */ React.createElement("div", { className: "empty" }, /* @__PURE__ */ React.createElement("div", { className: "empty-shell" }, /* @__PURE__ */ React.createElement(Shell, { size: 34 })), /* @__PURE__ */ React.createElement("div", { className: "serif empty-title" }, "No saved looks yet"), /* @__PURE__ */ React.createElement("div", { className: "empty-body" }, "Save one from the Lookbook,", /* @__PURE__ */ React.createElement("br", null), "or let Style Me put one together."));
+    return /* @__PURE__ */ React.createElement("div", { className: "look-list" }, looks.map((lk) => {
+      const its = (lk.itemIds || []).map((id) => items.find((i) => i.id === id)).filter(Boolean);
+      return /* @__PURE__ */ React.createElement("div", { key: lk.id, className: "look-card" }, lk.occasion && /* @__PURE__ */ React.createElement("div", { className: "look-occ", style: { marginBottom: 8 } }, lk.occasion), its.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "thumb-row" }, its.map((it) => /* @__PURE__ */ React.createElement("img", { key: it.id, className: "big-thumb", src: it.img, alt: it.name }))), lk.rationale && /* @__PURE__ */ React.createElement("div", { className: "rationale" }, lk.rationale), /* @__PURE__ */ React.createElement("div", { className: "look-foot" }, /* @__PURE__ */ React.createElement("span", { className: "look-count" }, new Date(lk.createdAt).toLocaleDateString(void 0, { month: "long", day: "numeric" })), /* @__PURE__ */ React.createElement("button", { className: "btn-text", onClick: () => onDel(lk.id) }, "Remove")));
+    }));
+  }
+  function AddForm({ draft, setDraft, onSave, onCancel }) {
+    if (!draft) return /* @__PURE__ */ React.createElement("div", { className: "quiet-center" }, "No piece selected.");
+    const toggle = (key, val) => setDraft((d) => {
+      const cur = d[key] || [];
+      return { ...d, [key]: cur.includes(val) ? cur.filter((v) => v !== val) : [...cur, val] };
+    });
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "draft-img" }, /* @__PURE__ */ React.createElement("img", { src: draft.img, alt: "" })), draft.tagging && /* @__PURE__ */ React.createElement("div", { className: "tagging" }, "Tagging this piece\u2026"), draft.tagFail && /* @__PURE__ */ React.createElement("div", { className: "quiet-center", style: { marginBottom: 16 } }, "Couldn't auto-tag. Fill it in below."), /* @__PURE__ */ React.createElement(Field, { label: "Name" }, /* @__PURE__ */ React.createElement(
+      "input",
+      {
+        className: "search",
+        style: { marginBottom: 0 },
+        value: draft.name,
+        placeholder: "e.g. cream linen tank",
+        onChange: (e) => setDraft((d) => ({ ...d, name: e.target.value }))
+      }
+    )), /* @__PURE__ */ React.createElement(Field, { label: "Category" }, /* @__PURE__ */ React.createElement("div", { className: "chip-wrap" }, CATS.map((c) => /* @__PURE__ */ React.createElement(Chip, { key: c, on: draft.category === c, onClick: () => setDraft((d) => ({ ...d, category: c })) }, c)))), /* @__PURE__ */ React.createElement(Field, { label: "Vibe" }, /* @__PURE__ */ React.createElement("div", { className: "chip-wrap" }, VIBES.map((v) => /* @__PURE__ */ React.createElement(Chip, { key: v, on: draft.vibe?.includes(v), onClick: () => toggle("vibe", v) }, v)))), /* @__PURE__ */ React.createElement(Field, { label: "Season" }, /* @__PURE__ */ React.createElement("div", { className: "chip-wrap" }, SEASONS.map((s) => /* @__PURE__ */ React.createElement(Chip, { key: s, on: draft.season?.includes(s), onClick: () => toggle("season", s) }, s)))), /* @__PURE__ */ React.createElement(Field, { label: "Formality" }, /* @__PURE__ */ React.createElement("div", { className: "chip-wrap" }, FORMALITY.map((fo) => /* @__PURE__ */ React.createElement(Chip, { key: fo, on: draft.formality === fo, onClick: () => setDraft((d) => ({ ...d, formality: fo })) }, fo)))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", gap: 10, marginTop: 22 } }, /* @__PURE__ */ React.createElement("button", { className: "btn-secondary", style: { flex: 1 }, onClick: onCancel }, "Cancel"), /* @__PURE__ */ React.createElement("button", { className: "btn-primary", style: { flex: 2, opacity: draft.tagging ? 0.5 : 1 }, onClick: onSave, disabled: draft.tagging }, "Save to closet")));
+  }
+  function Nav({ tab, setTab, onAdd }) {
+    const items = [
+      { id: "closet", label: "Closet", icon: /* @__PURE__ */ React.createElement(IconHanger, null) },
+      { id: "book", label: "Lookbook", icon: /* @__PURE__ */ React.createElement(IconBook, null) },
+      { id: "__add", label: "", icon: null },
+      { id: "style", label: "Style Me", icon: /* @__PURE__ */ React.createElement(IconSpark, null) },
+      { id: "looks", label: "Looks", icon: /* @__PURE__ */ React.createElement(IconBookmark, null) }
+    ];
+    return /* @__PURE__ */ React.createElement("div", { className: "nav" }, items.map((n) => n.id === "__add" ? /* @__PURE__ */ React.createElement("button", { key: "add", className: "nav-add", onClick: onAdd, "aria-label": "Add a piece" }, "+") : /* @__PURE__ */ React.createElement("button", { key: n.id, className: "nav-btn" + (tab === n.id ? " nav-on" : ""), onClick: () => setTab(n.id) }, n.icon, /* @__PURE__ */ React.createElement("span", null, n.label))));
+  }
+  const iconProps = { width: 21, height: 21, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.3, strokeLinecap: "round", strokeLinejoin: "round" };
+  function IconHanger() {
+    return /* @__PURE__ */ React.createElement("svg", { ...iconProps }, /* @__PURE__ */ React.createElement("path", { d: "M12 7a2 2 0 1 0-2-2" }), /* @__PURE__ */ React.createElement("path", { d: "M12 7v2" }), /* @__PURE__ */ React.createElement("path", { d: "M12 9 3.5 15.2A1.6 1.6 0 0 0 4.5 18h15a1.6 1.6 0 0 0 1-2.8Z" }));
+  }
+  function IconBook() {
+    return /* @__PURE__ */ React.createElement("svg", { ...iconProps }, /* @__PURE__ */ React.createElement("path", { d: "M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5Z" }), /* @__PURE__ */ React.createElement("path", { d: "M4 20.5V5.5" }), /* @__PURE__ */ React.createElement("path", { d: "M20 18v3H6.5a2.5 2.5 0 0 1 0-5" }));
+  }
+  function IconSpark() {
+    return /* @__PURE__ */ React.createElement("svg", { ...iconProps }, /* @__PURE__ */ React.createElement("path", { d: "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8Z" }), /* @__PURE__ */ React.createElement("path", { d: "M18.5 16.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7Z" }));
+  }
+  function IconBookmark() {
+    return /* @__PURE__ */ React.createElement("svg", { ...iconProps }, /* @__PURE__ */ React.createElement("path", { d: "M7 3h10a1 1 0 0 1 1 1v17l-6-4-6 4V4a1 1 0 0 1 1-1Z" }));
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+})();
 
 </script>
 </body>
