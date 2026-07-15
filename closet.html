@@ -270,12 +270,20 @@ input{font-family:inherit;}
   color:var(--soft);margin-top:6px;line-height:1.3;
 }
 .match-name{font-size:14.5px;line-height:1.15;margin-top:2px;}
-.missing{
-  font-size:12.5px;color:var(--soft);line-height:1.6;margin-top:14px;
-  padding-top:12px;border-top:1px solid var(--line);
+.reco{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);}
+.reco-group{margin-bottom:10px;}
+.reco-sub{
+  font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;
+  font-size:15px;color:var(--soft);margin-bottom:3px;
 }
-.missing-label{
-  font-size:10px;letter-spacing:1.8px;text-transform:uppercase;font-weight:500;
+.reco-row{
+  font-size:13.5px;line-height:1.4;padding:4px 0;display:flex;gap:9px;
+  align-items:baseline;
+}
+.reco-mark{color:var(--wine);font-size:11px;flex-shrink:0;}
+.reco-note{
+  font-size:11.5px;color:var(--soft);line-height:1.5;margin-top:8px;
+  font-style:italic;
 }
 
 </style>
@@ -920,6 +928,12 @@ Respond ONLY with JSON, no markdown: {"itemIds": [ids you chose], "rationale": o
     }
     return bestScore >= 1.5 ? best : null;
   }
+  const ACC_FAMS = new Set(["belt", "tote", "clutch", "crossbody", "bag", "jewelry", "sunglasses", "hat", "scarf"].map((w) => FAM_INDEX[w]));
+  function isAccessory(label) {
+    const fams = famsIn(tok(label));
+    const primary = fams.length ? fams[fams.length - 1] : null;
+    return primary !== null && ACC_FAMS.has(primary);
+  }
   function Chip({ on, children, onClick }) {
     return /* @__PURE__ */ React.createElement("button", { className: "chip" + (on ? " chip-on" : ""), onClick }, children);
   }
@@ -1093,7 +1107,9 @@ Respond ONLY with JSON, no markdown: {"itemIds": [ids you chose], "rationale": o
       await onSaveLook(ids, `From the Lookbook \u2014 ${coll.piece}, ${lk.t}. Full look: ${pieces.join(", ")}.`, lk.t);
       setSaved(true);
     }
-    return /* @__PURE__ */ React.createElement("div", { className: "detail" }, /* @__PURE__ */ React.createElement("button", { className: "back", onClick: onBack }, "\u2190 Lookbook"), /* @__PURE__ */ React.createElement("img", { className: "detail-img", src: im.src, width: im.w, height: im.h, alt: coll.piece + " \u2014 " + lk.t }), /* @__PURE__ */ React.createElement("div", { className: "detail-head" }, /* @__PURE__ */ React.createElement("div", { className: "look-occ" }, lk.occ), /* @__PURE__ */ React.createElement("div", { className: "serif detail-title" }, lk.t), /* @__PURE__ */ React.createElement("div", { className: "detail-sub" }, "Built around the ", coll.piece.toLowerCase())), /* @__PURE__ */ React.createElement(Eyebrow, null, matchedRows.length ? "From your closet" : "From your closet \u2014 nothing catalogued yet"), matchedRows.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "match-grid" }, matchedRows.map((r) => /* @__PURE__ */ React.createElement("div", { key: r.item.id, className: "match-cell" }, /* @__PURE__ */ React.createElement("div", { className: "match-imgwrap" }, /* @__PURE__ */ React.createElement("img", { src: r.item.img, alt: r.item.name })), /* @__PURE__ */ React.createElement("div", { className: "match-for" }, r.label), /* @__PURE__ */ React.createElement("div", { className: "match-name serif" }, r.item.name)))), missing.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "missing" }, /* @__PURE__ */ React.createElement("span", { className: "missing-label" }, "Still to catalogue or find: "), missing.join(", ")), /* @__PURE__ */ React.createElement("button", { className: "btn-primary", style: { width: "100%", marginTop: 18 }, onClick: save, disabled: saved }, saved ? "Saved to your looks \u2713" : "Save this look"));
+    return /* @__PURE__ */ React.createElement("div", { className: "detail" }, /* @__PURE__ */ React.createElement("button", { className: "back", onClick: onBack }, "\u2190 Lookbook"), /* @__PURE__ */ React.createElement("img", { className: "detail-img", src: im.src, width: im.w, height: im.h, alt: coll.piece + " \u2014 " + lk.t }), /* @__PURE__ */ React.createElement("div", { className: "detail-head" }, /* @__PURE__ */ React.createElement("div", { className: "look-occ" }, lk.occ), /* @__PURE__ */ React.createElement("div", { className: "serif detail-title" }, lk.t), /* @__PURE__ */ React.createElement("div", { className: "detail-sub" }, "Built around the ", coll.piece.toLowerCase())), /* @__PURE__ */ React.createElement(Eyebrow, null, matchedRows.length ? "From your closet" : "From your closet \u2014 nothing catalogued yet"), matchedRows.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "match-grid" }, matchedRows.map((r) => /* @__PURE__ */ React.createElement("div", { key: r.item.id, className: "match-cell" }, /* @__PURE__ */ React.createElement("div", { className: "match-imgwrap" }, /* @__PURE__ */ React.createElement("img", { src: r.item.img, alt: r.item.name })), /* @__PURE__ */ React.createElement("div", { className: "match-for" }, r.label), /* @__PURE__ */ React.createElement("div", { className: "match-name serif" }, r.item.name)))), missing.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "reco" }, /* @__PURE__ */ React.createElement(Eyebrow, null, "Recommended to complete it"), [["Pieces", missing.filter((m) => !isAccessory(m))], ["Accessories", missing.filter(isAccessory)]].map(
+      ([label, list]) => list.length ? /* @__PURE__ */ React.createElement("div", { key: label, className: "reco-group" }, /* @__PURE__ */ React.createElement("div", { className: "reco-sub" }, label), list.map((m) => /* @__PURE__ */ React.createElement("div", { key: m, className: "reco-row" }, /* @__PURE__ */ React.createElement("span", { className: "reco-mark" }, "\u25C7"), m))) : null
+    ), /* @__PURE__ */ React.createElement("div", { className: "reco-note" }, "Already own one of these? Snap it into your closet and it'll appear above.")), /* @__PURE__ */ React.createElement("button", { className: "btn-primary", style: { width: "100%", marginTop: 18 }, onClick: save, disabled: saved }, saved ? "Saved to your looks \u2713" : "Save this look"));
   }
   function StyleMe({ items, onSave }) {
     const [occasion, setOccasion] = useState("");
