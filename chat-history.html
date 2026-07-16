@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chat History</title>
+<meta property="og:title" content="Chat History Explorer">
+<meta property="og:description" content="Search 14,800+ Claude and Grok conversations. Hybrid semantic + keyword search, timelines, tags, and full conversation reader.">
+<meta property="og:url" content="https://niggerfaggot.club/chat-history.html">
+<meta name="twitter:card" content="summary">
+<style>
+:root{
+  --bg:#0c0e12; --panel:#12151c; --panel2:#181c26; --line:#232936;
+  --text:#e8eaf0; --dim:#8b93a7; --faint:#5a6275;
+  --accent:#f2a33c; --accent-dim:#8a5f26; --link:#6db3f2;
+  --good:#5fbf77; --bad:#e0685f; --mono:'SF Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  padding-bottom:env(safe-area-inset-bottom)}
+a{color:var(--link);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:880px;margin:0 auto;padding:0 16px 60px}
+
+header{display:flex;align-items:baseline;gap:12px;padding:22px 0 4px;flex-wrap:wrap}
+header h1{font-size:20px;margin:0;letter-spacing:.3px}
+header h1 span{color:var(--accent)}
+#dbline{color:var(--faint);font-size:12.5px;font-family:var(--mono)}
+#authbox{margin-left:auto;display:flex;gap:8px;align-items:center}
+.pill{font-size:12px;font-family:var(--mono);padding:3px 9px;border-radius:99px;border:1px solid var(--line);color:var(--dim)}
+.pill.on{color:var(--good);border-color:#2c4a35}
+
+button{font:inherit;color:var(--text);background:var(--panel2);border:1px solid var(--line);
+  border-radius:8px;padding:7px 14px;cursor:pointer}
+button:hover{border-color:var(--accent-dim)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#1a1205;font-weight:600}
+button.primary:hover{filter:brightness(1.08)}
+button.ghost{background:none;border:none;color:var(--dim);padding:4px 8px}
+button.ghost:hover{color:var(--accent)}
+button:disabled{opacity:.45;cursor:default}
+
+.modes{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 10px}
+.modes button{padding:5px 12px;font-size:13px;border-radius:99px;color:var(--dim)}
+.modes button.sel{color:var(--accent);border-color:var(--accent-dim);background:#1c1710}
+
+#form{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.row+.row{margin-top:10px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:11.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.6px}
+.field.grow{flex:1 1 240px}
+input,select,textarea{font:inherit;color:var(--text);background:var(--bg);border:1px solid var(--line);
+  border-radius:8px;padding:8px 10px;min-width:0}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent-dim)}
+input[type=number]{width:86px}
+input[type=date]{width:150px;color-scheme:dark}
+input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent)}
+.check{flex-direction:row;align-items:center;gap:7px;padding-bottom:8px}
+.check label{text-transform:none;font-size:13.5px;color:var(--dim);letter-spacing:0}
+textarea{font-family:var(--mono);font-size:13px;resize:vertical}
+.hint{font-size:12px;color:var(--faint);margin-top:8px}
+
+#status{margin:16px 0;font-size:13.5px;color:var(--dim);min-height:20px;font-family:var(--mono)}
+#status .err{color:var(--bad)}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--faint);border-top-color:var(--accent);
+  border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+#out{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;
+  white-space:pre-wrap;overflow-wrap:break-word;font-size:14px;line-height:1.55;display:none}
+#out.show{display:block}
+#out b{color:var(--accent);font-weight:600}
+#out code{font-family:var(--mono);font-size:12.5px;background:var(--panel2);padding:1px 5px;border-radius:5px}
+#out .uuid{font-family:var(--mono);font-size:12px;color:var(--link);cursor:pointer;border-bottom:1px dashed #33507a}
+#out .uuid:hover{color:var(--accent)}
+#out hr{border:none;border-top:1px solid var(--line);margin:14px 0}
+#outbar{display:none;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
+#outbar.show{display:flex}
+#outbar .lbl{color:var(--faint);font-size:13px;font-family:var(--mono);margin-right:auto}
+
+#gate{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:34px;text-align:center;margin-top:14px}
+#gate p{color:var(--dim);margin:0 0 18px}
+footer{margin-top:26px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;color:var(--faint);font-size:12.5px}
+@media(max-width:560px){ header h1{font-size:17px} #out{padding:14px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Chat <span>History</span></h1>
+    <span id="dbline"></span>
+    <div id="authbox"><span class="pill" id="authpill">disconnected</span></div>
+  </header>
+
+  <div id="gate">
+    <p>Sign in through Cloudflare Access to query the archive.</p>
+    <button class="primary" onclick="login()">Connect</button>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="modes" id="modes"></div>
+    <div id="form"></div>
+    <div id="status"></div>
+    <div id="outbar">
+      <span class="lbl" id="outlbl"></span>
+      <button class="ghost" id="backbtn" style="display:none" onclick="goBack()">&larr; back</button>
+      <button class="ghost" onclick="copyOut()">copy</button>
+    </div>
+    <div id="out"></div>
+    <footer>
+      <button class="ghost" onclick="exec('stats','stats',{})">stats</button>
+      <button class="ghost" onclick="if(confirm('Invalidate server search cache?'))exec('invalidate cache','invalidate_cache',{})">invalidate cache</button>
+      <button class="ghost" onclick="logout()">sign out</button>
+      <span style="margin-left:auto">claude-history-mcp</span>
+    </footer>
+  </div>
+</div>
+
+<script>
+'use strict';
+const MCP = 'https://claude-history-mcp.bennyforeman1.workers.dev';
+const REDIRECT = location.origin + location.pathname;
+const LS = k => 'chm:' + k;
+const $ = id => document.getElementById(id);
+
+// ── field + tool definitions ──────────────────────────────────────────────
+const F = {
+  query:      {k:'query', t:'text', l:'Query', grow:1, req:1, ph:'what are you looking for'},
+  kquery:     {k:'query', t:'text', l:'Keywords', grow:1, req:1, ph:'"exact phrase" AND term NOT other'},
+  cquery:     {k:'query', t:'text', l:'Title or UUID', grow:1, req:1, ph:'partial title match or conversation UUID'},
+  keyword:    {k:'keyword', t:'text', l:'Title keyword', grow:1, ph:'optional'},
+  uuid:       {k:'uuid', t:'text', l:'Conversation UUID', grow:1, req:1, ph:'xxxxxxxx-xxxx-...'},
+  uuids:      {k:'uuids', t:'textarea', l:'UUIDs (one per line, max 20)', grow:1, req:1},
+  limit:      m => ({k:'limit', t:'num', l:'Limit', max:m, ph:'20'}),
+  offset:     {k:'offset', t:'num', l:'Offset', ph:'0'},
+  max_msgs:   {k:'max_messages', t:'num', l:'Messages', max:200, ph:'50'},
+  date_after: {k:'date_after', t:'date', l:'After'},
+  date_before:{k:'date_before', t:'date', l:'Before'},
+  min_impact: {k:'min_impact', t:'num', l:'Min impact', max:10},
+  min_score:  {k:'min_score', t:'num', l:'Min score', max:10},
+  tags:       {k:'tags', t:'text', l:'Tags', ph:'programming,dev-tools', list:'taglist'},
+  brief:      {k:'brief', t:'check', l:'brief (titles only)'},
+  chunk_type: {k:'chunk_type', t:'sel', l:'Chunks', opts:['all','summary','conversation']},
+  sender:     {k:'sender', t:'sel', l:'Sender', opts:['all','human','assistant']},
+  sort:       {k:'sort', t:'sel', l:'Sort', opts:['newest','oldest']},
+  gran:       {k:'granularity', t:'sel', l:'Group by', opts:['month','week']},
+};
+const TOOLS = {
+  hybrid_search:       {l:'Hybrid', hint:'HyDE + semantic + keyword, fused and reranked. Best default.', rows:[[F.query],[F.limit(50),F.date_after,F.date_before,F.min_impact,F.tags]]},
+  search_history:      {l:'Semantic', hint:'Pure vector search over meaning.', rows:[[F.query],[F.limit(100),F.chunk_type,F.brief],[F.date_after,F.date_before,F.min_impact,F.tags]]},
+  keyword_search:      {l:'Keyword', hint:'FTS5 exact-term search. Best for code, commands, names, URLs.', rows:[[F.kquery],[F.limit(50),F.sender,F.min_impact,F.tags]]},
+  get_conversation:    {l:'Read', hint:'Full conversation by title or UUID, paginated.', rows:[[F.cquery],[F.max_msgs,F.offset]]},
+  browse_conversations:{l:'Browse', hint:'Scan chronologically with filters.', rows:[[F.keyword,F.sort,F.limit(100),F.offset],[F.date_after,F.date_before,F.min_impact,F.tags]]},
+  list_conversations:  {l:'List', hint:'Conversations in a date range.', rows:[[F.keyword,F.limit(100)],[F.date_after,F.date_before,F.min_impact,F.tags]]},
+  get_related:         {l:'Related', hint:'Semantically similar conversations to a UUID.', rows:[[F.uuid,F.limit(20)]]},
+  multi_get:           {l:'Multi-get', hint:'Summaries for up to 20 UUIDs at once.', rows:[[F.uuids]]},
+  get_timeline:        {l:'Timeline', hint:'Activity grouped over time.', rows:[[F.gran,F.date_after,F.date_before]]},
+  list_scores:         {l:'Scores', hint:'Impact score distribution, highest-consequence chats.', rows:[[F.limit(100),F.min_score]]},
+  list_tags:           {l:'Tags', hint:'All tags with counts.', rows:[]},
+};
+let mode = localStorage.getItem(LS('mode')) || 'hybrid_search';
+let navStack = [];
+
+// ── OAuth (DCR + PKCE public client) ──────────────────────────────────────
+const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const rnd = n => b64url(crypto.getRandomValues(new Uint8Array(n)));
+
+async function clientId(){
+  let id = localStorage.getItem(LS('client_id'));
+  if(id) return id;
+  const r = await fetch(MCP+'/register',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({client_name:'Chat History Explorer',redirect_uris:[REDIRECT],
+      grant_types:['authorization_code','refresh_token'],response_types:['code'],token_endpoint_auth_method:'none'})});
+  if(!r.ok) throw new Error('client registration failed: '+r.status);
+  id = (await r.json()).client_id;
+  localStorage.setItem(LS('client_id'),id);
+  return id;
+}
+async function login(){
+  const verifier = rnd(48), state = rnd(12);
+  localStorage.setItem(LS('verifier'),verifier);
+  localStorage.setItem(LS('state'),state);
+  const challenge = b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)));
+  const u = new URL(MCP+'/authorize');
+  u.search = new URLSearchParams({response_type:'code',client_id:await clientId(),redirect_uri:REDIRECT,
+    state,code_challenge:challenge,code_challenge_method:'S256',scope:'openid email profile'});
+  location.href = u;
+}
+async function tokenReq(body){
+  const r = await fetch(MCP+'/token',{method:'POST',
+    headers:{'content-type':'application/x-www-form-urlencoded'},body:new URLSearchParams(body)});
+  const j = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(j.error_description || j.error || 'token request failed');
+  localStorage.setItem(LS('access'),j.access_token);
+  if(j.refresh_token) localStorage.setItem(LS('refresh'),j.refresh_token);
+  localStorage.setItem(LS('exp'),String(Date.now()+((j.expires_in||3600)-60)*1000));
+  return j.access_token;
+}
+async function getToken(){
+  const exp = +localStorage.getItem(LS('exp'))||0;
+  const access = localStorage.getItem(LS('access'));
+  if(access && Date.now() < exp) return access;
+  const refresh = localStorage.getItem(LS('refresh'));
+  if(refresh){
+    try{ return await tokenReq({grant_type:'refresh_token',refresh_token:refresh,client_id:await clientId()}); }
+    catch(e){ clearAuth(); throw new Error('session expired, connect again'); }
+  }
+  throw new Error('not connected');
+}
+function clearAuth(){ ['access','refresh','exp','session'].forEach(k=>localStorage.removeItem(LS(k))); }
+function logout(){ clearAuth(); location.reload(); }
+
+async function handleCallback(){
+  const p = new URLSearchParams(location.search);
+  if(p.get('error')) { window.history.replaceState(null,'',REDIRECT); throw new Error(p.get('error_description')||p.get('error')); }
+  const code = p.get('code');
+  if(!code) return false;
+  if(p.get('state') !== localStorage.getItem(LS('state'))) { window.history.replaceState(null,'',REDIRECT); throw new Error('state mismatch, retry connect'); }
+  await tokenReq({grant_type:'authorization_code',code,redirect_uri:REDIRECT,
+    client_id:await clientId(),code_verifier:localStorage.getItem(LS('verifier'))});
+  window.history.replaceState(null,'',REDIRECT);
+  return true;
+}
+
+// ── MCP streamable HTTP client ────────────────────────────────────────────
+let session = localStorage.getItem(LS('session')) || null;
+let rpcId = Math.floor(Math.random()*1e6);
+
+async function mcpPost(payload, useSession){
+  const tok = await getToken();
+  const h = {'content-type':'application/json','accept':'application/json, text/event-stream',
+    'authorization':'Bearer '+tok,'mcp-protocol-version':'2025-03-26'};
+  if(useSession && session) h['mcp-session-id'] = session;
+  return fetch(MCP+'/mcp',{method:'POST',headers:h,body:JSON.stringify(payload)});
+}
+async function parseRpc(res, id){
+  const ct = res.headers.get('content-type')||'';
+  if(ct.includes('text/event-stream')){
+    const reader = res.body.getReader(); const dec = new TextDecoder();
+    let buf='';
+    while(true){
+      const {done,value} = await reader.read();
+      if(value) buf += dec.decode(value,{stream:true});
+      let i;
+      while((i = buf.indexOf('\n\n')) >= 0){
+        const frame = buf.slice(0,i); buf = buf.slice(i+2);
+        const data = frame.split('\n').filter(l=>l.startsWith('data:')).map(l=>l.slice(5).trim()).join('');
+        if(!data) continue;
+        try{ const m = JSON.parse(data); if(m.id===id && (m.result!==undefined||m.error)) { reader.cancel().catch(()=>{}); return m; } }catch(e){}
+      }
+      if(done) break;
+    }
+    throw new Error('stream ended without a response');
+  }
+  return res.json();
+}
+async function initSession(){
+  session = null;
+  const id = ++rpcId;
+  const res = await mcpPost({jsonrpc:'2.0',id,method:'initialize',params:{protocolVersion:'2025-03-26',
+    capabilities:{},clientInfo:{name:'chat-history-web',version:'1.0'}}}, false);
+  if(res.status===401){ clearAuth(); throw new Error('auth rejected, connect again'); }
+  if(!res.ok) throw new Error('initialize failed: '+res.status);
+  session = res.headers.get('mcp-session-id');
+  const m = await parseRpc(res,id);
+  if(m.error) throw new Error(m.error.message);
+  if(session) localStorage.setItem(LS('session'),session);
+  await mcpPost({jsonrpc:'2.0',method:'notifications/initialized'}, true);
+}
+async function call(tool, args, retried){
+  if(!session) await initSession();
+  const id = ++rpcId;
+  const res = await mcpPost({jsonrpc:'2.0',id,method:'tools/call',params:{name:tool,arguments:args}}, true);
+  if((res.status===404||res.status===400||res.status===401) && !retried){
+    if(res.status===401){ localStorage.removeItem(LS('access')); localStorage.setItem(LS('exp'),'0'); }
+    else session = null;
+    return call(tool,args,true);
+  }
+  if(!res.ok) throw new Error('request failed: '+res.status+' '+(await res.text()).slice(0,200));
+  const m = await parseRpc(res,id);
+  if(m.error) throw new Error(m.error.message);
+  const txt = (m.result.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('\n');
+  if(m.result.isError) throw new Error(txt||'tool error');
+  return txt;
+}
+
+// ── UI ────────────────────────────────────────────────────────────────────
+function buildModes(){
+  $('modes').innerHTML='';
+  for(const [k,t] of Object.entries(TOOLS)){
+    const b = document.createElement('button');
+    b.textContent = t.l;
+    b.className = k===mode?'sel':'';
+    b.onclick = () => { mode=k; localStorage.setItem(LS('mode'),k); buildModes(); buildForm(); };
+    $('modes').appendChild(b);
+  }
+}
+function buildForm(){
+  const t = TOOLS[mode]; const form = $('form'); form.innerHTML='';
+  for(const row of t.rows){
+    const r = document.createElement('div'); r.className='row';
+    for(const f of row){
+      const d = document.createElement('div');
+      d.className = 'field' + (f.grow?' grow':'') + (f.t==='check'?' check':'');
+      let inp;
+      if(f.t==='sel'){ inp=document.createElement('select'); f.opts.forEach(o=>{const op=document.createElement('option');op.value=op.textContent=o;inp.appendChild(op);}); }
+      else if(f.t==='textarea'){ inp=document.createElement('textarea'); inp.rows=4; }
+      else { inp=document.createElement('input');
+        inp.type = f.t==='num'?'number':f.t==='date'?'date':f.t==='check'?'checkbox':'text';
+        if(f.t==='num'){ inp.min=0; if(f.max) inp.max=f.max; } }
+      inp.id='f_'+f.k; if(f.ph) inp.placeholder=f.ph; if(f.list) inp.setAttribute('list',f.list);
+      if(f.t!=='check' && f.t!=='sel') inp.addEventListener('keydown',e=>{ if(e.key==='Enter'&&f.t!=='textarea'){e.preventDefault();run();} });
+      const lab=document.createElement('label'); lab.textContent=f.l; lab.htmlFor=inp.id;
+      if(f.t==='check'){ d.appendChild(inp); d.appendChild(lab); } else { d.appendChild(lab); d.appendChild(inp); }
+      r.appendChild(d);
+    }
+    form.appendChild(r);
+  }
+  const r = document.createElement('div'); r.className='row';
+  const go = document.createElement('button'); go.className='primary'; go.textContent='Run'; go.onclick=()=>run();
+  r.appendChild(go);
+  const hint = document.createElement('span'); hint.className='hint'; hint.textContent=t.hint; r.appendChild(hint);
+  form.appendChild(r);
+  const first = form.querySelector('input[type=text],textarea'); if(first) first.focus();
+}
+function collectArgs(){
+  const t = TOOLS[mode], args = {};
+  for(const row of t.rows) for(const f of row){
+    const el = $('f_'+f.k); if(!el) continue;
+    let v = f.t==='check' ? el.checked : el.value.trim();
+    if(f.t==='check'){ if(v) args[f.k]=true; continue; }
+    if(v==='') { if(f.req) throw new Error('"'+f.l+'" is required'); continue; }
+    if(f.t==='num') v = Number(v);
+    if(f.k==='uuids') v = v.split(/\s+/).filter(Boolean).slice(0,20);
+    args[f.k]=v;
+  }
+  return args;
+}
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const UUID_RE = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+function render(txt){
+  let h = esc(txt);
+  h = h.replace(/^---$/gm,'<hr>');
+  h = h.replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>');
+  h = h.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+  h = h.replace(UUID_RE, u => '<span class="uuid" data-uuid="'+u+'" title="open conversation">'+u+'</span>');
+  h = h.replace(/(https?:\/\/[^\s&<)]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>');
+  return h;
+}
+function showResult(label, txt){
+  $('out').innerHTML = render(txt);
+  $('out').classList.add('show');
+  $('outlbl').textContent = label;
+  $('outbar').classList.add('show');
+  $('backbtn').style.display = navStack.length>1 ? '' : 'none';
+}
+function setStatus(html){ $('status').innerHTML = html; }
+async function exec(label, tool, args, push){
+  setStatus('<span class="spin"></span>'+esc(label));
+  const t0 = performance.now();
+  try{
+    const txt = await call(tool,args);
+    if(push!==false) navStack.push({label,tool,args});
+    showResult(label, txt);
+    setStatus(((performance.now()-t0)/1000).toFixed(1)+'s &middot; '+txt.length.toLocaleString()+' chars');
+  }catch(e){
+    setStatus('<span class="err">'+esc(e.message)+'</span>');
+    if(/connect again|not connected/.test(e.message)){ $('gate').style.display=''; $('app').style.display='none'; setPill(false); }
+  }
+}
+function run(){
+  let args; try{ args = collectArgs(); }catch(e){ setStatus('<span class="err">'+esc(e.message)+'</span>'); return; }
+  navStack = [];
+  const q = args.query || args.keyword || args.uuid || '';
+  exec(TOOLS[mode].l + (q?': '+q:''), mode, args);
+}
+function openUuid(u){ exec('Read: '+u, 'get_conversation', {query:u, max_messages:50}); }
+function goBack(){ navStack.pop(); const p = navStack[navStack.length-1]; if(p) exec(p.label,p.tool,p.args,false); }
+function copyOut(){ navigator.clipboard.writeText($('out').innerText); setStatus('copied'); }
+$('out') && document.addEventListener('click',e=>{
+  const u = e.target.closest && e.target.closest('.uuid'); if(u) openUuid(u.dataset.uuid);
+});
+function setPill(on){ const p=$('authpill'); p.textContent=on?'connected':'disconnected'; p.classList.toggle('on',!!on); }
+
+async function warm(){
+  try{ const s = await call('stats',{}); const m=s.match(/Conversations:\s*([\d,]+)/); const d=s.match(/Date range:\s*(\S+)\s+to\s+(\S+)/);
+    $('dbline').textContent = (m?(+m[1].replace(/,/g,'')).toLocaleString()+' conversations':'') + (d?' · '+d[1]+' → '+d[2]:'');
+  }catch(e){}
+  try{ const tags = await call('list_tags',{});
+    const names = [...tags.matchAll(/^\s*\d+\s+([a-z0-9][a-z0-9-]*)\s*$/gm)].map(m=>m[1]);
+    if(names.length){ let dl=$('taglist'); if(!dl){dl=document.createElement('datalist');dl.id='taglist';document.body.appendChild(dl);}
+      dl.innerHTML=''; [...new Set(names)].forEach(n=>{const o=document.createElement('option');o.value=n;dl.appendChild(o);}); }
+  }catch(e){}
+}
+(async function boot(){
+  buildModes(); buildForm();
+  try{ await handleCallback(); }catch(e){ setStatus('<span class="err">'+esc(e.message)+'</span>'); }
+  const authed = localStorage.getItem(LS('access')) || localStorage.getItem(LS('refresh'));
+  if(authed){
+    $('gate').style.display='none'; $('app').style.display=''; setPill(true);
+    warm();
+  }
+})();
+</script>
+</body>
+</html>
