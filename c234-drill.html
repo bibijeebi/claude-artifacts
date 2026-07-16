@@ -198,7 +198,7 @@ function next(){
   const opts=sh(m[1].map((o,oi)=>({o,oi})));curOpts=opts;
   const pips=p.hist.map(h=>`<span class="pip ${h?'ok':'no'}"></span>`).join("");
   let html=`<div class="q">${m[0]}</div><div class="hist">${pips}</div><div id="opts">`;
-  html+=opts.map((x,disp)=>`<button class="ans" data-disp="${disp}" data-oi="${x.oi}"><span class="ltr">${"ABCD"[disp]}</span><span class="txt">${x.o}</span></button>`).join("");
+  html+=opts.map((x,disp)=>`<button class="ans" data-disp="${disp}" data-oi="${x.oi}"><span class="ltr">${String.fromCharCode(65+disp)}</span><span class="txt">${x.o}</span></button>`).join("");
   html+=`</div><div class="cont" id="cont"></div>`;
   $("#qbox").innerHTML=html;
   meters();
@@ -225,7 +225,7 @@ function pick(disp){
 $("#qbox").addEventListener("click",e=>{if(waiting){next();return;}const b=e.target.closest(".ans");if(!b)return;pick(+b.dataset.disp);});
 document.addEventListener("keydown",e=>{
   if(waiting&&(e.key===" "||e.key==="Enter")){e.preventDefault();next();return;}
-  const k=e.key.toLowerCase();const map={"1":0,"2":1,"3":2,"4":3,"a":0,"b":1,"c":2,"d":3};
+  const k=e.key.toLowerCase();const map={"1":0,"2":1,"3":2,"4":3,"5":4,"a":0,"b":1,"c":2,"d":3,"e":4};
   if(!locked&&!waiting&&k in map)pick(map[k]);
 });
 function done(){
