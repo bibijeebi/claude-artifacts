@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Infrastructure Map — niggerfaggot.club</title>
+<meta property="og:title" content="niggerfaggot.club — Infrastructure Map">
+<meta property="og:description" content="Live map of every worker, database, tunnel, and Pages project on the domain. Updated July 17, 2026.">
+<meta property="og:url" content="https://niggerfaggot.club/infra.html">
+<meta name="twitter:card" content="summary">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,249 +33,63 @@ html, body { overflow-x: hidden; }
   --sans: 'DM Sans', sans-serif;
 }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  line-height: 1.6;
-  padding: 0;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-
-header {
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 2rem;
-  margin-bottom: 2.5rem;
-}
-
-header h1 {
-  font-family: var(--mono);
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--accent);
-  letter-spacing: -0.02em;
-}
-
-header .meta {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-family: var(--mono);
-  margin-top: 0.5rem;
-}
-
+body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.6; }
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+header { border-bottom: 1px solid var(--border); padding-bottom: 2rem; margin-bottom: 2.5rem; }
+header h1 { font-family: var(--mono); font-size: 1.5rem; font-weight: 600; color: var(--accent); letter-spacing: -0.02em; }
+header .meta { font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem; }
 header .meta span { color: var(--text-dim); }
 
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2.5rem;
-}
-
-.stat {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
-}
-
-.stat .num {
-  font-family: var(--mono);
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--accent);
-  line-height: 1;
-}
-
-.stat .label {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 0.3rem;
-}
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
+.stat .num { font-family: var(--mono); font-size: 1.8rem; font-weight: 700; color: var(--accent); line-height: 1; }
+.stat .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.3rem; }
 
 section { margin-bottom: 2.5rem; }
+section > h2 { font-family: var(--mono); font-size: 0.85rem; font-weight: 600; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
 
-section > h2 {
-  font-family: var(--mono);
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--accent2);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 1rem;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1rem 1.2rem;
-  transition: border-color 0.2s;
-}
-
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1rem; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; transition: border-color 0.2s; }
 .card:hover { border-color: var(--border-bright); }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+.card-header h3 { font-family: var(--mono); font-size: 0.9rem; font-weight: 600; color: var(--text); }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.6rem;
-}
-
-.card-header h3 {
-  font-family: var(--mono);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.badge {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  font-weight: 600;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
+.badge { font-family: var(--mono); font-size: 0.6rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
 .badge-worker { background: #1e3a5f; color: var(--accent); }
 .badge-pages { background: #312e81; color: var(--accent2); }
 .badge-tunnel { background: #064e3b; color: var(--green); }
-.badge-kv { background: #422006; color: var(--orange); }
-.badge-d1 { background: #4a1d96; color: #c4b5fd; }
-.badge-r2 { background: #831843; color: var(--pink); }
+.badge-mcp { background: #422006; color: var(--orange); }
 
-.card .url {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: var(--accent);
-  word-break: break-all;
-}
+.card .url { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); word-break: break-all; }
+.card .desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.4rem; }
+.card .bindings { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.5rem; }
 
-.card .desc {
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  margin-top: 0.4rem;
-}
-
-.card .bindings {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-top: 0.5rem;
-}
-
-.chip {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-}
-
+.chip { font-family: var(--mono); font-size: 0.6rem; padding: 0.1rem 0.4rem; border-radius: 4px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); }
 .chip-kv { border-color: #92400e55; color: var(--orange); }
 .chip-d1 { border-color: #6d28d955; color: #c4b5fd; }
 .chip-r2 { border-color: #9d174d55; color: var(--pink); }
-.chip-ai { border-color: #065f4655; color: var(--green); }
 .chip-do { border-color: #1e3a5f55; color: var(--accent); }
 .chip-svc { border-color: #4338ca55; color: var(--accent2); }
+.chip-vec { border-color: #065f4655; color: var(--green); }
+.chip-cron { border-color: #a1620755; color: var(--yellow); }
 
-.status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 0.3rem;
-  vertical-align: middle;
-}
-
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.3rem; vertical-align: middle; }
 .status-healthy { background: var(--green); box-shadow: 0 0 6px var(--green); }
 .status-down { background: var(--red); box-shadow: 0 0 6px var(--red); }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8rem;
-}
-
-th {
-  text-align: left;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 0.8rem;
-  border-bottom: 1px solid var(--border);
-}
-
-td {
-  padding: 0.4rem 0.8rem;
-  border-bottom: 1px solid var(--border);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: var(--text-dim);
-}
-
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+th { text-align: left; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--border); }
+td { padding: 0.4rem 0.8rem; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); }
 tr:hover td { background: var(--surface); }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 
-.table-wrap {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-}
-
-.section-note {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-bottom: 1rem;
-  font-style: italic;
-}
-
-.subsection {
-  margin-top: 1.5rem;
-}
-
-.subsection h3 {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.6rem;
-}
-
-.auth-note {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent2);
-  border-radius: 6px;
-  padding: 0.8rem 1rem;
-  font-size: 0.8rem;
-  color: var(--text-dim);
-  margin-bottom: 1.5rem;
-}
+.section-note { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem; font-style: italic; }
+.subsection { margin-top: 1.5rem; }
+.subsection h3 { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
+.auth-note { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent2); border-radius: 6px; padding: 0.8rem 1rem; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1.5rem; }
+.changelog li { font-size: 0.8rem; color: var(--text-dim); margin-left: 1.2rem; margin-bottom: 0.3rem; }
+.changelog .add { color: var(--green); font-family: var(--mono); font-size: 0.7rem; margin-right: 0.4rem; }
+.changelog .del { color: var(--red); font-family: var(--mono); font-size: 0.7rem; margin-right: 0.4rem; }
 
 @media (max-width: 768px) {
   .container { padding: 1rem; }
@@ -286,588 +104,367 @@ tr:hover td { background: var(--surface); }
 
 <header>
   <h1>niggerfaggot.club — Infrastructure Map</h1>
-  <div class="meta">
-    CF Account: <span>561fd070...752a</span> · Zone: <span>0d01c80a...8ad</span> · Updated: <span>March 20, 2026</span>
-  </div>
+  <div class="meta">CF Account: <span>561fd070...752a</span> · Zone: <span>0d01c80a...8ad</span> · Updated: <span>July 17, 2026</span></div>
 </header>
 
 <div class="stats-row">
-  <div class="stat"><div class="num">21</div><div class="label">Workers</div></div>
+  <div class="stat"><div class="num">24</div><div class="label">Workers</div></div>
   <div class="stat"><div class="num">8</div><div class="label">KV Namespaces</div></div>
   <div class="stat"><div class="num">8</div><div class="label">D1 Databases</div></div>
   <div class="stat"><div class="num">5</div><div class="label">R2 Buckets</div></div>
-  <div class="stat"><div class="num">3</div><div class="label">Tunnels</div></div>
+  <div class="stat"><div class="num">4</div><div class="label">Tunnels</div></div>
   <div class="stat"><div class="num">6</div><div class="label">Pages Projects</div></div>
-  <div class="stat"><div class="num">149</div><div class="label">Static Pages</div></div>
+  <div class="stat"><div class="num">346</div><div class="label">Static Pages</div></div>
 </div>
 
 <div class="auth-note">
-  <strong>Auth model:</strong> Cloudflare Access (Zero Trust) with wildcard rule <code>*.niggerfaggot.club</code> enforcing Google OAuth by default. Individual apps get bypass policies (public) or keep the OAuth gate. API endpoints and <code>/llms.txt</code> paths get specific bypass rules for Claude's Bearer tokens.
+Auth model: Cloudflare Access (Zero Trust) with wildcard rule <b>*.niggerfaggot.club</b> enforcing Google OAuth by default. Individual apps get bypass policies (public) or keep the OAuth gate. API endpoints get specific bypass rules for Claude's Bearer tokens. MCP workers run their own OAuth via workers-oauth-provider with KV-backed grants.
 </div>
 
-<!-- ==================== APPS (Workers with Custom Domains) ==================== -->
 <section>
-  <h2>Apps — Workers with Custom Domains</h2>
-  <p class="section-note">Full-stack apps: each worker serves both HTML frontend and REST API from a single index.js.</p>
+<h2>Apps — Workers with Custom Domains</h2>
+<p class="section-note">Full-stack apps: each worker serves both HTML frontend and REST API from a single index.js.</p>
+<div class="card-grid">
 
-  <div class="card-grid">
+<div class="card">
+  <div class="card-header"><h3>Health Tracker</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">health.niggerfaggot.club</div>
+  <div class="desc">Weight, body measurements, food intake logging with macro estimation. Claude logs via Bearer token API. Nightly D1 backup to R2 via health-tracker-backup.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: weight-tracker-db</span><span class="chip chip-do">DO: DASHBOARD_RELAY</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>Health Tracker</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">health.niggerfaggot.club</div>
-      <div class="desc">Weight, body measurements, food intake logging with macro estimation. Claude logs via Bearer token API. Body measurements taken by Bekah in cm (auto-converts).</div>
-      <div class="bindings">
-        <span class="chip chip-d1">D1: weight-tracker-db</span>
-        <span class="chip chip-do">DO: DASHBOARD_RELAY</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>Review Journal</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">journal.niggerfaggot.club · review.niggerfaggot.club</div>
+  <div class="desc">Personal journal: dated life entries plus star-rated reviews (cigars, cocktails, anything). Claude is the input method. Both hostnames hit the same worker.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: review-journal</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>Drinks Bar</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">drinks.niggerfaggot.club</div>
-      <div class="desc">Home bar inventory management. Track bottles, recipes, cocktail builds. Update inventory from receipts, mark items in/out of stock.</div>
-      <div class="bindings">
-        <span class="chip chip-d1">D1: drinks-bar</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>Things (Kanban)</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">things.niggerfaggot.club</div>
+  <div class="desc">Kanban task board. Statuses: backlog → todo → doing → done → archived.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: benny-things</span><span class="chip chip-do">DO: TASK_RELAY</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>Baby Names Lab</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">names.niggerfaggot.club</div>
-      <div class="desc">ELO-based baby name ranking. Benny (917 comparisons, stable top rankings) and Bekah voting independently. CF Access OAuth gated.</div>
-      <div class="bindings">
-        <span class="chip chip-kv">KV: baby-names-data</span>
-        <span class="chip chip-do">DO: RELAY</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>Shopping List</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">list.niggerfaggot.club</div>
+  <div class="desc">Shared shopping list. OAuth gated (Benny + Bekah only).</div>
+  <div class="bindings"><span class="chip chip-d1">D1: shopping-list</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>Things (Kanban)</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">things.niggerfaggot.club</div>
-      <div class="desc">Kanban task board. Statuses: backlog → todo → doing → done → archived.</div>
-      <div class="bindings">
-        <span class="chip chip-d1">D1: benny-things</span>
-        <span class="chip chip-do">DO: TASK_RELAY</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>Receipt Scanner</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">scans.niggerfaggot.club</div>
+  <div class="desc">Receipt photo scanning with vision model extraction. FTS5 search, R2 image storage, spending history queries.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: receipts-db</span><span class="chip chip-r2">R2: receipts-images</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>Shopping List</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">list.niggerfaggot.club</div>
-      <div class="desc">Shared shopping list. OAuth gated (Benny + Bekah only).</div>
-      <div class="bindings">
-        <span class="chip chip-d1">D1: shopping-list</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>Cycle Tracker</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">cycle.niggerfaggot.club</div>
+  <div class="desc">Bekah's menstrual cycle tracking. KV-backed, CF Access OAuth gated.</div>
+  <div class="bindings"><span class="chip chip-kv">KV: CYCLE_DATA</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>Receipt Scanner</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">scans.niggerfaggot.club</div>
-      <div class="desc">Receipt photo scanning with GPT-5.2 vision. FTS5 search, R2 image storage, spending history queries.</div>
-      <div class="bindings">
-        <span class="chip chip-d1">D1: receipts-db</span>
-        <span class="chip chip-r2">R2: receipts-images</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>Migraine Logger</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">migraines.niggerfaggot.club</div>
+  <div class="desc">Bekah's migraine episode logging. KV-backed.</div>
+  <div class="bindings"><span class="chip chip-kv">KV: migraine-logger-kv</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>Spanky (SRS)</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">spanky.niggerfaggot.club</div>
-      <div class="desc">AI-adaptive spaced repetition system. KV persistence. POST /api/deploy to update HTML.</div>
-      <div class="bindings">
-        <span class="chip chip-kv">KV: spanky-data</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>Cram Platform</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">cram.niggerfaggot.club</div>
+  <div class="desc">WGU OA cram platform. Multi-tab study sites, drill pages, question banks backed by D1.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: cram-db</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>Cycle Tracker</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">cycle.niggerfaggot.club</div>
-      <div class="desc">Bekah's menstrual cycle tracking. KV-backed, CF Access OAuth gated.</div>
-      <div class="bindings">
-        <span class="chip chip-kv">KV: CYCLE_DATA</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3>NatureDex</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">nature.niggerfaggot.club</div>
-      <div class="desc">Wildlife/nature sighting log. Identify and catalog plants, animals, fungi from outdoor activities.</div>
-      <div class="bindings">
-        <span class="chip chip-d1">D1: naturedex</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3>Bates Watch</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">bates-watch.niggerfaggot.club</div>
-      <div class="desc">Butler/Bates County property sales monitor. Tracks tax sales, heir research for Duna's church property project.</div>
-      <div class="bindings">
-        <span class="chip chip-kv">KV: butler-eagle-scanner</span>
-        <span class="chip">SECRET: OPENAI_KEY</span>
-      </div>
-    </div>
-
-  </div>
+</div>
 </section>
 
-<!-- ==================== UTILITY WORKERS ==================== -->
 <section>
-  <h2>Utility Workers — No Custom Domain</h2>
+<h2>MCP Servers</h2>
+<p class="section-note">Remote MCP connectors for Claude. Each runs its own OAuth flow with KV-backed grants.</p>
+<div class="card-grid">
 
-  <div class="card-grid">
+<div class="card">
+  <div class="card-header"><h3>claude-history-mcp</h3><span class="badge badge-mcp">MCP</span></div>
+  <div class="url">claude-history-mcp.bennyforeman1.workers.dev</div>
+  <div class="desc">MCP server over Benny's full Claude chat history. Semantic search (Voyage AI embeddings via Vectorize), keyword search, conversation browsing over 6000+ chats.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: claude-history</span><span class="chip chip-do">DO: MCP_OBJECT</span><span class="chip chip-kv">KV: oauth</span><span class="chip chip-vec">Vectorize</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>claude-deploy</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">claude-deploy.bennyforeman1.workers.dev</div>
-      <div class="desc">Central deploy hub. R2 file upload/serving, async Gemini image generation, GitHub push proxy. The backbone for deploying static content.</div>
-      <div class="bindings">
-        <span class="chip chip-r2">R2: claude-assets</span>
-        <span class="chip">SECRET: GEMINI, GITHUB, CF tokens</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>anki-mcp-worker</h3><span class="badge badge-mcp">MCP</span></div>
+  <div class="url">anki-mcp.niggerfaggot.club/mcp</div>
+  <div class="desc">Anki MCP connector. Bridges Claude to AnkiConnect on the desktop through the anki-tunnel.</div>
+  <div class="bindings"><span class="chip chip-kv">KV: OAUTH_KV</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>smart-scraper</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">smart-scraper.bennyforeman1.workers.dev</div>
-      <div class="desc">Browser scraping API. Screenshot, content extraction, element selection. Facebook cookies loaded in KV.</div>
-      <div class="bindings">
-        <span class="chip chip-kv">KV: scraper-cookies</span>
-        <span class="chip chip-r2">R2: claude-assets</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>cram-mcp</h3><span class="badge badge-mcp">MCP</span></div>
+  <div class="url">cram-mcp.niggerfaggot.club</div>
+  <div class="desc">MCP interface to the cram platform D1 database. Question bank management from chat.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: cram-db</span><span class="chip chip-do">DO: MCP_OBJECT</span><span class="chip chip-kv">KV: oauth</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>claude-history-mcp</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">claude-history-mcp.bennyforeman1.workers.dev</div>
-      <div class="desc">MCP server for Claude chat history. Semantic search (Voyage AI embeddings), keyword search, conversation browsing over 6000+ chats. OAuth-protected.</div>
-      <div class="bindings">
-        <span class="chip chip-d1">D1: claude-history</span>
-        <span class="chip chip-kv">KV: claude-history-mcp-oauth</span>
-        <span class="chip chip-do">DO: MCP_OBJECT</span>
-        <span class="chip chip-ai">Vectorize</span>
-      </div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>reddit-mcp</h3><span class="badge badge-mcp">MCP</span></div>
+  <div class="url">reddit-mcp.bennyforeman1.workers.dev</div>
+  <div class="desc">Reddit browsing/search MCP. Env-configured, no storage bindings.</div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>name-ranker-sync</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">name-ranker-sync.bennyforeman1.workers.dev</div>
-      <div class="desc">Cloud sync backend for baby name rankings. KV-backed cross-device sync.</div>
-      <div class="bindings">
-        <span class="chip chip-kv">KV: name-ranker-data</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3>spanky-api</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">spanky-api.bennyforeman1.workers.dev</div>
-      <div class="desc">Separate API worker for Spanky SRS. No bindings (proxies to main spanky worker?).</div>
-      <div class="bindings">
-        <span class="chip">(no bindings)</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3>bird-detect</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">bird-detect.bennyforeman1.workers.dev</div>
-      <div class="desc">Bird detection using Workers AI. Image classification for wildlife ID.</div>
-      <div class="bindings">
-        <span class="chip chip-ai">AI</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3>health-tracker-backup</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">health-tracker-backup.bennyforeman1.workers.dev</div>
-      <div class="desc">Automated backup for health tracker D1 data → R2.</div>
-      <div class="bindings">
-        <span class="chip chip-r2">R2: claude-assets</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3>personal-pastebin</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="url">personal-pastebin.bennyforeman1.workers.dev</div>
-      <div class="desc">Simple pastebin. Oldest worker (Sept 2025).</div>
-      <div class="bindings">
-        <span class="chip chip-kv">KV: pastebin-storage</span>
-      </div>
-    </div>
-
-  </div>
+</div>
 </section>
 
-<!-- ==================== CQA WORKERS ==================== -->
 <section>
-  <h2>CQA — Carolina Quality Air</h2>
-  <p class="section-note">Business site infrastructure for Carolina Quality Air HVAC.</p>
+<h2>Utility Workers — No Custom Domain</h2>
+<div class="card-grid">
 
-  <div class="card-grid">
-    <div class="card">
-      <div class="card-header">
-        <h3>cqa-admin</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="desc">Admin dashboard for CQA contacts database.</div>
-      <div class="bindings"><span class="chip chip-d1">D1: cqa-contacts</span></div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>claude-deploy</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">claude-deploy.bennyforeman1.workers.dev</div>
+  <div class="desc">Central deploy hub. R2 file upload/serving, async Gemini image generation, GitHub push proxy. The backbone for deploying static content.</div>
+  <div class="bindings"><span class="chip chip-r2">R2: claude-assets</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>cqa-form-handler</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="desc">Contact form submission handler. Sends email via Resend API.</div>
-      <div class="bindings"><span class="chip chip-d1">D1: cqa-contacts</span> <span class="chip">Resend</span></div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3>smart-scraper</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">smart-scraper.bennyforeman1.workers.dev</div>
+  <div class="desc">Browser scraping API. Screenshot, content extraction, element selection. Facebook cookies loaded in KV for authenticated scraping.</div>
+  <div class="bindings"><span class="chip chip-kv">KV: scraper-cookies</span><span class="chip chip-r2">R2: claude-assets</span></div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>cqa-public-api</h3>
-        <span class="badge badge-worker">Worker</span>
-      </div>
-      <div class="desc">Public API for CQA website.</div>
-      <div class="bindings"><span class="chip chip-d1">D1: cqa-contacts</span></div>
-    </div>
-  </div>
+<div class="card">
+  <div class="card-header"><h3>sale-watch</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">sale-watch.bennyforeman1.workers.dev</div>
+  <div class="desc">Watches Bekah's clothing brands for sales. Scrapes via smart-scraper, pushes alerts. Cron: Mon + Thu 13:00 UTC.</div>
+  <div class="bindings"><span class="chip chip-svc">SVC: claude-deploy</span><span class="chip chip-svc">SVC: smart-scraper</span><span class="chip chip-cron">CRON 0 13 * * 1,4</span></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>wardrobe-stylist</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">wardrobe-stylist.bennyforeman1.workers.dev</div>
+  <div class="desc">AI backend for Bekah's closet app (closet.niggerfaggot.club). Garment tagging, Style Me outfit generation, Lookbook.</div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>wgu-slurp</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">wgu-slurp.bennyforeman1.workers.dev</div>
+  <div class="desc">WGU course content slurper. Caches scraped course material in KV for study tooling.</div>
+  <div class="bindings"><span class="chip chip-kv">KV: wgu-content</span></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>org-pact</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">org-pact.bennyforeman1.workers.dev</div>
+  <div class="desc">KV-backed worker, July 2026.</div>
+  <div class="bindings"><span class="chip chip-kv">KV: org-pact</span></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>openai-proxy</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">openai-proxy.bennyforeman1.workers.dev</div>
+  <div class="desc">API proxy for OpenAI-compatible calls. Env secrets only, no storage.</div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>atom-llm</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">atom-llm.bennyforeman1.workers.dev</div>
+  <div class="desc">LLM experiment worker, July 2026. Env-configured, no storage bindings.</div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>health-tracker-backup</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="url">health-tracker-backup.bennyforeman1.workers.dev</div>
+  <div class="desc">Automated nightly backup of health tracker D1 data to R2. Cron: daily 05:00 UTC.</div>
+  <div class="bindings"><span class="chip chip-r2">R2: claude-assets</span><span class="chip chip-cron">CRON 0 5 * * *</span></div>
+</div>
+
+</div>
 </section>
 
-<!-- ==================== TUNNELS ==================== -->
 <section>
-  <h2>Cloudflare Tunnels — Desktop Reverse Proxy</h2>
-  <p class="section-note">Tunnels run on the Windows desktop, exposing local services to the internet through Cloudflare's edge.</p>
-
-  <div class="card-grid">
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="status-dot status-healthy"></span> home-media</h3>
-        <span class="badge badge-tunnel">Tunnel</span>
-      </div>
-      <div class="desc">Media server stack. Managed by NSSM (ToolsTunnel service).</div>
-      <div style="margin-top:0.6rem">
-        <div class="table-wrap">
-          <table>
-            <tr><td>tv.nfc</td><td>→</td><td>:5055 (Overseerr)</td></tr>
-            <tr><td>radarr.nfc</td><td>→</td><td>:7878 (Radarr)</td></tr>
-            <tr><td>sonarr.nfc</td><td>→</td><td>:8989 (Sonarr)</td></tr>
-            <tr><td>prowlarr.nfc</td><td>→</td><td>:9696 (Prowlarr)</td></tr>
-            <tr><td>dl.nfc</td><td>→</td><td>:8080 (qBittorrent)</td></tr>
-            <tr><td>subs.nfc</td><td>→</td><td>:6767 (Bazarr)</td></tr>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="status-dot status-healthy"></span> tools-api</h3>
-        <span class="badge badge-tunnel">Tunnel</span>
-      </div>
-      <div class="desc">Desktop tool server. Python API running on port 7845 via NSSM (ToolsServer service, user: bekah). yt-dlp, reverse image search, shell, file management.</div>
-      <div style="margin-top:0.6rem">
-        <div class="table-wrap">
-          <table>
-            <tr><td>tools.nfc</td><td>→</td><td>:7845 (ToolsServer)</td></tr>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3><span class="status-dot status-down"></span> mcp-server</h3>
-        <span class="badge badge-tunnel">Tunnel</span>
-      </div>
-      <div class="desc">Down. Was for a local MCP server experiment. DNS record (mcp.nfc) still exists.</div>
-    </div>
-  </div>
+<h2>CQA — Carolina Quality Air</h2>
+<p class="section-note">Business site infrastructure for Carolina Quality Air HVAC. Static site on Pages, three workers behind it.</p>
+<div class="card-grid">
+<div class="card">
+  <div class="card-header"><h3>cqa-admin</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="desc">Admin dashboard for CQA contacts database.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: cqa-contacts</span></div>
+</div>
+<div class="card">
+  <div class="card-header"><h3>cqa-form-handler</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="desc">Contact form submission handler. Sends email via Resend API.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: cqa-contacts</span></div>
+</div>
+<div class="card">
+  <div class="card-header"><h3>cqa-public-api</h3><span class="badge badge-worker">Worker</span></div>
+  <div class="desc">Public API for the CQA website.</div>
+  <div class="bindings"><span class="chip chip-d1">D1: cqa-contacts</span></div>
+</div>
+</div>
 </section>
 
-<!-- ==================== PAGES ==================== -->
 <section>
-  <h2>Cloudflare Pages — Static Hosting</h2>
+<h2>Cloudflare Tunnels — Desktop Reverse Proxy</h2>
+<p class="section-note">Tunnels run on the Windows desktop, exposing local services through Cloudflare's edge. All four reported <b>down</b> at audit time (July 17), meaning cloudflared isn't running or the desktop is off. DNS routes remain in place.</p>
+<div class="card-grid">
 
-  <div class="card-grid">
-    <div class="card">
-      <div class="card-header">
-        <h3>claude-artifacts</h3>
-        <span class="badge badge-pages">Pages</span>
-      </div>
-      <div class="url">niggerfaggot.club (root domain)</div>
-      <div class="desc">Main static site. 149 HTML pages deployed via GitHub API. AF newspapers, guides, reference pages, one-off tools. Repo: bibijeebi/claude-artifacts.</div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3><span class="status-dot status-down"></span>home-media</h3><span class="badge badge-tunnel">Tunnel</span></div>
+  <div class="desc">Media server stack via NSSM. tv → :5055 (Overseerr), radarr → :7878, sonarr → :8989, prowlarr → :9696, dl → :8080 (qBittorrent), subs → :6767 (Bazarr).</div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>carolina-quality-air</h3>
-        <span class="badge badge-pages">Pages</span>
-      </div>
-      <div class="url">carolina-quality-air.pages.dev</div>
-      <div class="desc">CQA business website. Static landing page.</div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3><span class="status-dot status-down"></span>tools-api</h3><span class="badge badge-tunnel">Tunnel</span></div>
+  <div class="desc">Desktop tool server, Python API on :7845 via NSSM. yt-dlp, reverse image search, shell, file management. tools.niggerfaggot.club.</div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>weight-tracker</h3>
-        <span class="badge badge-pages">Pages</span>
-      </div>
-      <div class="url">weight-tracker-dj6.pages.dev</div>
-      <div class="desc">Legacy weight tracker frontend (superseded by health.nfc worker).</div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3><span class="status-dot status-down"></span>anki-tunnel</h3><span class="badge badge-tunnel">Tunnel</span></div>
+  <div class="desc">Bridges anki-mcp-worker to AnkiConnect on the desktop. anki-tunnel.niggerfaggot.club.</div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>naturedex</h3>
-        <span class="badge badge-pages">Pages</span>
-      </div>
-      <div class="url">naturedex.pages.dev</div>
-      <div class="desc">Legacy NatureDex frontend (superseded by nature.nfc worker).</div>
-    </div>
+<div class="card">
+  <div class="card-header"><h3><span class="status-dot status-down"></span>mcp-server</h3><span class="badge badge-tunnel">Tunnel</span></div>
+  <div class="desc">Local MCP server experiment. DNS record (mcp.niggerfaggot.club) still exists. Candidate for cleanup.</div>
+</div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>police-dashboard</h3>
-        <span class="badge badge-pages">Pages</span>
-      </div>
-      <div class="url">police-dashboard.pages.dev</div>
-      <div class="desc">One-off project.</div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3>self-realization</h3>
-        <span class="badge badge-pages">Pages</span>
-      </div>
-      <div class="url">self-realization.pages.dev</div>
-      <div class="desc">Repo: Self-Realization. One-off project.</div>
-    </div>
-  </div>
+</div>
 </section>
 
-<!-- ==================== STORAGE ==================== -->
 <section>
-  <h2>Storage — D1 / KV / R2</h2>
+<h2>Cloudflare Pages — Static Hosting</h2>
+<div class="card-grid">
 
-  <div class="subsection">
-    <h3>D1 SQL Databases</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Database</th><th>Bound To</th><th>Created</th></tr></thead>
-        <tbody>
-          <tr><td style="color:var(--text)">weight-tracker-db</td><td>weight-tracker (health.nfc)</td><td>2026-01-01</td></tr>
-          <tr><td style="color:var(--text)">benny-things</td><td>benny-things (things.nfc)</td><td>2026-02-01</td></tr>
-          <tr><td style="color:var(--text)">drinks-bar</td><td>drinks-bar (drinks.nfc)</td><td>2026-02-01</td></tr>
-          <tr><td style="color:var(--text)">receipts-db</td><td>receipts-api (scans.nfc)</td><td>2026-02-08</td></tr>
-          <tr><td style="color:var(--text)">shopping-list</td><td>shopping-list (list.nfc)</td><td>2026-02-09</td></tr>
-          <tr><td style="color:var(--text)">naturedex</td><td>naturedex (nature.nfc)</td><td>2026-01-27</td></tr>
-          <tr><td style="color:var(--text)">cqa-contacts</td><td>cqa-admin, cqa-form-handler, cqa-public-api</td><td>2026-01-14</td></tr>
-          <tr><td style="color:var(--text)">claude-history</td><td>claude-history-mcp</td><td>2026-03-18</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+<div class="card">
+  <div class="card-header"><h3>claude-artifacts</h3><span class="badge badge-pages">Pages</span></div>
+  <div class="url">niggerfaggot.club (root domain)</div>
+  <div class="desc">Main static site. 346 HTML pages deployed via GitHub API. AF newspapers, guides, reference pages, one-off tools. Repo: bibijeebi/claude-artifacts.</div>
+</div>
 
-  <div class="subsection">
-    <h3>KV Namespaces</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Namespace</th><th>Bound To</th></tr></thead>
-        <tbody>
-          <tr><td style="color:var(--text)">baby-names-data</td><td>baby-names-lab (names.nfc)</td></tr>
-          <tr><td style="color:var(--text)">CYCLE_DATA</td><td>cycle-tracker (cycle.nfc)</td></tr>
-          <tr><td style="color:var(--text)">spanky-data</td><td>spanky (spanky.nfc)</td></tr>
-          <tr><td style="color:var(--text)">name-ranker-data</td><td>name-ranker-sync</td></tr>
-          <tr><td style="color:var(--text)">butler-eagle-scanner</td><td>butler-county-sales (bates-watch.nfc)</td></tr>
-          <tr><td style="color:var(--text)">scraper-cookies</td><td>smart-scraper</td></tr>
-          <tr><td style="color:var(--text)">pastebin-storage</td><td>personal-pastebin</td></tr>
-          <tr><td style="color:var(--text)">claude-history-mcp-oauth</td><td>claude-history-mcp</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+<div class="card">
+  <div class="card-header"><h3>closet</h3><span class="badge badge-pages">Pages</span></div>
+  <div class="url">closet.niggerfaggot.club</div>
+  <div class="desc">Bekah's wardrobe app. Catalog, AI tagging, Style Me, Lookbook (69 curated looks). Coastal old-money redesign shipped July 2026. AI backend: wardrobe-stylist worker.</div>
+</div>
 
-  <div class="subsection">
-    <h3>R2 Object Storage</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Bucket</th><th>Used By</th><th>Purpose</th></tr></thead>
-        <tbody>
-          <tr><td style="color:var(--text)">claude-assets</td><td>claude-deploy, smart-scraper, health-tracker-backup</td><td>General asset storage, OG images, deploy artifacts, health backups</td></tr>
-          <tr><td style="color:var(--text)">receipts-images</td><td>receipts-api</td><td>Scanned receipt photos</td></tr>
-          <tr><td style="color:var(--text)">guides-content</td><td>—</td><td>Legacy content bucket (Oct 2025)</td></tr>
-          <tr><td style="color:var(--text)">remote-ytdlp</td><td>—</td><td>Legacy yt-dlp output (Sep 2025)</td></tr>
-          <tr><td style="color:var(--text)">stayingin-podcast-discord-assets</td><td>—</td><td>Legacy podcast project (Sep 2025)</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+<div class="card">
+  <div class="card-header"><h3>duct-cleaning-sim</h3><span class="badge badge-pages">Pages</span></div>
+  <div class="url">ductsim.niggerfaggot.club</div>
+  <div class="desc">First-person HVAC duct cleaning training sim. Also used as a model bench task.</div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>duct-cleaning-simulator</h3><span class="badge badge-pages">Pages</span></div>
+  <div class="url">duct-cleaning-simulator.xyz</div>
+  <div class="desc">Older/standalone sim build on its own .xyz domain.</div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>carolina-quality-air</h3><span class="badge badge-pages">Pages</span></div>
+  <div class="url">carolina-quality-air.pages.dev</div>
+  <div class="desc">CQA business website. Static landing page.</div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h3>weight-tracker</h3><span class="badge badge-pages">Pages</span></div>
+  <div class="url">weight-tracker-dj6.pages.dev</div>
+  <div class="desc">Legacy weight tracker frontend, superseded by health.niggerfaggot.club worker. Candidate for cleanup.</div>
+</div>
+
+</div>
 </section>
 
-<!-- ==================== DNS ==================== -->
 <section>
-  <h2>DNS Records</h2>
+<h2>Storage — D1 / KV / R2</h2>
 
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Hostname</th><th>Type</th><th>Target</th><th>Proxied</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--accent)">niggerfaggot.club</td><td>CNAME</td><td>claude-artifacts.pages.dev</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">www</td><td>A</td><td>157.230.232.225</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">health</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">drinks</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">names</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">things</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">list</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">scans</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">spanky</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">cycle</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">nature</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">bates-watch</td><td>AAAA</td><td>100:: (Worker)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">tools</td><td>CNAME</td><td>tools-api tunnel</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">tv</td><td>CNAME</td><td>home-media tunnel</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">radarr</td><td>CNAME</td><td>home-media tunnel</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">sonarr</td><td>CNAME</td><td>home-media tunnel</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">prowlarr</td><td>CNAME</td><td>home-media tunnel</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">dl</td><td>CNAME</td><td>home-media tunnel</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">subs</td><td>CNAME</td><td>home-media tunnel</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">mcp</td><td>CNAME</td><td>mcp-server tunnel (DOWN)</td><td>Yes</td></tr>
-        <tr><td style="color:var(--accent)">watch</td><td>A</td><td>71.65.136.155</td><td>No</td></tr>
-        <tr><td style="color:var(--text-muted)">@ (MX ×5)</td><td>MX</td><td>eforward{1-5}.registrar-servers.com</td><td>No</td></tr>
-        <tr><td style="color:var(--text-muted)">@ (TXT)</td><td>TXT</td><td>SPF include:spf.efwd.registrar-servers.com</td><td>No</td></tr>
-      </tbody>
-    </table>
-  </div>
+<div class="subsection">
+<h3>D1 SQL Databases</h3>
+<div class="table-wrap"><table>
+<tr><th>Database</th><th>Bound To</th><th>Created</th></tr>
+<tr><td>weight-tracker-db</td><td>weight-tracker (health)</td><td>2026-01-01</td></tr>
+<tr><td>cqa-contacts</td><td>cqa-admin, cqa-form-handler, cqa-public-api</td><td>2026-01-14</td></tr>
+<tr><td>benny-things</td><td>benny-things (things)</td><td>2026-02-01</td></tr>
+<tr><td>receipts-db</td><td>receipts-api (scans)</td><td>2026-02-08</td></tr>
+<tr><td>shopping-list</td><td>shopping-list (list)</td><td>2026-02-09</td></tr>
+<tr><td>claude-history</td><td>claude-history-mcp</td><td>2026-03-18</td></tr>
+<tr><td>cram-db</td><td>cram-platform, cram-mcp</td><td>2026-04-23</td></tr>
+<tr><td>review-journal</td><td>review-journal (journal/review)</td><td>2026-07-16</td></tr>
+</table></div>
+</div>
+
+<div class="subsection">
+<h3>KV Namespaces</h3>
+<div class="table-wrap"><table>
+<tr><th>Namespace</th><th>Bound To</th></tr>
+<tr><td>CYCLE_DATA</td><td>cycle-tracker</td></tr>
+<tr><td>anki-mcp-worker-OAUTH_KV</td><td>anki-mcp-worker</td></tr>
+<tr><td>claude-history-mcp-oauth</td><td>claude-history-mcp</td></tr>
+<tr><td>cram-mcp-oauth</td><td>cram-mcp</td></tr>
+<tr><td>migraine-logger-kv</td><td>migraine-logger</td></tr>
+<tr><td>org-pact</td><td>org-pact</td></tr>
+<tr><td>scraper-cookies</td><td>smart-scraper</td></tr>
+<tr><td>wgu-content</td><td>wgu-slurp</td></tr>
+</table></div>
+</div>
+
+<div class="subsection">
+<h3>R2 Object Storage</h3>
+<div class="table-wrap"><table>
+<tr><th>Bucket</th><th>Used By</th><th>Purpose</th></tr>
+<tr><td>claude-assets</td><td>claude-deploy, smart-scraper, health-tracker-backup</td><td>General assets, OG images, deploy artifacts, health backups</td></tr>
+<tr><td>receipts-images</td><td>receipts-api</td><td>Scanned receipt photos</td></tr>
+<tr><td>guides-content</td><td>—</td><td>Legacy content bucket (Oct 2025). Cleanup candidate</td></tr>
+<tr><td>remote-ytdlp</td><td>—</td><td>Legacy yt-dlp output (Sep 2025). Cleanup candidate</td></tr>
+<tr><td>stayingin-podcast-discord-assets</td><td>—</td><td>Legacy podcast project (Sep 2025). Cleanup candidate</td></tr>
+</table></div>
+</div>
 </section>
 
-<!-- ==================== DESKTOP ==================== -->
 <section>
-  <h2>Desktop Services — Windows Machine</h2>
-  <p class="section-note">Windows desktop with GPU + 6TB storage. Services managed by NSSM and Windows Services.</p>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Service</th><th>Manager</th><th>Port</th><th>What</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--text)">ToolsServer</td><td>NSSM (user: bekah)</td><td>7845</td><td>Python tool server: yt-dlp, Playwright, shell, files</td></tr>
-        <tr><td style="color:var(--text)">ToolsTunnel</td><td>NSSM (SYSTEM)</td><td>—</td><td>Cloudflare Tunnel (tools-api + home-media)</td></tr>
-        <tr><td style="color:var(--text)">JellyfinServer</td><td>NSSM (user: bekah)</td><td>8096</td><td>Jellyfin media server</td></tr>
-        <tr><td style="color:var(--text)">Radarr</td><td>Windows Service</td><td>7878</td><td>Movie automation</td></tr>
-        <tr><td style="color:var(--text)">Sonarr</td><td>Windows Service</td><td>8989</td><td>TV automation</td></tr>
-        <tr><td style="color:var(--text)">Prowlarr</td><td>Windows Service</td><td>9696</td><td>Indexer management</td></tr>
-        <tr><td style="color:var(--text)">Bazarr</td><td>Windows Service</td><td>6767</td><td>Subtitle automation</td></tr>
-        <tr><td style="color:var(--text)">Overseerr</td><td>—</td><td>5055</td><td>Media request management</td></tr>
-        <tr><td style="color:var(--text)">qBittorrent</td><td>—</td><td>8080</td><td>Torrent client (WebUI)</td></tr>
-      </tbody>
-    </table>
-  </div>
+<h2>DNS Records</h2>
+<div class="table-wrap"><table>
+<tr><th>Hostname</th><th>Type</th><th>Target</th></tr>
+<tr><td>niggerfaggot.club</td><td>CNAME</td><td>claude-artifacts.pages.dev</td></tr>
+<tr><td>closet</td><td>CNAME</td><td>closet-f4a.pages.dev</td></tr>
+<tr><td>ductsim</td><td>CNAME</td><td>duct-cleaning-sim.pages.dev</td></tr>
+<tr><td>health / things / list / scans / cycle / migraines / cram / cram-mcp / journal / review / anki-mcp</td><td>AAAA</td><td>100:: (Workers)</td></tr>
+<tr><td>tv / radarr / sonarr / prowlarr / dl / subs</td><td>CNAME</td><td>home-media tunnel</td></tr>
+<tr><td>tools</td><td>CNAME</td><td>tools-api tunnel</td></tr>
+<tr><td>anki-tunnel</td><td>CNAME</td><td>anki-tunnel tunnel</td></tr>
+<tr><td>mcp</td><td>CNAME</td><td>mcp-server tunnel (down)</td></tr>
+<tr><td>watch</td><td>A</td><td>162.198.204.25</td></tr>
+<tr><td>www</td><td>A</td><td>157.230.232.225</td></tr>
+</table></div>
 </section>
 
-<!-- ==================== DEPLOY FLOW ==================== -->
 <section>
-  <h2>How Claude Deploys</h2>
-
-  <div class="card-grid">
-    <div class="card">
-      <div class="card-header"><h3>Static Pages</h3></div>
-      <div class="desc">Push HTML to GitHub API (bibijeebi/claude-artifacts) → Cloudflare Pages auto-builds → live at niggerfaggot.club/filename.html. Requires base64 content + SHA for updates.</div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><h3>Workers</h3></div>
-      <div class="desc">PUT /workers/scripts/{name} via CF API with multipart form (metadata JSON + JS module). No wrangler CLI. Use <code>curl -sk</code> (skip TLS verify).</div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><h3>Images</h3></div>
-      <div class="desc">Generate via claude-deploy /generate-image (async Gemini, ~15s) → download → process with ImageMagick → upload to R2 → reference URL in HTML. Or: image_search (free) → download → upload to R2.</div>
-    </div>
-
-    <div class="card">
-      <div class="card-header"><h3>Desktop Ops</h3></div>
-      <div class="desc">Hit tools.niggerfaggot.club for YouTube downloads, browser automation, reverse image search, shell commands, file management on the Windows machine.</div>
-    </div>
-  </div>
+<h2>Changelog Since March 2026 Audit</h2>
+<ul class="changelog" style="list-style:none">
+  <li><span class="add">+</span>review-journal worker + D1 at journal/review (July 16)</li>
+  <li><span class="add">+</span>sale-watch worker with twice-weekly cron, service bindings to claude-deploy + smart-scraper (July 16)</li>
+  <li><span class="add">+</span>wardrobe-stylist worker backing the closet Pages app (July 15)</li>
+  <li><span class="add">+</span>openai-proxy, org-pact, atom-llm workers (July)</li>
+  <li><span class="add">+</span>reddit-mcp MCP server (June)</li>
+  <li><span class="add">+</span>anki-mcp-worker + anki-tunnel (May)</li>
+  <li><span class="add">+</span>cram-platform, cram-mcp, cram-db, wgu-slurp — the WGU study stack (April–May)</li>
+  <li><span class="add">+</span>migraine-logger at migraines (March 29)</li>
+  <li><span class="add">+</span>closet, duct-cleaning-sim, duct-cleaning-simulator Pages projects</li>
+  <li><span class="del">−</span>Retired: spanky, spanky-api, drinks-bar, baby-names-lab, name-ranker-sync, naturedex, bird-detect, personal-pastebin, butler-county-sales (bates-watch), plus their KV/D1 stores</li>
+  <li><span class="del">−</span>Pages removed: naturedex, police-dashboard, self-realization</li>
+  <li><span class="del">−</span>DNS cleaned: drinks, names, spanky, nature, bates-watch subdomains gone</li>
+</ul>
 </section>
 
-<!-- ==================== CLEANUP ==================== -->
 <section>
-  <h2>Cleanup Candidates</h2>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Resource</th><th>Type</th><th>Reason</th></tr></thead>
-      <tbody>
-        <tr><td style="color:var(--orange)">mcp-server tunnel</td><td>Tunnel</td><td>Status: down. DNS record (mcp.nfc) still exists.</td></tr>
-        <tr><td style="color:var(--orange)">watch.nfc DNS</td><td>DNS A</td><td>Points to 71.65.136.155, DNS-only. Unclear purpose.</td></tr>
-        <tr><td style="color:var(--orange)">www.nfc DNS</td><td>DNS A</td><td>Points to 157.230.232.225. Old droplet? Root domain already points to Pages.</td></tr>
-        <tr><td style="color:var(--orange)">weight-tracker Pages</td><td>Pages</td><td>Superseded by health.nfc worker.</td></tr>
-        <tr><td style="color:var(--orange)">naturedex Pages</td><td>Pages</td><td>Superseded by nature.nfc worker.</td></tr>
-        <tr><td style="color:var(--orange)">guides-content R2</td><td>R2</td><td>Legacy bucket (Oct 2025). Check if still referenced.</td></tr>
-        <tr><td style="color:var(--orange)">remote-ytdlp R2</td><td>R2</td><td>Legacy bucket (Sep 2025). Superseded by tools server.</td></tr>
-        <tr><td style="color:var(--orange)">stayingin-podcast... R2</td><td>R2</td><td>Legacy podcast project bucket (Sep 2025).</td></tr>
-        <tr><td style="color:var(--orange)">spanky-api worker</td><td>Worker</td><td>No bindings. Unclear if still used or superseded by spanky worker.</td></tr>
-        <tr><td style="color:var(--orange)">personal-pastebin</td><td>Worker</td><td>Oldest worker (Sep 2025). Still used?</td></tr>
-      </tbody>
-    </table>
-  </div>
+<h2>Cleanup Candidates</h2>
+<p class="section-note">Dead weight as of this audit: mcp-server tunnel + mcp DNS record, weight-tracker Pages project, and three orphaned R2 buckets (guides-content, remote-ytdlp, stayingin-podcast-discord-assets). All four tunnels down — restart cloudflared services on the desktop if that's not intentional.</p>
 </section>
-
-<footer style="border-top:1px solid var(--border); padding-top:1.5rem; margin-top:2rem; text-align:center; font-family:var(--mono); font-size:0.7rem; color:var(--text-muted);">
-  Pulled live from Cloudflare API · March 20, 2026
-</footer>
 
 </div>
 </body>
