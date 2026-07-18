@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="D196 Excel Lab — WholePine & Kretsmart">
+<meta property="og:description" content="Guided formula-bar trainer for the WGU D196 Excel portion: cash budget staircase, common-size anchors, and chart placement, step by step.">
+<meta property="og:url" content="https://niggerfaggot.club/d196-excel-lab.html">
+<meta name="twitter:card" content="summary">
+<title>D196 Excel Lab — WholePine & Kretsmart</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Sans+Condensed:wght@700&display=swap');
+  :root{
+    --bg:#14171c; --panel:#1d2229; --panel2:#242b34; --ink:#e8ebef; --dim:#9aa4b0;
+    --paper:#fbfbf8; --gridline:#d5d8dc; --cellink:#1c1f24;
+    --xlgreen:#1a7f4b; --xlgreen-soft:#e2f3e9; --amber:#d99a2b; --amber-soft:#fdf3df;
+    --target:#fff3bf; --err:#c0392b; --blue:#2456a6;
+    --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif; --disp:'IBM Plex Sans Condensed',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh}
+  header{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid #2c333d}
+  header .logo{font-family:var(--disp);font-size:20px;letter-spacing:.5px}
+  header .logo span{color:var(--xlgreen);background:var(--xlgreen-soft);padding:1px 7px;border-radius:4px;margin-right:6px}
+  .tabs{display:flex;gap:6px;margin-left:auto}
+  .tab{background:var(--panel);border:1px solid #2c333d;color:var(--dim);padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+  .tab.active{color:var(--ink);border-color:var(--xlgreen);background:var(--panel2)}
+  .tab .done{color:var(--xlgreen)}
+  .progress{height:4px;background:#2c333d}
+  .progress b{display:block;height:100%;background:var(--xlgreen);width:0%;transition:width .3s}
+  main{display:grid;grid-template-columns:340px 1fr;gap:0;min-height:calc(100vh - 62px)}
+  @media(max-width:900px){main{grid-template-columns:1fr}}
+  .coach{background:var(--panel);border-right:1px solid #2c333d;padding:20px;display:flex;flex-direction:column;gap:14px}
+  .coach .stepnum{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:1px}
+  .coach h2{font-family:var(--disp);font-size:22px;line-height:1.15}
+  .coach .teach{font-size:14px;line-height:1.55;color:#c6cdd6}
+  .coach .teach b{color:var(--ink)}
+  .coach .teach code{font-family:var(--mono);background:#10131a;padding:1px 5px;border-radius:4px;font-size:12.5px;color:#8fd6ae}
+  .callout{border-left:3px solid var(--amber);background:#232019;padding:10px 12px;font-size:13px;line-height:1.5;color:#e6d9b8;border-radius:0 6px 6px 0}
+  .callout.trap{border-color:var(--err);background:#241a19;color:#e8c2bc}
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+  button{font-family:var(--sans);font-weight:600;font-size:13.5px;border:none;border-radius:8px;padding:10px 16px;cursor:pointer}
+  .primary{background:var(--xlgreen);color:#fff}
+  .primary:hover{background:#15683d}
+  .ghost{background:transparent;color:var(--dim);border:1px solid #38414d}
+  .ghost:hover{color:var(--ink)}
+  .feedback{font-size:13.5px;line-height:1.5;border-radius:8px;padding:10px 12px;display:none}
+  .feedback.ok{display:block;background:var(--xlgreen-soft);color:#14532d}
+  .feedback.bad{display:block;background:#fbe3df;color:#7c231a}
+  .feedback.note{display:block;background:var(--amber-soft);color:#6b4d13}
+  .feedback code{font-family:var(--mono);font-size:12.5px}
+  .deck{padding:18px 20px;overflow-x:auto}
+  .fxbar{display:flex;align-items:stretch;gap:0;background:#fff;border:1px solid var(--gridline);border-radius:8px 8px 0 0;overflow:hidden;max-width:980px}
+  .fxbar .nameBox{font-family:var(--mono);font-size:13px;color:var(--cellink);background:#f1f2f4;border-right:1px solid var(--gridline);padding:9px 12px;min-width:64px;text-align:center}
+  .fxbar .fx{font-family:var(--mono);font-size:13px;color:#6a7079;border-right:1px solid var(--gridline);padding:9px 10px;font-style:italic}
+  .fxbar input{flex:1;border:none;outline:none;font-family:var(--mono);font-size:14px;padding:9px 12px;color:var(--cellink)}
+  .fxbar input:disabled{background:#f6f6f6;color:#aaa}
+  .sheetwrap{background:var(--paper);border:1px solid var(--gridline);border-top:none;border-radius:0 0 8px 8px;padding:6px 6px 12px;max-width:980px;overflow-x:auto}
+  table.sheet{border-collapse:collapse;font-family:var(--sans);font-size:12.5px;color:var(--cellink)}
+  .sheet th{background:#eceef0;border:1px solid var(--gridline);font-weight:600;color:#5a616b;font-size:11px;padding:3px 6px;min-width:34px}
+  .sheet td{border:1px solid #e3e5e8;padding:3px 8px;min-width:78px;height:24px;white-space:nowrap}
+  .sheet td.lbl{min-width:230px}
+  .sheet td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .sheet td.hdr{font-weight:700}
+  .sheet td.sec{font-weight:700;background:#f4f5f6}
+  .sheet td.given{color:#111}
+  .sheet td.target{background:var(--target)}
+  .sheet td.activecell{outline:2.5px solid var(--xlgreen);outline-offset:-2px;position:relative}
+  .sheet td.activecell::after{content:'';position:absolute;right:-3px;bottom:-3px;width:6px;height:6px;background:var(--xlgreen);border:1px solid #fff}
+  .sheet td.solved{color:var(--cellink);animation:pop .4s}
+  .sheet td.pct{color:var(--blue)}
+  @keyframes pop{0%{background:var(--xlgreen-soft)}100%{background:transparent}}
+  .chartzone{margin-top:14px;display:flex;gap:14px;flex-wrap:wrap;max-width:980px}
+  .chartslot{flex:1;min-width:250px;border:2px dashed #c9ccd1;border-radius:8px;background:#fff;color:#8a9099;font-size:12px;padding:10px;text-align:center;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+  .chartslot.filled{border-style:solid;border-color:var(--xlgreen);color:var(--cellink)}
+  .chartslot .bars{display:flex;align-items:flex-end;justify-content:center;gap:18px;height:96px}
+  .chartslot .bar{width:34px;background:#4472c4;border-radius:2px 2px 0 0;position:relative}
+  .chartslot .bar.neg{background:#c0392b;align-self:flex-start;border-radius:0 0 2px 2px}
+  .chartslot .bar span{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;font-family:var(--mono);white-space:nowrap}
+  .chartslot .bar.neg span{top:auto;bottom:-16px}
+  .chartslot .cats{display:flex;justify-content:center;gap:18px;font-size:10px;margin-top:14px}
+  .chartslot .cats i{width:34px;font-style:normal;text-align:center}
+  .chartslot h4{font-size:12px;font-weight:700}
+  .finish{max-width:760px;margin:30px auto;padding:0 20px 60px}
+  .finish h1{font-family:var(--disp);font-size:34px;margin-bottom:6px}
+  .finish h1 span{color:var(--xlgreen)}
+  .finish p{color:#c6cdd6;font-size:14.5px;line-height:1.6;margin-bottom:14px}
+  .fmap{width:100%;border-collapse:collapse;font-size:13px;margin:14px 0}
+  .fmap th,.fmap td{border:1px solid #38414d;padding:7px 10px;text-align:left}
+  .fmap th{background:var(--panel2)}
+  .fmap code{font-family:var(--mono);color:#8fd6ae;font-size:12px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span>fx</span>D196 Excel Lab</div>
+  <div class="tabs">
+    <button class="tab active" id="tab0" onclick="gotoLesson(0)">1 · WholePine</button>
+    <button class="tab" id="tab1" onclick="gotoLesson(1)">2 · Charts</button>
+    <button class="tab" id="tab2" onclick="gotoLesson(2)">3 · Kretsmart</button>
+    <button class="tab" id="tab3" onclick="gotoLesson(3)">Wrap-up</button>
+  </div>
+</header>
+<div class="progress"><b id="pbar"></b></div>
+
+<main id="labView">
+  <aside class="coach">
+    <div class="stepnum" id="stepnum"></div>
+    <h2 id="stepTitle"></h2>
+    <div class="teach" id="stepTeach"></div>
+    <div class="callout hidden" id="stepCallout"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="btnrow">
+      <button class="primary" id="mainBtn" onclick="mainAction()">Check</button>
+      <button class="ghost" id="hintBtn" onclick="showHint()">Hint</button>
+    </div>
+  </aside>
+  <section class="deck">
+    <div class="fxbar">
+      <div class="nameBox" id="nameBox">—</div>
+      <div class="fx">fx</div>
+      <input id="fxInput" placeholder="Type the formula here, then press Enter" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="sheetwrap"><div id="sheetHost"></div></div>
+    <div class="chartzone hidden" id="chartzone">
+      <div class="chartslot" id="slot0">Total Cash Available chart goes here</div>
+      <div class="chartslot" id="slot1">Total Cash Outflows chart goes here</div>
+      <div class="chartslot" id="slot2">Net Cash Flows chart goes here</div>
+    </div>
+  </section>
+</main>
+
+<div class="finish hidden" id="finishView">
+  <h1>You can do this <span>cold</span>.</h1>
+  <p>You just typed every graded formula in the workbook with your own hands. Twelve distinct formulas. That's the whole Excel portion.</p>
+  <table class="fmap">
+    <tr><th>Cell</th><th>Formula</th><th>The thought</th></tr>
+    <tr><td>E17</td><td><code>=E10</code></td><td>Cash sales pass straight through</td></tr>
+    <tr><td>E19</td><td><code>=E11*$C$3</code></td><td>This month's credit sales × schedule row 1</td></tr>
+    <tr><td>E20</td><td><code>=D11*$C$4</code></td><td>Last month's credit sales × schedule row 2</td></tr>
+    <tr><td>E21</td><td><code>=C11*$C$5</code></td><td>Two months back × schedule row 3 (the staircase: E, D, C)</td></tr>
+    <tr><td>E22</td><td><code>=SUM(E17,E19:E21)</code></td><td>Everything that landed this month</td></tr>
+    <tr><td>E25</td><td><code>=E13</code></td><td>Cash purchases pass through</td></tr>
+    <tr><td>E26</td><td><code>=D14</code></td><td>Credit purchases: pay last month's bill</td></tr>
+    <tr><td>E33</td><td><code>=SUM(E25:E32)</code></td><td>All uses</td></tr>
+    <tr><td>E35</td><td><code>=E22-E33</code></td><td>In minus out</td></tr>
+    <tr><td>D7</td><td><code>=(C7-F7)/F7</code></td><td>Year-to-year: (new − old) ÷ old</td></tr>
+    <tr><td>E7</td><td><code>=C7/C$7</code></td><td>% Sales: divide by the top, lock the top</td></tr>
+    <tr><td>Charts</td><td>label + row → Insert → Column</td><td>Drag to the marked spot, three times</td></tr>
+  </table>
+  <p><b>The two traps, one more time.</b> First: the row labels may not match the Collection Schedule percentages. The schedule box wins, every time. Reference the schedule cells, never type a percent. Second: the collections staircase steps LEFT one column per row down. E11 → D11 → C11. If your three lag rows do that, October is correct, and fill-right handles the rest.</p>
+  <p><b>Now the cold run.</b> Open <code style="font-family:var(--mono)">D196_Excel_Practice_Blank.xlsx</code> in real Excel and fill it with zero help. Target: under 15 minutes, every cell matching the solution file. When that happens once, book the OA. Not twice. Once.</p>
+  <div class="btnrow"><button class="primary" onclick="location.reload()">Run the lab again</button></div>
+</div>
+
+<script>
+const M=['August','September','October','November','December'];
+const D={cash:[100000,140000,140000,200000,130000],credit:[120000,120000,150000,200000,310000],
+total:[220000,260000,290000,400000,440000],cashPur:[44000,78000,87000,120000,132000],credPur:[55000,65000,72500,100000,110000],
+sell:[30000,45000,50000],ga:[25000,34000,37000],tax:[20000,20000,20000],div:[null,null,55000],equip:[null,30000,50000],debt:[10000,10000,10000]};
+const K={rows:[['Net Sales',1000000,700000,600000],['Cost of goods sold',710000,500000,430000],['Gross profit on sales',290000,200000,170000],
+['Operating expenses',240000,160000,120000],['Operating income',50000,40000,50000],['Interest expense',22000,22000,22000],
+['Income (loss) before income tax',28000,18000,28000],['Income tax expense (refund)',13000,6000,9000],['Net income (loss)',15000,12000,19000]]};
+
+const fm=n=>n==null?'':(n<0?'('+Math.abs(n).toLocaleString()+')':n.toLocaleString());
+const fp=n=>(n*100).toFixed(1)+'%';
+
+// ---------- solved-state ----------
+const solved={};   // cellRef -> display string
+function markSolved(ref,txt,cls){solved[ref]={txt,cls:cls||''};}
+
+// ---------- sheet renderers ----------
+function cellTd(ref,base,cls){
+  const s=solved[ref];
+  if(s)return`<td id="c_${ref}" class="num solved ${s.cls}">${s.txt}</td>`;
+  return`<td id="c_${ref}" class="${cls||'num'}"></td>`;
+}
+function renderWholePine(){
+  let h='<table class="sheet"><tr><th></th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>';
+  h+=`<tr><th>2</th><td class="lbl sec" colspan="2">Credit Sales Collection Schedule</td><td></td><td></td><td></td><td></td></tr>`;
+  h+=`<tr><th>3</th><td class="lbl">Month of Credit Sales</td><td class="num given">40%</td><td></td><td></td><td></td><td></td></tr>`;
+  h+=`<tr><th>4</th><td class="lbl">Month Following Credit Sales</td><td class="num given">40%</td><td></td><td></td><td></td><td></td></tr>`;
+  h+=`<tr><th>5</th><td class="lbl">Second Month Following Credit Sales</td><td class="num given">20%</td><td></td><td></td><td></td><td></td></tr>`;
+  h+=`<tr><th>9</th><td class="lbl"></td>`+M.map(m=>`<td class="hdr">${m}</td>`).join('')+`</tr>`;
+  const dataRow=(r,lbl,arr)=>`<tr><th>${r}</th><td class="lbl">${lbl}</td>`+arr.map(v=>`<td class="num given">${fm(v)}</td>`).join('')+`</tr>`;
+  h+=dataRow(10,'Cash Sales',D.cash)+dataRow(11,'Credit Sales',D.credit)+dataRow(12,'Total Sales',D.total)+dataRow(13,'Cash Purchases of Inventory',D.cashPur)+dataRow(14,'Credit Purchases of Inventory',D.credPur);
+  h+=`<tr><th>16</th><td class="lbl sec">Cash Receipts</td><td></td><td></td><td></td><td></td><td></td></tr>`;
+  const inRow=(r,lbl)=>`<tr><th>${r}</th><td class="lbl">${lbl}</td><td></td><td></td>${['E','F','G'].map(c=>cellTd(c+r,'','num target')).join('')}</tr>`;
+  h+=inRow(17,'Cash Sales');
+  h+=`<tr><th>18</th><td class="lbl">Credit Sales:</td><td></td><td></td><td></td><td></td><td></td></tr>`;
+  h+=inRow(19,'Month of Credit Sales (50%)')+inRow(20,'Month Following Credit Sales (30%)')+inRow(21,'Second Month Following Credit Sales (20%)')+inRow(22,'<b>Total Cash Available</b>');
+  h+=`<tr><th>24</th><td class="lbl sec">Cash Uses</td><td></td><td></td><td></td><td></td><td></td></tr>`;
+  h+=inRow(25,'Cash Purchase of Inventory')+inRow(26,'Credit Purchases of Inventory, Month after Purchase');
+  const useRow=(r,lbl,arr)=>`<tr><th>${r}</th><td class="lbl">${lbl}</td><td></td><td></td>`+arr.map(v=>`<td class="num given">${fm(v)}</td>`).join('')+`</tr>`;
+  h+=useRow(27,'Selling Expenses',D.sell)+useRow(28,'General & Administrative Expenses',D.ga)+useRow(29,'Income Tax Expenses',D.tax)+useRow(30,'Cash Dividend to Shareholders',D.div)+useRow(31,'Equipment Purchase',D.equip)+useRow(32,'Debt Repayments',D.debt);
+  h+=inRow(33,'<b>Total Cash Outflows</b>')+inRow(35,'<b>Net Cash at the End of Each Month</b>');
+  h+='</table>';
+  return h;
+}
+function renderKretsmart(){
+  let h='<table class="sheet"><tr><th></th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>J</th></tr>';
+  h+=`<tr><th>5</th><td class="lbl"></td><td class="hdr">20X9</td><td></td><td></td><td class="hdr">20X8</td><td></td><td></td><td class="hdr">20X7</td><td></td></tr>`;
+  h+=`<tr><th>6</th><td class="lbl"></td><td></td><td class="hdr">Year-to-Year</td><td class="hdr">% Sales</td><td></td><td class="hdr">Year-to-Year</td><td class="hdr">% Sales</td><td></td><td class="hdr">% Sales</td></tr>`;
+  K.rows.forEach((row,i)=>{
+    const r=7+i;
+    h+=`<tr><th>${r}</th><td class="lbl">${row[0]}</td><td class="num given">${fm(row[1])}</td>${cellTd('D'+r,'','num target')}${cellTd('E'+r,'','num target')}<td class="num given">${fm(row[2])}</td>${cellTd('G'+r,'','num target')}${cellTd('H'+r,'','num target')}<td class="num given">${fm(row[3])}</td>${cellTd('J'+r,'','num target')}</tr>`;
+  });
+  h+='</table>';
+  return h;
+}
+
+// ---------- formula checking ----------
+function norm(s){return s.replace(/\s+/g,'').toUpperCase();}
+function variants(core){ // generate $-insensitive variants by comparing stripped
+  return f=>norm(f).replace(/\$/g,'')===core.replace(/\$/g,'');
+}
+function checkAgainst(accepted,input){
+  const n=norm(input);
+  if(!n.startsWith('='))return{ok:false,msg:'Formulas start with <code>=</code>. Excel treats anything else as text and the grader gets nothing.'};
+  const bare=n.replace(/\$/g,'');
+  for(const a of accepted){if(bare===norm(a).replace(/\$/g,''))return{ok:true,anchored:n.includes('$')};}
+  return{ok:false};
+}
+
+// ---------- step definitions ----------
+const wpVal={E17:140000,F17:200000,G17:130000,E19:60000,F19:80000,G19:124000,E20:48000,F20:60000,G20:80000,
+E21:24000,F21:24000,G21:30000,E22:272000,F22:364000,G22:364000,E25:87000,F25:120000,G25:132000,
+E26:65000,F26:72500,G26:100000,E33:237000,F33:331500,G33:454000,E35:35000,F35:32500,G35:-90000};
+
+const L0=[
+ {type:'read',title:'Read the schedule. Ignore the labels.',teach:`Top of the sheet: the <b>Credit Sales Collection Schedule</b> says <b>40% / 40% / 20%</b>. Down in the Cash Receipts rows, the labels say 50% / 30% / 20%. They disagree.<br><br>WGU's grading follows the <b>schedule box</b>. On your pre-assessment the graded numbers were built from 40/40/20 while the labels lied to your face. So the rule is simple: <b>reference C3, C4, C5 in your formulas and never type a percent.</b> If they change the numbers on the OA, your formulas don't care.`,
+  callout:{cls:'trap',txt:'Trap #1: labels vs schedule. The schedule cells win. Always.'}},
+ {type:'cell',ref:'E17',title:'Cash sales just pass through',teach:`October's cash sales are already collected in October. No math, just point at the data: cell E10 holds October's cash sales.<br><br>Click into the formula bar and type the formula for <b>E17</b>.`,
+  accepted:['=E10'],hint:'=E10',after:()=>{markSolved('E17',fm(140000));}},
+ {type:'cell',ref:'E19',title:'Collections, row 1: this month',teach:`40% of credit sales are collected in the <b>same month</b> they're sold. October's credit sales live in <b>E11</b>. The 40% lives in <b>C3</b>.<br><br>Anchor the schedule cell as <code>$C$3</code> so when you fill right to November and December, it keeps pointing at the schedule.`,
+  accepted:['=E11*$C$3','=$C$3*E11'],hint:'=E11*$C$3',after:()=>markSolved('E19',fm(60000))},
+ {type:'cell',ref:'E20',title:'Row 2: last month. The staircase begins.',teach:`40% is collected the <b>month after</b> the sale. So October collects 40% of <b>September's</b> credit sales, which is <b>D11</b>, one column to the LEFT.<br><br>This is the whole trick of the sheet. Each row down, the reference steps one column left.`,
+  callout:{cls:'',txt:'Picture it: money sliding down a staircase, one step (month) at a time. Row down = column left. E11 → D11 → C11.'},
+  accepted:['=D11*$C$4','=$C$4*D11'],hint:'=D11*$C$4',after:()=>markSolved('E20',fm(48000))},
+ {type:'cell',ref:'E21',title:'Row 3: two months back',teach:`Last 20% arrives two months after the sale. October collects 20% of <b>August's</b> credit sales: <b>C11</b>, two columns left. Bottom of the staircase.`,
+  accepted:['=C11*$C$5','=$C$5*C11'],hint:'=C11*$C$5',after:()=>markSolved('E21',fm(24000))},
+ {type:'cell',ref:'F19',title:'Prove the fill: November, row 1',teach:`On the real test you'd select E19:E21 and drag the fill handle right. Because you anchored <code>$C$3:$C$5</code>, the month references slide and the percents stay put.<br><br>Type what November's row-1 formula becomes after the fill.`,
+  accepted:['=F11*$C$3','=$C$3*F11'],hint:'=F11*$C$3',after:()=>markSolved('F19',fm(80000))},
+ {type:'cell',ref:'F20',title:'November, row 2',teach:`Staircase: November row 2 reaches back to <b>October's</b> credit sales.`,
+  accepted:['=E11*$C$4','=$C$4*E11'],hint:'=E11*$C$4',after:()=>markSolved('F20',fm(60000))},
+ {type:'cell',ref:'F21',title:'November, row 3',teach:`Two months back from November is September.`,
+  accepted:['=D11*$C$5','=$C$5*D11'],hint:'=D11*$C$5',
+  after:()=>{markSolved('F21',fm(24000));markSolved('G17',fm(130000));markSolved('F17',fm(200000));markSolved('G19',fm(124000));markSolved('G20',fm(80000));markSolved('G21',fm(30000));},
+  postmsg:'You proved the pattern, so the lab dragged the fill handle for December (and filled the cash-sales row). That is literally what you do on the test: build October, fill right, done.'},
+ {type:'cell',ref:'E22',title:'Total Cash Available',teach:`Add October's cash sales plus all three collection rows. E18 is a label row, so sum E17 and the block E19:E21.`,
+  accepted:['=SUM(E17,E19:E21)','=SUM(E19:E21,E17)','=E17+E19+E20+E21','=SUM(E17:E21)','=E17+SUM(E19:E21)'],hint:'=SUM(E17,E19:E21)',
+  after:()=>{markSolved('E22',fm(272000));markSolved('F22',fm(364000));markSolved('G22',fm(364000));},
+  postmsg:'Filled right for you: 364,000 and 364,000. Coincidence that Nov and Dec match, not an error.'},
+ {type:'cell',ref:'E25',title:'Cash Uses: cash purchases pass through',teach:`Same idea as cash sales. October's cash purchases of inventory sit in <b>E13</b>.`,
+  accepted:['=E13'],hint:'=E13',after:()=>{markSolved('E25',fm(87000));markSolved('F25',fm(120000));markSolved('G25',fm(132000));}},
+ {type:'cell',ref:'E26',title:'Trap #2: pay last month\'s bill',teach:`Credit purchases are paid the <b>month after</b> purchase. So October pays <b>September's</b> credit purchases: <b>D14</b>, one column left.<br><br>Same staircase logic, one step deep. The distractor move is grabbing E14 (October's own purchases). That's wrong: October's purchases get paid in November.`,
+  callout:{cls:'trap',txt:'Cash uses lag: current month pays the PRIOR month\'s credit purchases. D14, not E14.'},
+  accepted:['=D14'],hint:'=D14',after:()=>{markSolved('E26',fm(65000));markSolved('F26',fm(72500));markSolved('G26',fm(100000));},
+  postmsg:'Filled right: November pays E14 (72,500), December pays F14 (100,000).'},
+ {type:'cell',ref:'E33',title:'Total Cash Outflows',teach:`Sum every use row for October: E25 down through E32. Blank cells (no dividend or equipment in October) sum as zero, which is exactly right.`,
+  accepted:['=SUM(E25:E32)','=E25+E26+E27+E28+E29+E30+E31+E32','=E25+E26+E27+E28+E29+E32'],hint:'=SUM(E25:E32)',
+  after:()=>{markSolved('E33',fm(237000));markSolved('F33',fm(331500));markSolved('G33',fm(454000));}},
+ {type:'cell',ref:'E35',title:'Net cash: in minus out',teach:`Total Cash Available minus Total Cash Outflows.`,
+  accepted:['=E22-E33'],hint:'=E22-E33',
+  after:()=>{markSolved('E35',fm(35000));markSolved('F35',fm(32500));markSolved('G35',fm(-90000));},
+  postmsg:'December goes negative: (90,000). That is the point of the whole exercise, Whole Pine needs financing in December. Sheet done. Next tab: charts.'}
+];
+
+const L1=[
+ {type:'read',title:'Three charts, one recipe',teach:`The grader wants three column charts parked on the marked spots: <b>Total Cash Available</b>, <b>Total Cash Outflows</b>, <b>Net Cash Flows</b>.<br><br>The recipe, every time:<br>1. Click the row label (B22).<br>2. Hold <b>Ctrl</b> and drag across the data (E22:G22).<br>3. Insert tab → <b>Clustered Column</b>.<br>4. Drag the chart onto the "Place chart here" spot.<br><br>If the months don't show under the bars, right-click → Select Data → Edit the horizontal axis labels → select E9:G9. Don't style anything. Existence, placement, correct row. That's the rubric.`,btn:'Got it'},
+ {type:'chart',slot:0,title:'Place chart 1: Total Cash Available',teach:`Label B22, data E22:G22, Insert → Column, drag to the spot. Click the button to simulate the placement and see what the grader should see.`,btn:'Place the chart',
+  bars:[272000,364000,364000]},
+ {type:'chart',slot:1,title:'Place chart 2: Total Cash Outflows',teach:`Same recipe, row 33. B33 + E33:G33.`,btn:'Place the chart',bars:[237000,331500,454000]},
+ {type:'chart',slot:2,title:'Place chart 3: Net Cash Flows',teach:`Row 35. December's bar will point DOWN because it's negative. That's correct, don't panic and don't "fix" it.`,btn:'Place the chart',bars:[35000,32500,-90000],
+  postmsg:'Three charts placed. This tab of the OA takes five minutes when you stop thinking and follow the recipe.'}
+];
+
+const L2=[
+ {type:'read',title:'Kretsmart: two formulas, that\'s it',teach:`This sheet looks busy but the entire thing is two formulas repeated:<br><br><b>Year-to-Year</b> (horizontal analysis): <code>(new − old) ÷ old</code><br><b>% Sales</b> (vertical / common-size): <code>line item ÷ Net Sales</code>, with the Net Sales row <b>locked</b> so fill-down doesn't slide the denominator.<br><br>You'll type each once, then fill down.`,btn:'Got it'},
+ {type:'cell',ref:'D7',title:'Year-to-Year for Net Sales',teach:`20X9 Net Sales is <b>C7</b>, 20X8 is <b>F7</b>. Growth = (C7 − F7) ÷ F7.<br><br>Parentheses matter: subtract first, then divide.`,
+  accepted:['=(C7-F7)/F7'],hint:'=(C7-F7)/F7',after:()=>markSolved('D7',fp(300000/700000),'pct')},
+ {type:'cell',ref:'E7',title:'% Sales: divide by the top, lock the top',teach:`Every line divides by Net Sales (C7). You'll fill this down 9 rows, so lock the ROW: <code>C$7</code>. Column stays free (no $ before C) so it still works if you copy across, row is pinned so the denominator never slides.<br><br>Chant it: <b>divide by the top, lock the top.</b>`,
+  accepted:['=C7/C$7','=C7/$C$7'],hint:'=C7/C$7',requireAnchor:true,
+  anchormsg:'Value is right but there is no <code>$</code> on the denominator row. The moment you fill down, C7/C7 becomes C8/C8 and every line reads 100%. Lock it: <code>=C7/C$7</code>.',
+  after:()=>markSolved('E7',fp(1),'pct')},
+ {type:'cell',ref:'E8',title:'Prove the fill: COGS % Sales',teach:`You'd drag E7 down. Type what the formula in <b>E8</b> becomes: numerator slides to row 8, denominator stays locked on row 7.`,
+  accepted:['=C8/C$7','=C8/$C$7'],hint:'=C8/C$7',
+  after:()=>{markSolved('E8',fp(0.71),'pct');for(let r=9;r<=15;r++){markSolved('E'+r,fp([290000,240000,50000,22000,28000,13000,15000][r-9]/1000000),'pct')}
+   const yy=[300000/700000,210000/500000,90000/200000,80000/160000,10000/40000,0,10000/18000,7000/6000,3000/12000];for(let r=8;r<=15;r++){markSolved('D'+r,fp([210000/500000,90000/200000,80000/160000,10000/40000,0,10000/18000,7000/6000,3000/12000][r-8]),'pct')}},
+  postmsg:'Locked in, so the lab filled both columns down. COGS is 71% of sales in 20X9 vs ~71.7% in 20X8. This is what common-size is FOR: comparing structure across years.'},
+ {type:'cell',ref:'G7',title:'20X8 column: same two moves',teach:`Year-to-Year for 20X8 compares against 20X7: F7 vs I7.`,
+  accepted:['=(F7-I7)/I7'],hint:'=(F7-I7)/I7',after:()=>markSolved('G7',fp(100000/600000),'pct')},
+ {type:'cell',ref:'H7',title:'20X8 % Sales',teach:`Divide by 20X8's Net Sales, lock the row.`,
+  accepted:['=F7/F$7','=F7/$F$7'],hint:'=F7/F$7',after:()=>markSolved('H7',fp(1),'pct')},
+ {type:'cell',ref:'J7',title:'20X7 % Sales',teach:`20X7 is the base year, no prior year on the sheet, so it only gets % Sales. Denominator is I7, locked.`,
+  accepted:['=I7/I$7','=I7/$I$7'],hint:'=I7/I$7',
+  after:()=>{markSolved('J7',fp(1),'pct');
+   const g=[[500000,430000],[200000,170000],[160000,120000],[40000,50000],[22000,22000],[18000,28000],[6000,9000],[12000,19000]];
+   for(let r=8;r<=15;r++){markSolved('G'+r,fp((g[r-8][0]-g[r-8][1])/g[r-8][1]),'pct');}
+   const x8=[500000,200000,160000,40000,22000,18000,6000,12000],x7=[430000,170000,120000,50000,22000,28000,9000,19000];
+   for(let r=8;r<=15;r++){markSolved('H'+r,fp(x8[r-8]/700000),'pct');markSolved('J'+r,fp(x7[r-8]/600000),'pct');}},
+  postmsg:'Everything filled down. Last move on the test: select the D, E, G, H, J columns → Home → Number format → Percentage, 1 decimal. Values as ugly decimals lose the formatting point.'},
+ {type:'read',title:'Format as percent, then stop',teach:`Select all five analysis columns, hit the <b>%</b> button on the Home ribbon, add one decimal place. Negative year-to-year values (like 20X8 operating income, −20%) are fine and expected.<br><br>That's the entire Kretsmart sheet. Two formulas, one anchor, one format button.`,btn:'Finish the lab'}
+];
+
+const lessons=[L0,L1,L2];
+let li=0,si=0,wrongOnce=false;
+const totalSteps=L0.length+L1.length+L2.length;
+
+function stepsDone(){let n=0;for(let i=0;i<li;i++)n+=lessons[i].length;return n+si;}
+function gotoLesson(i){if(i===3){if(li<3){/* allow peek only when done? allow always */}showFinish();return;}li=i;si=0;wrongOnce=false;render();}
+function cur(){return lessons[li][si];}
+
+function render(){
+  document.getElementById('labView').classList.remove('hidden');
+  document.getElementById('finishView').classList.add('hidden');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===li));
+  document.getElementById('pbar').style.width=(stepsDone()/totalSteps*100)+'%';
+  const s=cur();
+  document.getElementById('stepnum').textContent=`LESSON ${li+1} · STEP ${si+1} OF ${lessons[li].length}`;
+  document.getElementById('stepTitle').innerHTML=s.title;
+  document.getElementById('stepTeach').innerHTML=s.teach;
+  const co=document.getElementById('stepCallout');
+  if(s.callout){co.classList.remove('hidden');co.className='callout '+(s.callout.cls||'');co.innerHTML=s.callout.txt;}
+  else co.classList.add('hidden');
+  const fb=document.getElementById('feedback');fb.className='feedback';fb.innerHTML='';
+  const input=document.getElementById('fxInput'),nb=document.getElementById('nameBox');
+  const mainBtn=document.getElementById('mainBtn'),hintBtn=document.getElementById('hintBtn');
+  wrongOnce=false;
+  document.getElementById('chartzone').classList.toggle('hidden',li!==1);
+  document.getElementById('sheetHost').innerHTML=(li===2)?renderKretsmart():renderWholePine();
+  document.querySelectorAll('.activecell').forEach(e=>e.classList.remove('activecell'));
+  if(s.type==='cell'){
+    input.disabled=false;input.value='';input.placeholder=`Formula for ${s.ref}`;input.focus();
+    nb.textContent=s.ref;mainBtn.textContent='Check';hintBtn.style.display='';
+    const td=document.getElementById('c_'+s.ref);if(td){td.classList.add('activecell');td.scrollIntoView({block:'nearest'});}
+  }else{
+    input.disabled=true;input.value='';input.placeholder='';nb.textContent='—';
+    mainBtn.textContent=s.btn||'Got it';hintBtn.style.display='none';
+  }
+}
+
+function advance(){
+  si++;
+  if(si>=lessons[li].length){
+    li++;si=0;
+    if(li>=3){showFinish();return;}
+  }
+  render();
+}
+function showFinish(){
+  document.getElementById('labView').classList.add('hidden');
+  document.getElementById('finishView').classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===3));
+  document.getElementById('pbar').style.width='100%';
+}
+
+function mainAction(){
+  const s=cur();
+  const fb=document.getElementById('feedback');
+  if(s.type==='read'){advance();return;}
+  if(s.type==='chart'){
+    const slot=document.getElementById('slot'+s.slot);
+    const max=Math.max(...s.bars.map(Math.abs));
+    slot.classList.add('filled');
+    slot.innerHTML=`<h4>${s.title.replace(/Place chart \d: /,'')}</h4><div class="bars">${s.bars.map(v=>`<div class="bar ${v<0?'neg':''}" style="height:${Math.abs(v)/max*90}px"><span>${fm(v)}</span></div>`).join('')}</div><div class="cats"><i>Oct</i><i>Nov</i><i>Dec</i></div>`;
+    fb.className='feedback ok';fb.innerHTML=(s.postmsg||'Placed. Same recipe, next spot.');
+    setTimeout(advance,s.postmsg?1600:800);return;
+  }
+  // cell step
+  const raw=document.getElementById('fxInput').value.trim();
+  if(!raw){fb.className='feedback bad';fb.innerHTML='Type the formula in the formula bar first.';return;}
+  const res=checkAgainst(s.accepted,raw);
+  if(res.msg){fb.className='feedback bad';fb.innerHTML=res.msg;return;}
+  if(!res.ok){
+    wrongOnce=true;
+    fb.className='feedback bad';
+    fb.innerHTML='Not it. Re-read the step: which month\'s data does this row reach for? Hit <b>Hint</b> if you want the answer.';
+    return;
+  }
+  if(s.requireAnchor&&!norm(raw).includes('$')){
+    fb.className='feedback note';fb.innerHTML=s.anchormsg;return;
+  }
+  if(s.after)s.after();
+  let msg='✓ Locked.';
+  if(!norm(raw).includes('$')&&norm(s.hint||'').includes('$')&&!s.requireAnchor)msg+=' It graded, but anchor the schedule ref (<code>'+s.hint+'</code>) so fill-right can\'t break it.';
+  if(s.postmsg)msg+='<br><br>'+s.postmsg;
+  fb.className='feedback ok';fb.innerHTML=msg;
+  document.getElementById('fxInput').disabled=true;
+  setTimeout(advance,s.postmsg?2400:900);
+}
+function showHint(){
+  const s=cur();if(s.type!=='cell')return;
+  const fb=document.getElementById('feedback');
+  fb.className='feedback note';fb.innerHTML='Answer: <code>'+s.hint+'</code>. Type it yourself anyway, the motion is the point.';
+}
+document.getElementById('fxInput').addEventListener('keydown',e=>{if(e.key==='Enter')mainAction();});
+render();
+</script>
+</body>
+</html>
