@@ -1,531 +1,204 @@
-<!--
-DRILL TEMPLATE (canonical, fixed 2026-07-02)
-Fixes baked in:
-  - Mobile answer-leak: all :hover rules wrapped in @media(hover:hover) so iOS sticky
-    hover can never pre-highlight an option. -webkit-tap-highlight-color killed,
-    :active provides touch feedback instead.
-  - Day/night toggle: floating button bottom-right. Persists to localStorage key
-    "drill_theme" (SHARED across all drills on the domain). URL param ?theme=dark|light
-    overrides for screenshots/sharing without persisting.
-  - Core/Full mode toggle, index-keyed progress (append-only banks preserve progress).
-
-Placeholders to replace at build time:
-  D196 Drill      e.g. "D196 Drill"
-  Financial &amp; Managerial Accounting · core 113 Q · full 123 Q   e.g. "Financial & Managerial Accounting · core 113 Q · full 123 Q"
-  HamStudy-style mastery drill for WGU D196. Core (113 exam-critical Q, all 62 keyed PA) and Full (123 Q) modes, requeues misses until mastered.    one-sentence description
-  d196-drill       e.g. "d196-drill" (used for og:url and og:image)
-  d196drill  e.g. "d196drill" (yields d196drill_v1 + d196drill_mode)
-  MCQS array     rows: [question, [opts], correctIndex, explanation, "Topic", coreFlag]
-                 coreFlag 1 = core; omit it for full-only questions.
-Mobile tap-to-advance: document-level click handler with 250ms debounce (waitAt) so the
-answering tap cannot skip the reveal; taps on select/a/#themeBtn/.seg/.reset excluded.
-Verification (mandatory before deploy): jsdom mastery loop, N core questions must
-master in exactly 2N answers; mode switch must expand the pool; saved state must persist.
--->
 <!DOCTYPE html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>D196 Drill — Financial &amp; Managerial Accounting · core 113 Q · full 123 Q</title>
-<meta property="og:title" content="D196 Drill">
-<meta property="og:description" content="HamStudy-style mastery drill for WGU D196. Core (113 exam-critical Q, all 62 keyed PA) and Full (123 Q) modes, requeues misses until mastered.">
-<meta property="og:image" content="https://niggerfaggot.club/d196-drill-og.png">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="D196 Miss Drill">
+<meta property="og:description" content="Mastery drill for the D196 pre-assessment misses and Excel analysis questions: budget sequence, cost classification, ABC, common-size, and cash budgets.">
 <meta property="og:url" content="https://niggerfaggot.club/d196-drill">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://niggerfaggot.club/d196-drill-og.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<meta name="twitter:card" content="summary">
+<title>D196 Miss Drill</title>
 <style>
-:root{
---grad1:#c4e6f4;--grad2:#dcefe8;--grad3:#f5eddf;--bgsolid:#dcefe8;
---glass:rgba(255,255,255,.52);--glass2:rgba(255,255,255,.74);
---hair:rgba(22,58,95,.16);--spec:rgba(255,255,255,.85);
---ink:#163a5f;--mut:#5d7590;--sky:#1f93cc;
---coral:#f6a8a0;--mint:#a3ddc6;--butter:#f4d79a;--lav:#c4b4e6;
---good:#2e8b57;--bad:#cf574e;
---track:rgba(22,58,95,.12);
---shadow:0 10px 28px rgba(22,58,95,.14),0 2px 6px rgba(22,58,95,.08);
---fd:'Fraunces',Georgia,'Times New Roman',serif;
---fb:'Nunito',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
---fm:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
---bg:#dcefe8;--panel:rgba(255,255,255,.6);--line:rgba(22,58,95,.16);--teal:#1f93cc;--green:#2e8b57;--red:#cf574e;--muted:#5d7590;
-}
-[data-theme="dark"]{
---grad1:#0c2733;--grad2:#0e1f33;--grad3:#10182a;--bgsolid:#0e1f33;
---glass:rgba(26,50,76,.5);--glass2:rgba(26,50,76,.74);
---hair:rgba(160,200,235,.18);--spec:rgba(255,255,255,.10);
---ink:#e8f0f7;--mut:#93a9c0;--sky:#46b4e6;
---mint:#8fd6b8;--butter:#eecf90;
---good:#5cc98a;--bad:#f08a82;
---track:rgba(160,200,235,.16);
---shadow:0 10px 28px rgba(0,0,0,.42),0 2px 6px rgba(0,0,0,.3);
---bg:#0e1f33;--panel:rgba(26,50,76,.6);--line:rgba(160,200,235,.18);--teal:#46b4e6;--green:#5cc98a;--red:#f08a82;--muted:#93a9c0;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{min-height:100%;background-color:var(--bgsolid);background-image:linear-gradient(165deg,var(--grad1),var(--grad2) 52%,var(--grad3))}
-body{margin:0;background:transparent;color:var(--ink);font-family:var(--fb);-webkit-font-smoothing:antialiased}
-.glassy{background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);border:1px solid var(--hair);box-shadow:var(--shadow),inset 0 1px 0 var(--spec)}
-.hud{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.chip{font-family:var(--fm);font-size:12px;font-weight:700;letter-spacing:.02em;padding-top:6px;padding-bottom:6px;padding-left:12px;padding-right:12px;border-radius:999px;border:1px solid var(--hair);background:var(--glass2);color:var(--ink);box-shadow:inset 0 1px 0 var(--spec);transition:background .25s,border-color .25s}
-.chip.warm{background:rgba(244,215,154,.6);border-color:rgba(201,138,31,.4)}
-.chip.hot{background:rgba(246,168,160,.65);border-color:rgba(207,87,78,.45)}
-[data-theme="dark"] .chip.warm{background:rgba(238,207,144,.22)}
-[data-theme="dark"] .chip.hot{background:rgba(246,168,160,.26)}
-.themeb{position:fixed;right:14px;bottom:14px;z-index:60;width:40px;height:40px;border-radius:50%;border:1px solid var(--hair);background:var(--glass2);-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);color:var(--ink);font-size:16px;cursor:pointer;box-shadow:var(--shadow);line-height:1;padding:0}
-@keyframes gShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-
-html,body{overflow-x:hidden}
-body{font-size:15px}
-.wrap{max-width:760px;margin-left:auto;margin-right:auto;padding-top:16px;padding-bottom:74px;padding-left:14px;padding-right:14px}
-header{display:flex;align-items:center;gap:14px;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);border:1px solid var(--hair);border-radius:22px;padding-top:16px;padding-bottom:16px;padding-left:18px;padding-right:18px;box-shadow:var(--shadow),inset 0 1px 0 var(--spec)}
-.htxt h1{margin:0;font-family:var(--fd);font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.1}
-.htxt p{margin:4px 0 0;font-size:12.5px;color:var(--mut)}
-.rings{margin-left:auto;display:flex;gap:12px;align-items:flex-start}
-.ring{position:relative;width:54px;display:flex;flex-direction:column;align-items:center}
-.ring svg{transform:rotate(-90deg)}
-.ring b{position:absolute;top:0;left:0;width:54px;height:54px;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:12px;font-weight:700}
-.ring span{margin-top:4px;text-align:center;font-family:var(--fm);font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
-circle[stroke="#e3e9ef"]{stroke:var(--track)}
-.hud{margin-top:12px;margin-left:2px}
-.bar{display:flex;align-items:center;gap:10px;margin-top:14px;margin-bottom:10px;margin-left:2px;margin-right:2px;flex-wrap:wrap}
-.pileRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pchip{cursor:pointer;user-select:none}.pchip.on{outline:2px solid var(--sky)}.tri{display:flex;gap:10px;margin-top:14px}.tbtn{font-family:var(--fm);font-size:12px;font-weight:700;padding-top:8px;padding-bottom:8px;padding-left:14px;padding-right:14px;border-radius:999px;border:1px solid var(--hair);background:var(--glass2);color:var(--ink);cursor:pointer;box-shadow:inset 0 1px 0 var(--spec)}.tbtn .kb{opacity:.5;font-size:10px;margin-left:4px}#noteIn{display:block;width:100%;margin-top:10px;font-family:var(--fm);font-size:13px;padding-top:8px;padding-bottom:8px;padding-left:12px;padding-right:12px;border-radius:10px;border:1px solid var(--hair);background:var(--glass2);color:var(--ink);box-sizing:border-box}
-.seg{display:flex;border:1px solid var(--hair);border-radius:10px;overflow:hidden;flex:none;background:var(--glass2)}
-.seg button{border:0;background:transparent;padding:7px 12px;font-family:var(--fb);font-size:13px;font-weight:700;color:var(--mut);cursor:pointer}
-.seg button.on{background:var(--sky);color:#fff}
-select{font-family:var(--fb);font-size:13px;padding:7px 10px;border:1px solid var(--hair);border-radius:10px;background:var(--glass2);color:var(--ink);max-width:48vw}
-.count{margin-left:auto;font-family:var(--fm);font-size:11.5px;color:var(--mut)}
-.card{background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);border:1px solid var(--hair);border-radius:22px;padding-top:22px;padding-bottom:20px;padding-left:20px;padding-right:20px;box-shadow:var(--shadow),inset 0 1px 0 var(--spec)}
-.topic{font-family:var(--fm);font-size:10.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--sky);font-weight:700;margin-bottom:10px}
-.q{font-family:var(--fd);font-size:20px;font-weight:600;line-height:1.35;margin:0 0 16px}
-.hint{font-size:12px;color:var(--mut);margin:-8px 0 12px}
-.ans{display:flex;gap:11px;align-items:flex-start;width:100%;text-align:left;font-family:var(--fb);color:var(--ink);font-size:15px;line-height:1.4;background:var(--glass2);border:1.5px solid var(--hair);border-radius:14px;padding-top:13px;padding-bottom:13px;padding-left:14px;padding-right:14px;margin:9px 0;cursor:pointer;transition:border-color .12s,background .12s,transform .12s,box-shadow .12s}
-@media(hover:hover){.ans:hover{border-color:var(--sky);transform:translateY(-1px);box-shadow:0 4px 14px rgba(22,58,95,.12)}}
-.ans:active{border-color:var(--sky)}
-.ans:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
-.ans .ltr{flex:0 0 auto;width:24px;height:24px;border-radius:7px;background:rgba(31,147,204,.14);color:var(--ink);font-family:var(--fm);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:1px}
-.ans.sel{border-color:var(--sky);background:rgba(31,147,204,.16)}
-.ans.sel .ltr{background:var(--sky);color:#fff}
-.ans.correct{border-color:var(--good);background:rgba(163,221,198,.5)}
-.ans.correct .ltr{background:var(--good);color:#fff}
-.ans.wrong{border-color:var(--bad);background:rgba(246,168,160,.45);animation:gShake .3s}
-.ans.wrong .ltr{background:var(--bad);color:#fff}
-.ans.dim{opacity:.55}
-.ans b{color:var(--ink)}
-[data-theme="dark"] .ans .ltr{background:rgba(70,180,230,.18)}
-[data-theme="dark"] .ans.sel{background:rgba(70,180,230,.16)}
-[data-theme="dark"] .ans.correct{background:rgba(143,214,184,.16)}
-[data-theme="dark"] .ans.wrong{background:rgba(246,168,160,.16)}
-.chk{font-family:var(--fb);font-size:14px;font-weight:700;background:var(--sky);color:#fff;border:0;border-radius:11px;padding:11px 18px;cursor:pointer;margin-top:6px;box-shadow:0 2px 8px rgba(31,147,204,.3)}
-.chk:disabled{opacity:.4;cursor:default;box-shadow:none}
-.explain{margin-top:14px;padding-top:12px;padding-bottom:12px;padding-left:14px;padding-right:14px;border-radius:12px;background:var(--glass2);border:1px solid var(--hair);border-left:3px solid var(--sky);font-size:14px;line-height:1.5;display:none}
-.explain.show{display:block}
-.explain.ok{background:rgba(163,221,198,.4);border-color:rgba(46,139,87,.35);border-left-color:var(--good)}
-.explain.no{background:rgba(246,168,160,.35);border-color:rgba(207,87,78,.35);border-left-color:var(--bad)}
-[data-theme="dark"] .explain.ok{background:rgba(143,214,184,.12)}
-[data-theme="dark"] .explain.no{background:rgba(246,168,160,.12)}
-.cont{font-size:12.5px;color:var(--mut);margin-top:10px;text-align:center;display:none}
-.cont.show{display:block}
-.done{text-align:center;padding-top:40px;padding-bottom:40px;padding-left:18px;padding-right:18px}
-.done h2{margin:0 0 6px;font-family:var(--fd);font-size:24px;font-weight:700}
-.done p{color:var(--mut);margin:0 0 18px}
-.btn{font-family:var(--fb);font-size:14px;font-weight:700;background:var(--good);color:#fff;border:0;border-radius:11px;padding:11px 20px;cursor:pointer;box-shadow:0 2px 8px rgba(46,139,87,.3)}
-footer{text-align:center;font-family:var(--fm);font-size:11px;color:var(--mut);margin:18px 0 6px}
-footer a{color:var(--sky);cursor:pointer;text-decoration:none}
-</style></head>
-<body><div class="wrap">
-<header>
-  <div class="htxt"><h1>D196 Drill</h1><p>Financial &amp; Managerial Accounting · core 113 Q · full 123 Q</p></div>
-  <div class="rings">
-    <div class="ring"><svg width="54" height="54"><circle cx="27" cy="27" r="22" fill="none" stroke="#e3e9ef" stroke-width="6"/><circle id="seenR" cx="27" cy="27" r="22" fill="none" stroke="var(--teal)" stroke-width="6" stroke-linecap="round" stroke-dasharray="138" stroke-dashoffset="138"/></svg><b id="seenN">0%</b><span>Seen</span></div>
-    <div class="ring"><svg width="54" height="54"><circle cx="27" cy="27" r="22" fill="none" stroke="#e3e9ef" stroke-width="6"/><circle id="aptR" cx="27" cy="27" r="22" fill="none" stroke="var(--green)" stroke-width="6" stroke-linecap="round" stroke-dasharray="138" stroke-dashoffset="138"/></svg><b id="aptN">0%</b><span>Apt</span></div>
+:root{--bg:#e9edf0;--panel:#fff;--ink:#2b3238;--dim:#7a8590;--teal:#159fc9;--green:#43a047;--red:#e23b3b;--line:#dde3e8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding:14px}
+.wrap{max-width:640px;margin:0 auto}
+.head{background:var(--panel);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.head h1{font-size:17px;line-height:1.2}
+.head .sub{font-size:12px;color:var(--dim)}
+.rings{margin-left:auto;display:flex;gap:10px}
+.ring{width:52px;text-align:center;font-size:10px;color:var(--dim)}
+.ring svg{display:block;margin:0 auto 2px}
+.ring .val{font-weight:700;font-size:11px;color:var(--ink)}
+.bar{display:flex;gap:8px;align-items:center;margin:10px 0}
+select{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px;color:var(--ink)}
+.reset{font-size:12px;color:var(--dim);text-decoration:underline;cursor:pointer;background:none;border:none}
+.card{background:var(--panel);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.qtopic{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:6px}
+.qtext{font-size:16.5px;line-height:1.45;margin-bottom:14px}
+.ans{display:flex;gap:10px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:11px 12px;font-size:14.5px;line-height:1.4;margin-bottom:8px;cursor:pointer;color:var(--ink)}
+.ans:hover{border-color:var(--teal)}
+.ans .ltr{font-weight:700;color:var(--dim);flex:none}
+.ans.correct{border-color:var(--green);background:#eef7ee}
+.ans.wrong{border-color:var(--red);background:#fdeeee}
+.ans.reveal{border-color:var(--green)}
+.ans:disabled{cursor:default}
+.explain{display:none;margin-top:10px;border-left:3px solid var(--red);background:#fdf3f3;padding:10px 12px;font-size:13.5px;line-height:1.5;border-radius:0 6px 6px 0}
+.explain b{color:var(--green)}
+.explain .cont{display:block;margin-top:6px;font-size:12px;color:var(--dim)}
+.meta{margin-top:10px;font-size:12px;color:var(--dim);display:flex;justify-content:space-between}
+.done{background:var(--panel);border-radius:10px;padding:30px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.done h2{color:var(--green);margin-bottom:8px}
+.done p{color:var(--dim);font-size:14px;margin-bottom:16px}
+.done button{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>D196 Miss Drill</h1>
+      <div class="sub">PA misses + Excel analysis, mastered twice each</div>
+    </div>
+    <div class="rings">
+      <div class="ring"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke="#e6ebef" stroke-width="5"/><circle id="seenArc" cx="22" cy="22" r="19" fill="none" stroke="var(--teal)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 22 22)"/></svg><span class="val" id="seenVal">0%</span>Seen</div>
+      <div class="ring"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke="#e6ebef" stroke-width="5"/><circle id="aptArc" cx="22" cy="22" r="19" fill="none" stroke="var(--green)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 22 22)"/></svg><span class="val" id="aptVal">0%</span>Apt</div>
+    </div>
   </div>
-</header>
-<div class="hud"><span class="chip flame" id="hudStreak"></span><span class="chip" id="hudXP"></span><span class="chip" id="hudBest"></span></div>
-<div class="bar">
-  <div class="seg"><button id="vTriage">Triage</button><button id="vDrill">Drill</button></div>
-  <div class="seg"><button id="mCore">Core</button><button id="mFull">Full</button></div>
-  <select id="topic"><option value="">All topics</option></select>
-  <div class="count" id="count"></div>
-</div>
-<div id="piles" class="pileRow"></div>
-<div id="stage" class="card"></div>
-<footer>Tap or press 1–4 / A–D · space to continue · <a id="histBtn">‹ back</a> · <a id="reset">reset progress</a> · <a id="sndBtn"></a></footer>
+  <div class="bar">
+    <select id="topicSel"><option value="">All topics</option></select>
+    <button class="reset" id="resetBtn">reset</button>
+  </div>
+  <div id="stage"></div>
 </div>
 <script>
 const MCQS=[
-["What is the effect of a company's accounting department maintaining high ethical standards?", ["The company's accounting information will increase in value.", "The company can hire fewer accountants to do the same amount of work.", "The company's accounting information will decrease in value.", "The company can report more favorable results in its financial statements."], 0, "Ethical accounting = trustworthy data = investors/lenders/regulators rely on it = info is MORE valuable. Ethics doesn't reduce workload or manipulate results — those are red flags.", "Intro & Ethics", 1],
-["Why might employees be interested in their company's financial accounting information?", ["Financial statement data provide item-by-item product cost information.", "Financial statement data provide detailed internal budget information.", "Financial statement data are often used in determining employee bonuses.", "Financial statement data are used to record long term liabilities."], 2, "Employees care because bonuses and profit-sharing tie directly to financial performance. Product costs and internal budgets are managerial accounting (private), not financial statements.", "Intro & Ethics", 1],
-["Which group establishes financial accounting rules in the United States?", ["Financial Accounting Standards Board (FASB)", "International Accounting Standards Board (IASB)", "American Institute of Certified Public Accountants (AICPA)", "Internal Revenue Service (IRS)"], 0, "FASB = US GAAP rules. IASB = international (IFRS). AICPA = profession organization, doesn't set rules. IRS = tax rules only.", "Intro & Ethics", 1],
-["Which report is one of the three primary financial statements?", ["Statement of the accounting cycle", "Statement of stakeholder funds", "Statement of cash flows", "Statement of management accounting"], 2, "The Big 3: Income Statement, Balance Sheet, Statement of Cash Flows. (Statement of Retained Earnings is sometimes counted as a 4th.)", "Financial Statements", 1],
-["A company paid $5,000 cash in advertising costs. How does this transaction affect the paying company's accounting equation?", ["Assets increase by $5,000; expenses increase by $5,000.", "Assets decrease by $5,000; liabilities increase by $5,000.", "Assets decrease by $5,000; owner equity decreases by $5,000.", "Assets decrease by $5,000; revenues increase by $5,000."], 2, "Cash out = assets down. Advertising is an expense → expenses reduce profit → profit reduces equity. So assets DOWN $5k, equity DOWN $5k. Equation stays balanced.", "Equation & Entries", 1],
-["What is a transaction?", ["Two parties exchanging something of value", "A type of commonly used accounting software", "A category of merchandiser or retailer", "An example of an online business document"], 0, "A transaction = any exchange of value between two parties. Buying, selling, borrowing, paying — all transactions.", "Equation & Entries", 1],
-["A company borrowed $80,000 cash from a bank. How does this transaction affect the accounting equation of the borrowing company?", ["Assets increase by $80,000; liabilities increase by $80,000.", "Assets increase by $80,000; owners' equity increases by $80,000.", "Assets increase by $80,000; liabilities decrease by $80,000.", "Assets increase by $80,000; revenues increase by $80,000."], 0, "Cash comes in (asset UP) and you owe the bank (liability UP). Borrowing doesn't earn revenue — it creates debt. Equation: +$80k Assets = +$80k Liabilities + $0 Equity.", "Equation & Entries", 1],
-["What is the impact of expenses on the accounting equation?", ["Expenses increase liabilities.", "Expenses decrease owners' equity.", "Expenses decrease liabilities.", "Expenses increase owners' equity."], 1, "Expenses reduce profit → profit flows to retained earnings → retained earnings is part of equity. So expenses DECREASE equity.", "Equation & Entries", 1],
-["Which type of account are accounts payable and notes payable both examples of?", ["Liability", "Asset", "Expense", "Equity"], 0, "'Payable' = you OWE someone. All payables are liabilities. Accounts payable = owe suppliers. Notes payable = owe lenders.", "Equation & Entries", 1],
-["What is the purpose of the financial accounting cycle?", ["To collect confidential information for management to use as a competitive tool", "To gather information related to the expenses and income generated by a company", "To turn information about transactions into financial statements", "To produce and analyze a company's monthly bank statement"], 2, "The accounting cycle = the workflow that converts raw transactions into the big three financial statements. That's its whole job.", "Financial Statements", 1],
-["According to the accounting equation, the amount of liabilities and equity must always be equal to another amount. What is that other amount?", ["The sum of revenues and expenses", "Assets", "Cash", "The sum of expenses and dividends"], 1, "The accounting equation: Assets = Liabilities + Equity. So L + E = Assets. Always. Every balance sheet.", "Equation & Entries", 1],
-["Which item is an expense item?", ["Loans payable", "Cost of goods sold", "Accounts receivable", "Accounts payable"], 1, "COGS = expense (income statement). Payables = liabilities (balance sheet). Receivables = assets (balance sheet).", "Financial Statements", 1],
-["How is gross profit computed?", ["Sales minus cost of goods sold", "Total assets minus total liabilities", "Accounts receivable minus accounts payable", "Total revenues minus total expenses"], 0, "Gross Profit = Sales − COGS. It's the first profit line on the income statement. Net income is Revenues − ALL expenses (the bottom line, different concept).", "Financial Statements", 1],
-["Which type of account is retained earnings?", ["Revenue", "Liability", "Equity", "Asset"], 2, "Retained earnings = profits the company kept (didn't pay out as dividends). It's a component of EQUITY on the balance sheet.", "Equation & Entries", 1],
-["For purposes of cash flow classification in the statement of cash flows, which item is an operating activity?", ["Buying equipment", "Paying employees", "Distributing dividends", "Selling bonds"], 1, "CFS has 3 sections: Operating (day-to-day: paying employees, paying suppliers, receiving from customers), Investing (buying/selling long-term assets like equipment), Financing (stocks, bonds, dividends, loans).", "Financial Statements", 1],
-["How does a classified balance sheet provide useful information to a decision maker?", ["It distinguishes between current and long-term assets.", "It distinguishes liabilities from expenses.", "It provides data that are not publicly disclosed.", "It provides data for a period of time instead of as a point in time."], 0, "'Classified' balance sheet means assets/liabilities are grouped into CURRENT (≤1 year) and LONG-TERM (>1 year). Helps users see liquidity at a glance.", "Financial Statements", 1],
-["What information does a balance sheet provide to a decision maker?", ["Summary of the operating performance of a company during a period", "Summary of the cash flows of a company during a period", "Summary of the operating performance of a company at a particular date", "Summary of the financial position of a company at a particular date"], 3, "Balance sheet = SNAPSHOT at a single date (Dec 31, etc.). Shows financial position: what you own, owe, and equity. Income statement and cash flows cover a PERIOD.", "Financial Statements", 1],
-["What is an account payable?", ["The amount owed to a company that sold goods or services to a customer on credit", "The amount to be paid by a company in repayment of both loans and dividends", "The amount to be paid by a company for dividends to shareholders", "The amount owed by a company that purchased goods or services from a supplier on credit"], 3, "Accounts PAYABLE = what YOU owe suppliers (credit purchases). Accounts RECEIVABLE = what customers owe YOU. Trap answer A is receivable.", "Equation & Entries", 1],
-["What is an example of a financial cost that would result from poor direct labor budgeting and planning?", ["Delayed cash collections from credit customers", "Increased depreciation costs for facilities", "Increased hiring, training, and overtime costs", "Excessive inventory storage costs"], 2, "Poor labor planning → emergency hiring, rushed training, paying overtime. Those are direct consequences of not forecasting workforce needs right.", "Budgeting & Cash Flow", 1],
-["What does a manager have control over in a cost center?", ["Revenues", "Assets", "Costs", "Dividends"], 2, "4 responsibility centers: Cost (costs only), Revenue (revenues only), Profit (both), Investment (profit + assets). The name tells you what's controlled.", "Managerial Accounting", 1],
-["What should be considered when developing a measure to evaluate the performance of a manager?", ["Only indirect costs", "Only controllable costs", "Only noncontrollable costs", "Only centralized costs"], 1, "Cardinal rule of performance evaluation: only hold managers accountable for what they can CONTROL. Judging them on uncontrollable costs is unfair and demotivating.", "Managerial Accounting", 1],
-["In some companies, the performance measures for profit center managers are heavily influenced by cost allocations downward from organizational units (such as company headquarters). Why is this a mistake?", ["Revenues should not be included in the performance evaluation measure of a profit center manager.", "Direct costs should not be included in the performance evaluation measure of a profit center manager.", "Controllable costs should not be included in the performance evaluation measure of a profit center manager.", "Uncontrollable costs should not be included in the performance evaluation measure of a profit center manager."], 3, "HQ allocations (rent, exec salaries) are UNCONTROLLABLE by division managers. Including them in performance measures punishes managers for things they can't change.", "Managerial Accounting", 1],
-["Which budget should include the expected cost of supplies used by the office staff of the corporate headquarters?", ["Production budget", "Sales budget", "Administrative expense budget", "Direct materials budget"], 2, "HQ office supplies = admin expense (period cost). Production/materials budgets are for manufacturing. Sales budget = revenue forecast.", "Budgeting & Cash Flow", 1],
-["Which items are uncontrollable, external variables that make it difficult to forecast the level of sales?", ["Direct labor and advertising expenditures", "Selling price and sales effort", "Customer tastes and economic conditions", "Inventory level and product management"], 2, "Customer tastes and the economy are OUTSIDE the company's control. Pricing, advertising, labor, inventory are INTERNAL variables the company controls.", "Budgeting & Cash Flow", 1],
-["What is the correct sequence of budgets in a manufacturing business?", ["Direct materials, sales, production", "Sales, production, direct materials", "Sales, direct materials, production", "Production, direct materials, sales"], 1, "Master budget flow: SALES first (how much will we sell?) → PRODUCTION (how much do we make?) → DIRECT MATERIALS (what do we buy to make it?). Sales drives everything.", "Budgeting & Cash Flow", 1],
-["Which type of business organization has a major focus on direct materials, direct labor, and overhead?", ["Retail", "Manufacturing", "Service", "Merchandising"], 1, "DM + DL + MOH = the 3 MANUFACTURING product costs. Retail/merchandising buy finished goods. Service has no physical product.", "Managerial Accounting", 1],
-["What are the three primary functions that company managers use managerial accounting information for?", ["Borrowing, repaying, and lending", "Reporting, allowing, and negotiating", "Operating, investing, and financing", "Planning, controlling, and evaluating"], 3, "PCE: Planning (budgets), Controlling (vs actual), Evaluating (performance). Operating/investing/financing are CFS categories, different concept.", "Managerial Accounting", 1],
-["What is the proper accounting for a product cost?", ["Record as a financing cash flow", "Record immediately as an expense", "Record as an inventory cost until the item is sold", "Record as a liability on the balance sheet"], 2, "Product costs (DM + DL + MOH) = capitalized as INVENTORY (asset) until the product is sold, then flow to COGS. Period costs expense immediately.", "Cost Classification", 1],
-["How could a period cost be reported in an income statement?", ["As cost of goods manufactured", "As cost of goods sold", "As an administrative expense", "As manufacturing overhead"], 2, "Period costs = Selling + Administrative. They show up as S&A expenses on the income statement, never touched inventory. COGS and COGM are product cost concepts.", "Cost Classification", 1],
-["A retail company purchased inventory costing $100,000. By the end of the year, inventory costing $75,000 had been sold. How is the remaining $25,000 in inventory reported in the financial statements?", ["As an asset in the balance sheet", "As manufacturing overhead in the income statement", "As an administrative expense in the income statement", "As a liability in the balance sheet"], 0, "Unsold inventory = ASSET on balance sheet (current asset). Only the $75k sold becomes COGS. This is why product costs are inventoriable — they sit as an asset until sold.", "Financial Statements", 1],
-["How are the wages of cashiers classified in a merchandising company?", ["Cost of goods sold", "Manufacturing overhead", "Work-in-process inventory", "Selling expense"], 3, "Cashiers = point-of-sale staff = SELLING expense (period cost). Merchandising has no manufacturing, no WIP. COGS is the cost of goods, not the people who sell them.", "Cost Classification", 1],
-["How are wages of office staff in a company headquarters building classified?", ["Direct labor", "Indirect labor", "Manufacturing overhead", "Administrative expense"], 3, "HQ office staff = ADMIN expense (period cost, not tied to production). Direct/indirect labor and MOH are all manufacturing concepts — HQ is not in the factory.", "Cost Classification", 1],
-["Which label is given to the cost of the wood used in the construction of a piece of wooden furniture?", ["Direct labor", "Manufacturing overhead", "Selling and administrative", "Direct materials"], 3, "Wood = primary input physically in the furniture = DIRECT MATERIALS. If it can be traced directly to the product in measurable amounts, it's DM.", "Cost Classification", 1],
-["Which label is given to the cost of electricity in a furniture factory?", ["Direct labor", "Manufacturing overhead", "Administrative expenses", "Direct materials"], 1, "Factory electricity = supports production but not traceable to a specific product = MANUFACTURING OVERHEAD (indirect). If it were HQ electricity, it'd be admin expense.", "Cost Classification", 1],
-["What is the sequence of the flow of costs through a manufacturing operation?", ["Raw materials, work-in-process, finished goods, cost of goods sold", "Finished goods, cost of goods sold, raw materials, work-in-process", "Cost of goods sold, raw materials, work-in-process, finished goods", "Work-in-process, raw materials, finished goods, cost of goods sold"], 0, "Flow: RM → WIP → FG → COGS. Buy materials, start making them (WIP), finish them (FG), sell them (COGS). MEMORIZE THIS ORDER.", "Costing Methods", 1],
-["What is the CVP equation?", ["Sales - fixed costs - administrative costs = profit", "Sales - cost of goods sold - fixed costs = profit", "Sales - variable costs - overhead costs = profit", "Sales - variable costs - fixed costs = profit"], 3, "CVP (Cost-Volume-Profit): Sales − Variable Costs − Fixed Costs = Profit. The core managerial accounting equation. Everything else derives from this.", "CVP & Break-Even", 1],
-["Which cost category is not formally tracked in a company's accounting system?", ["Direct costs", "Indirect costs", "Out-of-pocket costs", "Opportunity costs"], 3, "Opportunity costs = value of the road NOT taken. Real but never recorded. Direct, indirect, and out-of-pocket are all actually spent dollars that hit the books.", "Cost Classification", 1],
-["A company reports: Total sales revenue = $250,000. Number of units sold = 50,000 units. Variable costs = $100,000. If the company is operating at its break-even point, what is the company's total contribution margin?", ["$200,000", "$50,000", "$100,000", "$150,000"], 3, "CM = Sales − Variable Costs = $250,000 − $100,000 = $150,000. At break-even, CM EQUALS Fixed Costs (so Fixed Costs also = $150k). CM itself is just Sales − VC.", "CVP & Break-Even", 1],
-["A company reports: Price per unit = $25. Variable costs per unit = $15. Fixed costs = $15,000. Given these data, what is the variable cost ratio?", ["60%", "50%", "40%", "20%"], 0, "VC Ratio = Variable Cost per unit ÷ Price per unit = $15 ÷ $25 = 60%. CM Ratio would be the other 40%. Fixed costs are irrelevant to this ratio.", "CVP & Break-Even", 1],
-["Why is the concept of relevant range important to a manager?", ["Inside the relevant range, the total fixed cost can change.", "Inside the relevant range, the variable cost per unit can increase.", "Outside the relevant range, the variable cost per unit can change.", "Outside the relevant range, the variable cost per unit stays constant."], 2, "Relevant range = the activity level where cost behavior assumptions HOLD. INSIDE: fixed costs stay fixed, variable costs per unit stay constant. OUTSIDE: all bets off (bulk discounts, new machinery needed, etc.).", "CVP & Break-Even", 1],
-["Which statement correctly describes applied manufacturing overhead?", ["The total manufacturing costs other than direct materials", "The amount of manufacturing overhead that is assigned to each employee", "The total manufacturing costs other than direct labor", "The amount of manufacturing overhead that is assigned to the goods produced"], 3, "APPLIED overhead = the MOH charged to products using the predetermined rate. It's what lands on the goods produced, not on employees or totals.", "Costing Methods", 1],
-["What is the label given to the quantity computed as estimated overhead costs divided by estimated level of activity?", ["Underapplied overhead rate", "Predetermined overhead rate", "Forecasted overhead rate", "Indirect overhead rate"], 1, "Predetermined Overhead Rate = Estimated MOH ÷ Estimated Activity (like machine hours or labor hours). Set at start of year, used to apply MOH. Under/over-applied happens when actual differs from applied.", "Costing Methods", 1],
-["In a job order costing system, what is the proper accounting for a product cost?", ["It is reported as a part of general expenses.", "It is reported as a part of administrative expenses.", "It is reported as a part of cost of goods sold.", "It is reported as an expense when it occurs."], 2, "Product costs in any system (job order, process, ABC) flow through inventory → COGS when sold. They are NEVER expensed immediately and NEVER part of general/admin expenses.", "Costing Methods", 1],
-["Which item is a period cost?", ["Wages for factory quality control inspectors", "Rent on factory robotic equipment in an airplane manufacturer", "Wages of maintenance workers in the factory building", "Utility bills to heat the headquarters building"], 3, "HQ utilities = period cost (admin). Anything with 'factory' in the description = product cost (MOH). QC inspectors, factory equipment rent, factory maintenance are all MOH.", "Cost Classification", 1],
-["Which statement is true with respect to activity-based costing (ABC) systems?", ["Implementing an ABC system requires only a careful calculation of total direct labor hours.", "Implementing an ABC system requires very little analysis of the factors that create overhead costs.", "An ABC system allocates overhead based on multiple activities.", "An ABC system completely eliminates all overhead costs."], 2, "ABC uses MULTIPLE cost drivers (setups, inspections, machine hours, etc.) instead of one blunt rate. It requires DETAILED analysis. It doesn't eliminate overhead — it allocates it more accurately.", "Costing Methods", 1],
-["How is overhead allocated in an ABC system?", ["Cost pool multiplied by number of cost driver events", "Activity rate multiplied by number of cost driver events", "Budgeted overhead multiplied by expected number of direct labor hours", "Sum of materials and labor cost multiplied by number of units"], 1, "ABC formula: Activity Rate × # of Cost Driver Events. Activity Rate = cost pool ÷ total driver events. Then applied per product/job by multiplying times the events consumed.", "Costing Methods", 1],
-["In an ABC system, which name is given to a numerical measure reflecting the amount of a cost associated with a particular overhead cost activity?", ["Cost system", "Cost driver", "Cost metric", "Cost pool"], 3, "Cost POOL = the dollar amount grouped by activity (e.g., 'setup costs = $50,000'). Cost DRIVER = what causes it (e.g., 'number of setups'). Don't swap them.", "Costing Methods", 1],
-["How are production costs treated in a process costing system?", ["Costs are accumulated by process and averaged over all products made during the period.", "Costs are assigned to a selling, general, and administrative expense account during the period.", "Costs are assigned to the actual manufacturing overhead account during the period.", "Costs are assigned to specific jobs or products made during the period."], 0, "Process costing = mass production (cereal, gasoline). Accumulate costs by PROCESS (mixing, bottling), average over all units. Job order assigns to specific jobs.", "Costing Methods", 1],
-["How is the production cost per unit computed in a process costing system?", ["Amount of direct labor cost divided by the number of direct labor hours used during a particular period of time", "Amount of overhead cost divided by the number of units completed during a particular period of time", "Amount of direct materials cost divided by the quantity of direct materials used during a particular period of time", "Amount of total production cost divided by the number of units completed during a particular period of time"], 3, "Process cost per unit = TOTAL PRODUCTION COSTS ÷ UNITS COMPLETED. Simple average across all identical units. The other options use partial numerators — wrong.", "Costing Methods", 1],
-["For which production process is process costing the appropriate costing method to use?", ["Constructing a high-rise office building", "Building custom-made furniture", "Producing made-to-order industrial equipment", "Refining gasoline in a petroleum facility"], 3, "Gasoline refining = continuous, identical output = PROCESS costing. Construction/custom/made-to-order = unique each time = JOB ORDER costing.", "Costing Methods", 1],
-["Which overhead allocation method should be used for a business that mass-produces breakfast cereal?", ["ABC costing", "Job order costing", "Product-line costing", "Process costing"], 3, "Mass production of identical units = PROCESS costing. Cereal, chemicals, gasoline, paint — all process. ABC is for complex multi-product overhead allocation.", "Costing Methods", 1],
-["What is the correct sequence for the flow of costs through a job order costing system?", ["Raw materials inventory, work-in-process inventory, cost of goods sold, finished goods inventory", "Raw materials inventory, finished goods inventory, cost of goods sold, work-in-process inventory", "Raw materials inventory, work-in-process inventory, finished goods inventory, cost of goods sold", "Raw materials inventory, cost of goods sold, work-in-process inventory, finished goods inventory"], 2, "RM → WIP → FG → COGS. Same in both job order and process. Buy materials → make them (WIP) → finish (FG) → sell (COGS). Memorize this path.", "Costing Methods", 1],
-["Which type of company cannot use job order costing?", ["Road construction", "Tax accountant for wealthy people", "Petroleum refining plant", "Building construction"], 2, "Petroleum refining = continuous identical output = MUST use process costing. Construction and custom tax work = unique jobs = job order fits perfectly.", "Costing Methods", 1],
-["What is an example of direct materials?", ["Cost of sandpaper in making wood furniture", "Cost of robotic equipment in making automobiles", "Cost of aluminum in making an airplane", "Cost of saws and hammers in constructing a house"], 2, "Direct materials = physically IN the product, traceable in measurable amounts. Aluminum in a plane = DM. Sandpaper, robots, tools = MOH (indirect — they help produce but aren't IN the product).", "Cost Classification", 1],
-["What is an example of direct labor?", ["Wages for furniture assemblers in a wood furniture manufacturer", "Wages for factory quality control inspectors", "Wages for marketing staff in company headquarters", "Wages for accounting staff in company headquarters"], 0, "Direct labor = workers who TOUCH the product. Assemblers build the furniture = DL. QC inspectors = indirect (MOH). Marketing and accounting = period costs (S&A).", "Cost Classification", 1],
-["What is an example of manufacturing overhead?", ["Cost of aluminum in making an airplane", "Cost of sandpaper in making wood furniture", "Cost of concrete in making a road", "Cost of bricks in making a building"], 1, "Sandpaper = INDIRECT material (not physically IN final furniture in meaningful amount) = MOH. Aluminum, concrete, bricks are all primary physical inputs = DIRECT MATERIALS.", "Cost Classification", 1],
-["What is horizontal analysis in the context of financial statement analysis?", ["Calculating each line item as a percentage of total sales for the same year", "Calculating the percentage change in each line item from one year to the next", "Comparing one company's financial statements to a competitor's financial statements", "Analyzing the relationship between current and long-term liabilities"], 1, "HORIZONTAL analysis = trends OVER TIME (year-to-year % change). VERTICAL analysis = each item as % of base (usually total sales) in the SAME year. Horizontal scans left-to-right across years.", "Analysis & Ratios", 1],
-["Based on an analysis showing operating expenses rising sharply over two years while sales grew more slowly, what should management be concerned about?", ["The increase in interest expenses over the past two years", "The increase in income taxes over the past two years", "The increase in operating expenses over the past two years", "The increase in production cost over the past two years"], 2, "If operating expenses are outpacing sales growth, operating margin is squeezed. This is the profitability threat management must address. Interest/taxes are not operating, and production is a subset, not the whole story.", "Analysis & Ratios", 1],
-["Which action would make the profitability of the company in 20X9 the same as in 20X7?", ["Decreasing the proportion of operating income to sales by about 2%", "Increasing the proportion of gross profit to sales by about 2%", "Increasing the operating expenses by about $20,000", "Paying back interest expenses earlier in the year"], 1, "To restore earlier profitability: improve gross profit margin. Gross profit % has to RISE, not fall, and operating expenses must fall, not rise. B is the only action that directly increases profitability.", "Analysis & Ratios", 1],
-["In the Whole Pine cash flow analysis, how should a column chart showing cash availability for each month be titled?", ["Cash Analysis", "Monthly Receipts", "Total Cash Available", "Whole Pine Cash"], 2, "Task 60.1 in the workbook specifies the exact title: 'Total Cash Available'. MyEducator grades titles EXACTLY. Don't improvise on chart titles.", "Budgeting & Cash Flow", 1],
-["Why is the net cash for December negative while total sales for December are the highest out of the months from October through December?", ["December general and administrative expenses are expected to be much higher.", "Credit sales are disproportionately low with respect to total sales compared to other months.", "Total cash available does not reflect December sales because there was a high volume of credit sales.", "December cash use is disproportionally high with respect to total sales compared to other months."], 3, "December has $50k equipment purchase + $55k cash dividend on top of normal outflows, pushing Total Cash Outflows to $454k. Sales are high but cash USE is disproportionately higher. The giant outflows, not receipt timing, drive the negative.", "Budgeting & Cash Flow", 1],
-["How can Whole Pine avoid having negative net cash flows in December?", ["Promote cash sales with the goal of having $230,000 in cash sales and only $210,000 in credit sales.", "Postpone purchasing the new equipment and do not pay cash dividends to shareholders.", "Collect 50% of the credit sales in the month of credit sales and 30% in the month following the credit sales.", "Instead of paying for credit purchases of inventory a month after the purchase, pay two months after the purchase."], 1, "The $50k equipment + $55k dividend = $105k of DISCRETIONARY December outflows. Postponing both eliminates the cash shortfall directly. The other options tinker with collection timing or payment timing, which help less and risk supplier/customer relationships.", "Budgeting & Cash Flow", 1],
-["What is the primary difference between managerial and financial accounting?", ["Managerial accounting must follow GAAP", "Managerial accounting provides information for internal decision-making and is not bound by GAAP", "Managerial accounting reports only to investors and creditors", "Managerial accounting reports only historical transactions"], 1, "Managerial = INTERNAL users, future-focused, no GAAP required. Financial = external, GAAP, historical.", "Managerial Accounting", 1],
-["Which characteristic describes financial accounting?", ["Prepared for internal managers only", "Focused on future projections for individual product lines", "Prepared for external users following GAAP", "Updated on demand with no fixed reporting periods"], 2, "Financial accounting = external users (investors, creditors), GAAP-bound, whole company, periodic.", "Intro & Ethics", 1],
-["Which group is an EXTERNAL user of financial accounting information?", ["Production supervisors", "Company creditors", "Department managers", "Internal auditors planning budgets"], 1, "External = investors and creditors (lenders). Managers and supervisors are internal users.", "Intro & Ethics", 1],
-["Which government agency enforces financial reporting requirements for publicly traded U.S. companies?", ["FASB", "AICPA", "SEC", "IRS"], 2, "FASB WRITES the rules (GAAP); the SEC ENFORCES them for public companies. IRS = taxes, AICPA = the CPA profession.", "Intro & Ethics", 1],
-["Which body establishes International Financial Reporting Standards (IFRS)?", ["FASB", "IASB", "SEC", "GAAP Council"], 1, "IASB sets IFRS (international). FASB sets U.S. GAAP. Same first letter pairing: I with I, F with... US.", "Intro & Ethics", 1],
-["What distinguishes bookkeeping from accounting?", ["Bookkeeping is the day-to-day recording of transactions; accounting also includes analysis and reporting", "Bookkeeping requires a CPA license", "Bookkeeping includes preparing audited financial statements", "Accounting excludes the recording of transactions"], 0, "Bookkeeping = recording only. Accounting = the whole pipeline: record, report, analyze.", "Intro & Ethics", 1],
-["Which accounts are increased by a DEBIT?", ["Assets, expenses, and dividends", "Liabilities, revenues, and equity", "Assets, liabilities, and revenues", "Revenues, expenses, and dividends"], 0, "DEAD: Debits increase Expenses, Assets, Dividends. CLIC: Credits increase Liabilities, Income, Capital.", "Equation & Entries", 1],
-["Which accounts are increased by a CREDIT?", ["Assets, expenses, and dividends", "Liabilities, revenues, and equity", "Assets, dividends, and liabilities", "Expenses, equity, and assets"], 1, "CLIC: Credits increase Liabilities, Income (revenue), Capital (equity). The DEAD side gets debits.", "Equation & Entries", 1],
-["What is the normal balance of a revenue account?", ["Debit", "Credit", "Zero", "Either debit or credit"], 1, "Revenue lives on the CLIC side: normal balance is credit. Expenses and assets normally carry debit balances.", "Equation & Entries", 1],
-["A company purchases supplies on account. What is the journal entry?", ["Debit Supplies, credit Cash", "Debit Supplies, credit Accounts Payable", "Debit Accounts Payable, credit Supplies", "Debit Cash, credit Supplies"], 1, "'On account' = no cash yet = a payable. Asset (supplies) up via debit, liability (AP) up via credit.", "Equation & Entries", 1],
-["A company pays off an account payable with cash. What is the effect on the accounting equation?", ["Assets decrease and liabilities decrease", "Assets decrease and equity decreases", "Assets increase and liabilities increase", "Liabilities decrease and equity increases"], 0, "Cash (asset) goes out, the payable (liability) is extinguished. Both sides shrink; equation stays balanced.", "Equation & Entries", 1],
-["A company provides services to a customer on account. What is the journal entry?", ["Debit Cash, credit Service Revenue", "Debit Accounts Receivable, credit Service Revenue", "Debit Service Revenue, credit Accounts Receivable", "Debit Accounts Payable, credit Service Revenue"], 1, "'On account' as the SELLER = a receivable. Debit AR (asset up), credit Revenue (equity up via income).", "Equation & Entries", 1],
-["What is the effect of paying cash dividends on the accounting equation?", ["Assets decrease and equity decreases", "Assets decrease and liabilities decrease", "Expenses increase and equity decreases", "Assets increase and equity increases"], 0, "Dividends are NOT an expense. Cash (asset) down, retained earnings (equity) down directly.", "Equation & Entries", 1],
-["Under double-entry accounting, every transaction affects at least how many accounts?", ["One", "Two", "Three", "Four"], 1, "Double-entry: total debits must equal total credits, so at least TWO accounts move every time.", "Equation & Entries", 1],
-["In what order are the financial statements prepared?", ["Balance sheet, income statement, retained earnings, cash flows", "Income statement, retained earnings, balance sheet, cash flows", "Cash flows, income statement, balance sheet, retained earnings", "Retained earnings, income statement, cash flows, balance sheet"], 1, "I Run Big Cash: Income statement, Retained earnings, Balance sheet, Cash flows. Each feeds the next.", "Financial Statements", 1],
-["Net income from the income statement flows directly into which statement?", ["Balance sheet", "Statement of retained earnings", "Statement of cash flows", "Trial balance"], 1, "Articulation: NI pours into retained earnings, ending RE lands on the balance sheet.", "Financial Statements", 1],
-["How is ending retained earnings calculated?", ["Beginning RE + net income - dividends", "Beginning RE - net income + dividends", "Total assets - total liabilities", "Revenues - expenses"], 0, "Beg RE + NI - Dividends = End RE. Assets minus liabilities is total equity, not just RE.", "Financial Statements", 1],
-["Which financial statement reports amounts AS OF a single point in time?", ["Income statement", "Statement of cash flows", "Balance sheet", "Statement of retained earnings"], 2, "Balance sheet = snapshot ('as of Dec 31'). The other three cover a PERIOD ('for the year ended').", "Financial Statements", 1],
-["Buying a delivery truck for cash is reported in which section of the statement of cash flows?", ["Operating activities", "Investing activities", "Financing activities", "Noncash activities"], 1, "Buying or selling long-term assets = INVESTING. The company is investing in its own productive capacity.", "Financial Statements", 1],
-["Issuing bonds or borrowing from a bank is reported in which section of the statement of cash flows?", ["Operating activities", "Investing activities", "Financing activities", "Adjusting activities"], 2, "Raising money from lenders or owners = FINANCING. Debt and equity transactions live here.", "Financial Statements", 1],
-["Paying cash dividends to shareholders is reported in which section of the statement of cash flows?", ["Operating activities", "Investing activities", "Financing activities", "It is not reported on the statement of cash flows"], 2, "Dividends PAID = financing (a transaction with owners). Paying employees or suppliers = operating.", "Financial Statements", 1],
-["Under the indirect method, the operating section of the statement of cash flows begins with which amount?", ["Cash collected from customers", "Net income", "Gross profit", "Total revenue"], 1, "Indirect method starts at NET INCOME, then adjusts for non-cash items and working-capital changes. Direct method lists actual receipts and payments.", "Financial Statements", 1],
-["Why is depreciation added back to net income under the indirect method?", ["It is a financing activity", "It is a non-cash expense that reduced net income", "It increases the cash balance", "It is an investing inflow"], 1, "Depreciation reduced NI but no cash left the building, so it gets added back.", "Financial Statements", 1],
-["What is a current asset?", ["An asset expected to be converted to cash or used up within one year", "Any asset purchased in the current year", "An asset with no physical form", "An asset financed with long-term debt"], 0, "Current = within one year (or operating cycle). Cash, AR, inventory, supplies.", "Financial Statements", 1],
-["As production volume increases, what happens to TOTAL variable cost and PER-UNIT variable cost?", ["Total increases; per-unit stays constant", "Total stays constant; per-unit decreases", "Total increases; per-unit increases", "Total decreases; per-unit stays constant"], 0, "Variable: total moves WITH volume; per-unit is frozen. (Fixed is the mirror image.)", "Cost Classification", 1],
-["As production volume increases, what happens to TOTAL fixed cost and PER-UNIT fixed cost?", ["Total increases; per-unit stays constant", "Total stays constant; per-unit decreases", "Total decreases; per-unit decreases", "Total stays constant; per-unit increases"], 1, "Fixed: total is frozen; per-unit falls as volume spreads it thinner. The rent doesn't care how much you make.", "Cost Classification", 1],
-["A utility bill with a flat monthly base charge plus a per-kilowatt usage charge is which type of cost?", ["Fixed cost", "Variable cost", "Mixed cost", "Opportunity cost"], 2, "Fixed base + variable component = MIXED cost. Utilities are the classic example.", "Cost Classification", 1],
-["Which three inventory accounts does a manufacturing company report?", ["Merchandise, supplies, and finished goods", "Raw materials, work-in-process, and finished goods", "Direct materials, direct labor, and overhead", "Purchased goods, consigned goods, and sold goods"], 1, "Manufacturer = RM, WIP, FG. DM/DL/MOH are cost COMPONENTS, not inventory accounts.", "Cost Classification", 1],
-["How does inventory differ between a merchandising company and a manufacturing company?", ["A merchandiser has one merchandise inventory account; a manufacturer has three inventory accounts", "A merchandiser has three inventory accounts; a manufacturer has one", "Merchandisers do not report inventory", "Manufacturers report inventory as an expense when purchased"], 0, "Merchandiser buys finished goods = ONE inventory account. Manufacturer makes goods = RM, WIP, FG.", "Cost Classification", 1],
-["How are the glue and screws used in furniture production classified?", ["Direct materials", "Indirect materials, part of manufacturing overhead", "Period costs", "Direct labor"], 1, "Too small/cheap to trace per unit = INDIRECT materials, which roll into MOH. Wood = direct; glue = overhead.", "Cost Classification", 1],
-["What is an opportunity cost?", ["A cost already incurred that cannot be recovered", "The benefit given up by choosing one alternative over the next best alternative", "Any cost that varies with production volume", "A cost recorded in the general ledger when incurred"], 1, "Opportunity cost = the forgone benefit of the road not taken. It's real for decisions but never recorded in the books.", "Cost Classification", 1],
-["What is a sunk cost?", ["A cost already incurred that cannot be changed by any future decision", "A future cost that differs between alternatives", "The benefit forgone from the next best alternative", "A cost that will be incurred only if a project continues"], 0, "Sunk = already spent, unrecoverable, IRRELEVANT to future decisions. Don't chase it.", "Cost Classification", 1],
-["What determines whether a cost is DIRECT or INDIRECT?", ["Whether it can be conveniently traced to a specific cost object", "Whether it changes with production volume", "Whether it is paid in cash", "Whether it occurs inside the factory"], 0, "Direct/indirect is about TRACEABILITY to the cost object. Variable/fixed is about behavior. Different axes.", "Cost Classification"],
-["Applied manufacturing overhead exceeds actual manufacturing overhead for the year. Overhead is:", ["Underapplied", "Overapplied", "Prorated", "Unadjusted"], 1, "Applied > actual = OVERapplied (you charged jobs too much). Applied < actual = underapplied.", "Costing Methods", 1],
-["How is a small overapplied or underapplied overhead balance typically disposed of at year-end?", ["Carried forward as an asset", "Adjusted directly to cost of goods sold", "Written off to retained earnings", "Refunded to customers"], 1, "The usual fix: close the difference to COGS. Overapplied decreases COGS; underapplied increases it.", "Costing Methods"],
-["What is the purpose of a job cost sheet in a job order costing system?", ["To accumulate the direct materials, direct labor, and applied overhead for a specific job", "To record period costs by department", "To calculate the predetermined overhead rate", "To track selling and administrative expenses"], 0, "The job cost sheet is the job's running tab: DM + DL + applied OH for that one job.", "Costing Methods", 1],
-["What is the main benefit of an activity-based costing system over a single plantwide rate?", ["It eliminates manufacturing overhead", "It assigns overhead more accurately when products consume activities differently", "It requires less analysis of overhead", "It always produces lower product costs"], 1, "ABC wins when products are DIVERSE: multiple pools and drivers assign OH to what actually causes it.", "Costing Methods", 1],
-["In process costing, what is the purpose of computing equivalent units?", ["To express partially completed units as a smaller number of fully completed units for per-unit costing", "To count only units sold during the period", "To eliminate work-in-process inventory", "To trace materials to specific jobs"], 0, "Half-done units get counted as fractional whole units so cost per unit means something.", "Costing Methods"],
-["Can a service business such as a law firm use job order costing?", ["No, job order costing applies only to manufacturers", "Yes, each client engagement is treated as a job", "No, service firms must use process costing", "Yes, but only if the firm carries inventory"], 1, "Job order fits any CUSTOM output: law cases, audits, hospital patients, repair jobs. Each engagement = a job.", "Costing Methods", 1],
-["When is the predetermined overhead rate calculated?", ["At the end of the period using actual amounts", "At the beginning of the period using estimated amounts", "Monthly using actual overhead", "Only when overhead is underapplied"], 1, "PREdetermined = set BEFORE the year starts, from ESTIMATES (est. MOH / est. activity). That's why applied rarely equals actual.", "Costing Methods", 1],
-["How is contribution margin calculated?", ["Sales minus cost of goods sold", "Sales minus variable costs", "Sales minus fixed costs", "Sales minus total costs"], 1, "CM = sales - VARIABLE costs. It's what's left to cover fixed costs, then profit. (Sales - COGS = gross profit, a different animal.)", "CVP & Break-Even", 1],
-["How is the contribution margin ratio calculated?", ["Contribution margin divided by sales", "Fixed costs divided by sales", "Variable costs divided by sales", "Net income divided by contribution margin"], 0, "CM ratio = CM / sales. (Variable costs / sales is the VARIABLE cost ratio; the two sum to 100%.)", "CVP & Break-Even", 1],
-["How is the break-even point in SALES DOLLARS calculated?", ["Fixed costs divided by contribution margin per unit", "Fixed costs divided by contribution margin ratio", "Variable costs divided by contribution margin ratio", "Fixed costs multiplied by contribution margin ratio"], 1, "BE dollars = fixed / CM RATIO. BE units = fixed / CM PER UNIT. Match the denominator to the output you want.", "CVP & Break-Even", 1],
-["How many units must be sold to earn a target profit?", ["(Fixed costs + target profit) divided by contribution margin per unit", "Fixed costs divided by contribution margin per unit", "Target profit divided by sales price", "(Fixed costs - target profit) divided by contribution margin per unit"], 0, "Target profit just joins fixed costs in the numerator: (fixed + target) / CM per unit.", "CVP & Break-Even", 1],
-["What is the margin of safety?", ["The excess of actual or budgeted sales over break-even sales", "The excess of fixed costs over variable costs", "Sales minus cost of goods sold", "The difference between applied and actual overhead"], 0, "Margin of safety = how far sales can fall before you hit break-even. Cushion above the cliff.", "CVP & Break-Even"],
-["If fixed costs increase and everything else stays constant, what happens to the break-even point?", ["It increases", "It decreases", "It stays the same", "It cannot be determined"], 0, "Bigger fixed nut to cover = more units needed = break-even RISES. Higher CM per unit is what lowers it.", "CVP & Break-Even", 1],
-["Which budget must be prepared FIRST in the master budget?", ["Production budget", "Cash budget", "Sales budget", "Direct materials budget"], 2, "Sales budget is the locomotive; every other budget is pulled by it.", "Budgeting & Cash Flow", 1],
-["How are required production units calculated in the production budget?", ["Expected sales + desired ending inventory - beginning inventory", "Expected sales - desired ending inventory + beginning inventory", "Expected sales + beginning inventory", "Desired ending inventory - expected sales"], 0, "Make what you'll sell, plus the shelf you WANT at the end, minus the shelf you already HAVE.", "Budgeting & Cash Flow", 1],
-["How are required direct materials purchases calculated?", ["Production needs + desired ending materials inventory - beginning materials inventory", "Production needs - desired ending materials inventory + beginning materials inventory", "Expected sales + beginning materials inventory", "Beginning materials inventory - production needs"], 0, "Same skeleton as the production budget, one level down: needs + desired ending - beginning.", "Budgeting & Cash Flow"],
-["What is the primary purpose of a cash budget?", ["To forecast cash receipts and disbursements so the company can plan borrowing and repayment", "To calculate net income for the period", "To allocate overhead to products", "To determine depreciation expense"], 0, "Cash budget = will we have enough cash each month, and when do we need to borrow or can repay.", "Budgeting & Cash Flow", 1],
-["What is the difference between a static budget and a flexible budget?", ["A static budget is fixed at one planned activity level; a flexible budget adjusts to the actual activity level", "A static budget adjusts to actual activity; a flexible budget does not change", "A static budget covers one month; a flexible budget covers a year", "There is no difference"], 0, "Static = one volume, set and forgotten. Flexible = recalculated at the ACTUAL volume, so variances are fair comparisons.", "Budgeting & Cash Flow"],
-["What is a primary benefit of the budgeting process?", ["It forces planning ahead and provides a benchmark for evaluating actual performance", "It guarantees the company will be profitable", "It eliminates the need for financial statements", "It removes uncontrollable costs"], 0, "Budgets = planning + coordination + a yardstick for control. They guarantee nothing.", "Budgeting & Cash Flow", 1],
-["What is vertical analysis?", ["Expressing each line item as a percentage of a base amount within the same statement", "Calculating the percentage change in each item from year to year", "Comparing a company's ratios to industry averages", "Analyzing only the balance sheet"], 0, "Vertical = X-ray of ONE statement: every line as % of the base. Horizontal = compare ACROSS years.", "Analysis & Ratios", 1],
-["In a vertical analysis of the income statement, which amount is the base (100%)?", ["Net income", "Gross profit", "Net sales", "Total expenses"], 2, "IS base = net sales (revenue). Balance sheet base = total assets.", "Analysis & Ratios", 1],
-["Sales were $200,000 last year and $250,000 this year. What is the horizontal-analysis percentage change?", ["20%", "25%", "50%", "125%"], 1, "(New - old) / OLD = 50,000 / 200,000 = 25%. The prior year is always the denominator.", "Analysis & Ratios", 1],
-["How is the current ratio calculated, and what does it measure?", ["Current assets / current liabilities; liquidity", "Total liabilities / total assets; solvency", "Net income / sales; profitability", "Sales / total assets; efficiency"], 0, "Current ratio = CA / CL = can we pay short-term bills. That's LIQUIDITY.", "Analysis & Ratios", 1],
-["What does the debt-to-assets ratio measure?", ["The proportion of assets financed by creditors, indicating solvency and leverage", "Short-term bill-paying ability", "Profit earned per sales dollar", "Inventory turnover speed"], 0, "Debt ratio = total liabilities / total assets = how leveraged. Long-term survival = SOLVENCY.", "Analysis & Ratios"],
-["How is profit margin calculated?", ["Net income divided by net sales", "Gross profit divided by total assets", "Net sales divided by net income", "Operating income divided by equity"], 0, "Profit margin = NI / sales = cents of profit per sales dollar.", "Analysis & Ratios", 1],
-["What is the difference between liquidity and solvency?", ["Liquidity is the ability to meet short-term obligations; solvency is the ability to meet long-term obligations", "Liquidity refers to long-term debt; solvency refers to short-term debt", "They are the same concept", "Liquidity measures profitability; solvency measures efficiency"], 0, "Liquidity = this year's bills (current ratio). Solvency = surviving the long haul (debt ratio).", "Analysis & Ratios"],
-["In a make-or-buy decision, which costs are relevant?", ["All fixed and variable costs of making the product", "Only the costs that differ between making and buying", "Sunk costs already invested in equipment", "Allocated corporate overhead that continues either way"], 1, "Relevant = DIFFERENTIAL: only costs that change between the alternatives. Sunk costs and unavoidable overhead don't count.", "Managerial Accounting"],
-["When should a company accept a special order at a price below the normal selling price?", ["Never; selling below normal price always loses money", "When the special price exceeds the variable cost per unit and idle capacity exists", "When the special price exceeds the full absorption cost", "Whenever the customer is new"], 1, "With IDLE capacity, fixed costs don't change: any price above variable cost adds contribution margin.", "Managerial Accounting"]
+["What is the correct sequence of budgets in a manufacturing business?", ["Sales, production, direct materials", "Production, direct materials, sales", "Direct materials, sales, production", "Sales, direct materials, production"], 0, "Sell it, build it, buy the sticks. Sales forecast drives production, production drives materials.", "Budget Sequence"],
+["Which budget must be prepared first in the master budget process?", ["Sales budget", "Production budget", "Cash budget", "Direct materials budget"], 0, "Everything downstream depends on forecasted sales volume.", "Budget Sequence"],
+["Which budget must be completed before the direct materials budget can be prepared?", ["Production budget", "Sales budget only, materials come directly from it", "Cash budget", "Administrative expense budget"], 0, "Units to produce determine materials to buy. Sales -> production -> materials.", "Budget Sequence"],
+["Which budget must be completed before the direct labor budget can be prepared?", ["Production budget", "Direct materials budget", "Sales budget, labor is planned straight from sales", "Cash budget"], 0, "Labor hours are planned from units to produce, not from sales or materials.", "Budget Sequence"],
+["Which budget is typically prepared last?", ["Cash budget", "Sales budget", "Production budget", "Direct materials budget"], 0, "Cash collects the consequences of every other budget, so it comes last.", "Budget Sequence"],
+["Why does the sales budget come first in the budgeting sequence?", ["Production and purchasing plans depend on forecasted sales volume", "It is the easiest budget to prepare", "Sales managers outrank production managers", "It is required by GAAP"], 0, "It is a pull system. The forecast pulls the factory, the factory pulls the suppliers.", "Budget Sequence"],
+["How are the wages of cashiers classified in a merchandising company?", ["Selling expense", "Cost of goods sold", "Manufacturing overhead", "Work-in-process inventory"], 0, "Merchandisers manufacture nothing. Store labor is a period cost, and cashiers are store operations.", "Cost Classification"],
+["What is included in cost of goods sold for a merchandising company?", ["The cost of the merchandise purchased for resale", "Merchandise cost plus store employee wages", "Merchandise cost plus store rent and utilities", "All costs of operating the business"], 0, "Only the merchandise itself. The greeter's paycheck is not inside the TV box.", "Cost Classification"],
+["Which inventory account does NOT exist in a merchandising company?", ["Work-in-process inventory", "Merchandise inventory", "Inventory reported as a current asset", "Inventory measured at purchase cost"], 0, "No production means no WIP and no raw materials. One inventory account: merchandise.", "Cost Classification"],
+["How are the wages of furniture assemblers classified at a furniture manufacturer?", ["Direct labor, a product cost", "Selling expense", "Administrative expense", "Period cost"], 0, "Hands on the product at a manufacturer = direct labor, capitalized into inventory.", "Cost Classification"],
+["How are the wages of sales clerks classified at a furniture MANUFACTURER?", ["Selling expense, a period cost", "Direct labor", "Manufacturing overhead", "Cost of goods sold when incurred"], 0, "Selling people are period costs at any company type. Manufacturing status changes factory labor, not sales labor.", "Cost Classification"],
+["A merchandiser buys goods for resale. When do those goods hit the income statement?", ["As cost of goods sold when the goods are sold", "As an expense when purchased", "As a selling expense over time", "They stay on the balance sheet permanently"], 0, "Product cost rule: sit in inventory as an asset until sold, then expense as COGS.", "Cost Classification"],
+["Which cost is a period cost at a manufacturer?", ["Utility bills for the headquarters building", "Utility bills for the factory", "Wages of factory maintenance workers", "Depreciation on production equipment"], 0, "Factory anything = manufacturing overhead (product cost). Headquarters anything = period cost.", "Cost Classification"],
+["How is overhead allocated in an ABC system?", ["Activity rate multiplied by number of cost driver events", "Cost pool multiplied by number of cost driver events", "Sum of materials and labor cost multiplied by number of units", "Budgeted overhead multiplied by expected direct labor hours"], 0, "A pool is a bucket, a rate is a price. Allocation always uses the price: rate x events consumed.", "ABC Costing"],
+["How is the activity rate computed in an ABC system?", ["Total cost pool divided by total expected cost driver volume", "Cost pool multiplied by driver volume", "Total overhead divided by direct labor hours", "Driver events divided by the cost pool"], 0, "Ladle the pool into a per-scoop price: pool / total driver volume.", "ABC Costing"],
+["A setup cost pool is $200,000 and 400 setups are expected. Product X used 25 setups. How much overhead is allocated to X?", ["$12,500", "$500", "$8,000", "$200,000"], 0, "Rate = 200,000/400 = $500 per setup. X = 25 x 500 = $12,500.", "ABC Costing"],
+["An inspection cost pool is $90,000 and 3,000 inspections are expected. What is the activity rate?", ["$30 per inspection", "$300 per inspection", "$3,000 per inspection", "$27 per inspection"], 0, "90,000 / 3,000 = $30 per inspection. Pool over volume, always.", "ABC Costing"],
+["In an ABC system, what is a cost driver?", ["The activity or event that causes overhead cost to be incurred", "The total dollars in a cost pool", "The manager responsible for a department", "The product with the highest overhead"], 0, "Drivers are the causes: setups, inspections, machine hours. Pools are the dollars they explain.", "ABC Costing"],
+["What distinguishes ABC from a single plantwide overhead rate?", ["ABC allocates overhead based on multiple activities", "ABC eliminates overhead costs", "ABC requires only direct labor hours", "ABC ignores cost drivers"], 0, "Many pools, many rates, each tied to its own driver, instead of one blanket rate.", "ABC Costing"],
+["What is the formula for horizontal (year-to-year) analysis?", ["(Current year minus prior year) divided by prior year", "Current year divided by prior year", "(Prior year minus current year) divided by current year", "Current year divided by net sales"], 0, "Percentage change is always (new - old) / old. Divide by where you started.", "Horizontal & Vertical"],
+["What is the formula for vertical (common-size) analysis on an income statement?", ["Each line item divided by net sales", "Each line item divided by net income", "Each line item divided by prior year sales", "(Current minus prior) divided by prior"], 0, "Divide by the top. Every line becomes a % of net sales.", "Horizontal & Vertical"],
+["Net sales grew from $500,000 to $650,000. What is the year-to-year percentage change?", ["30%", "23%", "77%", "130%"], 0, "(650-500)/500 = 30%. Dividing by the new year (23%) is the classic wrong direction.", "Horizontal & Vertical"],
+["Cost of goods sold is $420,000 and net sales are $600,000. What is COGS as a percentage of sales?", ["70%", "30%", "143%", "42%"], 0, "420/600 = 70%. Common-size = line over net sales.", "Horizontal & Vertical"],
+["Why are common-size income statements useful?", ["They allow comparison of cost structure across years or companies of different sizes", "They show exact dollar changes between years", "They are required for tax reporting", "They eliminate the need for horizontal analysis"], 0, "Percentages strip out size, so structure is comparable across years and firms.", "Horizontal & Vertical"],
+["Operating expenses were 18%, 21%, and 24% of sales over three years while COGS % of sales fell. What should management be concerned about?", ["The increase in operating expenses as a proportion of sales", "The increase in production cost", "The level of interest expense", "The change in income taxes"], 0, "Find the row whose % of sales climbs every year. Dollar growth is bait, proportion is the signal.", "Common-Size Reading"],
+["A cost increased in dollars but decreased as a percentage of sales. What does that indicate?", ["The cost grew more slowly than sales", "The cost is out of control", "Sales must have decreased", "The company became less efficient"], 0, "Proportion falling while dollars rise means sales outgrew the cost. That is improvement.", "Common-Size Reading"],
+["Income before tax is 3% of sales this year versus 5% two years ago. Which action restores prior profitability?", ["Increasing the proportion of gross profit to sales by about 2%", "Increasing operating expenses by about 2% of sales", "Decreasing the proportion of operating income to sales by 2%", "Paying interest expense earlier in the year"], 0, "Quantify the gap (2 points) and pick the option that moves profit UP by that much. Timing of payments never touches the income statement.", "Common-Size Reading"],
+["Interest expense stayed at $22,000 for three straight years. What does horizontal analysis show for it?", ["0% change each year", "A steady increase", "It cannot be computed", "22% each year"], 0, "No dollar change means 0% year-to-year. Flat lines cannot be the growing concern.", "Common-Size Reading"],
+["Credit sales are collected 40% in the month of sale, 40% the month after, 20% two months after. December credit sales are $310,000. How much of that is collected in December?", ["$124,000", "$310,000", "$248,000", "$62,000"], 0, "Month-of collection: 310,000 x 40% = 124,000. The rest lands in January and February.", "Cash Budget"],
+["Same schedule (40/40/20). November credit sales were $200,000 and October's were $150,000. What does December collect from PRIOR months' credit sales?", ["$110,000", "$80,000", "$140,000", "$70,000"], 0, "Nov x 40% = 80,000 plus Oct x 20% = 30,000. The staircase reaches back one month per row.", "Cash Budget"],
+["Why can net cash flow be negative in the month with the highest total sales?", ["A high volume of credit sales means cash receipts lag the sales", "Sales figures are usually overstated", "High sales always increase cash immediately", "Depreciation reduces cash in high-sales months"], 0, "Sales are not receipts. Credit sales pay you on the collection schedule, not at the register.", "Cash Budget"],
+["A company faces a $60,000 cash shortfall in December. Which action avoids it?", ["Postpone a $40,000 equipment purchase and skip a $30,000 dividend", "Accelerate collections, gaining $15,000 of receipts", "Promote cash sales, adding $35,000 of December receipts", "Stretch supplier payments, saving $20,000"], 0, "The deficit is a number, so every option is a number. Only 40k + 30k = 70k covers 60k.", "Cash Budget"],
+["Which December cash outflow is most controllable in the short run?", ["Cash dividends to shareholders", "Income tax payments", "Debt repayments", "Credit purchases already made"], 0, "Dividends and capex are choices. Taxes, debt service, and bills already incurred are obligations.", "Cash Budget"],
+["Inventory bought on credit is paid the month after purchase. Whose credit purchases does December pay?", ["November's", "December's", "October's", "Half of November's and half of December's"], 0, "Pay last month's bill. December's own credit purchases hit January.", "Cash Budget"],
+["On a cash budget, what does 'Total Cash Available' from operations include?", ["Cash sales plus collections of credit sales", "Total sales for the month", "All sales minus all expenses", "Net income plus depreciation"], 0, "It is a receipts number. Only money that actually arrived counts.", "Cash Budget"],
+["If a company shifts its sales mix toward cash sales and away from credit sales, what happens to cash receipts?", ["They arrive sooner", "They arrive later", "They decrease permanently", "Nothing changes"], 0, "Cash sales collect at the register instead of over the collection schedule, pulling receipts forward.", "Cash Budget"]
 ];
-const LS = "d196drill_v1";
-const C=22*2*Math.PI;
-let queue=[], cur=0, curOpts=[], waiting=false, picked=new Set(), filter="", waitAt=0;
-let hist=[],histPos=-1;
-let mode=localStorage.getItem("d196drill_mode")||"core";
-const $=s=>document.getElementById(s);
-let state=load();
+const LS_KEY='d196drill_v1';
+let state={};
+try{state=JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){state={}}
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}}
+function st(i){if(!state[i])state[i]={c:0,hist:[]};return state[i]}
 
-function load(){try{const s=JSON.parse(localStorage.getItem(LS));if(Array.isArray(s)){while(s.length<MCQS.length)s.push({c:0,seen:false,lta:[],t:0,n:"",tg:false});const t=s.slice(0,MCQS.length);t.forEach(p=>{if(!Array.isArray(p.lta))p.lta=[];if(typeof p.t!=="number")p.t=(p.c>=2?1:(p.seen?2:0));if(typeof p.n!=="string")p.n="";if(typeof p.tg!=="boolean")p.tg=false});return t;}}catch(e){}return MCQS.map(()=>({c:0,seen:false,lta:[],t:0,n:"",tg:false}));}
-function save(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
-function isMulti(i){return Array.isArray(MCQS[i][2])}
-function corrSet(i){return new Set(isMulti(i)?MCQS[i][2]:[MCQS[i][2]])}
+let topic='';
+let queue=[],cur=-1,curOpts=[],waiting=false;
 
-const APTW=[.5,.25,.15,.1];
-function qApt(i){const l=state[i].lta||[];let a=0;for(let k=0;k<4;k++)a+=APTW[k]*(l[k]===undefined?.25:l[k]);return a}
-function idxs(){return MCQS.map((_,i)=>i).filter(i=>(mode==="full"||MCQS[i][5]===1)&&(!filter||MCQS[i][4]===filter))}
-const TIERS=["untriaged","known","review","learn"];
-let view="drill",pileF="",tq=[];
-function pileCounts(){const p=idxs();const c=[0,0,0,0];p.forEach(i=>c[state[i].t]++);return c}
-function drawPiles(){const c=pileCounts(),lbl=["Untriaged","Known","Review","Learn"];
-  $("piles").innerHTML=lbl.map((L,t)=>'<span class="chip pchip'+(pileF===TIERS[t]?" on":"")+'" data-p="'+TIERS[t]+'">'+L+" "+c[t]+'</span>').join("");
-  [...document.querySelectorAll(".pchip")].forEach(el=>el.onclick=()=>{pileF=(pileF===el.dataset.p?"":el.dataset.p);refresh()});}
-function drillIdxs(){const p=idxs();if(pileF)return p.filter(i=>TIERS[state[i].t]===pileF);return p.filter(i=>state[i].t!==1)}
-function refresh(){drawPiles();if(view==="triage"){buildTriage();renderTriage()}else{rebuild();render()}}
-function setView(v){view=v;localStorage.setItem("d196drill_view",v);$("vTriage").classList.toggle("on",v==="triage");$("vDrill").classList.toggle("on",v==="drill");refresh()}
-function buildTriage(){tq=idxs().filter(i=>state[i].t===0)}
-function renderTriage(){
-  histPos=-1;rings();drawPiles();
-  if(!tq.length){const c=pileCounts();
-    $("stage").innerHTML='<div class="done"><h2>Triage complete</h2><p>Known '+c[1]+' \u00b7 Review '+c[2]+' \u00b7 Learn '+c[3]+'. Drill works the Review and Learn piles.</p><button class="btn" id="goDrill">Start drilling</button></div>';
-    $("goDrill").onclick=()=>setView("drill");return;}
-  cur=tq[0];waiting=false;picked=new Set();
-  const m=MCQS[cur],multi=isMulti(cur);
-  curOpts=m[1].map((t,oi)=>({oi,text:t}));shuffle(curOpts);
-  let h='<div class="topic">'+m[4]+' \u00b7 triage '+(idxs().filter(i=>state[i].t===0).length)+' left</div><p class="q">'+esc(m[0])+'</p>';
-  if(multi)h+='<p class="hint">Select all that apply ('+m[2].length+'), then Check.</p>';
-  h+='<div id="opts">';
-  curOpts.forEach((o,d)=>{h+='<button class="ans" data-disp="'+d+'"><span class="ltr">'+"ABCDEF"[d]+'</span><span>'+esc(o.text)+'</span></button>'});
-  h+='</div>';
-  if(multi)h+='<button class="chk" id="chk" disabled>Check</button>';
-  h+='<div class="tri"><button class="tbtn" id="tStar">\u2605 review later <span class="kb">S</span></button><button class="tbtn" id="tNo">no idea <span class="kb">N</span></button></div>';
-  h+='<div class="explain" id="exp"></div><div class="cont" id="cont">tap or press space to continue</div>';
-  $("stage").innerHTML=h;
-  [...document.querySelectorAll("#opts .ans")].forEach(b=>b.onclick=()=>pick(+b.dataset.disp));
-  if(multi)$("chk").onclick=submit;
-  $("tStar").onclick=triStar;$("tNo").onclick=triNo;
+function pool(){return MCQS.map((m,i)=>i).filter(i=>!topic||MCQS[i][4]===topic)}
+function buildQueue(){
+  queue=pool().filter(i=>st(i).c<2);
+  for(let i=queue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[queue[i],queue[j]]=[queue[j],queue[i]]}
 }
-function triStar(){if(waiting||view!=="triage")return;state[cur].t=2;save();tq.shift();renderTriage()}
-function triNo(){if(waiting||view!=="triage")return;
-  waiting=true;waitAt=Date.now();state[cur].t=3;save();
-  const cs=corrSet(cur);
-  document.querySelectorAll("#opts .ans").forEach(b=>{const oi=curOpts[+b.dataset.disp].oi;b.style.pointerEvents="none";if(cs.has(oi))b.classList.add("correct");else b.classList.add("dim")});
-  const ch=$("chk");if(ch)ch.style.display="none";
-  const e=$("exp");e.className="explain show no";
-  e.innerHTML="<b>Learn:</b> "+esc(MCQS[cur][3])+'<br><input id="noteIn" placeholder="note to self (optional)" maxlength="140">';
-  $("cont").classList.add("show");
-  const ni=$("noteIn");ni.onclick=ev=>ev.stopPropagation();setTimeout(()=>ni.focus(),30);
+function shuffleOpts(m){
+  const o=m[1].map((t,oi)=>({t,oi}));
+  for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}
+  return o;
 }
-function rebuild(){queue=drillIdxs().filter(i=>state[i].c<2);if(queue.length){shuffle(queue);queue.sort((a,b)=>(state[a].seen?1:0)-(state[b].seen?1:0));}}
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
-
+function uniqueWords(correct,others){
+  const otherSet=new Set(others.join(' ').toLowerCase().match(/[a-z0-9$%.,']+/g)||[]);
+  return correct.split(' ').map(w=>{
+    const k=w.toLowerCase();
+    return (k.length>2&&!otherSet.has(k))?'<b>'+w+'</b>':w;
+  }).join(' ');
+}
 function rings(){
-  const pool=idxs();const seen=pool.filter(i=>state[i].seen).length;
-  const apt=pool.reduce((s,i)=>s+(state[i].seen?qApt(i):0),0)/(pool.length||1);
-  const sp=pool.length?seen/pool.length:0;
-  $("seenR").style.strokeDashoffset=C*(1-sp);$("seenN").textContent=Math.round(sp*100)+"%";
-  $("aptR").style.strokeDashoffset=C*(1-apt);$("aptN").textContent=Math.round(apt*100)+"%";
-  const mastered=pool.filter(i=>state[i].c>=2).length;
-  $("count").textContent=mastered+" / "+pool.length+" mastered";
+  const p=pool();
+  const seen=p.filter(i=>st(i).hist.length>0).length/(p.length||1);
+  const apt=p.reduce((a,i)=>a+Math.min(st(i).c,2)/2,0)/(p.length||1);
+  document.getElementById('seenArc').style.strokeDashoffset=119.4*(1-seen);
+  document.getElementById('aptArc').style.strokeDashoffset=119.4*(1-apt);
+  document.getElementById('seenVal').textContent=Math.round(seen*100)+'%';
+  document.getElementById('aptVal').textContent=Math.round(apt*100)+'%';
 }
-
 function render(){
-  histPos=-1;
   rings();
+  const stage=document.getElementById('stage');
   if(!queue.length){
-    const pool=idxs();
-    $("stage").innerHTML='<div class="done"><h2>'+(pool.every(i=>state[i].c>=2)?"Pool mastered ✓":"Nothing left in queue")+'</h2><p>Every question answered correctly twice.</p><button class="btn" id="again">Study again</button></div>';
-    SND.win();GAME.win();
-    $("again").onclick=()=>{drillIdxs().forEach(i=>state[i].c=0);save();rebuild();render()};return;
-  }
-  cur=queue[0];waiting=false;picked=new Set();
-  const st0=state[cur];
-  if(st0.t===3&&!st0.tg){
-    st0.tg=true;save();
-    const m0=MCQS[cur],cs0=corrSet(cur);
-    curOpts=m0[1].map((t,oi)=>({oi,text:t}));shuffle(curOpts);
-    let g='<div class="topic">'+m0[4]+' \u00b7 study card</div><p class="q">'+esc(m0[0])+'</p><div id="opts">';
-    curOpts.forEach((o,d)=>{let cls=cs0.has(o.oi)?"ans correct":"ans dim";g+='<button class="'+cls+'" style="pointer-events:none"><span class="ltr">'+"ABCDEF"[d]+'</span><span>'+esc(o.text)+'</span></button>'});
-    g+='</div><div class="explain show no"><b>Learn:</b> '+esc(m0[3])+(st0.n?'<br><i>note: '+esc(st0.n)+'</i>':'')+'</div><div class="cont show">study it \u00b7 it comes back as a question in a few cards</div>';
-    $("stage").innerHTML=g;
-    waiting=true;waitAt=Date.now();
-    queue.shift();queue.splice(Math.min(4,queue.length),0,cur);
+    stage.innerHTML='<div class="done"><h2>Set mastered.</h2><p>Every question in this filter answered correctly twice in a row. Book the OA.</p><button id="againBtn">Study again</button></div>';
+    document.getElementById('againBtn').onclick=()=>{pool().forEach(i=>{delete state[i]});save();buildQueue();render()};
     return;
   }
-  const m=MCQS[cur],multi=isMulti(cur);
-  curOpts=m[1].map((t,oi)=>({oi,text:t}));shuffle(curOpts);
-  let h='<div class="topic">'+m[4]+'</div><p class="q">'+esc(m[0])+'</p>';
-  if(multi)h+='<p class="hint">Select all that apply ('+m[2].length+'), then Check.</p>';
-  h+='<div id="opts">';
-  curOpts.forEach((o,d)=>{h+='<button class="ans" data-disp="'+d+'"><span class="ltr">'+"ABCDEF"[d]+'</span><span>'+esc(o.text)+'</span></button>'});
-  h+='</div>';
-  if(multi)h+='<button class="chk" id="chk" disabled>Check</button>';
-  h+='<div class="explain" id="exp"></div><div class="cont" id="cont">tap or press space to continue</div>';
-  $("stage").innerHTML=h;
-  [...document.querySelectorAll("#opts .ans")].forEach(b=>b.onclick=()=>pick(+b.dataset.disp));
-  if(multi)$("chk").onclick=submit;
+  cur=queue[0];
+  const m=MCQS[cur];
+  curOpts=shuffleOpts(m);
+  const mastered=pool().filter(i=>st(i).c>=2).length;
+  stage.innerHTML='<div class="card"><div class="qtopic">'+m[4]+'</div><div class="qtext">'+m[0]+'</div>'+
+    curOpts.map((o,d)=>'<button class="ans" data-disp="'+d+'"><span class="ltr">'+'ABCD'[d]+'</span><span class="txt">'+o.t+'</span></button>').join('')+
+    '<div class="explain" id="explain"></div>'+
+    '<div class="meta"><span>'+mastered+' / '+pool().length+' mastered</span><span>streak: '+st(cur).c+'/2</span></div></div>';
+  document.querySelectorAll('#opts .ans, .ans').forEach(b=>b.onclick=()=>answer(+b.dataset.disp));
 }
-
-// --- gamification layer ---
-var GAME=(function(){
-var xp=0,streak=0,best=+(localStorage.getItem(LS+"_bestStreak")||0),rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
-var st=document.createElement("style");st.textContent="@keyframes gPop{0%{opacity:0;transform:translate(-50%,0) scale(.7)}15%{opacity:1;transform:translate(-50%,-14px) scale(1.05)}100%{opacity:0;transform:translate(-50%,-52px) scale(1)}}.gPop{position:fixed;left:50%;top:38%;z-index:99;font-family:'Nunito',-apple-system,sans-serif;font-size:21px;font-weight:800;color:#37b06f;animation:gPop .9s ease-out forwards;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.18)}@keyframes gFall{to{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0}}.gCf{position:fixed;z-index:98;width:8px;height:12px;border-radius:2px;animation:gFall var(--t) ease-out forwards;pointer-events:none}@keyframes gTick{0%{transform:scale(1)}40%{transform:scale(1.16)}100%{transform:scale(1)}}.chip.tick{animation:gTick .3s ease-out}";
-document.head.appendChild(st);
-var elS=document.getElementById("hudStreak"),elX=document.getElementById("hudXP"),elB=document.getElementById("hudBest");
-function hud(t){
-if(elS){elS.textContent="\uD83D\uDD25 "+streak;elS.classList.toggle("warm",streak>=3&&streak<6);elS.classList.toggle("hot",streak>=6);
-if(t&&!rm){elS.classList.remove("tick");void elS.offsetWidth;elS.classList.add("tick")}}
-if(elX){elX.textContent=xp+" XP";if(t&&!rm){elX.classList.remove("tick");void elX.offsetWidth;elX.classList.add("tick")}}
-if(elB){elB.textContent="best "+best;elB.style.display=best>1?"":"none"}}
-function pop(txt,color){var d=document.createElement("div");d.className="gPop";if(color)d.style.color=color;d.textContent=txt;document.body.appendChild(d);setTimeout(function(){d.remove()},950)}
-function burst(n,fromTop){if(rm)return;var cols=["#1f93cc","#a3ddc6","#f4d79a","#f6a8a0","#c4b4e6"];for(var i=0;i<n;i++){var c=document.createElement("div");c.className="gCf";c.style.background=cols[i%5];c.style.left=(fromTop?Math.random()*100:45+Math.random()*10)+"%";c.style.top=fromTop?"-16px":"36%";c.style.setProperty("--dx",(Math.random()*260-130)+"px");c.style.setProperty("--dy",(fromTop?300+Math.random()*500:120+Math.random()*260)+"px");c.style.setProperty("--rot",(Math.random()*720-360)+"deg");c.style.setProperty("--t",(0.7+Math.random()*0.8)+"s");document.body.appendChild(c);setTimeout(function(e){return function(){e.remove()}}(c),1600)}}
-function ok(mastered){streak++;if(streak>best){best=streak;try{localStorage.setItem(LS+"_bestStreak",best)}catch(e){}}
-var pts=10*Math.min(streak,5)+(mastered?25:0);xp+=pts;pop("+"+pts+" XP"+(mastered?" \u2605":""),mastered?"#e8b23a":"#37b06f");if(mastered)burst(14);else if(streak%5===0)burst(10);hud(true)}
-function no(){streak=0;hud(false)}
-function win(){burst(90,true);pop("POOL MASTERED","#e8b23a")}
-hud(false);
-return{ok:ok,no:no,win:win}
-})();
-// --- audio feedback (Web Audio synth, no assets) ---
-var SND=(function(){
-var ctx=null,muted=(localStorage.getItem("drillSnd")==="0"),streak=0;
-function ac(){if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}if(ctx&&ctx.state==="suspended")ctx.resume();return ctx}
-function tone(f,t0,dur,type,vol){var c=ac();if(!c)return;var o=c.createOscillator(),g=c.createGain(),t=c.currentTime+t0;o.type=type||"sine";o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol||0.12,t+0.012);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur+0.02)}
-function ok(mastered){streak++;if(muted)return;var s=Math.min(streak,12),b=660*Math.pow(2,(s-1)/24);tone(b,0,.09);tone(b*1.5,.07,.12);if(mastered){tone(1318.5,.16,.1,"triangle",.09);tone(1760,.24,.14,"triangle",.09)}if(streak%5===0){tone(b*2,.2,.18,"sine",.08)}}
-function no(){streak=0;if(muted)return;tone(196,0,.16,"triangle",.08);tone(147,.09,.2,"triangle",.08)}
-function win(){if(muted||!ctx)return;[523.25,659.25,783.99,1046.5].forEach(function(f,i){tone(f,i*.11,.22,"sine",.1)});tone(1318.5,.5,.4,"triangle",.08)}
-function toggle(){muted=!muted;localStorage.setItem("drillSnd",muted?"0":"1");return muted}
-return{ok:ok,no:no,win:win,toggle:toggle,muted:function(){return muted}}
-})();
-(function(){var a=document.getElementById("sndBtn");if(!a)return;function r(){a.textContent=SND.muted()?"\uD83D\uDD07 sound":"\uD83D\uDD0A sound"}a.addEventListener("click",function(e){e.preventDefault();e.stopPropagation();SND.toggle();r()});r()})();
-
-function showHist(p){
-  histPos=p;waiting=false;
-  const h=hist[p],m=MCQS[h.i];
-  const cs=corrSet(h.i),ch=new Set(h.ch.map(d=>h.opts[d].oi));
-  let out='<div class="topic">'+m[4]+' \u00b7 review '+(p+1)+' of '+hist.length+'</div><p class="q">'+esc(m[0])+'</p><div id="opts">';
-  h.opts.forEach((o,d)=>{let cls="ans dim";if(cs.has(o.oi))cls="ans correct";else if(ch.has(o.oi))cls="ans wrong";out+='<button class="'+cls+'" style="pointer-events:none"><span class="ltr">'+"ABCDEF"[d]+'</span><span>'+esc(o.text)+'</span></button>'});
-  out+='</div><div class="explain show '+(h.ok?"ok":"no")+'"><b>'+(h.ok?"Correct.":"Missed.")+'</b> '+esc(m[3])+'</div><div class="cont show">'+(p>0?"\u2039 older \u00b7 ":"")+'tap / \u2192 to return</div>';
-  $("stage").innerHTML=out;
-}
-function histNav(d){
-  if(d<0){const t=(histPos<0?hist.length:histPos)-1;if(t>=0)showHist(t);return}
-  if(histPos<0)return;
-  if(histPos+1<hist.length)showHist(histPos+1);else{histPos=-1;view==="triage"?renderTriage():render()}
-}
-function pick(d){
-  if(histPos>=0)return;
+function answer(disp){
   if(waiting)return;
-  if(isMulti(cur)){
-    const b=document.querySelector('#opts .ans[data-disp="'+d+'"]');
-    if(picked.has(d)){picked.delete(d);b.classList.remove("sel")}else{picked.add(d);b.classList.add("sel")}
-    $("chk").disabled=picked.size===0;return;
+  const m=MCQS[cur],p=st(cur);
+  const picked=curOpts[disp],correctDisp=curOpts.findIndex(x=>x.oi===m[2]);
+  const ok=picked.oi===m[2];
+  p.hist.push(ok?1:0);
+  document.querySelectorAll('.ans').forEach(b=>b.disabled=true);
+  const btns=document.querySelectorAll('.ans');
+  if(ok){
+    p.c+=1;
+    btns[disp].classList.add('correct');
+    btns[disp].querySelector('.txt').innerHTML=uniqueWords(picked.t,m[1].filter((_,i)=>i!==m[2]));
+    queue.shift();
+    if(p.c<2)queue.splice(Math.min(10,queue.length),0,cur);
+    save();
+    waiting=true;
+    setTimeout(()=>{waiting=false;render()},420);
+  }else{
+    p.c=0;
+    btns[disp].classList.add('wrong');
+    btns[correctDisp].classList.add('reveal');
+    btns[correctDisp].querySelector('.txt').innerHTML=uniqueWords(m[1][m[2]],m[1].filter((_,i)=>i!==m[2]));
+    const ex=document.getElementById('explain');
+    ex.style.display='block';
+    ex.innerHTML=m[3]+'<span class="cont">tap anywhere or press space to continue</span>';
+    queue.shift();
+    queue.splice(Math.min(3,queue.length),0,cur);
+    save();
+    waiting=true;
   }
-  picked=new Set([d]);submit();
+  rings();
 }
-
-function submit(){
-  if(waiting)return;waiting=true;waitAt=Date.now();
-  const m=MCQS[cur],cs=corrSet(cur);
-  const chosen=new Set([...picked].map(d=>curOpts[d].oi));
-  const ok=chosen.size===cs.size&&[...chosen].every(x=>cs.has(x));
-  document.querySelectorAll("#opts .ans").forEach(b=>{
-    const oi=curOpts[+b.dataset.disp].oi;b.style.pointerEvents="none";
-    if(cs.has(oi))b.classList.add("correct");
-    else if(chosen.has(oi))b.classList.add("wrong");
-    else b.classList.add("dim");
-  });
-  if(isMulti(cur))$("chk").style.display="none";
-  state[cur].seen=true;
-  if(ok)state[cur].c++;else state[cur].c=0;
-  state[cur].lta=[ok?1:0].concat(state[cur].lta||[]).slice(0,4);
-  if(ok)SND.ok(state[cur].c>=2);else SND.no();
-  if(ok)GAME.ok(state[cur].c>=2);else GAME.no();
-  save();
-  hist.push({i:cur,opts:curOpts.slice(),ch:[...picked],ok:ok});if(hist.length>10)hist.shift();
-  const e=$("exp");e.className="explain show "+(ok?"ok":"no");
-  e.innerHTML="<b>"+(ok?"Correct.":"Not quite.")+"</b> "+esc(m[3])+((view!=="triage"&&state[cur].n)?"<br><i>note: "+esc(state[cur].n)+"</i>":"");
-  if(view==="triage"){state[cur].t=ok?1:2;}
-  // requeue
-  else{
-  queue.shift();
-  if(ok&&state[cur].c>=2){/* retire */}
-  else{const uns=queue.reduce((n,i)=>n+(state[i].seen?0:1),0);const off=ok?Math.min(uns+8,queue.length):Math.min(3,queue.length);queue.splice(off,0,cur)}
-  }
-  rings();drawPiles();
-  if(ok){$("cont").classList.remove("show");setTimeout(()=>{if(waiting)next()},460)}
-  else $("cont").classList.add("show");
-}
-
-function next(){if(!waiting)return;waiting=false;
-  if(view==="triage"){const ni=$("noteIn");if(ni&&ni.value.trim()){state[cur].n=ni.value.trim();save()}tq.shift();renderTriage()}
-  else render()}
-
-function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
-
-document.addEventListener("keydown",e=>{
-  if(e.target&&e.target.tagName==="INPUT"){if(e.key==="Enter"||e.key==="Escape"){e.preventDefault();next()}return}
-  if(view==="triage"&&!waiting){const k=(e.key||"").toLowerCase();if(k==="s"){e.preventDefault();triStar();return}if(k==="n"){e.preventDefault();triNo();return}}
-  if(e.key==="ArrowLeft"){e.preventDefault();histNav(-1);return}
-  if(e.key==="ArrowRight"){if(histPos>=0){e.preventDefault();histNav(1)}return}
-  if(e.key===" "||e.key==="Enter"){if(histPos>=0){e.preventDefault();histNav(1);return}if(waiting){e.preventDefault();next()}return}
-  const n="1234".indexOf(e.key),a="abcd".indexOf(e.key.toLowerCase());
-  const d=n>=0?n:a;if(d>=0){const b=document.querySelector('#opts .ans[data-disp="'+d+'"]');if(b)pick(d)}
+function next(){if(!waiting)return;waiting=false;render()}
+document.addEventListener('keydown',e=>{
+  if(waiting&&(e.key===' '||e.key==='Enter')){e.preventDefault();next();return}
+  if(waiting)return;
+  const k=e.key.toUpperCase();
+  const i='1234'.indexOf(e.key)>-1?'1234'.indexOf(e.key):'ABCD'.indexOf(k);
+  if(i>-1&&i<curOpts.length)answer(i);
 });
-$("stage").addEventListener("click",e=>{if(e.target.closest&&e.target.closest("input,.tbtn"))return;if(histPos>=0)return;if(waiting&&Date.now()-waitAt>250)next()});
-
-// topic dropdown
-[...new Set(MCQS.map(m=>m[4]))].forEach(t=>{const o=document.createElement("option");o.value=o.textContent=t;$("topic").appendChild(o)});
-$("topic").onchange=()=>{filter=$("topic").value;refresh()};
-$("histBtn").onclick=e=>{e.preventDefault();e.stopPropagation();histNav(-1)};
-$("reset").onclick=()=>{if(confirm("Wipe all drill progress?")){state=MCQS.map(()=>({c:0,seen:false,lta:[],t:0,n:"",tg:false}));save();refresh()}};
-
-function setMode(m){mode=m;localStorage.setItem("d196drill_mode",m);$("mCore").classList.toggle("on",m==="core");$("mFull").classList.toggle("on",m==="full");refresh()}
-$("mCore").onclick=()=>setMode("core");$("mFull").onclick=()=>setMode("full");
-$("vTriage").onclick=()=>setView("triage");$("vDrill").onclick=()=>setView("drill");
-view=localStorage.getItem("d196drill_view")||"";
-setMode(mode);
-if(!view)view=idxs().some(i=>state[i].t===0)?"triage":"drill";
-setView(view);
-
-document.addEventListener("click", function(e){
-  var t=e.target;
-  if(t.closest && t.closest("select,a,#themeBtn,.seg,.reset,input,.tbtn,.pchip")) return;
-  if(histPos>=0){ histNav(1); return; }
-  if(!waiting) return;
-  if(Date.now()-waitAt<250) return;
-  next();
-});
+document.addEventListener('click',e=>{if(waiting&&!e.target.closest('.ans'))next()});
+const sel=document.getElementById('topicSel');
+[...new Set(MCQS.map(m=>m[4]))].forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o)});
+sel.onchange=()=>{topic=sel.value;buildQueue();render()};
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Wipe all drill progress?')){state={};save();buildQueue();render()}};
+buildQueue();render();
 </script>
-<button id="themeBtn" class="themeb" aria-label="toggle theme">☾</button>
-<script>
-(function(){
-  var K="drill_theme", btn=document.getElementById("themeBtn");
-  var qp=null; try{qp=new URLSearchParams(location.search).get("theme");}catch(e){}
-  var saved=null; try{saved=localStorage.getItem(K);}catch(e){}
-  var t=qp||saved||"light";
-  function apply(x){document.documentElement.setAttribute("data-theme",x);btn.textContent=x==="dark"?"\u2600":"\u263e";}
-  apply(t);
-  btn.addEventListener("click",function(){t=(t==="dark")?"light":"dark";try{localStorage.setItem(K,t)}catch(e){}apply(t);});
-})();
-</script>
-</body></html>
+</body>
+</html>
