@@ -18,7 +18,9 @@
     --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif; --disp:'IBM Plex Sans Condensed',sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);display:flex;flex-direction:column;overflow:hidden}
+  header,.progress{flex:none}
   header{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid #2c333d}
   header .logo{font-family:var(--disp);font-size:20px;letter-spacing:.5px}
   header .logo span{color:var(--xlgreen);background:var(--xlgreen-soft);padding:1px 7px;border-radius:4px;margin-right:6px}
@@ -28,9 +30,9 @@
   .tab .done{color:var(--xlgreen)}
   .progress{height:4px;background:#2c333d}
   .progress b{display:block;height:100%;background:var(--xlgreen);width:0%;transition:width .3s}
-  main{display:grid;grid-template-columns:340px 1fr;gap:0;min-height:calc(100vh - 62px)}
-  @media(max-width:900px){main{grid-template-columns:1fr}}
-  .coach{background:var(--panel);border-right:1px solid #2c333d;padding:20px;display:flex;flex-direction:column;gap:14px}
+  main{display:grid;grid-template-columns:340px 1fr;gap:0;flex:1 1 auto;min-height:0;overflow:hidden}
+  @media(max-width:900px){body{overflow:auto;display:block;height:auto}main{grid-template-columns:1fr;overflow:visible;min-height:calc(100vh - 62px)}}
+  .coach{background:var(--panel);border-right:1px solid #2c333d;padding:20px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;min-height:0}
   .coach .stepnum{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:1px}
   .coach h2{font-family:var(--disp);font-size:22px;line-height:1.15}
   .coach .teach{font-size:14px;line-height:1.55;color:#c6cdd6}
@@ -49,13 +51,15 @@
   .feedback.bad{display:block;background:#fbe3df;color:#7c231a}
   .feedback.note{display:block;background:var(--amber-soft);color:#6b4d13}
   .feedback code{font-family:var(--mono);font-size:12.5px}
-  .deck{padding:18px 20px;overflow-x:auto}
-  .fxbar{display:flex;align-items:stretch;gap:0;background:#fff;border:1px solid var(--gridline);border-radius:8px 8px 0 0;overflow:hidden;max-width:980px}
+  .deck{padding:18px 20px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  @media(max-width:900px){.deck{overflow:visible;display:block}}
+  .fxbar{display:flex;align-items:stretch;gap:0;background:#fff;border:1px solid var(--gridline);border-radius:8px 8px 0 0;overflow:hidden;flex:none}
   .fxbar .nameBox{font-family:var(--mono);font-size:13px;color:var(--cellink);background:#f1f2f4;border-right:1px solid var(--gridline);padding:9px 12px;min-width:64px;text-align:center}
   .fxbar .fx{font-family:var(--mono);font-size:13px;color:#6a7079;border-right:1px solid var(--gridline);padding:9px 10px;font-style:italic}
   .fxbar input{flex:1;border:none;outline:none;font-family:var(--mono);font-size:14px;padding:9px 12px;color:var(--cellink)}
   .fxbar input:disabled{background:#f6f6f6;color:#aaa}
-  .sheetwrap{background:var(--paper);border:1px solid var(--gridline);border-top:none;border-radius:0 0 8px 8px;padding:6px 6px 12px;max-width:980px;overflow-x:auto}
+  .sheetwrap{background:var(--paper);border:1px solid var(--gridline);border-top:none;border-radius:0 0 8px 8px;padding:6px;flex:1 1 auto;min-height:0;overflow:auto}
+  @media(max-width:900px){.sheetwrap{overflow-x:auto;flex:none}}
   table.sheet{border-collapse:collapse;font-family:var(--sans);font-size:12.5px;color:var(--cellink)}
   .sheet th{background:#eceef0;border:1px solid var(--gridline);font-weight:600;color:#5a616b;font-size:11px;padding:3px 6px;min-width:34px}
   .sheet td{border:1px solid #e3e5e8;padding:3px 8px;min-width:78px;height:24px;white-space:nowrap}
@@ -70,7 +74,7 @@
   .sheet td.solved{color:var(--cellink);animation:pop .4s}
   .sheet td.pct{color:var(--blue)}
   @keyframes pop{0%{background:var(--xlgreen-soft)}100%{background:transparent}}
-  .chartzone{margin-top:14px;display:flex;gap:14px;flex-wrap:wrap;max-width:980px}
+  .chartzone{margin-top:14px;display:flex;gap:14px;flex-wrap:wrap;flex:none}
   .chartslot{flex:1;min-width:250px;border:2px dashed #c9ccd1;border-radius:8px;background:#fff;color:#8a9099;font-size:12px;padding:10px;text-align:center;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:6px}
   .chartslot.filled{border-style:solid;border-color:var(--xlgreen);color:var(--cellink)}
   .chartslot .bars{display:flex;align-items:flex-end;justify-content:center;gap:18px;height:96px}
@@ -81,7 +85,8 @@
   .chartslot .cats{display:flex;justify-content:center;gap:18px;font-size:10px;margin-top:14px}
   .chartslot .cats i{width:34px;font-style:normal;text-align:center}
   .chartslot h4{font-size:12px;font-weight:700}
-  .finish{max-width:760px;margin:30px auto;padding:0 20px 60px}
+  #finishView{flex:1 1 auto;min-height:0;overflow-y:auto}
+  .finish-inner{max-width:760px;margin:30px auto;padding:0 20px 60px}
   .finish h1{font-family:var(--disp);font-size:34px;margin-bottom:6px}
   .finish h1 span{color:var(--xlgreen)}
   .finish p{color:#c6cdd6;font-size:14.5px;line-height:1.6;margin-bottom:14px}
@@ -131,7 +136,7 @@
   </section>
 </main>
 
-<div class="finish hidden" id="finishView">
+<div class="hidden" id="finishView"><div class="finish-inner">
   <h1>You can do this <span>cold</span>.</h1>
   <p>You just typed every graded formula in the workbook with your own hands. Twelve distinct formulas. That's the whole Excel portion.</p>
   <table class="fmap">
@@ -152,7 +157,7 @@
   <p><b>The two traps, one more time.</b> First: the row labels may not match the Collection Schedule percentages. The schedule box wins, every time. Reference the schedule cells, never type a percent. Second: the collections staircase steps LEFT one column per row down. E11 → D11 → C11. If your three lag rows do that, October is correct, and fill-right handles the rest.</p>
   <p><b>Now the cold run.</b> Open <code style="font-family:var(--mono)">D196_Excel_Practice_Blank.xlsx</code> in real Excel and fill it with zero help. Target: under 15 minutes, every cell matching the solution file. When that happens once, book the OA. Not twice. Once.</p>
   <div class="btnrow"><button class="primary" onclick="location.reload()">Run the lab again</button></div>
-</div>
+</div></div>
 
 <script>
 const M=['August','September','October','November','December'];
@@ -330,6 +335,7 @@ function render(){
   wrongOnce=false;
   document.getElementById('chartzone').classList.toggle('hidden',li!==1);
   document.getElementById('sheetHost').innerHTML=(li===2)?renderKretsmart():renderWholePine();
+  requestAnimationFrame(fitSheet);
   document.querySelectorAll('.activecell').forEach(e=>e.classList.remove('activecell'));
   if(s.type==='cell'){
     input.disabled=false;input.value='';input.placeholder=`Formula for ${s.ref}`;input.focus();
@@ -366,6 +372,7 @@ function mainAction(){
     slot.classList.add('filled');
     slot.innerHTML=`<h4>${s.title.replace(/Place chart \d: /,'')}</h4><div class="bars">${s.bars.map(v=>`<div class="bar ${v<0?'neg':''}" style="height:${Math.abs(v)/max*90}px"><span>${fm(v)}</span></div>`).join('')}</div><div class="cats"><i>Oct</i><i>Nov</i><i>Dec</i></div>`;
     fb.className='feedback ok';fb.innerHTML=(s.postmsg||'Placed. Same recipe, next spot.');
+    requestAnimationFrame(fitSheet);
     setTimeout(advance,s.postmsg?1600:800);return;
   }
   // cell step
@@ -395,6 +402,17 @@ function showHint(){
   const fb=document.getElementById('feedback');
   fb.className='feedback note';fb.innerHTML='Answer: <code>'+s.hint+'</code>. Type it yourself anyway, the motion is the point.';
 }
+function fitSheet(){
+  const host=document.getElementById('sheetHost'),wrap=host.parentElement;
+  host.style.transform='';host.style.width='';host.style.height='';
+  if(window.innerWidth<=900)return;
+  const t=host.querySelector('table');if(!t)return;
+  const tw=t.offsetWidth,th=t.offsetHeight;
+  const aw=wrap.clientWidth-14,ah=wrap.clientHeight-14;
+  const s=Math.min(1,aw/tw,ah/th);
+  if(s<1){host.style.transform=`scale(${s})`;host.style.transformOrigin='top left';host.style.width=tw+'px';host.style.height=(th*s)+'px';}
+}
+window.addEventListener('resize',fitSheet);
 document.getElementById('fxInput').addEventListener('keydown',e=>{if(e.key==='Enter')mainAction();});
 render();
 </script>
