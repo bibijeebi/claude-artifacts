@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How BitTorrent Works — torrents, magnets, and the swarm</title>
+<meta property="og:title" content="How BitTorrent Works: Torrents, Magnets, and the Swarm">
+<meta property="og:description" content="A visual lesson on .torrent files, magnet links, piece hashing, trackers, DHT, and the tit-for-tat economics that make the swarm work.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/torrent-og-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/torrents.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/torrent-og-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#10161d;
+  --panel:#161e28;
+  --panel2:#1b2531;
+  --line:#26313f;
+  --ink:#d7dfe8;
+  --muted:#8a97a5;
+  --blue:#3f9ce8;
+  --blue-dim:#2a628f;
+  --green:#3fc47d;
+  --amber:#e8b04a;
+  --red:#e05a5a;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sans:'IBM Plex Sans',system-ui,sans-serif;
+  --disp:'Space Grotesk',var(--sans);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+::selection{background:var(--blue-dim);color:#fff}
+
+/* ---------- client bar (signature) ---------- */
+#clientbar{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(16,22,29,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 20px}
+#clientbar .row{max-width:1060px;margin:0 auto;display:flex;align-items:center;gap:14px}
+#clientbar .fname{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#clientbar .fname b{color:var(--ink);font-weight:500}
+#piecebar{flex:1;display:grid;grid-template-columns:repeat(60,1fr);gap:1px;height:14px;border:1px solid var(--line);border-radius:3px;overflow:hidden;background:var(--panel)}
+#piecebar i{background:transparent;transition:background .25s}
+#piecebar i.on{background:var(--blue)}
+#piecebar i.done{background:var(--green)}
+#clientbar .pct{font-family:var(--mono);font-size:12.5px;color:var(--blue);min-width:52px;text-align:right}
+#clientbar .status{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:2px 8px;white-space:nowrap}
+#clientbar .status.seed{color:var(--green);border-color:var(--green)}
+@media(max-width:640px){#clientbar .fname{display:none}#clientbar .status{display:none}}
+
+/* ---------- layout ---------- */
+.wrap{max-width:840px;margin:0 auto;padding:0 22px}
+header.hero{padding:120px 0 30px}
+.hero h1{font-family:var(--disp);font-weight:700;font-size:clamp(34px,6vw,58px);line-height:1.05;letter-spacing:-.02em}
+.hero h1 .b{color:var(--blue)}
+.hero p.sub{margin-top:18px;font-size:19px;color:var(--muted);max-width:620px}
+.hero .bluf{margin-top:26px;border-left:3px solid var(--blue);background:var(--panel);padding:16px 20px;border-radius:0 6px 6px 0;font-size:16.5px}
+.hero .bluf b{color:var(--blue)}
+
+section{padding:54px 0;border-top:1px solid var(--line)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:10px}
+.eyebrow::before{content:"» ";color:var(--muted)}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(24px,3.5vw,32px);letter-spacing:-.01em;margin-bottom:16px}
+p{margin-bottom:14px;color:var(--ink)}
+p.dim,li.dim{color:var(--muted)}
+b{font-weight:600}
+.k{font-family:var(--mono);font-size:.88em;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 6px;white-space:nowrap}
+.note{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 18px;font-size:15.5px;color:var(--muted)}
+.note b{color:var(--amber);font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px}
+
+/* ---------- code / protocol panels ---------- */
+.proto{font-family:var(--mono);font-size:14px;line-height:1.8;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px 20px;margin:20px 0;overflow-x:auto}
+.proto .c{color:var(--muted)}
+.t-str{color:#7fc8f5}.t-int{color:var(--amber)}.t-dict{color:var(--green)}.t-list{color:#c792ea}.t-len{color:var(--muted)}
+
+/* ---------- magnet anatomy ---------- */
+.magnet{font-family:var(--mono);font-size:clamp(12px,2.4vw,15px);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px;margin:20px 0;word-break:break-all;line-height:2}
+.magnet span{padding:2px 3px;border-radius:3px;cursor:pointer;transition:filter .15s}
+.mg-scheme{color:var(--muted)}
+.mg-xt{background:rgba(63,156,232,.18);color:#8ec9f5}
+.mg-dn{background:rgba(63,196,125,.16);color:#7fdcae}
+.mg-tr{background:rgba(232,176,74,.15);color:#eec98a}
+.magnet span.hot{filter:brightness(1.5)}
+.mglegend{display:grid;gap:10px;margin:6px 0 0}
+.mglegend .item{display:flex;gap:12px;align-items:baseline;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 16px;font-size:15px;cursor:pointer;transition:border-color .15s}
+.mglegend .item.hot{border-color:var(--blue)}
+.mglegend .tag{font-family:var(--mono);font-size:12.5px;min-width:34px;font-weight:500}
+.mglegend .tag.xt{color:#8ec9f5}.mglegend .tag.dn{color:#7fdcae}.mglegend .tag.tr{color:#eec98a}
+.mglegend .item div{color:var(--muted)}
+.mglegend .item div b{color:var(--ink)}
+
+/* ---------- piece demo ---------- */
+.demo{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px;margin:22px 0}
+.demo .dhead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.demo .dtitle{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.demo button{font-family:var(--mono);font-size:13px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:7px 14px;cursor:pointer}
+.demo button:hover{border-color:var(--blue);color:var(--blue)}
+.demo button.danger:hover{border-color:var(--red);color:var(--red)}
+#pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(26px,1fr));gap:4px}
+#pgrid i{aspect-ratio:1;border-radius:3px;background:var(--panel2);border:1px solid var(--line);transition:background .2s}
+#pgrid i.got{background:var(--blue);border-color:var(--blue)}
+#pgrid i.ver{background:var(--green);border-color:var(--green)}
+#pgrid i.bad{background:var(--red);border-color:var(--red)}
+#plog{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:12px;min-height:1.6em}
+#plog .ok{color:var(--green)}#plog .er{color:var(--red)}
+
+/* ---------- diagrams ---------- */
+.fig{margin:22px 0;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px}
+.fig svg{width:100%;height:auto;display:block}
+.fig .cap{font-size:13.5px;color:var(--muted);padding:10px 6px 2px;font-family:var(--mono)}
+.svgt{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.svgt.b{fill:#8ec9f5}.svgt.g{fill:#7fdcae}.svgt.w{fill:var(--ink)}
+
+/* ---------- compare cards ---------- */
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:22px 0}
+@media(max-width:640px){.vs{grid-template-columns:1fr}}
+.vs .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:18px 20px}
+.vs .card h3{font-family:var(--mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.vs .card:first-child h3{color:var(--blue)}
+.vs .card:last-child h3{color:var(--green)}
+.vs .card ul{list-style:none}
+.vs .card li{padding:6px 0;border-top:1px solid var(--line);font-size:15px;color:var(--muted)}
+.vs .card li b{color:var(--ink);font-weight:500}
+.vs .card li:first-child{border-top:none}
+
+ul.flow{list-style:none;margin:18px 0;counter-reset:st}
+ul.flow li{counter-increment:st;position:relative;padding:10px 0 10px 46px;border-top:1px solid var(--line)}
+ul.flow li:first-child{border-top:none}
+ul.flow li::before{content:counter(st,decimal-leading-zero);position:absolute;left:0;top:12px;font-family:var(--mono);font-size:12.5px;color:var(--blue)}
+ul.flow li b{color:var(--ink)}
+ul.flow li{color:var(--muted)}
+
+footer{border-top:1px solid var(--line);padding:40px 0 60px;color:var(--muted);font-size:14px;font-family:var(--mono)}
+footer a{color:var(--blue);text-decoration:none}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div id="clientbar"><div class="row">
+  <div class="fname"><b>how-bittorrent-works.lesson</b> · 60 pieces · 1 seed</div>
+  <div id="piecebar"></div>
+  <div class="pct" id="pct">0.0%</div>
+  <div class="status" id="cstatus">Downloading</div>
+</div></div>
+
+<header class="hero"><div class="wrap">
+  <h1>You are not downloading a file.<br>You are assembling <span class="b">pieces</span>.</h1>
+  <p class="sub">How .torrent files, magnet links, trackers, DHT, and a swarm of strangers move data with no server in the middle, and why you can trust any of it.</p>
+  <div class="bluf"><b>BLUF:</b> a .torrent file is metadata describing content, chopped into hashed pieces. A magnet link is just the fingerprint of that metadata, letting you fetch the metadata itself from peers. Everything else is machinery for finding peers and keeping them honest.</div>
+  <p class="dim" style="margin-top:20px;font-family:var(--mono);font-size:13px">The bar above is this page's swarm. Scroll to download. Pieces arrive out of order, exactly like the real thing.</p>
+</div></header>
+
+<section id="s1"><div class="wrap">
+  <div class="eyebrow">handshake · the problem</div>
+  <h2>One server is a bottleneck and a target</h2>
+  <p>Classic downloading is a hub and spokes: one server, N clients, and the server pays for every byte N times. Popularity is punished. The thing everyone wants is the thing hardest to get.</p>
+  <p>BitTorrent inverts it. Every downloader immediately becomes an uploader of whatever it already has, so capacity <b>grows</b> with popularity. The catch: now you're pulling data from random strangers with zero reason to trust them. The entire protocol is an answer to two questions: <b>how do I find these strangers</b>, and <b>how do I verify what they send me</b>.</p>
+  <div class="fig">
+  <svg viewBox="0 0 720 200" role="img" aria-label="Server model versus swarm model">
+    <circle cx="150" cy="100" r="22" fill="none" stroke="#3f9ce8" stroke-width="2"/>
+    <text x="150" y="104" text-anchor="middle" class="svgt b">SRV</text>
+    <g stroke="#26313f" stroke-width="1.5">
+      <line x1="150" y1="78" x2="150" y2="30"/><line x1="130" y1="88" x2="60" y2="45"/>
+      <line x1="128" y1="108" x2="50" y2="130"/><line x1="140" y1="120" x2="110" y2="175"/>
+      <line x1="165" y1="118" x2="205" y2="170"/><line x1="172" y1="95" x2="250" y2="80"/>
+    </g>
+    <g fill="#1b2531" stroke="#8a97a5">
+      <circle cx="150" cy="26" r="9"/><circle cx="56" cy="42" r="9"/><circle cx="46" cy="132" r="9"/>
+      <circle cx="112" cy="179" r="9"/><circle cx="208" cy="173" r="9"/><circle cx="254" cy="79" r="9"/>
+    </g>
+    <text x="150" y="196" text-anchor="middle" class="svgt">every byte × N, one takedown kills it</text>
+    <g stroke="#2a628f" stroke-width="1.5">
+      <line x1="480" y1="40" x2="560" y2="70"/><line x1="560" y1="70" x2="620" y2="40"/>
+      <line x1="560" y1="70" x2="520" y2="130"/><line x1="520" y1="130" x2="620" y2="150"/>
+      <line x1="620" y1="150" x2="660" y2="90"/><line x1="620" y1="40" x2="660" y2="90"/>
+      <line x1="480" y1="40" x2="520" y2="130"/><line x1="460" y1="120" x2="520" y2="130"/>
+      <line x1="460" y1="120" x2="480" y2="40"/><line x1="660" y1="90" x2="560" y2="70"/>
+    </g>
+    <g fill="#1b2531" stroke="#3f9ce8">
+      <circle cx="480" cy="40" r="10"/><circle cx="620" cy="40" r="10"/><circle cx="560" cy="70" r="10"/>
+      <circle cx="460" cy="120" r="10"/><circle cx="520" cy="130" r="10"/><circle cx="620" cy="150" r="10"/>
+      <circle cx="660" cy="90" r="10"/>
+    </g>
+    <text x="560" y="196" text-anchor="middle" class="svgt">everyone uploads, capacity scales with demand</text>
+  </svg></div>
+</div></section>
+
+<section id="s2"><div class="wrap">
+  <div class="eyebrow">metadata · the .torrent file</div>
+  <h2>A .torrent is a map, not the territory</h2>
+  <p>The file itself is tiny. It contains no content, just everything needed to download and <b>verify</b> content: the file list with sizes, the piece length, a hash for every piece, and tracker URLs. It's written in <b>bencoding</b>, BitTorrent's dead-simple serialization: length-prefixed strings (<span class="k">4:spam</span>), integers (<span class="k">i42e</span>), lists (<span class="k">l…e</span>), dictionaries (<span class="k">d…e</span>) with keys in sorted order.</p>
+  <div class="proto">
+<span class="t-dict">d</span><span class="c">                                  ← dictionary opens</span><br>
+&nbsp;&nbsp;<span class="t-len">8:</span><span class="t-str">announce</span> <span class="t-len">31:</span><span class="t-str">http://tracker.example/announce</span><br>
+&nbsp;&nbsp;<span class="t-len">4:</span><span class="t-str">info</span> <span class="t-dict">d</span><span class="c">                         ← the part that matters</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-len">4:</span><span class="t-str">name</span> <span class="t-len">9:</span><span class="t-str">ubuntu.iso</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-len">6:</span><span class="t-str">length</span> <span class="t-int">i5368709120e</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-len">12:</span><span class="t-str">piece length</span> <span class="t-int">i2097152e</span><span class="c">   ← 2 MB pieces</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-len">6:</span><span class="t-str">pieces</span> <span class="t-len">51200:</span><span class="t-str">▓▓▓▓▓▓▓▓…</span><span class="c">     ← 2560 × 20-byte SHA-1</span><br>
+&nbsp;&nbsp;<span class="t-dict">e</span><br>
+<span class="t-dict">e</span>
+  </div>
+  <p>Multi-file torrents swap <span class="k">length</span> for a <span class="k">files</span> list, and here's the subtle part: content is treated as <b>one continuous byte stream</b>, files concatenated in order. Piece boundaries ignore file boundaries. One piece can span the tail of one file and the head of the next, which is why deselecting a file still downloads slivers of it. The client needs boundary pieces to verify the neighbors.</p>
+  <div class="note"><b>why sorted keys</b>Bencoding mandates sorted dictionary keys so encoding is deterministic. Same data, same bytes, every client, every time. That determinism is load-bearing, as you're about to see.</div>
+</div></section>
+
+<section id="s3"><div class="wrap">
+  <div class="eyebrow">piece · hashing &amp; verification</div>
+  <h2>Trust strangers, verify everything</h2>
+  <p>Content is chopped into fixed-size pieces, typically 256 KB to 4 MB, and the .torrent carries a SHA-1 hash for each. Your client downloads a piece from whoever, hashes it, and compares. Mismatch: the piece is discarded and re-fetched, and the peer that fed it to you gets flagged. This is the whole trick. <b>You can pull from a fully hostile swarm and still land a bit-perfect copy.</b></p>
+  <p class="dim">On the wire, pieces are further split into 16 KB blocks. A piece only gets hashed once every block arrives, so one flipped bit throws away the whole piece. Creators balance piece size accordingly: smaller pieces mean a fatter .torrent (more hashes) but finer verification; the usual target is 1000–2000 pieces total.</p>
+  <div class="demo">
+    <div class="dhead">
+      <span class="dtitle">live swarm · 40 pieces</span>
+      <span>
+        <button id="btn-poison" class="danger">poison a piece</button>
+        <button id="btn-reset">restart</button>
+      </span>
+    </div>
+    <div id="pgrid"></div>
+    <div id="plog">downloading…</div>
+  </div>
+  <p class="dim" style="font-family:var(--mono);font-size:13.5px">blue = downloaded · green = hash verified · red = failed verification, re-downloading. Hit poison and watch the swarm shrug it off.</p>
+</div></section>
+
+<section id="s4"><div class="wrap">
+  <div class="eyebrow">have · the infohash</div>
+  <h2>One hash to name them all</h2>
+  <p>Take the <span class="k">info</span> dictionary, exactly as bencoded, and SHA-1 it. That 20-byte digest is the <b>infohash</b>: the torrent's identity on the network. Not the filename, not the tracker, the infohash.</p>
+  <ul class="flow">
+    <li><b>Trackers, comment, creation date live outside <span class="k">info</span>.</b> Edit them freely, the identity doesn't change.</li>
+    <li><b>Same content + same piece length + same file layout = same infohash</b>, even made by different people on different tools. Swarms merge naturally.</li>
+    <li><b>Change one filename and it's a different swarm entirely.</b> The hash covers everything inside <span class="k">info</span>.</li>
+  </ul>
+  <p>This is why bencoding's sorted keys matter: the hash is computed over exact bytes, so serialization has to be deterministic or identity falls apart.</p>
+</div></section>
+
+<section id="s5"><div class="wrap">
+  <div class="eyebrow">announce · trackers</div>
+  <h2>The tracker is a phone book</h2>
+  <p>A tracker never touches content. Your client announces over HTTP or the cheaper UDP protocol: infohash, peer ID, port, bytes up/down/left, and an event (started, stopped, completed). The tracker replies with a re-announce interval and a peer list, usually compact format: <b>6 bytes per peer</b>, 4 for IP, 2 for port. That's it. Coordination, not distribution.</p>
+  <p class="dim">The tracker also can't verify your stats, which is why private trackers tie announces to per-user passkeys, and why ratio faking is an eternal cat-and-mouse game.</p>
+</div></section>
+
+<section id="s6"><div class="wrap">
+  <div class="eyebrow">choke / unchoke · peer economics</div>
+  <h2>Tit-for-tat keeps the swarm honest</h2>
+  <p>Connected peers exchange bitfields (which pieces each has) and <span class="k">have</span> announcements as pieces complete. But nobody uploads to everyone. Each client <b>unchokes</b> only a handful of peers at a time, chosen by who uploads to <i>them</i> fastest. Feed me, I feed you. Freeload, get choked. That reciprocity is the incentive core of the whole protocol, no accounts, no reputation system, just measured bandwidth.</p>
+  <ul class="flow">
+    <li><b>Optimistic unchoke.</b> Every ~30 s, one random peer gets unchoked for free. That's how a brand-new peer with nothing to trade bootstraps into the economy.</li>
+    <li><b>Rarest-first selection.</b> Your client counts piece availability across the swarm and grabs the rarest ones, keeping distribution healthy so the swarm survives seeders leaving. Exception: the very first piece is random, since a rare piece from a slow peer delays your ability to trade anything.</li>
+    <li><b>Endgame mode.</b> The last few blocks get requested from every peer at once, first arrival wins, the rest are cancelled. Kills the classic stall on one slow peer.</li>
+  </ul>
+</div></section>
+
+<section id="s7"><div class="wrap">
+  <div class="eyebrow">find_node · the DHT</div>
+  <h2>A tracker made of everyone</h2>
+  <p>Mainline DHT is Kademlia. Every client is a node with a random 160-bit ID living in the <b>same address space as infohashes</b>. Distance between two IDs is their XOR. Each node keeps a routing table biased toward IDs near its own, so a lookup converges fast: ask the closest nodes you know about infohash X, they answer with nodes even closer, repeat. Roughly O(log n) hops across millions of nodes.</p>
+  <p>The nodes whose IDs land closest to X are the ones that store the peer list for X. No server, no single point of failure, no takedown target. Bootstrap comes from well-known entry nodes or cached peers from your last session. This is what <span class="k">DHT: working</span> in your client means, and it's why public torrents survive with zero trackers.</p>
+  <div class="fig">
+  <svg viewBox="0 0 720 190" role="img" aria-label="Kademlia lookup converging on target">
+    <line x1="60" y1="95" x2="660" y2="95" stroke="#26313f" stroke-width="2"/>
+    <text x="60" y="130" text-anchor="middle" class="svgt">you</text>
+    <circle cx="60" cy="95" r="10" fill="#1b2531" stroke="#3f9ce8" stroke-width="2"/>
+    <circle cx="300" cy="95" r="8" fill="#1b2531" stroke="#8a97a5"/>
+    <circle cx="470" cy="95" r="8" fill="#1b2531" stroke="#8a97a5"/>
+    <circle cx="570" cy="95" r="8" fill="#1b2531" stroke="#8a97a5"/>
+    <circle cx="625" cy="95" r="8" fill="#1b2531" stroke="#8a97a5"/>
+    <circle cx="660" cy="95" r="10" fill="#1b2531" stroke="#3fc47d" stroke-width="2"/>
+    <text x="660" y="130" text-anchor="middle" class="svgt g">infohash X</text>
+    <g fill="none" stroke="#3f9ce8" stroke-width="1.5">
+      <path d="M60 85 Q180 30 300 85"/><path d="M300 85 Q385 45 470 85"/>
+      <path d="M470 85 Q520 58 570 85"/><path d="M570 85 Q598 68 625 85"/>
+      <path d="M625 85 Q643 74 660 85"/>
+    </g>
+    <text x="180" y="38" text-anchor="middle" class="svgt b">hop 1</text>
+    <text x="385" y="50" text-anchor="middle" class="svgt b">hop 2</text>
+    <text x="520" y="62" text-anchor="middle" class="svgt b">hop 3</text>
+    <text x="360" y="172" text-anchor="middle" class="svgt">each hop halves the XOR distance · nodes nearest X hold its peer list</text>
+  </svg></div>
+</div></section>
+
+<section id="s8"><div class="wrap">
+  <div class="eyebrow">urn:btih · magnet links</div>
+  <h2>A magnet is a fingerprint, not a file</h2>
+  <p>A magnet link carries the infohash and nothing of substance beyond it. No file list, no piece hashes. You can't download anything from a magnet alone; it's a claim ticket. Tap the parts:</p>
+  <div class="magnet" id="mag">
+    <span class="mg-scheme" data-t="sch">magnet:?</span><span class="mg-xt" data-t="xt">xt=urn:btih:c9e15763f722f23e98a29decdfae341b98d53056</span><span class="mg-dn" data-t="dn">&amp;dn=Cosmos+Laundromat</span><span class="mg-tr" data-t="tr">&amp;tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337</span>
+  </div>
+  <div class="mglegend" id="maglegend">
+    <div class="item" data-t="xt"><span class="tag xt">xt</span><div><b>Exact topic: the infohash.</b> 40 hex chars (or older base32). The only part that matters, sufficient by itself on a DHT-enabled client.</div></div>
+    <div class="item" data-t="dn"><span class="tag dn">dn</span><div><b>Display name.</b> Pure cosmetics, shown while metadata is still in transit. Trust it exactly as much as you trust a filename from a stranger.</div></div>
+    <div class="item" data-t="tr"><span class="tag tr">tr</span><div><b>Tracker hint.</b> Repeatable. Gives DHT-less clients a way in and speeds up first contact. Others exist (<span class="k">x.pe</span> direct peer, <span class="k">ws</span> web seed, <span class="k">so</span> select-only), all optional sugar.</div></div>
+  </div>
+</div></section>
+
+<section id="s9"><div class="wrap">
+  <div class="eyebrow">extended · metadata exchange</div>
+  <h2>Fetching the map from the territory</h2>
+  <p>So how does a fingerprint become a download? Your client finds peers for the infohash via DHT, then uses the extension protocol's <span class="k">ut_metadata</span> to pull the <span class="k">info</span> dictionary itself from those peers, 16 KB chunks, multiple peers in parallel. Reassemble, SHA-1 it, compare against the infohash from the magnet.</p>
+  <p><b>Match means the metadata is byte-identical to the original .torrent, cryptographically guaranteed.</b> You asked strangers for the map and can prove nobody redrew it. From that moment the two paths converge completely: same metadata, same download, same verification.</p>
+  <ul class="flow">
+    <li><b>magnet</b> → infohash in hand, nothing else</li>
+    <li><b>DHT lookup</b> → peers who claim to have this torrent</li>
+    <li><b>ut_metadata</b> → pull info dict in chunks, verify against infohash</li>
+    <li><b>identical state</b> → as if you'd opened the .torrent file, proceed normally</li>
+  </ul>
+  <div class="note"><b>the tradeoff</b>Magnets need no hosting, which is why indexers moved to them under takedown pressure. But they start slower (DHT lookup + metadata fetch) and a dead swarm means nobody can even hand you the metadata. A .torrent file at least lets you queue the download and wait.</div>
+</div></section>
+
+<section id="s10"><div class="wrap">
+  <div class="eyebrow">pex · the discovery stack</div>
+  <h2>Redundant ways to find the same people</h2>
+  <p>Peer discovery is layered, and every layer feeds the same pool: the <b>tracker</b> answers announces, the <b>DHT</b> answers lookups, <b>PEX</b> has connected peers gossip their peer lists to each other, and <b>local peer discovery</b> multicasts on your LAN. In practice, one good peer plus PEX floods you with the rest of the swarm faster than anything else.</p>
+  <p class="dim"><b style="color:var(--ink)">Web seeds</b> bolt HTTP onto the swarm: the torrent points at a plain web server hosting the same content, and clients fetch byte ranges from it like it's just another peer. Linux distros lean on this, the mirror guarantees availability while the swarm eats the bandwidth bill.</p>
+</div></section>
+
+<section id="s11"><div class="wrap">
+  <div class="eyebrow">bep 52 · v2 and hybrids</div>
+  <h2>The modernized protocol nobody rushed to</h2>
+  <p>v1 has real warts: SHA-1 is broken enough that colliding torrents have been demonstrated, pieces spanning file boundaries is ugly, and you can't verify anything smaller than a whole piece. v2 fixes all three.</p>
+  <div class="vs">
+    <div class="card"><h3>v1 · 2001</h3><ul>
+      <li><b>SHA-1</b> piece hashes, collisions demonstrated</li>
+      <li><b>Flat hash list,</b> one per piece</li>
+      <li><b>Pieces span files,</b> boundary slivers</li>
+      <li><b>Verify per piece,</b> up to MBs wasted per bad bit</li>
+      <li><b>magnet:</b> <span class="k">urn:btih:</span></li>
+    </ul></div>
+    <div class="card"><h3>v2 · bep 52</h3><ul>
+      <li><b>SHA-256</b> throughout</li>
+      <li><b>Per-file merkle trees,</b> root hash per file</li>
+      <li><b>Files align to pieces,</b> dedupe across torrents</li>
+      <li><b>Verify per 16 KB block,</b> poisoning caught instantly</li>
+      <li><b>magnet:</b> <span class="k">urn:btmh:</span></li>
+    </ul></div>
+  </div>
+  <p class="dim">Hybrid torrents carry both structures, so one torrent has two infohashes and joins two swarms. Clients support v2 fine (libtorrent, qBittorrent); indexers and private trackers remain overwhelmingly v1. Inertia, plus the two-swarm split is genuinely annoying.</p>
+</div></section>
+
+<section id="s12"><div class="wrap">
+  <div class="eyebrow">private=1 · walled gardens</div>
+  <h2>Private trackers: opting out of the open swarm</h2>
+  <p>Set <span class="k">private=1</span> <b>inside</b> the info dict and compliant clients disable DHT, PEX, and local discovery for that torrent. Because the flag lives inside <span class="k">info</span>, it's part of the infohash, so stripping it forks the swarm rather than unlocking it. All peer discovery now flows through the tracker's passkeyed announce, which is what makes ratio economies enforceable.</p>
+  <p class="dim">It's also why magnets are useless there (the metadata isn't in any public DHT) and why the .torrent they hand you has your personal passkey baked into the announce URL. Share that file and you've shared your account.</p>
+</div></section>
+
+<section id="s13"><div class="wrap">
+  <div class="eyebrow">seeding · recap</div>
+  <h2>The whole thing in five sentences</h2>
+  <ul class="flow">
+    <li><b>Content is chopped into pieces and every piece is hashed</b>, so strangers can't hand you garbage undetected.</li>
+    <li><b>The .torrent file is that metadata</b>; the infohash is the SHA-1 of its <span class="k">info</span> dict and serves as the torrent's global identity.</li>
+    <li><b>A magnet link is just the infohash</b>, and peers hand you the metadata itself, verified against it.</li>
+    <li><b>Trackers, DHT, and PEX are redundant phone books</b>, none of which ever touch content.</li>
+    <li><b>Tit-for-tat choking makes uploading rational</b>, which is why the swarm exists at all.</li>
+  </ul>
+</div></section>
+
+<footer><div class="wrap">
+  status: <span style="color:var(--green)">seeding</span> · ratio ∞ · built by claude for benny · <a href="https://niggerfaggot.club">niggerfaggot.club</a>
+</div></footer>
+
+<script>
+(function(){
+  // ---- client bar: rarest-first scroll download ----
+  var N=60, bar=document.getElementById('piecebar'), cells=[];
+  for(var i=0;i<N;i++){var el=document.createElement('i');bar.appendChild(el);cells.push(el);}
+  // deterministic shuffle = "rarest first" arrival order
+  var order=[...Array(N).keys()], seed=1337;
+  function rnd(){seed=(seed*16807)%2147483647;return seed/2147483647;}
+  for(var j=N-1;j>0;j--){var k=Math.floor(rnd()*(j+1));var t=order[j];order[j]=order[k];order[k]=t;}
+  var pct=document.getElementById('pct'), st=document.getElementById('cstatus');
+  function upd(){
+    var h=document.documentElement, max=h.scrollHeight-h.clientHeight;
+    var p=max>0?Math.min(1,window.scrollY/max):1;
+    var got=Math.round(p*N);
+    for(var i=0;i<N;i++){
+      var on=i<got, c=cells[order[i]];
+      c.className = on ? (got===N?'done':'on') : '';
+    }
+    if(got===N){for(var i=0;i<N;i++)cells[i].className='done';}
+    pct.textContent=(p*100).toFixed(1)+'%';
+    if(p>=0.999){st.textContent='Seeding';st.classList.add('seed');}
+    else{st.textContent='Downloading';st.classList.remove('seed');}
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  window.addEventListener('resize',upd);
+  upd();
+
+  // ---- piece verification demo ----
+  var M=40, grid=document.getElementById('pgrid'), log=document.getElementById('plog'), pieces=[], timer=null;
+  for(var i=0;i<M;i++){var el=document.createElement('i');grid.appendChild(el);pieces.push({el:el,state:0});}
+  function remaining(){return pieces.filter(function(p){return p.state===0;});}
+  function tick(){
+    var rem=remaining();
+    if(rem.length===0){
+      var pend=pieces.filter(function(p){return p.state===1;});
+      if(pend.length===0){log.innerHTML='<span class="ok">all 40 pieces verified · seeding</span>';clearInterval(timer);timer=null;return;}
+    }
+    // download a random remaining piece (rarest-first stand-in)
+    if(rem.length){var p=rem[Math.floor(Math.random()*rem.length)];p.state=1;p.el.className='got';
+      // verify shortly after
+      setTimeout(function(){if(p.state===1){p.state=2;p.el.className='ver';}},450);
+    }
+  }
+  function start(){
+    if(timer)clearInterval(timer);
+    pieces.forEach(function(p){p.state=0;p.el.className='';});
+    log.textContent='downloading…';
+    timer=setInterval(tick,180);
+  }
+  document.getElementById('btn-reset').addEventListener('click',start);
+  document.getElementById('btn-poison').addEventListener('click',function(){
+    var done=pieces.filter(function(p){return p.state===2;});
+    var pool=done.length?done:pieces.filter(function(p){return p.state===1;});
+    if(!pool.length)return;
+    var p=pool[Math.floor(Math.random()*pool.length)];
+    p.state=3;p.el.className='bad';
+    log.innerHTML='<span class="er">piece '+(pieces.indexOf(p)+1)+' failed SHA-1 · discarded · peer flagged</span>';
+    setTimeout(function(){
+      p.state=1;p.el.className='got';
+      setTimeout(function(){p.state=2;p.el.className='ver';
+        log.innerHTML='<span class="ok">piece '+(pieces.indexOf(p)+1)+' re-downloaded from another peer · verified</span>';
+        if(!timer&&pieces.every(function(q){return q.state===2;}))log.innerHTML+=' · <span class="ok">seeding</span>';
+      },500);
+    },900);
+    if(!timer)timer=setInterval(tick,180);
+  });
+  start();
+
+  // ---- magnet anatomy hover/tap ----
+  function setHot(t,on){
+    document.querySelectorAll('[data-t="'+t+'"]').forEach(function(el){el.classList.toggle('hot',on);});
+  }
+  document.querySelectorAll('#mag span, #maglegend .item').forEach(function(el){
+    var t=el.getAttribute('data-t');if(t==='sch')return;
+    el.addEventListener('mouseenter',function(){setHot(t,true);});
+    el.addEventListener('mouseleave',function(){setHot(t,false);});
+    el.addEventListener('click',function(){
+      var on=!el.classList.contains('hot');
+      ['xt','dn','tr'].forEach(function(x){setHot(x,false);});
+      setHot(t,on);
+    });
+  });
+})();
+</script>
+</body>
+</html>
