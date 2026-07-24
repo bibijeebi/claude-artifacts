@@ -11,12 +11,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script>
-(function(){
- try{localStorage.clear()}catch(e){}
- localStorage.setItem("ascsdrill_view","exam");
- localStorage.setItem("ascsdrill_mode","core");
- window.__PREVIEW__=(new URLSearchParams(location.search).get("v"))||(location.hash||"#live").slice(1);
-})();
+(function(){try{localStorage.clear()}catch(e){}
+localStorage.setItem("ascsdrill_view","exam");localStorage.setItem("ascsdrill_mode","core");
+window.__PREVIEW__=(new URLSearchParams(location.search).get("v"))||"live";})();
 </script>
 <style>
 :root{
@@ -172,7 +169,7 @@ footer a{color:var(--tx2);text-decoration:none;border-bottom:1px dotted var(--li
 <header class="plate">
   <div>
     <h1>ASCS <span class="tag">DRILL</span></h1>
-    <div class="sub">NADCA AIR SYSTEMS CLEANING SPECIALIST · ACR 2025<br>CORE 230 Q · FULL 330 Q<span class="unit"> · UNIT NF-042</span></div>
+    <div class="sub">NADCA AIR SYSTEMS CLEANING SPECIALIST · ACR 2025<br>CORE 260 Q · FULL 426 Q<span class="unit"> · UNIT NF-042</span></div>
   </div>
   <div class="gauges">
     <div class="g seen">
@@ -679,7 +676,7 @@ function drawPiles(){const c=pileCounts(),lbl=["Untriaged","Known","Review","Lea
   $("piles").innerHTML=lbl.map((L,t)=>'<span class="chip pchip'+(pileF===TIERS[t]?" on":"")+'" data-p="'+TIERS[t]+'">'+L+" "+c[t]+'</span>').join("");
   [...document.querySelectorAll(".pchip")].forEach(el=>el.onclick=()=>{pileF=(pileF===el.dataset.p?"":el.dataset.p);refresh()});}
 function drillIdxs(){const p=idxs();if(pileF)return p.filter(i=>TIERS[state[i].t]===pileF);return p.filter(i=>state[i].t!==1)}
-function refresh(){if(view==="exam"){drawPiles();examRender();return}drawPiles();if(view==="triage"){buildTriage();renderTriage()}else{rebuild();render()}}
+function refresh(){if(view==="exam"){drawPiles();if(typeof examRender==="function")examRender();return}drawPiles();if(view==="triage"){buildTriage();renderTriage()}else{rebuild();render()}}
 function setView(v){view=v;localStorage.setItem("ascsdrill_view",v);$("vTriage").classList.toggle("on",v==="triage");$("vDrill").classList.toggle("on",v==="drill");$("vExam").classList.toggle("on",v==="exam");document.querySelector(".hud").style.display=v==="exam"?"none":"";document.querySelector(".bpWrap").style.display=v==="exam"?"none":"";$("piles").style.display=v==="exam"?"none":"";$("weak").style.display=v==="exam"?"none":"";refresh()}
 function buildTriage(){tq=idxs().filter(i=>state[i].t===0)}
 function renderTriage(){
@@ -1072,6 +1069,7 @@ function exIntro(){
 function examRender(){if(ex===null)ex=exLoad();exRender()}
 function examKey(e){exKey(e)}
 $("vExam").onclick=()=>setView("exam");
+if(view==="exam")setView("exam");
 
 $("weak").addEventListener("toggle",drawWeak);
 const __rings=rings;
@@ -1079,14 +1077,8 @@ rings=function(){__rings();drawBP();drawWeak()};
 drawBP();drawSess();
 </script>
 
-<script>
-(function(){
- if(window.__PREVIEW__!=="report")return;
- exNew();
- const M=MCQS;
- ex.form.forEach((i,n)=>{ex.ans[i]= (n%9===0)? (M[i][2]===0?1:0) : M[i][2]});
- ex.ends=Date.now()+38*60000;
- exSave();exGrade();
-})();
-</script>
+<script>(function(){
+ if(window.__PREVIEW__==="inprog"){exNew();ex.pos=6;ex.ans[ex.form[0]]=0;ex.ans[ex.form[1]]=2;ex.flag[ex.form[3]]=true;exSave();exRender();}
+ if(window.__PREVIEW__==="report"){exNew();ex.form.forEach((i,n)=>{ex.ans[i]=(n%9===0)?(MCQS[i][2]===0?1:0):MCQS[i][2]});ex.ends=Date.now()+38*60000;exSave();exGrade();}
+})();</script>
 </body></html>
