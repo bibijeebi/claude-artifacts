@@ -655,6 +655,16 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       cur.onerror = () => res(out);
     });
   }
+  const SEED_KEY = "seed:shoes-2026-07";
+  const SEED_ITEMS = [{"id": "shoe-woven-slide", "img": "https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-shoe-woven-slide.jpg", "name": "tan woven leather square-toe slide", "category": "Shoes", "colors": ["tan", "cognac"], "vibe": ["Old money", "Clean girl", "Casual"], "season": ["Spring", "Summer"], "formality": "Casual", "createdAt": 1753600000000}, {"id": "shoe-croc-mule", "img": "https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-shoe-croc-mule.jpg", "name": "cream croc-embossed bit loafer mule", "category": "Shoes", "colors": ["cream"], "vibe": ["Old money", "Clean girl"], "season": ["Spring", "Summer", "Fall"], "formality": "Smart casual", "createdAt": 1753599940000}, {"id": "shoe-penny-loafer", "img": "https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-shoe-penny-loafer.jpg", "name": "chocolate pebbled penny loafer", "category": "Shoes", "colors": ["brown", "chocolate"], "vibe": ["Old money", "Casual"], "season": ["Spring", "Fall"], "formality": "Smart casual", "createdAt": 1753599880000}, {"id": "shoe-slingback-cognac", "img": "https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-shoe-slingback-cognac.jpg", "name": "cognac pointed-toe slingback flat", "category": "Shoes", "colors": ["cognac"], "vibe": ["Old money", "Clean girl"], "season": ["Spring", "Summer", "Fall"], "formality": "Smart casual", "createdAt": 1753599820000}, {"id": "shoe-sock-boot-brown", "img": "https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-shoe-sock-boot-brown.jpg", "name": "brown square-toe block-heel sock boot", "category": "Shoes", "colors": ["brown"], "vibe": ["Old money", "Clean girl", "Going out"], "season": ["Fall", "Winter"], "formality": "Smart casual", "createdAt": 1753599760000}, {"id": "shoe-kneehigh-square", "img": "https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-shoe-kneehigh-square.jpg", "name": "black square-toe knee-high boot", "category": "Shoes", "colors": ["black"], "vibe": ["Old money", "Clean girl"], "season": ["Fall", "Winter"], "formality": "Smart casual", "createdAt": 1753599700000}, {"id": "shoe-chelsea-brown", "img": "https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-shoe-chelsea-brown.jpg", "name": "brown lug-sole Chelsea boot", "category": "Shoes", "colors": ["brown"], "vibe": ["Old money", "Casual"], "season": ["Fall", "Winter"], "formality": "Casual", "createdAt": 1753599640000}, {"id": "shoe-chelsea-black", "img": "https://claude-deploy.bennyforeman1.workers.dev/r2/file/closet-shoe-chelsea-black.jpg", "name": "black lug-sole Chelsea boot", "category": "Shoes", "colors": ["black"], "vibe": ["Clean girl", "Casual"], "season": ["Fall", "Winter"], "formality": "Casual", "createdAt": 1753599580000}];
+  async function seedOnce() {
+    if (await kvGet(SEED_KEY)) return;
+    const have = new Set((await kvKeys("item:")).map((k) => String(k).slice(5)));
+    for (const it of SEED_ITEMS) {
+      if (!have.has(it.id)) await kvPut("item:" + it.id, it);
+    }
+    await kvPut(SEED_KEY, Date.now());
+  }
   function shrinkImage(file, max = 640, q = 0.72) {
     return new Promise((res, rej) => {
       const img = new Image();
@@ -974,6 +984,7 @@ Respond ONLY with JSON, no markdown: {"itemIds": [ids you chose], "rationale": o
     const fileRef = useRef(null);
     useEffect(() => {
       (async () => {
+        await seedOnce();
         const ikeys = await kvKeys("item:");
         const its = (await Promise.all(ikeys.map(kvGet))).filter(Boolean);
         its.sort((a, b) => b.createdAt - a.createdAt);
