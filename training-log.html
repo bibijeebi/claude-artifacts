@@ -65,6 +65,12 @@ td:first-child{color:var(--muted)}
 .notes{margin-top:13px;border-top:1px solid var(--rule);padding-top:11px;font-size:14.5px;color:#2a332a}
 .extra{margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7}
 .extra em{font-style:normal;color:var(--ink)}
+.route{margin-top:12px;border:1px solid var(--rule);border-left:3px solid var(--route);padding:10px 12px;background:#eef1ea}
+.route h4{margin:0 0 7px;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.route b{display:block;font-family:var(--cond);font-weight:700;font-size:19px;letter-spacing:-.01em;margin-bottom:6px}
+.route dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2px 16px;margin:0;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.route dl div em{font-style:normal;color:var(--ink)}
+.route p{margin:8px 0 0;font-family:var(--sans);font-size:13.5px;color:#2a332a}
 .src{margin-top:11px;font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
 footer{margin-top:44px;border-top:1px solid var(--rule);padding-top:12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 @media(max-width:520px){
@@ -105,13 +111,17 @@ footer{margin-top:44px;border-top:1px solid var(--rule);padding-top:12px;font-fa
 <script>
 // Add an entry: only date, time, type, title are required. Everything else optional.
 // metrics: [[label, value], ...]   table: {cols:[], rows:[[]], barCol:n, barLowerIsBetter:true}
+// route: {name, src, stats:[[label,value]], note}  for a trail/route the session was run on
 // extra: [[label, value], ...]     notes: "free text"     source: where it came from
 // dist (mi) and dur (seconds) feed the totals and chart. pace is the displayed string.
 const entries = [
 {
-  date:"2026-08-01", time:"4:01 pm", type:"run", title:"5.05 mi road run",
+  date:"2026-08-01", time:"4:01 pm", type:"run", title:"5.05 mi on the American Tobacco Trail",
   dist:5.05, dur:3749, pace:"12:22",
-  where:"Copperleaf, Cary NC. Out and back north past Green Level High School toward Lewter Shop Rd.",
+  where:"American Tobacco Trail, Wake County section. Out and back on the old rail corridor near Copperleaf and Green Level West, with Thomas Brooks Park and Green Level High School off to the east.",
+  route:{name:"American Tobacco Trail from Southern Terminus", src:"AllTrails",
+    stats:[["Full route","22.2 mi point to point"],["Route elev gain","816 ft"],["Route elev loss","748 ft"],["AllTrails avg","7h 6m"],["Est. time","7 to 8 hr"],["Rating","4.7 stars, moderate"],["Trailhead","New Hill, NC"]],
+    note:"Ran a 5.05 mi out-and-back bite of the 22.2 mi corridor, not the whole point-to-point."},
   metrics:[["Distance","5.05 mi"],["Duration","1:02:29"],["Avg pace","12:22 /mi"],["Avg cadence","136 spm"],["Elev gain","169 ft"],["Calories","607"]],
   table:{cols:["Mile","Split pace","Cadence","Elapsed"],
     rows:[["1","12:43","132","12:42"],["2","12:27","138","25:09"],["3","11:41","140","36:50"],["4","12:20","136","49:10"],["5.05","12:43","134","1:02:29"]],
@@ -121,9 +131,12 @@ const entries = [
   source:"MapMyRun screenshot"
 },
 {
-  date:"2026-08-02", time:"3:17 pm", type:"run", title:"4.72 mi greenway run",
+  date:"2026-08-02", time:"3:17 pm", type:"run", title:"4.72 mi on Hinshaw and Pirate's Cove",
   dist:4.72, dur:3601, pace:"12:41",
-  where:"Cary greenway off SE Cary Pkwy at US 64 and Kildaire Farm Rd. North lollipop with a split loop at the top.",
+  where:"Hinshaw and Pirate's Cove Greenways, Macdonald Woods Park, Cary. Off SE Cary Pkwy near US 64 and Seabrook Ave. Ran Hinshaw out, came back to the bridge where Pirate's Cove splits off, ran that, then went back out the same way.",
+  route:{name:"Hinshaw and Pirate's Cove Greenways", src:"AllTrails",
+    stats:[["Listed route","3.7 mi out and back"],["Route elev gain","180 ft"],["Route elev loss","187 ft"],["AllTrails avg","1h 14m"],["Est. time","1 to 2 hr"],["Rating","4.2 stars, easy"],["Route elev range","346 to 446 ft"],["Park","Macdonald Woods Park, Cary NC"]],
+    note:"Listed at 3.7 mi. Came out to 4.72 because of the doubling back for the Pirate's Cove spur, 1.02 mi over the mapped route."},
   metrics:[["Distance","4.72 mi"],["Duration","1:00:01"],["Avg pace","12:41 /mi"],["Avg cadence","136 spm"],["Elev gain","110 ft"],["Calories","560"]],
   table:{cols:["Mile","Split pace","Cadence","Elapsed"],
     rows:[["1","9:49","154","9:48"],["2","11:50","144","21:39"],["3","15:35","120","37:14"],["4","13:22","132","50:36"],["4.72","12:58","136","1:00:01"]],
@@ -188,6 +201,9 @@ document.getElementById("entries").innerHTML=[...entries].reverse().map(e=>{
     </div>
     ${e.metrics?`<div class="metrics">${e.metrics.map(([l,v])=>`<div class="m"><b>${esc(v)}</b><i>${esc(l)}</i></div>`).join("")}</div>`:""}
     ${tbl}
+    ${e.route?`<div class="route"><h4>Route${e.route.src?" &middot; "+esc(e.route.src):""}</h4><b>${esc(e.route.name)}</b>
+      <dl>${(e.route.stats||[]).map(([l,v])=>`<div>${esc(l)}: <em>${esc(v)}</em></div>`).join("")}</dl>
+      ${e.route.note?`<p>${esc(e.route.note)}</p>`:""}</div>`:""}
     ${e.notes?`<div class="notes">${esc(e.notes)}</div>`:""}
     ${e.where||e.extra?`<div class="extra">${e.where?`<div>${esc(e.where)}</div>`:""}${(e.extra||[]).map(([l,v])=>`<div>${esc(l)}: <em>${esc(v)}</em></div>`).join("")}</div>`:""}
     ${e.source?`<div class="src">Source: ${esc(e.source)}</div>`:""}
