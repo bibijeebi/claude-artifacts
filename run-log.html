@@ -114,10 +114,10 @@ footer{margin-top:44px;border-top:1px solid var(--rule);padding-top:12px;font-fa
 
 <script>
 const runs = [
-  {date:"2026-08-01", time:"4:01 pm", dist:5.05, dur:3749, cadence:136, elev:169, cal:607,
+  {date:"2026-08-01", time:"4:01 pm", dist:5.05, dur:3749, pace:"12:22", cadence:136, elev:169, cal:607,
    place:"Copperleaf, Cary", weather:"Partly cloudy",
    splits:[["1","12:43",132],["2","12:27",138],["3","11:41",140],["4","12:20",136],["5.05","12:43",134]]},
-  {date:"2026-08-02", time:"3:17 pm", dist:4.72, dur:3601, cadence:136, elev:110, cal:560,
+  {date:"2026-08-02", time:"3:17 pm", dist:4.72, dur:3601, pace:"12:41", cadence:136, elev:110, cal:560,
    place:"SE Cary Pkwy greenway", weather:"Mostly cloudy",
    splits:[["1","9:49",154],["2","11:50",144],["3","15:35",120],["4","13:22",132],["4.72","12:58",136]]}
 ];
@@ -125,7 +125,7 @@ const runs = [
 const s2 = t => t.split(":").reduce((a,b)=>a*60+ +b,0);
 const clock = s => {const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=Math.round(s%60);
   return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0")};
-const paceOf = r => clock(r.dur/r.dist);
+const paceOf = r => r.pace;
 const fmtDate = d => new Date(d+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
 
 const mi = runs.reduce((a,r)=>a+r.dist,0), sec = runs.reduce((a,r)=>a+r.dur,0);
@@ -174,7 +174,7 @@ document.getElementById("runs").innerHTML = [...runs].reverse().map(r=>{
         <div class="bar" style="width:${28+(1-(sp[i]-lo)/span)*72}%"></div>
         <span>${s[1]}<var>${s[2]}</var></span></div>`).join("")}
     </div>
-    <div class="note">${r.cal} cal &middot; ${r.weather} &middot; splits fastest to slowest by bar length</div>
+    <div class="note">${r.cal} cal &middot; ${r.weather} &middot; longer bar = faster split</div>
   </article>`;
 }).join("");
 
