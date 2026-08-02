@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Training Log</title>
+<meta name="description" content="Every logged workout: runs, treadmill, lifts, rucks, anything. Full numbers, splits, and notes.">
+<meta property="og:title" content="Training Log">
+<meta property="og:description" content="Every logged workout in one place. Runs, treadmill, lifts, rucks, whatever gets done, with full numbers, splits, and notes.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/training-log-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/training-log.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/training-log-og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#e6e9e1; --panel:#f5f7f1; --ink:#161c15; --muted:#6d7669;
+  --rule:#c9cfc0; --route:#d92b1f; --bar:#f2c9c5; --cad:#2f6b8a;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --cond:"IBM Plex Sans Condensed",var(--sans);
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{
+  margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px);
+  background-size:100% 88px;background-position:0 -1px;
+}
+.wrap{max-width:820px;margin:0 auto;padding:28px 20px 96px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--cond);font-weight:700;text-transform:uppercase;font-size:clamp(46px,14vw,96px);line-height:.86;letter-spacing:-.02em;margin:6px 0 0}
+h1 span{color:var(--route)}
+.totals{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin:22px 0 34px}
+.tot{background:var(--panel);padding:12px}
+.tot b{display:block;font-family:var(--mono);font-weight:600;font-size:clamp(18px,5vw,26px);letter-spacing:-.03em;line-height:1.1}
+.tot i{display:block;font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.sect{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:7px;margin:0 0 16px}
+.chart{background:var(--panel);border:1px solid var(--rule);padding:16px 14px 10px;margin-bottom:38px}
+.chart svg{display:block;width:100%;height:auto}
+.key{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.key s{text-decoration:none;display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:6px}
+.trace{position:relative;padding-left:30px}
+.trace:before{content:"";position:absolute;left:5px;top:10px;bottom:26px;width:2px;background:var(--route);opacity:.45}
+.entry{position:relative;background:var(--panel);border:1px solid var(--rule);padding:16px 16px 14px;margin-bottom:16px}
+.entry:before{content:"";position:absolute;left:-30px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--ground);border:3px solid var(--route)}
+.entry:after{content:"";position:absolute;left:-18px;top:25px;width:18px;height:1px;background:var(--rule)}
+.ehead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:10px}
+.title{font-family:var(--cond);font-weight:700;font-size:34px;line-height:1;letter-spacing:-.02em}
+.chip{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--panel);background:var(--ink);padding:3px 7px;vertical-align:6px;margin-left:9px}
+.when{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;max-width:100%}
+.when b{display:block;color:var(--ink);font-weight:600}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:11px;margin:12px 0 2px}
+.m b{display:block;font-family:var(--mono);font-weight:600;font-size:17px;letter-spacing:-.02em;white-space:nowrap}
+.m i{display:block;font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.tblwrap{margin-top:14px;border-top:1px solid var(--rule);padding-top:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:320px;font-family:var(--mono);font-size:12px}
+th{text-align:left;font-weight:500;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);padding:0 8px 6px 0;white-space:nowrap}
+td{padding:4px 8px 4px 0;white-space:nowrap;border-bottom:1px solid #e3e7dd}
+td:first-child{color:var(--muted)}
+.notes{margin-top:13px;border-top:1px solid var(--rule);padding-top:11px;font-size:14.5px;color:#2a332a}
+.extra{margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7}
+.extra em{font-style:normal;color:var(--ink)}
+.src{margin-top:11px;font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+footer{margin-top:44px;border-top:1px solid var(--rule);padding-top:12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:520px){
+  .totals{grid-template-columns:repeat(2,1fr)}
+  .title{font-size:28px}
+  .trace{padding-left:24px}.trace:before{left:0}
+  .entry:before{left:-24px}.entry:after{left:-13px;width:13px}
+  .when{text-align:left}
+}
+@media(prefers-reduced-motion:no-preference){
+  .entry{animation:rise .5s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Benny Foreman &middot; Wake County NC</div>
+  <h1>Training<br>Log<span>.</span></h1>
+
+  <div class="totals" id="totals"></div>
+
+  <div class="sect">Distance and pace, distance work only</div>
+  <div class="chart">
+    <svg id="chart" viewBox="0 0 700 220" preserveAspectRatio="none" aria-label="Distance bars and pace line"></svg>
+    <div class="key">
+      <span><s style="background:var(--route);opacity:.28"></s>Distance</span>
+      <span><s style="background:var(--ink)"></s>Pace (higher = faster)</span>
+    </div>
+  </div>
+
+  <div class="sect">Everything logged, newest first</div>
+  <div class="trace" id="entries"></div>
+
+  <footer><span id="stamp"></span><span>Log anything: screenshot, photo, or just talk</span></footer>
+</div>
+
+<script>
+// Add an entry: only date, time, type, title are required. Everything else optional.
+// metrics: [[label, value], ...]   table: {cols:[], rows:[[]], barCol:n, barLowerIsBetter:true}
+// extra: [[label, value], ...]     notes: "free text"     source: where it came from
+// dist (mi) and dur (seconds) feed the totals and chart. pace is the displayed string.
+const entries = [
+{
+  date:"2026-08-01", time:"4:01 pm", type:"run", title:"5.05 mi road run",
+  dist:5.05, dur:3749, pace:"12:22",
+  where:"Copperleaf, Cary NC. Out and back north past Green Level High School toward Lewter Shop Rd.",
+  metrics:[["Distance","5.05 mi"],["Duration","1:02:29"],["Avg pace","12:22 /mi"],["Avg cadence","136 spm"],["Elev gain","169 ft"],["Calories","607"]],
+  table:{cols:["Mile","Split pace","Cadence","Elapsed"],
+    rows:[["1","12:43","132","12:42"],["2","12:27","138","25:09"],["3","11:41","140","36:50"],["4","12:20","136","49:10"],["5.05","12:43","134","1:02:29"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Weather","Partly cloudy"],["Split pace range","11:41 to 13:00"],["Splits-chart avg","12:23 /mi"]],
+  notes:"Fastest mile was 3 at 11:41, which was also the highest cadence at 140. Held everything inside a 62 second spread from first mile to last.",
+  source:"MapMyRun screenshot"
+},
+{
+  date:"2026-08-02", time:"3:17 pm", type:"run", title:"4.72 mi greenway run",
+  dist:4.72, dur:3601, pace:"12:41",
+  where:"Cary greenway off SE Cary Pkwy at US 64 and Kildaire Farm Rd. North lollipop with a split loop at the top.",
+  metrics:[["Distance","4.72 mi"],["Duration","1:00:01"],["Avg pace","12:41 /mi"],["Avg cadence","136 spm"],["Elev gain","110 ft"],["Calories","560"]],
+  table:{cols:["Mile","Split pace","Cadence","Elapsed"],
+    rows:[["1","9:49","154","9:48"],["2","11:50","144","21:39"],["3","15:35","120","37:14"],["4","13:22","132","50:36"],["4.72","12:58","136","1:00:01"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Weather","Mostly cloudy"],["Elevation range","355.6 to 452.6 ft"],["Split pace range","9:49 to 18:17"],["Splits-chart avg","12:42 /mi"]],
+  notes:"Went out at 9:49 and paid for it. Mile 3 blew up to 15:35 with cadence dropping to 120, then clawed back to 12:58 on the last stretch. Cadence tracked the pace almost exactly, so the fade was turnover, not just stride.",
+  source:"MapMyRun screenshot"
+}
+];
+
+const s2=t=>String(t).split(":").reduce((a,b)=>a*60+ +b,0);
+const clock=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=Math.round(s%60);
+  return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0")};
+const fmtDate=d=>new Date(d+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+const withDist=entries.filter(e=>e.dist), withDur=entries.filter(e=>e.dur);
+const mi=withDist.reduce((a,e)=>a+e.dist,0), sec=withDur.reduce((a,e)=>a+e.dur,0);
+const dsec=withDist.reduce((a,e)=>a+(e.dur||0),0);
+const wk=entries.filter(e=>(Date.now()-new Date(e.date+"T12:00:00"))/864e5<7);
+document.getElementById("totals").innerHTML=[
+  [entries.length,"Sessions logged"],[mi.toFixed(2),"Total miles"],
+  [clock(sec),"Time training"],[dsec?clock(dsec/mi):"—","Avg pace /mi"],
+].map(([v,l])=>`<div class="tot"><b>${v}</b><i>${l}</i></div>`).join("")
++`<div class="tot" style="grid-column:1/-1"><b>${wk.length} sessions &middot; ${wk.reduce((a,e)=>a+(e.dist||0),0).toFixed(2)} mi</b><i>Last 7 days</i></div>`;
+
+(function(){
+  const d=withDist.filter(e=>e.pace); if(!d.length){document.getElementById("chart").closest(".chart").previousElementSibling.style.display="none";document.getElementById("chart").closest(".chart").style.display="none";return}
+  const W=700,H=220,P={l:8,r:8,t:14,b:26},n=d.length;
+  const paces=d.map(e=>s2(e.pace)),dmax=Math.max(...d.map(e=>e.dist))*1.15;
+  const pmin=Math.min(...paces)-30,pmax=Math.max(...paces)+30;
+  const slot=(W-P.l-P.r)/n,x=i=>P.l+slot*i+slot/2,bw=Math.min(slot*.46,64);
+  const yb=v=>H-P.b-(v/dmax)*(H-P.t-P.b),yp=v=>P.t+((v-pmin)/(pmax-pmin))*(H-P.t-P.b);
+  let g=`<line x1="0" y1="${H-P.b}" x2="${W}" y2="${H-P.b}" stroke="#c9cfc0"/>`;
+  d.forEach((e,i)=>{g+=`<rect x="${x(i)-bw/2}" y="${yb(e.dist)}" width="${bw}" height="${H-P.b-yb(e.dist)}" fill="#d92b1f" opacity=".28"/>`
+    +`<text x="${x(i)}" y="${H-P.b+16}" font-family="IBM Plex Mono" font-size="11" fill="#6d7669" text-anchor="middle">${e.dist.toFixed(2)}</text>`});
+  g+=`<polyline fill="none" stroke="#161c15" stroke-width="2" points="${d.map((e,i)=>x(i)+","+yp(s2(e.pace))).join(" ")}"/>`;
+  d.forEach((e,i)=>{g+=`<circle cx="${x(i)}" cy="${yp(s2(e.pace))}" r="4.5" fill="#f5f7f1" stroke="#161c15" stroke-width="2"/>`
+    +`<text x="${x(i)}" y="${yp(s2(e.pace))-12}" font-family="IBM Plex Mono" font-size="11.5" fill="#161c15" text-anchor="middle">${e.pace}</text>`});
+  document.getElementById("chart").innerHTML=g;
+})();
+
+document.getElementById("entries").innerHTML=[...entries].reverse().map(e=>{
+  let tbl="";
+  if(e.table){
+    const t=e.table, bc=t.barCol;
+    let lo=0,hi=1,vals=[];
+    if(bc!=null){vals=t.rows.map(r=>s2(r[bc]));lo=Math.min(...vals);hi=Math.max(...vals)}
+    const span=(hi-lo)||1;
+    tbl=`<div class="tblwrap"><table><thead><tr>${t.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`
+      +t.rows.map((r,i)=>{
+        let bg="";
+        if(bc!=null){const f=t.barLowerIsBetter?1-(vals[i]-lo)/span:(vals[i]-lo)/span;
+          const p=(26+f*74).toFixed(1);bg=` style="background:linear-gradient(90deg,var(--bar) ${p}%,transparent ${p}%)"`}
+        return `<tr${bg}>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`}).join("")
+      +`</tbody></table></div>`;
+  }
+  return `<article class="entry">
+    <div class="ehead">
+      <div class="title">${esc(e.title)}<span class="chip">${esc(e.type)}</span></div>
+      <div class="when"><b>${fmtDate(e.date)}</b>${esc(e.time||"")}</div>
+    </div>
+    ${e.metrics?`<div class="metrics">${e.metrics.map(([l,v])=>`<div class="m"><b>${esc(v)}</b><i>${esc(l)}</i></div>`).join("")}</div>`:""}
+    ${tbl}
+    ${e.notes?`<div class="notes">${esc(e.notes)}</div>`:""}
+    ${e.where||e.extra?`<div class="extra">${e.where?`<div>${esc(e.where)}</div>`:""}${(e.extra||[]).map(([l,v])=>`<div>${esc(l)}: <em>${esc(v)}</em></div>`).join("")}</div>`:""}
+    ${e.source?`<div class="src">Source: ${esc(e.source)}</div>`:""}
+  </article>`}).join("");
+
+document.getElementById("stamp").textContent="Updated "+new Date(entries[entries.length-1].date+"T12:00:00")
+  .toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+</script>
+</body>
+</html>
