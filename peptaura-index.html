@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Peptaura Catalog Index — evidence grade, compound by compound</title>
+<meta name="description" content="All 85 compounds on the Peptaura marketplace, graded by how far the evidence actually got: cells, animals, humans, approved.">
+<meta property="og:title" content="What's Actually In The Peptaura Catalog">
+<meta property="og:description" content="All 85 listings graded by how far the evidence actually got. 22 approved somewhere, 39 animal-only, 3 you shouldn't touch. Searchable, one entry each.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/peptaura-og-wide.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/peptaura-index.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/peptaura-og-wide.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDEEF0; --paper-2:#F6F7F8; --ink:#14181F; --ink-3:#5A626E;
+  --rule:#C7CBD1;
+  --g4:#1B5E4A; --g3:#3F6DA8; --g2:#A8761F; --g1:#6E7683; --gx:#932424;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:'Source Serif 4',Georgia,serif;font-size:16px;line-height:1.5;
+}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px 100px}
+
+header{padding:56px 0 28px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-3);margin:0 0 14px}
+h1{font-family:'Archivo',sans-serif;font-weight:700;font-size:clamp(30px,6vw,50px);
+  line-height:.98;letter-spacing:-.025em;margin:0 0 16px;text-transform:uppercase}
+.lede{font-size:17px;max-width:62ch;margin:0 0 6px;color:#252B34}
+.lede b{font-weight:600}
+
+/* key */
+.key{display:flex;flex-wrap:wrap;gap:14px 22px;margin:26px 0 0;
+  font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;color:var(--ink-3)}
+.key span{display:flex;align-items:center;gap:7px}
+.sw{width:22px;height:7px;display:block}
+
+/* controls */
+.controls{position:sticky;top:0;z-index:20;background:var(--paper);
+  padding:14px 0 12px;border-bottom:1px solid var(--rule);margin-bottom:4px}
+#q{width:100%;font-family:'JetBrains Mono',monospace;font-size:14px;
+  padding:11px 13px;border:1.5px solid var(--ink);background:var(--paper-2);
+  color:var(--ink);border-radius:0}
+#q:focus{outline:2px solid var(--g4);outline-offset:1px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;
+  text-transform:uppercase;padding:6px 11px;border:1px solid var(--rule);
+  background:transparent;color:var(--ink-3);cursor:pointer}
+.chip:hover{border-color:var(--ink);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chip:focus-visible{outline:2px solid var(--g4);outline-offset:2px}
+#count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-3);
+  margin-top:9px;letter-spacing:.05em}
+
+/* entries */
+.entry{padding:22px 0;border-bottom:1px solid var(--rule)}
+.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:3px}
+.name{font-family:'Archivo',sans-serif;font-weight:700;font-size:19px;
+  letter-spacing:-.01em;text-transform:uppercase}
+.cls{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-3);
+  letter-spacing:.03em}
+
+/* signature: evidence ladder */
+.ladder{display:flex;gap:3px;margin:9px 0 11px;align-items:center}
+.rung{height:9px;width:46px;background:#DDE0E4;position:relative}
+.rung.on{background:var(--c)}
+.rung span{position:absolute;top:13px;left:0;font-family:'JetBrains Mono',monospace;
+  font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap}
+.ladder{margin-bottom:26px}
+.verdict{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--c);font-weight:700;margin-left:6px}
+
+.body{margin:0;max-width:70ch}
+.meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-3);
+  margin-top:9px;letter-spacing:.02em}
+.flag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;background:var(--gx);color:#fff;
+  padding:2px 7px;font-weight:700}
+.empty{padding:50px 0;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--ink-3)}
+footer{margin-top:44px;padding-top:22px;border-top:2px solid var(--ink);
+  font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.7;color:var(--ink-3)}
+@media (prefers-reduced-motion:no-preference){.entry{transition:opacity .15s}}
+@media (max-width:560px){.rung{width:32px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Peptaura catalog · 85 listings · compiled 3 Aug 2026</p>
+  <h1>What's actually<br>in the catalog</h1>
+  <p class="lede">Every compound on the marketplace, graded by how far its evidence actually got. The ladder on each entry shows the furthest rung the data reached, not the furthest rung the marketing claims.</p>
+  <p class="lede" style="color:var(--ink-3);font-size:15px">Vendor counts are from the catalog grid. More vendors means more demand, not better evidence.</p>
+  <div class="key">
+    <span><i class="sw" style="background:#1B5E4A"></i>Approved somewhere</span>
+    <span><i class="sw" style="background:#3F6DA8"></i>Human trials exist</span>
+    <span><i class="sw" style="background:#A8761F"></i>Animals only</span>
+    <span><i class="sw" style="background:#6E7683"></i>Nothing / not a drug</span>
+    <span><i class="sw" style="background:#932424"></i>Don't</span>
+  </div>
+</header>
+
+<div class="controls">
+  <input id="q" type="search" placeholder="Search a compound, a class, a mechanism…" autocomplete="off">
+  <div class="chips" id="chips">
+    <button class="chip" data-t="all" aria-pressed="true">All</button>
+    <button class="chip" data-t="4" aria-pressed="false">Approved</button>
+    <button class="chip" data-t="3" aria-pressed="false">Human trials</button>
+    <button class="chip" data-t="2" aria-pressed="false">Animals only</button>
+    <button class="chip" data-t="1" aria-pressed="false">Nothing</button>
+    <button class="chip" data-t="x" aria-pressed="false">Don't</button>
+  </div>
+  <p id="count"></p>
+</div>
+
+<main id="list"></main>
+
+<footer>
+  Sources: Eli Lilly investor releases (TRIUMPH-1 May 2026, eloralintide Phase 2 Nov 2025) · The Lancet · JAMA · Archives of Neurology (Baker 2012) · Lancet HIV (Stanley 2019) · FDA EGRIFTA label &amp; PCAC briefing docs, docket FDA-2025-N-6895 · AJMC, PharmExec, Drug Topics, NBC, Reuters on the 23–24 July 2026 PCAC votes · Frontiers in Pharmacology (Djillani 2017) · Drug Testing and Analysis 2026 · PubMed 23571464 · Medscape.<br><br>
+  Nothing here is a dose recommendation. Grades describe published evidence, not safety in you.
+</footer>
+
+</div>
+
+<script>
+const D=[
+["5-amino-1mq","NNMT inhibitor · small molecule",2,8,"Blocks nicotinamide N-methyltransferase, which in mice shrinks fat cells and raises NAD+. The mouse fat-loss data is real and repeated. No human trial has ever been run. Sold as a peptide; it isn't one."],
+["acetic acid","solvent",1,4,"Reconstitution solvent for peptides that won't dissolve in plain bacteriostatic water, GHK-Cu and a few others. Not a drug. Buy it if you need it, ignore it otherwise."],
+["adamax","Semax-family nootropic analog",1,7,"Circulates as an amidated Semax derivative. There is essentially no published literature under this name. Seven vendors and zero papers means you're the study."],
+["ahk-cu","copper tripeptide · hair",2,6,"GHK-Cu's less-studied cousin, marketed for follicle stimulation. Some cell and ex vivo hair work. No controlled human trials, and far thinner data than GHK-Cu, which is already thin for injection."],
+["aod-9604","HGH fragment 176-191 analog",3,8,"The most informative failure in the catalog. This is the growth-hormone fat-loss fragment, stabilized, and it actually went to a Phase 2b for obesity. It did not beat placebo. Vendors selling 'HGH fragment' never mention that its optimized version already failed."],
+["ara-290","cibinetide · innate repair receptor",3,7,"EPO-derived but non-erythropoietic, so it doesn't raise hematocrit. Phase 2 data in sarcoidosis small-fiber neuropathy showed benefit on corneal nerve fibre measures and symptoms. A real, small, honest development program. One of the few here that's been genuinely tested."],
+["b12","cyanocobalamin",4,3,"A vitamin. Injectable B12 fixes B12 deficiency and does nothing else, energy claims included. If your levels are normal you are making expensive urine."],
+["bac water","0.9% benzyl alcohol water",1,5,"Bacteriostatic water. The preservative is what lets you puncture a vial repeatedly without growing something in it. The one item on this list you unambiguously need, and the one people cheap out on by using plain sterile water."],
+["bpc-157","pentadecapeptide · tissue repair",2,10,"The most popular compound in the space. Huge rodent dataset across tendon, gut, muscle, and nerve, proposed to work via VEGFR2 upregulation and nitric oxide signalling. The catch: nearly all of it comes from one research group whose findings show a positive effect on literally everything tested. A 2025 systematic review found no completed human efficacy studies. A 2015 Phase 1 with 42 volunteers never published. On 23 July 2026 the FDA's compounding panel voted 8-6 to recommend it for the 503A list, overruling FDA's own scientists. Advisory only; rulemaking runs into 2027."],
+["bpc-157+tb500","1:1 blend",2,8,"Convenience product with a design flaw. Standalone protocols dose TB-500 at roughly 5x the BPC dose, so a 1:1 vial forces you to either underdose the TB or massively overdose the BPC. Treat it as a BPC-157 protocol with a little TB riding along."],
+["cagrilintide","amylin analog",3,8,"Novo's amylin agonist. Real Phase 2 alone, Phase 3 in combination. Legitimate drug development, and the mechanism (satiety via amylin rather than incretin) is genuinely different from the GLP-1s."],
+["cagrilintide+semaglutide",'CagriSema',3,6,"A knockoff of an actual Phase 3 combination that landed around 20-22% weight loss at 68 weeks, under Novo's own guidance. Filed with FDA. The blend vial is real pharmacology; the vial isn't from Novo."],
+["cardiogen","Khavinson heart bioregulator",1,1,"Tripeptide claimed to support cardiac tissue. Single-institution Russian data, no independent Western trial of any bioregulator has ever been published. One vendor stocks it, which tells you what the market thinks."],
+["cartalax","Khavinson cartilage bioregulator",1,4,"Same family, same evidence problem, less data than epitalon. Marketed for joints and connective tissue on mechanism alone."],
+["cerebroprotein hydrolysate","porcine brain peptide mixture",4,3,"Essentially Cerebrolysin. Approved in China, India, and parts of Europe for stroke and dementia. Cochrane reviews have been unimpressed. It's an undefined mixture rather than a defined molecule, which makes both dosing and purity claims close to meaningless."],
+["cjc-1295 (no dac)","mod GRF 1-29 · GHRH analog",2,8,"A 29-amino-acid GHRH fragment that produces a clean GH pulse and clears fast. Well-characterized endocrinology, no long-term human outcome data. Paired with a GHRP this is the standard stack, and the synergy is real physiology rather than marketing."],
+["cjc-1295 (no dac) + ipamorelin","GHRH + GHRP blend",2,7,"The most sensible blend in the catalog. Two different receptors, additive GH release, and ipamorelin is selective enough not to drag cortisol and prolactin along. Still no outcome trials."],
+["cjc-1295 (with dac)","long-acting GHRH analog",2,8,"The DAC extends half-life to about a week. That converts pulsatile GH release into a continuous bleed, which is arguably the wrong physiology and the thing GHRH analogs were supposed to avoid. Convenient, mechanistically worse."],
+["cortagen","Khavinson cortex bioregulator",1,1,"Brain-cortex peptide, proposed neuroprotection. Russian-network data only. One vendor."],
+["dermorphin","mu-opioid heptapeptide",0,4,"A mu-opioid agonist 30 to 40 times more potent than morphine, with over 1000-fold selectivity for mu. Frog-skin origin, D-alanine at position 2 makes it resist enzymatic breakdown so it lasts far longer than endogenous opioids. Famous for one thing: doping racehorses, nicknamed 'frog juice,' until assays were developed in 2012. One unreplicated 1985 human intrathecal trial, no modern program. A 1mg vial is several hundred to a thousand human-equivalent doses. Tolerance, dependence, and fatal respiratory depression are standard opioid pharmacology, not theoretical."],
+["dihexa","angiotensin IV analog",2,1,"Reported as orders of magnitude more potent than BDNF at driving synapse formation in rodents. Zero human data. Promoting uncontrolled synaptogenesis and hepatocyte growth factor signalling in an adult brain is exactly the category of thing that goes wrong in ways nobody detects for years."],
+["dsip","emideltide · delta sleep-inducing peptide",2,9,"The only one of seven peptides the FDA's compounding panel rejected in July 2026, voted down 7-6, citing weak efficacy evidence and poor chemical characterization. A panel that approved six things on thin evidence still couldn't stomach this one. That's a meaningful signal."],
+["eloralintide","LY3841136 · selective amylin agonist",3,2,"The newest genuinely exciting thing on the list. Lilly's Phase 2 in The Lancet, Nov 2025, 263 adults, 48 weeks: 9.5% to 20.1% dose-dependent weight loss vs 0.4% placebo, mostly mild nausea and fatigue. Selective for amylin over calcitonin receptors, which is the design bet for better tolerability than cagrilintide. Phase 3 starting. Two vendors, so grey-market supply is barely there yet."],
+["epitalon","Ala-Glu-Asp-Gly · pineal tetrapeptide",2,9,"The most-studied Khavinson bioregulator and the one with the strongest individual case. Anisimov 2003 showed a 12.3% mouse lifespan increase and reduced malignant lymphoma incidence. Claimed telomerase upregulation. The fundamental problem is insularity: no independent Western randomized trial of any bioregulator has ever been published, in any year. Recommended 7-4 by the FDA panel in July 2026, which surprised almost everyone."],
+["follistatin 334","myostatin/activin antagonist",2,0,"No published Phase 1 for injectable follistatin protein or fragments. Independent testing programs have found contamination, wrong peptide identity, and dose inconsistency across this class specifically. Systemic activin blockade also hits reproduction and inflammation, not just muscle. Zero vendors currently, which is the market being smarter than usual."],
+["fox04","senolytic (mislabeled)",2,5,"Almost certainly FOXO4-DRI spelled wrong, or the unmodified peptide which lacks the D-retro-inverso protection and would be degraded before it did anything. If a vendor can't spell the compound, that's information."],
+["fox04-dri","senolytic · FOXO4-p53 disruptor",2,2,"Baar 2017 mouse rejuvenation data was genuinely striking, and it's been validated in human chondrocytes in a dish. No human trials. Read the mechanism plainly: the entire point of this compound is to selectively kill cells. Selectivity that holds in a dish or a mouse is not something to assume in yourself."],
+["gdf-8","myostatin",2,2,"This is myostatin itself, the protein that inhibits muscle growth. Selling it instead of an inhibitor of it is either a labeling error or a joke. Nobody who understands the pathway wants this."],
+["ghk","copper-free tripeptide",2,1,"GHK without the bound copper. Most of the interesting biology is copper-dependent, so this is the less useful half of the molecule. One vendor."],
+["ghk-cu","copper tripeptide",3,10,"Cheapest thing on the marketplace and the most misunderstood. The blue colour is the copper(II) ion, normal not degraded. Strong human evidence exists but it is topical: the Leyden 2002 photoaging trial and a 2023 topical gel study reporting roughly 28% increased collagen density at 3 months. No human randomized trial has established an injectable dose at all. Copper load at typical doses is trivial, roughly 6-15 mcg elemental per dose against a 900 mcg RDA. Wilson's disease is a hard exclusion. Practical trap: at 1-3mg per injection a 50mg vial outlives the ~28-day reconstituted window, so split the powder before you add water."],
+["ghrp-2 acetate","GH secretagogue",2,6,"Raises GH reliably and drags prolactin and cortisol up with it. Less selective than ipamorelin for no additional benefit."],
+["ghrp-6 acetate","GH secretagogue",2,6,"Same class, plus intense hunger. That appetite effect is the most reliable thing it does, which is an odd fit for anyone using it alongside a GLP-1."],
+["glow","GHK-Cu + BPC-157 + TB-500",2,9,"Marketing construct. Each component has its own literature; the blend has never been studied as a product. The GHK-Cu dominates the vial by mass, so it drives your dosing math and the other two ride along at whatever falls out."],
+["glutathione","tripeptide antioxidant",1,9,"Injectable glutathione for skin lightening has essentially no controlled evidence, and the FDA has warned about it specifically. Oral absorption is poor, which is the usual argument for injecting it, but that argument was never followed by a trial."],
+["hcg","human chorionic gonadotropin",4,8,"An actual prescription fertility drug, also used in TRT protocols to preserve testicular function and fertility. Real approvals, real pharmacology, and real endocrine consequences if you freelance the dosing. The 'hCG diet' is a separate and thoroughly debunked thing."],
+["hexarelin acetate","GH secretagogue",2,4,"Most potent of the GHRPs and the fastest to desensitize. Also raises cortisol and prolactin. Diminishing returns within weeks."],
+["hgh fragment 176-191","GH fat-loss fragment",2,1,"The C-terminal fragment claimed to give the lipolytic effects of GH without the growth effects. Its optimized, stabilized version is AOD-9604, which failed a Phase 2b for obesity. One vendor stocks it, which is roughly the right amount."],
+["hmg","human menopausal gonadotropin",4,4,"Prescription fertility drug containing FSH and LH activity. Same category as hCG: approved, potent, and not a wellness compound."],
+["hyaluronic acid","glycosaminoglycan",4,3,"Approved as an injectable for knee osteoarthritis and as a dermal filler, though the OA evidence is genuinely contested and several bodies now recommend against it. Not a peptide, and injecting it subcutaneously for skin does nothing the topical or filler routes don't do better."],
+["igf-1lr3","long-acting IGF-1 analog",2,7,"Genuinely risky rather than merely unproven. It causes hypoglycemia, and IGF-1 promotes proliferation of whatever cells happen to be present, including ones you'd rather not proliferate. No human safety data for chronic supraphysiologic dosing exists and there is no plausible route to getting any."],
+["ipamorelin","selective GHRP",2,9,"The cleanest GH secretagogue. Selective enough that it doesn't spike cortisol or prolactin, unlike GHRP-2, GHRP-6, and hexarelin. Real GH elevation, no long-term outcome data. If you're going to run this class, run this one."],
+["kisspeptin-10","GnRH upstream regulator",2,8,"A legitimate reproductive endocrinology research tool with human studies on LH pulsatility. Half-life is measured in minutes, which undercuts any practical protocol built around it."],
+["klow","GHK-Cu + KPV + BPC-157 + TB-500",2,10,"Four peptides, one vial, typically 50mg GHK-Cu plus 10mg each of the rest. Never studied as a product. Ten vendors carry it, which makes it one of the best-selling things on the site and one of the least examined."],
+["kp1","KPV-adjacent fragment",1,1,"Barely characterized under this name. One vendor, no meaningful literature."],
+["kpv","alpha-MSH fragment · anti-inflammatory",2,10,"Tripeptide fragment of alpha-melanocyte-stimulating hormone, studied mostly in gut inflammation models. Recommended 8-6 by the FDA panel in July 2026 for wound healing and inflammatory conditions. No human efficacy trials."],
+["l-carnitine","amino acid derivative",1,6,"Injectable carnitine is a fixture of weight-loss clinics with no efficacy data behind that use. Oral supplementation has modest evidence in specific deficiency states and none for fat loss in healthy people."],
+["lipo c","MIC lipotropic blend",1,5,"Methionine, inositol, choline, usually with B12. A weight-loss clinic tradition dating back decades with no controlled efficacy data. It persists because it's cheap to make and easy to sell."],
+["ll-37","human cathelicidin",2,6,"Real antimicrobial peptide with interesting immunology. No clinical use, and it's cytotoxic to host cells at higher concentrations. The margin between antimicrobial and just plain toxic is narrower than the marketing suggests."],
+["mazdutide","GLP-1 + glucagon dual agonist",4,4,"Innovent and Lilly's dual agonist, approved in China in 2025. Around 15% weight loss in Chinese Phase 3 at lower doses than Western programs typically use. Real drug, real approval, just not a US one."],
+["melanotan-1","afamelanotide",4,7,"FDA-approved as Scenesse, an implant for erythropoietic protoporphyria. More targeted than MT-2 and without the priapism and severe nausea profile. Still darkens existing moles, and no long-term melanoma surveillance data exists for cosmetic use."],
+["melanotan-2","non-selective melanocortin agonist",0,9,"Case reports of new and changing melanomas, eruptive nevi, priapism requiring intervention, and severe nausea. Nine vendors carry it because tanning sells. MT-1 does the same job with an actual approval behind it and a shorter list of case reports."],
+["melatonin","pineal hormone",4,4,"Oral works fine at 0.3-1mg, which is a fraction of what most retail products contain. Injecting it accomplishes nothing that swallowing it doesn't."],
+["mots-c","mitochondrial-derived peptide",2,9,"16 amino acids encoded inside mitochondrial DNA, discovered at USC in 2015. Activates AMPK, the same switch exercise and metformin flip. Mouse data is good: prevented diet-induced obesity, reversed insulin resistance, improved running capacity in aged mice. As of July 2026 no completed human trial evaluates unmodified MOTS-c. The only human data is observational, showing a single bout of exercise raises muscle MOTS-c about 12-fold. The 5-10mg figures online are rodent extrapolations. WADA-banned since January 2024."],
+["nad+","dinucleotide cofactor",2,10,"Injectable NAD+ is expensive, and IV infusions cause chest tightness and flushing that people describe as the worst part of their week. Oral NR and NMN raise NAD+ reliably; whether raising it produces outcomes is unresolved. Injecting the intact molecule is the least evidence-supported route of the three."],
+["nad+ (buffered)","pH-adjusted NAD+",2,1,"Same compound, less injection-site pain. Buffering solves a comfort problem, not an evidence problem."],
+["oxytocin acetate","nonapeptide hormone",4,5,"Approved as Pitocin for labor induction. The 'bonding hormone' claims come from intranasal studies that have largely failed to replicate, and peripheral injection barely crosses the blood-brain barrier, which undercuts the entire premise for this use."],
+["p21","Cerebrolysin-derived neurogenic fragment",2,3,"Rodent Alzheimer's models, proposed to promote neurogenesis. No human data. Not to be confused with the p21 cell-cycle protein, which is an entirely different thing and a source of constant confusion."],
+["pancragen","Khavinson pancreas bioregulator",1,1,"Claimed to support insulin regulation. Russian single-institution data. One vendor."],
+["pbs water","phosphate-buffered saline",1,1,"A buffer, not a drug. Used where benzyl alcohol would interfere. Rarely the right choice for a multi-use vial because it has no preservative."],
+["pe 22-28","shortened spadin analog · TREK-1 blocker",2,3,"Genuinely interesting pharmacology. IC50 of 0.12 nM at TREK-1, roughly 300-fold more potent than spadin, with mouse antidepressant behaviour in forced swim and learned helplessness at 3 µg/kg and neurogenesis after four days. Zero human trials. Note the dose scale: micrograms per kilogram in mice means an 8-10mg vial contains a staggering number of theoretical doses and the margin for a measurement error is enormous."],
+["peg mgf","pegylated mechano growth factor",2,4,"An IGF-1 splice variant with a PEG chain for longevity. The muscle-repair story is entirely from cell culture and rodents, and it carries the same proliferation concerns as IGF-1 itself."],
+["pinealon","Khavinson brain tripeptide",1,5,"Glu-Asp-Arg, proposed neuroprotection and NMDA modulation. Same evidence structure as the rest of the family. Frequently stacked with epitalon on the theory that one handles circadian rhythm and the other handles recovery, which is a story rather than a finding."],
+["pnc-27","p53-derived membrane-lytic peptide",0,4,"Real in vitro papers showing it binds membrane HDM-2 on cancer cells and induces pore formation and lysis. Zero human trials. It is marketed to desperate people as a cancer treatment. 'Induces selective membrane pore formation' is not something to bet your own cell membranes on based on a dish."],
+["pt-141","bremelanotide · melanocortin agonist",4,9,"FDA-approved as Vyleesi for hypoactive sexual desire disorder in premenopausal women. Real trials. Nausea in a large fraction of users, transient blood pressure rise, and it darkens skin with repeated use. Used off-label by men, where the approval evidence doesn't apply."],
+["retatrutide","GIP + GLP-1 + glucagon triple agonist",3,10,"The best-evidenced unapproved compound in the catalog. TRIUMPH-1 (Phase 3, 2,339 participants, May 2026): 17.6% at 4mg, 23.7% at 9mg, 25.0% at 12mg vs 3.9% placebo at 80 weeks, and a subgroup escalated to max tolerated dose reached up to 30% at 104 weeks. 45.3% of the 12mg arm lost over 30% of body weight, a range normally associated with surgery. TRIUMPH-4 hit 28.7% at 68 weeks with reduced knee pain. Discontinuation for adverse events ran 4.1%, 6.9%, 11.3% by dose vs 4.9% placebo. Novel side effect: dysesthesia, mostly mild and resolving. GI effects heavier than semaglutide or tirzepatide. NDA expected late 2026, approval maybe late 2027. Lean mass loss and cardiovascular outcomes remain open."],
+["rfsh","recombinant FSH",4,0,"Prescription fertility drug. Zero vendors listed, which is appropriate for something with this much endocrine leverage."],
+["selank","tuftsin analog · anxiolytic",2,9,"Russian-approved anxiolytic with minimal Western replication. Intranasal is the studied route, not injection. Reported as non-sedating, which if true is the interesting part."],
+["semaglutide","GLP-1 agonist",4,9,"Approved as Ozempic and Wegovy. Around 15% weight loss, and crucially it has a proven cardiovascular outcomes benefit that neither tirzepatide nor retatrutide has yet demonstrated. If CV risk matters more to you than raw weight loss, this is the one with the evidence."],
+["semax","ACTH(4-10) analog · nootropic",2,9,"Approved in Russia for stroke and cognitive indications. Recommended 8-5 by the FDA panel in July 2026. Nearly all evidence is Russian-language and single-network, and intranasal is the studied route."],
+["sermorelin","GHRH(1-29)",4,3,"Was actually FDA-approved once, as Geref, and withdrawn for commercial reasons rather than safety. Short-acting GHRH analog. Weaker and shorter-lived than tesamorelin but with a real regulatory history, which is more than most of this list can say."],
+["sermorelin acetate","salt form of the above",4,4,"Same molecule, acetate salt. The distinction between free base and acetate is real for stability and mass calculations but not for pharmacology."],
+["slu-pp-332","pan-ERR agonist · exercise mimetic",2,3,"Not a peptide, it's a small molecule from Saint Louis University. Mouse data is striking: roughly 25-30% fat mass reduction in diet-induced obese mice over 28 days without exercise, plus more oxidative fibres and better endurance. As of mid-2026 there is zero human data, no registered Phase 1, and poor oral bioavailability that may prevent it ever getting there. Mouse dosing was 50mg/kg intraperitoneal. One flagged signal: increased resting heart rate in treated mice. Anti-doping labs published detection methods in 2026, which is how you know people are using it."],
+["snap-8","acetyl octapeptide-3 · cosmetic",2,8,"A topical botox-mimetic peptide with mild wrinkle data at the surface. It was designed for application, not injection, and injecting it makes no mechanistic sense."],
+["somatropin (hgh)","recombinant human growth hormone",4,3,"Approved drug that works, with well-characterized risks: insulin resistance, oedema, carpal tunnel, joint pain, and a long-running debate about cancer promotion. This is the highest-stakes counterfeiting target in the catalog because it's a 191-amino-acid protein, not a short peptide, and it's genuinely expensive to make correctly."],
+["ss-31","elamipretide · mitochondria-targeted",3,9,"The most legitimately developed compound in this tier. Stealth BioTherapeutics ran real trials in Barth syndrome and primary mitochondrial myopathy. Results were mixed to negative on primary endpoints. Points for actually having been tested, which distinguishes it from everything around it."],
+["survodutide","GLP-1 + glucagon dual agonist",3,6,"Boehringer's dual agonist. Phase 2 showed roughly 19% at 46 weeks with strong MASH and liver-fat data. Phase 3 running. Real development, one tier below retatrutide on evidence maturity."],
+["tb500","thymosin beta-4 fragment",2,8,"Drives actin binding and cell migration, which is a coherent tissue-repair mechanism. Good rodent and in vitro data, no human trials. Recommended 8-6 by the FDA panel in July 2026. WADA-banned."],
+["tesamorelin","GHRH(1-44) analog · Egrifta",4,9,"The sleeper on the list. Full GHRH sequence with a trans-3-hexenoic acid cap that blocks DPP-4 degradation, preserving natural pulsatile GH release. Two pivotal Phase 3 trials, ~800 patients, 2mg daily: visceral fat down 15-18% at 26 weeks vs 4-5% placebo, CT-measured, plus improved triglycerides. Later work showed liver fat reductions. Baker 2012 found cognitive improvement at 1mg over 20 weeks, though a 2025 paper failed to confirm it. What it doesn't show: no cardiovascular outcomes, no adequate study outside HIV lipodystrophy, and effects reverse on discontinuation. Watch IGF-1 and glucose; diabetics were excluded from the pivotal trials for glucose intolerance. Also, 44 residues is long for solid-phase synthesis, so purity claims deserve more scepticism here than on a tripeptide."],
+["testagen","Khavinson testes bioregulator",1,1,"Proposed to support male reproductive function. Russian single-lab data. One vendor. If it did what it claims, the TRT world would not be quiet about it."],
+["thymosin alpha-1","28-mer immune peptide",4,7,"Approved as Zadaxin in roughly 30 countries, though not the US. Trials in hepatitis B, sepsis, and as a vaccine adjuvant. One of very few immune peptides here with a genuine international regulatory footprint."],
+["thymulin","zinc-dependent thymic nonapeptide",2,8,"Old Russian and French literature, essentially no modern development. Requires zinc to be biologically active, which most protocols never mention."],
+["tirzepatide","GLP-1 + GIP dual agonist",4,9,"Approved as Mounjaro and Zepbound. Roughly 22.5% weight loss at 72 weeks in SURMOUNT-1, with an enormous safety dataset behind it. Cheapest per mg in the catalog because Chinese API supply is deep. If you want a proven compound rather than an interesting one, this is it."],
+["vesugen","Khavinson vascular bioregulator",1,1,"Proposed endothelial and vascular support. Same family, same insularity. One vendor."],
+["vilon","Lys-Glu · Khavinson immune dipeptide",1,1,"Among the more studied cytogen dipeptides, with reported restoration of T-lymphocyte activity in aged animals. All from the same institute. One vendor."],
+["vip","vasoactive intestinal peptide",2,8,"A real neuropeptide with real receptors and real physiology. Promoted heavily in the mold-illness and CIRS community on the strength of one clinician's protocol rather than trials. Causes flushing and hypotension, which are dose-limiting and not subtle."]
+];
+
+const TIER={4:["Approved somewhere","#1B5E4A"],3:["Human trials","#3F6DA8"],2:["Animals only","#A8761F"],1:["Nothing","#6E7683"],0:["Don't","#932424"]};
+const RUNGS=["Cells","Animals","Humans","Approved"];
+let filter="all",query="";
+
+function reach(t){ return t===4?4 : t===3?3 : t===2?2 : t===0?2 : 1; }
+
+function render(){
+  const list=document.getElementById("list");
+  const q=query.trim().toLowerCase();
+  const rows=D.filter(([n,c,t,v,b])=>{
+    const tf = filter==="all" || (filter==="x" ? t===0 : String(t)===filter);
+    const qf = !q || (n+" "+c+" "+b).toLowerCase().includes(q);
+    return tf&&qf;
+  });
+  document.getElementById("count").textContent=
+    rows.length+" of "+D.length+" listings"+(q?' matching "'+query.trim()+'"':"");
+  if(!rows.length){ list.innerHTML='<p class="empty">Nothing matches. Try a shorter word.</p>'; return; }
+  list.innerHTML=rows.map(([n,c,t,v,b])=>{
+    const [label,col]=TIER[t], r=reach(t);
+    const ladder=RUNGS.map((lab,i)=>
+      `<i class="rung${i<r?" on":""}" style="--c:${col}"><span>${i===r-1?lab:""}</span></i>`).join("");
+    return `<article class="entry">
+      <div class="top"><h2 class="name">${n}</h2><span class="cls">${c}</span>
+      ${t===0?'<span class="flag">Don\'t</span>':""}</div>
+      <div class="ladder" style="--c:${col}">${ladder}<span class="verdict" style="--c:${col}">${label}</span></div>
+      <p class="body">${b}</p>
+      <p class="meta">${v} vendor${v===1?"":"s"} listed</p>
+    </article>`;
+  }).join("");
+}
+document.getElementById("q").addEventListener("input",e=>{query=e.target.value;render()});
+document.getElementById("chips").addEventListener("click",e=>{
+  const b=e.target.closest(".chip"); if(!b)return;
+  filter=b.dataset.t;
+  [...document.querySelectorAll(".chip")].forEach(c=>c.setAttribute("aria-pressed",c===b));
+  render();
+});
+render();
+</script>
+</body>
+</html>
