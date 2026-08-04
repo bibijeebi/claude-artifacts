@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="Intro to HR Drill">
+<meta property="og:description" content="HamStudy-style mastery drill for WGU Intro to Human Resource Management, built from all 51 real pre-assessment questions. Requeues misses until mastered.">
+<meta property="og:url" content="https://niggerfaggot.club/hr-drill">
+<meta name="twitter:card" content="summary">
+<title>HR Intro Drill</title>
+<style>
+:root{--bg:#e9edf0;--panel:#fff;--ink:#2b3238;--dim:#7a8590;--teal:#159fc9;--green:#43a047;--red:#e23b3b;--line:#dde3e8}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding:14px}
+.wrap{max-width:640px;margin:0 auto}
+.head{background:var(--panel);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.head h1{font-size:17px;line-height:1.2}
+.head .sub{font-size:12px;color:var(--dim)}
+.rings{margin-left:auto;display:flex;gap:10px}
+.ring{width:52px;text-align:center;font-size:10px;color:var(--dim)}
+.ring svg{display:block;margin:0 auto 2px}
+.ring .val{font-weight:700;font-size:11px;color:var(--ink)}
+.bar{display:flex;gap:8px;align-items:center;margin:10px 0}
+select{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px;color:var(--ink)}
+.reset{font-size:12px;color:var(--dim);text-decoration:underline;cursor:pointer;background:none;border:none}
+.card{background:var(--panel);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.qtopic{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:6px}
+.qtext{font-size:16.5px;line-height:1.45;margin-bottom:14px}
+.ans{display:flex;gap:10px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:11px 12px;font-size:14.5px;line-height:1.4;margin-bottom:8px;cursor:pointer;color:var(--ink)}
+@media(hover:hover){.ans:hover{border-color:var(--teal)}}
+.ans .ltr{font-weight:700;color:var(--dim);flex:none}
+.ans.correct{border-color:var(--green);background:#eef7ee}
+.ans.wrong{border-color:var(--red);background:#fdeeee}
+.ans.reveal{border-color:var(--green)}
+.ans:disabled{cursor:default}
+.explain{display:none;margin-top:10px;border-left:3px solid var(--red);background:#fdf3f3;padding:10px 12px;font-size:13.5px;line-height:1.5;border-radius:0 6px 6px 0}
+.explain b{color:var(--green)}
+.explain .cont{display:block;margin-top:6px;font-size:12px;color:var(--dim)}
+.meta{margin-top:10px;font-size:12px;color:var(--dim);display:flex;justify-content:space-between}
+.done{background:var(--panel);border-radius:10px;padding:30px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.done h2{color:var(--green);margin-bottom:8px}
+.done p{color:var(--dim);font-size:14px;margin-bottom:16px}
+.done button{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>Intro to HR Drill</h1>
+      <div class="sub">51 PAM questions, mastered twice each</div>
+    </div>
+    <div class="rings">
+      <div class="ring"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke="#e6ebef" stroke-width="5"/><circle id="seenArc" cx="22" cy="22" r="19" fill="none" stroke="var(--teal)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 22 22)"/></svg><span class="val" id="seenVal">0%</span>Seen</div>
+      <div class="ring"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke="#e6ebef" stroke-width="5"/><circle id="aptArc" cx="22" cy="22" r="19" fill="none" stroke="var(--green)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 22 22)"/></svg><span class="val" id="aptVal">0%</span>Apt</div>
+    </div>
+  </div>
+  <div class="bar">
+    <select id="topicSel"><option value="">All topics</option></select>
+    <button class="reset" id="resetBtn">reset</button>
+  </div>
+  <div id="stage"></div>
+</div>
+<script>
+const MCQS=[
+["Which human resource function helps the organization understand the number and type of employees the organization will need in the future?", ["Recruiting", "Planning", "Appraising", "Compensating"], 1, "Future number and type of employees = HR planning. Recruiting fills needs already identified.", "HR Roles & Ethics"],
+["What are two societal trends that are influencing the world of work?", ["Increased competition and changes in communication technology", "Lower college graduation rates and decreasing world trade", "Decreasing world trade and changes in communication technology", "Increased competition and lower college graduation rates"], 0, "Competition and communication tech are the textbook's trend pair. Trade isn't decreasing and grad rates aren't the driver.", "HR Roles & Ethics"],
+["Which factor represents an organization's value system?", ["Corporate culture", "Brand awareness", "Core competencies", "Company reputation"], 0, "Corporate culture IS the value system by definition. Reputation and brand are external perceptions.", "HR Roles & Ethics"],
+["Which activity does the strategic human resources manager need to be engaged in, given the fact that organizational survival is increasingly dependent on adaptation?", ["Managing succession by creating contingency plans for key employees within the organization", "Taking on fewer roles to maintain a focused approach to organizational productivity improvements", "Focusing on acquiring human resources skills while leaving marketing and production techniques to those managers", "Maintaining priority on the requisition of services from the management and employees without external considerations"], 0, "Adaptation = engagement = succession/contingency planning for key employees. The other options narrow HR's role.", "HR Roles & Ethics"],
+["Which human resource professional provides a broad range of support to the overall organization?", ["Specialist", "Generalist", "Supervisor", "Coordinator"], 1, "Broad range = generalist. Specialist goes deep on one function.", "HR Roles & Ethics"],
+["A human resources department is working on increasing diversity within the organization. Which strategic role for a human resources department is being demonstrated?", ["Champion for change", "Initiator of outsourcing", "Administrator of policy", "Agent for legal compliance"], 0, "Increasing diversity is driving change, not administering policy or compliance. HR as change agent.", "HR Roles & Ethics"],
+["How should a human resources professional encourage a high ethical standard of conduct in the workplace?", ["By influencing others to make moral choices", "By holding monthly training sessions on integrity", "By maintaining equitable pay levels and alignment", "By ensuring compliance with all legal regulations"], 0, "Ethics is about influencing moral choices, broader than training, pay, or legal compliance (legal is the floor, not ethics).", "HR Roles & Ethics"],
+["A technology company reviews behavior of four employees: 1 sold trade secrets to a competitor; 2 requested the company pay for continuing education; 3 recommended hiring a sibling based on the sibling's work experience; 4 applied for other jobs while still employed. Which individual committed an ethical violation?", ["Individual 1", "Individual 2", "Individual 3", "Individual 4"], 0, "Selling trade secrets is the violation. Asking for tuition, referring a qualified sibling, and job hunting are all fine.", "HR Roles & Ethics"],
+["What is an exception to the doctrine of employment at will?", ["Implied contract", "Probationary period", "Termination for cause", "Mandatory waiting period"], 0, "The three at-will exceptions: public policy, implied contract, implied covenant of good faith.", "Legal & EEO"],
+["What is recognized by courts in several states as an implied contract that can be legally binding?", ["Formal pact", "Union agreement", "Employee handbook", "Public policy documents"], 2, "Handbooks (plus oral assurances and employer actions) can create implied contracts. That's why handbooks state employment is at-will.", "Legal & EEO"],
+["What was the goal of Title VII of the Civil Rights Act of 1964?", ["To create a legal structure that deals with contractual issues between employers and employees", "To allow employees greater ability to move between employers and job positions", "To give employers more flexibility in dealing with employees and their employment", "To make it illegal to discriminate against individuals based on their protected classes"], 3, "Title VII = no discrimination on race, color, religion, sex, national origin.", "Legal & EEO"],
+["What is the function of the Equal Employment Opportunity Commission (EEOC)?", ["Enforcing federal antidiscrimination statutes", "Conducting mediation when union contracts have expired", "Providing guidance to employers on classifying employees", "Creating guidelines for developing affirmative action programs"], 0, "EEOC enforces federal antidiscrimination law. AA programs are executive-order territory, not EEOC guidelines.", "Legal & EEO"],
+["What is the outcome of effective diversity management within organizations?", ["Fewer conflicts", "Better sense of inclusion", "Fewer communication challenges", "Better defined organizational goals"], 1, "Diversity management produces inclusion (feeling welcomed, respected, valued), not conflict elimination.", "Legal & EEO"],
+["What is a benefit to promoting an organization's efforts to increase diversity on the company website?", ["It draws attention to diversity commitment.", "It meets the legal obligation to advertise diversity.", "It provides equal opportunity to diverse employees.", "It defines corporate culture with diversity strategies."], 0, "The website promotion draws attention to the commitment. There's no legal obligation to advertise diversity.", "Legal & EEO"],
+["A woman is turned down for a higher-paying position because the hiring manager believes men perform the duties better than women. Which term is used to indicate this form of discrimination?", ["Gender discrimination", "Gender identity discrimination", "Sexual harassment discrimination", "Women's equal rights discrimination"], 0, "Unfavorable treatment based on sex = gender discrimination. Gender identity = transgender/nonbinary status.", "Legal & EEO"],
+["A black firefighter alleges that each time he transfers between fire stations he must take his bed with him, because no white firefighter would sleep in the same bed. Which type of discrimination under Title VII should the plaintiff file?", ["Race", "Unintentional", "Intentional", "National origin"], 0, "Title VII claims are filed by protected class. Race is the class; intentional/unintentional aren't filing categories.", "Legal & EEO"],
+["What was the purpose of the Executive Order 10925 that established affirmative action?", ["To require businesses with 50 or more employees to avoid segregation", "To provide employees with protection from age discrimination in the workplace", "To strengthen sanctions related to discrimination under the Americans with Disabilities Act of 1990", "To mandate that managers of federally funded projects work to eliminate bias in employment practices."], 3, "EO 10925 (Kennedy, 1961) coined 'affirmative action': federally funded project managers must act to eliminate bias.", "Legal & EEO"],
+["Why is human resource planning important?", ["It ensures compliance with labor laws.", "It makes employee benefits more attractive.", "It makes it easier to recruit employees from out of state.", "It ensures the right people in the right jobs at the right times."], 3, "HRP = right number and type of people, right place, right time. Broadest scope wins (Rule A).", "Planning & Forecasting"],
+["Which step in the human resource planning process ensures that the organization will have the needed supply of employees in the future?", ["Controlling", "Programming", "Developing Data", "Establishing objectives"], 1, "Phase 3 programming designs and implements the action programs (recruitment, training, promotion) that deliver the future supply.", "Planning & Forecasting"],
+["Which technique addresses labor forecasting to project future human resource needs based on past staffing levels?", ["Time-series", "Focus group", "Nominal group", "Delphi technique"], 0, "Past staffing levels projected forward = time-series analysis. Delphi and nominal group are judgmental, not data-driven.", "Planning & Forecasting"],
+["What are two statistical projection methods used to determine human resources demand?", ["Stochastic technique and multiple linear regression", "Delphi technique and nominal group technique", "Succession planning and stochastic technique", "Delphi technique and multiple linear regression"], 0, "Statistical = regressions, ratios, time series, stochastic. Delphi, nominal group, succession are all judgmental.", "Planning & Forecasting"],
+["A firm needs to lay off employees and wants to minimize the effect on employees, opting for a combination of buyouts and outplacement counseling. Which type of plan is the firm engaging in?", ["A control plan", "A retention plan", "A redundancy plan", "An organizational plan"], 2, "Layoffs with buyouts/outplacement = redundancy (reduction) plan, used when supply exceeds demand.", "Planning & Forecasting"],
+["How does recruitment relate to other organizational functions or goals?", ["It provides a good pool of applicants for selection, and works with HR planning to determine current and future needs", "It leads to a successful job analysis, and informs the organization about future stock prices", "It works with HR planning to determine needs, and leads to a successful job analysis", "It provides a good pool of applicants for selection, and informs the organization about future stock prices"], 0, "Recruitment feeds selection a good pool and pairs with HR planning on needs. Job analysis comes BEFORE recruitment, not from it.", "Recruiting"],
+["At which age does the Age Discrimination in Employment Act begin to protect an individual from discrimination in the recruitment process?", ["35", "40", "50", "65"], 1, "ADEA (1967) protects age 40 and up.", "Legal & EEO"],
+["All employees receive an e-mail from HR that a job is available in the marketing department, including the job description, encouraging current employees to apply. Which method is the company using to obtain job applicants?", ["Job offer", "Job posting", "Employee referral", "Incentive program"], 1, "Open invitation to all employees to apply = job posting. Referral would be employees recommending outsiders.", "Recruiting"],
+["A software company wants permanent employees with the most up-to-date knowledge of development tools; previous work experience is not necessary. What should be a primary source of recruitment?", ["Executive search firms", "Temporary staffing agencies", "Colleges offering the relevant degree", "Independent contracting organizations"], 2, "Current knowledge + no experience required = fresh graduates. Colleges are the source for up-to-date technical/professional talent.", "Recruiting"],
+["An engineering firm wants to attract applicants for full-time employment and decides to develop potential job candidates before offering them permanent positions. Which activity should the organization implement?", ["Internships", "Diversity planning", "An assessment center", "Flexible work schedules"], 0, "Internships develop candidates for a fixed period before permanent offers. That's their exact function.", "Recruiting"],
+["Job duties for a marketing coordinator include planning trade shows, establishing contacts, developing schedules, and coordinating mailing lists. Which item should be included in the required skills section of this job posting?", ["Operates Microsoft database software", "Runs weekly and monthly team meetings", "Builds relationships with clientele at events", "Establishes and maintains accurate budgets"], 0, "Skills = proficiencies (operating database software for mailing lists/schedules). The others are duties or unrelated to the listed tasks.", "Recruiting"],
+["How does recruiting that creates an excessively large applicant pool affect employee selection?", ["The large applicant pool will simplify the process of job analysis and employee selection.", "The organization can reduce the applicant pool by dismissing applicants that are close to retirement.", "The cost of selection will likely increase due to the need to review and assess a high volume of applicants.", "The large applicant pool reduces the significance of employee selection as most of the applicants will meet the job qualifications."], 2, "Utility drops when the pool is too large: more reviewing = more cost. Dismissing near-retirement applicants = ADEA violation.", "Recruiting"],
+["What is an effective way to gather relevant information about job applicants during the selection process?", ["An informal interview process in which the questions differ for all applicants", "An application blank where the most important information is weighted heavily", "A wide background check to see if any general negative information is revealed", "A reference check asking for previous employers' opinions about job applicants"], 1, "Weighted application blank (WAB) = validated, weighted predictors. Unstructured interviews, fishing background checks, and opinion-based references are all weak or risky.", "Selection"],
+["A fast-growing U.S. company seeks an HR generalist to recruit and hire many employees, monitor performance, determine training needs, and ensure compliance with federal laws. Which criterion aligns with the job?", ["Demonstrated customer service experience", "Ability to work with technology in the legal field", "Knowledge of legal regulations in employment", "A high level of familiarity with past lawsuit outcomes"], 2, "Compliance duty maps to knowledge of employment law. Lawsuit trivia and legal-field tech are distractor bait.", "HR Roles & Ethics"],
+["What is an outcome of poor reliability in a selection procedure?", ["An insufficient pool of qualified applicants", "The inability to fire an employee who is performing poorly", "Employees who are not a good fit for the organization", "High correlations between test outcomes and future performance metrics"], 2, "Unreliable instruments select inconsistently, so you hire poor fits. High correlations would mean GOOD reliability.", "Selection"],
+["Which type of validity identifies the knowledge, skills, and abilities required to complete a job and needs no quantitative analysis?", ["Content", "Empirical", "Construct", "Discriminant"], 0, "Content validity = expert judgment that the instrument covers job KSAs, no statistics. Empirical requires correlation data.", "Selection"],
+["Which selection instrument is used to obtain information on the applicant's motivation and details of previous experiences to get a more subjective feel for the candidate?", ["Resume", "Interview", "Personality test", "Background check"], 1, "Subjective feel + motivation + experience details = interview. That's its strength (and weakness).", "Selection"],
+["What is the distinction between training and development?", ["Training requires short-term preparation and development requires long-term preparation.", "Training enhances individual knowledge and skills while development is focused on team knowledge and skills.", "Training is job related while development is the process of developing, presenting, evaluating, and facilitating training.", "Training is directed at the employees' current job whereas development helps the employee prepare for future jobs."], 3, "Training = current job, development = future jobs. The time-horizon option is the classic near-miss distractor.", "Training & Development"],
+["A firm hiring inexperienced new employees plans an orientation period, hoping to reduce new-job stress. How will the orientation reduce employee stress?", ["It will increase the productivity of the new employees.", "It will help the new employees understand what is expected of them.", "It will better enable the new employees to change the corporate culture.", "It will decrease the amount of time the new employees spend in training."], 1, "Orientation reduces stress by clarifying expectations. Productivity is a downstream effect, not the stress mechanism.", "Training & Development"],
+["At which level of analysis are annual performance reviews?", ["Organization", "Task", "Person", "Project"], 2, "Needs assessment levels: organizational = WHERE, task = WHAT, person = WHO. Performance reviews analyze individuals.", "Training & Development"],
+["Successful training implementation depends on selecting the appropriate training media for the right workers under the right conditions. Which factor should be considered in selecting the appropriate training media?", ["The location of the training", "Employee attitude for learning", "Employee readiness for training", "The level of performance management"], 2, "Media selection keys on employee readiness for training. 'Attitude' is the near-miss word swap.", "Training & Development"],
+["What is a characteristic of a learning organization?", ["It has a full time training department.", "It provides tuition assistance to all employees.", "It is affiliated with one or more local universities.", "It is focused on knowledge development across the firm."], 3, "Learning org = knowledge acquisition, development, and dissemination firm-wide (Senge). Not a department or a perk.", "Training & Development"],
+["What is a form of direct compensation?", ["Wages", "Training", "Benefits", "Services"], 0, "Direct = cash in hand: wages, salaries, bonuses, commissions. Benefits/training/services = indirect.", "Compensation & Benefits"],
+["What is a type of direct compensation that plays a strategic role in attracting and retaining qualified applicants?", ["Wages", "Vacation", "Health benefits", "Onsite childcare"], 0, "Only wages are DIRECT compensation here. Vacation, health, childcare are all indirect.", "Compensation & Benefits"],
+["A manager urges an existing employee to accept a newly created position responsible for hiring new employees. What should the company use to determine the appropriate compensation level for this new position?", ["Job rotation", "Job transfer", "Job recruiting", "Job evaluation"], 3, "Relative worth of a job for pay purposes = job evaluation (internal equity).", "Compensation & Benefits"],
+["Which form of compensation is an example of fixed pay?", ["Merit pay", "Yearly salary", "Profit sharing", "Sales incentive"], 1, "Fixed = base pay independent of performance, known in advance. Merit, profit sharing, incentives are variable.", "Compensation & Benefits"],
+["A firm offers $40,000 per year plus health insurance. The employee counter-offers $52,000 per year with no insurance. Which pay structures are being discussed?", ["The firm is offering fixed compensation and the employee is requesting fixed compensation.", "The firm is offering fixed compensation, while the employee is requesting variable compensation.", "The firm is offering variable compensation, while the employee is requesting fixed compensation.", "The firm is offering variable compensation and the employee is requesting variable compensation."], 0, "Salary is fixed either way; insurance is indirect, not variable. Both sides are negotiating fixed compensation.", "Compensation & Benefits"],
+["Which incentive leads to enhanced productivity and subsequently creates additional earnings?", ["Gain-sharing plan", "Profit-sharing plan", "Bonus-sharing plan", "Wage-dividend plan"], 0, "Gainsharing = productivity gains create the additional profits everyone shares. Profit sharing pays regardless of who drove profit.", "Compensation & Benefits"],
+["Which form of indirect compensation can be integrated into the organization's strategic planning?", ["Salary", "Benefits", "Bonuses", "Base wage"], 1, "Benefits are the only INDIRECT option listed; salary, bonus, base wage are all direct.", "Compensation & Benefits"],
+["An employee received a poor performance rating and felt the appraisal was unfair because the items listed were not part of his daily work requirements. Which human resources activity relates to the employee's concern?", ["Job analysis", "Appraisal training", "Goal development", "Selection standards"], 0, "Job analysis is the FOUNDATION of appraisal. Rating items not in the job = job analysis failure (and legal exposure).", "Performance Management"],
+["Which form of validity for making employment decisions (e.g., select, promote) is legally defensible if challenged in court?", ["Empirical validity", "Content validity", "Convergent validity", "Discriminant validity"], 0, "Empirical (criterion) validity, the statistical correlation with job success, is the only type that holds up in court.", "Selection"],
+["Which performance appraisal method can make managers more aware of their impact on employees without feeling threatened?", ["Self-appraisal", "Peer-appraisal", "Appraisal by supervisor", "Appraisal by subordinates"], 3, "Subordinate appraisal shows managers their impact on the people below them. Anonymity keeps it non-threatening.", "Performance Management"],
+["A small firm needs to dismiss one worker and wants to use a performance appraisal system to choose who should be laid off. Which type of performance appraisal is appropriate?", ["A straight ranking appraisal by a supervisor", "A forced-distribution appraisal by a supervisor", "A straight ranking appraisal by firm customers", "A forced-distribution appraisal by firm customers"], 0, "Small firm + pick one worker = straight ranking by the supervisor. Forced distribution needs preset category proportions, pointless for one cut.", "Performance Management"],
+["A company needs to motivate employees to be engaged in their job responsibilities and decides to reward attendance at training sessions. Which performance improvement approach is being used?", ["Job analysis", "Compensation", "Recruitment and selection", "Career and management planning"], 1, "Rewarding attendance = using compensation to drive behavior. Rewards for participation are compensation, not career planning.", "Performance Management"]
+];
+const LS_KEY='hrdrill_v1';
+let state={};
+try{state=JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){state={}}
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}}
+function st(i){if(!state[i])state[i]={c:0,hist:[]};return state[i]}
+
+let topic='';
+let queue=[],cur=-1,curOpts=[],waiting=false;
+
+function pool(){return MCQS.map((m,i)=>i).filter(i=>!topic||MCQS[i][4]===topic)}
+function buildQueue(){
+  queue=pool().filter(i=>st(i).c<2);
+  for(let i=queue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[queue[i],queue[j]]=[queue[j],queue[i]]}
+}
+function shuffleOpts(m){
+  const o=m[1].map((t,oi)=>({t,oi}));
+  for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}
+  return o;
+}
+function uniqueWords(correct,others){
+  const otherSet=new Set(others.join(' ').toLowerCase().match(/[a-z0-9$%.,']+/g)||[]);
+  return correct.split(' ').map(w=>{
+    const k=w.toLowerCase();
+    return (k.length>2&&!otherSet.has(k))?'<b>'+w+'</b>':w;
+  }).join(' ');
+}
+function rings(){
+  const p=pool();
+  const seen=p.filter(i=>st(i).hist.length>0).length/(p.length||1);
+  const apt=p.reduce((a,i)=>a+Math.min(st(i).c,2)/2,0)/(p.length||1);
+  document.getElementById('seenArc').style.strokeDashoffset=119.4*(1-seen);
+  document.getElementById('aptArc').style.strokeDashoffset=119.4*(1-apt);
+  document.getElementById('seenVal').textContent=Math.round(seen*100)+'%';
+  document.getElementById('aptVal').textContent=Math.round(apt*100)+'%';
+}
+function render(){
+  rings();
+  const stage=document.getElementById('stage');
+  if(!queue.length){
+    stage.innerHTML='<div class="done"><h2>Set mastered.</h2><p>Every question in this filter answered correctly twice in a row. Book the OA.</p><button id="againBtn">Study again</button></div>';
+    document.getElementById('againBtn').onclick=()=>{pool().forEach(i=>{delete state[i]});save();buildQueue();render()};
+    return;
+  }
+  cur=queue[0];
+  const m=MCQS[cur];
+  curOpts=shuffleOpts(m);
+  const mastered=pool().filter(i=>st(i).c>=2).length;
+  stage.innerHTML='<div class="card"><div class="qtopic">'+m[4]+'</div><div class="qtext">'+m[0]+'</div>'+
+    curOpts.map((o,d)=>'<button class="ans" data-disp="'+d+'"><span class="ltr">'+'ABCD'[d]+'</span><span class="txt">'+o.t+'</span></button>').join('')+
+    '<div class="explain" id="explain"></div>'+
+    '<div class="meta"><span>'+mastered+' / '+pool().length+' mastered</span><span>streak: '+st(cur).c+'/2</span></div></div>';
+  document.querySelectorAll('#opts .ans, .ans').forEach(b=>b.onclick=()=>answer(+b.dataset.disp));
+}
+function answer(disp){
+  if(waiting)return;
+  const m=MCQS[cur],p=st(cur);
+  const picked=curOpts[disp],correctDisp=curOpts.findIndex(x=>x.oi===m[2]);
+  const ok=picked.oi===m[2];
+  p.hist.push(ok?1:0);
+  document.querySelectorAll('.ans').forEach(b=>b.disabled=true);
+  const btns=document.querySelectorAll('.ans');
+  if(ok){
+    p.c+=1;
+    btns[disp].classList.add('correct');
+    btns[disp].querySelector('.txt').innerHTML=uniqueWords(picked.t,m[1].filter((_,i)=>i!==m[2]));
+    queue.shift();
+    if(p.c<2)queue.splice(Math.min(10,queue.length),0,cur);
+    save();
+    waiting=true;
+    setTimeout(()=>{waiting=false;render()},420);
+  }else{
+    p.c=0;
+    btns[disp].classList.add('wrong');
+    btns[correctDisp].classList.add('reveal');
+    btns[correctDisp].querySelector('.txt').innerHTML=uniqueWords(m[1][m[2]],m[1].filter((_,i)=>i!==m[2]));
+    const ex=document.getElementById('explain');
+    ex.style.display='block';
+    ex.innerHTML=m[3]+'<span class="cont">tap anywhere or press space to continue</span>';
+    queue.shift();
+    queue.splice(Math.min(3,queue.length),0,cur);
+    save();
+    waiting=true;
+  }
+  rings();
+}
+function next(){if(!waiting)return;waiting=false;render()}
+document.addEventListener('keydown',e=>{
+  if(waiting&&(e.key===' '||e.key==='Enter')){e.preventDefault();next();return}
+  if(waiting)return;
+  const k=e.key.toUpperCase();
+  const i='1234'.indexOf(e.key)>-1?'1234'.indexOf(e.key):'ABCD'.indexOf(k);
+  if(i>-1&&i<curOpts.length)answer(i);
+});
+document.addEventListener('click',e=>{if(waiting&&!e.target.closest('.ans'))next()});
+const sel=document.getElementById('topicSel');
+[...new Set(MCQS.map(m=>m[4]))].forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o)});
+sel.onchange=()=>{topic=sel.value;buildQueue();render()};
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Wipe all drill progress?')){state={};save();buildQueue();render()}};
+buildQueue();render();
+</script>
+</body>
+</html>
