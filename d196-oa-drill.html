@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="D196 OA Drill">
+<meta property="og:description" content="Full-coverage mastery drill for the WGU D196 OA: foundations, statements, analysis, costing, CVP, budgeting, decisions, and Excel.">
+<meta property="og:url" content="https://niggerfaggot.club/d196-oa-drill">
+<meta name="twitter:card" content="summary">
+<title>D196 OA Drill</title>
+<style>
+:root{--bg:#e9edf0;--panel:#fff;--ink:#2b3238;--dim:#7a8590;--teal:#159fc9;--green:#43a047;--red:#e23b3b;--line:#dde3e8}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding:14px}
+.wrap{max-width:640px;margin:0 auto}
+.head{background:var(--panel);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.head h1{font-size:17px;line-height:1.2}
+.head .sub{font-size:12px;color:var(--dim)}
+.rings{margin-left:auto;display:flex;gap:10px}
+.ring{width:52px;text-align:center;font-size:10px;color:var(--dim)}
+.ring svg{display:block;margin:0 auto 2px}
+.ring .val{font-weight:700;font-size:11px;color:var(--ink)}
+.bar{display:flex;gap:8px;align-items:center;margin:10px 0}
+select{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px;color:var(--ink)}
+.reset{font-size:12px;color:var(--dim);text-decoration:underline;cursor:pointer;background:none;border:none}
+.card{background:var(--panel);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.qtopic{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:6px}
+.qtext{font-size:16.5px;line-height:1.45;margin-bottom:14px}
+.ans{display:flex;gap:10px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:11px 12px;font-size:14.5px;line-height:1.4;margin-bottom:8px;cursor:pointer;color:var(--ink)}
+@media(hover:hover){.ans:hover{border-color:var(--teal)}}
+.ans .ltr{font-weight:700;color:var(--dim);flex:none}
+.ans.correct{border-color:var(--green);background:#eef7ee}
+.ans.wrong{border-color:var(--red);background:#fdeeee}
+.ans.reveal{border-color:var(--green)}
+.ans:disabled{cursor:default}
+.explain{display:none;margin-top:10px;border-left:3px solid var(--red);background:#fdf3f3;padding:10px 12px;font-size:13.5px;line-height:1.5;border-radius:0 6px 6px 0}
+.explain b{color:var(--green)}
+.explain .cont{display:block;margin-top:6px;font-size:12px;color:var(--dim)}
+.meta{margin-top:10px;font-size:12px;color:var(--dim);display:flex;justify-content:space-between}
+.done{background:var(--panel);border-radius:10px;padding:30px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.done h2{color:var(--green);margin-bottom:8px}
+.done p{color:var(--dim);font-size:14px;margin-bottom:16px}
+.done button{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>D196 OA Drill</h1>
+      <div class="sub">Full OA coverage, 78 questions, mastered twice each</div>
+    </div>
+    <div class="rings">
+      <div class="ring"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke="#e6ebef" stroke-width="5"/><circle id="seenArc" cx="22" cy="22" r="19" fill="none" stroke="var(--teal)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 22 22)"/></svg><span class="val" id="seenVal">0%</span>Seen</div>
+      <div class="ring"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke="#e6ebef" stroke-width="5"/><circle id="aptArc" cx="22" cy="22" r="19" fill="none" stroke="var(--green)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 22 22)"/></svg><span class="val" id="aptVal">0%</span>Apt</div>
+    </div>
+  </div>
+  <div class="bar">
+    <select id="topicSel"><option value="">All topics</option></select>
+    <button class="reset" id="resetBtn">reset</button>
+  </div>
+  <div id="stage"></div>
+</div>
+<script>
+const MCQS=[
+["What is the primary purpose of managerial accounting?", ["Providing information for internal decision making", "Reporting operating results to investors and creditors", "Ensuring compliance with federal income tax regulations", "Preparing audited statements for external distribution"], 0, "Managerial = internal decisions. External reporting is financial accounting.", "Foundations"],
+["What is the primary purpose of financial accounting?", ["Reporting information for external users like investors and creditors", "Analyzing production and inventory costs for internal planning by managers", "Setting transfer prices between divisions of one company", "Preparing operating budgets for department-level managers"], 0, "Financial = external users. Everything internal is managerial.", "Foundations"],
+["Which organization establishes generally accepted accounting principles in the United States?", ["Financial Accounting Standards Board", "Internal Revenue Service", "American Institute of Certified Public Accountants", "International Accounting Standards Board"], 0, "FASB writes US GAAP. IRS collects taxes, AICPA is the CPA association, IASB covers outside the US.", "Foundations"],
+["Which of these organizations is a government agency?", ["Internal Revenue Service", "Financial Accounting Standards Board", "Governmental Accounting Standards Board", "American Institute of Certified Public Accountants"], 0, "Only the IRS. FASB and GASB are private boards despite the names.", "Foundations"],
+["What best describes the Financial Accounting Standards Board?", ["A private body with no direct legal authority", "A federal agency that enforces securities law", "A branch of the IRS that audits public companies", "A professional association that licenses CPAs"], 0, "FASB is private, no legal authority, sets GAAP. The name tricks people into 'government'.", "Foundations"],
+["What is the role of the Governmental Accounting Standards Board?", ["Improving accounting procedures for state and local governments", "Collecting and auditing federal and state income taxes", "Licensing the public accountants who audit state and local government entities", "Setting accounting standards for companies outside the US"], 0, "GASB improves governmental accounting procedures. Not a government agency itself.", "Foundations"],
+["What best describes the International Accounting Standards Board?", ["It sets accounting standards used in most countries outside the US", "It sets the standards that US companies follow for their foreign subsidiaries", "It is the enforcement arm of the SEC for multinational filings", "It certifies accountants who practice in multiple countries"], 0, "IASB = FASB for the rest of the world.", "Foundations"],
+["What best describes the American Institute of Certified Public Accountants?", ["A professional association of certified public accountants", "A federal agency that regulates public company audits", "The federal board that writes auditing standards directly into securities law", "A licensing bureau operated jointly by the fifty states"], 0, "AICPA is the professional association. Nothing governmental about it.", "Foundations"],
+["Which of the following is an external user of financial statements?", ["A bank deciding whether to approve a loan to the company", "A production supervisor scheduling next month's factory output levels", "A division manager evaluating a make-or-buy proposal", "A department head preparing the annual labor budget"], 0, "Creditors and investors are external. Managers of any level are internal.", "Foundations"],
+["Which report is prepared primarily for internal users?", ["The production cost budget", "The audited balance sheet", "The annual income statement", "The statement of cash flows"], 0, "Budgets are internal management tools. The three financial statements go outside.", "Foundations"],
+["What is the accounting equation?", ["Assets = Liabilities + Owners' Equity", "Assets = Owners' Equity - Liabilities", "Assets + Liabilities = Owners' Equity", "Assets = Revenues - Total Expenses"], 0, "A = L + E. Resources equal the claims against them.", "Statements & Equation"],
+["A company has assets of $50,000 and liabilities of $30,000. What is owners' equity?", ["$20,000", "$80,000", "$30,000", "$50,000"], 0, "E = A - L = 50,000 - 30,000. Adding gives 80,000, the classic trap.", "Statements & Equation"],
+["A company has liabilities of $40,000 and owners' equity of $25,000. What are total assets?", ["$65,000", "$15,000", "$40,000", "$25,000"], 0, "A = L + E = 40,000 + 25,000. Subtracting gives the 15,000 trap.", "Statements & Equation"],
+["Which of the following is an asset?", ["Notes receivable", "Notes payable", "Unearned revenue", "Retained earnings"], 0, "Receivable = money coming to you = asset. Payable = liability. Retained earnings = equity.", "Statements & Equation"],
+["Which of the following is a liability?", ["Accounts payable", "Accounts receivable", "Prepaid insurance", "Retained earnings"], 0, "Payable = you owe it. Receivable and prepaid are assets, retained earnings is equity.", "Statements & Equation"],
+["How are prepaid expenses classified on the balance sheet?", ["As an asset", "As a liability", "As an expense", "As equity"], 0, "You paid for a future benefit you haven't used yet. Future benefit = asset.", "Statements & Equation"],
+["How is retained earnings classified?", ["As owners' equity", "As a current asset", "As a liability", "As revenue"], 0, "Retained earnings is accumulated profit kept in the business, part of equity.", "Statements & Equation"],
+["Which financial statement reports a company's financial position at a single point in time?", ["The balance sheet", "The income statement", "The statement of cash flows", "The retained earnings statement"], 0, "Balance sheet = snapshot. The others cover a period of time.", "Statements & Equation"],
+["Which financial statement reports revenues and expenses for a period of time?", ["The income statement", "The balance sheet", "The statement of retained earnings", "The trial balance"], 0, "Income statement = performance over a period.", "Statements & Equation"],
+["What are the three sections of the statement of cash flows?", ["Operating, investing, and financing activities", "Operating, budgeting, and reporting activities", "Current, long-term, and equity activities", "Revenue, expense, and dividend activities"], 0, "Operating, investing, financing. Memorize the trio.", "Statements & Equation"],
+["A company purchases factory equipment for cash. How is this classified on the statement of cash flows?", ["An investing activity", "An operating activity", "A financing activity", "A noncash activity"], 0, "Buying and selling long-term assets = investing. Cash changed hands, so it is not noncash.", "Statements & Equation"],
+["A company borrows $100,000 from a bank. How is this classified on the statement of cash flows?", ["A financing activity", "An operating activity", "An investing activity", "A noncash activity"], 0, "Borrowing and repaying debt, issuing stock, paying dividends = financing.", "Statements & Equation"],
+["Revenues are $120,000 and expenses are $90,000. What is net income?", ["$30,000", "$210,000", "$90,000", "$120,000"], 0, "Revenues minus expenses. Adding them is the trap.", "Statements & Equation"],
+["What is the formula for horizontal analysis?", ["(Current year - previous year) / previous year", "(Current year - previous year) / current year", "Current year / previous year - previous year", "Line item amount / net sales for the same year"], 0, "Change over the OLD base. Dividing by current year is the trap. The last option is vertical analysis.", "Analysis & Ratios"],
+["Sales were $200,000 last year and $250,000 this year. What does horizontal analysis show?", ["A 25% increase", "A 20% increase", "A 50% increase", "A 125% increase"], 0, "50,000 / 200,000 = 25%. Dividing by 250,000 gives the 20% trap.", "Analysis & Ratios"],
+["What is the base amount for vertical analysis of an income statement?", ["Net sales", "Net income", "Total expenses", "Gross profit"], 0, "Every income statement line is expressed as a percentage of net sales.", "Analysis & Ratios"],
+["What is the base amount for vertical analysis of a balance sheet?", ["Total assets", "Total liabilities", "Owners' equity", "Current assets"], 0, "Balance sheet vertical analysis uses total assets as the 100% base.", "Analysis & Ratios"],
+["Net sales are $150,000 and cost of goods sold is $60,000. What does vertical analysis show for cost of goods sold?", ["40%", "60%", "250%", "90%"], 0, "60,000 / 150,000. Flipping the fraction gives 250%.", "Analysis & Ratios"],
+["What does vertical analysis accomplish?", ["It expresses each line item as a percentage of a base amount in the same year", "It expresses each line item as a percentage change from the prior year's amount", "It restates each line item at its inflation-adjusted dollar value", "It converts each line item to a percentage of the industry average"], 0, "Same-year percentages of a base. Year-over-year change is horizontal analysis.", "Analysis & Ratios"],
+["What is the formula for the current ratio?", ["Current assets / current liabilities", "Current liabilities / current assets", "Total assets / total liabilities", "Cash and receivables / total liabilities"], 0, "CA over CL. It measures short-term debt-paying ability.", "Analysis & Ratios"],
+["Current assets are $80,000 and current liabilities are $40,000. What is the current ratio?", ["2.0", "0.5", "1.5", "3.0"], 0, "80/40 = 2. Flipping the fraction gives 0.5.", "Analysis & Ratios"],
+["What is the formula for the debt ratio?", ["Total liabilities / total assets", "Total assets / total liabilities", "Total liabilities / owners' equity", "Current liabilities / current assets"], 0, "Debt ratio = liabilities over assets, the share of assets financed by debt. L/E is debt-to-equity.", "Analysis & Ratios"],
+["What does liquidity measure?", ["The ability to meet short-term obligations as they come due", "The ability to generate profit from invested capital", "The speed at which inventory and receivables convert into reported net income", "The proportion of assets financed with long-term debt"], 0, "Liquidity = paying near-term bills. Profitability and leverage are different families of ratios.", "Analysis & Ratios"],
+["What is the formula for return on equity?", ["Net income / stockholders' equity", "Net income / total assets", "Stockholders' equity / net income", "Gross profit / stockholders' equity"], 0, "ROE = net income over equity. Net income over total assets is ROA.", "Analysis & Ratios"],
+["When should a company use job order costing?", ["When products are unique and made to customer specifications", "When large volumes of identical products are produced", "When overhead is assigned using multiple separate activity rates", "When production runs continuously around the clock"], 0, "Unique products, costs tracked per job. Custom homes, ships, ad campaigns.", "Costing"],
+["When should a company use process costing?", ["When large volumes of identical products are produced", "When each unit is customized to a specific buyer", "When overhead comes from many separate activity pools", "When each order is tracked as its own separate job"], 0, "Homogeneous mass production. Ketchup, hot dogs, gasoline.", "Costing"],
+["Which company would most likely use job order costing?", ["A builder of custom homes", "A bottler of soft drinks", "A refiner of gasoline", "A producer of frozen pizzas"], 0, "Each house is different, so each is a job. The others mass-produce identical units.", "Costing"],
+["Which company would most likely use process costing?", ["A manufacturer of identical ketchup bottles", "A shipyard building custom vessels to customer order", "A print shop running custom invitations", "An agency producing one-off ad campaigns"], 0, "Identical high-volume output. The other three track unique jobs.", "Costing"],
+["How does activity-based costing assign overhead?", ["Using multiple cost pools with a separate rate for each activity", "Using one plantwide rate based on direct labor hours", "Using the single rate every job in the shop has traditionally been charged", "Assigning all overhead to the products with the most units"], 0, "ABC = many pools, many drivers, more accurate costing. One plantwide rate is the traditional method.", "Costing"],
+["A setup cost pool has $60,000 of estimated overhead and 400 expected setups. What is the activity rate?", ["$150 per setup", "$240 per setup", "$400 per setup", "$60 per setup"], 0, "Pool cost / driver total = 60,000/400.", "Costing"],
+["An activity rate is $150 per setup and Product X used 25 setups. How much overhead is assigned to Product X?", ["$3,750", "$150", "$6,000", "$2,400"], 0, "Rate x usage = 150 x 25.", "Costing"],
+["What are the three product costs for a manufacturer?", ["Direct materials, direct labor, and manufacturing overhead", "Direct materials, direct labor, and selling expenses", "Direct labor, factory overhead, and general administrative costs", "Raw materials, sales commissions, and factory overhead"], 0, "DM + DL + MOH. Selling and admin are period costs, never product costs.", "Costing"],
+["How are selling and administrative expenses classified?", ["As period costs expensed when incurred", "As product costs attached to inventory", "As manufacturing overhead applied to jobs", "As direct costs traced to each unit sold"], 0, "S&A = period costs. They never touch inventory.", "Costing"],
+["A retail store pays its cashiers $18,000 in wages. How is this cost classified?", ["As a period cost included in selling expenses", "As a product cost added to merchandise inventory", "As manufacturing overhead allocated to goods sold", "As a direct labor cost of the goods on the shelves"], 0, "Cashiers touch the sale, not the inventory. Merchandiser product cost = purchase price + freight-in only.", "Costing"],
+["Which cost is part of a merchandiser's product cost?", ["Freight-in on purchased merchandise", "Freight-out on customer deliveries", "Wages paid to floor sales clerks", "Depreciation on the delivery trucks"], 0, "Freight-in attaches to inventory. Freight-out, clerks, and delivery are selling (period) costs.", "Costing"],
+["Which cost is classified as manufacturing overhead?", ["Depreciation on factory equipment", "Depreciation on delivery trucks", "Commissions paid to the sales force", "Salaries of the accounting office staff"], 0, "Factory = overhead. Delivery, sales, and office costs are period costs.", "Costing"],
+["Which cost is classified as indirect labor?", ["Wages of the factory janitor", "Wages of the assembly line workers", "Salaries of the outside sales force", "Wages of the retail store cashiers"], 0, "In the factory but not building the product = indirect labor, part of overhead.", "Costing"],
+["Which cost is a direct material?", ["Leather used in making boots", "Lubricant for the factory machines", "Glue used in trace amounts per unit", "Cleaning supplies for the plant floor"], 0, "Traceable and significant per unit = direct. Lubricants, trace glue, and cleaning supplies are indirect materials.", "Costing"],
+["What is the cost-volume-profit equation?", ["Sales revenue - variable costs - fixed costs = profit", "Sales revenue - fixed costs + variable costs = profit", "Sales revenue + variable costs - fixed costs = profit", "Fixed costs - variable costs - sales revenue = profit"], 0, "Sales minus both cost types equals profit. Lock it and solve algebraically for any missing piece.", "CVP"],
+["What is the formula for contribution margin?", ["Sales revenue - variable costs", "Sales revenue - fixed costs", "Sales revenue - total costs", "Fixed costs + total variable costs"], 0, "CM = what's left after variable costs to cover fixed costs and then profit.", "CVP"],
+["Sales revenue is $10,000 and variable costs are $4,000. What is the contribution margin?", ["$6,000", "$14,000", "$4,000", "$2,500"], 0, "10,000 - 4,000. Adding gives the trap.", "CVP"],
+["A unit sells for $40 with a variable cost of $24. What is the contribution margin per unit?", ["$16", "$64", "$24", "$40"], 0, "40 - 24 per unit.", "CVP"],
+["A unit sells for $40 with a $16 contribution margin per unit. Fixed costs are $96,000. What is the break-even point in units?", ["6,000 units", "2,400 units", "4,000 units", "12,000 units"], 0, "FC / CM per unit = 96,000/16. Dividing by price (40) gives 2,400, the trap.", "CVP"],
+["What defines the break-even point?", ["Total revenues equal total costs and profit is zero", "Total revenues equal total variable costs for the period", "Contribution margin equals variable costs exactly", "Fixed costs equal variable costs for the period"], 0, "Break-even: revenue covers all costs, zero profit. CM equals FIXED costs there, not variable.", "CVP"],
+["Fixed costs are $96,000, target profit is $32,000, and contribution margin is $16 per unit. How many units must be sold?", ["8,000 units", "6,000 units", "2,000 units", "4,000 units"], 0, "(FC + target) / CMU = 128,000/16. Forgetting the target gives 6,000.", "CVP"],
+["A unit sells for $40 with a $16 contribution margin per unit. What is the contribution margin ratio?", ["40%", "60%", "25%", "16%"], 0, "16/40. The 60% option is the variable cost ratio.", "CVP"],
+["How do fixed costs behave as production volume increases?", ["Total stays constant while cost per unit decreases", "Total increases while cost per unit stays constant", "Total and cost per unit both stay constant", "Total decreases while cost per unit increases"], 0, "Fixed total is flat, so per-unit falls as volume spreads it out. The second option describes variable costs.", "CVP"],
+["How do variable costs behave as production volume increases?", ["Total increases while cost per unit stays constant", "Total stays constant while cost per unit decreases", "Total and cost per unit both increase", "Total increases while cost per unit gradually decreases"], 0, "Variable per-unit is flat, total scales with volume. The second option describes fixed costs.", "CVP"],
+["What is the formula for the break-even point in sales dollars?", ["Fixed costs / contribution margin ratio", "Fixed costs / contribution margin per unit", "Fixed costs x contribution margin ratio", "Variable costs / contribution margin ratio"], 0, "Dollars use the CM ratio. Dividing by CM per unit gives break-even UNITS.", "CVP"],
+["Sales are $200,000, variable costs are $120,000, and profit is $30,000. What are fixed costs?", ["$50,000", "$80,000", "$110,000", "$30,000"], 0, "200k - 120k - FC = 30k, so FC = 50k. 80k is the contribution margin, not fixed costs.", "CVP"],
+["Which budget must be prepared first in the master budget?", ["The sales budget", "The production budget", "The cash budget", "The direct materials budget"], 0, "Everything hangs off forecasted sales. Lemonade stand: guess the cups first.", "Budgeting"],
+["Which budget must be completed before the direct materials purchases budget?", ["The production budget", "The cash budget for the quarter", "The sales budget, used directly", "The selling and administrative budget"], 0, "Units to produce determine materials to buy. Sales feeds production, production feeds materials.", "Budgeting"],
+["Where does the cash budget fall in the master budget sequence?", ["After the operating budgets and before the budgeted financial statements", "First, because every other budget depends on the cash available to spend", "Immediately after the sales budget and before production", "Last, after the budgeted financial statements are complete"], 0, "Cash collects the consequences of every operating budget, then feeds the budgeted statements.", "Budgeting"],
+["What is the basic structure of the cash budget?", ["Beginning cash plus receipts minus disbursements", "Net income plus depreciation minus dividends", "Sales revenue minus all budgeted period expenses", "Beginning cash plus net income minus withdrawals"], 0, "It tracks actual cash movement, not income. Net income is accrual, not cash.", "Budgeting"],
+["What is the formula for required production in units?", ["Expected sales + desired ending inventory - beginning inventory", "Expected sales - desired ending inventory + beginning inventory", "Expected sales + beginning inventory - ending inventory", "Expected sales + desired ending inventory + beginning inventory"], 0, "Cover the sales, top up to the target ending stock, subtract what you already have.", "Budgeting"],
+["What distinguishes a flexible budget from a static budget?", ["A flexible budget adjusts amounts to the actual activity level achieved", "A flexible budget is revised each month while a static budget stays annual", "A flexible budget excludes fixed costs from every calculation", "A flexible budget is prepared only by service-sector companies"], 0, "Flexible = recomputed at actual volume so comparisons are apples to apples.", "Budgeting"],
+["What is budgetary slack?", ["Intentionally understating revenues or overstating expenses", "The idle time built into the production schedule", "The gap between the budgeted cash receipts and the actual cash collected", "Unspent funds carried forward into the next period"], 0, "Managers pad the budget to make targets easier to hit.", "Budgeting"],
+["What is the purpose of the master budget?", ["Presenting a comprehensive plan linking all operating and financial budgets", "Reporting the year's actual operating results to stockholders and creditors", "Calculating the exact tax liability owed for the coming year", "Recording journal entries for every planned transaction"], 0, "The master budget is the integrated planning package, not a reporting or bookkeeping tool.", "Budgeting"],
+["What is a sunk cost?", ["A past cost that cannot be changed by any future decision", "A future cost that differs between two alternatives", "The benefit given up by choosing one alternative over the next best option", "A cost that rises and falls with production volume"], 0, "Already spent, always irrelevant. The others define differential cost, opportunity cost, and variable cost.", "Decisions"],
+["A company is deciding whether to replace an old machine. Which cost is irrelevant to the decision?", ["The original purchase price of the old machine", "The trade-in value offered for the old machine", "The operating cost of the replacement machine", "The purchase price of the replacement machine"], 0, "The original price is sunk. Trade-in value and future costs all differ with the decision.", "Decisions"],
+["What is an opportunity cost?", ["The benefit forgone from the next best alternative", "A cost already incurred that no decision can recover", "The total of all fixed costs avoided by outsourcing", "The difference in total cost between two suppliers"], 0, "What you give up by choosing. Not sunk, not differential.", "Decisions"],
+["Which costs are relevant to a decision?", ["Future costs that differ between the alternatives", "Past costs that led to the current situation", "All fixed costs regardless of the alternatives", "Any cost recorded in the general ledger during the current fiscal year"], 0, "Relevant = future + differs. History and unchanging costs drop out.", "Decisions"],
+["What is a differential cost?", ["The difference in total cost between two alternatives", "A cost that has already been paid and cannot be recovered", "The profit forgone by rejecting a special order", "Any cost that remains the same across all alternatives"], 0, "Differential = the delta between options. Same-across-options costs are irrelevant.", "Decisions"],
+["In Excel, what does the reference $D$9 do when the formula is copied to another cell?", ["It keeps pointing at cell D9 no matter where the formula goes", "It shifts to the corresponding cell in whatever row the formula lands", "It converts the value in D9 into a locked dollar format", "It anchors the row but lets the column adjust when copied"], 0, "Dollar signs on both parts = absolute reference, fully locked. Column-only or row-only locks are mixed references.", "Excel"],
+["Why does vertical analysis in Excel use an absolute reference in the denominator?", ["So every copied formula keeps dividing by the same net sales cell", "So the percentages are automatically formatted with a dollar sign prefix", "So the denominator adjusts to each row's own base amount", "So Excel calculates the division before the subtraction"], 0, "The base (net sales) must stay fixed as the formula fills down the column.", "Excel"],
+["Which Excel formula performs horizontal analysis with the current year in C2 and the prior year in B2?", ["=(C2-B2)/B2", "=(C2-B2)/C2", "=C2-B2/B2", "=(B2-C2)/B2"], 0, "Change over the OLD year, parentheses required. Without them Excel divides B2/B2 first.", "Excel"],
+["Why are parentheses required around the subtraction in the horizontal analysis formula?", ["Order of operations would otherwise perform the division first", "Excel cannot subtract the two cells without an enclosing SUM function", "They convert the final result into a percentage automatically", "They lock the cell references so the formula copies correctly"], 0, "PEMDAS. Without parentheses you get C2 minus (B2/B2), which is garbage.", "Excel"],
+["What form should the result of a horizontal analysis calculation take?", ["A percentage change between the two years", "A whole-number dollar change between years", "A ratio of current assets to current liabilities", "A percentage of the same year's net sales"], 0, "Horizontal = percent change year over year. The last option describes vertical analysis.", "Excel"]
+];
+const LS_KEY='d196oadrill_v1';
+let state={};
+try{state=JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){state={}}
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}}
+function st(i){if(!state[i])state[i]={c:0,hist:[]};return state[i]}
+
+let topic='';
+let queue=[],cur=-1,curOpts=[],waiting=false;
+
+function pool(){return MCQS.map((m,i)=>i).filter(i=>!topic||MCQS[i][4]===topic)}
+function buildQueue(){
+  queue=pool().filter(i=>st(i).c<2);
+  for(let i=queue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[queue[i],queue[j]]=[queue[j],queue[i]]}
+}
+function shuffleOpts(m){
+  const o=m[1].map((t,oi)=>({t,oi}));
+  for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}
+  return o;
+}
+function uniqueWords(correct,others){
+  const otherSet=new Set(others.join(' ').toLowerCase().match(/[a-z0-9$%.,']+/g)||[]);
+  return correct.split(' ').map(w=>{
+    const k=w.toLowerCase();
+    return (k.length>2&&!otherSet.has(k))?'<b>'+w+'</b>':w;
+  }).join(' ');
+}
+function rings(){
+  const p=pool();
+  const seen=p.filter(i=>st(i).hist.length>0).length/(p.length||1);
+  const apt=p.reduce((a,i)=>a+Math.min(st(i).c,2)/2,0)/(p.length||1);
+  document.getElementById('seenArc').style.strokeDashoffset=119.4*(1-seen);
+  document.getElementById('aptArc').style.strokeDashoffset=119.4*(1-apt);
+  document.getElementById('seenVal').textContent=Math.round(seen*100)+'%';
+  document.getElementById('aptVal').textContent=Math.round(apt*100)+'%';
+}
+function render(){
+  rings();
+  const stage=document.getElementById('stage');
+  if(!queue.length){
+    stage.innerHTML='<div class="done"><h2>Set mastered.</h2><p>Every question in this filter answered correctly twice in a row. Book the OA.</p><button id="againBtn">Study again</button></div>';
+    document.getElementById('againBtn').onclick=()=>{pool().forEach(i=>{delete state[i]});save();buildQueue();render()};
+    return;
+  }
+  cur=queue[0];
+  const m=MCQS[cur];
+  curOpts=shuffleOpts(m);
+  const mastered=pool().filter(i=>st(i).c>=2).length;
+  stage.innerHTML='<div class="card"><div class="qtopic">'+m[4]+'</div><div class="qtext">'+m[0]+'</div>'+
+    curOpts.map((o,d)=>'<button class="ans" data-disp="'+d+'"><span class="ltr">'+'ABCD'[d]+'</span><span class="txt">'+o.t+'</span></button>').join('')+
+    '<div class="explain" id="explain"></div>'+
+    '<div class="meta"><span>'+mastered+' / '+pool().length+' mastered</span><span>streak: '+st(cur).c+'/2</span></div></div>';
+  document.querySelectorAll('#opts .ans, .ans').forEach(b=>b.onclick=()=>answer(+b.dataset.disp));
+}
+function answer(disp){
+  if(waiting)return;
+  const m=MCQS[cur],p=st(cur);
+  const picked=curOpts[disp],correctDisp=curOpts.findIndex(x=>x.oi===m[2]);
+  const ok=picked.oi===m[2];
+  p.hist.push(ok?1:0);
+  document.querySelectorAll('.ans').forEach(b=>b.disabled=true);
+  const btns=document.querySelectorAll('.ans');
+  if(ok){
+    p.c+=1;
+    btns[disp].classList.add('correct');
+    btns[disp].querySelector('.txt').innerHTML=uniqueWords(picked.t,m[1].filter((_,i)=>i!==m[2]));
+    queue.shift();
+    if(p.c<2)queue.splice(Math.min(10,queue.length),0,cur);
+    save();
+    waiting=true;
+    setTimeout(()=>{waiting=false;render()},420);
+  }else{
+    p.c=0;
+    btns[disp].classList.add('wrong');
+    btns[correctDisp].classList.add('reveal');
+    btns[correctDisp].querySelector('.txt').innerHTML=uniqueWords(m[1][m[2]],m[1].filter((_,i)=>i!==m[2]));
+    const ex=document.getElementById('explain');
+    ex.style.display='block';
+    ex.innerHTML=m[3]+'<span class="cont">tap anywhere or press space to continue</span>';
+    queue.shift();
+    queue.splice(Math.min(3,queue.length),0,cur);
+    save();
+    waiting=true;
+  }
+  rings();
+}
+function next(){if(!waiting)return;waiting=false;render()}
+document.addEventListener('keydown',e=>{
+  if(waiting&&(e.key===' '||e.key==='Enter')){e.preventDefault();next();return}
+  if(waiting)return;
+  const k=e.key.toUpperCase();
+  const i='1234'.indexOf(e.key)>-1?'1234'.indexOf(e.key):'ABCD'.indexOf(k);
+  if(i>-1&&i<curOpts.length)answer(i);
+});
+document.addEventListener('click',e=>{if(waiting&&!e.target.closest('.ans'))next()});
+const sel=document.getElementById('topicSel');
+[...new Set(MCQS.map(m=>m[4]))].forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o)});
+sel.onchange=()=>{topic=sel.value;buildQueue();render()};
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Wipe all drill progress?')){state={};save();buildQueue();render()}};
+buildQueue();render();
+</script>
+</body>
+</html>
