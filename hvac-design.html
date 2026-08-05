@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design Side · HVAC Engineering Fundamentals</title>
+<meta name="description" content="A working course in basic HVAC system design for field techs: airflow, psychrometrics, Manual J, S, and D, with live calculators and a working friction chart.">
+<meta property="og:title" content="Design Side · HVAC Engineering Fundamentals">
+<meta property="og:description" content="Airflow, psychrometrics, Manual J/S/D, and duct sizing for field techs. Live friction chart, load estimator, and static pressure budget calculators.">
+<meta property="og:url" content="https://niggerfaggot.club/hvac-design">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#071016; --ink2:#0b1720; --panel:#0e1d27; --panel2:#0a1720;
+  --paper:#dfeef5; --dim:#7f9aa8; --faint:#4d6672;
+  --blue:#48c8f5; --blued:#2a93bb; --amber:#f5a742; --red:#ff6b5e; --green:#5fdc9c;
+  --line:#152a36; --line2:#1e3d4d;
+  --grid:rgba(72,200,245,.07);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--ink);color:var(--paper);
+  font-family:'Archivo',system-ui,sans-serif;font-size:16px;line-height:1.6;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;line-height:1.15;margin:0}
+code,.mono,.num{font-family:'JetBrains Mono',monospace}
+a{color:var(--blue)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+/* ── hero ─────────────────────────── */
+header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(11,23,32,.9),rgba(7,16,22,.6));padding:64px 0 40px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:18px}
+h1{font-size:clamp(36px,7vw,68px);font-weight:700;letter-spacing:-.03em}
+h1 em{font-style:normal;color:var(--blue)}
+.sub{color:var(--dim);max-width:60ch;margin-top:18px;font-size:17px}
+.pullquote{margin-top:30px;padding:18px 22px;border-left:2px solid var(--blue);background:rgba(72,200,245,.05);font-size:15px}
+.pullquote .src{display:block;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--faint);letter-spacing:.1em}
+
+/* ── nav ─────────────────────────── */
+nav{position:sticky;top:0;z-index:50;background:rgba(7,16,22,.93);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.navrow{display:flex;gap:2px;overflow-x:auto;padding:8px 0;scrollbar-width:none}
+.navrow::-webkit-scrollbar{display:none}
+.navrow a{
+  flex:0 0 auto;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;
+  color:var(--dim);text-decoration:none;padding:7px 11px;border:1px solid transparent;border-radius:3px;white-space:nowrap
+}
+.navrow a:hover{color:var(--blue);border-color:var(--line2);background:var(--panel2)}
+.navrow a .n{color:var(--faint);margin-right:7px}
+
+/* ── modules ─────────────────────── */
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+.mhead{display:flex;align-items:baseline;gap:16px;margin-bottom:8px;flex-wrap:wrap}
+.mnum{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--blue);border:1px solid var(--line2);padding:4px 9px;border-radius:3px;letter-spacing:.1em}
+.mhead h2{font-size:clamp(24px,4vw,36px);font-weight:700;letter-spacing:-.02em}
+.deck{color:var(--dim);max-width:70ch;margin:12px 0 26px;font-size:16px}
+p{max-width:72ch}
+section p+p{margin-top:14px}
+h3{font-size:18px;margin:32px 0 10px;color:var(--paper)}
+h4{font-size:14px;margin:22px 0 8px;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--blue)}
+ul,ol{max-width:72ch;padding-left:20px}
+li{margin:6px 0}
+strong{color:#fff;font-weight:600}
+
+/* ── formula block ───────────────── */
+.fx{
+  background:var(--panel);border:1px solid var(--line2);border-radius:4px;
+  padding:16px 18px;margin:18px 0;font-family:'JetBrains Mono',monospace;font-size:14px;overflow-x:auto
+}
+.fx .eq{color:var(--blue);font-size:16px;font-weight:500}
+.fx .where{display:block;margin-top:10px;color:var(--dim);font-size:12px;line-height:1.7}
+
+/* ── worked example ──────────────── */
+.work{border:1px solid var(--line2);border-radius:4px;margin:22px 0;overflow:hidden}
+.work .wh{background:var(--panel);padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);border-bottom:1px solid var(--line2)}
+.work .wb{padding:16px 18px;background:var(--panel2);font-size:15px}
+.work .wb .step{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--paper);margin:8px 0;padding-left:14px;border-left:2px solid var(--line2)}
+.work .wb .ans{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line2);color:var(--green);font-family:'JetBrains Mono',monospace;font-size:14px}
+
+/* ── callouts ────────────────────── */
+.box{border-radius:4px;padding:14px 18px;margin:20px 0;font-size:15px;max-width:76ch}
+.box .bt{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;display:block;margin-bottom:7px}
+.field{background:rgba(95,220,156,.06);border:1px solid rgba(95,220,156,.28)}
+.field .bt{color:var(--green)}
+.trap{background:rgba(255,107,94,.06);border:1px solid rgba(255,107,94,.3)}
+.trap .bt{color:var(--red)}
+.note{background:rgba(245,167,66,.06);border:1px solid rgba(245,167,66,.28)}
+.note .bt{color:var(--amber)}
+
+/* ── tables ──────────────────────── */
+table{border-collapse:collapse;width:100%;margin:20px 0;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--blue);border-bottom:1px solid var(--line2)}
+td.num,th.num{font-family:'JetBrains Mono',monospace;text-align:right}
+tbody tr:hover{background:var(--panel2)}
+
+/* ── calculators ─────────────────── */
+.calc{background:var(--panel);border:1px solid var(--line2);border-radius:5px;margin:26px 0;overflow:hidden}
+.calc .ch{padding:12px 18px;border-bottom:1px solid var(--line2);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.calc .ch .t{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px}
+.calc .ch .tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+.calc .cb{padding:18px}
+.inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px}
+.f label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.f input,.f select{
+  width:100%;background:var(--ink2);border:1px solid var(--line2);border-radius:3px;color:var(--paper);
+  font-family:'JetBrains Mono',monospace;font-size:15px;padding:9px 10px
+}
+.f input:focus,.f select:focus{outline:2px solid var(--blue);outline-offset:1px;border-color:var(--blue)}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line2)}
+.ro{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:11px 13px}
+.ro .k{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:4px}
+.ro .v{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--blue)}
+.ro .v.warn{color:var(--amber)}
+.ro .v.bad{color:var(--red)}
+.ro .v.ok{color:var(--green)}
+.ro .u{font-size:11px;color:var(--dim);margin-left:3px;font-weight:400}
+.verdict{margin-top:14px;font-size:14px;color:var(--dim);min-height:22px}
+.verdict b{color:var(--paper)}
+
+/* ── chart ───────────────────────── */
+.chartwrap{margin-top:18px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:10px}
+svg.chart{display:block;width:100%;height:auto}
+.axlbl{font-family:'JetBrains Mono',monospace;font-size:9px;fill:var(--faint)}
+.axttl{font-family:'JetBrains Mono',monospace;font-size:10px;fill:var(--dim);letter-spacing:.1em}
+.gline{stroke:var(--line);stroke-width:1}
+.dline{stroke:var(--blued);stroke-width:1.5;fill:none;opacity:.55}
+.dlbl{font-family:'JetBrains Mono',monospace;font-size:9px;fill:var(--blued)}
+.zone{fill:rgba(95,220,156,.07)}
+.zlbl{font-family:'JetBrains Mono',monospace;font-size:9px;fill:var(--green);opacity:.8}
+
+/* ── ref card ────────────────────── */
+.refgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:20px}
+.ref{background:var(--panel);border:1px solid var(--line2);border-radius:4px;padding:14px 16px}
+.ref h4{margin:0 0 10px}
+.ref .r{font-family:'JetBrains Mono',monospace;font-size:12.5px;padding:5px 0;border-bottom:1px solid var(--line);color:var(--paper)}
+.ref .r:last-child{border-bottom:0}
+.ref .r span{color:var(--faint)}
+
+footer{padding:44px 0 70px;color:var(--faint);font-size:13px}
+footer .mono{color:var(--dim)}
+
+@media (max-width:640px){
+  section{padding:40px 0}
+  .fx{font-size:12.5px}
+  header{padding:44px 0 30px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">ACR 1.2 · Knowledge Area 1 of 4</div>
+    <h1>The <em>design side</em> of the systems you already crawl through.</h1>
+    <p class="sub">Every fouled coil, every whistling boot, every return that starves the blower is the downstream result of four decisions somebody made on paper: the load, the equipment, the ducts, and the air. This is that paper. Eight modules, worked math, and three calculators that run live.</p>
+    <div class="pullquote">
+      A verifiable working knowledge of basic HVAC system design, fundamental HVAC engineering practices, current cleaning and restoration techniques, and applicable industry standards.
+      <span class="src">ACR, THE NADCA STANDARD · 1.2 · MINIMUM FOR AN HVAC INSPECTOR</span>
+    </div>
+  </div>
+</header>
+
+<nav><div class="wrap"><div class="navrow">
+  <a href="#m1"><span class="n">01</span>Airflow</a>
+  <a href="#m2"><span class="n">02</span>Static Pressure</a>
+  <a href="#m3"><span class="n">03</span>Psychrometrics</a>
+  <a href="#m4"><span class="n">04</span>Manual J</a>
+  <a href="#m5"><span class="n">05</span>Manual S</a>
+  <a href="#m6"><span class="n">06</span>Manual D</a>
+  <a href="#m7"><span class="n">07</span>Distribution</a>
+  <a href="#m8"><span class="n">08</span>Reading Failures</a>
+  <a href="#ref"><span class="n">§</span>Reference Card</a>
+</div></div></nav>
+
+<!-- ══ MODULE 1 ══════════════════════ -->
+<section id="m1"><div class="wrap">
+  <div class="mhead"><span class="mnum">01</span><h2>Airflow is the whole job</h2></div>
+  <p class="deck">Air is the delivery vehicle for every Btu the equipment makes. Get the airflow wrong and nothing downstream can be right, no matter how good the equipment is.</p>
+
+  <p>Three quantities describe moving air, and they are locked together by geometry. <strong>Volume</strong> is CFM, cubic feet per minute. <strong>Velocity</strong> is FPM, feet per minute. <strong>Area</strong> is the duct cross-section in square feet. Fix any two and the third is determined.</p>
+
+  <div class="fx">
+    <div class="eq">CFM = Velocity (FPM) × Area (ft²)</div>
+    <span class="where">Rearranged: V = CFM ÷ A · A = CFM ÷ V<br>
+    Round duct area in ft², from diameter d in inches: A = π × d² ÷ 576<br>
+    Rectangular duct area in ft², w and h in inches: A = (w × h) ÷ 144</span>
+  </div>
+
+  <p>That single relationship is why a duct system cannot be resized by feel. Squeeze the area and velocity climbs to carry the same volume, which raises friction, noise, and the pressure the blower has to overcome. Every one of those is a design consequence, not an installation defect.</p>
+
+  <h3>Moving heat with air</h3>
+  <p>Air carries heat two ways. <strong>Sensible</strong> heat changes the temperature you can read on a thermometer. <strong>Latent</strong> heat changes the moisture content and does not move the thermometer at all. Both take airflow to deliver, and each has its own constant.</p>
+
+  <div class="fx">
+    <div class="eq">Q<sub>sensible</sub> = 1.08 × CFM × ΔT</div>
+    <div class="eq" style="margin-top:8px">Q<sub>latent</sub> = 0.68 × CFM × Δgrains</div>
+    <div class="eq" style="margin-top:8px">Q<sub>total</sub> = 4.5 × CFM × Δenthalpy</div>
+    <span class="where">Q in Btu/hr · ΔT in °F · grains of moisture per pound of dry air · enthalpy in Btu/lb<br>
+    The constants 1.08, 0.68, and 4.5 assume standard air at sea level. At altitude they shrink with air density.</span>
+  </div>
+
+  <p>The 1.08 is not magic. It is the specific heat of air (0.24 Btu/lb·°F) times the density of standard air (0.075 lb/ft³) times 60 minutes per hour. Memorize the product, understand the parts, and you can rebuild it when someone asks why Denver is different.</p>
+
+  <div class="work">
+    <div class="wh">Worked · what is this system actually delivering?</div>
+    <div class="wb">
+      A 3-ton split system. You measure 1,150 CFM at the air handler and a 19°F temperature drop across the evaporator coil.
+      <div class="step">Q_sensible = 1.08 × 1150 × 19</div>
+      <div class="step">= 23,598 Btu/hr sensible</div>
+      <div class="step">Nominal 3 ton = 36,000 Btu/hr total</div>
+      <div class="step">Airflow per ton = 1150 ÷ 3 = 383 CFM/ton</div>
+      <div class="ans">→ 383 CFM/ton is inside the normal 350–450 band, low end. Low airflow per ton means a colder coil and more moisture removal, which is what you want in a humid climate. The 23.6 kBtu sensible is not the whole story; the rest of the capacity is going into latent, wringing water out of the air.</div>
+    </div>
+  </div>
+
+  <div class="box note"><span class="bt">The 400 CFM/ton rule and when it lies</span>
+  400 CFM per ton is the default design airflow for cooling. It is a starting point, not a law. Humid climates dial down toward 350 to get a colder coil and more dehumidification. Dry climates dial up toward 450 to get more sensible capacity out of the same box. Heat pumps in heating mode often want more air than cooling mode. Manual S tells you the real number for a specific piece of equipment from the manufacturer's expanded performance data.</div>
+
+  <div class="calc" id="calc1">
+    <div class="ch"><span class="t">Duct velocity and heat delivery</span><span class="tag">live</span></div>
+    <div class="cb">
+      <div class="inputs">
+        <div class="f"><label>Airflow (CFM)</label><input type="number" id="c1cfm" value="1150" min="1" step="10"></div>
+        <div class="f"><label>Duct shape</label><select id="c1shape"><option value="round">Round</option><option value="rect">Rectangular</option></select></div>
+        <div class="f" id="c1df"><label>Diameter (in)</label><input type="number" id="c1d" value="16" min="1" step="1"></div>
+        <div class="f" id="c1wf" style="display:none"><label>Width (in)</label><input type="number" id="c1w" value="20" min="1" step="1"></div>
+        <div class="f" id="c1hf" style="display:none"><label>Height (in)</label><input type="number" id="c1h" value="8" min="1" step="1"></div>
+        <div class="f"><label>ΔT across coil (°F)</label><input type="number" id="c1dt" value="19" min="0" step="1"></div>
+      </div>
+      <div class="readout">
+        <div class="ro"><span class="k">Area</span><span class="v" id="c1a">—</span></div>
+        <div class="ro"><span class="k">Velocity</span><span class="v" id="c1v">—</span></div>
+        <div class="ro"><span class="k">Sensible Btu/hr</span><span class="v" id="c1q">—</span></div>
+        <div class="ro"><span class="k">Equiv. round</span><span class="v" id="c1eq">—</span></div>
+      </div>
+      <div class="verdict" id="c1verdict"></div>
+    </div>
+  </div>
+
+  <h3>Velocity targets you should know cold</h3>
+  <table>
+    <thead><tr><th>Location</th><th class="num">Residential FPM</th><th class="num">Commercial FPM</th><th>Why the ceiling exists</th></tr></thead>
+    <tbody>
+      <tr><td>Supply trunk</td><td class="num">700–900</td><td class="num">1000–1500</td><td>Noise and friction climb fast above this</td></tr>
+      <tr><td>Supply branch</td><td class="num">600–700</td><td class="num">700–1000</td><td>Branch noise lands in the occupied room</td></tr>
+      <tr><td>Return trunk</td><td class="num">600–700</td><td class="num">800–1200</td><td>Return-side noise transmits straight to the grille</td></tr>
+      <tr><td>Return grille face</td><td class="num">300–500</td><td class="num">400–600</td><td>Above ~500 the grille whistles and pulls dust to the walls</td></tr>
+      <tr><td>Supply register face</td><td class="num">500–750</td><td class="num">500–800</td><td>Throw and noise trade off against each other</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box field"><span class="bt">What this looks like in the field</span>
+  Grey streaking on the ceiling around a supply diffuser is not a dirty duct. It is entrainment: high-velocity supply air scrubbing room air along the ceiling surface and depositing whatever the filter missed. Fix the filter and the streak stops growing; the design that produced the velocity stays exactly as it was. Return grilles that whistle are almost always undersized face area, which is a design number, not an installation error.</div>
+</div></section>
+
+<!-- ══ MODULE 2 ══════════════════════ -->
+<section id="m2"><div class="wrap">
+  <div class="mhead"><span class="mnum">02</span><h2>Static pressure is the budget</h2></div>
+  <p class="deck">The blower is issued a fixed pressure allowance. Everything in the air path spends some of it. Design is the act of not overspending.</p>
+
+  <p>Three pressures matter. <strong>Static pressure</strong> is the outward push on the duct walls, what your manometer reads. <strong>Velocity pressure</strong> is the forward push of moving air. <strong>Total pressure</strong> is the sum. In field diagnostics you live almost entirely in static, measured in inches of water column (in. w.c.).</p>
+
+  <p><strong>Total External Static Pressure</strong> is the number you get by putting a probe on the return side of the air handler and another on the supply side, then adding the absolute values. That is what the blower is fighting outside its own cabinet. Most residential blowers are rated to deliver their nameplate CFM at <strong>0.50 in. w.c.</strong> of external static. Many modern units are rated to 0.7 or 0.8, and variable-speed ECM blowers will hold CFM to higher static by drawing more watts, right up until they can't.</p>
+
+  <div class="fx">
+    <div class="eq">TESP = |supply static| + |return static|</div>
+    <div class="eq" style="margin-top:8px">Available Static Pressure = Blower rating − Σ(component drops)</div>
+    <span class="where">ASP is what's left over for the duct runs themselves. It is the entire budget Manual D gets to work with.</span>
+  </div>
+
+  <h3>Where the budget goes</h3>
+  <p>The components in the air path each take a cut before a single foot of duct is drawn. These are typical numbers; the real ones come off manufacturer data.</p>
+
+  <table>
+    <thead><tr><th>Component</th><th class="num">Typical drop (in. w.c.)</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Cooling coil, wet</td><td class="num">0.20 – 0.30</td><td>A wet coil costs more than a dry one; design for wet</td></tr>
+      <tr><td>Pleated media filter, 1"</td><td class="num">0.10 – 0.25</td><td>Rises as it loads; design for dirty, not clean</td></tr>
+      <tr><td>Deep media filter, 4–5"</td><td class="num">0.05 – 0.12</td><td>More area, less drop, better life. The right answer.</td></tr>
+      <tr><td>Supply register</td><td class="num">0.03 – 0.05</td><td>Per register, not cumulative across the system</td></tr>
+      <tr><td>Return grille</td><td class="num">0.03</td><td>Undersized grilles blow past this fast</td></tr>
+      <tr><td>Balancing damper</td><td class="num">0.03</td><td>If partially closed, far more</td></tr>
+      <tr><td>Electric heat strips</td><td class="num">0.05 – 0.15</td><td>Often forgotten in the budget</td></tr>
+    </tbody>
+  </table>
+
+  <div class="calc" id="calc2">
+    <div class="ch"><span class="t">Static pressure budget</span><span class="tag">live</span></div>
+    <div class="cb">
+      <div class="inputs">
+        <div class="f"><label>Blower rated ESP</label><input type="number" id="c2esp" value="0.70" min="0.1" step="0.05"></div>
+        <div class="f"><label>Cooling coil</label><input type="number" id="c2coil" value="0.25" min="0" step="0.01"></div>
+        <div class="f"><label>Filter</label><input type="number" id="c2filt" value="0.08" min="0" step="0.01"></div>
+        <div class="f"><label>Supply register</label><input type="number" id="c2reg" value="0.03" min="0" step="0.01"></div>
+        <div class="f"><label>Return grille</label><input type="number" id="c2grl" value="0.03" min="0" step="0.01"></div>
+        <div class="f"><label>Other (damper, heat)</label><input type="number" id="c2oth" value="0.03" min="0" step="0.01"></div>
+        <div class="f"><label>Total effective length (ft)</label><input type="number" id="c2tel" value="350" min="10" step="10"></div>
+      </div>
+      <div class="readout">
+        <div class="ro"><span class="k">Components take</span><span class="v" id="c2sum">—</span></div>
+        <div class="ro"><span class="k">Available static</span><span class="v" id="c2asp">—</span></div>
+        <div class="ro"><span class="k">Friction rate</span><span class="v" id="c2fr">—</span></div>
+      </div>
+      <div class="verdict" id="c2verdict"></div>
+    </div>
+  </div>
+
+  <div class="box trap"><span class="bt">The most common design failure in America</span>
+  A designer budgets 0.50 in. w.c., spends 0.35 on components, leaves 0.15 for 400 equivalent feet of duct, and gets a friction rate of 0.037. Nobody sizes duct that big, so the installer uses normal-looking duct sized around 0.10, and the finished system runs at 0.9 or 1.1 in. w.c. TESP. The blower never makes rated airflow, the coil runs cold and ices, capacity drops, and the homeowner is told they need a bigger unit. The bigger unit makes it worse. This is the single most common chain of failure you will meet in the field, and it starts on paper.</div>
+</div></section>
+
+<!-- ══ MODULE 3 ══════════════════════ -->
+<section id="m3"><div class="wrap">
+  <div class="mhead"><span class="mnum">03</span><h2>Psychrometrics without the chart anxiety</h2></div>
+  <p class="deck">Air is a mixture of dry air and water vapor. Psychrometrics is the bookkeeping for that mixture. You need four properties and one ratio.</p>
+
+  <p><strong>Dry-bulb temperature</strong> is what an ordinary thermometer reads. <strong>Wet-bulb temperature</strong> is what a thermometer reads with a wet sock over the bulb and air moving across it, which is lower because evaporation cools it. The gap between them is a direct measure of how dry the air is. Identical dry-bulb and wet-bulb means saturated air, 100% relative humidity, no evaporation possible.</p>
+
+  <p><strong>Humidity ratio</strong> is the actual mass of water per pound of dry air, expressed in grains (7,000 grains to the pound). Unlike relative humidity, it does not change when you just heat or cool the air. That makes it the honest measure. <strong>Enthalpy</strong> is total heat content per pound of dry air, sensible plus latent in one number.</p>
+
+  <p><strong>Relative humidity</strong> is the one everybody quotes and the one that misleads. It is a percentage of the maximum moisture the air could hold <em>at that temperature</em>. Cool the same air without removing any water and RH climbs, which is exactly why a basement at 68°F reads 70% RH while the upstairs at 78°F reads 50% with identical moisture in both.</p>
+
+  <div class="fx">
+    <div class="eq">SHR = Sensible load ÷ Total load</div>
+    <span class="where">Sensible Heat Ratio. Typical residential: 0.70–0.80 in humid climates, 0.85–0.95 in dry ones.<br>
+    An SHR of 0.75 means one quarter of the equipment's work is removing water, not lowering temperature.</span>
+  </div>
+
+  <h3>What a coil actually does</h3>
+  <p>Air enters the evaporator, the coil surface sits below the air's dew point, water condenses out onto the fins and runs to the pan. That is the entire dehumidification mechanism. Two things control how much of it happens:</p>
+  <ul>
+    <li><strong>Coil temperature.</strong> Colder coil, more condensation. Lower airflow makes a colder coil.</li>
+    <li><strong>Runtime.</strong> A coil only removes water while it is running and wet. Short cycles never get there. This is why oversized equipment leaves a house cold and clammy.</li>
+  </ul>
+
+  <div class="box field"><span class="bt">Why you find biofilm in drain pans</span>
+  A properly operating coil produces liquid water continuously in cooling season, roughly 1 to 3 gallons a day in a humid climate. That water sits in a dark warm pan with organic dust as a food source. Biological growth in a drain pan is not evidence of a problem, it is evidence the system is dehumidifying. What matters is whether the pan drains, whether the trap is correct, and whether the growth stays in the pan or gets carried onto the coil face and downstream. A pan holding standing water has a drainage design or slope failure, and it is one of the highest-value findings in an inspection.</div>
+
+  <div class="box note"><span class="bt">Design indoor conditions, from Manual J</span>
+  Heating: <strong>70°F</strong>. Cooling: <strong>75°F dry-bulb at 45, 50, or 55% RH</strong>, unless local code overrides. Those are the assumptions the whole load calculation rests on. A homeowner who keeps the house at 68°F in July is operating outside the design point and their system will run long and hard by construction.</div>
+</div></section>
+
+<!-- ══ MODULE 4 ══════════════════════ -->
+<section id="m4"><div class="wrap">
+  <div class="mhead"><span class="mnum">04</span><h2>Manual J · what the building actually needs</h2></div>
+  <p class="deck">A load calculation asks one question: at the worst reasonable weather, how many Btu per hour must be added or removed to hold the design indoor condition? Everything else in design is downstream of that number.</p>
+
+  <p>Manual J is ACCA's ANSI-recognized procedure for residential loads, currently 8th edition. North Carolina has required it for residential HVAC permits statewide since 2012. It replaced rules of thumb like "500 square feet per ton," which ignore orientation, insulation, glazing, infiltration, and climate, which is to say they ignore everything that determines the answer.</p>
+
+  <h3>The inputs that move the number</h3>
+  <ol>
+    <li><strong>Outdoor design conditions.</strong> The <span class="mono">1% dry-bulb</span> for cooling, the temperature exceeded only about 1% of hours, plus the mean coincident wet-bulb. The <span class="mono">99% dry-bulb</span> for heating, the temperature the location stays above 99% of hours. These come from Manual J Table 1A, not from the record high and low.</li>
+    <li><strong>Envelope.</strong> Every wall, ceiling, floor, window, and door with its area and U-value. Windows carry both conduction and solar gain, and solar gain depends on orientation and shading.</li>
+    <li><strong>Infiltration.</strong> Air leaking through the envelope, ideally from a blower door test rather than a guess. This carries both sensible and latent load.</li>
+    <li><strong>Internal gains.</strong> People, lighting, appliances. Manual J assigns standard values; each occupant is roughly 230 Btu/hr sensible and 200 latent at rest.</li>
+    <li><strong>Duct losses.</strong> Ducts in unconditioned attics or crawlspaces lose real capacity. This is a load line item, not an afterthought.</li>
+  </ol>
+
+  <div class="box note"><span class="bt">Piedmont NC design conditions, approximate</span>
+  Raleigh and the rest of the Piedmont sit in Climate Zone 3A, mixed-humid. Cooling design lands near <strong>92°F dry-bulb / 76°F wet-bulb</strong>, heating design near <strong>20°F</strong>. Use these to build intuition only. Pull the exact station values from Manual J Table 1A for any real calculation, because using nearest-city data instead of the actual station can introduce 5–10°F of error, which becomes 15–30% of load error.</div>
+
+  <div class="calc" id="calc3">
+    <div class="ch"><span class="t">Envelope load estimator</span><span class="tag">teaching tool · not Manual J</span></div>
+    <div class="cb">
+      <div class="inputs">
+        <div class="f"><label>Wall area (ft²)</label><input type="number" id="c3wa" value="1800" min="0" step="50"></div>
+        <div class="f"><label>Wall U-value</label><input type="number" id="c3wu" value="0.065" min="0.005" step="0.005"></div>
+        <div class="f"><label>Window area (ft²)</label><input type="number" id="c3ga" value="320" min="0" step="10"></div>
+        <div class="f"><label>Window U-value</label><input type="number" id="c3gu" value="0.32" min="0.05" step="0.01"></div>
+        <div class="f"><label>Ceiling area (ft²)</label><input type="number" id="c3ca" value="1600" min="0" step="50"></div>
+        <div class="f"><label>Ceiling U-value</label><input type="number" id="c3cu" value="0.026" min="0.005" step="0.002"></div>
+        <div class="f"><label>Indoor °F (heating)</label><input type="number" id="c3ti" value="70" step="1"></div>
+        <div class="f"><label>Outdoor design °F</label><input type="number" id="c3to" value="20" step="1"></div>
+        <div class="f"><label>Infiltration (CFM)</label><input type="number" id="c3inf" value="120" min="0" step="10"></div>
+      </div>
+      <div class="readout">
+        <div class="ro"><span class="k">ΔT</span><span class="v" id="c3dt">—</span></div>
+        <div class="ro"><span class="k">Conduction</span><span class="v" id="c3cond">—</span></div>
+        <div class="ro"><span class="k">Infiltration</span><span class="v" id="c3infl">—</span></div>
+        <div class="ro"><span class="k">Heating load</span><span class="v" id="c3tot">—</span></div>
+      </div>
+      <div class="verdict" id="c3verdict"></div>
+    </div>
+  </div>
+
+  <div class="fx">
+    <div class="eq">Q<sub>conduction</sub> = U × A × ΔT</div>
+    <div class="eq" style="margin-top:8px">U = 1 ÷ R</div>
+    <span class="where">U-value is heat transfer per hour per ft² per °F. R-value is its reciprocal, resistance.<br>
+    R-13 wall cavity → U ≈ 0.077 for the cavity alone, higher effective U once framing is accounted for.</span>
+  </div>
+
+  <div class="box trap"><span class="bt">Why the estimator above is not a Manual J</span>
+  It covers conduction and infiltration only. A real Manual J adds solar gain through glazing by orientation and shading, internal gains from people and appliances, duct losses, latent infiltration load using design grains, and the daily-range correction. That is why the cooling load is not simply the heating load with the sign flipped, and why software exists. Use the estimator to feel how sensitive load is to envelope and ΔT, and never to size anything.</div>
+</div></section>
+
+<!-- ══ MODULE 5 ══════════════════════ -->
+<section id="m5"><div class="wrap">
+  <div class="mhead"><span class="mnum">05</span><h2>Manual S · picking the box</h2></div>
+  <p class="deck">Manual J gives you a load. Manual S turns that load into a specific model number using the manufacturer's expanded performance data, not the nameplate tonnage.</p>
+
+  <p>The central idea is that <strong>nominal tonnage is marketing, not capacity</strong>. A "3 ton" condenser does not produce 36,000 Btu/hr. It produces whatever the expanded performance tables say it produces at the actual outdoor design temperature, the actual indoor wet-bulb entering the coil, and the actual airflow. That number is usually lower than nominal on a hot day, and its sensible/latent split shifts with entering conditions.</p>
+
+  <h3>The selection rules</h3>
+  <ul>
+    <li><strong>Cooling:</strong> total capacity at design conditions should land between about <strong>90% and 115%</strong> of the Manual J total cooling load. Latent capacity must meet or exceed the latent load.</li>
+    <li><strong>Heat pumps:</strong> sized primarily to the cooling load in cooling-dominated climates, with a balance point calculated and supplemental heat sized to cover the gap below it.</li>
+    <li><strong>Furnaces:</strong> output capacity, not input, matched to the heating load. Oversizing a furnace is common and cheap to avoid.</li>
+    <li><strong>Airflow:</strong> the CFM used in the selection becomes the design CFM that Manual D must then deliver. These are not separate decisions.</li>
+  </ul>
+
+  <div class="work">
+    <div class="wh">Worked · why the nameplate lies</div>
+    <div class="wb">
+      Manual J says 31,400 Btu/hr total cooling, of which 24,500 sensible, 6,900 latent. SHR = 0.78.
+      <div class="step">SHR = 24500 ÷ 31400 = 0.78</div>
+      <div class="step">Candidate: nominal 3-ton unit. Nameplate suggests 36,000.</div>
+      <div class="step">Expanded data at 92°F outdoor, 63°F entering wet-bulb, 1150 CFM:</div>
+      <div class="step">  total = 32,600 · sensible = 24,100 · latent = 8,500</div>
+      <div class="step">Sizing check: 32,600 ÷ 31,400 = 104% of load</div>
+      <div class="step">Latent check: 8,500 available vs 6,900 required ✓</div>
+      <div class="ans">→ 104% is inside the 90–115% window and latent capacity clears the requirement. The unit works. Note that the real total was 32,600, not 36,000, and that sensible came in slightly under the sensible load while total and latent both clear. Manual S is the only step that catches this, and it is the step that gets skipped most often.</div>
+    </div>
+  </div>
+
+  <div class="box trap"><span class="bt">The oversizing spiral</span>
+  Oversized cooling equipment short-cycles. Short cycles mean the coil never stays wet long enough to dehumidify, so the house hits setpoint while still feeling clammy. The occupant lowers the thermostat to compensate, which makes the cycles shorter. Energy use rises, comfort falls, and the equipment wears out on start-stop cycles. The Department of Energy has put sizing errors in the great majority of installed residential systems. When somebody tells you a house "needs a bigger unit" because it isn't comfortable, the honest first questions are what the load calculation says and what the static pressure reads.</div>
+</div></section>
+
+<!-- ══ MODULE 6 ══════════════════════ -->
+<section id="m6"><div class="wrap">
+  <div class="mnum" style="display:none"></div>
+  <div class="mhead"><span class="mnum">06</span><h2>Manual D · the ducts you crawl through</h2></div>
+  <p class="deck">This is the module that maps directly onto your day. Manual D is the procedure that produced every duct you have ever put a brush into, and its whole output is one number applied to a drawing.</p>
+
+  <p>Manual D works backward from the pressure budget. You know the blower's rated external static. You subtract the component drops. What remains is the <strong>Available Static Pressure</strong>, and it has to cover the entire longest air path. Divide it across that path and you get the <strong>friction rate</strong>, the pressure the design is allowed to spend per 100 feet of duct.</p>
+
+  <div class="fx">
+    <div class="eq">Friction Rate = (ASP × 100) ÷ Total Effective Length</div>
+    <span class="where">TEL = longest supply run + longest return run, each including the equivalent length of every fitting.<br>
+    Target for most residential systems: <strong>0.06 to 0.12</strong> in. w.c. per 100 ft. Below 0.06 the duct gets impractically large; above 0.12 velocity and noise climb.</span>
+  </div>
+
+  <h3>Effective length is not tape-measure length</h3>
+  <p>Fittings are where the pressure actually goes. A 90° elbow is not 3 feet of duct, it behaves like 15 to 25 feet. A supply boot with a takeoff can behave like 35 to 90 feet. On a typical residential system, fitting equivalent length often exceeds straight-run length. This is why a system that "looks fine" on a floor plan chokes in reality.</p>
+
+  <table>
+    <thead><tr><th>Fitting</th><th class="num">Typical equivalent length (ft)</th></tr></thead>
+    <tbody>
+      <tr><td>Smooth radius 90° elbow, round</td><td class="num">15 – 25</td></tr>
+      <tr><td>Sharp/segmented 90° elbow</td><td class="num">25 – 45</td></tr>
+      <tr><td>Straight takeoff from trunk</td><td class="num">30 – 45</td></tr>
+      <tr><td>Angled takeoff (45°)</td><td class="num">10 – 20</td></tr>
+      <tr><td>Supply boot with elbow</td><td class="num">35 – 90</td></tr>
+      <tr><td>Return grille and boot</td><td class="num">30 – 60</td></tr>
+      <tr><td>Flex duct, compressed or sagging</td><td class="num">multiplies everything</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="chart">The friction chart, live</h3>
+  <p>Once you have a friction rate and a CFM for a section, duct size falls out of the friction chart. The chart is a plot of the Darcy relationship for galvanized duct. This is that chart, computed rather than read.</p>
+
+  <div class="fx">
+    <div class="eq">Δp per 100 ft = 0.109136 × Q<sup>1.9</sup> ÷ d<sup>5.02</sup></div>
+    <span class="where">Q in CFM, d in inches, Δp in in. w.c. per 100 ft, galvanized round duct.<br>
+    Rectangular to equivalent round: d<sub>e</sub> = 1.30 × (a·b)<sup>0.625</sup> ÷ (a+b)<sup>0.25</sup></span>
+  </div>
+
+  <div class="calc" id="calc4">
+    <div class="ch"><span class="t">Duct sizer and friction chart</span><span class="tag">signature · live plot</span></div>
+    <div class="cb">
+      <div class="inputs">
+        <div class="f"><label>Section airflow (CFM)</label><input type="number" id="c4cfm" value="400" min="20" max="4000" step="10"></div>
+        <div class="f"><label>Friction rate (per 100 ft)</label><input type="number" id="c4fr" value="0.10" min="0.02" max="0.5" step="0.01"></div>
+        <div class="f"><label>Section type</label><select id="c4type">
+          <option value="branch">Supply branch</option>
+          <option value="trunk">Supply trunk</option>
+          <option value="rtrunk">Return trunk</option>
+        </select></div>
+      </div>
+      <div class="readout">
+        <div class="ro"><span class="k">Exact diameter</span><span class="v" id="c4dex">—</span></div>
+        <div class="ro"><span class="k">Next stock size</span><span class="v" id="c4dst">—</span></div>
+        <div class="ro"><span class="k">Velocity at stock</span><span class="v" id="c4vel">—</span></div>
+        <div class="ro"><span class="k">Actual Δp/100ft</span><span class="v" id="c4dp">—</span></div>
+      </div>
+      <div class="verdict" id="c4verdict"></div>
+      <div class="chartwrap">
+        <svg class="chart" id="fchart" viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Duct friction chart plotting airflow against pressure drop per 100 feet, with diameter lines"></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="box field"><span class="bt">Reading a system from inside it</span>
+  When you are in a trunk and the duct feels undersized for the tonnage it serves, you can now check rather than guess. Estimate CFM as tonnage × 400. Measure the trunk. Compute velocity. If a 3-ton system's main trunk is running 1,400 FPM in a house, the design overspent its friction budget, and you will find the evidence downstream: whistling registers, dust streaking, a blower that never makes rated airflow, and a coil that ices in July.</div>
+
+  <div class="box trap"><span class="bt">Flex duct is where designs go to die</span>
+  Flex duct's published friction values assume it is pulled taut and fully extended. Compressed to 90% of its length, its effective resistance roughly doubles. Sagging between supports adds effective elbows nobody drew. A design that penciled out at 0.09 friction rate can land at 0.20 in the attic without a single part being different from the drawing. When you find compressed flex, you have found the gap between the design and the building.</div>
+</div></section>
+
+<!-- ══ MODULE 7 ══════════════════════ -->
+<section id="m7"><div class="wrap">
+  <div class="mhead"><span class="mnum">07</span><h2>Distribution systems and terminals</h2></div>
+  <p class="deck">The load and the ducts get air to the room. The terminal decides whether the room is comfortable.</p>
+
+  <h3>System architectures</h3>
+  <table>
+    <thead><tr><th>Type</th><th>How it serves zones</th><th>What you find when cleaning</th></tr></thead>
+    <tbody>
+      <tr><td>Constant volume, single zone</td><td>One temperature, one airflow, on/off</td><td>Simplest layout, one trunk, uniform contamination</td></tr>
+      <tr><td>Multizone</td><td>Hot deck and cold deck at the unit, zone dampers mix at the unit, one duct per zone</td><td>Many ducts leaving the AHU, damper linkages at the unit</td></tr>
+      <tr><td>Dual duct</td><td>Separate hot and cold ducts run to a mixing box at each zone</td><td>Two parallel duct systems, mixing boxes in ceilings</td></tr>
+      <tr><td>VAV</td><td>Constant supply temperature, terminal box varies volume per zone</td><td>VAV boxes with dampers and often reheat coils, ceiling access required</td></tr>
+      <tr><td>Fan coil units</td><td>Local blower, coil, and filter per space</td><td>Blower, coil, filter in one small cabinet, high unit count</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box note"><span class="bt">Four numbering systems that are not related</span>
+  This trips up everyone: <strong>Method 1–3</strong> are the ACR cleanliness verification methods. <strong>Type 1–2</strong> are dry and wet cleaning. <strong>Level 1–4</strong> are containment levels. <strong>Condition 1–3</strong> are mold contamination states from IICRC S520. Four independent scales, nothing in common but the digits.</div>
+
+  <h3>Terminals: throw, spread, drop</h3>
+  <p>A supply outlet is not a hole. <strong>Throw</strong> is how far the air stream travels before it slows to a terminal velocity, usually defined at 50 or 100 FPM. <strong>Spread</strong> is how wide it fans out. <strong>Drop</strong> is how far the stream falls before it reaches the occupied zone. Selecting a diffuser is choosing those three to cover the room without dumping cold air on someone's neck.</p>
+
+  <p>Ceiling diffusers work by the <strong>Coanda effect</strong>, where the supply jet clings to the ceiling surface and mixes with room air before it descends. Break that attachment, with an obstruction or too little velocity, and cold air dumps straight down and the room complains. That is also the mechanism behind the ceiling streaking you see around dirty diffusers.</p>
+
+  <div class="box field"><span class="bt">Return sizing is where residential design cheats</span>
+  Supply gets designed; returns get whatever is left. A single central return in a house with closed bedroom doors starves every closed room, pressurizes it, and drives conditioned air out through the envelope while pulling unconditioned air in elsewhere. You will meet this as dusty rooms that never come to temperature, doors that whistle, and return trunks that are visibly undersized against the supply side. Transfer grilles and jumper ducts are the fix and they are a design item.</div>
+</div></section>
+
+<!-- ══ MODULE 8 ══════════════════════ -->
+<section id="m8"><div class="wrap">
+  <div class="mhead"><span class="mnum">08</span><h2>Reading a design failure from inside the duct</h2></div>
+  <p class="deck">The payoff. Every finding you write up has a design ancestry. Naming it correctly is what separates an inspection report from a cleaning invoice.</p>
+
+  <table>
+    <thead><tr><th>What you find</th><th>Likely design ancestry</th><th>What to measure to confirm</th></tr></thead>
+    <tbody>
+      <tr><td>Grey streaking at diffusers</td><td>Filtration bypass plus high supply velocity</td><td>Register face velocity, filter fit at the frame</td></tr>
+      <tr><td>Coil fouled on the entering face</td><td>Filter bypass, undersized filter area, or no filter</td><td>Filter gasket fit, filter face velocity</td></tr>
+      <tr><td>Standing water in the drain pan</td><td>Pan slope or trap design, not a cleaning defect</td><td>Trap depth vs blower static, pan pitch</td></tr>
+      <tr><td>Whistling return grille</td><td>Return face area undersized</td><td>Grille free area vs CFM, target under 500 FPM</td></tr>
+      <tr><td>Blower never makes rated CFM</td><td>Friction rate overspent, TESP above blower rating</td><td>TESP with a manometer, compare to nameplate</td></tr>
+      <tr><td>Ice on the evaporator in cooling</td><td>Airflow starvation from the same overspend</td><td>TESP, airflow, ΔT across the coil</td></tr>
+      <tr><td>Construction debris throughout a new system</td><td>System operated before cleanup, no construction filtration</td><td>Debris composition: gypsum, sawdust, silica</td></tr>
+      <tr><td>Microbial growth on porous liner</td><td>Chronic moisture, usually a coil or envelope issue upstream</td><td>Source of the water, not just the growth</td></tr>
+      <tr><td>Rooms that never condition, doors whistle</td><td>Insufficient return path, closed-door pressurization</td><td>Room pressure with doors closed, return count</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box note"><span class="bt">The one sentence that changes how a client hears you</span>
+  "The system is dirty" is a cleaning pitch. "The system is dirty and here is the mechanism that made it dirty, which will make it dirty again in eighteen months unless it is addressed" is an assessment. The ACR's own position is that cleaning cannot be warranted to correct IAQ concerns or produce energy savings, precisely because those outcomes depend on design conditions that cleaning does not change. Knowing the design side is what lets you say that accurately instead of overpromising.</div>
+
+  <h3>Where to take this next</h3>
+  <p>Nothing on this page requires a certificate, and no credential exists that certifies "basic HVAC system design" specifically. What documents the knowledge is training records and demonstrated work. If you want to go further, in order of return:</p>
+  <ol>
+    <li><strong>ACCA Manual D</strong> is the single highest-value purchase for what you do. It is the procedure behind every duct you touch. Available from <a href="https://www.acca.org/standards/technical-manuals" target="_blank" rel="noopener">ACCA's technical manuals catalog</a>.</li>
+    <li><strong>ACCA Manual J</strong> next, if you want to argue about sizing with authority.</li>
+    <li><strong>A manometer</strong> and the habit of taking TESP on every system you enter. Measurement is what converts this reading into working knowledge, and it costs less than any course.</li>
+    <li><strong>NATE Air Distribution</strong> if you want a credential on the technician side, though it certifies service skill rather than design. Core plus one specialty, roughly $300 to $500 total, around a 70% threshold. Details at <a href="https://natex.org/technician/take-an-exam/nate-certification-exams" target="_blank" rel="noopener">natex.org</a>.</li>
+  </ol>
+</div></section>
+
+<!-- ══ REFERENCE ══════════════════════ -->
+<section id="ref"><div class="wrap">
+  <div class="mhead"><span class="mnum">§</span><h2>Reference card</h2></div>
+  <p class="deck">Everything above, compressed to what you would want on a phone in a crawlspace.</p>
+  <div class="refgrid">
+    <div class="ref"><h4>Airflow</h4>
+      <div class="r">CFM = V × A <span>· A in ft²</span></div>
+      <div class="r">A<sub>round</sub> = π·d² ÷ 576 <span>· d in inches</span></div>
+      <div class="r">A<sub>rect</sub> = w·h ÷ 144</div>
+      <div class="r">d<sub>e</sub> = 1.30(ab)<sup>.625</sup> ÷ (a+b)<sup>.25</sup></div>
+      <div class="r">Design: 350–450 CFM/ton</div>
+    </div>
+    <div class="ref"><h4>Heat transfer</h4>
+      <div class="r">Q<sub>s</sub> = 1.08 × CFM × ΔT</div>
+      <div class="r">Q<sub>l</sub> = 0.68 × CFM × Δgrains</div>
+      <div class="r">Q<sub>t</sub> = 4.5 × CFM × Δh</div>
+      <div class="r">Q = U × A × ΔT <span>· U = 1/R</span></div>
+      <div class="r">1 ton = 12,000 Btu/hr</div>
+    </div>
+    <div class="ref"><h4>Fan laws</h4>
+      <div class="r">CFM₂ = CFM₁ × (RPM₂/RPM₁)</div>
+      <div class="r">SP₂ = SP₁ × (RPM₂/RPM₁)²</div>
+      <div class="r">BHP₂ = BHP₁ × (RPM₂/RPM₁)³</div>
+      <div class="r"><span>10% more RPM = 33% more power</span></div>
+    </div>
+    <div class="ref"><h4>Static pressure</h4>
+      <div class="r">TESP = |supply| + |return|</div>
+      <div class="r">ASP = rated ESP − components</div>
+      <div class="r">FR = ASP × 100 ÷ TEL</div>
+      <div class="r">Typical blower rating: 0.50 in. w.c.</div>
+      <div class="r">Target FR: 0.06–0.12</div>
+    </div>
+    <div class="ref"><h4>Duct sizing</h4>
+      <div class="r">Δp/100 = 0.109136·Q<sup>1.9</sup> ÷ d<sup>5.02</sup></div>
+      <div class="r">Supply trunk: 700–900 FPM</div>
+      <div class="r">Supply branch: 600–700 FPM</div>
+      <div class="r">Return grille face: 300–500 FPM</div>
+      <div class="r">90° elbow ≈ 15–25 ft equivalent</div>
+    </div>
+    <div class="ref"><h4>Sizing rules</h4>
+      <div class="r">Cooling: 90–115% of load</div>
+      <div class="r">Latent capacity ≥ latent load</div>
+      <div class="r">SHR = sensible ÷ total</div>
+      <div class="r">Indoor design: 70°F heat / 75°F cool</div>
+      <div class="r">Piedmont NC: ~92/76 cool, ~20 heat</div>
+    </div>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="mono">DESIGN SIDE · v1 · built for ACR 1.2 knowledge area 1</div>
+  <p style="margin-top:8px">Estimator and calculators are teaching tools built on standard engineering relationships. They are not ACCA-approved software and produce nothing permit-ready. Real numbers come from Manual J Table 1A, manufacturer expanded performance data, and a manometer.</p>
+</div></footer>
+
+<script>
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const fmt = (n,d=0) => isFinite(n) ? n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}) : '—';
+
+/* ── 1 · velocity + heat ─────────── */
+function calc1(){
+  const cfm = +$('c1cfm').value||0, shape = $('c1shape').value, dt = +$('c1dt').value||0;
+  let area, eqd;
+  if(shape === 'round'){
+    const d = +$('c1d').value||1;
+    area = Math.PI*d*d/576; eqd = d;
+  } else {
+    const w = +$('c1w').value||1, h = +$('c1h').value||1;
+    area = w*h/144;
+    eqd = 1.30*Math.pow(w*h,0.625)/Math.pow(w+h,0.25);
+  }
+  const v = area>0 ? cfm/area : 0;
+  const q = 1.08*cfm*dt;
+  $('c1a').innerHTML = fmt(area,2)+'<span class="u">ft²</span>';
+  $('c1v').innerHTML = fmt(v)+'<span class="u">fpm</span>';
+  $('c1q').innerHTML = fmt(q)+'<span class="u">btu/h</span>';
+  $('c1eq').innerHTML = fmt(eqd,1)+'<span class="u">in</span>';
+  const vEl = $('c1v');
+  vEl.className = 'v' + (v>1200?' bad':v>900?' warn':v<400?' warn':' ok');
+  let msg;
+  if(v>1200) msg = '<b>Too fast.</b> Above 1,200 FPM in residential duct you get audible noise and the friction cost climbs steeply. This section is undersized for the air it carries.';
+  else if(v>900) msg = '<b>High for residential.</b> Acceptable in a commercial trunk, noisy in a house. Check what this section is feeding.';
+  else if(v<400) msg = '<b>Very low.</b> Oversized for the airflow, which is not a performance problem but does let debris settle instead of staying entrained.';
+  else msg = '<b>In range.</b> This section is carrying its airflow at a sane velocity.';
+  if(dt>0) msg += ' At '+dt+'°F drop this air is moving '+fmt(q)+' Btu/hr of sensible heat, or '+fmt(q/12000,2)+' tons sensible.';
+  $('c1verdict').innerHTML = msg;
+}
+function shapeToggle(){
+  const r = $('c1shape').value === 'round';
+  $('c1df').style.display = r?'':'none';
+  $('c1wf').style.display = r?'none':'';
+  $('c1hf').style.display = r?'none':'';
+  calc1();
+}
+['c1cfm','c1d','c1w','c1h','c1dt'].forEach(id=>$(id).addEventListener('input',calc1));
+$('c1shape').addEventListener('change',shapeToggle);
+
+/* ── 2 · static budget ───────────── */
+function calc2(){
+  const esp=+$('c2esp').value||0;
+  const parts=['c2coil','c2filt','c2reg','c2grl','c2oth'].map(id=>+$(id).value||0);
+  const sum=parts.reduce((a,b)=>a+b,0);
+  const asp=esp-sum;
+  const tel=+$('c2tel').value||1;
+  const fr=asp>0?(asp*100/tel):0;
+  $('c2sum').innerHTML=fmt(sum,2)+'<span class="u">in wc</span>';
+  $('c2asp').innerHTML=fmt(asp,3)+'<span class="u">in wc</span>';
+  $('c2fr').innerHTML=fmt(fr,3);
+  $('c2asp').className='v'+(asp<=0?' bad':asp<0.15?' warn':' ok');
+  $('c2fr').className='v'+(fr<0.06?' bad':fr>0.14?' warn':' ok');
+  let m;
+  if(asp<=0) m='<b>Budget blown before the ducts.</b> The components alone consume the entire blower rating. No duct system can work here; the equipment or the components have to change.';
+  else if(fr<0.06) m='<b>Friction rate '+fmt(fr,3)+' is impractically low.</b> Duct sized to this would be enormous, so in practice it will be built smaller and the system will run over its static rating. Reduce component losses (a 4-inch media filter is the cheapest win) or shorten the effective length.';
+  else if(fr>0.14) m='<b>Friction rate '+fmt(fr,3)+' is high.</b> The duct will be small, fast, and audible. Workable, but expect noise complaints and little margin as the filter loads.';
+  else m='<b>Friction rate '+fmt(fr,3)+' is in the practical band.</b> Duct sized to this will be buildable and quiet. This is the number Manual D carries into every section of the drawing.';
+  $('c2verdict').innerHTML=m;
+}
+['c2esp','c2coil','c2filt','c2reg','c2grl','c2oth','c2tel'].forEach(id=>$(id).addEventListener('input',calc2));
+
+/* ── 3 · envelope load ───────────── */
+function calc3(){
+  const g=id=>+$(id).value||0;
+  const dt=Math.abs(g('c3ti')-g('c3to'));
+  const cond=(g('c3wa')*g('c3wu')+g('c3ga')*g('c3gu')+g('c3ca')*g('c3cu'))*dt;
+  const inf=1.08*g('c3inf')*dt;
+  const tot=cond+inf;
+  $('c3dt').innerHTML=fmt(dt)+'<span class="u">°F</span>';
+  $('c3cond').innerHTML=fmt(cond)+'<span class="u">btu/h</span>';
+  $('c3infl').innerHTML=fmt(inf)+'<span class="u">btu/h</span>';
+  $('c3tot').innerHTML=fmt(tot)+'<span class="u">btu/h</span>';
+  const pct=tot>0?inf/tot*100:0;
+  $('c3verdict').innerHTML='Infiltration is <b>'+fmt(pct)+'%</b> of this heating load. '+
+    (pct>35?'That is a leaky envelope, and air sealing would cut the load more than any equipment change.':
+     pct>20?'Typical for existing construction. Air sealing still pays before upsizing anything.':
+     'A tight envelope. The load is conduction-dominated, so glazing and insulation are where the remaining savings live.')+
+    ' Conduction-only, no solar or internal gains, so treat this as the heating side and a floor for the cooling side.';
+}
+['c3wa','c3wu','c3ga','c3gu','c3ca','c3cu','c3ti','c3to','c3inf'].forEach(id=>$(id).addEventListener('input',calc3));
+
+/* ── 4 · duct sizer + chart ──────── */
+const STOCK=[4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,32,36];
+const dpOf=(q,d)=>0.109136*Math.pow(q,1.9)/Math.pow(d,5.02);
+const dOf=(q,dp)=>Math.pow(0.109136*Math.pow(q,1.9)/dp,1/5.02);
+const velOf=(q,d)=>q/(Math.PI*d*d/576);
+const LIMITS={branch:[600,700],trunk:[700,900],rtrunk:[600,700]};
+
+function calc4(){
+  const q=+$('c4cfm').value||1, fr=+$('c4fr').value||0.1, type=$('c4type').value;
+  const dex=dOf(q,fr);
+  const dst=STOCK.find(d=>d>=dex)||STOCK[STOCK.length-1];
+  const v=velOf(q,dst), dp=dpOf(q,dst);
+  $('c4dex').innerHTML=fmt(dex,2)+'<span class="u">in</span>';
+  $('c4dst').innerHTML=fmt(dst)+'<span class="u">in</span>';
+  $('c4vel').innerHTML=fmt(v)+'<span class="u">fpm</span>';
+  $('c4dp').innerHTML=fmt(dp,3);
+  const [lo,hi]=LIMITS[type];
+  $('c4vel').className='v'+(v>hi*1.35?' bad':v>hi?' warn':' ok');
+  let m='Exact size is <b>'+fmt(dex,2)+'"</b>; the next stock size up is <b>'+dst+'"</b>, which drops the actual friction to '+fmt(dp,3)+' per 100 ft. ';
+  if(v>hi*1.35) m+='At '+fmt(v)+' FPM this is <b>well over the '+hi+' FPM ceiling</b> for a '+$('c4type').selectedOptions[0].text.toLowerCase()+'. Expect noise and a real pressure penalty.';
+  else if(v>hi) m+='At '+fmt(v)+' FPM it is <b>just over the '+lo+'–'+hi+' FPM target</b>. Tolerable, but the next size up would quiet it down.';
+  else m+='At '+fmt(v)+' FPM it sits <b>inside the '+lo+'–'+hi+' FPM target</b> for this section type.';
+  $('c4verdict').innerHTML=m;
+  drawChart(q,fr,dex);
+}
+['c4cfm','c4fr'].forEach(id=>$(id).addEventListener('input',calc4));
+$('c4type').addEventListener('change',calc4);
+
+/* chart: log-log CFM vs dp/100ft, diameter lines */
+const CW=720,CH=400,ML=54,MR=16,MT=14,MB=42;
+const QMIN=30,QMAX=4000,PMIN=0.02,PMAX=0.5;
+const px=q=>ML+(Math.log10(q)-Math.log10(QMIN))/(Math.log10(QMAX)-Math.log10(QMIN))*(CW-ML-MR);
+const py=p=>MT+(Math.log10(PMAX)-Math.log10(p))/(Math.log10(PMAX)-Math.log10(PMIN))*(CH-MT-MB);
+
+function drawChart(q,fr,dex){
+  const s=$('fchart');
+  let o='';
+  // target velocity band shading (600-900 fpm region across diameters)
+  o+='<rect x="'+ML+'" y="'+py(0.12)+'" width="'+(CW-ML-MR)+'" height="'+(py(0.06)-py(0.12))+'" class="zone"/>';
+  o+='<text x="'+(CW-MR-6)+'" y="'+(py(0.12)+13)+'" class="zlbl" text-anchor="end">practical friction band 0.06–0.12</text>';
+  // grid + axes
+  [30,50,100,200,400,800,1500,3000].forEach(t=>{
+    o+='<line x1="'+px(t)+'" y1="'+MT+'" x2="'+px(t)+'" y2="'+(CH-MB)+'" class="gline"/>';
+    o+='<text x="'+px(t)+'" y="'+(CH-MB+15)+'" class="axlbl" text-anchor="middle">'+t+'</text>';
+  });
+  [0.02,0.04,0.06,0.08,0.1,0.15,0.2,0.3,0.5].forEach(t=>{
+    o+='<line x1="'+ML+'" y1="'+py(t)+'" x2="'+(CW-MR)+'" y2="'+py(t)+'" class="gline"/>';
+    o+='<text x="'+(ML-7)+'" y="'+(py(t)+3)+'" class="axlbl" text-anchor="end">'+t.toFixed(2)+'</text>';
+  });
+  o+='<text x="'+(ML+(CW-ML-MR)/2)+'" y="'+(CH-6)+'" class="axttl" text-anchor="middle">AIRFLOW · CFM</text>';
+  o+='<text x="14" y="'+(MT+(CH-MT-MB)/2)+'" class="axttl" text-anchor="middle" transform="rotate(-90,14,'+(MT+(CH-MT-MB)/2)+')">PRESSURE DROP · IN. W.C. PER 100 FT</text>';
+  // diameter lines
+  [4,5,6,7,8,10,12,14,16,20,24,30].forEach(d=>{
+    let pts=[],lbl=null;
+    for(let lq=Math.log10(QMIN);lq<=Math.log10(QMAX)+0.001;lq+=0.02){
+      const qq=Math.pow(10,lq), pp=dpOf(qq,d);
+      if(pp<PMIN||pp>PMAX) continue;
+      pts.push(px(qq).toFixed(1)+','+py(pp).toFixed(1));
+      lbl={x:px(qq),y:py(pp)};
+    }
+    if(pts.length>1){
+      o+='<polyline points="'+pts.join(' ')+'" class="dline"/>';
+      if(lbl&&lbl.x<CW-MR-14) o+='<text x="'+(lbl.x+4)+'" y="'+(lbl.y-3)+'" class="dlbl">'+d+'"</text>';
+      else if(lbl) o+='<text x="'+(lbl.x-4)+'" y="'+(lbl.y-4)+'" class="dlbl" text-anchor="end">'+d+'"</text>';
+    }
+  });
+  // crosshair for current selection
+  const cq=Math.min(Math.max(q,QMIN),QMAX), cp=Math.min(Math.max(fr,PMIN),PMAX);
+  const X=px(cq),Y=py(cp);
+  o+='<line x1="'+ML+'" y1="'+Y+'" x2="'+X+'" y2="'+Y+'" stroke="#f5a742" stroke-width="1" stroke-dasharray="3 3"/>';
+  o+='<line x1="'+X+'" y1="'+(CH-MB)+'" x2="'+X+'" y2="'+Y+'" stroke="#f5a742" stroke-width="1" stroke-dasharray="3 3"/>';
+  o+='<circle cx="'+X+'" cy="'+Y+'" r="5" fill="#f5a742"/>';
+  o+='<text x="'+(X+9)+'" y="'+(Y-8)+'" class="dlbl" fill="#f5a742">'+fmt(dex,1)+'" required</text>';
+  s.innerHTML=o;
+}
+
+shapeToggle(); calc2(); calc3(); calc4();
+})();
+</script>
+</body>
+</html>
