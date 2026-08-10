@@ -219,7 +219,7 @@ function screenTitle(){
   $('#app').innerHTML = `
   <div class="title-wrap">
     <div class="logo rye">¡La<br>Palabra!<small>SPANISH · i+1 · ARCADE</small></div>
-    <p class="tagline">Cada ronda: una oración con exactamente una palabra nueva. 1000 palabras, ${S.length} oraciones reales.</p>
+    <p class="tagline">Cada ronda: una oración con exactamente una palabra nueva.<br><span style="opacity:.65; font-size:12px">Every round: one sentence with exactly one new word. 1000 words, ${S.length} real sentences.</span></p>
     <div class="card"><div class="card-frame">
       <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
       <div class="card-inner" style="min-height:0; gap:10px">
@@ -228,7 +228,7 @@ function screenTitle(){
           <button class="primary" onclick="startGame()">Jugar</button>
           <button class="primary ghost" onclick="resetAll()">Nueva partida</button>
         ` : `
-          <div style="text-align:center; font-weight:600">Primero, un sondeo rápido: marca las palabras que ya conoces.</div>
+          <div style="text-align:center; font-weight:600">Primero, un sondeo rápido: marca las palabras que ya conoces.<div style="font-size:12px; opacity:.65; font-weight:400; margin-top:4px">Quick check first: mark the words you already know. Knowing none is fine.</div></div>
           <button class="primary" onclick="startPlacement()">Empezar</button>
         `}
       </div>
@@ -257,7 +257,7 @@ function nextBand(){
     <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
     <div class="card-inner" style="min-height:0">
       <div class="card-eyebrow"><span>Sondeo ${pbandIdx+1} / ${BANDS.length}</span><span class="num">Nº ${BANDS[pbandIdx][0]}–${BANDS[pbandIdx][1]-1}</span></div>
-      <div style="text-align:center; font-weight:600; font-size:15px">Toca las que <b>ya conoces</b>:</div>
+      <div style="text-align:center; font-weight:600; font-size:15px">Toca las que <b>ya conoces</b>:<div style="font-size:12px; opacity:.6; font-weight:400">tap the ones you already know · none is fine</div></div>
       <div class="chip-grid">${psample.map(vi => `<button class="chip" data-vi="${vi}" onclick="togglePChip(this)">${V[vi].w}</button>`).join('')}</div>
       <button class="primary" onclick="finishBand()">Listo</button>
     </div>
@@ -277,7 +277,7 @@ function finishBand(){
   }
   save();
   if(pass && pbandIdx < BANDS.length-1){ pbandIdx++; nextBand(); }
-  else { st.placed = true; save(); toast(`${knownCount()} palabras de arranque`); startGame(); }
+  else { st.placed = true; save(); toast(knownCount() ? `${knownCount()} palabras de arranque` : '¡Desde cero, vamos!'); startGame(); }
 }
 
 // game loop
@@ -354,7 +354,7 @@ function screenCloze(vi, pick){
     <div class="card-inner">
       <div class="card-eyebrow"><span>La palabra</span><span class="num">Nº ${vi+1}</span></div>
       <div class="sentence">${esc(before)}<span class="blank" id="blank">&nbsp;</span>${esc(after)}</div>
-      <div class="translation" id="trans">${esc(sent.e)}</div>
+      <div class="translation${i1 ? '' : ' show'}" id="trans">${esc(sent.e)}</div>
     </div>
   </div></div>
   <div id="options">${opts.map(o => `<button class="opt" onclick="answer(this,'${escAttr(o)}')">${esc(o)}</button>`).join('')}</div>
@@ -397,6 +397,7 @@ function answer(el, chosen){
     combo = 0;
   }
   gradeWord(cur.vi, ok);
+  const h = document.querySelector('#hud'); if(h) h.outerHTML = hud();
   speak(S[cur.si].s);
   const v = V[cur.vi];
   setTimeout(() => {
