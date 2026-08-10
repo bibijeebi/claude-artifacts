@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>¡La Palabra! — Spanish i+1 Arcade</title>
+<meta property="og:title" content="¡La Palabra! — Spanish i+1 Arcade">
+<meta property="og:description" content="Lotería-style Spanish vocabulary game. Every round is a sentence with exactly one unknown word. 1000 words, 7000+ real sentences, spaced repetition.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/palabra-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/palabra.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/palabra-og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Archivo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3E9D2; --paper2:#EADDBE; --ink:#1D2A35; --red:#C8402E;
+  --green:#1F6E54; --gold:#D9A441; --teal:#2E7C8F; --line:#3a4a57;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden}
+body{margin:0; background:var(--ink); color:var(--paper);
+  font-family:'Archivo',system-ui,sans-serif; min-height:100vh;
+  background-image:radial-gradient(circle at 20% 10%, #24343f 0%, var(--ink) 60%)}
+#app{max-width:520px; margin:0 auto; padding:12px 14px 40px; min-height:100vh; display:flex; flex-direction:column}
+.rye{font-family:'Rye',serif; font-weight:400}
+/* HUD */
+#hud{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 2px 12px}
+.stat{display:flex; flex-direction:column; align-items:center; min-width:64px}
+.stat b{font-size:20px; letter-spacing:.5px}
+.stat span{font-size:10px; text-transform:uppercase; letter-spacing:1.5px; opacity:.65}
+#combo b{color:var(--gold)}
+#known b{color:#8fd0b8}
+#due b{color:#e8a597}
+/* The card */
+.card{background:var(--paper); color:var(--ink); border-radius:6px; position:relative;
+  padding:14px; box-shadow:0 10px 30px rgba(0,0,0,.45);
+  animation:deal .45s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes deal{from{transform:translateY(40px) rotate(2deg); opacity:0}}
+.card-frame{border:3px solid var(--ink); border-radius:3px; padding:4px; position:relative}
+.card-frame::before{content:""; position:absolute; inset:4px; border:1px solid var(--ink); border-radius:2px; pointer-events:none}
+.card-inner{padding:18px 14px 20px; position:relative; min-height:230px; display:flex; flex-direction:column}
+.corner{position:absolute; width:14px; height:14px; border:3px solid var(--ink)}
+.corner.tl{top:-3px; left:-3px; border-right:0; border-bottom:0}
+.corner.tr{top:-3px; right:-3px; border-left:0; border-bottom:0}
+.corner.bl{bottom:-3px; left:-3px; border-right:0; border-top:0}
+.corner.br{bottom:-3px; right:-3px; border-left:0; border-top:0}
+.card-eyebrow{display:flex; justify-content:space-between; font-size:11px; letter-spacing:2px;
+  text-transform:uppercase; border-bottom:2px solid var(--ink); padding-bottom:8px; margin-bottom:16px}
+.card-eyebrow .num{font-weight:800}
+.sentence{font-size:22px; line-height:1.55; text-align:center; margin:auto 0; font-weight:600}
+.blank{display:inline-block; min-width:84px; border-bottom:3px solid var(--red); margin:0 1px;
+  color:var(--red); font-weight:800; text-align:center; padding:0 3px; border-radius:2px}
+.blank.filled-ok{color:var(--green); border-color:var(--green); background:#1f6e5414}
+.blank.filled-bad{color:var(--red); background:#c8402e14}
+.translation{text-align:center; font-size:14px; opacity:0; margin-top:14px; min-height:20px; font-style:italic; transition:opacity .3s}
+.translation.show{opacity:.75}
+/* Intro card */
+.bigword{font-size:44px; text-align:center; margin:6px 0 2px; color:var(--red)}
+.gloss{text-align:center; font-size:17px; font-weight:700; margin-bottom:14px}
+.pos-chip{display:block; width:fit-content; margin:0 auto 10px; font-size:10px; letter-spacing:2px;
+  text-transform:uppercase; border:1.5px solid var(--ink); padding:2px 10px; border-radius:99px}
+.example{font-size:17px; text-align:center; line-height:1.5; margin-top:4px}
+.example b{color:var(--red)}
+.example-en{text-align:center; font-size:13px; font-style:italic; opacity:.7; margin-top:6px}
+/* Options */
+#options{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px}
+.opt{font-family:'Archivo'; font-weight:700; font-size:18px; padding:14px 8px; border-radius:4px;
+  border:2px solid var(--paper2); background:#f8f2e3; color:var(--ink); cursor:pointer;
+  border:2px solid #c9bb99; transition:transform .08s}
+.opt:active{transform:scale(.96)}
+.opt.ok{background:var(--green); border-color:var(--green); color:var(--paper)}
+.opt.bad{background:var(--red); border-color:var(--red); color:var(--paper); animation:shake .3s}
+.opt.dim{opacity:.35}
+@keyframes shake{20%{transform:translateX(-6px)}60%{transform:translateX(6px)}}
+button.primary{font-family:'Archivo'; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+  width:100%; padding:16px; font-size:16px; margin-top:16px; border-radius:4px; border:0;
+  background:var(--gold); color:var(--ink); cursor:pointer}
+button.ghost{background:transparent; border:2px solid var(--paper2); color:var(--ink)}
+/* Bottom bar */
+#bottom{display:flex; justify-content:space-between; align-items:center; margin-top:14px; gap:10px}
+.mini{background:transparent; border:1.5px solid rgba(243,233,210,.35); color:var(--paper);
+  padding:8px 14px; border-radius:99px; font-size:13px; font-family:'Archivo'; cursor:pointer}
+#toast{position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:var(--gold);
+  color:var(--ink); font-weight:800; padding:8px 18px; border-radius:99px; opacity:0;
+  transition:opacity .25s; pointer-events:none; font-size:14px; z-index:9}
+#toast.show{opacity:1}
+/* Title screen */
+.title-wrap{text-align:center; margin:auto 0; display:flex; flex-direction:column; gap:8px}
+.logo{font-size:52px; color:var(--gold); text-shadow:3px 3px 0 #00000055; line-height:1.05; margin:10px 0 2px}
+.logo small{display:block; font-size:15px; color:var(--paper); letter-spacing:4px; font-family:'Archivo'; font-weight:600; margin-top:10px}
+.tagline{font-size:14px; opacity:.75; max-width:320px; margin:0 auto 18px; line-height:1.5}
+/* Placement */
+.chip-grid{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:16px 0}
+.chip{border:2px solid #c9bb99; background:#f8f2e3; color:var(--ink); font-weight:700;
+  padding:10px 14px; border-radius:99px; font-size:16px; cursor:pointer; font-family:'Archivo'}
+.chip.on{background:var(--green); border-color:var(--green); color:var(--paper)}
+.level-band{position:absolute; top:0; left:0; right:0; height:5px; border-radius:6px 6px 0 0}
+.progress{height:5px; background:#ffffff22; border-radius:99px; margin:2px 0 12px; overflow:hidden}
+.progress i{display:block; height:100%; background:var(--gold); transition:width .4s}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important; transition:none!important} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<script src="palabra_data.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+const V = DATA.vocab, S = DATA.sents, C = DATA.cand;
+const LS = 'palabra_v1';
+const MIN = 60000, DAY = 86400000;
+const LEVELS = [[0,'Novato'],[25,'Turista'],[60,'Charlatán'],[120,'Vecino'],[220,'Cuentista'],[350,'Poeta'],[550,'Maestro'],[800,'Leyenda']];
+
+let st = load();
+function load(){
+  try{ const x = JSON.parse(localStorage.getItem(LS)); if(x && x.words) return x; }catch(e){}
+  return {words:{}, points:0, bestCombo:0, placed:false, sound:true, today:{d:dayKey(),n:0,ok:0}, recent:[]};
+}
+function save(){ localStorage.setItem(LS, JSON.stringify(st)); }
+function dayKey(){ return new Date().toISOString().slice(0,10); }
+function touchToday(){ if(st.today.d !== dayKey()) st.today = {d:dayKey(),n:0,ok:0}; }
+
+function W(vi){ return st.words[vi] || null; }
+function setW(vi, o){ st.words[vi] = o; }
+function isSolid(vi){ const w = W(vi); return !!w && w.st === 'known'; }
+function knownCount(){ return Object.values(st.words).filter(w => w.st === 'known').length; }
+function dueList(){
+  const now = Date.now();
+  return Object.entries(st.words).filter(([vi,w]) => w.due <= now).map(([vi]) => +vi).sort((a,b) => a-b);
+}
+function frontier(){
+  for(let i = 0; i < V.length; i++) if(!W(i)) return i;
+  return -1;
+}
+function levelName(){
+  const k = knownCount(); let name = LEVELS[0][1];
+  for(const [t,n] of LEVELS) if(k >= t) name = n;
+  return name;
+}
+
+// scheduler: SM-2 lite. states: learn(step 0/1) -> known(ivl days, ef)
+function gradeWord(vi, correct){
+  let w = W(vi) || {st:'learn', step:0, due:0, ivl:0, ef:2.5, reps:0, lapses:0};
+  w.reps++;
+  if(correct){
+    if(w.st === 'learn'){
+      if(w.step >= 1){ w.st = 'known'; w.ivl = 1; w.due = Date.now() + DAY; }
+      else { w.step++; w.due = Date.now() + 10*MIN; }
+    } else {
+      w.ivl = Math.max(1, Math.round(w.ivl * w.ef));
+      w.due = Date.now() + w.ivl * DAY;
+    }
+  } else {
+    w.lapses++;
+    w.ef = Math.max(1.3, (w.ef||2.5) - 0.2);
+    if(w.st === 'known'){ w.st = 'learn'; w.step = 1; }
+    else w.step = Math.max(0, w.step);
+    w.due = Date.now() + 10*MIN;
+  }
+  setW(vi, w); save();
+}
+function introWord(vi){
+  setW(vi, {st:'learn', step:0, due:Date.now(), ivl:0, ef:2.5, reps:1, lapses:0});
+  save();
+}
+
+// sentence selection: first candidate whose other vocab are all solid, not recently shown
+function pickSentence(vi){
+  const cands = C[vi] || [];
+  let solidRecent = -1;
+  for(const si of cands){
+    const others = new Set(S[si].k.map(k => k[0]));
+    others.delete(vi);
+    if(![...others].every(isSolid)) continue;
+    if(st.recent.includes(si)){ if(solidRecent === -1) solidRecent = si; continue; }
+    return {si, i1:true};
+  }
+  if(solidRecent !== -1) return {si:solidRecent, i1:true};
+  return cands.length ? {si:cands[0], i1:false} : null;
+}
+function markRecent(si){
+  st.recent.push(si);
+  if(st.recent.length > 25) st.recent.shift();
+}
+
+function speak(text, slow){
+  if(!st.sound || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const vs = speechSynthesis.getVoices().filter(v => v.lang.startsWith('es'));
+  const pref = vs.find(v => /es-MX|es-US/.test(v.lang)) || vs[0];
+  if(pref) u.voice = pref;
+  u.lang = pref ? pref.lang : 'es-ES';
+  u.rate = slow ? 0.85 : 0.95;
+  speechSynthesis.speak(u);
+}
+if(window.speechSynthesis) speechSynthesis.getVoices();
+
+let combo = 0;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1200);
+}
+
+// ---------- screens ----------
+function hud(){
+  const due = dueList().length;
+  return `<div id="hud">
+    <div class="stat" id="known"><b>${knownCount()}</b><span>palabras</span></div>
+    <div class="stat" id="combo"><b>${combo > 0 ? '×'+(Math.floor(combo/5)+1)+' · '+combo : '0'}</b><span>racha</span></div>
+    <div class="stat" id="due"><b>${due}</b><span>repaso</span></div>
+    <div class="stat"><b>${st.points}</b><span>puntos</span></div>
+  </div>`;
+}
+
+function screenTitle(){
+  $('#app').innerHTML = `
+  <div class="title-wrap">
+    <div class="logo rye">¡La<br>Palabra!<small>SPANISH · i+1 · ARCADE</small></div>
+    <p class="tagline">Cada ronda: una oración con exactamente una palabra nueva. 1000 palabras, ${S.length} oraciones reales.</p>
+    <div class="card"><div class="card-frame">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div class="card-inner" style="min-height:0; gap:10px">
+        ${st.placed ? `
+          <div style="text-align:center; font-weight:700">${levelName()} · ${knownCount()} palabras · ${dueList().length} para repasar</div>
+          <button class="primary" onclick="startGame()">Jugar</button>
+          <button class="primary ghost" onclick="resetAll()">Nueva partida</button>
+        ` : `
+          <div style="text-align:center; font-weight:600">Primero, un sondeo rápido: marca las palabras que ya conoces.</div>
+          <button class="primary" onclick="startPlacement()">Empezar</button>
+        `}
+      </div>
+    </div></div>
+  </div>`;
+}
+function resetAll(){
+  if(!confirm('¿Borrar todo el progreso?')) return;
+  localStorage.removeItem(LS); st = load(); combo = 0; screenTitle();
+}
+
+// placement
+const BANDS = [[0,100],[100,250],[250,500],[500,750],[750,1000]];
+let pbandIdx = 0, psel = new Set(), psample = [];
+function startPlacement(){ pbandIdx = 0; nextBand(); }
+function bandSample(b){
+  const [a,z] = BANDS[b], out = new Set();
+  while(out.size < 8) out.add(a + Math.floor(Math.random()*(z-a)));
+  return [...out].sort((x,y) => x-y);
+}
+function nextBand(){
+  psel = new Set(); psample = bandSample(pbandIdx);
+  $('#app').innerHTML = `
+  <div class="progress"><i style="width:${pbandIdx/BANDS.length*100}%"></i></div>
+  <div class="card"><div class="card-frame">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <div class="card-inner" style="min-height:0">
+      <div class="card-eyebrow"><span>Sondeo ${pbandIdx+1} / ${BANDS.length}</span><span class="num">Nº ${BANDS[pbandIdx][0]}–${BANDS[pbandIdx][1]-1}</span></div>
+      <div style="text-align:center; font-weight:600; font-size:15px">Toca las que <b>ya conoces</b>:</div>
+      <div class="chip-grid">${psample.map(vi => `<button class="chip" data-vi="${vi}" onclick="togglePChip(this)">${V[vi].w}</button>`).join('')}</div>
+      <button class="primary" onclick="finishBand()">Listo</button>
+    </div>
+  </div></div>`;
+}
+function togglePChip(el){
+  const vi = +el.dataset.vi;
+  el.classList.toggle('on');
+  psel.has(vi) ? psel.delete(vi) : psel.add(vi);
+}
+function finishBand(){
+  for(const vi of psel) setW(vi, {st:'known', step:2, due:Date.now()+4*DAY, ivl:4, ef:2.5, reps:1, lapses:0});
+  const pass = psel.size >= 6;
+  if(pass){
+    const [a,z] = BANDS[pbandIdx];
+    for(let vi = a; vi < z; vi++) if(!W(vi)) setW(vi, {st:'known', step:2, due:Date.now()+4*DAY, ivl:4, ef:2.5, reps:1, lapses:0});
+  }
+  save();
+  if(pass && pbandIdx < BANDS.length-1){ pbandIdx++; nextBand(); }
+  else { st.placed = true; save(); toast(`${knownCount()} palabras de arranque`); startGame(); }
+}
+
+// game loop
+let cur = null;
+function startGame(){ touchToday(); nextRound(); }
+function nextRound(){
+  const due = dueList();
+  let vi, isNew = false;
+  if(due.length){ vi = due[0]; }
+  else { vi = frontier(); isNew = true; }
+  if(vi === -1){ return screenDone(); }
+  const w = W(vi);
+  if(isNew || !w){ return screenIntro(vi); }
+  const pick = pickSentence(vi);
+  if(!pick) return screenIntro(vi, true);
+  screenCloze(vi, pick);
+}
+function screenDone(){
+  $('#app').innerHTML = hud() + `<div class="card"><div class="card-frame">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <div class="card-inner" style="text-align:center; justify-content:center">
+      <div class="rye" style="font-size:34px">¡Leyenda!</div>
+      <p>Te sabes las 1000 palabras. No hay más repasos por ahora.</p>
+      <button class="primary" onclick="screenTitle()">Menú</button>
+    </div></div></div>`;
+}
+
+function screenIntro(vi, review){
+  cur = {vi};
+  const v = V[vi];
+  const cands = C[vi] || [];
+  const si = cands.length ? cands[0] : -1;
+  const ex = si >= 0 ? S[si] : null;
+  let exHtml = '';
+  if(ex){
+    const span = ex.k.find(k => k[0] === vi);
+    const s = ex.s;
+    exHtml = `<div class="example">${esc(s.slice(0,span[1]))}<b>${esc(s.slice(span[1],span[2]))}</b>${esc(s.slice(span[2]))}</div>
+      <div class="example-en">${esc(ex.e)}</div>`;
+  }
+  $('#app').innerHTML = hud() + `
+  <div class="card"><div class="level-band" style="background:var(--teal)"></div><div class="card-frame">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <div class="card-inner">
+      <div class="card-eyebrow"><span>${review ? 'Repaso' : 'Palabra nueva'}</span><span class="num">Nº ${vi+1}</span></div>
+      <div class="bigword rye">${esc(v.w)}</div>
+      <span class="pos-chip">${posName(v.p)}</span>
+      <div class="gloss">${esc(v.g)}</div>
+      ${exHtml}
+      <button class="primary" onclick="doneIntro(${vi})">Entendido →</button>
+    </div>
+  </div></div>` + bottomBar();
+  speak(v.w, true);
+  if(ex) setTimeout(() => speak(ex.s), 1400);
+}
+function doneIntro(vi){
+  if(!W(vi)) introWord(vi);
+  else gradeWord(vi, true);
+  nextRound();
+}
+
+function screenCloze(vi, pick){
+  const {si, i1} = pick;
+  const v = V[vi], sent = S[si];
+  const span = sent.k.find(k => k[0] === vi);
+  const answer = sent.s.slice(span[1], span[2]).toLowerCase();
+  const opts = buildOptions(vi, answer);
+  cur = {vi, si, answer, done:false};
+  markRecent(si); save();
+  const before = sent.s.slice(0, span[1]), after = sent.s.slice(span[2]);
+  $('#app').innerHTML = hud() + `
+  <div class="card"><div class="level-band" style="background:${i1 ? 'var(--gold)' : 'var(--teal)'}"></div><div class="card-frame">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <div class="card-inner">
+      <div class="card-eyebrow"><span>La palabra</span><span class="num">Nº ${vi+1}</span></div>
+      <div class="sentence">${esc(before)}<span class="blank" id="blank">&nbsp;</span>${esc(after)}</div>
+      <div class="translation" id="trans">${esc(sent.e)}</div>
+    </div>
+  </div></div>
+  <div id="options">${opts.map(o => `<button class="opt" onclick="answer(this,'${escAttr(o)}')">${esc(o)}</button>`).join('')}</div>
+  ` + bottomBar();
+}
+function buildOptions(vi, answer){
+  const out = new Set([answer]);
+  const pool = [...V[vi].x];
+  shuffle(pool);
+  for(const d of pool){
+    if(out.size >= 4) break;
+    const forms = V[d].f.filter(f => f !== answer && Math.abs(f.length - answer.length) <= 4);
+    const f = forms.length ? forms[Math.floor(Math.random()*forms.length)] : V[d].w;
+    if(f !== answer) out.add(f);
+  }
+  let i = 0;
+  while(out.size < 4 && i < V.length){ const f = V[i].w; if(f !== answer) out.add(f); i++; }
+  return shuffle([...out]);
+}
+function answer(el, chosen){
+  if(cur.done) return; cur.done = true;
+  const ok = chosen === cur.answer;
+  const blank = $('#blank');
+  blank.textContent = cur.answer;
+  blank.classList.add(ok ? 'filled-ok' : 'filled-bad');
+  $('#trans').classList.add('show');
+  document.querySelectorAll('.opt').forEach(b => {
+    if(b.textContent === cur.answer) b.classList.add('ok');
+    else if(b === el) b.classList.add('bad');
+    else b.classList.add('dim');
+  });
+  touchToday(); st.today.n++;
+  if(ok){
+    st.today.ok++;
+    combo++; st.bestCombo = Math.max(st.bestCombo, combo);
+    const mult = Math.floor(combo/5) + 1;
+    st.points += 10 * mult;
+    if(combo % 5 === 0) toast(`¡Racha ×${mult}!`);
+  } else {
+    combo = 0;
+  }
+  gradeWord(cur.vi, ok);
+  speak(S[cur.si].s);
+  const v = V[cur.vi];
+  setTimeout(() => {
+    const c = document.createElement('div');
+    c.innerHTML = `<div style="text-align:center; margin-top:10px; font-size:14px; opacity:.85">
+      <b style="color:var(--gold)">${esc(v.w)}</b> · ${esc(v.g)}</div>
+      <button class="primary" onclick="nextRound()">Siguiente →</button>`;
+    $('#options').after(c);
+  }, ok ? 250 : 600);
+}
+
+function bottomBar(){
+  return `<div id="bottom">
+    <button class="mini" onclick="speak(cur && cur.si != null ? S[cur.si].s : V[cur.vi].w)">🔊 Oír</button>
+    <span style="font-size:12px; opacity:.6">${st.today.n} hoy · ${st.today.n ? Math.round(st.today.ok/st.today.n*100) : 100}% · mejor racha ${st.bestCombo}</span>
+    <button class="mini" onclick="toggleSound(this)">${st.sound ? '🔔' : '🔕'}</button>
+  </div>`;
+}
+function toggleSound(el){ st.sound = !st.sound; save(); el.textContent = st.sound ? '🔔' : '🔕'; if(!st.sound) speechSynthesis.cancel(); }
+
+function posName(p){ return {N:'sustantivo',V:'verbo',ADJ:'adjetivo',ADV:'adverbio',PRON:'pronombre',PREP:'preposición',CONJ:'conjunción',DET:'determinante',NUM:'número',INTJ:'interjección'}[p] || p; }
+function esc(s){ return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function escAttr(s){ return s.replace(/'/g, "\\'").replace(/"/g,'&quot;'); }
+function shuffle(a){ for(let i = a.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+
+screenTitle();
+</script>
+</body>
+</html>
