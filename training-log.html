@@ -237,9 +237,10 @@ const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[
 const withDist=entries.filter(e=>e.dist), withDur=entries.filter(e=>e.dur);
 const mi=withDist.reduce((a,e)=>a+e.dist,0), sec=withDur.reduce((a,e)=>a+e.dur,0);
 const dsec=withDist.reduce((a,e)=>a+(e.dur||0),0);
-const wk=entries.filter(e=>(Date.now()-new Date(e.date+"T12:00:00"))/864e5<7);
+const wo=entries.filter(e=>e.dist||e.dur);
+const wk=wo.filter(e=>(Date.now()-new Date(e.date+"T12:00:00"))/864e5<7);
 document.getElementById("totals").innerHTML=[
-  [entries.length,"Sessions logged"],[mi.toFixed(2),"Total miles"],
+  [wo.length,"Sessions logged"],[mi.toFixed(2),"Total miles"],
   [clock(sec),"Time training"],[dsec?clock(dsec/mi):"—","Avg pace /mi"],
 ].map(([v,l])=>`<div class="tot"><b>${v}</b><i>${l}</i></div>`).join("")
 +`<div class="tot" style="grid-column:1/-1"><b>${wk.length} sessions &middot; ${wk.reduce((a,e)=>a+(e.dist||0),0).toFixed(2)} mi</b><i>Last 7 days</i></div>`;
