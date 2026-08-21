@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Walk the Job — the CQA pricing game</title>
+<meta property="og:title" content="Walk the Job — price it like Jeff">
+<meta property="og:description" content="A pricing training game: walk the site, choose what to inspect, build the estimate, get graded against Jeff's number.">
+<meta property="og:url" content="https://niggerfaggot.club/walk-the-job.html">
+<meta name="twitter:card" content="summary">
+<style>
+:root{--bg:#f4f2ee;--card:#fff;--ink:#1c2024;--mut:#6a7480;--acc:#0d6d8e;--red:#c62828;--amb:#b26a00;--ok:#2e7d32;--line:#dfe3e8}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;font:16px/1.5 -apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px 70px}
+h1{font-size:24px;letter-spacing:-.5px;margin:8px 0 2px}
+h2{font-size:19px;margin:0 0 8px}
+.mut{color:var(--mut)}.small{font-size:13.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+button{background:var(--acc);color:#fff;border:0;border-radius:9px;padding:11px 18px;font-size:15px;font-weight:700;cursor:pointer}
+button.ghost{background:#fff;color:var(--acc);border:1.5px solid var(--acc)}
+button.small{padding:7px 12px;font-size:13.5px}
+button:disabled{opacity:.4;cursor:default}
+.lvlbtn{display:block;width:100%;text-align:left;margin:8px 0;background:#fff;color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px}
+.lvlbtn b{color:var(--acc)}
+.lvlbtn .best{float:right;color:var(--ok);font-weight:800;font-size:13px}
+.pill{display:inline-block;font-size:11.5px;font-weight:800;border-radius:12px;padding:2px 10px;margin-right:6px}
+.pill.res{background:#e5f2e7;color:var(--ok)}.pill.com{background:#eef6f9;color:var(--acc)}.pill.gov{background:#fdf0ef;color:var(--red)}.pill.ovr{background:#fdf8ef;color:var(--amb)}
+.jobmeta{font-size:14.5px;line-height:1.7}
+.jobmeta b{color:var(--acc)}
+.walkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+@media(max-width:420px){.walkgrid{grid-template-columns:1fr 1fr}}
+.wcard{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:10px 11px;font-size:13.5px;font-weight:600;cursor:pointer;min-height:58px;position:relative}
+.wcard .ico{font-size:17px;display:block;margin-bottom:2px}
+.wcard.done{border-color:var(--ok);background:#f2f8f3;cursor:default}
+.wcard.skip{opacity:.45;cursor:default}
+.budget{font-weight:800;color:var(--amb);font-size:15px}
+.findings{font-size:13.5px;background:#f8f7f4;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-top:10px;max-height:200px;overflow-y:auto}
+.findings div{margin:3px 0}
+.findings b{color:var(--acc)}
+label{font-size:13px;color:var(--mut);display:block;margin-top:10px}
+input[type=number]{width:120px;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-size:16px;background:#fff}
+select{padding:8px 10px;border:1px solid var(--line);border-radius:7px;font-size:15px;background:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px}
+.unknown{color:var(--red);font-weight:700}
+.total{font-size:24px;font-weight:800;margin:12px 0 4px}
+.grade{font-size:44px;font-weight:900;letter-spacing:-1px}
+.grade.A{color:var(--ok)}.grade.B{color:var(--acc)}.grade.C{color:var(--amb)}.grade.F{color:var(--red)}
+.line{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.line b.hit{color:var(--ok)}.line b.miss{color:var(--red)}
+.q{border-left:4px solid var(--amb);background:#fdf8ef;border-radius:6px;padding:9px 12px;margin:10px 0;font-size:14px;font-style:italic}
+.q b{font-style:normal;color:var(--amb)}
+.chip{display:inline-block;background:#eef6f9;color:var(--acc);border-radius:8px;padding:2px 9px;font-size:12.5px;font-weight:700;margin:2px 3px 2px 0}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.score{font-weight:800;color:var(--acc);font-size:14px}
+a{color:var(--acc)}
+.tog{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:14.5px}
+.tog input{width:20px;height:20px}
+footer{color:var(--mut);font-size:12px;text-align:center;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="topbar"><h1>Walk the Job</h1><span class="score" id="totscore"></span></div>
+<div class="mut small" style="margin-bottom:10px">Walk it. Count it. Stack it. Quote it. Graded against Jeff's number. <a href="/pricing-doctrine" target="_blank">doctrine</a> · <a href="/estimator" target="_blank">trainer</a></div>
+<div id="screen"></div>
+<footer>Walk the Job v1 · hidden model runs on industry scaffolding + Jeff's known numbers ($150 per diem, encap &gt; cleaning, $500 paint) until you feed it CQA rates in settings</footer>
+</div>
+
+<script>
+// ---------- persistent state ----------
+const S = JSON.parse(localStorage.getItem("wtj") || '{"pts":0,"plays":0,"best":{}}');
+const save = () => localStorage.setItem("wtj", JSON.stringify(S));
+// rates: defaults, overridden by settings or the estimator page's saved cqa_cal
+const R = Object.assign({res2:1400, com3:2700, diem:150, hr:35, lift:250, nightMult:1.15, encapMat:500},
+  JSON.parse(localStorage.getItem("wtj_rates") || "{}"));
+try { const c = JSON.parse(localStorage.getItem("cqa_cal") || "{}");
+  if (c.res_day) R.res2 = parseFloat(c.res_day) || R.res2;
+  if (c.com_day) R.com3 = parseFloat(c.com_day) || R.com3;
+  if (c.night_mult) R.nightMult = parseFloat(c.night_mult) || R.nightMult;
+} catch (e) {}
+
+// ---------- scenario templates ----------
+const rnd = (a, b) => Math.round(a + Math.random() * (b - a));
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const chance = (p) => Math.random() < p;
+
+const LEVELS = [
+  {id:0, name:"Residential", tag:"res", desc:"Two-man crew, day trips, houses. Learn to count systems and spot the seed.", unlock:0},
+  {id:1, name:"Commercial day-trip", tag:"com", desc:"Offices and churches. Square footage, parking, hose runs, lifts.", unlock:200},
+  {id:2, name:"Institutional", tag:"gov", desc:"Jails and schools. The escort tax and access games.", unlock:500},
+  {id:3, name:"Overnight", tag:"ovr", desc:"Far work, per diem math, night shifts. Where the money adds up.", unlock:900},
+];
+
+function genJob(lvl) {
+  const j = {lvl, surprises:[], truth:{}};
+  if (lvl === 0) {
+    j.name = pick(["The Fuquay split-level","The Clayton ranch","The Angier two-story","The Garner brick house","The Holly Springs new-build"]);
+    j.type = "res"; j.crew = 2; j.rate = R.res2;
+    j.truth.systems = rnd(1, 3);
+    j.truth.openings = j.truth.systems * rnd(8, 12);
+    j.truth.distMin = rnd(20, 55);
+    j.truth.access = pick(["attic + closet","crawlspace + attic","garage closets","attic only"]);
+    j.truth.bare = chance(0.25);
+    j.truth.parking = "driveway, easy";
+    j.truth.ceil = "8–9 ft, ladders fine";
+    j.truth.hose = "short runs";
+    j.truth.occupied = false; j.truth.security = false; j.truth.liftNeeded = false;
+    j.truth.days = j.truth.systems <= 1 ? 0.5 : j.truth.systems === 2 ? 1 : 1.5;
+    if (j.truth.access.includes("crawl")) { j.truth.days += 0.5; j.surprises.push(["access","Crawlspace air handler: slow, tight, add half a day"]); }
+    j.brief = `${j.truth.systems > 1 ? "Multi-system" : "Single-system"} home, ~${rnd(16,32)*100} sq ft, ${j.truth.distMin} min out. Homeowner says "dust on the vents."`;
+  } else {
+    const inst = lvl === 2, ovr = lvl === 3;
+    j.type = inst ? "gov" : ovr ? "ovr" : "com"; j.crew = 3; j.rate = R.com3;
+    j.truth.sqft = ovr ? rnd(25, 50) * 1000 : inst ? rnd(8, 20) * 1000 : rnd(8, 25) * 1000;
+    j.name = inst ? pick(["County detention, B-wing","Johnston dorm block","District courthouse","Middle school, summer window"])
+      : ovr ? pick(["Wilmington office tower","Charlotte medical suites","Asheville admin building"])
+      : pick(["Cary office park, Bldg 3","Baptist church + fellowship hall","Downtown co-work floors","Clayton medical offices"]);
+    j.truth.distMin = ovr ? rnd(130, 200) : rnd(25, 80);
+    j.truth.ahus = Math.max(2, Math.round(j.truth.sqft / 9000));
+    j.truth.liftNeeded = !inst && chance(0.35);
+    j.truth.ceil = j.truth.liftNeeded ? "14–17 ft lobby/atrium — lift required" : "9–11 ft, ladders fine";
+    j.truth.parkHard = chance(0.3);
+    j.truth.parking = j.truth.parkHard ? "no dock, long carry from street" : "dock access, stage inside";
+    j.truth.hoseLong = chance(0.3);
+    j.truth.hose = j.truth.hoseLong ? "far mechanical rooms — long runs, extra machines" : "reasonable runs";
+    j.truth.occupied = inst ? true : chance(0.4);
+    j.truth.security = inst;
+    j.truth.bare = chance(inst ? 0.45 : 0.4);
+    let prod = 4500;
+    if (inst) prod *= 0.6;
+    if (j.truth.occupied && !inst) prod *= 0.85;
+    if (j.truth.liftNeeded) prod *= 0.8;
+    let days = j.truth.sqft / prod;
+    if (j.truth.parkHard) days += 0.5;
+    if (j.truth.hoseLong) days += 0.5;
+    if (inst) days *= 1.2; // escort/tool-control tax
+    j.truth.days = Math.max(1, Math.round(days * 2) / 2);
+    j.truth.overnight = ovr;
+    if (j.truth.liftNeeded) j.surprises.push(["ceil","Lift: rental + slower production"]);
+    if (j.truth.parkHard) j.surprises.push(["parking","Long carry: add setup time"]);
+    if (j.truth.hoseLong) j.surprises.push(["hose","Long hose runs: extra machines + time"]);
+    if (j.truth.occupied && !inst) j.surprises.push(["occupied","Occupied building: night work, multiplier + slower"]);
+    if (inst) j.surprises.push(["security","Escort + tool control: ~20% more days"]);
+    j.brief = `${(j.truth.sqft/1000).toFixed(0)}k sq ft, ${j.truth.ahus} air handlers, ${j.truth.distMin} min from the shop.${inst ? " Secure facility." : ""}${ovr ? " Too far to commute." : ""} They want it priced this week.`;
+  }
+  // Jeff's number (hidden model)
+  const t = j.truth;
+  const nights = t.overnight ? Math.ceil(t.days) : 0;
+  const mult = t.occupied && !t.security ? R.nightMult : 1;
+  const labor = t.days * j.rate * mult;
+  const driveHrs = (t.distMin / 60) * 2 * (t.overnight ? 2 : Math.ceil(t.days));
+  const travel = nights * R.diem * j.crew + driveHrs * R.hr * j.crew;
+  const equip = t.liftNeeded ? R.lift * Math.ceil(t.days) : 0;
+  j.jeff = Math.round((labor + travel + equip + 100) / 50) * 50;
+  j.encap = t.bare ? Math.round((labor * 1.15 + R.encapMat) / 50) * 50 : 0;
+  j.nights = nights;
+  return j;
+}
+
+// ---------- walk inspections ----------
+const INSPECT = [
+  {k:"systems", ico:"🌀", n:"Mechanical rooms", res:"Count systems / AHUs"},
+  {k:"openings", ico:"🔢", n:"Count openings", res:"Supplies + returns"},
+  {k:"ceil", ico:"📏", n:"Ceiling heights", res:"Ladder or lift?"},
+  {k:"hose", ico:"🐍", n:"Pace the hose runs", res:"Truck to furthest register"},
+  {k:"parking", ico:"🚚", n:"Parking & staging", res:"Where does the truck live?"},
+  {k:"duct", ico:"🔦", n:"Open the ductwork", res:"Type, condition, bare metal?"},
+  {k:"occupied", ico:"🕐", n:"Ask about schedule", res:"Occupied? Nights only?"},
+  {k:"security", ico:"🔐", n:"Ask about access", res:"Escorts, badging, tool rules"},
+  {k:"coils", ico:"❄️", n:"Check the coils", res:"Adder opportunity"},
+  {k:"power", ico:"🔌", n:"Find power", res:"Circuits for the machines"},
+  {k:"photos", ico:"📸", n:"Shoot everything", res:"Jeff's rule — always"},
+  {k:"manager", ico:"🗣️", n:"Talk to the manager", res:"What do they actually want?"},
+];
+
+// ---------- game flow ----------
+let G = null; // current game
+const $ = (id) => document.getElementById(id);
+const scr = (h) => { $("screen").innerHTML = h; window.scrollTo(0, 0); updScore(); };
+const updScore = () => { $("totscore").textContent = S.pts + " pts · " + S.plays + " jobs"; };
+
+function home() {
+  G = null;
+  scr(`<div class="card"><h2>Pick your job board</h2>
+  ${LEVELS.map(l => {
+    const locked = S.pts < l.unlock;
+    return `<button class="lvlbtn" ${locked ? "disabled" : ""} onclick="start(${l.id})">
+      <span class="pill ${l.tag}">${l.name.toUpperCase()}</span> ${locked ? "🔒 unlocks at " + l.unlock + " pts" : ""}
+      <span class="best">${S.best[l.id] ? "best " + S.best[l.id] : ""}</span>
+      <div class="small mut" style="margin-top:4px">${l.desc}</div></button>`;
+  }).join("")}
+  <div class="small mut" style="margin-top:8px">Scoring: land within 8% of Jeff's number for the bullseye. Spot the encapsulation when it's there. What you don't inspect can still cost you.</div>
+  <button class="ghost small" style="margin-top:10px" onclick="settings()">⚙ rates & settings</button></div>
+  <div class="q"><b>Jeff:</b> "If you don't know, you're leaving sometimes a lot of money on the table."</div>`);
+}
+
+function settings() {
+  scr(`<div class="card"><h2>Rates (the hidden model)</h2>
+  <p class="small mut">Defaults are industry scaffolding. Replace with CQA's real numbers as you capture them and the game grades you against Jeff's actual math. Auto-imports anything saved on the estimator page.</p>
+  <div class="grid2">
+  <div><label>2-man residential day rate $</label><input type="number" id="s_res2" value="${R.res2}"></div>
+  <div><label>3-man commercial day rate $</label><input type="number" id="s_com3" value="${R.com3}"></div>
+  <div><label>Per diem $/person/night</label><input type="number" id="s_diem" value="${R.diem}"></div>
+  <div><label>Loaded labor $/hr</label><input type="number" id="s_hr" value="${R.hr}"></div>
+  <div><label>Lift rental $/day</label><input type="number" id="s_lift" value="${R.lift}"></div>
+  <div><label>Night multiplier ×</label><input type="number" id="s_nm" step="0.05" value="${R.nightMult}"></div>
+  </div>
+  <button onclick="saveRates()">Save</button> <button class="ghost" onclick="home()">Back</button></div>`);
+}
+function saveRates() {
+  ["res2","com3","diem","hr","lift"].forEach(k => R[k] = parseFloat($("s_" + k).value) || R[k]);
+  R.nightMult = parseFloat($("s_nm").value) || R.nightMult;
+  localStorage.setItem("wtj_rates", JSON.stringify(R));
+  home();
+}
+
+function start(lvl) {
+  G = { job: genJob(lvl), found: {}, picks: 0, budget: 7, photos: false };
+  const j = G.job;
+  scr(`<div class="card">
+  <span class="pill ${j.type}">${LEVELS[lvl].name.toUpperCase()}</span>
+  <h2 style="margin-top:8px">${j.name}</h2>
+  <div class="jobmeta">${j.brief}</div>
+  <div class="small mut" style="margin-top:8px">Crew: <b>${j.crew}-man</b> · day rate $${j.rate.toLocaleString()}${j.truth.overnight ? " · too far to commute — the crew stays" : ""}</div>
+  <button style="margin-top:14px" onclick="walk()">Start the walk →</button></div>`);
+}
+
+function walk() {
+  const j = G.job;
+  scr(`<div class="card">
+  <h2>The walk</h2>
+  <div class="small mut">You've got time for <span class="budget">${G.budget - G.picks} inspections</span>. Choose what matters — everything else stays a question mark.</div>
+  <div class="walkgrid">${INSPECT.map(c => {
+    const done = G.found[c.k] !== undefined;
+    const dead = !done && G.picks >= G.budget;
+    return `<div class="wcard ${done ? "done" : dead ? "skip" : ""}" onclick="${done || dead ? "" : `inspect('${c.k}')`}">
+      <span class="ico">${c.ico}</span>${c.n}<div class="small mut" style="font-weight:400">${done ? "✓ done" : c.res}</div></div>`;
+  }).join("")}</div>
+  <div class="findings" id="flog">${findingsLog()}</div>
+  <button style="margin-top:12px" onclick="estimate()">${G.picks >= G.budget ? "Out of time — " : ""}Go price it →</button></div>`);
+}
+
+function inspect(k) {
+  const t = G.job.truth, lvl = G.job.lvl;
+  let msg = "";
+  switch (k) {
+    case "systems": msg = lvl === 0 ? `<b>${t.systems} system(s)</b>, ${t.access}` : `<b>${t.ahus} air handlers</b> across the building`; break;
+    case "openings": msg = lvl === 0 ? `<b>${t.openings} openings</b> total` : `Typical density for ${(t.sqft/1000).toFixed(0)}k sq ft — count per AHU zone`; break;
+    case "ceil": msg = `<b>${t.ceil}</b>`; break;
+    case "hose": msg = `<b>${t.hose}</b>`; break;
+    case "parking": msg = `<b>${t.parking}</b>`; break;
+    case "duct": msg = t.bare ? `<b style="color:var(--red)">BARE METAL on the supply side.</b> Liner's gone internally. That's the flag.` : `Liner intact, normal soil load. No encap seed here.`; break;
+    case "occupied": msg = t.occupied ? `<b>Occupied — ${t.security ? "day shift with escorts" : "nights only (6pm–4am)"}</b>` : `<b>Vacant/flexible</b> — day work fine`; break;
+    case "security": msg = t.security ? `<b>Escorts at all times, tool control in/out.</b> Everything takes longer.` : `Normal commercial access.`; break;
+    case "coils": msg = chance(0.5) ? `Coils are matted — clean adder opportunity (~$250/AHU market rate).` : `Coils serviceable.`; break;
+    case "power": msg = `Adequate circuits near mechanical rooms.`; break;
+    case "photos": G.photos = true; msg = `Full photo set shot. <b>Re-check one finding free at estimate time</b>, and the upsell close gets easier.`; break;
+    case "manager": msg = pick([
+      t.occupied ? `Manager: "we can't shut down — after hours only."` : `Manager: "building's flexible on schedule."`,
+      `Manager mentions they had a $99 coupon crew in years ago. "Never again."`,
+      t.bare ? `Manager: "some rooms smell musty since the remodel." (Hm.)` : `Manager mostly cares about dust complaints stopping.`]); break;
+  }
+  G.found[k] = msg; G.picks++;
+  walk();
+}
+function findingsLog() {
+  const e = Object.entries(G.found);
+  return e.length ? e.map(([k, v]) => `<div><b>${INSPECT.find(i => i.k === k).n}:</b> ${v}</div>`).join("") : `<div class="mut">Findings appear here.</div>`;
+}
+
+function estimate() {
+  const j = G.job, t = j.truth, F = G.found;
+  const known = (k) => F[k] !== undefined;
+  scr(`<div class="card"><h2>Build the number</h2>
+  <div class="small" style="line-height:1.8">
+  Distance: <b>${t.distMin} min</b> one way${j.truth.overnight ? " · <b>crew stays over</b>" : ""}<br>
+  Ceilings: ${known("ceil") ? "<b>" + t.ceil + "</b>" : '<span class="unknown">? never looked</span>'}<br>
+  Schedule: ${known("occupied") ? "<b>" + (t.occupied ? (t.security ? "occupied, escorted days" : "occupied — nights") : "flexible") + "</b>" : '<span class="unknown">? never asked</span>'}<br>
+  ${t.security !== undefined ? "Access: " + (known("security") ? "<b>" + (t.security ? "escorts + tool control" : "normal") + "</b>" : '<span class="unknown">? never asked</span>') : ""}<br>
+  Ductwork: ${known("duct") ? "<b>" + (t.bare ? "bare metal seen" : "liner intact") + "</b>" : '<span class="unknown">? never opened it</span>'}
+  </div>
+  <div class="grid2" style="margin-top:10px">
+  <div><label>Days on site</label><input type="number" id="e_days" step="0.5" min="0.5" value="1"></div>
+  <div><label>Nights away (${j.crew} crew × $${R.diem})</label><input type="number" id="e_nights" min="0" value="${t.overnight ? "" : 0}" placeholder="?"></div>
+  <div><label>Lift rental days (0 = none)</label><input type="number" id="e_lift" min="0" value="0"></div>
+  <div><label>Night-work multiplier?</label><select id="e_mult"><option value="1">No — day rate</option><option value="${R.nightMult}">Yes — ×${R.nightMult}</option></select></div>
+  </div>
+  <div class="tog"><input type="checkbox" id="e_encap"><label style="margin:0;font-size:14.5px;color:var(--ink)">Flag encapsulation upsell to the customer</label></div>
+  <div id="encapbox" style="display:none"><label>Your encapsulation quote $</label><input type="number" id="e_encapq" step="100" value="0"></div>
+  <button style="margin-top:14px" onclick="grade()">Quote it →</button></div>
+  <script>document.getElementById("e_encap").onchange=e=>document.getElementById("encapbox").style.display=e.target.checked?"block":"none"<\/script>`);
+}
+
+function grade() {
+  const j = G.job, t = j.truth;
+  const days = parseFloat($("e_days").value) || 0;
+  const nights = parseFloat($("e_nights").value) || 0;
+  const liftD = parseFloat($("e_lift").value) || 0;
+  const mult = parseFloat($("e_mult").value) || 1;
+  const flagged = $("e_encap").checked;
+  const encapQ = parseFloat($("e_encapq").value) || 0;
+  const labor = days * j.rate * mult;
+  const driveHrs = (t.distMin / 60) * 2 * (nights > 0 ? 2 : Math.ceil(days || 1));
+  const travel = nights * R.diem * j.crew + driveHrs * R.hr * j.crew;
+  const equip = liftD * R.lift;
+  const mine = Math.round(labor + travel + equip + 100);
+  const gap = Math.abs(mine - j.jeff) / j.jeff;
+  let pts = gap <= 0.08 ? 100 : gap <= 0.15 ? 70 : gap <= 0.25 ? 40 : 10;
+  const lines = [];
+  lines.push(`<div class="line"><span>Your quote</span><b>$${mine.toLocaleString()}</b></div>`);
+  lines.push(`<div class="line"><span>Jeff's number</span><b>$${j.jeff.toLocaleString()}</b></div>`);
+  lines.push(`<div class="line"><span>Gap</span><b class="${gap <= 0.15 ? "hit" : "miss"}">${(gap * 100).toFixed(0)}%</b></div>`);
+  // surprises you never inspected
+  let surpriseNote = "";
+  for (const [k, txt] of j.surprises) {
+    if (G.found[k] === undefined) { pts -= 15; surpriseNote += `<div class="line"><span>Never checked: ${txt}</span><b class="miss">−15</b></div>`; }
+  }
+  // days sanity
+  if (Math.abs(days - t.days) / t.days > 0.4) { surpriseNote += `<div class="line"><span>Day count was off — model says ~${t.days} days</span><b class="miss">the walk feeds this</b></div>`; }
+  // overnight logic
+  if (t.overnight && nights === 0) { pts -= 20; surpriseNote += `<div class="line"><span>No per diem on a stay-over job (${j.nights} nights × ${j.crew} × $${R.diem})</span><b class="miss">−20</b></div>`; }
+  // encapsulation
+  let encapNote = "";
+  if (t.bare) {
+    if (G.found["duct"] === undefined) { pts -= 20; encapNote = `<div class="line"><span>There was bare metal in that duct. You never opened it. A $${j.encap.toLocaleString()} attach stayed in the dark.</span><b class="miss">−20</b></div>`; }
+    else if (!flagged) { pts -= 15; encapNote = `<div class="line"><span>You SAW bare metal and didn't flag it. Jeff would flag it every time.</span><b class="miss">−15</b></div>`; }
+    else {
+      const eg = Math.abs(encapQ - j.encap) / j.encap;
+      const eb = eg <= 0.25 ? 30 : 15; pts += eb;
+      encapNote = `<div class="line"><span>Encap flagged — model quote $${j.encap.toLocaleString()}, yours $${encapQ.toLocaleString()}</span><b class="hit">+${eb}</b></div>`;
+    }
+  } else if (flagged) { pts -= 10; encapNote = `<div class="line"><span>Flagged encap on intact liner. Don't sell what isn't there.</span><b class="miss">−10</b></div>`; }
+  if (G.photos) { pts += 5; encapNote += `<div class="line"><span>Full photo set (Jeff's rule)</span><b class="hit">+5</b></div>`; }
+  pts = Math.max(0, pts);
+  S.pts += pts; S.plays++;
+  S.best[j.lvl] = Math.max(S.best[j.lvl] || 0, pts); save();
+  const g = pts >= 110 ? "A+" : pts >= 90 ? "A" : pts >= 65 ? "B" : pts >= 40 ? "C" : "F";
+  const quote = pts >= 90 ? `"Man, it looks good when you're done doing it."`
+    : pts >= 65 ? `"Honestly, pricing jobs isn't difficult."`
+    : `"If you don't know, you're leaving sometimes a lot of money on the table."`;
+  scr(`<div class="card" style="text-align:center"><div class="grade ${g[0]}">${g}</div>
+  <div class="total">+${pts} pts</div></div>
+  <div class="card">${lines.join("")}${surpriseNote}${encapNote}</div>
+  <div class="q"><b>Jeff:</b> ${quote}</div>
+  <div class="card"><button onclick="start(${j.lvl})">Next job →</button> <button class="ghost" onclick="home()">Job board</button></div>`);
+}
+
+home();
+</script>
+</body>
+</html>
