@@ -868,6 +868,10 @@ function tick(){
   requestAnimationFrame(tick);
   const dt = Math.min(.05, clock.getDelta());
   if(!running){ renderer.render(scene,camera); return; }
+  frame(dt);
+  renderer.render(scene,camera);
+}
+function frame(dt){
   state.t += dt;
   movePlayer(dt);
 
@@ -903,7 +907,7 @@ function tick(){
   if(a && a.kind==='whip'){
     const s=a.seg;
     if(mDown){
-      s.agit = Math.min(1, s.agit + Math.min(aimMove,.05)*1.5 + dt*.05);
+      s.agit = Math.min(1, s.agit + Math.min(aimMove,.06)*0.30 + dt*.10);
       if(hissGain) hissGain.gain.value=.07;
       if(Math.random()<.5) puff(h.pt,2);
       if(s.agit>=1 && !s._t){ s._t=1; toast(s.label+' loosened. Switch to the forward nozzle  [4]','good'); ding(660,.2); }
@@ -912,13 +916,13 @@ function tick(){
   }
   if(a && a.kind==='gauge'){
     gz=true;
-    const band=[.38,.66], rate=a.fast?1.15:.42;
+    const band=[.36,.68], rate=a.fast?1.15:.42;
     if(mDown) feed=Math.min(1,feed+dt*1.45); else feed=Math.max(0,feed-dt*1.7);
     const inBand = feed>=band[0]&&feed<=band[1];
     if(mDown||feed>0){
       if(inBand){ prog+=dt*rate; if(drillGain) drillGain.gain.value=.035; }
-      else { outT+=dt; if(drillGain) drillGain.gain.value=feed>band[1]?.07:.012;
-        if(outT>.5 && prog>0 && burrs<4){ burrs++; outT=0; toast('Cutting too '+(feed>band[1]?'fast':'slow')+'. Burrs.','warn'); } }
+      else { prog+=dt*rate*.3; outT+=dt; if(drillGain) drillGain.gain.value=feed>band[1]?.07:.012;
+        if(outT>.6 && burrs<4){ burrs++; outT=0; toast('Cutting too '+(feed>band[1]?'fast':'slow')+'. Burrs.','warn'); } }
       if(drillGain) drillGain.gain.value *= (feed>0?1:0);
     } else if(drillGain) drillGain.gain.value=0;
     setGauge(true, feed, band, 'Feed pressure \u2014 keep it in the green');
@@ -951,7 +955,6 @@ function tick(){
   screwPts.forEach(s=>{ if(!s.userData.in) s.material.color.setHSL(.1,1,.4+.2*pulse); });
 
   hudT+=dt; if(hudT>.12){ hudT=0; drawHUD(); }
-  renderer.render(scene,camera);
 }
 
 /* ============================ SCORE ============================ */
@@ -1269,7 +1272,11 @@ $('go').onclick = ()=>{
   toast('You are in the attic. Gear is at the hatch. Read the system before you cut anything.');
 };
 $('again').onclick = ()=> location.reload();
-window.__dbg = {THREE,scene,camera,renderer,G2,SEG2,regMesh,getAct:()=>ACT,Gbase:()=>G,jumpAct2:()=>startAct2(),state,TASKS,SEGS,P,ITEMS,gearMesh,placed,mkAccess,world,activeTask,retDone,brDone,trunkSeg,mkBit,mkReach,
+window.__dbg = {THREE,scene,camera,renderer,G2,SEG2,regMesh,getAct:()=>ACT,Gbase:()=>G,jumpAct2:()=>startAct2(),finishNow:()=>finish(),
+  pause(){ running=false; }, resume(){ running=true; clock.getDelta(); },
+  sim(dt,o){ if(o){ if('m' in o) mDown=o.m; if('e' in o){ keys.KeyE=o.e; } } frame(dt); },
+  sweep(dx,dy){ aimMove += (Math.abs(dx)+Math.abs(dy))*0.01; },
+  hud(){ return {prompt:document.querySelector('#prompt .t')&&document.querySelector('#prompt .t').textContent, gauge:getComputedStyle(document.getElementById('gauge')).display, ring:getComputedStyle(document.getElementById('ring')).display}; },state,TASKS,SEGS,P,ITEMS,gearMesh,placed,mkAccess,world,activeTask,retDone,brDone,trunkSeg,mkBit,mkReach,
   hitOne(o){ ray.setFromCamera(CENTER,camera); const r=ray.intersectObject(o,true); return {n:r.length, d:r[0]&&r[0].distance, far:ray.far, near:ray.near, org:[ray.ray.origin.x,ray.ray.origin.y,ray.ray.origin.z], dir:[ray.ray.direction.x,ray.ray.direction.y,ray.ray.direction.z]}; },
   hits(){ ray.setFromCamera(CENTER,camera); return ray.intersectObjects(scene.children,true).slice(0,7).map(h=>({d:+h.distance.toFixed(3),vis:h.object.visible,hot:h.object.userData.hot||null,tag:h.object.userData.tagName||null,g:h.object.geometry.type,p:[+h.object.position.x.toFixed(2),+h.object.position.y.toFixed(2),+h.object.position.z.toFixed(2)]})); },
   probe(){ const h=hotUnderCrosshair(); return {hot:h&&h.id, act:(a=>a?{label:a.label,hint:a.hint,kind:a.kind,bad:!!a.bad}:null)(actionFor(h))}; },
