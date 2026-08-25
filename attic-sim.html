@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ATTIC — a duct cleaning simulator</title>
+<meta name="description" content="A first-person duct cleaning simulator built from one real job: the attic air handler on a two-story house. Haul the gear, read the system, cut the access, whip the runs, patch every hole.">
+<meta property="og:title" content="ATTIC — a duct cleaning simulator">
+<meta property="og:description" content="One real job, played start to finish. Haul gear up the hatch, spray the coil, hole-saw the return plenum, whip the branches before the trunk, patch every hole you cut.">
+<meta property="og:url" content="https://niggerfaggot.club/attic-sim.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --amber:#FFB020; --amber-dk:#8A5D00;
+  --ink:#0C0E10; --ink2:#171B1F;
+  --steel:#9AA6AE; --pale:#E7ECEF;
+  --green:#59C36A; --red:#E2574C;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --disp:'Saira Condensed',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#000;color:var(--pale);font-family:var(--mono)}
+canvas{display:block}
+[hidden]{display:none !important}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10;font-size:12px}
+.panel{
+  position:absolute;background:rgba(12,14,16,.74);border:1px solid rgba(154,166,174,.35);
+  backdrop-filter:blur(3px);padding:9px 11px;border-radius:2px;
+}
+.lbl{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:#7E8A92;display:block;margin-bottom:4px}
+
+/* checklist */
+#tasks{top:12px;left:12px;width:290px;max-height:62vh;overflow:hidden}
+#tasks .job{font-family:var(--disp);font-size:17px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;line-height:1}
+#tasks ol{list-style:none}
+#tasks li{padding:2.5px 0 2.5px 20px;position:relative;color:#6C777E;line-height:1.3;font-size:11.5px}
+#tasks li::before{content:"\25A1";position:absolute;left:2px;color:#454E54}
+#tasks li.on{color:var(--pale)}
+#tasks li.on::before{content:"\25B8";color:var(--amber)}
+#tasks li.done{color:#4C6B52;text-decoration:line-through;text-decoration-color:#2E4433}
+#tasks li.done::before{content:"\2713";color:var(--green);text-decoration:none}
+#tasks li .sub{display:block;color:#7E8A92;font-size:10px;letter-spacing:.03em}
+
+/* stats */
+#stats{top:12px;right:12px;width:186px;text-align:right}
+#stats .row{display:flex;justify-content:space-between;align-items:baseline;margin:2px 0}
+#stats .k{font-size:9px;letter-spacing:.14em;color:#7E8A92;text-transform:uppercase}
+#stats .v{font-family:var(--disp);font-size:18px;letter-spacing:.04em}
+.bar{height:5px;background:#22282C;border:1px solid #333C42;margin-top:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:0%;background:var(--amber);transition:width .18s linear}
+.bar.heat i{background:linear-gradient(90deg,#4B8FD6,#FFB020 55%,#E2574C)}
+
+/* carry + belt */
+#carry{bottom:12px;left:12px;width:250px}
+.slot{display:flex;align-items:center;gap:7px;padding:3px 0;color:#6C777E}
+.slot b{width:15px;height:15px;border:1px solid #3A444A;display:inline-block;flex:none}
+.slot.full{color:var(--pale)}
+.slot.full b{background:var(--amber);border-color:var(--amber)}
+#belt{bottom:12px;right:12px;width:250px}
+.tool{display:flex;justify-content:space-between;padding:2.5px 5px;color:#5C666C;border-left:2px solid transparent}
+.tool.have{color:#B9C4CA}
+.tool.sel{color:var(--ink);background:var(--amber);border-left-color:#fff;font-weight:600}
+.tool .n{font-size:9px;opacity:.7}
+
+/* crosshair + prompt */
+#cross{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22px;height:22px}
+#cross::before,#cross::after{content:"";position:absolute;background:rgba(231,236,239,.85)}
+#cross::before{left:10px;top:0;width:2px;height:22px}
+#cross::after{top:10px;left:0;height:2px;width:22px}
+#cross.hot::before,#cross.hot::after{background:var(--amber)}
+#prompt{position:absolute;left:50%;top:calc(50% + 30px);transform:translateX(-50%);text-align:center;width:520px}
+#prompt .t{font-family:var(--disp);font-size:19px;letter-spacing:.05em;text-transform:uppercase;color:var(--pale);text-shadow:0 2px 6px #000}
+#prompt .h{font-size:11px;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;text-shadow:0 2px 6px #000}
+#prompt .h kbd{background:var(--amber);color:var(--ink);padding:0 4px;border-radius:2px;font-family:var(--mono);font-weight:600}
+#prompt .bad{color:var(--red)}
+#ring{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:88px;height:88px;display:none}
+#ring svg{transform:rotate(-90deg)}
+#gauge{position:absolute;left:50%;top:calc(50% + 78px);transform:translateX(-50%);width:230px;display:none}
+#gauge .track{height:12px;background:#1A1F23;border:1px solid #39434A;position:relative}
+#gauge .band{position:absolute;top:0;bottom:0;background:rgba(89,195,106,.32);border-left:1px solid var(--green);border-right:1px solid var(--green)}
+#gauge .needle{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--pale)}
+#gauge .cap{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#7E8A92;text-align:center;margin-top:3px}
+
+/* toast log */
+#log{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);width:560px;text-align:center}
+#log div{opacity:0;animation:fade 4.2s ease forwards;font-size:12.5px;letter-spacing:.03em;text-shadow:0 2px 6px #000;padding:1px}
+#log div.warn{color:var(--red)}
+#log div.good{color:var(--green)}
+@keyframes fade{0%{opacity:0;transform:translateY(6px)}9%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0}}
+
+/* screens */
+.screen{
+  position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 35%,#1A1F24,#050607 70%);
+  display:flex;align-items:center;justify-content:center;padding:24px;pointer-events:auto;overflow:auto;
+}
+.card{max-width:760px;width:100%}
+.card h1{font-family:var(--disp);font-size:clamp(38px,8vw,74px);line-height:.92;letter-spacing:.02em;text-transform:uppercase}
+.card h1 em{font-style:normal;color:var(--amber)}
+.card .kicker{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--amber);margin-bottom:8px}
+.card p{color:#A8B4BB;margin:12px 0;line-height:1.6;font-size:13.5px;max-width:62ch}
+.card .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:18px 0}
+.card .rules div{border-left:2px solid var(--amber-dk);padding:2px 0 2px 10px}
+.card .rules b{display:block;font-family:var(--disp);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--pale)}
+.card .rules span{color:#8E9BA2;font-size:11.5px;line-height:1.45;display:block}
+.btn{
+  pointer-events:auto;display:inline-block;margin-top:14px;background:var(--amber);color:var(--ink);border:0;
+  font-family:var(--disp);font-size:21px;letter-spacing:.09em;text-transform:uppercase;padding:11px 30px;cursor:pointer;border-radius:2px;
+}
+.btn:hover{background:#fff}
+.btn.ghost{background:transparent;color:var(--steel);border:1px solid #3B454B;font-size:14px;padding:8px 18px;margin-left:8px}
+.btn.ghost:hover{color:#fff;border-color:#fff;background:transparent}
+#keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:3px 16px;margin-top:14px;font-size:11.5px;color:#8E9BA2}
+#keys b{color:var(--amber);font-weight:500}
+#scorelist{margin:14px 0}
+#scorelist .r{display:flex;justify-content:space-between;border-bottom:1px dotted #2C3439;padding:4px 0;font-size:12.5px}
+#scorelist .r.neg span:last-child{color:var(--red)}
+#scorelist .r.pos span:last-child{color:var(--green)}
+#final{font-family:var(--disp);font-size:64px;letter-spacing:.03em;color:var(--amber);line-height:1}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:9;opacity:0;background:radial-gradient(ellipse at 50% 50%,transparent 42%,rgba(140,30,10,.62) 100%);transition:opacity .6s}
+#loading{position:fixed;inset:0;z-index:40;background:#050607;display:flex;align-items:center;justify-content:center;color:#5C666C;letter-spacing:.2em;font-size:11px;text-transform:uppercase}
+</style>
+</head>
+<body>
+<div id="loading">Framing the attic&hellip;</div>
+<div id="vig"></div>
+
+<div id="hud" hidden>
+  <div class="panel" id="tasks"></div>
+  <div class="panel" id="stats">
+    <div class="row"><span class="k">On job</span><span class="v" id="clock">0:00</span></div>
+    <div class="row"><span class="k">Score</span><span class="v" id="score">100</span></div>
+    <span class="lbl" style="margin-top:8px">Body heat</span>
+    <div class="bar heat"><i id="heatbar"></i></div>
+  </div>
+  <div class="panel" id="carry"></div>
+  <div class="panel" id="belt"></div>
+  <div id="cross"></div>
+  <div id="prompt"></div>
+  <div id="ring"><svg width="88" height="88"><circle cx="44" cy="44" r="38" fill="none" stroke="#2A3238" stroke-width="5"/><circle id="ringarc" cx="44" cy="44" r="38" fill="none" stroke="#FFB020" stroke-width="5" stroke-dasharray="238.8" stroke-dashoffset="238.8" stroke-linecap="butt"/></svg></div>
+  <div id="gauge"><div class="track"><div class="band" id="gband"></div><div class="needle" id="gneedle"></div></div><div class="cap" id="gcap">Feed pressure</div></div>
+  <div id="log"></div>
+</div>
+
+<div class="screen" id="start">
+  <div class="card">
+    <div class="kicker">Carolina Quality Air &middot; job 013 &middot; two-story residential</div>
+    <h1>Attic<em>.</em></h1>
+    <p>Second floor is served by an air handler in the attic. One return, one flex run up to the plenum. Supply is a round insulated trunk with four branches. The homeowner is downstairs. Nothing runs until every hole you cut is closed.</p>
+    <div class="rules">
+      <div><b>Two hands</b><span>The gear is staged at the hatch. You carry two things at a time. Plan your trips.</span></div>
+      <div><b>Read it first</b><span>Tag every component before you cut anything. Cutting blind costs you.</span></div>
+      <div><b>Branches, then trunk</b><span>Clean a trunk first and you dump branch debris into a duct you already called clean.</span></div>
+      <div><b>Every hole gets closed</b><span>Screws, mastic, FSK tape. Pop plugs on the bit holes. No exceptions.</span></div>
+      <div><b>The attic is the hazard</b><span>Heat builds. Cool off at the hatch, or haul the fan up and buy yourself a zone.</span></div>
+      <div><b>Watch your footing</b><span>Roof drops to nothing at the eaves. Crouch or you are not getting through.</span></div>
+    </div>
+    <div id="keys">
+      <div><b>W A S D</b> move &middot; <b>Shift</b> hustle</div>
+      <div><b>Mouse</b> look &middot; <b>Left click</b> use tool</div>
+      <div><b>C</b> crouch &middot; <b>E</b> pick up / interact</div>
+      <div><b>1-6</b> select tool &middot; <b>Q</b> drop</div>
+      <div><b>F</b> headlamp &middot; <b>Esc</b> release mouse</div>
+      <div><b>Hold left click</b> for timed work</div>
+    </div>
+    <button class="btn" id="go">Climb the hatch</button>
+  </div>
+</div>
+
+<div class="screen" id="end" hidden>
+  <div class="card">
+    <div class="kicker" id="endkick">Job complete</div>
+    <h1 id="endtitle">Closed <em>out</em></h1>
+    <div id="scorelist"></div>
+    <div id="final">100</div>
+    <button class="btn" id="again">Run it again</button>
+    <a class="btn ghost" href="https://niggerfaggot.club/job-book.html">Read the job write-up</a>
+  </div>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://unpkg.com/three@0.163.0/build/three.module.js"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ============================ WORLD ============================ */
+const RIDGE = 2.65, EAVE = 0.55, HALF_W = 4.0, LEN = 9.0;
+const roofH = z => RIDGE - (Math.abs(z)/HALF_W)*(RIDGE-EAVE);
+
+const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = false;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0c0d);
+scene.fog = new THREE.Fog(0x0d1012, 11, 36);
+const camera = new THREE.PerspectiveCamera(72, innerWidth/innerHeight, 0.05, 90);
+
+const M = {
+  ply:    new THREE.MeshLambertMaterial({color:0x9c7c4f}),
+  joist:  new THREE.MeshLambertMaterial({color:0xb99a68}),
+  rafter: new THREE.MeshLambertMaterial({color:0x8a7048}),
+  sheath: new THREE.MeshLambertMaterial({color:0x4a4034, side:THREE.DoubleSide}),
+  batt:   new THREE.MeshLambertMaterial({color:0xd9b48f}),
+  galv:   new THREE.MeshStandardMaterial({color:0xa9b3ba, metalness:.55, roughness:.42}),
+  wrap:   new THREE.MeshLambertMaterial({color:0xc3c8cc}),
+  flex:   new THREE.MeshLambertMaterial({color:0xb6bcc1}),
+  dark:   new THREE.MeshLambertMaterial({color:0x2b3136}),
+  grime:  ()=> new THREE.MeshBasicMaterial({color:0x241a10, transparent:true, opacity:.85, depthWrite:false, polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-2}),
+  amber:  new THREE.MeshBasicMaterial({color:0xffb020}),
+  gear:   new THREE.MeshLambertMaterial({color:0xf0a81c}),
+  gear2:  new THREE.MeshLambertMaterial({color:0x24282b}),
+  patch:  new THREE.MeshStandardMaterial({color:0xb8c1c7, metalness:.6, roughness:.35}),
+};
+
+scene.add(new THREE.HemisphereLight(0x6b7f90, 0x30241a, 0.78));
+scene.add(new THREE.AmbientLight(0xffffff, 0.16));
+const gable = new THREE.DirectionalLight(0xffd9a0, 1.15);
+gable.position.set(-14,3,2); scene.add(gable);
+const lamp = new THREE.SpotLight(0xfff0d2, 2.9, 13, 0.62, 0.55, 1.1);
+lamp.position.set(0,0,0); camera.add(lamp); lamp.target.position.set(0,0,-1); camera.add(lamp.target);
+scene.add(camera);
+
+const world = new THREE.Group(); scene.add(world);
+const add = (g,m,x,y,z,rx,ry,rz)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);
+  if(rx)o.rotation.x=rx; if(ry)o.rotation.y=ry; if(rz)o.rotation.z=rz; world.add(o); return o;};
+
+/* floor: joists + partial decking */
+add(new THREE.BoxGeometry(LEN*2, .12, HALF_W*2), M.dark, 0, -.09, 0);
+for(let x=-LEN; x<=LEN; x+=0.62) add(new THREE.BoxGeometry(.09,.18,HALF_W*2), M.joist, x, .02, 0);
+for(let x=-LEN; x<LEN; x+=1.6) for(let z=-HALF_W+.4; z<HALF_W; z+=1.5)
+  add(new THREE.BoxGeometry(1.42,.1,1.3), M.batt, x+.8, -.02, z+.65);
+add(new THREE.BoxGeometry(7.6,.06,3.4), M.ply, .8, .11, 0);           // decking near AHU
+add(new THREE.BoxGeometry(3.2,.06,2.2), M.ply, -6.6, .11, 0);          // decking at hatch
+
+/* roof planes + gable ends */
+const slopeL = new THREE.Mesh(new THREE.PlaneGeometry(LEN*2, Math.hypot(HALF_W, RIDGE-EAVE)+.2), M.sheath);
+slopeL.position.set(0,(RIDGE+EAVE)/2, HALF_W/2);
+slopeL.rotation.set(-Math.PI/2 + Math.atan2(RIDGE-EAVE, HALF_W), 0, 0);
+world.add(slopeL);
+const slopeR = slopeL.clone(); slopeR.position.z = -HALF_W/2;
+slopeR.rotation.set(-Math.PI/2 - Math.atan2(RIDGE-EAVE, HALF_W), 0, 0); world.add(slopeR);
+for(let x=-LEN+.5; x<LEN; x+=1.2){
+  add(new THREE.BoxGeometry(.08,.16,Math.hypot(HALF_W,RIDGE-EAVE)), M.rafter, x, (RIDGE+EAVE)/2+.06,  HALF_W/2, Math.atan2(RIDGE-EAVE,HALF_W));
+  add(new THREE.BoxGeometry(.08,.16,Math.hypot(HALF_W,RIDGE-EAVE)), M.rafter, x, (RIDGE+EAVE)/2+.06, -HALF_W/2,-Math.atan2(RIDGE-EAVE,HALF_W));
+}
+const gableGeo = new THREE.BufferGeometry().setFromPoints([
+  new THREE.Vector3(-HALF_W,EAVE,0), new THREE.Vector3(HALF_W,EAVE,0), new THREE.Vector3(0,RIDGE,0),
+  new THREE.Vector3(-HALF_W,EAVE,0), new THREE.Vector3(0,RIDGE,0), new THREE.Vector3(-HALF_W,0,0),
+  new THREE.Vector3(HALF_W,EAVE,0), new THREE.Vector3(HALF_W,0,0), new THREE.Vector3(0,RIDGE,0),
+]);
+gableGeo.computeVertexNormals();
+add(gableGeo, M.sheath, LEN,0,0, 0, Math.PI/2);
+const gEnd = add(gableGeo, M.sheath, -LEN,0,0, 0, Math.PI/2);
+add(new THREE.PlaneGeometry(1.0,.7), new THREE.MeshBasicMaterial({color:0xffe6bb}), -LEN+.03, 1.5, 0, 0, Math.PI/2); // vent glow
+/* collar ties (tie-off beams) */
+const beam = add(new THREE.BoxGeometry(.09,.14,HALF_W*1.7), M.rafter, 2.9, 1.62, 0);
+add(new THREE.BoxGeometry(.09,.14,HALF_W*1.7), M.rafter, -1.2, 1.98, 0);
+add(new THREE.BoxGeometry(.09,.14,HALF_W*1.7), M.rafter, -4.4, 1.98, 0);
+
+/* hatch opening + ladder rails */
+add(new THREE.BoxGeometry(.8,.05,1.3), new THREE.MeshBasicMaterial({color:0x14181b}), -7.6, .1, 0);
+add(new THREE.BoxGeometry(.06,1.0,.06), M.gear2, -7.98,.5, .6);
+add(new THREE.BoxGeometry(.06,1.0,.06), M.gear2, -7.98,.5,-.6);
+const hatchGlow = add(new THREE.PlaneGeometry(.8,1.3), new THREE.MeshBasicMaterial({color:0x6fa8d8,transparent:true,opacity:.28}), -7.6,.13,0,-Math.PI/2);
+
+/* ============================ EQUIPMENT ============================ */
+/* air handler */
+const AH = new THREE.Group(); AH.position.set(3.4,0,0); world.add(AH);
+const cab=[[.05,1.55,.82,.45,.9,0],[.95,.05,.82,0,1.665,0],[.95,.05,.82,0,.135,0],[.95,1.55,.05,0,.9,.4],[.95,1.55,.05,0,.9,-.4]];
+cab.forEach(c=>{const m=new THREE.Mesh(new THREE.BoxGeometry(c[0],c[1],c[2]),M.galv);m.position.set(c[3],c[4],c[5]);AH.add(m);});
+const ahPanel = new THREE.Mesh(new THREE.BoxGeometry(.05,1.4,.74), M.wrap); ahPanel.position.set(-.5,.9,0); AH.add(ahPanel);
+/* evap coil (A-frame) inside */
+const coilA = new THREE.Mesh(new THREE.BoxGeometry(.04,.86,.66), new THREE.MeshLambertMaterial({color:0xa5754a}));
+coilA.position.set(-.16,1.28,0); coilA.rotation.z=0.38; AH.add(coilA);
+const coilB = coilA.clone(); coilB.position.x=.16; coilB.rotation.z=-0.38; AH.add(coilB);
+const coilGrime = new THREE.Mesh(new THREE.BoxGeometry(.06,.88,.68), M.grime()); coilGrime.position.copy(coilA.position); coilGrime.rotation.z=.38; AH.add(coilGrime);
+const coilGrime2 = coilGrime.clone(); coilGrime2.material = M.grime(); coilGrime2.position.copy(coilB.position); coilGrime2.rotation.z=-.38; AH.add(coilGrime2);
+/* blower */
+const blower = new THREE.Mesh(new THREE.CylinderGeometry(.26,.26,.42,18), M.galv);
+blower.rotation.z=Math.PI/2; blower.position.set(0,.42,0); AH.add(blower);
+const blowerGrime = new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.44,18), M.grime());
+blowerGrime.rotation.z=Math.PI/2; blowerGrime.position.set(0,.42,0); AH.add(blowerGrime);
+
+/* return plenum on the left face */
+const plenum = new THREE.Mesh(new THREE.BoxGeometry(.84,.9,.66), M.wrap);
+plenum.position.set(3.4,1.1,-.9); world.add(plenum);
+
+/* supply trunk: round insulated, running away from the AHU */
+const TRUNK_Y = 1.78, TRUNK_X0 = 2.9, TRUNK_X1 = -5.4;
+const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.24,.24,TRUNK_X0-TRUNK_X1,20), M.wrap);
+trunk.rotation.z = Math.PI/2; trunk.position.set((TRUNK_X0+TRUNK_X1)/2, TRUNK_Y, 0); world.add(trunk);
+add(new THREE.BoxGeometry(.5,.5,.6), M.wrap, 3.15, TRUNK_Y, 0);  // supply plenum stub off AHU top
+for(let x=TRUNK_X1+.3; x<TRUNK_X0; x+=.55)
+  add(new THREE.TorusGeometry(.245,.018,6,18), M.flex, x, TRUNK_Y, 0, 0, Math.PI/2); // spiral rib look
+
+/* branch takeoffs */
+const BRANCH_X = [1.8, .1, -1.9, -3.9];
+const branches = [];
+const UP = new THREE.Vector3(0,1,0);
+function runTube(ax,ay,az,bx,by,bz,rad){
+  const a=new THREE.Vector3(ax,ay,az), b=new THREE.Vector3(bx,by,bz);
+  const d=new THREE.Vector3().subVectors(b,a); const len=d.length();
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(rad,rad,len,14), M.flex);
+  m.position.copy(a).addScaledVector(d,.5);
+  m.quaternion.setFromUnitVectors(UP, d.clone().normalize());
+  world.add(m); return m;
+}
+BRANCH_X.forEach((x,i)=>{
+  const side = i%2 ? -1 : 1;
+  const b = runTube(x, TRUNK_Y-.16, 0, x, .30, side*2.02, .15);
+  add(new THREE.BoxGeometry(.34,.12,.26), M.galv, x, .18, side*2.05);
+  add(new THREE.BoxGeometry(.32,.02,.22), M.dark, x, .245, side*2.05);
+  branches.push({x, side, mesh:b});
+});
+
+/* single return: floor grille -> flex -> plenum */
+add(new THREE.BoxGeometry(.62,.03,.46), M.dark, 2.7, .15, -2.35);
+const retFlex = runTube(2.68,.30,-2.30, 3.06,1.00,-1.22, .21);
+
+/* outlet post near the hatch */
+add(new THREE.BoxGeometry(.1,.7,.1), M.rafter, -6.9,.35,-1.6);
+const outlet = new THREE.Mesh(new THREE.BoxGeometry(.08,.16,.11), new THREE.MeshLambertMaterial({color:0xe6e2d6}));
+outlet.position.set(-6.83,.52,-1.6); world.add(outlet);
+
+/* condenser-free: nothing outside is in scope. */
+
+/* ============================ GEAR ============================ */
+const PILE = new THREE.Vector3(-6.3, .18, 0);
+const STAGE = new THREE.Vector3(0.9, .16, 1.42);
+add(new THREE.PlaneGeometry(1.3,1.3), new THREE.MeshBasicMaterial({color:0xffb020,transparent:true,opacity:.16}), STAGE.x,.15,STAGE.z,-Math.PI/2);
+
+const ITEMS = [
+  {id:'vac',    name:'Electric vacuum',        req:true,  c:0xf0a81c, s:[.38,.5,.34]},
+  {id:'cord',   name:'20A adapter + cord',     req:true,  c:0xe2574c, s:[.3,.12,.3]},
+  {id:'hose',   name:'Flex hose, 8 in',        req:true,  c:0xb6bcc1, s:[.42,.42,.42]},
+  {id:'drill',  name:'Drill + hole saw case',  req:true,  c:0xf0a81c, s:[.4,.16,.26], belt:1},
+  {id:'sprayer',name:'Pump sprayer + enzyme',  req:true,  c:0x59c36a, s:[.2,.46,.2],  belt:2},
+  {id:'whip',   name:'Air whip kit',           req:true,  c:0x4b8fd6, s:[.36,.14,.3], belt:3},
+  {id:'patch',  name:'Patch kit',              req:true,  c:0x9aa6ae, s:[.34,.2,.28], belt:5},
+  {id:'rags',   name:'Rags',                   req:true,  c:0xe7ecef, s:[.26,.16,.24],belt:6},
+  {id:'fan',    name:'DeWalt fan (optional)',  req:false, c:0xf0a81c, s:[.3,.32,.16]},
+];
+const gearMesh = {};
+ITEMS.forEach((it,i)=>{
+  const m = new THREE.Mesh(new THREE.BoxGeometry(...it.s), new THREE.MeshLambertMaterial({color:it.c}));
+  m.position.set(PILE.x + (i%3)*.5 - .5, it.s[1]/2 + .14, PILE.z + Math.floor(i/3)*.55 - .55);
+  m.userData.hot = 'gear:'+it.id; world.add(m); gearMesh[it.id] = m;
+});
+
+const state = {
+  carried: [], onsite: new Set(), belt: new Set(), tool: 0,
+  tagged: new Set(), score: 100, t: 0, heat: 0, penalties: [], bonuses: [],
+  plugged:false, panelOff:false, coil:0, blower:0, rollback:false, pilot:false,
+  hole:false, hoseOn:false, tied:false, vacOn:false, burrs:0,
+  bitHoles:0, bitDropped:false, reachHole:false, bitBack:false,
+  screws:0, masticP:0, masticX:0, flap:false, tape:false, plugs:0,
+  vacOff:false, panelBack:false, hauledBack:0, finished:false, lampOn:true,
+};
+const TOOLNAMES = {1:'Drill + hole saw',2:'Pump sprayer',3:'Air whip',4:'Forward nozzle',5:'Patch kit',6:'Rags'};
+
+/* placed gear meshes (created on deploy) */
+const placed = {};
+function deploy(id){
+  state.onsite.add(id);
+  const it = ITEMS.find(o=>o.id===id);
+  if(it.belt){ state.belt.add(it.belt); if(it.belt===3) state.belt.add(4); if(!state.tool) state.tool = it.belt; toast('Stowed on the belt: '+it.name); return; }
+  const m = gearMesh[id];
+  if(id==='vac'){ m.position.set(2.45,.36,-1.75); m.scale.set(1.5,1.5,1.5); }
+  if(id==='cord'){ m.position.set(2.1,.2,-1.4); }
+  if(id==='hose'){ m.position.set(2.75,.35,-1.5); }
+  if(id==='fan'){ m.position.set(1.4,.3,1.0); toast('Fan set down. Cool zone around it.','good'); }
+  m.visible = true; placed[id] = m;
+  toast('On site: '+it.name);
+}
+
+/* ============================ CLEANABLES ============================ */
+function grimeShell(src, scale){
+  const g = new THREE.Mesh(src.geometry.clone(), M.grime());
+  g.position.copy(src.position); g.rotation.copy(src.rotation);
+  g.scale.set(scale,1.0,scale); world.add(g); return g;
+}
+const SEGS = [];
+function seg(id,label,mesh,shell,order){ const s={id,label,mesh,grime:shell,agit:0,clean:0,order}; SEGS.push(s); return s; }
+seg('ret-run','Return run (flex)', retFlex, grimeShell(retFlex,1.15), 0);
+const plenumShell = new THREE.Mesh(new THREE.BoxGeometry(.88,.94,.7), M.grime());
+plenumShell.position.copy(plenum.position); world.add(plenumShell);
+seg('ret-plenum','Return plenum', plenum, plenumShell, 0);
+branches.forEach((b,i)=> seg('br'+i,'Supply branch '+(i+1), b.mesh, grimeShell(b.mesh,1.18), 1));
+seg('trunk','Supply trunk', trunk, grimeShell(trunk,1.09), 2);
+SEGS.forEach(s=>{ s.mesh.userData.hot='seg:'+s.id; s.grime.userData.hot='seg:'+s.id; });
+
+/* tag targets */
+const TAGS = [
+  ['air handler', AH.children[0]], ['return plenum', plenum], ['supply trunk', trunk],
+  ['return grille', world.children.find(o=>o.geometry && o.geometry.parameters && o.geometry.parameters.width===.62)],
+  ['branch takeoff', branches[0].mesh],
+];
+TAGS.forEach(([n,m])=>{ if(m && !m.userData.tagName) m.userData.tagName = n; });
+
+/* holes + patch hardware (created on demand) */
+const holeGrp = new THREE.Group(); world.add(holeGrp);
+let mainHole=null, patchPlate=null; const screwPts=[]; const bitHoleMeshes=[]; let reachMesh=null;
+function makeMainHole(){
+  mainHole = new THREE.Mesh(new THREE.CircleGeometry(.13,20), new THREE.MeshBasicMaterial({color:0x05070a}));
+  mainHole.position.set(3.58,1.18,-1.30); mainHole.rotation.y = Math.PI;
+  mainHole.userData.hot='mainhole'; hitpad(mainHole,.22); holeGrp.add(mainHole);
+}
+function makePatch(){
+  patchPlate = new THREE.Mesh(new THREE.BoxGeometry(.36,.36,.02), M.patch);
+  patchPlate.position.set(3.58,1.18,-1.31); patchPlate.userData.hot='mainhole'; holeGrp.add(patchPlate);
+  const pts=[[-.15,-.15],[.15,-.15],[-.15,.15],[.15,.15],[0,-.16],[0,.16],[-.16,0],[.16,0]];
+  pts.forEach((p,i)=>{
+    const s=new THREE.Mesh(new THREE.BoxGeometry(.052,.052,.034), new THREE.MeshBasicMaterial({color:0xffb020}));
+    s.position.set(3.58+p[0], 1.18+p[1], -1.345); s.userData.hot='screw:'+i; holeGrp.add(s); screwPts.push(s);
+  });
+}
+const BITX = [1.0,-0.9,-2.9];
+function makeBitHole(i){
+  const h = new THREE.Mesh(new THREE.CircleGeometry(.035,12), new THREE.MeshBasicMaterial({color:0x05070a}));
+  h.position.set(BITX[i], TRUNK_Y+.30, 0); h.rotation.x=-Math.PI/2; h.userData.hot='bithole:'+i; hitpad(h,.20);
+  holeGrp.add(h); bitHoleMeshes.push(h);
+}
+function makeReachHole(){
+  reachMesh = new THREE.Mesh(new THREE.CircleGeometry(.075,16), new THREE.MeshBasicMaterial({color:0x05070a}));
+  reachMesh.position.set(-1.75, TRUNK_Y+.30, 0); reachMesh.rotation.x=-Math.PI/2; hitpad(reachMesh,.24);
+  reachMesh.userData.hot='reach'; holeGrp.add(reachMesh);
+}
+/* markers */
+/* A triangle-fan geometry (CircleGeometry) drops a ray aimed at its exact center
+   vertex, which is exactly where a crosshair lands. Every round target gets a flat
+   invisible quad in front of it to catch the ray. */
+function hitpad(mesh, size, off){
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(size,size),
+    new THREE.MeshBasicMaterial({transparent:true, opacity:0, depthWrite:false, side:THREE.DoubleSide}));
+  p.position.z = (off===undefined?0.006:off); mesh.add(p); return mesh;
+}
+function marker(x,y,z,ry){
+  const m=new THREE.Mesh(new THREE.RingGeometry(.02,.125,24),
+    new THREE.MeshBasicMaterial({color:0xffb020,transparent:true,opacity:.34,side:THREE.DoubleSide,depthWrite:false}));
+  const r=new THREE.Mesh(new THREE.RingGeometry(.125,.158,26),
+    new THREE.MeshBasicMaterial({color:0xffb020,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false}));
+  m.add(r); hitpad(m,.30);
+  m.position.set(x,y,z); if(ry!==undefined) m.rotation.y=ry; else m.rotation.x=-Math.PI/2; world.add(m); return m;
+}
+const mkAccess = marker(3.58,1.18,-1.30,Math.PI); mkAccess.userData.hot='access'; mkAccess.visible=false;
+const mkBit = BITX.map(x=>{const m=marker(x,TRUNK_Y+.32,0); m.userData.hot='bitmark:'+BITX.indexOf(x); m.visible=false; return m;});
+const mkReach = marker(-1.75,TRUNK_Y+.32,0); mkReach.userData.hot='reachmark'; mkReach.visible=false;
+outlet.userData.hot='outlet'; ahPanel.userData.hot='panel'; blower.userData.hot='blower';
+blowerGrime.userData.hot='blower'; coilA.userData.hot='coil'; coilB.userData.hot='coil';
+ahPanel.userData.tagName='air handler';
+SEGS.find(s=>s.id==='ret-plenum').grime.userData.tagName='return plenum';
+SEGS.find(s=>s.id==='trunk').grime.userData.tagName='supply trunk';
+SEGS.find(s=>s.id==='br0').grime.userData.tagName='branch takeoff';
+coilGrime.userData.hot='coil'; coilGrime2.userData.hot='coil'; beam.userData.hot='beam';
+hatchGlow.userData.hot='hatch';
+const stagePad = world.children.find(o=>o.material && o.material.color && o.material.opacity===.16);
+if(stagePad) stagePad.userData.hot='stage';
+
+/* dust particles */
+const dustGeo = new THREE.BufferGeometry();
+const DN=260, dpos=new Float32Array(DN*3), dvel=new Float32Array(DN*3), dlife=new Float32Array(DN);
+dustGeo.setAttribute('position', new THREE.BufferAttribute(dpos,3));
+const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({color:0xc9b48c,size:.035,transparent:true,opacity:.75,depthWrite:false}));
+scene.add(dust); let dptr=0;
+function puff(p,n){
+  for(let i=0;i<n;i++){
+    const k=(dptr++%DN)*3;
+    dpos[k]=p.x+(Math.random()-.5)*.3; dpos[k+1]=p.y+(Math.random()-.5)*.3; dpos[k+2]=p.z+(Math.random()-.5)*.3;
+    dvel[k]=(Math.random()-.5)*.7; dvel[k+1]=Math.random()*.5; dvel[k+2]=(Math.random()-.5)*.7;
+    dlife[dptr%DN]=1;
+  }
+}
+
+/* ============================ AUDIO ============================ */
+let AC=null, vacGain=null, hissGain=null, drillGain=null;
+function noiseBuf(ac){
+  const b=ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate), d=b.getChannelData(0);
+  let last=0; for(let i=0;i<d.length;i++){ const w=Math.random()*2-1; last=(last+.02*w)/1.02; d[i]=last*3.2; }
+  return b;
+}
+function initAudio(){
+  if(AC) return; AC = new (window.AudioContext||window.webkitAudioContext)();
+  const mk=(type,freq,q,gain)=>{
+    const src=AC.createBufferSource(); src.buffer=noiseBuf(AC); src.loop=true;
+    const f=AC.createBiquadFilter(); f.type=type; f.frequency.value=freq; if(q)f.Q.value=q;
+    const g=AC.createGain(); g.gain.value=0; src.connect(f); f.connect(g); g.connect(AC.destination); src.start(); return g;
+  };
+  vacGain = mk('lowpass',420,1,0); hissGain = mk('bandpass',2600,1.2,0);
+  const osc=AC.createOscillator(); osc.type='sawtooth'; osc.frequency.value=180;
+  drillGain=AC.createGain(); drillGain.gain.value=0; osc.connect(drillGain); drillGain.connect(AC.destination); osc.start();
+}
+function ding(f,d){ if(!AC) return; const o=AC.createOscillator(), g=AC.createGain();
+  o.frequency.value=f; o.type='triangle'; g.gain.setValueAtTime(.14,AC.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+(d||.25)); o.connect(g); g.connect(AC.destination);
+  o.start(); o.stop(AC.currentTime+(d||.25)); }
+
+/* ============================ PLAYER ============================ */
+const P = { pos:new THREE.Vector3(-7.4,0,0), yaw:-Math.PI/2, pitch:0, crouch:false, bob:0 };
+const keys={};
+addEventListener('keydown',e=>{
+  keys[e.code]=true;
+  if(e.code==='KeyF'){ state.lampOn=!state.lampOn; lamp.intensity = state.lampOn?2.9:0; }
+  if(e.code>='Digit1'&&e.code<='Digit6'){ const n=+e.code.slice(5); if(state.belt.has(n)) state.tool=n; }
+  if(e.code==='KeyQ') dropAll();
+  if(e.code==='Tab') e.preventDefault();
+});
+addEventListener('keyup',e=>keys[e.code]=false);
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); });
+
+let locked=false, mDown=false, aimMove=0;
+renderer.domElement.addEventListener('click',()=>{ if(!locked && !state.finished) renderer.domElement.requestPointerLock(); });
+document.addEventListener('pointerlockchange',()=>locked = document.pointerLockElement===renderer.domElement);
+document.addEventListener('mousemove',e=>{
+  if(!locked) return;
+  P.yaw -= e.movementX*0.0022; P.pitch -= e.movementY*0.0022;
+  P.pitch = Math.max(-1.45, Math.min(1.45, P.pitch));
+  aimMove += (Math.abs(e.movementX)+Math.abs(e.movementY))*0.01;
+});
+document.addEventListener('mousedown',e=>{ if(e.button===0) mDown=true; });
+document.addEventListener('mouseup',e=>{ if(e.button===0){ mDown=false; feed=0; } });
+
+const AABB = [ [2.9,3.95,-1.3,.5] ]; // air handler + plenum footprint  [x0,x1,z0,z1]
+function movePlayer(dt){
+  const sp = (keys.ShiftLeft||keys.ShiftRight?3.3:2.0) * (P.crouch?0.55:1) * (state.heat>75?0.78:1);
+  const f = (keys.KeyW?1:0)-(keys.KeyS?1:0), r = (keys.KeyD?1:0)-(keys.KeyA?1:0);
+  P.crouch = !!keys.KeyC;
+  if(f||r){
+    const len=Math.hypot(f,r);
+    const dx = (Math.sin(P.yaw)*-f + Math.cos(P.yaw)*r)/len*sp*dt;
+    const dz = (Math.cos(P.yaw)*-f - Math.sin(P.yaw)*r)/len*sp*dt;
+    const need = P.crouch?1.02:1.66;
+    let nx=P.pos.x+dx, nz=P.pos.z+dz;
+    nx=Math.max(-LEN+.4,Math.min(LEN-.4,nx));
+    if(roofH(nz)<need) nz=P.pos.z;
+    nz=Math.max(-HALF_W+.35,Math.min(HALF_W-.35,nz));
+    for(const b of AABB){ if(nx>b[0]-.32&&nx<b[1]+.32&&nz>b[2]-.32&&nz<b[3]+.32){ nx=P.pos.x; nz=P.pos.z; } }
+    P.pos.x=nx; P.pos.z=nz; P.bob += sp*dt*2.4;
+  }
+  const eye = (P.crouch?0.92:1.56);
+  const onDeck = (P.pos.x>-3.1&&P.pos.x<4.6&&Math.abs(P.pos.z)<1.7)||(P.pos.x>-8.2&&P.pos.x<-5.0&&Math.abs(P.pos.z)<1.1);
+  const sway = onDeck?0.008:0.022;
+  camera.position.set(P.pos.x, eye + Math.sin(P.bob)*sway, P.pos.z);
+  camera.rotation.set(0,0,0);
+  camera.rotateY(P.yaw); camera.rotateX(P.pitch);
+  camera.rotateZ(Math.sin(P.bob*.5)*(onDeck?.004:.014));
+}
+
+/* ============================ TASKS ============================ */
+const REQ = ITEMS.filter(i=>i.req).map(i=>i.id);
+const onsiteReq = ()=> REQ.filter(i=>state.onsite.has(i)).length;
+const retDone = ()=> SEGS.filter(s=>s.order===0&&s.clean>=1).length;
+const brDone  = ()=> SEGS.filter(s=>s.order===1&&s.clean>=1).length;
+const trunkSeg = ()=> SEGS.find(s=>s.id==='trunk');
+const TASKS = [
+ {t:'Read the system before you cut', s:()=>state.tagged.size+' of 5 components tagged', d:()=>state.tagged.size>=5},
+ {t:'Haul the gear up the hatch',      s:()=>onsiteReq()+' of 8 on the staging pad', d:()=>onsiteReq()>=8},
+ {t:'Plug in at the outlet',           s:()=>'20A adapter, then the extension cord', d:()=>state.plugged},
+ {t:'Pull the panel, clean the coil',  s:()=>'coil '+Math.round(state.coil*100)+'%, blower '+Math.round(state.blower*100)+'%', d:()=>state.panelOff&&state.coil>=1&&state.blower>=1},
+ {t:'Cut the 8 in return access',      s:()=>state.rollback?(state.pilot?'hole saw, keep the feed in the green':'pilot hole first'):'roll the insulation back, 3 sides', d:()=>state.hole},
+ {t:'Hook the hose, tie it off',       s:()=>state.hoseOn?'tie it to the collar tie':'attach the flex to the access', d:()=>state.hoseOn&&state.tied},
+ {t:'Switch the vacuum on',            s:()=>'containment before agitation', d:()=>state.vacOn},
+ {t:'Clean the return side',           s:()=>retDone()+' of 2 segments', d:()=>retDone()>=2},
+ {t:'Cut the whip holes in the trunk', s:()=>state.bitDropped&&!state.bitBack?'you dropped the bit, cut a 4 in and reach in':state.bitHoles+' of 3', d:()=>state.bitHoles>=3&&(!state.bitDropped||state.bitBack)},
+ {t:'Branches first, then the trunk',  s:()=>brDone()+' of 4 branches'+(trunkSeg().clean>=1?', trunk done':''), d:()=>brDone()>=4&&trunkSeg().clean>=1},
+ {t:'Patch the 8 in access',           s:()=>state.screws+'/8 screws, mastic '+(state.masticP>=1?'perimeter':'-')+(state.masticX>=1?' + X':'')+(state.tape?', taped':''), d:()=>state.tape},
+ {t:'Close the whip holes',            s:()=>state.plugs+' of 4 (3 pop plugs, 1 small patch)', d:()=>state.plugs>=4},
+ {t:'Shut down and load out',          s:()=>(state.vacOff?'':'vac off. ')+(state.panelBack?'':'panel back on. ')+'carry the gear back down', d:()=>state.finished},
+];
+const activeTask = ()=>{ for(let i=0;i<TASKS.length;i++) if(!TASKS[i].d()) return i; return TASKS.length; };
+const gateCut = ()=> state.tagged.size>=5;
+
+function penalty(label,v){ state.score-=v; state.penalties.push({label,v}); toast(label+'  \u2212'+v, 'warn'); ding(140,.4); }
+function bonus(label,v){ state.score+=v; state.bonuses.push({label,v}); }
+function toast(msg,cls){ const d=document.createElement('div'); if(cls)d.className=cls; d.textContent=msg;
+  const L=document.getElementById('log'); L.appendChild(d); setTimeout(()=>d.remove(),4300); if(L.children.length>4) L.firstChild.remove(); }
+
+/* ============================ INTERACTION ============================ */
+const ray = new THREE.Raycaster(); ray.far = 3.4;
+const CENTER = new THREE.Vector2(0,0);
+function hotUnderCrosshair(){
+  ray.setFromCamera(CENTER, camera);
+  const hits = ray.intersectObjects(scene.children, true);
+  for(const h of hits){
+    let vis=true, q=h.object;
+    while(q){ if(q.visible===false){ vis=false; break; } q=q.parent; }
+    if(!vis) continue;
+    let o=h.object;
+    while(o){
+      if(o.userData && o.userData.tagName && !state.tagged.has(o.userData.tagName) && state.tagged.size<5)
+        return {id:'tag:'+o.userData.tagName, obj:o, pt:h.point};
+      if(o.userData && o.userData.hot) return {id:o.userData.hot, obj:o, pt:h.point};
+      o=o.parent;
+    } }
+  return null;
+}
+let hold=0, holdKey=null, feed=0, curAct=null;
+
+function actionFor(h){
+  if(!h) return null;
+  const id=h.id, [k,arg]=id.split(':');
+  const carriedFull = state.carried.length>=2;
+  if(k==='tag'){ if(state.tagged.has(arg)) return null;
+    return {label:'Unidentified: '+arg, hint:'tag it', key:'E', kind:'tap', do(){ state.tagged.add(arg); ding(760,.14);
+      toast('Tagged: '+arg+'  ('+state.tagged.size+'/5)','good'); }}; }
+  if(k==='gear'){
+    if(arg==='vac' && state.onsite.has('vac')){
+      if(!state.vacOn){
+        if(!state.plugged) return {label:'Portable vacuum', hint:'no power. plug in at the outlet', key:null, kind:'none', bad:true};
+        if(!state.hoseOn) return {label:'Portable vacuum', hint:'hook the hose to the access first', key:null, kind:'none', bad:true};
+        return {label:'Portable vacuum', hint:'switch it on', key:'E', kind:'tap',
+          do(){ state.vacOn=true; if(!state.tied){ penalty('Hose not tied off, it pulled loose', 5); }
+            toast('Negative air is up. It stays on while you agitate.','good'); ding(220,.6); }};
+      }
+      if(!state.vacOff){
+        if(!state.tape) return {label:'Portable vacuum, running', hint:'leave it running until the access is patched', key:null, kind:'none'};
+        return {label:'Portable vacuum', hint:'shut it down', key:'E', kind:'tap', do(){ state.vacOff=true; ding(160,.5); }};
+      }
+    }
+    if(state.onsite.has(arg)){
+      const it0=ITEMS.find(i=>i.id===arg);
+      if(it0.belt || !placed[arg] || gearMesh[arg].userData.returned) return null;
+      if(!loadoutReady()) return null;
+      if(state.carried.length>=2) return {label:it0.name, hint:'both hands full', key:null, kind:'none', bad:true};
+      return {label:it0.name, hint:'pick up for the load out', key:'E', kind:'tap',
+        do(){ state.carried.push(arg); gearMesh[arg].visible=false; ding(520,.1); }};
+    }
+    if(state.carried.includes(arg)) return {label:ITEMS.find(i=>i.id===arg).name, hint:'in hand', key:null, kind:'none'};
+    if(carriedFull) return {label:ITEMS.find(i=>i.id===arg).name, hint:'both hands full', key:null, kind:'none', bad:true};
+    return {label:ITEMS.find(i=>i.id===arg).name, hint:'pick up', key:'E', kind:'tap',
+      do(){ state.carried.push(arg); gearMesh[arg].visible=false; ding(520,.1); }};
+  }
+  if(k==='stage'){
+    if(state.carried.length) return {label:'Staging pad', hint:'set down '+state.carried.length+' item'+(state.carried.length>1?'s':''), key:'E', kind:'tap',
+      do(){ state.carried.slice().forEach(deploy); state.carried=[]; ding(640,.16); }};
+    return {label:'Staging pad', hint:onsiteReq()+'/8 on site', key:null, kind:'none'};
+  }
+  if(k==='outlet'){
+    if(state.plugged) return {label:'Outlet', hint:'cord is in', key:null, kind:'none'};
+    if(!state.onsite.has('cord')) return {label:'Outlet', hint:'the cord is still at the hatch', key:null, kind:'none', bad:true};
+    return {label:'Outlet, 15A', hint:'plug in the 20A adapter', key:'E', kind:'hold', time:1.6,
+      do(){ state.plugged=true; toast('Adapter and cord in. The vac has power.','good'); ding(700,.2); }};
+  }
+  if(k==='panel'){
+    if(!state.panelOff) return {label:'Air handler side panel', hint:'pull the panel', key:'E', kind:'hold', time:1.8,
+      do(){ state.panelOff=true; ahPanel.visible=false; setPanelDown(true);
+        toast('Panel off and set on the decking. Coil and blower are open.'); ding(300,.3); }};
+    if(state.tape && state.plugs>=4 && !state.panelBack) return {label:'Air handler side panel', hint:'reinstall the panel', key:'E', kind:'hold', time:1.8,
+      do(){ state.panelBack=true; ahPanel.visible=true; setPanelDown(false); toast('Panel back on.','good'); ding(420,.2); }};
+    return null;
+  }
+  if(k==='coil'){
+    if(!state.panelOff) return {label:'Evaporator coil', hint:'pull the panel first', key:null, kind:'none', bad:true};
+    if(state.coil>=1) return {label:'Evaporator coil', hint:'clean', key:null, kind:'none'};
+    if(state.tool!==2) return {label:'Evaporator coil', hint:'need the pump sprayer  [2]', key:null, kind:'none', bad:true};
+    return {label:'Evaporator coil', hint:'hold to spray, a couple of passes', key:'M', kind:'meter', rate:.19,
+      tick(dt){ state.coil=Math.min(1,state.coil+dt*.19); coilGrime.material.opacity=.85*(1-state.coil); coilGrime2.material.opacity=.85*(1-state.coil);
+        if(Math.random()<.3) puff(h.pt,1); if(state.coil>=1){ toast('Coil sprayed. Enzymatic does the rest.','good'); ding(700,.2);} },
+      val:()=>state.coil};
+  }
+  if(k==='blower'){
+    if(!state.panelOff) return null;
+    if(state.blower>=1) return null;
+    if(state.tool!==6) return {label:'Blower housing', hint:'need rags  [6]', key:null, kind:'none', bad:true};
+    return {label:'Blower housing', hint:'wipe it down in place', key:'M', kind:'meter', rate:.3,
+      tick(dt){ state.blower=Math.min(1,state.blower+dt*.3); blowerGrime.material.opacity=.85*(1-state.blower);
+        if(state.blower>=1){ toast('Blower wiped. It does not need to come out.','good'); ding(700,.2);} }, val:()=>state.blower};
+  }
+  if(k==='access'){
+    if(state.hole) return null;
+    if(!gateCut()) return {label:'Return plenum, access point', hint:'walk the job first, tag every component', key:null, kind:'none', bad:true};
+    if(!state.rollback) return {label:'Insulation over the plenum', hint:'score three sides and roll it back', key:'E', kind:'hold', time:2.2,
+      do(){ state.rollback=true; toast('Three sides scored, flap rolled back. Never four.','good'); ding(500,.2); }};
+    if(state.tool!==1) return {label:'Bare plenum sheet metal', hint:'need the drill  [1]', key:null, kind:'none', bad:true};
+    if(!state.pilot) return {label:'Plenum, marked', hint:'drill the pilot hole, dead center', key:'M', kind:'hold', time:1.3,
+      do(){ state.pilot=true; toast('Pilot in. Now the hole saw rides on it.'); ding(600,.15); }};
+    return {label:'8 in hole saw', hint:'hold to feed. keep the needle in the green, clockwise and slow', key:'M', kind:'gauge',
+      done(burr){ state.hole=true; makeMainHole(); mkAccess.visible=false;
+        if(burr>0){ penalty('Fed the hole saw too fast, burred edge x'+burr, burr*3); state.burrs+=burr; }
+        else { toast('Clean cut, no burrs. That edge will not open your hand up.','good'); bonus('Clean 8 in cut',4); }
+        ding(760,.3); }};
+  }
+  if(k==='mainhole'){
+    if(!state.hoseOn){
+      if(!state.onsite.has('hose')) return {label:'8 in access', hint:'the flex hose is still at the hatch', key:null, kind:'none', bad:true};
+      return {label:'8 in access', hint:'attach the flex hose', key:'E', kind:'hold', time:1.6,
+        do(){ state.hoseOn=true; drawHose(); toast('Hose on the plenum.'); ding(480,.2); }};
+    }
+    if(state.tape) return null;
+    const cleanAll = retDone()>=2 && brDone()>=4 && trunkSeg().clean>=1;
+    if(!cleanAll) return {label:'8 in access', hint:'hose stays on until the duct is clean', key:null, kind:'none'};
+    if(state.tool!==5) return {label:'8 in access, open', hint:'need the patch kit  [5]', key:null, kind:'none', bad:true};
+    if(!patchPlate) return {label:'Sheet metal patch', hint:'bend it to the face and set it', key:'M', kind:'hold', time:1.8,
+      do(){ makePatch(); toast('Patch set. Four corners first.'); ding(500,.2); }};
+    if(state.screws<8) return {label:'Patch', hint:state.screws<4?'four corner screws first':'side midpoints, 4 to go', key:null, kind:'none'};
+    if(state.masticP<1) return {label:'Mastic, perimeter', hint:'hold and run the bead all the way around', key:'M', kind:'meter', rate:.34,
+      tick(dt){ state.masticP=Math.min(1,state.masticP+dt*.34);
+        if(state.masticP>=1){ toast('Perimeter sealed.','good'); ding(640,.18);} }, val:()=>state.masticP};
+    if(state.masticX<1) return {label:'Mastic, X across the face', hint:'so the insulation has something to grab', key:'M', kind:'meter', rate:.42,
+      tick(dt){ state.masticX=Math.min(1,state.masticX+dt*.42);
+        if(state.masticX>=1){ toast('X on. Roll the flap back.','good'); ding(640,.18);} }, val:()=>state.masticX};
+    if(!state.flap) return {label:'Insulation flap', hint:'roll it back over the patch', key:'E', kind:'hold', time:1.5,
+      do(){ state.flap=true; patchPlate.material = M.wrap; ding(520,.2); }};
+    return {label:'FSK tape, 3 in', hint:'foil scrim kraft over the cut. not duct tape', key:'M', kind:'meter', rate:.36,
+      tick(dt){ state.tape = state.tape || false; state._tp=(state._tp||0)+dt*.36;
+        if(state._tp>=1 && !state.tape){ state.tape=true; toast('Taped. That access is closed for good.','good'); bonus('Access patched to spec',6); ding(820,.3);} },
+      val:()=>Math.min(1,state._tp||0)};
+  }
+  if(k==='gear2vac'){ return null; }
+  if(k==='beam'){
+    if(!state.hoseOn || state.tied) return null;
+    return {label:'Collar tie', hint:'tie the hose off for strain relief', key:'E', kind:'hold', time:1.5,
+      do(){ state.tied=true; toast('Tied off. It will not snake back down through the hatch.','good'); bonus('Strain relief on the hose',4); ding(700,.2); }};
+  }
+  if(k==='seg'){
+    const s=SEGS.find(x=>x.id===arg); if(!s||s.clean>=1) return null;
+    if(!gateCut()) return {label:s.label, hint:'walk the job first, tag every component', key:null, kind:'none', bad:true};
+    if(!state.vacOn) return {label:s.label, hint:'containment first. the vac is off', key:null, kind:'none', bad:true};
+    if(s.order===2 && brDone()<4) return {label:'Supply trunk', hint:'branches before the trunk', key:null, kind:'none', bad:true, trap:'trunk'};
+    if(s.order>=1 && !(state.bitHoles>=3)) return {label:s.label, hint:'no whip access cut into the trunk yet', key:null, kind:'none', bad:true};
+    if(s.agit<1){
+      if(state.tool!==3) return {label:s.label, hint:'need the air whip  [3]', key:null, kind:'none', bad:true};
+      return {label:s.label+' \u2014 agitate', hint:'hold and sweep the whip around', key:'M', kind:'whip', seg:s};
+    }
+    if(state.tool!==4) return {label:s.label+' \u2014 loosened', hint:'need the forward nozzle  [4]', key:null, kind:'none', bad:true};
+    return {label:s.label+' \u2014 push it home', hint:'hold to drive the debris to the negative air', key:'M', kind:'meter', rate:.42,
+      tick(dt){ s.clean=Math.min(1,s.clean+dt*.42); s.grime.material.opacity=.85*(1-s.clean); if(Math.random()<.35) puff(h.pt,2);
+        if(s.clean>=1){ s.grime.visible=false; toast(s.label+' clear','good'); ding(720,.18);} }, val:()=>s.clean};
+  }
+  if(k==='bitmark'){
+    const i=+arg; if(i<state.bitHoles) return null;
+    if(i>state.bitHoles) return null;
+    if(state.tool!==1) return {label:'Whip access point', hint:'need the drill  [1]', key:null, kind:'none', bad:true};
+    return {label:'1 in fairbairn bit', hint:'hold to cut', key:'M', kind:'gauge', fast:true,
+      done(burr){ makeBitHole(i); state.bitHoles++; mkBit[i].visible=false;
+        if(burr>0) penalty('Burred the bit hole', burr*2);
+        if(i===1 && !state.bitDropped){ state.bitDropped=true; mkReach.visible=true;
+          toast('The bit dropped into the trunk. You are cutting a 4 in to get it.','warn'); ding(180,.5); }
+        else ding(640,.2);
+        if(state.bitHoles<3) mkBit[state.bitHoles].visible=true; }};
+  }
+  if(k==='reachmark'){
+    if(state.reachHole) return null;
+    if(state.tool!==1) return {label:'4 in reach hole', hint:'need the drill  [1]', key:null, kind:'none', bad:true};
+    return {label:'4 in reach hole', hint:'hold to cut, then fish the bit out', key:'M', kind:'gauge',
+      done(){ state.reachHole=true; makeReachHole(); mkReach.visible=false; ding(600,.2); }};
+  }
+  if(k==='reach'){
+    if(!state.bitBack) return {label:'4 in hole', hint:'reach in and get the bit', key:'E', kind:'hold', time:2.4,
+      do(){ state.bitBack=true; toast('Got it. Keep a hand on the bit going in next time.','good'); ding(700,.2); }};
+    if(h.obj.userData.plugged) return null;
+    if(!(brDone()>=4 && trunkSeg().clean>=1 && state.tape)) return null;
+    if(state.tool!==5) return {label:'4 in reach hole', hint:'need the patch kit  [5]', key:null, kind:'none', bad:true};
+    return {label:'4 in reach hole', hint:'too big for a plug. small patch, screws and mastic', key:'M', kind:'hold', time:2.6,
+      do(){ h.obj.userData.plugged=true; h.obj.material.color.set(0xb8c1c7); state.plugs++; ding(560,.2);
+        if(state.plugs>=4) toast('Every hole you cut is closed.','good'); }};
+  }
+  if(k==='bithole'){
+    if(!(brDone()>=4 && trunkSeg().clean>=1 && state.tape)) return null;
+    if(state.tool!==5) return {label:'1 in bit hole', hint:'need the patch kit  [5]', key:null, kind:'none', bad:true};
+    const i=+arg; if(h.obj.userData.plugged) return null;
+    return {label:'1 in bit hole', hint:'pop plug, then tape the V', key:'M', kind:'hold', time:1.4,
+      do(){ h.obj.userData.plugged=true; h.obj.material.color.set(0xb8c1c7); state.plugs++; ding(560,.15);
+        if(state.plugs>=4) toast('All four plugged and taped.','good'); }};
+  }
+  if(k==='screw'){
+    if(!patchPlate) return null;
+    const i=+arg; if(screwPts[i].userData.in) return null;
+    if(state.tool!==5) return {label:'Screw point', hint:'need the patch kit  [5]', key:null, kind:'none', bad:true};
+    const corner = i<4;
+    if(!corner && state.screws<4) return {label:'Side midpoint', hint:'corners first, they hold the curve', key:null, kind:'none', bad:true};
+    return {label:corner?'Corner screw':'Side midpoint screw', hint:'1/4 in sheet metal screw', key:'M', kind:'hold', time:.75,
+      do(){ screwPts[i].userData.in=true; screwPts[i].material.color.set(0x7d8890); screwPts[i].scale.setScalar(.7); state.screws++; ding(880,.08);
+        if(state.screws===4) toast('Four corners in. Now the side midpoints.'); }};
+  }
+  return null;
+}
+let panelDown=null;
+function setPanelDown(on){
+  if(on){
+    panelDown = new THREE.Mesh(new THREE.BoxGeometry(.76,.05,1.42), M.wrap);
+    panelDown.position.set(2.25,.16,.95); panelDown.rotation.y=.22;
+    panelDown.userData.hot='panel'; world.add(panelDown);
+  } else if(panelDown){ world.remove(panelDown); panelDown=null; }
+}
+function drawHose(){
+  const pts=[new THREE.Vector3(3.58,1.18,-1.30), new THREE.Vector3(3.2,1.5,-1.9), new THREE.Vector3(2.9,1.0,-2.1), new THREE.Vector3(2.55,.6,-1.8)];
+  const cu=new THREE.CatmullRomCurve3(pts);
+  const t=new THREE.Mesh(new THREE.TubeGeometry(cu,24,.11,10,false), M.flex); world.add(t);
+}
+
+const loadoutReady = ()=> state.tape && state.plugs>=4 && state.panelBack && state.vacOff;
+function needReturn(){ return Object.keys(placed).filter(id=>!gearMesh[id].userData.returned).length; }
+function dropAll(){
+  if(!state.carried.length) return;
+  state.carried.forEach(id=>{ const m=gearMesh[id];
+    m.position.set(P.pos.x + Math.sin(P.yaw)*-.8, .2, P.pos.z + Math.cos(P.yaw)*-.8); m.visible=true; });
+  state.carried=[]; toast('Set it down.');
+}
+/* hatch action injected into actionFor via wrapper */
+const baseActionFor = actionFor;
+actionFor = function(h){
+  if(h && h.id==='hatch'){
+    if(state.carried.length && loadoutReady()) return {label:'Attic hatch', hint:'send it down', key:'E', kind:'tap',
+      do(){ state.carried.forEach(id=>{ gearMesh[id].userData.returned=true; state.hauledBack++; }); state.carried=[]; ding(600,.2);
+        toast('Down the hatch. '+needReturn()+' left up here.'); }};
+    if(state.carried.length) return {label:'Attic hatch', hint:'set the gear on the pad, you are not done', key:null, kind:'none', bad:true};
+    if(loadoutReady() && needReturn()===0) return {label:'Attic hatch', hint:'climb down. job closed.', key:'E', kind:'tap', do(){ finish(); }};
+    const i=activeTask(); return {label:'Attic hatch', hint: i<TASKS.length ? 'still open: '+TASKS[i].t.toLowerCase() : 'load the gear out', key:null, kind:'none'};
+  }
+  return baseActionFor(h);
+};
+
+/* ============================ HUD ============================ */
+const $ = id=>document.getElementById(id);
+let hudT=0;
+function drawHUD(){
+  const act = activeTask();
+  $('tasks').innerHTML = '<div class="job">Job 013 &middot; attic system</div><ol>' + TASKS.map((t,i)=>{
+    const cls = t.d()?'done':(i===act?'on':'');
+    return '<li class="'+cls+'">'+t.t+(i===act?'<span class="sub">'+t.s()+'</span>':'')+'</li>';
+  }).join('')+'</ol>';
+  const m=Math.floor(state.t/60), sec=Math.floor(state.t%60);
+  $('clock').textContent = m+':'+String(sec).padStart(2,'0');
+  $('score').textContent = Math.max(0,Math.round(state.score));
+  $('heatbar').style.width = state.heat+'%';
+  $('carry').innerHTML = '<span class="lbl">In hand</span>' + [0,1].map(i=>{
+    const id=state.carried[i]; const it=id&&ITEMS.find(o=>o.id===id);
+    return '<div class="slot '+(it?'full':'')+'"><b></b>'+(it?it.name:'empty')+'</div>';
+  }).join('');
+  $('belt').innerHTML = '<span class="lbl">Belt</span>' + [1,2,3,4,5,6].map(n=>
+    '<div class="tool '+(state.belt.has(n)?(state.tool===n?'sel':'have'):'')+'"><span>'+TOOLNAMES[n]+'</span><span class="n">'+n+'</span></div>').join('');
+}
+function setPrompt(a){
+  const c=$('cross'), pr=$('prompt');
+  if(!a){ c.classList.remove('hot'); pr.innerHTML=''; return; }
+  c.classList.add('hot');
+  const keyTxt = a.key==='E' ? '<kbd>E</kbd>' : a.key==='M' ? '<kbd>hold left click</kbd>' : '';
+  pr.innerHTML = '<div class="t">'+a.label+'</div><div class="h'+(a.bad?' bad':'')+'">'+(keyTxt?keyTxt+' &nbsp;':'')+a.hint+'</div>';
+}
+function setRing(v){ const r=$('ring'); if(v==null){ r.style.display='none'; return; }
+  r.style.display='block'; $('ringarc').setAttribute('stroke-dashoffset', String(238.8*(1-Math.max(0,Math.min(1,v))))); }
+function setGauge(show,val,band,cap){ const g=$('gauge'); if(!show){ g.style.display='none'; return; }
+  g.style.display='block'; $('gband').style.left=(band[0]*100)+'%'; $('gband').style.width=((band[1]-band[0])*100)+'%';
+  $('gneedle').style.left=(val*100)+'%'; $('gcap').textContent=cap; }
+
+/* ============================ LOOP ============================ */
+let prog=0, burrs=0, outT=0, lastTarget=null, trapFired={};
+const clock = new THREE.Clock();
+let running=false;
+
+function tick(){
+  requestAnimationFrame(tick);
+  const dt = Math.min(.05, clock.getDelta());
+  if(!running){ renderer.render(scene,camera); return; }
+  state.t += dt;
+  movePlayer(dt);
+
+  /* heat */
+  const dHatch = Math.hypot(P.pos.x+7.4, P.pos.z);
+  const fanOn = placed.fan && !gearMesh.fan.userData.returned;
+  const dFan = fanOn ? Math.hypot(P.pos.x-gearMesh.fan.position.x, P.pos.z-gearMesh.fan.position.z) : 99;
+  const cool = dHatch<2.8 || dFan<3.0;
+  state.heat = Math.max(0, Math.min(100, state.heat + dt*(cool?-9:1.7)));
+  $('vig').style.opacity = state.heat>38 ? ((state.heat-38)/62*0.95).toFixed(2) : 0;
+  if(state.heat>=100 && !state._hp){ state._hp=1; penalty('Heat got you. Sit down at the hatch.',10); state.heat=55; setTimeout(()=>state._hp=0,4000); }
+
+  /* interaction */
+  const h = hotUnderCrosshair();
+  const a = actionFor(h);
+  const tkey = h ? h.id + (state.tool) : null;
+  if(tkey !== lastTarget){ prog=0; burrs=0; outT=0; hold=0; feed=0; lastTarget=tkey; }
+  setPrompt(a);
+
+  let ringV=null, gz=false;
+  if(a && a.kind==='tap'){ if(keys.KeyE && !keys._e){ a.do(); keys._e=true; } }
+  if(!keys.KeyE) keys._e=false;
+
+  if(a && a.kind==='hold'){
+    const held = a.key==='E' ? keys.KeyE : mDown;
+    if(held){ hold += dt*(state.heat>75?.72:1); ringV = hold/a.time; if(hold>=a.time){ a.do(); hold=0; lastTarget=null; } }
+    else { hold=Math.max(0,hold-dt*2); ringV = hold>0?hold/a.time:null; }
+  }
+  if(a && a.kind==='meter'){
+    if(mDown){ a.tick(dt); if(hissGain) hissGain.gain.value=.055; }
+    ringV = a.val();
+  }
+  if(a && a.kind==='whip'){
+    const s=a.seg;
+    if(mDown){
+      s.agit = Math.min(1, s.agit + Math.min(aimMove,.05)*1.5 + dt*.05);
+      if(hissGain) hissGain.gain.value=.07;
+      if(Math.random()<.5) puff(h.pt,2);
+      if(s.agit>=1 && !s._t){ s._t=1; toast(s.label+' loosened. Switch to the forward nozzle  [4]','good'); ding(660,.2); }
+    }
+    ringV = s.agit;
+  }
+  if(a && a.kind==='gauge'){
+    gz=true;
+    const band=[.38,.66], rate=a.fast?1.15:.42;
+    if(mDown) feed=Math.min(1,feed+dt*1.45); else feed=Math.max(0,feed-dt*1.7);
+    const inBand = feed>=band[0]&&feed<=band[1];
+    if(mDown||feed>0){
+      if(inBand){ prog+=dt*rate; if(drillGain) drillGain.gain.value=.035; }
+      else { outT+=dt; if(drillGain) drillGain.gain.value=feed>band[1]?.07:.012;
+        if(outT>.5 && prog>0 && burrs<4){ burrs++; outT=0; toast('Cutting too '+(feed>band[1]?'fast':'slow')+'. Burrs.','warn'); } }
+      if(drillGain) drillGain.gain.value *= (feed>0?1:0);
+    } else if(drillGain) drillGain.gain.value=0;
+    setGauge(true, feed, band, 'Feed pressure \u2014 keep it in the green');
+    ringV = prog;
+    if(prog>=1){ a.done(burrs); prog=0; burrs=0; lastTarget=null; setGauge(false); }
+  }
+  if(!gz) setGauge(false);
+  if(a && a.trap && mDown && !trapFired[a.trap]){ trapFired[a.trap]=1; penalty('Whipped the trunk before the branches', 8); }
+  if(!(a && (a.kind==='meter'||a.kind==='whip')) && hissGain) hissGain.gain.value=0;
+  if(!(a && a.kind==='gauge') && drillGain) drillGain.gain.value=0;
+  setRing(ringV);
+  aimMove = 0;
+
+  if(state.vacOn && !state.vacOff && vacGain) vacGain.gain.value=.075; else if(vacGain) vacGain.gain.value=0;
+  if(state.vacOn && !state.vacOff){ /* running */ }
+  if(!state.vacOn && a && a.kind==='whip' && mDown && !state._noc){ state._noc=1; penalty('Agitating with no containment',4); }
+
+  /* dust */
+  for(let i=0;i<DN;i++){ if(dlife[i]>0){ dlife[i]-=dt*.55; const k=i*3;
+    dpos[k]+=dvel[k]*dt; dpos[k+1]+=dvel[k+1]*dt-dt*.22; dpos[k+2]+=dvel[k+2]*dt; } }
+  dustGeo.attributes.position.needsUpdate = true;
+
+  if(state.tagged.size>=5 && !state.hole && !mkAccess.visible){ mkAccess.visible=true; toast('System read. The access point on the return plenum is marked.','good'); }
+  if(retDone()>=2 && state.bitHoles===0 && !mkBit[0].visible) mkBit[0].visible=true;
+
+  /* pulse markers */
+  const pulse = .55+.45*Math.sin(state.t*4);
+  [mkAccess,...mkBit,mkReach].forEach(m=>{ if(m.visible){ m.material.opacity=pulse*.4; m.children[0].material.opacity=pulse; } });
+  screwPts.forEach(s=>{ if(!s.userData.in) s.material.color.setHSL(.1,1,.4+.2*pulse); });
+
+  hudT+=dt; if(hudT>.12){ hudT=0; drawHUD(); }
+  renderer.render(scene,camera);
+}
+
+/* ============================ SCORE ============================ */
+function finish(){
+  running=false; state.finished=true; document.exitPointerLock();
+  if(state.t<600) bonus('Beat the clock, under 10:00', 10);
+  else if(state.t<840) bonus('Under 14:00', 5);
+  if(state.burrs===0) bonus('Not one burred edge all day', 5);
+  if(state.heat<70) bonus('Kept your head, never cooked', 3);
+  const rows = [];
+  rows.push({l:'Job completed to spec', v:'+100', c:'pos'});
+  state.bonuses.forEach(b=>rows.push({l:b.label, v:'+'+b.v, c:'pos'}));
+  state.penalties.forEach(p=>rows.push({l:p.label, v:'\u2212'+p.v, c:'neg'}));
+  const m=Math.floor(state.t/60), s=Math.floor(state.t%60);
+  rows.push({l:'Time on the job', v:m+':'+String(s).padStart(2,'0'), c:''});
+  $('scorelist').innerHTML = rows.map(r=>'<div class="r '+r.c+'"><span>'+r.l+'</span><span>'+r.v+'</span></div>').join('');
+  const sc = Math.max(0,Math.round(state.score));
+  $('final').textContent = sc;
+  $('endtitle').innerHTML = sc>=105?'Ran it <em>clean</em>' : sc>=92?'Closed <em>out</em>' : sc>=75?'Got it <em>done</em>' : 'Rough <em>day</em>';
+  $('endkick').textContent = sc>=105?'Nothing to come back for' : sc>=75?'Job complete' : 'It closed, but it cost you';
+  $('end').hidden=false;
+}
+
+/* ============================ BOOT ============================ */
+mkBit[0].visible = false;
+$('go').onclick = ()=>{
+  initAudio(); $('start').hidden=true; $('hud').hidden=false; running=true;
+  clock.getDelta(); renderer.domElement.requestPointerLock();
+  toast('You are in the attic. Gear is at the hatch. Read the system before you cut anything.');
+};
+$('again').onclick = ()=> location.reload();
+window.__dbg = {THREE,scene,camera,renderer,state,TASKS,SEGS,P,ITEMS,gearMesh,placed,mkAccess,world,activeTask,retDone,brDone,trunkSeg,mkBit,mkReach,
+  hitOne(o){ ray.setFromCamera(CENTER,camera); const r=ray.intersectObject(o,true); return {n:r.length, d:r[0]&&r[0].distance, far:ray.far, near:ray.near, org:[ray.ray.origin.x,ray.ray.origin.y,ray.ray.origin.z], dir:[ray.ray.direction.x,ray.ray.direction.y,ray.ray.direction.z]}; },
+  hits(){ ray.setFromCamera(CENTER,camera); return ray.intersectObjects(scene.children,true).slice(0,7).map(h=>({d:+h.distance.toFixed(3),vis:h.object.visible,hot:h.object.userData.hot||null,tag:h.object.userData.tagName||null,g:h.object.geometry.type,p:[+h.object.position.x.toFixed(2),+h.object.position.y.toFixed(2),+h.object.position.z.toFixed(2)]})); },
+  probe(){ const h=hotUnderCrosshair(); return {hot:h&&h.id, act:(a=>a?{label:a.label,hint:a.hint,kind:a.kind,bad:!!a.bad}:null)(actionFor(h))}; },
+  fire(n){ const h=hotUnderCrosshair(); const a=actionFor(h); if(!a) return 'no action';
+    if(a.kind==='tap'||a.kind==='hold'){ if(a.do) a.do(); return 'did '+a.label; }
+    if(a.kind==='meter'){ for(let i=0;i<(n||400);i++) a.tick(.05); return 'metered '+a.label; }
+    if(a.kind==='whip'){ for(let i=0;i<200;i++){ a.seg.agit=Math.min(1,a.seg.agit+.02);} return 'whipped'; }
+    if(a.kind==='gauge'){ a.done(0); return 'gauged '+a.label; }
+    return 'noop'; },
+  look(x,z,yaw,pitch,crouch){ P.pos.x=x; P.pos.z=z; P.yaw=yaw; P.pitch=pitch||0; P.crouch=!!crouch;
+    const eye=P.crouch?0.92:1.56; camera.position.set(P.pos.x,eye,P.pos.z); camera.rotation.set(0,0,0);
+    camera.rotateY(P.yaw); camera.rotateX(P.pitch); camera.updateMatrixWorld(true); },
+  aimAt(x,y,z,from){ if(from){P.pos.x=from[0];P.pos.z=from[1];P.crouch=!!from[2];keys.KeyC=!!from[2];}
+    const eye=P.crouch?0.92:1.56; const dx=x-P.pos.x, dz=z-P.pos.z, dy=y-eye;
+    P.yaw=Math.atan2(-dx,-dz); P.pitch=Math.atan2(dy,Math.hypot(dx,dz));
+    camera.position.set(P.pos.x,eye,P.pos.z); camera.rotation.set(0,0,0);
+    camera.rotateY(P.yaw); camera.rotateX(P.pitch); camera.updateMatrixWorld(true); return this.probe(); }};
+new THREE.TextureLoader; // no-op guard
+drawHUD();
+$('loading').remove();
+tick();
+</script>
+</body>
+</html>
