@@ -353,6 +353,8 @@ ITEMS.forEach((it,i)=>{
   m.userData.hot = 'gear:'+it.id; world.add(m); gearMesh[it.id] = m;
 });
 
+let ACT = 1;
+const G = -6.2;
 const state = {
   carried: [], onsite: new Set(), belt: new Set(), tool: 0,
   tagged: new Set(), score: 100, t: 0, heat: 0, penalties: [], bonuses: [],
@@ -536,16 +538,21 @@ function movePlayer(dt){
     const dz = (Math.cos(P.yaw)*-f - Math.sin(P.yaw)*r)/len*sp*dt;
     const need = P.crouch?1.02:1.66;
     let nx=P.pos.x+dx, nz=P.pos.z+dz;
-    nx=Math.max(-LEN+.4,Math.min(LEN-.4,nx));
-    if(roofH(nz)<need) nz=P.pos.z;
-    nz=Math.max(-HALF_W+.35,Math.min(HALF_W-.35,nz));
-    for(const b of AABB){ if(nx>b[0]-.32&&nx<b[1]+.32&&nz>b[2]-.32&&nz<b[3]+.32){ nx=P.pos.x; nz=P.pos.z; } }
+    if(ACT===1){
+      nx=Math.max(-LEN+.4,Math.min(LEN-.4,nx));
+      if(roofH(nz)<need) nz=P.pos.z;
+      nz=Math.max(-HALF_W+.35,Math.min(HALF_W-.35,nz));
+      for(const b of AABB){ if(nx>b[0]-.32&&nx<b[1]+.32&&nz>b[2]-.32&&nz<b[3]+.32){ nx=P.pos.x; nz=P.pos.z; } }
+    } else {
+      if(!g_walk(nx,P.pos.z)) nx=P.pos.x;
+      if(!g_walk(P.pos.x,nz)) nz=P.pos.z;
+    }
     P.pos.x=nx; P.pos.z=nz; P.bob += sp*dt*2.4;
   }
   const eye = (P.crouch?0.92:1.56);
-  const onDeck = (P.pos.x>-3.1&&P.pos.x<4.6&&Math.abs(P.pos.z)<1.7)||(P.pos.x>-8.2&&P.pos.x<-5.0&&Math.abs(P.pos.z)<1.1);
+  const onDeck = ACT===2 || (P.pos.x>-3.1&&P.pos.x<4.6&&Math.abs(P.pos.z)<1.7)||(P.pos.x>-8.2&&P.pos.x<-5.0&&Math.abs(P.pos.z)<1.1);
   const sway = onDeck?0.008:0.022;
-  camera.position.set(P.pos.x, eye + Math.sin(P.bob)*sway, P.pos.z);
+  camera.position.set(P.pos.x, (ACT===2?G:0) + eye + Math.sin(P.bob)*sway, P.pos.z);
   camera.rotation.set(0,0,0);
   camera.rotateY(P.yaw); camera.rotateX(P.pitch);
   camera.rotateZ(Math.sin(P.bob*.5)*(onDeck?.004:.014));
@@ -572,7 +579,7 @@ const TASKS = [
  {t:'Close the whip holes',            s:()=>state.plugs+' of 4 (3 pop plugs, 1 small patch)', d:()=>state.plugs>=4},
  {t:'Shut down and load out',          s:()=>(state.vacOff?'':'vac off. ')+(state.panelBack?'':'panel back on. ')+'carry the gear back down', d:()=>state.finished},
 ];
-const activeTask = ()=>{ for(let i=0;i<TASKS.length;i++) if(!TASKS[i].d()) return i; return TASKS.length; };
+const activeTask = ()=>{ const L=(ACT===1?TASKS:TASKS2); for(let i=0;i<L.length;i++) if(!L[i].d()) return i; return L.length; };
 const gateCut = ()=> state.tagged.size>=5;
 
 function penalty(label,v){ state.score-=v; state.penalties.push({label,v}); toast(label+'  \u2212'+v, 'warn'); ding(140,.4); }
@@ -594,6 +601,8 @@ function hotUnderCrosshair(){
     while(o){
       if(o.userData && o.userData.tagName && !state.tagged.has(o.userData.tagName) && state.tagged.size<5)
         return {id:'tag:'+o.userData.tagName, obj:o, pt:h.point};
+      if(o.userData && o.userData.tagName2 && !G2.tagged.has(o.userData.tagName2) && G2.tagged.size<4)
+        return {id:'g2tag:'+o.userData.tagName2, obj:o, pt:h.point};
       if(o.userData && o.userData.hot) return {id:o.userData.hot, obj:o, pt:h.point};
       o=o.parent;
     } }
@@ -810,7 +819,7 @@ actionFor = function(h){
       do(){ state.carried.forEach(id=>{ gearMesh[id].userData.returned=true; state.hauledBack++; }); state.carried=[]; ding(600,.2);
         toast('Down the hatch. '+needReturn()+' left up here.'); }};
     if(state.carried.length) return {label:'Attic hatch', hint:'set the gear on the pad, you are not done', key:null, kind:'none', bad:true};
-    if(loadoutReady() && needReturn()===0) return {label:'Attic hatch', hint:'climb down. job closed.', key:'E', kind:'tap', do(){ finish(); }};
+    if(loadoutReady() && needReturn()===0) return {label:'Attic hatch', hint:'attic is closed. climb down to the first floor', key:'E', kind:'tap', do(){ startAct2(); }};
     const i=activeTask(); return {label:'Attic hatch', hint: i<TASKS.length ? 'still open: '+TASKS[i].t.toLowerCase() : 'load the gear out', key:null, kind:'none'};
   }
   return baseActionFor(h);
@@ -820,8 +829,9 @@ actionFor = function(h){
 const $ = id=>document.getElementById(id);
 let hudT=0;
 function drawHUD(){
+  const TL = ACT===1?TASKS:TASKS2;
   const act = activeTask();
-  $('tasks').innerHTML = '<div class="job">Job 013 &middot; attic system</div><ol>' + TASKS.map((t,i)=>{
+  $('tasks').innerHTML = '<div class="job">Job 013 &middot; '+(ACT===1?'attic system':'first floor + package unit')+'</div><ol>' + TL.map((t,i)=>{
     const cls = t.d()?'done':(i===act?'on':'');
     return '<li class="'+cls+'">'+t.t+(i===act?'<span class="sub">'+t.s()+'</span>':'')+'</li>';
   }).join('')+'</ol>';
@@ -865,7 +875,7 @@ function tick(){
   const dHatch = Math.hypot(P.pos.x+7.4, P.pos.z);
   const fanOn = placed.fan && !gearMesh.fan.userData.returned;
   const dFan = fanOn ? Math.hypot(P.pos.x-gearMesh.fan.position.x, P.pos.z-gearMesh.fan.position.z) : 99;
-  const cool = dHatch<2.8 || dFan<3.0;
+  const cool = (ACT===2 && P.pos.x>3.4) || dHatch<2.8 || dFan<3.0;
   state.heat = Math.max(0, Math.min(100, state.heat + dt*(cool?-9:1.7)));
   $('vig').style.opacity = state.heat>38 ? ((state.heat-38)/62*0.95).toFixed(2) : 0;
   if(state.heat>=100 && !state._hp){ state._hp=1; penalty('Heat got you. Sit down at the hatch.',10); state.heat=55; setTimeout(()=>state._hp=0,4000); }
@@ -931,12 +941,13 @@ function tick(){
     dpos[k]+=dvel[k]*dt; dpos[k+1]+=dvel[k+1]*dt-dt*.22; dpos[k+2]+=dvel[k+2]*dt; } }
   dustGeo.attributes.position.needsUpdate = true;
 
-  if(state.tagged.size>=5 && !state.hole && !mkAccess.visible){ mkAccess.visible=true; toast('System read. The access point on the return plenum is marked.','good'); }
-  if(retDone()>=2 && state.bitHoles===0 && !mkBit[0].visible) mkBit[0].visible=true;
+  if(ACT===1 && state.tagged.size>=5 && !state.hole && !mkAccess.visible){ mkAccess.visible=true; toast('System read. The access point on the return plenum is marked.','good'); }
+  if(ACT===1 && retDone()>=2 && state.bitHoles===0 && !mkBit[0].visible) mkBit[0].visible=true;
+  if(ACT===2 && g2Done(0)>=1 && !G2.hole && !mkSup.visible){ mkSup.visible=true; toast('Return side is clear. Access point marked on the supply plenum.','good'); }
 
   /* pulse markers */
   const pulse = .55+.45*Math.sin(state.t*4);
-  [mkAccess,...mkBit,mkReach].forEach(m=>{ if(m.visible){ m.material.opacity=pulse*.4; m.children[0].material.opacity=pulse; } });
+  ALLMARKS().forEach(m=>{ if(m.visible){ m.material.opacity=pulse*.4; m.children[0].material.opacity=pulse; } });
   screwPts.forEach(s=>{ if(!s.userData.in) s.material.color.setHSL(.1,1,.4+.2*pulse); });
 
   hudT+=dt; if(hudT>.12){ hudT=0; drawHUD(); }
@@ -950,6 +961,7 @@ function finish(){
   else if(state.t<840) bonus('Under 14:00', 5);
   if(state.burrs===0) bonus('Not one burred edge all day', 5);
   if(state.heat<70) bonus('Kept your head, never cooked', 3);
+  if(G2.tape) bonus('Both systems closed out in one day', 8);
   const rows = [];
   rows.push({l:'Job completed to spec', v:'+100', c:'pos'});
   state.bonuses.forEach(b=>rows.push({l:b.label, v:'+'+b.v, c:'pos'}));
@@ -964,6 +976,291 @@ function finish(){
   $('end').hidden=false;
 }
 
+
+/* ==================== ACT 2: FIRST FLOOR + PACKAGE UNIT ==================== */
+const A2 = new THREE.Group(); A2.visible = false; scene.add(A2);
+const M2 = {
+  sub:   new THREE.MeshLambertMaterial({color:0xb08a5a}),
+  wall:  new THREE.MeshLambertMaterial({color:0xd8d2c6, side:THREE.DoubleSide}),
+  ceil:  new THREE.MeshLambertMaterial({color:0xe6e2da, side:THREE.DoubleSide}),
+  slab:  new THREE.MeshLambertMaterial({color:0x8e9297}),
+  grass: new THREE.MeshLambertMaterial({color:0x5f7346}),
+  cab:   new THREE.MeshStandardMaterial({color:0xb4bcc2, metalness:.5, roughness:.45}),
+  wrap:  new THREE.MeshLambertMaterial({color:0xc3c8cc}),
+  gear:  new THREE.MeshLambertMaterial({color:0xe0511f}),
+  dark:  new THREE.MeshLambertMaterial({color:0x1b1f22}),
+};
+function a2(geo,mat,x,y,z,rx,ry){ const o=new THREE.Mesh(geo,mat); o.position.set(x,G+y,z);
+  if(rx)o.rotation.x=rx; if(ry)o.rotation.y=ry; A2.add(o); return o; }
+
+/* room shell */
+a2(new THREE.BoxGeometry(9.0,.14,8.0), M2.sub,  -1.0,-.07, 0);
+a2(new THREE.BoxGeometry(9.0,.10,8.0), M2.ceil, -1.0, 2.62, 0);
+a2(new THREE.BoxGeometry(.14,2.7,8.0), M2.wall, -5.45,1.35, 0);
+a2(new THREE.BoxGeometry(9.0,2.7,.14), M2.wall, -1.0, 1.35, 4.0);
+a2(new THREE.BoxGeometry(9.0,2.7,.14), M2.wall, -1.0, 1.35,-4.0);
+a2(new THREE.BoxGeometry(.14,2.7,3.1), M2.wall,  3.45,1.35, 2.45);
+a2(new THREE.BoxGeometry(.14,2.7,3.1), M2.wall,  3.45,1.35,-2.45);
+a2(new THREE.BoxGeometry(.14,.55,1.8), M2.wall,  3.45,2.35, 0);
+/* patio + yard */
+a2(new THREE.BoxGeometry(6.4,.12,8.0), M2.slab,  6.7,-.06, 0);
+a2(new THREE.BoxGeometry(26,.06,26),   M2.grass, 6.0,-.16, 0);
+/* package unit */
+const PU = a2(new THREE.BoxGeometry(1.4,1.25,1.75), M2.cab, 7.3,.72, 0);
+const puPanel = a2(new THREE.BoxGeometry(.06,1.1,1.55), M2.wrap, 6.57,.72, 0);
+a2(new THREE.BoxGeometry(1.2,.12,1.5), M2.dark, 7.3,1.40, 0);
+const puCoil = a2(new THREE.BoxGeometry(.05,.66,.86), new THREE.MeshLambertMaterial({color:0xa5754a}), 6.95,.85, .38);
+const puBlow = a2(new THREE.CylinderGeometry(.22,.22,.38,16), M2.cab, 6.98,.38,-.45); puBlow.rotation.z=Math.PI/2;
+const puCoilG = a2(new THREE.BoxGeometry(.07,.68,.88), M.grime(), 6.95,.85, .38);
+const puBlowG = a2(new THREE.CylinderGeometry(.24,.24,.40,16), M.grime(), 6.98,.38,-.45); puBlowG.rotation.z=Math.PI/2;
+/* plenum stubs coming out of the slab */
+const supPlen = a2(new THREE.BoxGeometry(.66,1.0,.55), M2.wrap, 7.3,.50, 1.06);
+const retPlen = a2(new THREE.BoxGeometry(.66,1.0,.55), M2.wrap, 7.3,.50,-1.06);
+/* gas negative air + tube stock */
+const gasNA = a2(new THREE.BoxGeometry(.62,.6,.5), M2.gear, 5.0,.30,-1.9);
+a2(new THREE.CylinderGeometry(.09,.09,.34,10), M2.dark, 5.0,.72,-1.9);
+const tubePile = a2(new THREE.BoxGeometry(.5,.34,1.1), M2.wrap, 4.6,.17, 2.1);
+/* return grille on the far wall */
+const retGrille = a2(new THREE.BoxGeometry(.06,1.15,1.0), M2.dark, -5.34,1.15, 0);
+const retGrilleG = a2(new THREE.BoxGeometry(.05,1.18,1.03), M.grime(), -5.30,1.15, 0);
+/* six floor registers */
+const REGS = [[-4,3.2],[-1.5,3.2],[1,3.2],[-4,-3.2],[-1.5,-3.2],[1,-3.2]];
+const regMesh=[], runSeg=[];
+REGS.forEach((r,i)=>{
+  const cav = a2(new THREE.BoxGeometry(.42,.16,.3), M2.dark, r[0],-.15, r[1]);
+  cav.userData.hot='greg:'+i;
+  const gr = a2(new THREE.BoxGeometry(.44,.03,.32), M2.cab, r[0],.02, r[1]);
+  gr.userData.hot='greg:'+i; regMesh.push(gr);
+  const gm = a2(new THREE.BoxGeometry(.40,.09,.28), M.grime(), r[0],-.04, r[1]);
+  runSeg.push({mesh:gr, grime:gm});
+});
+const regStack = a2(new THREE.BoxGeometry(.5,.02,.36), M2.cab, -2.6,.02, 0); regStack.visible=false;
+
+/* markers */
+function marker2(x,y,z,ry){
+  const m=new THREE.Mesh(new THREE.RingGeometry(.02,.125,24),
+    new THREE.MeshBasicMaterial({color:0xffb020,transparent:true,opacity:.34,side:THREE.DoubleSide,depthWrite:false}));
+  const r=new THREE.Mesh(new THREE.RingGeometry(.125,.158,26),
+    new THREE.MeshBasicMaterial({color:0xffb020,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false}));
+  m.add(r); hitpad(m,.30);
+  m.position.set(x,G+y,z); if(ry!==undefined) m.rotation.y=ry; else m.rotation.x=-Math.PI/2; A2.add(m); return m;
+}
+const mkHook  = marker2(7.3,.62,-1.44,Math.PI); mkHook.userData.hot='ghook';
+const mkSup   = marker2(7.42,.62, 1.44); mkSup.userData.hot='gaccess'; mkSup.visible=false;
+mkSup.rotation.x=0;
+function ALLMARKS(){ return [mkAccess,...mkBit,mkReach,mkHook,mkSup]; }
+
+/* segments */
+const G2 = { tagged:new Set(), tubes:0, hooked:false, primed:false, started:false, regs:0,
+  panel:false, coil:0, blower:0, rollback:false, pilot:false, hole:false, moved:false,
+  screws:0, mP:0, mX:0, flap:false, tape:false, regsBack:0, off:false, done:false, tp:0 };
+const SEG2 = [];
+function seg2(id,label,mesh,grime,order){ const o={id,label,mesh,grime,agit:0,clean:0,order};
+  mesh.userData.hot='g2seg:'+id; grime.userData.hot='g2seg:'+id; SEG2.push(o); return o; }
+seg2('ret','Return grille and run', retGrille, retGrilleG, 0);
+runSeg.forEach((r,i)=> seg2('run'+i,'Floor run '+(i+1), r.grime, r.grime, 1));
+regMesh.forEach((m,i)=>{ m.userData.hot='greg:'+i; });
+const supG = a2(new THREE.BoxGeometry(.70,1.04,.59), M.grime(), 7.3,.50,1.06);
+supG.userData.tagName2='supply plenum';
+seg2('trunk','Supply trunk', supPlen, supG, 2);
+retGrilleG.userData.tagName2='return grille';
+puPanel.userData.tagName2='package unit';
+regMesh[0].userData.tagName2='floor register';
+
+const g2Done = o => SEG2.filter(s=>s.order===o && s.clean>=1).length;
+const g2Runs = () => g2Done(1);
+
+/* walkable region */
+function g_walk(x,z){
+  if(x>6.4&&x<8.3&&z>-1.5&&z<1.5) return false;                     // package unit
+  if(x>-5.3&&x<3.35&&z>-3.85&&z<3.85) return true;                  // room
+  if(x>=3.35&&x<3.7&&z>-.85&&z<.85) return true;                    // doorway
+  if(x>=3.7&&x<9.6&&z>-3.7&&z<3.7) return true;                     // patio
+  return false;
+}
+let mainHole2=null, patch2=null; const screw2=[];
+function g2Hole(){ mainHole2 = new THREE.Mesh(new THREE.CircleGeometry(.13,20), new THREE.MeshBasicMaterial({color:0x05070a}));
+  mainHole2.position.set(7.42,G+.62,1.44); mainHole2.userData.hot='ghole'; hitpad(mainHole2,.22); A2.add(mainHole2); }
+function g2Patch(){ patch2 = new THREE.Mesh(new THREE.BoxGeometry(.34,.34,.02), M.patch);
+  patch2.position.set(7.42,G+.62,1.45); patch2.userData.hot='ghole'; A2.add(patch2);
+  [[-.13,-.13],[.13,-.13],[-.13,.13],[.13,.13],[0,-.14],[0,.14],[-.14,0],[.14,0]].forEach((p,i)=>{
+    const sc=new THREE.Mesh(new THREE.BoxGeometry(.05,.05,.034), new THREE.MeshBasicMaterial({color:0xffb020}));
+    sc.position.set(7.42+p[0], G+.62+p[1], 1.48); sc.userData.hot='gscrew:'+i; A2.add(sc); screw2.push(sc); }); }
+
+const TASKS2 = [
+ {t:'Read the first floor',            s:()=>G2.tagged.size+' of 4 components tagged', d:()=>G2.tagged.size>=4},
+ {t:'Build the tube from trailer stock', s:()=>G2.tubes+' of 3 sections taped up', d:()=>G2.tubes>=3},
+ {t:'Hook the negative air to the return', s:()=>'8 to 10 in tube onto the return plenum', d:()=>G2.hooked},
+ {t:'Prime it and pull it',            s:()=>G2.primed?'pull the cord':'squeeze the primer bulb', d:()=>G2.started},
+ {t:'Pull and stack the registers',    s:()=>G2.regs+' of 6 pulled', d:()=>G2.regs>=6},
+ {t:'Open the unit, clean coil and blower', s:()=>'coil '+Math.round(G2.coil*100)+'%, blower '+Math.round(G2.blower*100)+'%', d:()=>G2.panel&&G2.coil>=1&&G2.blower>=1},
+ {t:'Clean the return side',           s:()=>g2Done(0)+' of 1', d:()=>g2Done(0)>=1},
+ {t:'Cut the 8 in supply access',      s:()=>G2.rollback?(G2.pilot?'hole saw, keep it in the green':'pilot hole'):'roll the insulation back', d:()=>G2.hole},
+ {t:'Move the negative air to supply',  s:()=>'the machine follows the side you are agitating', d:()=>G2.moved},
+ {t:'Runs first, then the trunk',      s:()=>g2Runs()+' of 6 runs'+(SEG2.find(s=>s.id==='trunk').clean>=1?', trunk done':''), d:()=>g2Runs()>=6&&SEG2.find(s=>s.id==='trunk').clean>=1},
+ {t:'Patch the supply access',         s:()=>G2.screws+'/8 screws'+(G2.mP>=1?', mastic':'')+(G2.tape?', taped':''), d:()=>G2.tape},
+ {t:'Set the registers back',          s:()=>G2.regsBack+' of 6 back in', d:()=>G2.regsBack>=6},
+ {t:'Shut it down and call it',       s:()=>!G2.off?'kill the gas machine':(!G2.panelBack?'service panel back on':'walk it out the door'), d:()=>G2.off&&G2.panelBack},
+];
+
+function startAct2(){
+  ACT = 2; A2.visible = true; world.visible = false;
+  P.pos.set(-3.6,0,0); P.yaw = -Math.PI/2; P.pitch = 0; P.crouch=false; keys.KeyC=false;
+  scene.background = new THREE.Color(0x9fb6c4); scene.fog = new THREE.Fog(0x9fb6c4, 16, 60);
+  gable.intensity = 1.6; gable.position.set(12,10,6);
+  scene.children.forEach(o=>{ if(o.isHemisphereLight) o.intensity = 1.25; if(o.isAmbientLight) o.intensity=.45; });
+  lamp.intensity = 0; state.lampOn=false; state.heat = Math.max(0, state.heat-30);
+  state.tool = 3;
+  toast('First floor. Package unit outside on the pad, gas machine and tube stock on the patio.','good');
+  ding(520,.4);
+}
+
+function act2ActionFor(h){
+  if(!h) return null;
+  const [k,arg] = h.id.split(':');
+  const gateG = ()=> G2.tagged.size>=4;
+  if(k==='g2tag'){ if(G2.tagged.has(arg)) return null;
+    return {label:'Unidentified: '+arg, hint:'tag it', key:'E', kind:'tap',
+      do(){ G2.tagged.add(arg); ding(760,.14); toast('Tagged: '+arg+'  ('+G2.tagged.size+'/4)','good');
+        if(G2.tagged.size>=4) toast('First floor read. Package unit serves everything down here.','good'); }}; }
+  if(k==='gtube'){ if(G2.tubes>=3) return null;
+    if(!gateG()) return {label:'Tube stock', hint:'read the system first', key:null, kind:'none', bad:true};
+    return {label:'Tube stock, 8 to 10 in sections', hint:'tape a section on ('+G2.tubes+'/3)', key:'E', kind:'hold', time:1.6,
+      do(){ G2.tubes++; ding(500,.15); if(G2.tubes>=3) toast('Three sections taped. Long enough to reach the unit.','good'); }}; }
+  if(k==='ghook'){
+    if(!G2.hooked){ if(G2.tubes<3) return {label:'Return plenum', hint:'not enough tube built yet', key:null, kind:'none', bad:true};
+      return {label:'Return plenum', hint:'hook the tube on', key:'E', kind:'hold', time:1.8,
+        do(){ G2.hooked=true; mkHook.visible=false; toast('Negative air is on the return side.'); ding(480,.2); }}; }
+    return null;
+  }
+  if(k==='gna'){
+    if(!G2.hooked) return {label:'Gas negative air', hint:'hook the tube to the plenum first', key:null, kind:'none', bad:true};
+    if(!G2.primed) return {label:'Primer bulb', hint:'squeeze it a few times', key:'M', kind:'hold', time:1.6,
+      do(){ G2.primed=true; toast('Primed.'); ding(360,.12); }};
+    if(!G2.started) return {label:'Pull cord', hint:'give it a pull', key:'M', kind:'hold', time:1.2,
+      do(){ G2.started=true; if(vacGain) vacGain.gain.value=.075;
+        toast('She is running. Containment is up.','good'); ding(200,.7); }};
+    if(!G2.moved && G2.hole && g2Done(0)>=1) return {label:'Gas negative air', hint:'move the tube to the supply access', key:'E', kind:'hold', time:2.2,
+      do(){ G2.moved=true; toast('Machine moved to the supply side.','good'); ding(520,.2); }};
+    if(G2.tape && G2.regsBack>=6 && !G2.off) return {label:'Gas negative air', hint:'kill it', key:'E', kind:'tap',
+      do(){ G2.off=true; if(vacGain) vacGain.gain.value=0; ding(150,.5); }};
+    return null;
+  }
+  if(k==='greg'){
+    const i=+arg;
+    if(!gateG()) return {label:'Floor register', hint:'read the system first', key:null, kind:'none', bad:true};
+    if(!regMesh[i].userData.pulled) return {label:'Floor register '+(i+1), hint:'pull it and stack it', key:'E', kind:'tap',
+      do(){ regMesh[i].userData.pulled=true; regMesh[i].visible=false; regStack.visible=true; G2.regs++; ding(560,.1);
+        if(G2.regs>=6) toast('All six out and stacked in one place. Nothing walks off.','good'); }};
+    if(G2.tape && !regMesh[i].userData.back){
+      const seg = SEG2.find(s=>s.id==='run'+i);
+      if(seg.clean<1) return {label:'Floor register '+(i+1), hint:'that run is not clean yet', key:null, kind:'none', bad:true};
+      return {label:'Floor register '+(i+1), hint:'set it back in', key:'E', kind:'tap',
+        do(){ regMesh[i].userData.back=true; regMesh[i].visible=true; G2.regsBack++; ding(700,.1);
+          if(G2.regsBack>=6) { regStack.visible=false; toast('Registers back in, right zones.','good'); } }};
+    }
+    return null;
+  }
+  if(k==='gpanel'){
+    if(!G2.panel) return {label:'Package unit service panel', hint:'pull the panel', key:'E', kind:'hold', time:1.8,
+      do(){ G2.panel=true; puPanel.position.set(6.05,G+.58,2.05); puPanel.rotation.z=.14; puPanel.rotation.y=.5;
+        toast('Panel off and leaned on the pad. Coil and blower are in this cabinet too.'); ding(300,.3); }};
+    if(G2.tape && G2.regsBack>=6 && !G2.panelBack){ return {label:'Service panel', hint:'reinstall it', key:'E', kind:'hold', time:1.6,
+      do(){ G2.panelBack=true; puPanel.position.set(6.57,G+.72,0); puPanel.rotation.set(0,0,0); ding(420,.2); }}; }
+    return null;
+  }
+  if(k==='gcoil'){
+    if(!G2.panel) return {label:'Evaporator coil', hint:'pull the panel first', key:null, kind:'none', bad:true};
+    if(G2.coil>=1) return null;
+    if(state.tool!==2) return {label:'Evaporator coil', hint:'need the pump sprayer  [2]', key:null, kind:'none', bad:true};
+    return {label:'Evaporator coil', hint:'hold to spray', key:'M', kind:'meter', rate:.2,
+      tick(dt){ G2.coil=Math.min(1,G2.coil+dt*.2); puCoilG.material.opacity=.85*(1-G2.coil);
+        if(Math.random()<.3) puff(h.pt,1); if(G2.coil>=1){ toast('Coil sprayed.','good'); ding(700,.2);} }, val:()=>G2.coil};
+  }
+  if(k==='gblow'){
+    if(!G2.panel || G2.blower>=1) return null;
+    if(state.tool!==6) return {label:'Blower housing', hint:'need rags  [6]', key:null, kind:'none', bad:true};
+    return {label:'Blower housing', hint:'wipe it down', key:'M', kind:'meter', rate:.32,
+      tick(dt){ G2.blower=Math.min(1,G2.blower+dt*.32); puBlowG.material.opacity=.85*(1-G2.blower);
+        if(G2.blower>=1){ toast('Blower wiped.','good'); ding(700,.2);} }, val:()=>G2.blower};
+  }
+  if(k==='gaccess'){
+    if(G2.hole) return null;
+    if(!G2.rollback) return {label:'Insulation over the supply plenum', hint:'score three sides, roll it back', key:'E', kind:'hold', time:2.0,
+      do(){ G2.rollback=true; ding(500,.2); }};
+    if(state.tool!==1) return {label:'Bare plenum sheet metal', hint:'need the drill  [1]', key:null, kind:'none', bad:true};
+    if(!G2.pilot) return {label:'Supply plenum, marked', hint:'pilot hole', key:'M', kind:'hold', time:1.2,
+      do(){ G2.pilot=true; ding(600,.15); }};
+    return {label:'8 in hole saw', hint:'hold to feed, keep it in the green', key:'M', kind:'gauge',
+      done(burr){ G2.hole=true; g2Hole(); mkSup.visible=false;
+        if(burr>0){ penalty('Burred the supply plenum cut x'+burr, burr*3); state.burrs+=burr; }
+        else bonus('Clean cut on the supply plenum',4);
+        ding(760,.3); }};
+  }
+  if(k==='g2seg'){
+    const s=SEG2.find(x=>x.id===arg); if(!s||s.clean>=1) return null;
+    if(!gateG()) return {label:s.label, hint:'read the system first', key:null, kind:'none', bad:true};
+    if(!G2.started) return {label:s.label, hint:'the gas machine is not running', key:null, kind:'none', bad:true};
+    if(s.order>=1 && !G2.moved) return {label:s.label, hint:'negative air is still on the return side', key:null, kind:'none', bad:true};
+    if(s.order===1 && !regMesh[+arg.slice(3)].userData.pulled) return {label:s.label, hint:'pull the register first', key:null, kind:'none', bad:true};
+    if(s.order===2 && g2Runs()<6) return {label:'Supply trunk', hint:'runs before the trunk', key:null, kind:'none', bad:true, trap:'g2trunk'};
+    if(s.agit<1){
+      if(state.tool!==3) return {label:s.label, hint:'need the air whip  [3]', key:null, kind:'none', bad:true};
+      return {label:s.label+' \u2014 agitate', hint:'hold and sweep', key:'M', kind:'whip', seg:s};
+    }
+    if(state.tool!==4) return {label:s.label+' \u2014 loosened', hint:'need the forward nozzle  [4]', key:null, kind:'none', bad:true};
+    return {label:s.label+' \u2014 push it home', hint:'drive it to the negative air', key:'M', kind:'meter', rate:.45,
+      tick(dt){ s.clean=Math.min(1,s.clean+dt*.45); s.grime.material.opacity=.85*(1-s.clean); if(Math.random()<.35) puff(h.pt,2);
+        if(s.clean>=1){ s.grime.visible=false; toast(s.label+' clear','good'); ding(720,.18);} }, val:()=>s.clean};
+  }
+  if(k==='ghole'){
+    if(G2.tape) return null;
+    const allClean = g2Done(0)>=1 && g2Runs()>=6 && SEG2.find(x=>x.id==='trunk').clean>=1;
+    if(!allClean) return {label:'8 in access', hint:'stays open until the supply side is clean', key:null, kind:'none'};
+    if(state.tool!==5) return {label:'8 in access, open', hint:'need the patch kit  [5]', key:null, kind:'none', bad:true};
+    if(!patch2) return {label:'Sheet metal patch', hint:'set it on the plenum face', key:'M', kind:'hold', time:1.8,
+      do(){ g2Patch(); toast('Patch set. Corners first.'); ding(500,.2); }};
+    if(G2.screws<8) return {label:'Patch', hint:G2.screws<4?'four corners first':'side midpoints', key:null, kind:'none'};
+    if(G2.mP<1) return {label:'Mastic, perimeter', hint:'run the bead around', key:'M', kind:'meter', rate:.36,
+      tick(dt){ G2.mP=Math.min(1,G2.mP+dt*.36); if(G2.mP>=1) ding(640,.18); }, val:()=>G2.mP};
+    if(G2.mX<1) return {label:'Mastic, X across the face', hint:'so the insulation grabs', key:'M', kind:'meter', rate:.45,
+      tick(dt){ G2.mX=Math.min(1,G2.mX+dt*.45); if(G2.mX>=1) ding(640,.18); }, val:()=>G2.mX};
+    if(!G2.flap) return {label:'Insulation flap', hint:'roll it back over', key:'E', kind:'hold', time:1.4,
+      do(){ G2.flap=true; patch2.material=M2.wrap; ding(520,.2); }};
+    return {label:'FSK tape, 3 in', hint:'over the cut', key:'M', kind:'meter', rate:.38,
+      tick(dt){ G2.tp+=dt*.38; if(G2.tp>=1 && !G2.tape){ G2.tape=true; bonus('Supply access patched to spec',6);
+        toast('Taped. Set the registers back and shut it down.','good'); ding(820,.3);} }, val:()=>Math.min(1,G2.tp)};
+  }
+  if(k==='gscrew'){
+    const i=+arg; if(!patch2 || screw2[i].userData.in) return null;
+    if(state.tool!==5) return {label:'Screw point', hint:'need the patch kit  [5]', key:null, kind:'none', bad:true};
+    if(i>=4 && G2.screws<4) return {label:'Side midpoint', hint:'corners first', key:null, kind:'none', bad:true};
+    return {label:i<4?'Corner screw':'Side midpoint screw', hint:'1/4 in sheet metal screw', key:'M', kind:'hold', time:.7,
+      do(){ screw2[i].userData.in=true; screw2[i].material.color.set(0x7d8890); screw2[i].scale.setScalar(.7); G2.screws++; ding(880,.08); }};
+  }
+  if(k==='gdoor'){
+    const i=activeTask();
+    if(i<TASKS2.length) return {label:'Back door', hint:'still open: '+TASKS2[i].t.toLowerCase(), key:null, kind:'none'};
+    return {label:'Back door', hint:'that is the job. walk it out.', key:'E', kind:'tap', do(){ G2.done=true; finish(); }};
+  }
+  return null;
+}
+gasNA.userData.hot='gna'; tubePile.userData.hot='gtube'; puPanel.userData.hot='gpanel';
+puCoil.userData.hot='gcoil'; puCoilG.userData.hot='gcoil'; puBlow.userData.hot='gblow'; puBlowG.userData.hot='gblow';
+const doorPad = a2(new THREE.PlaneGeometry(.62,1.66), new THREE.MeshBasicMaterial({color:0xffb020,transparent:true,opacity:.20,side:THREE.DoubleSide}), 3.52,.03,0, -Math.PI/2);
+doorPad.userData.hot='gdoor';
+
+const preAct2 = actionFor;
+actionFor = function(h){
+  if(ACT!==2) return preAct2(h);
+  if(h && h.obj){
+    let o=h.obj;
+    while(o){ if(o.userData.tagName2 && !G2.tagged.has(o.userData.tagName2) && G2.tagged.size<4)
+        return act2ActionFor({id:'g2tag:'+o.userData.tagName2, obj:o, pt:h.pt}); o=o.parent; }
+  }
+  return act2ActionFor(h);
+};
+
 /* ============================ BOOT ============================ */
 mkBit[0].visible = false;
 $('go').onclick = ()=>{
@@ -972,7 +1269,7 @@ $('go').onclick = ()=>{
   toast('You are in the attic. Gear is at the hatch. Read the system before you cut anything.');
 };
 $('again').onclick = ()=> location.reload();
-window.__dbg = {THREE,scene,camera,renderer,state,TASKS,SEGS,P,ITEMS,gearMesh,placed,mkAccess,world,activeTask,retDone,brDone,trunkSeg,mkBit,mkReach,
+window.__dbg = {THREE,scene,camera,renderer,G2,SEG2,regMesh,getAct:()=>ACT,Gbase:()=>G,jumpAct2:()=>startAct2(),state,TASKS,SEGS,P,ITEMS,gearMesh,placed,mkAccess,world,activeTask,retDone,brDone,trunkSeg,mkBit,mkReach,
   hitOne(o){ ray.setFromCamera(CENTER,camera); const r=ray.intersectObject(o,true); return {n:r.length, d:r[0]&&r[0].distance, far:ray.far, near:ray.near, org:[ray.ray.origin.x,ray.ray.origin.y,ray.ray.origin.z], dir:[ray.ray.direction.x,ray.ray.direction.y,ray.ray.direction.z]}; },
   hits(){ ray.setFromCamera(CENTER,camera); return ray.intersectObjects(scene.children,true).slice(0,7).map(h=>({d:+h.distance.toFixed(3),vis:h.object.visible,hot:h.object.userData.hot||null,tag:h.object.userData.tagName||null,g:h.object.geometry.type,p:[+h.object.position.x.toFixed(2),+h.object.position.y.toFixed(2),+h.object.position.z.toFixed(2)]})); },
   probe(){ const h=hotUnderCrosshair(); return {hot:h&&h.id, act:(a=>a?{label:a.label,hint:a.hint,kind:a.kind,bad:!!a.bad}:null)(actionFor(h))}; },
@@ -983,10 +1280,10 @@ window.__dbg = {THREE,scene,camera,renderer,state,TASKS,SEGS,P,ITEMS,gearMesh,pl
     if(a.kind==='gauge'){ a.done(0); return 'gauged '+a.label; }
     return 'noop'; },
   look(x,z,yaw,pitch,crouch){ P.pos.x=x; P.pos.z=z; P.yaw=yaw; P.pitch=pitch||0; P.crouch=!!crouch;
-    const eye=P.crouch?0.92:1.56; camera.position.set(P.pos.x,eye,P.pos.z); camera.rotation.set(0,0,0);
+    const eye=(ACT===2?G:0)+(P.crouch?0.92:1.56); camera.position.set(P.pos.x,eye,P.pos.z); camera.rotation.set(0,0,0);
     camera.rotateY(P.yaw); camera.rotateX(P.pitch); camera.updateMatrixWorld(true); },
   aimAt(x,y,z,from){ if(from){P.pos.x=from[0];P.pos.z=from[1];P.crouch=!!from[2];keys.KeyC=!!from[2];}
-    const eye=P.crouch?0.92:1.56; const dx=x-P.pos.x, dz=z-P.pos.z, dy=y-eye;
+    const eye=(ACT===2?G:0)+(P.crouch?0.92:1.56); const dx=x-P.pos.x, dz=z-P.pos.z, dy=y-eye;
     P.yaw=Math.atan2(-dx,-dz); P.pitch=Math.atan2(dy,Math.hypot(dx,dz));
     camera.position.set(P.pos.x,eye,P.pos.z); camera.rotation.set(0,0,0);
     camera.rotateY(P.yaw); camera.rotateX(P.pitch); camera.updateMatrixWorld(true); return this.probe(); }};
