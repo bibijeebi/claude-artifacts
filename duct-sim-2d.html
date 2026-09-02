@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Duct Sim: residential attic system</title>
+<meta name="description" content="Click-and-hold 2D duct cleaning trainer. Attic air handler, supply trunk with flex branches, one return. Cut access, whip, forward, patch, plug. Scored on the rules that matter.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Duct Sim: residential attic system">
+<meta property="og:description" content="Click-and-hold 2D duct cleaning trainer. Cut access, whip, forward toward the negative air, patch every hole. Scored on branches-before-trunk, containment, and close-out.">
+<meta property="og:url" content="https://niggerfaggot.club/duct-sim-2d.html">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/duct-sim-2d-og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/duct-sim-2d-og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1d1a2e;--paper:#f6efe2;--yellow:#f4c33a;--blue:#3e63c8;--metal:#c9ccd3;--metal2:#9ea3ad;--grime:#5a3d21;--attic:#6b4a2f;--wall:#e9dcc4;--room:#f3e6d0;--green:#4fb36a;--red:#d9463e}
+*{box-sizing:border-box}
+html,body{margin:0;overflow-x:hidden;background:var(--ink);color:var(--paper);font-family:Fredoka,system-ui,sans-serif;-webkit-user-select:none;user-select:none}
+#app{display:grid;grid-template-rows:auto 1fr auto auto;height:100dvh;max-width:1180px;margin:0 auto;min-width:0;overflow:hidden}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:8px 14px;font-size:15px}
+header b{font-size:19px;font-weight:700;color:var(--yellow)}
+header .m{display:flex;align-items:center;gap:6px}
+.bar{width:90px;height:10px;background:#3a3650;border-radius:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green);transition:width .2s}
+header button{margin-left:auto}
+#scene{position:relative;min-height:0}
+svg{width:100%;height:100%;display:block;touch-action:none}
+#msgs{padding:6px 14px;font-size:15px;line-height:1.35;min-height:52px}
+#msgs .why{color:#b9b3d6;font-size:13.5px}
+#msgs .bad{color:#ff9b95}
+#msgs .good{color:#8fe0a5}
+#belt{display:flex;gap:6px;padding:6px 10px 10px;overflow-x:auto;scrollbar-width:none}
+#belt::-webkit-scrollbar{display:none}
+.tool{flex:0 0 auto;border:3px solid #3a3650;background:#2a2740;color:var(--paper);border-radius:14px;padding:6px 10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;min-width:66px;text-align:center}
+.tool small{display:block;font-weight:400;font-size:11px;color:#b9b3d6}
+.tool.on{border-color:var(--yellow);background:#4a4020}
+button{font:inherit;font-weight:600;font-size:14px;border:0;border-radius:12px;padding:8px 14px;background:var(--yellow);color:var(--ink);cursor:pointer}
+button.alt{background:#3a3650;color:var(--paper)}
+button:disabled{opacity:.4}
+#panel{position:absolute;right:10px;top:10px;width:260px;background:#2a2740;border:3px solid #3a3650;border-radius:16px;padding:12px;font-size:14px;display:none;z-index:5}
+#panel h3{margin:0 0 6px;font-size:16px;color:var(--yellow)}
+#panel p{margin:4px 0 8px;color:#d9d3ef}
+#panel .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+#panel svg{height:150px;width:100%;touch-action:none}
+.hold{position:relative}
+.hold.active{background:#ffd966}
+#overlay{position:absolute;inset:0;background:rgba(29,26,46,.94);display:none;overflow:auto;padding:20px;z-index:10}
+#overlay .card{max-width:620px;margin:0 auto;font-size:15px;line-height:1.4}
+#overlay h2{color:var(--yellow);margin:0 0 6px;font-size:26px}
+#overlay .big{font-size:48px;font-weight:700}
+#overlay ul{padding-left:18px}
+#overlay li{margin:6px 0}
+#overlay .why{color:#b9b3d6;font-size:13.5px;display:block}
+.sel{filter:drop-shadow(0 0 6px #f4c33a)}
+.hit{cursor:pointer}
+@media (max-width:700px){#panel{left:10px;right:10px;width:auto;top:auto;bottom:6px}header{font-size:13px;gap:6px 8px;padding:6px 10px}header b{font-size:16px}header>span:first-of-type{display:none}.bar{width:56px}header button{padding:6px 10px;font-size:13px}#msgs{font-size:14px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+<header><b>Duct Sim</b><span>residential attic system</span>
+<span class="m">supply <span class="bar"><i id="bS"></i></span></span>
+<span class="m">return <span class="bar"><i id="bR"></i></span></span>
+<span class="m" id="vio">0 flags</span>
+<button class="alt" id="hintBtn">Hint</button><button id="finish">Finish job</button></header>
+<div id="scene">
+<svg id="svg" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Cutaway of a house with an attic HVAC system"></svg>
+<div id="panel"></div>
+<div id="overlay"><div class="card"></div></div>
+</div>
+<div id="msgs"><div id="m1">Start with a walk. Click things with the hand to see what they are. Cut nothing until you know where the machine hooks up.</div><div class="why" id="m2"></div></div>
+<div id="belt"></div>
+</div>
+<script>
+const S = {
+  tool:'hand', sel:null, negSide:null, negOn:false, holes:[], vio:[], defects:[], hint:false,
+  ah:{power:true, panel:true, coil:0, blower:0},
+  reg:{R1:'in',R2:'in',R3:'in',RG:'in'},
+  seg:{}
+};
+const LAYOUT = {
+  RP:{x:385,y:140,w:70,h:60,side:'return',kind:'plenum',label:'return plenum',up:null},
+  RT1:{x:265,y:150,w:120,h:40,side:'return',kind:'trunk',label:'return trunk, near',up:'RP'},
+  RT2:{x:145,y:150,w:120,h:40,side:'return',kind:'trunk',label:'return trunk, far',up:'RT1'},
+  RB:{x:150,y:190,w:30,h:80,side:'return',kind:'drop',label:'return drop',up:'RT2',reg:'RG'},
+  SP:{x:545,y:140,w:70,h:60,side:'supply',kind:'plenum',label:'supply plenum',up:null},
+  ST1:{x:615,y:150,w:110,h:40,side:'supply',kind:'trunk',label:'supply trunk, near',up:'SP'},
+  ST2:{x:725,y:150,w:110,h:40,side:'supply',kind:'trunk',label:'supply trunk, mid',up:'ST1'},
+  ST3:{x:835,y:150,w:110,h:40,side:'supply',kind:'trunk',label:'supply trunk, far',up:'ST2'},
+  B1:{x:658,y:190,w:24,h:80,side:'supply',kind:'flex',label:'flex branch 1',up:'ST1',reg:'R1'},
+  B2:{x:768,y:190,w:24,h:80,side:'supply',kind:'flex',label:'flex branch 2',up:'ST2',reg:'R2'},
+  B3:{x:878,y:190,w:24,h:80,side:'supply',kind:'flex',label:'flex branch 3',up:'ST3',reg:'R3'}
+};
+const REGS = {R1:{x:670,seg:'B1',name:'register 1'},R2:{x:780,seg:'B2',name:'register 2'},R3:{x:890,seg:'B3',name:'register 3'},RG:{x:165,seg:'RB',name:'return grille'}};
+const TOOLS = [['hand','Hand','pull, flip, inspect'],['saw','8" saw','hole saw kit'],['bit','1" bit','fairbairn bit'],['hose','Neg air','hose + machine'],['whip','Whip','noodles'],['nozzle','Nozzle','forward air'],['patch','Patch','metal + mastic + FSK'],['plug','Plug','pop plug + FSK'],['spray','Sprayer','coil cleaner'],['rag','Rag','blower wipe']];
+const MIN_HOLES = 5;
+function resetSegs(){ for(const k in LAYOUT) S.seg[k]={grime:75+Math.floor(Math.random()*20),loose:0,noteNoNeg:false}; }
+resetSegs();
+
+const svg=document.getElementById('svg'), panel=document.getElementById('panel'), overlay=document.getElementById('overlay');
+const say=(a,b,cls)=>{const m1=document.getElementById('m1'),m2=document.getElementById('m2');m1.textContent=a;m1.className=cls||'';m2.textContent=b||'';};
+const clean=k=>S.seg[k].grime<8&&S.seg[k].loose<8;
+const allClean=()=>Object.keys(LAYOUT).every(clean);
+const sideClean=s=>Object.keys(LAYOUT).filter(k=>LAYOUT[k].side===s).every(clean);
+const negRunning=side=>S.negSide===side&&S.negOn;
+function flag(code,text,why){ if(S.vio.some(v=>v.code===code)) return; S.vio.push({code,text,why}); say(text,why,'bad'); render(); }
+function pathUp(k){ const out=[]; let c=LAYOUT[k].up; while(c){ out.push(c); c=LAYOUT[c].up; } return out; }
+function downstream(k){ return Object.keys(LAYOUT).filter(o=>o!==k&&pathUp(o).includes(k)); }
+function holeAt(k){ return S.holes.find(h=>h.seg===k); }
+function whipAccess(k){
+  const L=LAYOUT[k];
+  if(L.reg) return S.reg[L.reg]==='out' ? 'reg' : null;
+  if(holeAt(k)&&holeAt(k).cut) return 'hole';
+  if(L.kind==='trunk'&&LAYOUT[L.up].kind==='plenum'&&holeAt(L.up)&&holeAt(L.up).cut) return 'plenum';
+  return null;
+}
+
+// ---------- drawing ----------
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a,parent)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(parent||svg).appendChild(e);return e;};
+let rngSeed=7; const rnd=()=>{rngSeed=(rngSeed*9301+49297)%233280;return rngSeed/233280;};
+function speckles(L,n,fill,op,cls){
+  rngSeed=L.x*3+L.y; const g=el('g',{class:cls,opacity:op});
+  for(let i=0;i<n;i++){ el('circle',{cx:L.x+4+rnd()*(L.w-8),cy:L.y+4+rnd()*(L.h-8),r:1.5+rnd()*2.5,fill},g); }
+  return g;
+}
+function render(){
+  svg.innerHTML='';
+  // house shell
+  el('rect',{x:0,y:0,width:1000,height:600,fill:'#2c2a3f'});
+  el('polygon',{points:'20,282 500,22 980,282',fill:'#5a3e2b',stroke:'var(--ink)','stroke-width':6,'stroke-linejoin':'round'});
+  el('polygon',{points:'48,276 500,40 952,276',fill:'#7a5a3e'});
+  el('rect',{x:40,y:276,width:920,height:290,fill:'var(--room)',stroke:'var(--ink)','stroke-width':6});
+  el('rect',{x:40,y:270,width:920,height:14,fill:'var(--wall)',stroke:'var(--ink)','stroke-width':4});
+  for(let x=60;x<960;x+=40) el('rect',{x,y:262,width:12,height:12,fill:'#8a6a4a'});
+  el('rect',{x:40,y:552,width:920,height:16,fill:'#b98a5a',stroke:'var(--ink)','stroke-width':4});
+  el('rect',{x:300,y:340,width:120,height:110,fill:'#bcd8ef',stroke:'var(--ink)','stroke-width':5,rx:6});
+  el('line',{x1:360,y1:340,x2:360,y2:450,stroke:'var(--ink)','stroke-width':4});
+  el('rect',{x:560,y:430,width:230,height:80,rx:16,fill:'#6f8fc9',stroke:'var(--ink)','stroke-width':5});
+  el('rect',{x:575,y:410,width:200,height:40,rx:14,fill:'#7d9dd6',stroke:'var(--ink)','stroke-width':5});
+  // attic hatch
+  el('rect',{x:214,y:266,width:56,height:22,fill:'#4a3320',stroke:'var(--ink)','stroke-width':4,rx:3});
+  // negative air machine (room)
+  const mg=el('g',{class:'hit',id:'hit-NEG'});
+  el('rect',{x:60,y:470,width:100,height:82,rx:10,fill:'var(--yellow)',stroke:'var(--ink)','stroke-width':5},mg);
+  el('circle',{cx:110,cy:505,r:22,fill:'#2a2740',stroke:'var(--ink)','stroke-width':4},mg);
+  el('circle',{cx:110,cy:505,r:8,fill:S.negOn?'var(--green)':'#6b6588'},mg);
+  el('text',{x:110,y:543,'text-anchor':'middle','font-size':12,'font-weight':700,fill:'var(--ink)'},mg).textContent=S.negOn?'RUNNING':'OFF';
+  el('text',{x:110,y:462,'text-anchor':'middle','font-size':12,fill:'#d9d3ef'}).textContent='negative air';
+  // hose
+  if(S.negSide){ const h=holeAt(S.negSide==='supply'?'SP':'RP'); const L=LAYOUT[h.seg];
+    el('polyline',{points:`110,470 110,300 242,300 242,232 ${L.x+L.w/2},232 ${L.x+L.w/2},${L.y+L.h}`,fill:'none',stroke:'#3a3650','stroke-width':14,'stroke-linejoin':'round','stroke-linecap':'round'});
+    el('polyline',{points:`110,470 110,300 242,300 242,232 ${L.x+L.w/2},232 ${L.x+L.w/2},${L.y+L.h}`,fill:'none',stroke:'#8f89b3','stroke-width':8,'stroke-dasharray':'6 6','stroke-linejoin':'round','stroke-linecap':'round'});
+  }
+  // ducts
+  for(const k in LAYOUT){ const L=LAYOUT[k], s=S.seg[k], g=el('g',{class:'hit'+(S.sel===k?' sel':''),id:'hit-'+k});
+    const flex=L.kind==='flex', fill=flex?'#a8adb8':'var(--metal)';
+    el('rect',{x:L.x,y:L.y,width:L.w,height:L.h,rx:flex?12:(L.kind==='plenum'?4:L.h/2),fill,stroke:'var(--ink)','stroke-width':5},g);
+    if(flex) for(let y=L.y+8;y<L.y+L.h-4;y+=8) el('line',{x1:L.x+3,y1:y,x2:L.x+L.w-3,y2:y,stroke:'#7d828c','stroke-width':2},g);
+    else if(L.kind==='trunk') el('rect',{x:L.x,y:L.y+L.h*.55,width:L.w,height:L.h*.25,fill:'var(--metal2)',opacity:.6},g);
+    g.appendChild(speckles(L,Math.round(L.w*L.h/120),'var(--grime)',s.grime/100));
+    g.appendChild(speckles({x:L.x+1,y:L.y+1,w:L.w,h:L.h},Math.round(L.w*L.h/150),'#b78b5b',s.loose/100));
+    const h=holeAt(k); if(h){ const cx=L.x+L.w/2, cy=L.y+L.h/2, r=h.type==='8'?14:5;
+      if(h.patched) el('rect',{x:cx-r-6,y:cy-r-6,width:2*r+12,height:2*r+12,fill:'#b9bfca',stroke:'var(--ink)','stroke-width':3,rx:2},g);
+      else if(h.cut) el('circle',{cx,cy,r,fill:'#1d1a2e',stroke:'var(--yellow)','stroke-width':3},g);
+      else el('circle',{cx,cy,r,fill:'none',stroke:'var(--yellow)','stroke-width':2,'stroke-dasharray':'3 3'},g);
+    }
+    if(S.hint){ el('text',{x:L.x+L.w/2,y:L.y-6,'text-anchor':'middle','font-size':11,fill:'#ffe9a3'},g).textContent=k+' '+Math.round(s.grime+s.loose)+'%'; }
+  }
+  // air handler
+  const ag=el('g',{class:'hit'+(S.sel==='AH'?' sel':''),id:'hit-AH'});
+  el('rect',{x:455,y:105,width:90,height:130,rx:8,fill:'#8b93a3',stroke:'var(--ink)','stroke-width':5},ag);
+  if(!S.ah.panel){ el('rect',{x:463,y:113,width:74,height:114,fill:'#3a3650',stroke:'var(--ink)','stroke-width':3},ag);
+    el('rect',{x:470,y:120,width:60,height:40,fill:S.ah.coil>=100?'#9fd6b8':'#6e5a3f',stroke:'var(--ink)','stroke-width':2},ag);
+    for(let y=126;y<158;y+=6) el('line',{x1:472,y1:y,x2:528,y2:y,stroke:'#2a2740','stroke-width':1.5},ag);
+    el('circle',{cx:500,cy:195,r:22,fill:S.ah.blower>=100?'#b8c4d6':'#6e5a3f',stroke:'var(--ink)','stroke-width':3},ag);
+    el('rect',{x:395,y:235,width:60,height:28,rx:3,fill:'#8b93a3',stroke:'var(--ink)','stroke-width':3},ag);
+  } else el('rect',{x:463,y:113,width:74,height:114,fill:'#a3abba',stroke:'var(--ink)','stroke-width':3},ag);
+  el('rect',{x:452,y:82,width:26,height:20,rx:3,fill:'#c9ccd3',stroke:'var(--ink)','stroke-width':3},ag);
+  el('rect',{x:462,y:S.ah.power?85:92,width:6,height:8,fill:S.ah.power?'var(--red)':'var(--green)'},ag);
+  el('text',{x:500,y:250,'text-anchor':'middle','font-size':11,fill:'#d9d3ef'}).textContent='air handler';
+  // registers
+  for(const r in REGS){ const R=REGS[r], g=el('g',{class:'hit'+(S.sel===r?' sel':''),id:'hit-'+r});
+    if(S.reg[r]==='in'){ el('rect',{x:R.x-26,y:268,width:52,height:16,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':4},g);
+      for(let x=R.x-18;x<=R.x+18;x+=9) el('line',{x1:x,y1:272,x2:x,y2:280,stroke:'#8a8f9a','stroke-width':3},g); }
+    else { el('rect',{x:R.x-26,y:268,width:52,height:16,fill:'#1d1a2e',stroke:'var(--ink)','stroke-width':4},g);
+      el('rect',{x:R.x+30,y:520,width:16,height:40,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':3,transform:`rotate(-12 ${R.x+30} 520)`},g); }
+  }
+  // tech
+  const p=techPos(); const tg=el('g',{transform:`translate(${p.x},${p.y})`,id:'tech',style:'transition:transform .35s'});
+  el('ellipse',{cx:0,cy:0,rx:18,ry:6,fill:'rgba(0,0,0,.25)'},tg);
+  el('rect',{x:-16,y:-58,width:32,height:52,rx:14,fill:'var(--blue)',stroke:'var(--ink)','stroke-width':4},tg);
+  el('rect',{x:-24,y:-50,width:10,height:26,rx:4,fill:'#2f4c9c',stroke:'var(--ink)','stroke-width':3},tg);
+  el('rect',{x:-8,y:-52,width:24,height:14,rx:7,fill:'#bfe8ff',stroke:'var(--ink)','stroke-width':3},tg);
+  el('rect',{x:-14,y:-8,width:11,height:10,rx:3,fill:'var(--blue)',stroke:'var(--ink)','stroke-width':3},tg);
+  el('rect',{x:3,y:-8,width:11,height:10,rx:3,fill:'var(--blue)',stroke:'var(--ink)','stroke-width':3},tg);
+  el('text',{x:0,y:-64,'text-anchor':'middle','font-size':11,fill:'#ffe9a3'},tg).textContent=TOOLS.find(t=>t[0]===S.tool)[1];
+  if(holdState){ el('circle',{cx:holdState.cx,cy:holdState.cy,r:22,fill:'none',stroke:'#3a3650','stroke-width':6});
+    el('circle',{cx:holdState.cx,cy:holdState.cy,r:22,fill:'none',stroke:'var(--yellow)','stroke-width':6,'stroke-dasharray':`${138*holdState.p} 138`,transform:`rotate(-90 ${holdState.cx} ${holdState.cy})`}); }
+  // meters
+  const avg=s=>{const ks=Object.keys(LAYOUT).filter(k=>LAYOUT[k].side===s);return 100-ks.reduce((a,k)=>a+Math.min(100,S.seg[k].grime+S.seg[k].loose),0)/ks.length;};
+  document.getElementById('bS').style.width=avg('supply')+'%'; document.getElementById('bR').style.width=avg('return')+'%';
+  document.getElementById('vio').textContent=S.vio.length+' flag'+(S.vio.length===1?'':'s');
+}
+function techPos(){
+  const k=S.sel; if(!k) return {x:240,y:270};
+  if(REGS[k]) return {x:REGS[k].x+40,y:552}; if(k==='NEG') return {x:190,y:552}; if(k==='AH') return {x:420,y:270};
+  const L=LAYOUT[k]; if(L.kind==='flex'||L.kind==='drop') return {x:L.x+L.w/2+40,y:552};
+  return {x:Math.max(90,L.x+L.w/2),y:270};
+}
+
+// ---------- input ----------
+let holdState=null, holdTimer=null;
+function targetOf(e){ const g=e.target.closest('[id^="hit-"]'); return g?g.id.slice(4):null; }
+svg.addEventListener('pointerdown',e=>{ const t=targetOf(e); if(!t) return; e.preventDefault(); S.sel=t; act(t,e); render(); });
+['pointerup','pointercancel','pointerleave'].forEach(ev=>svg.addEventListener(ev,stopHold));
+function startHold(cx,cy,secs,step,done){ stopHold(); holdState={cx,cy,p:0}; const t0=performance.now(); let last=t0;
+  holdTimer=setInterval(()=>{ const now=performance.now(); const dt=(now-last)/1000; last=now; holdState.p=Math.min(1,(now-t0)/1000/secs); step(dt); render(); if(holdState.p>=1){ stopHold(); done&&done(); render(); } },50); }
+function stopHold(){ if(holdTimer){clearInterval(holdTimer);holdTimer=null;} holdState=null; }
+const center=k=>{const L=LAYOUT[k];return {cx:L.x+L.w/2,cy:L.y+L.h/2};};
+
+function act(t){
+  const tool=S.tool; panel.style.display='none';
+  if(t==='NEG') return actNeg(tool);
+  if(t==='AH') return actAH(tool);
+  if(REGS[t]) return actReg(t,tool);
+  return actSeg(t,tool);
+}
+function actNeg(tool){
+  if(tool!=='hand') return say('Hand for the switch.','Walk over and flip it.');
+  if(!S.negSide) return say('No hose hooked up. Nothing to pull on.','Cut an 8 inch access on a plenum, then attach the hose there with the Neg air tool.');
+  S.negOn=!S.negOn; say(S.negOn?`Machine running on the ${S.negSide} side.`:'Machine off.', S.negOn?'It runs the whole time you agitate on that side. That is the rule.':'', S.negOn?'good':'');
+}
+function actAH(tool){
+  const a=S.ah;
+  if(tool==='hand'){
+    if(a.power){ a.power=false; return say('Power off at the disconnect.','Always before a panel comes off.','good'); }
+    if(a.panel){ a.panel=false; if(!allClean()) flag('ah-early','Air handler opened before the ducts are done.','It sits between both sides and catches what either side knocks loose. Clean it last.'); return say('Panel off. Coil and blower exposed.','Sprayer on the coil, rag on the blower housing.'); }
+    if(a.coil>=100&&a.blower>=100){ a.panel=true; a.power=true; return say('Panel back on, power restored.','Air handler done.','good'); }
+    return say('Coil and blower are not done yet.',`Coil ${Math.round(a.coil)}%, blower ${Math.round(a.blower)}%.`);
+  }
+  if(a.panel) return say('Panel is still on.','Hand: power off, then pull the panel.');
+  if(tool==='spray'){ startHold(500,140,2.2,dt=>{a.coil=Math.min(100,a.coil+dt*45);},()=>{a.coil=100;say('Coil sprayed. Let the enzyme work.','A couple of passes. The condenser outside never gets touched, it is out of scope.','good');}); return; }
+  if(tool==='rag'){ startHold(500,195,1.8,dt=>{a.blower=Math.min(100,a.blower+dt*55);},()=>{a.blower=100;say('Blower housing wiped in place.','It does not come out for a standard clean.','good');}); return; }
+  say('Wrong tool for the air handler.','Sprayer for the coil, rag for the blower, hand for panel and power.');
+}
+function actReg(r,tool){
+  const R=REGS[r];
+  if(tool==='hand'){ if(S.reg[r]==='in'){ S.reg[r]='out'; return say(`${R.name} pulled. Boot is open.`,'Whip up into the branch from here, then forward toward the trunk.'); }
+    S.reg[r]='in'; if(!clean(R.seg)) flag('reg-dirty-'+r,`${R.name} reinstalled over a dirty branch.`,'Nothing behind a grille should go back on until the run is clean.'); return say(`${R.name} back on.`,''); }
+  if(S.reg[r]==='in') return say('Register is still in.','Hand to pull it first.');
+  return actSeg(R.seg,tool);
+}
+function actSeg(k,tool){
+  const L=LAYOUT[k], s=S.seg[k], c=center(k), h=holeAt(k);
+  if(tool==='hand'){ const acc=whipAccess(k); return say(`${L.label}. ${Math.round(s.grime)}% stuck, ${Math.round(s.loose)}% loosened.`, acc?`Whip access: ${acc==='reg'?'through the open register boot':acc==='hole'?'through the hole you cut':'reaching through the plenum access'}.`:(L.reg?'Pull the register to get in here.':L.kind==='plenum'?'Needs an 8 inch access. That is also where the hose hooks up.':'Needs a 1 inch bit hole, or reach from the plenum access if it is the near segment.')); }
+  if(tool==='saw'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); openCut(k,'8'); return; }
+  if(tool==='bit'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); if(L.kind==='plenum') return say('A bit hole will not take the hose.','Plenum gets the 8 inch access.'); if(L.kind==='trunk'&&LAYOUT[L.up].kind==='plenum'&&holeAt(L.up)&&holeAt(L.up).cut){ flag('extra-hole-'+k,'Extra hole on the near trunk segment.','You can reach this segment through the plenum access. Every hole is a hole you patch.'); }
+    startHold(c.cx,c.cy,1.2,()=>{},()=>{S.holes.push({seg:k,type:'1',cut:true,patched:false});say('1 inch bit hole cut, V in the insulation.','Closes with a pop plug and FSK, no patch.','good');}); return; }
+  if(tool==='hose'){ if(L.kind!=='plenum') return say('Hose goes on the plenum.','As close to the air handler as the access allows.'); if(!h||!h.cut) return say('No access here yet.','8 inch saw first.');
+    if(S.negSide===L.side){ S.negSide=null; S.negOn=false; return say('Hose pulled off. Machine off.',''); }
+    S.negSide=L.side; S.negOn=false; return say(`Hose on the ${L.side} plenum. Machine is off.`,'Flip it on at the machine before you agitate anything on this side.'); }
+  if(tool==='whip'||tool==='nozzle'){ const acc=whipAccess(k); if(!acc) return say('No way in.',L.reg?'Pull the register.':L.kind==='plenum'?'Cut the 8 inch access.':'Cut a 1 inch bit hole here.');
+    if(!negRunning(L.side)&&!s.noteNoNeg){ s.noteNoNeg=true; flag('no-neg-'+L.side,`Agitating the ${L.side} side with no negative air pulling on it.`,'You are redistributing dirt, not removing it. Machine on, hose on this side, first.'); }
+    if(tool==='whip'){ if(s.grime<3) return say('Already down to bare metal.',s.loose>3?'Forward what you knocked loose.':'');
+      startHold(c.cx,c.cy,2.4,dt=>{const d=Math.min(s.grime,dt*40);s.grime-=d;s.loose+=d;},()=>{s.loose+=s.grime;s.grime=0;say(`Whipped ${L.label}. Debris is loose in the duct.`,'Now the forward nozzle, pushing toward the machine.','good');}); return; }
+    if(s.loose<3) return say('Nothing loose to push.',s.grime>3?'Whip first. Agitate, then push.':'This segment is clean.');
+    const wasClean=pathUp(k).filter(clean);
+    startHold(c.cx,c.cy,1.6,dt=>{ const d=Math.min(s.loose,dt*70); s.loose-=d; const up=pathUp(k);
+      if(negRunning(L.side)){ up.forEach(u=>{ if(clean(u)&&u!==(S.negSide==='supply'?'SP':'RP')) S.seg[u].grime+=d*0.35; }); }
+      else { const n=up[0]; if(n) S.seg[n].grime=Math.min(100,S.seg[n].grime+d*0.8); }
+    },()=>{
+      const up=pathUp(k); const dirtied=wasClean.filter(u=>S.seg[u].grime>8);
+      if(negRunning(L.side)){ if(dirtied.length) flag('order-'+k,`Debris from ${L.label} went through a trunk you already called clean.`,'Branches before the trunk, far end back toward the machine. You just re-dirtied '+dirtied.map(u=>LAYOUT[u].label).join(', ')+'.');
+        else say(`Forwarded ${L.label}. Out to the machine.`,'','good'); }
+      else say(`Pushed the debris up into ${up[0]?LAYOUT[up[0]].label:'the plenum'}.`,'No suction on this side. It just moved.','bad');
+    }); return; }
+  if(tool==='patch'){ if(!h||h.type!=='8') return say(L.kind==='plenum'?'No 8 inch access here.':'A 1 inch hole gets a pop plug, not a patch.',''); if(h.patched) return say('Already patched.',''); if(!h.cut) return say('Not cut yet.',''); if(S.negSide===L.side) return say('Hose is still on this access.','Pull the hose off first.'); if(!sideClean(L.side)) flag('patch-early-'+k,`Patching the ${L.side} side before it is clean.`,'Close out is last. You will need this hole again.'); openPatch(k); return; }
+  if(tool==='plug'){ if(!h||h.type!=='1') return say('No bit hole here.',h&&h.type==='8'?'An 8 inch access gets a sheet metal patch.':''); if(h.patched) return say('Already plugged.',''); openPlug(k); return; }
+  if(tool==='spray'||tool==='rag') return say('That is for the air handler.','');
+}
+
+// ---------- mini sequences ----------
+function showPanel(html){ panel.innerHTML=html; panel.style.display='block'; }
+function openCut(k,type){
+  const L=LAYOUT[k]; let hole={seg:k,type,cut:false,patched:false,sides:[],pilot:false,saw:0,burr:false}; S.holes.push(hole);
+  if(L.kind==='trunk') say('8 inch on a trunk works.','A 1 inch bit hole gives the same whip access and closes with a plug instead of a patch.');
+  const draw=()=>{
+    const sides=['top','right','bottom','left'], done=hole.sides;
+    const stage= done.length<3?'score':!hole.pilot?'pilot':'saw';
+    showPanel(`<h3>Cut 8 inch access</h3><p>${stage==='score'?'Score the insulation. Tap the sides to score.':stage==='pilot'?'Tap dead center for the pilot hole.':hole.burr?'Burred lip. Deburr it.':'Hold to saw. Release when the gauge is in the band. Clockwise, slow.'}</p>
+    <svg viewBox="0 0 200 130"><rect x="20" y="10" width="160" height="110" fill="#e7d8b1" stroke="#1d1a2e" stroke-width="3"/>
+    ${sides.map((s,i)=>{const pts=[[40,30,160,30],[160,30,160,100],[160,100,40,100],[40,100,40,30]][i];return `<line data-side="${s}" x1="${pts[0]}" y1="${pts[1]}" x2="${pts[2]}" y2="${pts[3]}" stroke="${done.includes(s)?'#d9463e':'#8a7a55'}" stroke-width="10" stroke-linecap="round" style="cursor:pointer"/>`;}).join('')}
+    <circle data-pilot="1" cx="100" cy="65" r="${hole.pilot?4:9}" fill="${hole.pilot?'#1d1a2e':'#f4c33a'}" stroke="#1d1a2e" stroke-width="2" style="cursor:pointer"/>
+    ${stage==='saw'?`<circle cx="100" cy="65" r="30" fill="none" stroke="#1d1a2e" stroke-width="3" stroke-dasharray="${188*Math.min(1,hole.saw/80)} 188" transform="rotate(-90 100 65)"/>`:''}</svg>
+    ${stage==='saw'?`<div class="bar" style="width:100%;height:14px;position:relative"><i id="sawbar" style="width:${hole.saw}%;background:${hole.saw>85?'var(--red)':hole.saw>=65?'var(--green)':'var(--yellow)'}"></i><span style="position:absolute;left:65%;width:20%;top:0;height:100%;border:2px solid #fff;border-radius:4px"></span></div>
+    <div class="row">${hole.burr?'<button id="deburr">Deburr</button>':'<button class="hold" id="sawhold">Hold to saw</button>'}<button class="alt" id="closep">Close</button></div>`:'<div class="row"><button class="alt" id="closep">Close</button></div>'}`);
+    panel.querySelectorAll('[data-side]').forEach(n=>n.addEventListener('pointerdown',e=>{ const s=n.dataset.side; if(done.includes(s)) return; if(done.length>=3){ hole.fourth=true; S.defects.push('Scored all four sides on '+L.label); flag('four-sides','Fourth side scored. The flap is loose now.','Three sides only, so it folds back and re-seats over the patch.'); return; } done.push(s); if(done.length===3) say('Three sides scored, flap rolled back.','Pilot hole next.'); draw(); }));
+    const pc=panel.querySelector('[data-pilot]'); pc&&pc.addEventListener('pointerdown',()=>{ if(stage!=='pilot') return; hole.pilot=true; say('Pilot drilled dead center.','Hole saw on the pilot.'); draw(); });
+    const sh=panel.querySelector('#sawhold'); if(sh){ let iv=null; const up=()=>{ if(!iv) return; clearInterval(iv); iv=null; if(hole.saw>=65&&hole.saw<=85){ hole.cut=true; say(`8 inch access cut on ${L.label}. Clean edge.`,L.kind==='plenum'?'Hose hooks up here. Whip reaches the near trunk segment through it too.':'','good'); panel.style.display='none'; render(); } else if(hole.saw>85){ hole.burr=true; S.defects.push('Burred the lip on '+L.label); say('You leaned on it. Knurled burr on the lip.','That edge opens hands. Deburr it.','bad'); draw(); } else { say('Not through yet.','Keep going, release in the band.'); draw(); } };
+      sh.addEventListener('pointerdown',e=>{e.preventDefault(); sh.classList.add('active'); iv=setInterval(()=>{hole.saw=Math.min(100,hole.saw+2.2); const b=panel.querySelector('#sawbar'); if(b){b.style.width=hole.saw+'%'; b.style.background=hole.saw>85?'var(--red)':hole.saw>=65?'var(--green)':'var(--yellow)';}},50);});
+      ['pointerup','pointerleave','pointercancel'].forEach(ev=>sh.addEventListener(ev,up)); }
+    const db=panel.querySelector('#deburr'); db&&db.addEventListener('click',()=>{ hole.burr=false; hole.cut=true; say(`Deburred. 8 inch access open on ${L.label}.`,'','good'); panel.style.display='none'; render(); });
+    panel.querySelector('#closep').addEventListener('click',()=>{ panel.style.display='none'; if(!hole.cut){ S.holes=S.holes.filter(x=>x!==hole); } render(); });
+  };
+  draw(); render();
+}
+function openPatch(k){
+  const L=LAYOUT[k], h=holeAt(k), round=L.kind==='trunk'; let st={bent:!round,screws:[],step:0}; const corners=[0,2,4,6];
+  const draw=()=>{ const steps=['Mastic the full perimeter','Mastic an X across the face','Fold the insulation flap back','Tape the cut with 3 inch FSK'];
+    const pts=[[30,20],[100,20],[170,20],[170,65],[170,110],[100,110],[30,110],[30,65]];
+    showPanel(`<h3>Patch ${L.label}</h3><p>${st.screws.length<8?'Sheet metal patch, oversized. Set 8 screws. Tap them in.':st.step<4?steps[st.step]+'.':'Done.'}</p>
+    <svg viewBox="0 0 200 130"><rect x="20" y="10" width="160" height="110" fill="#c9ccd3" stroke="#1d1a2e" stroke-width="3" ${round&&!st.bent?'rx="0"':'rx="12"'}/>${st.step>=1?'<rect x="26" y="16" width="148" height="98" fill="none" stroke="#5a5a5a" stroke-width="5" stroke-dasharray="4 3"/>':''}${st.step>=2?'<path d="M30 20 L170 110 M170 20 L30 110" stroke="#5a5a5a" stroke-width="5"/>':''}${st.step>=3?'<rect x="20" y="10" width="160" height="110" fill="#e7d8b1" opacity=".9"/>':''}${st.step>=4?'<rect x="20" y="10" width="160" height="110" fill="none" stroke="#dcdcdc" stroke-width="8"/>':''}
+    ${st.step<3?pts.map((p,i)=>`<circle data-s="${i}" cx="${p[0]}" cy="${p[1]}" r="8" fill="${st.screws.includes(i)?'#1d1a2e':'#f4c33a'}" stroke="#1d1a2e" stroke-width="2" style="cursor:pointer"/>`).join(''):''}</svg>
+    <div class="row">${round&&!st.bent?'<button id="bend">Bend to radius</button>':''}${st.screws.length===8&&st.step<4?`<button id="next">${steps[st.step]}</button>`:''}<button class="alt" id="closep">Close</button></div>`);
+    panel.querySelectorAll('[data-s]').forEach(n=>n.addEventListener('pointerdown',()=>{ const i=+n.dataset.s; if(st.screws.includes(i)) return; if(!st.bent&&!st.flatFlag){ st.flatFlag=true; S.defects.push('Flat patch on round trunk at '+L.label); flag('flat-'+k,'Flat patch on a round trunk. It will not seat.','Bend the patch to the radius first.'); }
+      if(!corners.includes(i)&&!corners.every(c=>st.screws.includes(c))&&!st.midFlag){ st.midFlag=true; S.defects.push('Side screw before corners at '+L.label); flag('screws-'+k,'Side screw before the corners were in.','Corners first. They hold the curve while you do the sides.'); }
+      st.screws.push(i); if(st.screws.length===8) say('Eight screws in.','Mastic next.','good'); draw(); }));
+    const b=panel.querySelector('#bend'); b&&b.addEventListener('click',()=>{st.bent=true;say('Patch bent to the trunk radius.','');draw();});
+    const nx=panel.querySelector('#next'); nx&&nx.addEventListener('click',()=>{ st.step++; if(st.step===4){ h.patched=true; say(`${L.label} closed. FSK, not duct tape.`,'Duct tape dries out and lets go.','good'); panel.style.display='none'; } draw(); render(); });
+    panel.querySelector('#closep').addEventListener('click',()=>{panel.style.display='none';});
+  }; draw();
+}
+function openPlug(k){ const L=LAYOUT[k], h=holeAt(k); let seated=false;
+  const draw=()=>{ showPanel(`<h3>Plug bit hole, ${L.label}</h3><p>${seated?'Fold the insulation V back and tape it shut.':'Seat the pop plug in the hole.'}</p><div class="row"><button id="go">${seated?'Fold V + FSK':'Seat plug'}</button><button class="alt" id="closep">Close</button></div>`);
+    panel.querySelector('#go').addEventListener('click',()=>{ if(!seated){seated=true;draw();} else { h.patched=true; say(`Bit hole on ${L.label} plugged and taped.`,'No patch, no screws, no mastic.','good'); panel.style.display='none'; render(); } });
+    panel.querySelector('#closep').addEventListener('click',()=>{panel.style.display='none';}); }; draw(); }
+
+// ---------- finish ----------
+function finish(){
+  const segs=Object.keys(LAYOUT); const cleanPct=Math.round(segs.reduce((a,k)=>a+Math.max(0,100-S.seg[k].grime-S.seg[k].loose),0)/segs.length);
+  const open=S.holes.filter(h=>h.cut&&!h.patched), regsOut=Object.keys(S.reg).filter(r=>S.reg[r]==='out');
+  const ahDone=S.ah.coil>=100&&S.ah.blower>=100&&S.ah.panel;
+  const holes=S.holes.filter(h=>h.cut).length;
+  let score=cleanPct; score-=S.vio.length*8; score-=open.length*10; score-=regsOut.length*5; score-=Math.max(0,holes-MIN_HOLES)*4; score-=ahDone?0:12; score-=S.defects.length*3; if(S.negSide) score-=3; score=Math.max(0,Math.round(score));
+  const li=(t,w)=>`<li>${t}${w?`<span class="why">${w}</span>`:''}</li>`;
+  overlay.querySelector('.card').innerHTML=`<h2>Job scored</h2><div class="big">${score}</div>
+  <ul>${li(`Ducts ${cleanPct}% clean.`)}${li(`${holes} holes cut, ${MIN_HOLES} was the minimum.`,'Two plenum accesses for the hose, one bit hole per trunk segment the plenum access cannot reach.')}
+  ${open.length?li(`${open.length} hole${open.length>1?'s':''} left open.`,'Walk it and count against the holes you cut.'):li('Every hole closed.')}
+  ${regsOut.length?li(`${regsOut.length} register${regsOut.length>1?'s':''} still off.`):''}
+  ${ahDone?li('Air handler done.'):li('Air handler not finished.','Coil sprayed, blower wiped, panel on, power back.')}
+  ${S.negSide?li('Hose still hooked up.'):''}
+  ${S.vio.map(v=>li(v.text,v.why)).join('')}${S.defects.map(d=>li(d)).join('')}</ul>
+  <div class="row" style="display:flex;gap:8px"><button id="again">Run it again</button><button class="alt" id="back">Back to the job</button></div>`;
+  overlay.style.display='block';
+  overlay.querySelector('#again').onclick=()=>location.reload();
+  overlay.querySelector('#back').onclick=()=>{overlay.style.display='none';};
+}
+document.getElementById('finish').onclick=finish;
+document.getElementById('hintBtn').onclick=()=>{ S.hint=!S.hint; render(); if(S.hint) hint(); };
+function hint(){
+  if(!holeAt('SP')&&!holeAt('RP')) return say('Hint: the machine needs somewhere to pull from.','8 inch saw on a plenum. Pick either side, it does not matter physically.');
+  if(!S.negSide) return say('Hint: hose on the plenum access.','Neg air tool, tap the plenum with the access.');
+  if(!S.negOn) return say('Hint: flip the machine on before you whip.','Hand on the machine.');
+  const side=S.negSide; const dirty=Object.keys(LAYOUT).filter(k=>LAYOUT[k].side===side&&!clean(k));
+  if(dirty.length){ const far=dirty.sort((a,b)=>pathUp(b).length-pathUp(a).length)[0]; return say(`Hint: farthest dirty thing on this side is ${LAYOUT[far].label}.`,'Far end first, branches before trunk, whip then forward.'); }
+  if(!sideClean(side==='supply'?'return':'supply')) return say('Hint: this side is done. Move the hose to the other plenum.','Hose tool on the current plenum pulls it off.');
+  if(!(S.ah.coil>=100&&S.ah.blower>=100&&S.ah.panel)) return say('Hint: both sides clean. Air handler is last.','Power off, panel off, spray, wipe, panel on.');
+  return say('Hint: close out.','Hose off. Patch the 8 inch accesses, plug the bit holes, registers back on. Then Finish job.');
+}
+// belt
+const belt=document.getElementById('belt');
+TOOLS.forEach(([id,name,sub])=>{ const b=document.createElement('button'); b.className='tool'+(id===S.tool?' on':''); b.innerHTML=`${name}<small>${sub}</small>`; b.onclick=()=>{S.tool=id; belt.querySelectorAll('.tool').forEach(x=>x.classList.toggle('on',x===b)); panel.style.display='none'; render();}; belt.appendChild(b); });
+render();
+window.__SIM={S,LAYOUT,act,finish};
+</script>
+</body>
+</html>
