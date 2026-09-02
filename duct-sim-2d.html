@@ -194,7 +194,7 @@ function render(){
     if(S.reg[r]==='in'){ el('rect',{x:R.x-26,y:268,width:52,height:16,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':4},g);
       for(let x=R.x-18;x<=R.x+18;x+=9) el('line',{x1:x,y1:272,x2:x,y2:280,stroke:'#8a8f9a','stroke-width':3},g); }
     else { el('rect',{x:R.x-26,y:268,width:52,height:16,fill:'#1d1a2e',stroke:'var(--ink)','stroke-width':4},g);
-      el('rect',{x:R.x+30,y:520,width:16,height:40,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':3,transform:`rotate(-12 ${R.x+30} 520)`},g); }
+      el('rect',{x:R.x+30,y:520,width:16,height:40,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':3,transform:`rotate(-12 ${R.x+30} 520)`}); }
   }
   // tech
   const p=techPos(); const tg=el('g',{transform:`translate(${p.x},${p.y})`,id:'tech',style:'transition:transform .35s'});
@@ -235,11 +235,11 @@ svg.addEventListener('pointerdown',e=>{ const t=targetOf(e); if(!t) return; e.pr
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>svg.addEventListener(ev,stopHold));
 function startHold(cx,cy,secs,step,done,k){ stopHold(); holdState={cx,cy,p:0,k,tool:S.tool}; const t0=performance.now(); let last=t0;
   holdTimer=setInterval(()=>{ const now=performance.now(); const dt=(now-last)/1000; last=now; holdState.p=Math.min(1,(now-t0)/1000/secs); step(dt); render(); if(holdState.p>=1){ stopHold(); done&&done(); render(); } },50); }
-function stopHold(){ if(holdTimer){clearInterval(holdTimer);holdTimer=null;} holdState=null; }
+function stopHold(){ if(holdTimer){clearInterval(holdTimer);holdTimer=null;} if(holdState&&holdState.p>0&&holdState.p<0.12) say('Hold it down.','Whip, nozzle, bit, sprayer and rag all work while you hold.'); holdState=null; }
 const center=k=>{const L=LAYOUT[k];return {cx:L.x+L.w/2,cy:L.y+L.h/2};};
 
 function act(t){
-  const tool=S.tool; panel.style.display='none';
+  const tool=S.tool; panel.style.display='none'; S.holes=S.holes.filter(h=>h.cut);
   if(t==='NEG') return actNeg(tool);
   if(t==='HOSE') return actHose(tool);
   if(t==='AH') return actAH(tool);
@@ -281,8 +281,7 @@ function actSeg(k,tool){
   if(tool==='hand'){ if(L.kind==='plenum') S.walked[k]=true; const acc=whipAccess(k); return say(`${L.label}. ${Math.round(s.grime)}% stuck, ${Math.round(s.loose)}% loosened.`, acc?`Whip access: ${acc==='reg'?'through the open register boot':acc==='hole'?'through the hole you cut':'reaching through the plenum access'}.`:(L.reg?'Pull the register to get in here.':L.kind==='plenum'?'Needs an 8 inch access. That is also where the hose hooks up.':'Needs a 1 inch bit hole, or reach from the plenum access if it is the near segment.')); }
   const walkCheck=()=>{ if(!(S.walked.AH&&S.walked.SP&&S.walked.RP)) flag('walk','Cutting before you walked the job.','Hand on the air handler and both plenums first. Know where the machine hooks up before anything gets opened.'); };
   if(tool==='saw'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); walkCheck(); openCut(k,'8'); return; }
-  if(tool==='bit'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); if(L.kind==='plenum') return say('A bit hole will not take the hose.','Plenum gets the 8 inch access.'); if(L.kind==='trunk'&&LAYOUT[L.up].kind==='plenum'&&holeAt(L.up)&&holeAt(L.up).cut){ flag('extra-hole-'+k,'Extra hole on the near trunk segment.','You can reach this segment through the plenum access. Every hole is a hole you patch.'); }
-    walkCheck(); startHold(c.cx,c.cy,1.2,()=>{},()=>{S.holes.push({seg:k,type:'1',cut:true,patched:false});say('1 inch bit hole cut, V in the insulation.','Closes with a pop plug and FSK, no patch.','good');}); return; }
+  if(tool==='bit'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); if(L.kind==='plenum') return say('A bit hole will not take the hose.','Plenum gets the 8 inch access.'); walkCheck(); startHold(c.cx,c.cy,1.2,()=>{},()=>{S.holes.push({seg:k,type:'1',cut:true,patched:false}); if(L.kind==='trunk'&&LAYOUT[L.up].kind==='plenum'&&holeAt(L.up)&&holeAt(L.up).cut) flag('extra-hole-'+k,'Extra hole on the near trunk segment.','You can reach this segment through the plenum access. Every hole is a hole you patch.');say('1 inch bit hole cut, V in the insulation.','Closes with a pop plug and FSK, no patch.','good');}); return; }
   if(tool==='hose'){ if(L.kind!=='plenum') return say('Hose goes on the plenum.','As close to the air handler as the access allows.'); if(!h||!h.cut) return say('No access here yet.','8 inch saw first.');
     if(S.negSide===L.side){ S.negSide=null; S.negOn=false; S.tied=false; return say('Hose pulled off. Machine off.',''); }
     S.negSide=L.side; S.negOn=false; S.tied=false; return say(`Hose on the ${L.side} plenum. Machine is off.`,'Tie it off to a collar tie (hand on the hose), then flip it on at the machine.'); }
@@ -322,10 +321,10 @@ function openCut(k,type){
     ${stage==='saw'?`<circle cx="100" cy="65" r="30" fill="none" stroke="#1d1a2e" stroke-width="3" stroke-dasharray="${188*Math.min(1,hole.saw/80)} 188" transform="rotate(-90 100 65)"/>`:''}</svg>
     ${stage==='saw'?`<div class="bar" style="width:100%;height:14px;position:relative"><i id="sawbar" style="width:${hole.saw}%;background:${hole.saw>85?'var(--red)':hole.saw>=65?'var(--green)':'var(--yellow)'}"></i><span style="position:absolute;left:65%;width:20%;top:0;height:100%;border:2px solid #fff;border-radius:4px"></span></div>
     <div class="row">${hole.burr?'<button id="deburr">Deburr</button>':'<button class="hold" id="sawhold">Hold to saw</button>'}<button class="alt" id="closep">Close</button></div>`:'<div class="row"><button class="alt" id="closep">Close</button></div>'}`);
-    panel.querySelectorAll('[data-side]').forEach(n=>n.addEventListener('pointerdown',e=>{ const s=n.dataset.side; if(done.includes(s)) return; if(done.length>=3){ hole.fourth=true; S.defects.push('Scored all four sides on '+L.label); flag('four-sides','Fourth side scored. The flap is loose now.','Three sides only, so it folds back and re-seats over the patch.'); return; } done.push(s); if(done.length===3) say('Three sides scored, flap rolled back.','Pilot hole next.'); draw(); }));
+    panel.querySelectorAll('[data-side]').forEach(n=>n.addEventListener('pointerdown',e=>{ const s=n.dataset.side; if(done.includes(s)) return; if(done.length>=3){ hole.fourth=true; flag('four-sides','Fourth side scored. The flap is loose now.','Three sides only, so it folds back and re-seats over the patch.'); return; } done.push(s); if(done.length===3) say('Three sides scored, flap rolled back.','Pilot hole next.'); draw(); }));
     const pc=panel.querySelector('[data-pilot]'); pc&&pc.addEventListener('pointerdown',()=>{ if(stage!=='pilot') return; hole.pilot=true; say('Pilot drilled dead center.','Hole saw on the pilot.'); draw(); });
     const sh=panel.querySelector('#sawhold'); if(sh){ let iv=null; const up=()=>{ if(!iv) return; clearInterval(iv); iv=null; if(hole.saw>=65&&hole.saw<=85){ hole.cut=true; say(`8 inch access cut on ${L.label}. Clean edge.`,L.kind==='plenum'?'Hose hooks up here. Whip reaches the near trunk segment through it too.':'','good'); panel.style.display='none'; render(); } else if(hole.saw>85){ hole.burr=true; S.defects.push('Burred the lip on '+L.label); say('You leaned on it. Knurled burr on the lip.','That edge opens hands. Deburr it.','bad'); draw(); } else { say('Not through yet.','Keep going, release in the band.'); draw(); } };
-      sh.addEventListener('pointerdown',e=>{e.preventDefault(); sh.classList.add('active'); iv=setInterval(()=>{hole.saw=Math.min(100,hole.saw+2.2); const b=panel.querySelector('#sawbar'); if(b){b.style.width=hole.saw+'%'; b.style.background=hole.saw>85?'var(--red)':hole.saw>=65?'var(--green)':'var(--yellow)';}},50);});
+      sh.addEventListener('pointerdown',e=>{e.preventDefault(); sh.classList.add('active'); iv=setInterval(()=>{hole.saw=Math.min(100,hole.saw+1.1); const b=panel.querySelector('#sawbar'); if(b){b.style.width=hole.saw+'%'; b.style.background=hole.saw>85?'var(--red)':hole.saw>=65?'var(--green)':'var(--yellow)';}},50);});
       ['pointerup','pointerleave','pointercancel'].forEach(ev=>sh.addEventListener(ev,up)); }
     const db=panel.querySelector('#deburr'); db&&db.addEventListener('click',()=>{ hole.burr=false; hole.cut=true; say(`Deburred. 8 inch access open on ${L.label}.`,'','good'); panel.style.display='none'; render(); });
     panel.querySelector('#closep').addEventListener('click',()=>{ panel.style.display='none'; if(!hole.cut){ S.holes=S.holes.filter(x=>x!==hole); } render(); });
@@ -340,8 +339,8 @@ function openPatch(k){
     <svg viewBox="0 0 200 130"><rect x="20" y="10" width="160" height="110" fill="#c9ccd3" stroke="#1d1a2e" stroke-width="3" ${round&&!st.bent?'rx="0"':'rx="12"'}/>${st.step>=1?'<rect x="26" y="16" width="148" height="98" fill="none" stroke="#5a5a5a" stroke-width="5" stroke-dasharray="4 3"/>':''}${st.step>=2?'<path d="M30 20 L170 110 M170 20 L30 110" stroke="#5a5a5a" stroke-width="5"/>':''}${st.step>=3?'<rect x="20" y="10" width="160" height="110" fill="#e7d8b1" opacity=".9"/>':''}${st.step>=4?'<rect x="20" y="10" width="160" height="110" fill="none" stroke="#dcdcdc" stroke-width="8"/>':''}
     ${st.step<3?pts.map((p,i)=>`<circle data-s="${i}" cx="${p[0]}" cy="${p[1]}" r="8" fill="${st.screws.includes(i)?'#1d1a2e':'#f4c33a'}" stroke="#1d1a2e" stroke-width="2" style="cursor:pointer"/>`).join(''):''}</svg>
     <div class="row">${round&&!st.bent?'<button id="bend">Bend to radius</button>':''}${st.screws.length===8&&st.step<4?`<button id="next">${steps[st.step]}</button>`:''}<button class="alt" id="closep">Close</button></div>`);
-    panel.querySelectorAll('[data-s]').forEach(n=>n.addEventListener('pointerdown',()=>{ const i=+n.dataset.s; if(st.screws.includes(i)) return; if(!st.bent&&!st.flatFlag){ st.flatFlag=true; S.defects.push('Flat patch on round trunk at '+L.label); flag('flat-'+k,'Flat patch on a round trunk. It will not seat.','Bend the patch to the radius first.'); }
-      if(!corners.includes(i)&&!corners.every(c=>st.screws.includes(c))&&!st.midFlag){ st.midFlag=true; S.defects.push('Side screw before corners at '+L.label); flag('screws-'+k,'Side screw before the corners were in.','Corners first. They hold the curve while you do the sides.'); }
+    panel.querySelectorAll('[data-s]').forEach(n=>n.addEventListener('pointerdown',()=>{ const i=+n.dataset.s; if(st.screws.includes(i)) return; if(!st.bent&&!st.flatFlag){ st.flatFlag=true; flag('flat-'+k,'Flat patch on a round trunk. It will not seat.','Bend the patch to the radius first.'); }
+      if(!corners.includes(i)&&!corners.every(c=>st.screws.includes(c))&&!st.midFlag){ st.midFlag=true; flag('screws-'+k,'Side screw before the corners were in.','Corners first. They hold the curve while you do the sides.'); }
       st.screws.push(i); if(st.screws.length===8) say('Eight screws in.','Mastic next.','good'); draw(); }));
     const b=panel.querySelector('#bend'); b&&b.addEventListener('click',()=>{st.bent=true;say('Patch bent to the trunk radius.','');draw();});
     const nx=panel.querySelector('#next'); nx&&nx.addEventListener('click',()=>{ st.step++; if(st.step===4){ h.patched=true; say(`${L.label} closed. FSK, not duct tape.`,'Duct tape dries out and lets go.','good'); panel.style.display='none'; } draw(); render(); });
@@ -379,6 +378,7 @@ document.getElementById('vio').onclick=()=>{ if(panel.style.display==='block'&&p
   showPanel(`<h3>Flags so far</h3>${S.vio.length?'<ul style="padding-left:16px;margin:0">'+S.vio.map(v=>`<li style="margin:4px 0">${v.text}<span style="display:block;color:#b9b3d6;font-size:12.5px">${v.why}</span></li>`).join('')+'</ul>':'<p>None yet.</p>'}<div class="row"><button class="alt" id="closep">Close</button></div>`); panel.dataset.flags='1'; panel.querySelector('#closep').onclick=()=>{panel.style.display='none';delete panel.dataset.flags;}; };
 document.getElementById('hintBtn').onclick=()=>{ S.hint=!S.hint; render(); if(S.hint) hint(); };
 function hint(){
+  if(!(S.walked.AH&&S.walked.SP&&S.walked.RP)) return say('Hint: walk it first.','Hand on the air handler and both plenums.');
   if(!holeAt('SP')&&!holeAt('RP')) return say('Hint: the machine needs somewhere to pull from.','8 inch saw on a plenum. Pick either side, it does not matter physically.');
   if(!S.negSide) return say('Hint: hose on the plenum access.','Neg air tool, tap the plenum with the access.');
   if(!S.tied) return say('Hint: tie the hose off.','Hand on the hose. Then flip the machine on.');
