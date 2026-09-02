@@ -81,7 +81,7 @@ button:disabled{opacity:.4}
 const S = {
   tool:'hand', sel:null, negSide:null, negOn:false, tied:false, walked:{AH:false,SP:false,RP:false}, holes:[], vio:[], defects:[], hint:false, showFlags:false,
   ah:{power:true, panel:true, coil:0, blower:0},
-  reg:{R1:'in',R2:'in',R3:'in',RG:'in'},
+  reg:{R1:'in',R2:'in',R3:'in',RG:'in'}, regDirt:{R1:100,R2:100,R3:100,RG:100}, pwSetup:false,
   seg:{}
 };
 const LAYOUT = {
@@ -97,8 +97,9 @@ const LAYOUT = {
   B2:{x:768,y:190,w:24,h:80,side:'supply',kind:'flex',label:'flex branch 2',up:'ST2',reg:'R2'},
   B3:{x:878,y:190,w:24,h:80,side:'supply',kind:'flex',label:'flex branch 3',up:'ST3',reg:'R3'}
 };
-const REGS = {R1:{x:670,seg:'B1',name:'register 1'},R2:{x:780,seg:'B2',name:'register 2'},R3:{x:890,seg:'B3',name:'register 3'},RG:{x:165,seg:'RB',name:'return grille'}};
-const TOOLS = [['hand','Hand','pull, flip, inspect'],['saw','8" saw','hole saw kit'],['bit','1" bit','fairbairn bit'],['hose','Neg air','hose + machine'],['whiph','Hard rod','whip, straight runs'],['whips','Soda rod','whip, coils, flex + 90s'],['nozzle','Nozzle','hold to push'],['patch','Patch','metal + mastic + FSK'],['plug','Plug','pop plug + FSK'],['spray','Sprayer','coil cleaner'],['rag','Rag','blower wipe']];
+const REGS = {R1:{x:670,seg:'B1',name:'register 1',soil:'light'},R2:{x:780,seg:'B2',name:'register 2',soil:'caked'},R3:{x:890,seg:'B3',name:'register 3',soil:'greasy'},RG:{x:165,seg:'RB',name:'return grille',soil:'caked'}};
+const SOIL={light:{txt:'light dust',rag:100,hose:100,pw:100},caked:{txt:'caked dust, packed into the fins',rag:50,hose:100,pw:100},greasy:{txt:'greasy film, kitchen air',rag:20,hose:40,pw:100}};
+const TOOLS = [['hand','Hand','pull, flip, inspect'],['saw','8" saw','hole saw kit'],['bit','1" bit','fairbairn bit'],['hose','Neg air','hose + machine'],['whiph','Hard rod','whip, straight runs'],['whips','Soda rod','whip, coils, flex + 90s'],['nozzle','Nozzle','hold to push'],['patch','Patch','metal + mastic + FSK'],['plug','Plug','pop plug + FSK'],['wash','Wash','rag, hose, or pressure wash'],['spray','Sprayer','coil cleaner'],['rag','Rag','blower wipe']];
 const MIN_HOLES = 2;
 function resetSegs(){ for(const k in LAYOUT) S.seg[k]={grime:75+Math.floor(Math.random()*20),loose:0,noteNoNeg:false}; }
 resetSegs();
@@ -212,10 +213,12 @@ function render(){
   for(const r in REGS){ const R=REGS[r], g=el('g',{class:'hit'+(S.sel===r?' sel':''),id:'hit-'+r});
     el('rect',{x:R.x-36,y:256,width:72,height:40,fill:'transparent'},g);
     if(validTarget(r)) el('rect',{x:R.x-30,y:264,width:60,height:24,rx:6,fill:'none',stroke:'#ffe9a3','stroke-width':2,'stroke-dasharray':'5 4',class:'flow'},g);
+    const dirt=S.regDirt[r]/100, dcol=R.soil==='greasy'?'#6b5a2a':'#5a3d21';
     if(S.reg[r]==='in'){ el('rect',{x:R.x-26,y:268,width:52,height:16,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':4},g);
-      for(let x=R.x-18;x<=R.x+18;x+=9) el('line',{x1:x,y1:272,x2:x,y2:280,stroke:'#8a8f9a','stroke-width':3},g); }
+      for(let x=R.x-18;x<=R.x+18;x+=9) el('line',{x1:x,y1:272,x2:x,y2:280,stroke:'#8a8f9a','stroke-width':3},g);
+      g.appendChild(speckles({x:R.x-24,y:268,w:48,h:16},10,dcol,dirt)); }
     else { el('rect',{x:R.x-26,y:268,width:52,height:16,fill:'#1d1a2e',stroke:'var(--ink)','stroke-width':4},g);
-      el('rect',{x:R.x+30,y:520,width:16,height:40,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':3,transform:`rotate(-12 ${R.x+30} 520)`}); }
+      const lg=el('g',{transform:`rotate(-12 ${R.x+30} 520)`}); el('rect',{x:R.x+30,y:520,width:16,height:40,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':3},lg); lg.appendChild(speckles({x:R.x+30,y:520,w:16,h:40},8,dcol,dirt)); }
   }
   // tech
   const p=techPos(); const tg=el('g',{transform:`translate(${p.x},${p.y})`,id:'tech',style:'transition:transform .35s'});
@@ -253,9 +256,11 @@ function techPos(){
 }
 
 function validTarget(t){ const tool=S.tool, L=LAYOUT[t], h=L&&holeAt(t);
-  if(tool==='hand'){ if(t==='HOSE') return S.negSide&&!S.tied; if(t==='NEG') return !!S.negSide; if(t==='AH') return !S.walked.AH||allClean(); if(REGS[t]) return S.reg[t]==='in'||clean(REGS[t].seg); return L&&L.kind==='plenum'&&!S.walked[t]; }
+  if(tool==='hand'){ if(t==='HOSE') return S.negSide&&!S.tied; if(t==='NEG') return !!S.negSide; if(t==='AH') return !S.walked.AH||allClean(); if(REGS[t]) return S.reg[t]==='in'||(clean(REGS[t].seg)&&S.regDirt[t]<8); return L&&L.kind==='plenum'&&!S.walked[t]; }
   if(!L&&!REGS[t]) return false;
+  if(!L&&tool==='wash') return !!REGS[t]&&S.reg[t]==='out'&&S.regDirt[t]>=8;
   if(!L) return (tool==='whiph'||tool==='whips'||tool==='nozzle')?(()=>{const e=entryOf(t,tool);return !!e.segs&&e.segs.some(k=>(tool==='nozzle'?S.seg[k].loose:S.seg[k].grime)>=3)&&negRunning(LAYOUT[e.segs[0]].side);})():false;
+  if(tool==='wash') return !!REGS[t]&&S.reg[t]==='out'&&S.regDirt[t]>=8;
   if(tool==='saw') return L.kind==='plenum'&&!h;
   if(tool==='bit') return L.kind==='trunk'&&!h&&!reaches(t).length;
   if(tool==='hose') return L.kind==='plenum'&&h&&h.cut;
@@ -275,6 +280,7 @@ const TOOL_INTRO={
   nozzle:['Forward nozzle. Same way in as the rod, then hold.','Pushes everything you loosened along that reach toward the machine.'],
   patch:['Sheet metal patch kit. Goes on an 8 inch access, hose off first.','Corners, sides, mastic, X, flap, FSK.'],
   plug:['Pop plug. Goes on a 1 inch bit hole.','Seat it, fold the V, tape it.'],
+  wash:['Wash a pulled grille. Rag, garden hose, or pressure washer with degreaser.','Rag handles dust. Packed fins want water. Grease wants degreaser and pressure. The panel tells you what is on it.'],
   spray:['Coil cleaner. Air handler, panel off, power off.','Evaporator coil only. Condenser outside is out of scope.'],
   rag:['Rag. Wipe the blower housing with the panel off.','']};
 // ---------- input ----------
@@ -321,9 +327,10 @@ function actAH(tool){
 }
 function actReg(r,tool){
   const R=REGS[r];
-  if(tool==='hand'){ if(S.reg[r]==='in'){ S.reg[r]='out'; return say(`${R.name} pulled. Boot is open.`,'Soda rod from here goes up the flex and around into the trunk.'); }
-    S.reg[r]='in'; if(!clean(R.seg)) flag('reg-dirty-'+r,`${R.name} reinstalled over a dirty branch.`,'Nothing behind a grille should go back on until the run is clean.'); return say(`${R.name} back on.`,''); }
+  if(tool==='hand'){ if(S.reg[r]==='in'){ S.reg[r]='out'; return say(`${R.name} pulled. ${SOIL[R.soil].txt} on it. Boot is open.`,'Soda rod from here goes up the flex and around into the trunk. Wash the grille before it goes back on.'); }
+    S.reg[r]='in'; if(!clean(R.seg)) flag('reg-dirty-'+r,`${R.name} reinstalled over a dirty branch.`,'Nothing behind a grille should go back on until the run is clean.'); else if(S.regDirt[r]>=8) flag('reg-unwashed-'+r,`${R.name} went back on dirty, ${Math.round(S.regDirt[r])}% still on it.`,'The grille is the one part of the job the customer looks at.'); return say(`${R.name} back on.`,''); }
   if(S.reg[r]==='in') return say('Register is still in.','Hand to pull it first.');
+  if(tool==='wash'){ if(S.regDirt[r]<8) return say(`${R.name} is clean.`,''); openWash(r); return; }
   return say('Register is out. Come in here with a rod or the nozzle.','');
 }
 function actRun(t,tool){
@@ -402,6 +409,19 @@ function openPatch(k){
     panel.querySelector('#closep').addEventListener('click',()=>{panel.style.display='none';});
   }; draw();
 }
+function openWash(r){ const R=REGS[r], so=SOIL[R.soil];
+  const draw=()=>{ showPanel(`<h3>Wash ${R.name}</h3><p>${so.txt}. ${Math.round(S.regDirt[r])}% on it. Hold a method.</p>
+    <div class="bar" style="width:100%;height:12px"><i id="wbar" style="width:${100-S.regDirt[r]}%"></i></div>
+    <div class="row"><button class="hold" data-m="rag">Rag</button><button class="hold" data-m="hose">Garden hose</button><button class="hold" data-m="pw">Pressure wash + degreaser</button><button class="alt" id="closep">Close</button></div>`);
+    panel.querySelectorAll('[data-m]').forEach(btn=>{ let iv=null; const m=btn.dataset.m, floor=100-so[m];
+      const up=()=>{ if(!iv) return; clearInterval(iv); iv=null; btn.classList.remove('active'); const d=S.regDirt[r];
+        if(d<8){ S.regDirt[r]=0; say(`${R.name} clean.`, m==='pw'?'Pressure washer earns its setup when there are enough grilles to run through it.':'','good'); panel.style.display='none'; render(); return; }
+        else if(d<=floor+1) say(`${m==='rag'?'Rag':m==='hose'?'Garden hose':'Pressure washer'} is not getting the rest. ${Math.round(d)}% still on it.`, m==='rag'?(R.soil==='greasy'?'Grease needs degreaser and pressure.':'Packed fins need water. Garden hose at least.'):'Greasy film needs degreaser and the pressure washer.','bad');
+        else say(`${Math.round(d)}% still on it.`,'Keep going.'); draw(); render(); };
+      btn.addEventListener('pointerdown',e=>{ e.preventDefault(); if(m==='pw'&&!S.pwSetup){ S.pwSetup=true; say('Pressure washer set up outside, degreaser mixed.','One-time setup. Now hold it on the grille.'); }
+        btn.classList.add('active'); iv=setInterval(()=>{ S.regDirt[r]=Math.max(floor,S.regDirt[r]-3.2); const b=panel.querySelector('#wbar'); if(b) b.style.width=(100-S.regDirt[r])+'%'; },50); });
+      ['pointerup','pointerleave','pointercancel'].forEach(ev=>btn.addEventListener(ev,up)); });
+    panel.querySelector('#closep').addEventListener('click',()=>{panel.style.display='none';}); }; draw(); }
 function openPlug(k){ const L=LAYOUT[k], h=holeAt(k); let seated=false;
   const draw=()=>{ showPanel(`<h3>Plug bit hole, ${L.label}</h3><p>${seated?'Fold the insulation V back and tape it shut.':'Seat the pop plug in the hole.'}</p><div class="row"><button id="go">${seated?'Fold V + FSK':'Seat plug'}</button><button class="alt" id="closep">Close</button></div>`);
     panel.querySelector('#go').addEventListener('click',()=>{ if(!seated){seated=true;draw();} else { h.patched=true; say(`Bit hole on ${L.label} plugged and taped.`,'No patch, no screws, no mastic.','good'); panel.style.display='none'; render(); } });
@@ -410,15 +430,16 @@ function openPlug(k){ const L=LAYOUT[k], h=holeAt(k); let seated=false;
 // ---------- finish ----------
 function finish(){
   const segs=Object.keys(LAYOUT); const cleanPct=Math.round(segs.reduce((a,k)=>a+Math.max(0,100-S.seg[k].grime-S.seg[k].loose),0)/segs.length);
-  const open=S.holes.filter(h=>h.cut&&!h.patched), regsOut=Object.keys(S.reg).filter(r=>S.reg[r]==='out');
+  const open=S.holes.filter(h=>h.cut&&!h.patched), regsOut=Object.keys(S.reg).filter(r=>S.reg[r]==='out'), regsDirty=Object.keys(S.reg).filter(r=>S.regDirt[r]>=8);
   const ahDone=S.ah.coil>=100&&S.ah.blower>=100&&S.ah.panel;
   const holes=S.holes.filter(h=>h.cut).length;
-  let score=cleanPct; score-=S.vio.length*8; score-=open.length*10; score-=regsOut.length*5; score-=Math.max(0,holes-MIN_HOLES)*4; score-=ahDone?0:12; score-=S.defects.length*3; if(S.negSide) score-=3; score=Math.max(0,Math.round(score));
+  let score=cleanPct; score-=S.vio.length*8; score-=open.length*10; score-=regsOut.length*5; score-=regsDirty.length*5; score-=Math.max(0,holes-MIN_HOLES)*4; score-=ahDone?0:12; score-=S.defects.length*3; if(S.negSide) score-=3; score=Math.max(0,Math.round(score));
   const li=(t,w)=>`<li>${t}${w?`<span class="why">${w}</span>`:''}</li>`;
   overlay.querySelector('.card').innerHTML=`<h2>Job scored</h2><div class="big">${score}</div>
   <ul>${li(`Ducts ${cleanPct}% clean.`)}${li(`${holes} holes cut, ${MIN_HOLES} was the minimum.`,'Two plenum accesses for the hose. Everything else reaches with the soda rod from an open boot, or the hard rod through the plenum access. Bit holes are for when neither reaches.')}
   ${open.length?li(`${open.length} hole${open.length>1?'s':''} left open.`,'Walk it and count against the holes you cut.'):li('Every hole closed.')}
   ${regsOut.length?li(`${regsOut.length} register${regsOut.length>1?'s':''} still off.`):''}
+  ${regsDirty.length?li(`${regsDirty.length} grille${regsDirty.length>1?'s':''} not washed: ${regsDirty.map(r=>REGS[r].name).join(', ')}.`,'Rag for dust, garden hose for packed fins, pressure washer and degreaser for grease.'):li('Every grille washed.')}
   ${ahDone?li('Air handler done.'):li('Air handler not finished.','Coil sprayed, blower wiped, panel on, power back.')}
   ${S.negSide?li('Hose still hooked up.'):''}
   ${S.vio.map(v=>li(v.text,v.why)).join('')}${S.defects.map(d=>li(d)).join('')}</ul>
@@ -442,6 +463,7 @@ function hint(){
   if(dirty.length){ const far=dirty.sort((a,b)=>pathUp(b).length-pathUp(a).length)[0]; const rc=reaches(far); const lo=S.seg[far].loose>=3&&S.seg[far].grime<3; return say(`Hint: farthest dirty thing on this side is ${LAYOUT[far].label}.`,rc.length?(lo?'Nozzle from the same way in: ':'Far end first, working back toward the machine. ')+rc[0].charAt(0).toUpperCase()+rc[0].slice(1)+'.':LAYOUT[far].reg?'Pull its register first.':'Nothing reaches it. Pull the register on the branch below it.'); }
   if(!sideClean(side==='supply'?'return':'supply')) return say('Hint: this side is done. Move the hose to the other plenum.','Hose tool on the current plenum pulls it off.');
   if(!(S.ah.coil>=100&&S.ah.blower>=100&&S.ah.panel)) return say('Hint: both sides clean. Air handler is last.','Power off, panel off, spray, wipe, panel on.');
+  const dirtyR=Object.keys(S.reg).filter(r=>S.regDirt[r]>=8); if(dirtyR.length) return say(`Hint: wash the grilles before they go back on. ${dirtyR.map(r=>REGS[r].name).join(', ')} still dirty.`,'Wash tool on a pulled register.');
   return say('Hint: close out.','Hose off. Patch the 8 inch accesses, plug the bit holes, registers back on. Then Finish job.');
 }
 // belt
