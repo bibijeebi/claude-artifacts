@@ -87,7 +87,7 @@ const LAYOUT = {
   RP:{x:385,y:140,w:70,h:60,side:'return',kind:'plenum',label:'return plenum',up:null},
   RT1:{x:265,y:150,w:120,h:40,side:'return',kind:'trunk',label:'return trunk, near',up:'RP'},
   RT2:{x:145,y:150,w:120,h:40,side:'return',kind:'trunk',label:'return trunk, far',up:'RT1'},
-  RB:{x:150,y:190,w:30,h:80,side:'return',kind:'drop',label:'return drop',up:'RT2',reg:'RG'},
+  RB:{x:150,y:190,w:30,h:80,side:'return',kind:'flex',label:'return flex drop',up:'RT2',reg:'RG'},
   SP:{x:545,y:140,w:70,h:60,side:'supply',kind:'plenum',label:'supply plenum',up:null},
   ST1:{x:615,y:150,w:110,h:40,side:'supply',kind:'trunk',label:'supply trunk, near',up:'SP'},
   ST2:{x:725,y:150,w:110,h:40,side:'supply',kind:'trunk',label:'supply trunk, mid',up:'ST1'},
@@ -97,8 +97,8 @@ const LAYOUT = {
   B3:{x:878,y:190,w:24,h:80,side:'supply',kind:'flex',label:'flex branch 3',up:'ST3',reg:'R3'}
 };
 const REGS = {R1:{x:670,seg:'B1',name:'register 1'},R2:{x:780,seg:'B2',name:'register 2'},R3:{x:890,seg:'B3',name:'register 3'},RG:{x:165,seg:'RB',name:'return grille'}};
-const TOOLS = [['hand','Hand','pull, flip, inspect'],['saw','8" saw','hole saw kit'],['bit','1" bit','fairbairn bit'],['hose','Neg air','hose + machine'],['whip','Whip','hold to agitate'],['nozzle','Nozzle','hold to push'],['patch','Patch','metal + mastic + FSK'],['plug','Plug','pop plug + FSK'],['spray','Sprayer','coil cleaner'],['rag','Rag','blower wipe']];
-const MIN_HOLES = 5;
+const TOOLS = [['hand','Hand','pull, flip, inspect'],['saw','8" saw','hole saw kit'],['bit','1" bit','fairbairn bit'],['hose','Neg air','hose + machine'],['whip','Whip','hold, soft rod thru boots'],['nozzle','Nozzle','hold to push'],['patch','Patch','metal + mastic + FSK'],['plug','Plug','pop plug + FSK'],['spray','Sprayer','coil cleaner'],['rag','Rag','blower wipe']];
+const MIN_HOLES = 2;
 function resetSegs(){ for(const k in LAYOUT) S.seg[k]={grime:75+Math.floor(Math.random()*20),loose:0,noteNoNeg:false}; }
 resetSegs();
 
@@ -117,6 +117,7 @@ function whipAccess(k){
   if(L.reg) return S.reg[L.reg]==='out' ? 'reg' : null;
   if(holeAt(k)&&holeAt(k).cut) return 'hole';
   if(L.kind==='trunk'&&LAYOUT[L.up].kind==='plenum'&&holeAt(L.up)&&holeAt(L.up).cut) return 'plenum';
+  if(L.kind==='trunk'&&Object.keys(LAYOUT).some(o=>LAYOUT[o].up===k&&LAYOUT[o].reg&&S.reg[LAYOUT[o].reg]==='out')) return 'boot';
   return null;
 }
 
@@ -239,7 +240,7 @@ function validTarget(t){ const tool=S.tool, L=LAYOUT[t], h=L&&holeAt(t);
   if(tool==='hand'){ if(t==='HOSE') return S.negSide&&!S.tied; if(t==='NEG') return !!S.negSide; if(t==='AH') return !S.walked.AH||allClean(); if(REGS[t]) return S.reg[t]==='in'||clean(REGS[t].seg); return L&&L.kind==='plenum'&&!S.walked[t]; }
   if(!L) return false;
   if(tool==='saw') return L.kind==='plenum'&&!h;
-  if(tool==='bit') return L.kind==='trunk'&&!h&&!(LAYOUT[L.up].kind==='plenum'&&holeAt(L.up)&&holeAt(L.up).cut);
+  if(tool==='bit') return L.kind==='trunk'&&!h&&!whipAccess(t);
   if(tool==='hose') return L.kind==='plenum'&&h&&h.cut;
   if(tool==='whip'){ const src=L.reg?t:t; return !!whipAccess(t)&&S.seg[t].grime>=3&&negRunning(L.side); }
   if(tool==='nozzle') return !!whipAccess(t)&&S.seg[t].loose>=3&&negRunning(L.side);
@@ -250,9 +251,9 @@ function validTarget2(t){ if(S.tool==='spray') return t==='AH'&&!S.ah.panel&&S.a
 const TOOL_INTRO={
   hand:['Hand. Inspect, pull registers, tie the hose, flip switches.','Dashed outlines show what it does something to right now.'],
   saw:['8 inch hole saw. Goes on a plenum, the square box either side of the air handler.','That access is where the machine hooks up and where you reach the near trunk segment from.'],
-  bit:['1 inch fairbairn bit. Goes on a trunk segment the plenum access cannot reach.','Closes with a pop plug, no patch.'],
+  bit:['1 inch fairbairn bit. Goes on a trunk you cannot reach from a boot or the plenum access.','Every hole is a hole you close. Closes with a pop plug, no patch.'],
   hose:['Negative air hose. Tap a plenum that has an 8 inch access.','No access yet means no place for it to go. Saw first.'],
-  whip:['Whip. Hold on a duct you have a way into, with the machine running on that side.','Open register boot for flex, bit hole for trunk, plenum access for the plenum and the near segment.'],
+  whip:['Whip. Hold on a duct you have a way into, with the machine running on that side.','Open boot: soft rod up the flex and around the 90 into the trunk. Plenum access reaches the plenum and the near segment. Bit hole if nothing else reaches.'],
   nozzle:['Forward nozzle. Hold on a segment you already whipped.','Pushes the loose debris toward the machine.'],
   patch:['Sheet metal patch kit. Goes on an 8 inch access, hose off first.','Corners, sides, mastic, X, flap, FSK.'],
   plug:['Pop plug. Goes on a 1 inch bit hole.','Seat it, fold the V, tape it.'],
@@ -308,18 +309,18 @@ function actReg(r,tool){
 }
 function actSeg(k,tool){
   const L=LAYOUT[k], s=S.seg[k], c=center(k), h=holeAt(k);
-  if(tool==='hand'){ if(L.kind==='plenum') S.walked[k]=true; const acc=whipAccess(k); return say(`${L.label}. ${Math.round(s.grime)}% stuck, ${Math.round(s.loose)}% loosened.`, acc?`Whip access: ${acc==='reg'?'through the open register boot':acc==='hole'?'through the hole you cut':'reaching through the plenum access'}.`:(L.reg?'Pull the register to get in here.':L.kind==='plenum'?'Needs an 8 inch access. That is also where the hose hooks up.':'Needs a 1 inch bit hole, or reach from the plenum access if it is the near segment.')); }
+  if(tool==='hand'){ if(L.kind==='plenum') S.walked[k]=true; const acc=whipAccess(k); return say(`${L.label}. ${Math.round(s.grime)}% stuck, ${Math.round(s.loose)}% loosened.`, acc?`Whip access: ${acc==='reg'?'through the open register boot':acc==='hole'?'through the hole you cut':acc==='boot'?'soft rod up the flex and around the 90 from the open boot':'reaching through the plenum access'}.`:(L.reg?'Pull the register to get in here.':L.kind==='plenum'?'Needs an 8 inch access. That is also where the hose hooks up.':'Pull the register on the branch below it and come up with the soft rod, reach through the plenum access if it is the near segment, or cut a 1 inch bit hole.')); }
   const walkCheck=()=>{ if(!(S.walked.AH&&S.walked.SP&&S.walked.RP)) flag('walk','Cutting before you walked the job.','Hand on the air handler and both plenums first. Know where the machine hooks up before anything gets opened.'); };
   if(tool==='saw'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); walkCheck(); openCut(k,'8'); return; }
   if(tool==='bit'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); if(L.kind==='plenum') return say('A bit hole will not take the hose.','Plenum gets the 8 inch access.'); walkCheck(); startHold(c.cx,c.cy,1.2,()=>{},()=>{S.holes.push({seg:k,type:'1',cut:true,patched:false}); if(L.kind==='trunk'&&LAYOUT[L.up].kind==='plenum'&&holeAt(L.up)&&holeAt(L.up).cut) flag('extra-hole-'+k,'Extra hole on the near trunk segment.','You can reach this segment through the plenum access. Every hole is a hole you patch.');say('1 inch bit hole cut, V in the insulation.','Closes with a pop plug and FSK, no patch.','good');}); return; }
   if(tool==='hose'){ if(L.kind!=='plenum') return say('Hose goes on the plenum.','As close to the air handler as the access allows.'); if(!h||!h.cut) return say('No access here yet.','8 inch saw first.');
     if(S.negSide===L.side){ S.negSide=null; S.negOn=false; S.tied=false; return say('Hose pulled off. Machine off.',''); }
     S.negSide=L.side; S.negOn=false; S.tied=false; return say(`Hose on the ${L.side} plenum. Machine is off.`,'Tie it off to a collar tie (hand on the hose), then flip it on at the machine.'); }
-  if(tool==='whip'||tool==='nozzle'){ const acc=whipAccess(k); if(!acc) return say('No way in.',L.reg?'Pull the register.':L.kind==='plenum'?'Cut the 8 inch access.':'Cut a 1 inch bit hole here.');
+  if(tool==='whip'||tool==='nozzle'){ const acc=whipAccess(k); if(!acc) return say('No way in.',L.reg?'Pull the register.':L.kind==='plenum'?'Cut the 8 inch access.':'Pull the register on the branch below and come up with the soft rod, or cut a 1 inch bit hole.');
     if(!negRunning(L.side)&&!s.noteNoNeg){ s.noteNoNeg=true; flag('no-neg-'+L.side,`Agitating the ${L.side} side with no negative air pulling on it.`,'You are redistributing dirt, not removing it. Machine on, hose on this side, first.'); }
     if(tool==='whip'&&negRunning(L.side)&&!S.tied) flag('untied','Whipping with the hose loose in the attic.','Tie it off to a collar tie. Untied, it works its way back down the hatch.');
     if(tool==='whip'){ if(s.grime<3) return say('Already down to bare metal.',s.loose>3?'Forward what you knocked loose.':'');
-      startHold(c.cx,c.cy,2.4,dt=>{const d=Math.min(s.grime,dt*40);s.grime-=d;s.loose+=d;},()=>{s.loose+=s.grime;s.grime=0;say(`Whipped ${L.label}. Debris is loose in the duct.`,'Now the forward nozzle, pushing toward the machine.','good');},k); return; }
+      startHold(c.cx,c.cy,2.4,dt=>{const d=Math.min(s.grime,dt*40);s.grime-=d;s.loose+=d;},()=>{s.loose+=s.grime;s.grime=0;say(`Whipped ${L.label}${acc==='boot'?' with the soft rod around the 90':''}. Debris is loose in the duct.`,'Now the forward nozzle, pushing toward the machine.','good');},k); return; }
     if(s.loose<3) return say('Nothing loose to push.',s.grime>3?'Whip first. Agitate, then push.':'This segment is clean.');
     const wasClean=pathUp(k).filter(clean);
     startHold(c.cx,c.cy,1.6,dt=>{ const d=Math.min(s.loose,dt*70); s.loose-=d; const up=pathUp(k);
@@ -391,7 +392,7 @@ function finish(){
   let score=cleanPct; score-=S.vio.length*8; score-=open.length*10; score-=regsOut.length*5; score-=Math.max(0,holes-MIN_HOLES)*4; score-=ahDone?0:12; score-=S.defects.length*3; if(S.negSide) score-=3; score=Math.max(0,Math.round(score));
   const li=(t,w)=>`<li>${t}${w?`<span class="why">${w}</span>`:''}</li>`;
   overlay.querySelector('.card').innerHTML=`<h2>Job scored</h2><div class="big">${score}</div>
-  <ul>${li(`Ducts ${cleanPct}% clean.`)}${li(`${holes} holes cut, ${MIN_HOLES} was the minimum.`,'Two plenum accesses for the hose, one bit hole per trunk segment the plenum access cannot reach.')}
+  <ul>${li(`Ducts ${cleanPct}% clean.`)}${li(`${holes} holes cut, ${MIN_HOLES} was the minimum.`,'Two plenum accesses for the hose. Everything else reaches from an open boot with the soft rod, or through the plenum access. Bit holes are for when that does not reach.')}
   ${open.length?li(`${open.length} hole${open.length>1?'s':''} left open.`,'Walk it and count against the holes you cut.'):li('Every hole closed.')}
   ${regsOut.length?li(`${regsOut.length} register${regsOut.length>1?'s':''} still off.`):''}
   ${ahDone?li('Air handler done.'):li('Air handler not finished.','Coil sprayed, blower wiped, panel on, power back.')}
@@ -414,7 +415,7 @@ function hint(){
   if(!S.tied) return say('Hint: tie the hose off.','Hand on the hose. Then flip the machine on.');
   if(!S.negOn) return say('Hint: flip the machine on before you whip.','Hand on the machine.');
   const side=S.negSide; const dirty=Object.keys(LAYOUT).filter(k=>LAYOUT[k].side===side&&!clean(k));
-  if(dirty.length){ const far=dirty.sort((a,b)=>pathUp(b).length-pathUp(a).length)[0]; return say(`Hint: farthest dirty thing on this side is ${LAYOUT[far].label}.`,'Far end first, branches before trunk, whip then forward.'); }
+  if(dirty.length){ const far=dirty.sort((a,b)=>pathUp(b).length-pathUp(a).length)[0]; return say(`Hint: farthest dirty thing on this side is ${LAYOUT[far].label}.`,'Far end first, branches before trunk, whip then forward. Trunk segments reach from the open boot below them.'); }
   if(!sideClean(side==='supply'?'return':'supply')) return say('Hint: this side is done. Move the hose to the other plenum.','Hose tool on the current plenum pulls it off.');
   if(!(S.ah.coil>=100&&S.ah.blower>=100&&S.ah.panel)) return say('Hint: both sides clean. Air handler is last.','Power off, panel off, spray, wipe, panel on.');
   return say('Hint: close out.','Hose off. Patch the 8 inch accesses, plug the bit holes, registers back on. Then Finish job.');
