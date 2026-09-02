@@ -73,7 +73,7 @@ button:disabled{opacity:.4}
 <div id="panel"></div>
 <div id="overlay"><div class="card"></div></div>
 </div>
-<div id="msgs"><div id="m1">Start with a walk. Click things with the hand to see what they are. Cut nothing until you know where the machine hooks up.</div><div class="why" id="m2"></div></div>
+<div id="msgs"><div id="m1">Walk the job first. Hand on the air handler and both plenums (the square boxes beside it). Then 8 inch saw on a plenum, that is where the machine hooks up.</div><div class="why" id="m2"></div></div>
 <div id="belt"></div>
 </div>
 <script>
@@ -148,6 +148,7 @@ function render(){
   // negative air machine (room)
   const mg=el('g',{class:'hit',id:'hit-NEG'});
   el('rect',{x:60,y:470,width:100,height:82,rx:10,fill:'var(--yellow)',stroke:'var(--ink)','stroke-width':5},mg);
+  if(validTarget('NEG')) el('rect',{x:54,y:464,width:112,height:94,rx:12,fill:'none',stroke:'#ffe9a3','stroke-width':2,'stroke-dasharray':'5 4',class:'flow'},mg);
   el('circle',{cx:110,cy:505,r:22,fill:'#2a2740',stroke:'var(--ink)','stroke-width':4},mg);
   el('circle',{cx:110,cy:505,r:8,fill:S.negOn?'var(--green)':'#6b6588'},mg);
   el('text',{x:110,y:543,'text-anchor':'middle','font-size':12,'font-weight':700,fill:'var(--ink)'},mg).textContent=S.negOn?'RUNNING':'OFF';
@@ -158,7 +159,7 @@ function render(){
     el('polyline',{points:pts,fill:'none',stroke:'#3a3650','stroke-width':14,'stroke-linejoin':'round','stroke-linecap':'round'},hg);
     el('polyline',{points:pts,fill:'none',stroke:'#8f89b3','stroke-width':8,'stroke-dasharray':'6 6','stroke-linejoin':'round','stroke-linecap':'round',class:S.negOn?'flow':''},hg);
     if(S.tied){ el('line',{x1:242,y1:232,x2:242,y2:200,stroke:'#e0c070','stroke-width':4},hg); el('circle',{cx:242,cy:232,r:7,fill:'#e0c070',stroke:'var(--ink)','stroke-width':2},hg); }
-    else el('text',{x:242,y:224,'text-anchor':'middle','font-size':10,fill:'#ffe9a3'},hg).textContent='untied';
+    else { el('text',{x:242,y:222,'text-anchor':'middle','font-size':10,fill:'#ffe9a3'},hg).textContent='untied'; if(validTarget('HOSE')) el('circle',{cx:242,cy:232,r:14,fill:'none',stroke:'#ffe9a3','stroke-width':2,'stroke-dasharray':'5 4',class:'flow'},hg); }
   }
   // ducts
   for(const k in LAYOUT){ const L=LAYOUT[k], s=S.seg[k], g=el('g',{class:'hit'+(S.sel===k?' sel':''),id:'hit-'+k});
@@ -174,11 +175,16 @@ function render(){
       else if(h.cut) el('circle',{cx,cy,r,fill:'#1d1a2e',stroke:'var(--yellow)','stroke-width':3},g);
       else el('circle',{cx,cy,r,fill:'none',stroke:'var(--yellow)','stroke-width':2,'stroke-dasharray':'3 3'},g);
     }
+    if(L.kind==='plenum'){ el('text',{x:L.side==='return'?L.x+L.w-8:L.x+8,y:L.y-10,'text-anchor':L.side==='return'?'end':'start','font-size':11,fill:'#d9d3ef'},g).textContent=L.side+' plenum'; }
+    if(k==='ST3') el('text',{x:L.x+L.w/2,y:L.y-8,'text-anchor':'middle','font-size':11,fill:'#d9d3ef'},g).textContent='supply trunk';
+    if(k==='RT2') el('text',{x:L.x+L.w/2,y:L.y-8,'text-anchor':'middle','font-size':11,fill:'#d9d3ef'},g).textContent='return trunk';
+    if(validTarget(k)) el('rect',{x:L.x-4,y:L.y-4,width:L.w+8,height:L.h+8,rx:8,fill:'none',stroke:'#ffe9a3','stroke-width':2,'stroke-dasharray':'5 4',class:'flow'},g);
     if(S.hint){ el('text',{x:L.x+L.w/2,y:L.y-6,'text-anchor':'middle','font-size':11,fill:'#ffe9a3'},g).textContent=k+' '+Math.round(s.grime+s.loose)+'%'; }
   }
   // air handler
   const ag=el('g',{class:'hit'+(S.sel==='AH'?' sel':''),id:'hit-AH'});
   el('rect',{x:455,y:105,width:90,height:130,rx:8,fill:'#8b93a3',stroke:'var(--ink)','stroke-width':5},ag);
+  if(validTarget2('AH')) el('rect',{x:449,y:78,width:102,height:162,rx:10,fill:'none',stroke:'#ffe9a3','stroke-width':2,'stroke-dasharray':'5 4',class:'flow'},ag);
   if(!S.ah.panel){ el('rect',{x:463,y:113,width:74,height:114,fill:'#3a3650',stroke:'var(--ink)','stroke-width':3},ag);
     el('rect',{x:470,y:120,width:60,height:40,fill:S.ah.coil>=100?'#9fd6b8':'#6e5a3f',stroke:'var(--ink)','stroke-width':2},ag);
     for(let y=126;y<158;y+=6) el('line',{x1:472,y1:y,x2:528,y2:y,stroke:'#2a2740','stroke-width':1.5},ag);
@@ -191,6 +197,7 @@ function render(){
   // registers
   for(const r in REGS){ const R=REGS[r], g=el('g',{class:'hit'+(S.sel===r?' sel':''),id:'hit-'+r});
     el('rect',{x:R.x-36,y:256,width:72,height:40,fill:'transparent'},g);
+    if(validTarget(r)) el('rect',{x:R.x-30,y:264,width:60,height:24,rx:6,fill:'none',stroke:'#ffe9a3','stroke-width':2,'stroke-dasharray':'5 4',class:'flow'},g);
     if(S.reg[r]==='in'){ el('rect',{x:R.x-26,y:268,width:52,height:16,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':4},g);
       for(let x=R.x-18;x<=R.x+18;x+=9) el('line',{x1:x,y1:272,x2:x,y2:280,stroke:'#8a8f9a','stroke-width':3},g); }
     else { el('rect',{x:R.x-26,y:268,width:52,height:16,fill:'#1d1a2e',stroke:'var(--ink)','stroke-width':4},g);
@@ -228,6 +235,29 @@ function techPos(){
   return {x:Math.max(90,L.x+L.w/2),y:270};
 }
 
+function validTarget(t){ const tool=S.tool, L=LAYOUT[t], h=L&&holeAt(t);
+  if(tool==='hand'){ if(t==='HOSE') return S.negSide&&!S.tied; if(t==='NEG') return !!S.negSide; if(t==='AH') return !S.walked.AH||allClean(); if(REGS[t]) return S.reg[t]==='in'||clean(REGS[t].seg); return L&&L.kind==='plenum'&&!S.walked[t]; }
+  if(!L) return false;
+  if(tool==='saw') return L.kind==='plenum'&&!h;
+  if(tool==='bit') return L.kind==='trunk'&&!h&&!(LAYOUT[L.up].kind==='plenum'&&holeAt(L.up)&&holeAt(L.up).cut);
+  if(tool==='hose') return L.kind==='plenum'&&h&&h.cut;
+  if(tool==='whip'){ const src=L.reg?t:t; return !!whipAccess(t)&&S.seg[t].grime>=3&&negRunning(L.side); }
+  if(tool==='nozzle') return !!whipAccess(t)&&S.seg[t].loose>=3&&negRunning(L.side);
+  if(tool==='patch') return h&&h.type==='8'&&h.cut&&!h.patched&&S.negSide!==L.side;
+  if(tool==='plug') return h&&h.type==='1'&&!h.patched;
+  return false; }
+function validTarget2(t){ if(S.tool==='spray') return t==='AH'&&!S.ah.panel&&S.ah.coil<100; if(S.tool==='rag') return t==='AH'&&!S.ah.panel&&S.ah.blower<100; return validTarget(t); }
+const TOOL_INTRO={
+  hand:['Hand. Inspect, pull registers, tie the hose, flip switches.','Dashed outlines show what it does something to right now.'],
+  saw:['8 inch hole saw. Goes on a plenum, the square box either side of the air handler.','That access is where the machine hooks up and where you reach the near trunk segment from.'],
+  bit:['1 inch fairbairn bit. Goes on a trunk segment the plenum access cannot reach.','Closes with a pop plug, no patch.'],
+  hose:['Negative air hose. Tap a plenum that has an 8 inch access.','No access yet means no place for it to go. Saw first.'],
+  whip:['Whip. Hold on a duct you have a way into, with the machine running on that side.','Open register boot for flex, bit hole for trunk, plenum access for the plenum and the near segment.'],
+  nozzle:['Forward nozzle. Hold on a segment you already whipped.','Pushes the loose debris toward the machine.'],
+  patch:['Sheet metal patch kit. Goes on an 8 inch access, hose off first.','Corners, sides, mastic, X, flap, FSK.'],
+  plug:['Pop plug. Goes on a 1 inch bit hole.','Seat it, fold the V, tape it.'],
+  spray:['Coil cleaner. Air handler, panel off, power off.','Evaporator coil only. Condenser outside is out of scope.'],
+  rag:['Rag. Wipe the blower housing with the panel off.','']};
 // ---------- input ----------
 let holdState=null, holdTimer=null;
 function targetOf(e){ const g=e.target.closest('[id^="hit-"]'); return g?g.id.slice(4):null; }
@@ -391,7 +421,7 @@ function hint(){
 }
 // belt
 const belt=document.getElementById('belt');
-TOOLS.forEach(([id,name,sub])=>{ const b=document.createElement('button'); b.className='tool'+(id===S.tool?' on':''); b.innerHTML=`${name}<small>${sub}</small>`; b.onclick=()=>{S.tool=id; belt.querySelectorAll('.tool').forEach(x=>x.classList.toggle('on',x===b)); panel.style.display='none'; render();}; belt.appendChild(b); });
+TOOLS.forEach(([id,name,sub])=>{ const b=document.createElement('button'); b.className='tool'+(id===S.tool?' on':''); b.innerHTML=`${name}<small>${sub}</small>`; b.onclick=()=>{S.tool=id; belt.querySelectorAll('.tool').forEach(x=>x.classList.toggle('on',x===b)); panel.style.display='none'; say(TOOL_INTRO[id][0],TOOL_INTRO[id][1]); render();}; belt.appendChild(b); });
 render();
 window.__SIM={S,LAYOUT,act,finish};
 </script>
