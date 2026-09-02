@@ -56,7 +56,9 @@ button:disabled{opacity:.4}
 .sel{filter:drop-shadow(0 0 6px #f4c33a)}
 .hit{cursor:pointer}
 @media (max-width:700px){#panel{left:10px;right:10px;width:auto;top:auto;bottom:6px}header{font-size:13px;gap:6px 8px;padding:6px 10px}header b{font-size:16px}header>span:first-of-type{display:none}.bar{width:56px}header button{padding:6px 10px;font-size:13px}#msgs{font-size:14px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@keyframes flow{to{stroke-dashoffset:-24}}
+.flow{animation:flow .6s linear infinite}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -76,7 +78,7 @@ button:disabled{opacity:.4}
 </div>
 <script>
 const S = {
-  tool:'hand', sel:null, negSide:null, negOn:false, holes:[], vio:[], defects:[], hint:false,
+  tool:'hand', sel:null, negSide:null, negOn:false, tied:false, walked:{AH:false,SP:false,RP:false}, holes:[], vio:[], defects:[], hint:false, showFlags:false,
   ah:{power:true, panel:true, coil:0, blower:0},
   reg:{R1:'in',R2:'in',R3:'in',RG:'in'},
   seg:{}
@@ -95,7 +97,7 @@ const LAYOUT = {
   B3:{x:878,y:190,w:24,h:80,side:'supply',kind:'flex',label:'flex branch 3',up:'ST3',reg:'R3'}
 };
 const REGS = {R1:{x:670,seg:'B1',name:'register 1'},R2:{x:780,seg:'B2',name:'register 2'},R3:{x:890,seg:'B3',name:'register 3'},RG:{x:165,seg:'RB',name:'return grille'}};
-const TOOLS = [['hand','Hand','pull, flip, inspect'],['saw','8" saw','hole saw kit'],['bit','1" bit','fairbairn bit'],['hose','Neg air','hose + machine'],['whip','Whip','noodles'],['nozzle','Nozzle','forward air'],['patch','Patch','metal + mastic + FSK'],['plug','Plug','pop plug + FSK'],['spray','Sprayer','coil cleaner'],['rag','Rag','blower wipe']];
+const TOOLS = [['hand','Hand','pull, flip, inspect'],['saw','8" saw','hole saw kit'],['bit','1" bit','fairbairn bit'],['hose','Neg air','hose + machine'],['whip','Whip','hold to agitate'],['nozzle','Nozzle','hold to push'],['patch','Patch','metal + mastic + FSK'],['plug','Plug','pop plug + FSK'],['spray','Sprayer','coil cleaner'],['rag','Rag','blower wipe']];
 const MIN_HOLES = 5;
 function resetSegs(){ for(const k in LAYOUT) S.seg[k]={grime:75+Math.floor(Math.random()*20),loose:0,noteNoNeg:false}; }
 resetSegs();
@@ -151,13 +153,17 @@ function render(){
   el('text',{x:110,y:543,'text-anchor':'middle','font-size':12,'font-weight':700,fill:'var(--ink)'},mg).textContent=S.negOn?'RUNNING':'OFF';
   el('text',{x:110,y:462,'text-anchor':'middle','font-size':12,fill:'#d9d3ef'}).textContent='negative air';
   // hose
-  if(S.negSide){ const h=holeAt(S.negSide==='supply'?'SP':'RP'); const L=LAYOUT[h.seg];
-    el('polyline',{points:`110,470 110,300 242,300 242,232 ${L.x+L.w/2},232 ${L.x+L.w/2},${L.y+L.h}`,fill:'none',stroke:'#3a3650','stroke-width':14,'stroke-linejoin':'round','stroke-linecap':'round'});
-    el('polyline',{points:`110,470 110,300 242,300 242,232 ${L.x+L.w/2},232 ${L.x+L.w/2},${L.y+L.h}`,fill:'none',stroke:'#8f89b3','stroke-width':8,'stroke-dasharray':'6 6','stroke-linejoin':'round','stroke-linecap':'round'});
+  if(S.negSide){ const h=holeAt(S.negSide==='supply'?'SP':'RP'); const L=LAYOUT[h.seg]; const hg=el('g',{class:'hit'+(S.sel==='HOSE'?' sel':''),id:'hit-HOSE'});
+    const pts=`110,470 110,300 242,300 242,232 ${L.x+L.w/2},232 ${L.x+L.w/2},${L.y+L.h}`;
+    el('polyline',{points:pts,fill:'none',stroke:'#3a3650','stroke-width':14,'stroke-linejoin':'round','stroke-linecap':'round'},hg);
+    el('polyline',{points:pts,fill:'none',stroke:'#8f89b3','stroke-width':8,'stroke-dasharray':'6 6','stroke-linejoin':'round','stroke-linecap':'round',class:S.negOn?'flow':''},hg);
+    if(S.tied){ el('line',{x1:242,y1:232,x2:242,y2:200,stroke:'#e0c070','stroke-width':4},hg); el('circle',{cx:242,cy:232,r:7,fill:'#e0c070',stroke:'var(--ink)','stroke-width':2},hg); }
+    else el('text',{x:242,y:224,'text-anchor':'middle','font-size':10,fill:'#ffe9a3'},hg).textContent='untied';
   }
   // ducts
   for(const k in LAYOUT){ const L=LAYOUT[k], s=S.seg[k], g=el('g',{class:'hit'+(S.sel===k?' sel':''),id:'hit-'+k});
     const flex=L.kind==='flex', fill=flex?'#a8adb8':'var(--metal)';
+    el('rect',{x:L.x-14,y:L.y-6,width:L.w+28,height:L.h+12,fill:'transparent'},g);
     el('rect',{x:L.x,y:L.y,width:L.w,height:L.h,rx:flex?12:(L.kind==='plenum'?4:L.h/2),fill,stroke:'var(--ink)','stroke-width':5},g);
     if(flex) for(let y=L.y+8;y<L.y+L.h-4;y+=8) el('line',{x1:L.x+3,y1:y,x2:L.x+L.w-3,y2:y,stroke:'#7d828c','stroke-width':2},g);
     else if(L.kind==='trunk') el('rect',{x:L.x,y:L.y+L.h*.55,width:L.w,height:L.h*.25,fill:'var(--metal2)',opacity:.6},g);
@@ -184,6 +190,7 @@ function render(){
   el('text',{x:500,y:250,'text-anchor':'middle','font-size':11,fill:'#d9d3ef'}).textContent='air handler';
   // registers
   for(const r in REGS){ const R=REGS[r], g=el('g',{class:'hit'+(S.sel===r?' sel':''),id:'hit-'+r});
+    el('rect',{x:R.x-36,y:256,width:72,height:40,fill:'transparent'},g);
     if(S.reg[r]==='in'){ el('rect',{x:R.x-26,y:268,width:52,height:16,rx:3,fill:'#eef0f3',stroke:'var(--ink)','stroke-width':4},g);
       for(let x=R.x-18;x<=R.x+18;x+=9) el('line',{x1:x,y1:272,x2:x,y2:280,stroke:'#8a8f9a','stroke-width':3},g); }
     else { el('rect',{x:R.x-26,y:268,width:52,height:16,fill:'#1d1a2e',stroke:'var(--ink)','stroke-width':4},g);
@@ -198,6 +205,15 @@ function render(){
   el('rect',{x:-14,y:-8,width:11,height:10,rx:3,fill:'var(--blue)',stroke:'var(--ink)','stroke-width':3},tg);
   el('rect',{x:3,y:-8,width:11,height:10,rx:3,fill:'var(--blue)',stroke:'var(--ink)','stroke-width':3},tg);
   el('text',{x:0,y:-64,'text-anchor':'middle','font-size':11,fill:'#ffe9a3'},tg).textContent=TOOLS.find(t=>t[0]===S.tool)[1];
+  if(holdState&&holdState.k){ const k=holdState.k, L=LAYOUT[k];
+    if(holdState.tool==='whip'){ let d=`M${L.x+6} ${L.y+L.h/2}`; const vert=L.kind==='flex'||L.kind==='drop'; const n=vert?6:10;
+      for(let i=1;i<=n;i++){ const t=i/n; d+= vert?` L${L.x+L.w/2+(Math.random()-.5)*(L.w-8)} ${L.y+6+t*(L.h-12)}`:` L${L.x+6+t*(L.w-12)} ${L.y+L.h/2+(Math.random()-.5)*(L.h-10)}`; }
+      if(vert) d=`M${L.x+L.w/2} ${L.y+6}`+d.slice(d.indexOf(' L'));
+      el('path',{d,fill:'none',stroke:'#f4c33a','stroke-width':3,'stroke-linecap':'round'}); }
+    if(holdState.tool==='nozzle'){ const ph=(performance.now()/120)%16; [k,...pathUp(k)].forEach(u=>{ const U=LAYOUT[u]; const vert=U.kind==='flex'||U.kind==='drop'; const dir=U.side==='supply'?-1:1;
+      if(vert){ for(let y=U.y+U.h-6-ph;y>U.y+4;y-=16) el('path',{d:`M${U.x+U.w/2-6} ${y} L${U.x+U.w/2} ${y-8} L${U.x+U.w/2+6} ${y}`,fill:'none',stroke:'#ffe9a3','stroke-width':3,'stroke-linecap':'round'}); }
+      else { for(let x=(dir<0?U.x+U.w-6-ph:U.x+6+ph); dir<0?x>U.x+6:x<U.x+U.w-6; x+=dir*16) el('path',{d:`M${x-dir*8} ${U.y+U.h/2-7} L${x} ${U.y+U.h/2} L${x-dir*8} ${U.y+U.h/2+7}`,fill:'none',stroke:'#ffe9a3','stroke-width':3,'stroke-linecap':'round'}); } }); }
+  }
   if(holdState){ el('circle',{cx:holdState.cx,cy:holdState.cy,r:22,fill:'none',stroke:'#3a3650','stroke-width':6});
     el('circle',{cx:holdState.cx,cy:holdState.cy,r:22,fill:'none',stroke:'var(--yellow)','stroke-width':6,'stroke-dasharray':`${138*holdState.p} 138`,transform:`rotate(-90 ${holdState.cx} ${holdState.cy})`}); }
   // meters
@@ -207,7 +223,7 @@ function render(){
 }
 function techPos(){
   const k=S.sel; if(!k) return {x:240,y:270};
-  if(REGS[k]) return {x:REGS[k].x+40,y:552}; if(k==='NEG') return {x:190,y:552}; if(k==='AH') return {x:420,y:270};
+  if(REGS[k]) return {x:REGS[k].x+40,y:552}; if(k==='NEG') return {x:190,y:552}; if(k==='HOSE') return {x:290,y:270}; if(k==='AH') return {x:420,y:270};
   const L=LAYOUT[k]; if(L.kind==='flex'||L.kind==='drop') return {x:L.x+L.w/2+40,y:552};
   return {x:Math.max(90,L.x+L.w/2),y:270};
 }
@@ -217,7 +233,7 @@ let holdState=null, holdTimer=null;
 function targetOf(e){ const g=e.target.closest('[id^="hit-"]'); return g?g.id.slice(4):null; }
 svg.addEventListener('pointerdown',e=>{ const t=targetOf(e); if(!t) return; e.preventDefault(); S.sel=t; act(t,e); render(); });
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>svg.addEventListener(ev,stopHold));
-function startHold(cx,cy,secs,step,done){ stopHold(); holdState={cx,cy,p:0}; const t0=performance.now(); let last=t0;
+function startHold(cx,cy,secs,step,done,k){ stopHold(); holdState={cx,cy,p:0,k,tool:S.tool}; const t0=performance.now(); let last=t0;
   holdTimer=setInterval(()=>{ const now=performance.now(); const dt=(now-last)/1000; last=now; holdState.p=Math.min(1,(now-t0)/1000/secs); step(dt); render(); if(holdState.p>=1){ stopHold(); done&&done(); render(); } },50); }
 function stopHold(){ if(holdTimer){clearInterval(holdTimer);holdTimer=null;} holdState=null; }
 const center=k=>{const L=LAYOUT[k];return {cx:L.x+L.w/2,cy:L.y+L.h/2};};
@@ -225,6 +241,7 @@ const center=k=>{const L=LAYOUT[k];return {cx:L.x+L.w/2,cy:L.y+L.h/2};};
 function act(t){
   const tool=S.tool; panel.style.display='none';
   if(t==='NEG') return actNeg(tool);
+  if(t==='HOSE') return actHose(tool);
   if(t==='AH') return actAH(tool);
   if(REGS[t]) return actReg(t,tool);
   return actSeg(t,tool);
@@ -234,9 +251,14 @@ function actNeg(tool){
   if(!S.negSide) return say('No hose hooked up. Nothing to pull on.','Cut an 8 inch access on a plenum, then attach the hose there with the Neg air tool.');
   S.negOn=!S.negOn; say(S.negOn?`Machine running on the ${S.negSide} side.`:'Machine off.', S.negOn?'It runs the whole time you agitate on that side. That is the rule.':'', S.negOn?'good':'');
 }
+function actHose(tool){
+  if(tool!=='hand') return say('Hand to tie it off.','');
+  if(S.tied) return say('Hose is tied off.','');
+  S.tied=true; say('Hose tied off to a collar tie.','Strain relief. Untied, it snakes itself back down the hatch while you are whipping.','good');
+}
 function actAH(tool){
   const a=S.ah;
-  if(tool==='hand'){
+  if(tool==='hand'){ if(!S.walked.AH){ S.walked.AH=true; return say('Air handler in the attic. Disconnect is the box above it.','Coil and blower sit between both sides. This gets cleaned last. Hand again to kill power when you are ready.'); }
     if(a.power){ a.power=false; return say('Power off at the disconnect.','Always before a panel comes off.','good'); }
     if(a.panel){ a.panel=false; if(!allClean()) flag('ah-early','Air handler opened before the ducts are done.','It sits between both sides and catches what either side knocks loose. Clean it last.'); return say('Panel off. Coil and blower exposed.','Sprayer on the coil, rag on the blower housing.'); }
     if(a.coil>=100&&a.blower>=100){ a.panel=true; a.power=true; return say('Panel back on, power restored.','Air handler done.','good'); }
@@ -256,17 +278,19 @@ function actReg(r,tool){
 }
 function actSeg(k,tool){
   const L=LAYOUT[k], s=S.seg[k], c=center(k), h=holeAt(k);
-  if(tool==='hand'){ const acc=whipAccess(k); return say(`${L.label}. ${Math.round(s.grime)}% stuck, ${Math.round(s.loose)}% loosened.`, acc?`Whip access: ${acc==='reg'?'through the open register boot':acc==='hole'?'through the hole you cut':'reaching through the plenum access'}.`:(L.reg?'Pull the register to get in here.':L.kind==='plenum'?'Needs an 8 inch access. That is also where the hose hooks up.':'Needs a 1 inch bit hole, or reach from the plenum access if it is the near segment.')); }
-  if(tool==='saw'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); openCut(k,'8'); return; }
+  if(tool==='hand'){ if(L.kind==='plenum') S.walked[k]=true; const acc=whipAccess(k); return say(`${L.label}. ${Math.round(s.grime)}% stuck, ${Math.round(s.loose)}% loosened.`, acc?`Whip access: ${acc==='reg'?'through the open register boot':acc==='hole'?'through the hole you cut':'reaching through the plenum access'}.`:(L.reg?'Pull the register to get in here.':L.kind==='plenum'?'Needs an 8 inch access. That is also where the hose hooks up.':'Needs a 1 inch bit hole, or reach from the plenum access if it is the near segment.')); }
+  const walkCheck=()=>{ if(!(S.walked.AH&&S.walked.SP&&S.walked.RP)) flag('walk','Cutting before you walked the job.','Hand on the air handler and both plenums first. Know where the machine hooks up before anything gets opened.'); };
+  if(tool==='saw'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); walkCheck(); openCut(k,'8'); return; }
   if(tool==='bit'){ if(L.reg) return say('Do not cut flex.','Branches get cleaned from the register boot.'); if(h) return say('Already has a hole.',''); if(L.kind==='plenum') return say('A bit hole will not take the hose.','Plenum gets the 8 inch access.'); if(L.kind==='trunk'&&LAYOUT[L.up].kind==='plenum'&&holeAt(L.up)&&holeAt(L.up).cut){ flag('extra-hole-'+k,'Extra hole on the near trunk segment.','You can reach this segment through the plenum access. Every hole is a hole you patch.'); }
-    startHold(c.cx,c.cy,1.2,()=>{},()=>{S.holes.push({seg:k,type:'1',cut:true,patched:false});say('1 inch bit hole cut, V in the insulation.','Closes with a pop plug and FSK, no patch.','good');}); return; }
+    walkCheck(); startHold(c.cx,c.cy,1.2,()=>{},()=>{S.holes.push({seg:k,type:'1',cut:true,patched:false});say('1 inch bit hole cut, V in the insulation.','Closes with a pop plug and FSK, no patch.','good');}); return; }
   if(tool==='hose'){ if(L.kind!=='plenum') return say('Hose goes on the plenum.','As close to the air handler as the access allows.'); if(!h||!h.cut) return say('No access here yet.','8 inch saw first.');
-    if(S.negSide===L.side){ S.negSide=null; S.negOn=false; return say('Hose pulled off. Machine off.',''); }
-    S.negSide=L.side; S.negOn=false; return say(`Hose on the ${L.side} plenum. Machine is off.`,'Flip it on at the machine before you agitate anything on this side.'); }
+    if(S.negSide===L.side){ S.negSide=null; S.negOn=false; S.tied=false; return say('Hose pulled off. Machine off.',''); }
+    S.negSide=L.side; S.negOn=false; S.tied=false; return say(`Hose on the ${L.side} plenum. Machine is off.`,'Tie it off to a collar tie (hand on the hose), then flip it on at the machine.'); }
   if(tool==='whip'||tool==='nozzle'){ const acc=whipAccess(k); if(!acc) return say('No way in.',L.reg?'Pull the register.':L.kind==='plenum'?'Cut the 8 inch access.':'Cut a 1 inch bit hole here.');
     if(!negRunning(L.side)&&!s.noteNoNeg){ s.noteNoNeg=true; flag('no-neg-'+L.side,`Agitating the ${L.side} side with no negative air pulling on it.`,'You are redistributing dirt, not removing it. Machine on, hose on this side, first.'); }
+    if(tool==='whip'&&negRunning(L.side)&&!S.tied) flag('untied','Whipping with the hose loose in the attic.','Tie it off to a collar tie. Untied, it works its way back down the hatch.');
     if(tool==='whip'){ if(s.grime<3) return say('Already down to bare metal.',s.loose>3?'Forward what you knocked loose.':'');
-      startHold(c.cx,c.cy,2.4,dt=>{const d=Math.min(s.grime,dt*40);s.grime-=d;s.loose+=d;},()=>{s.loose+=s.grime;s.grime=0;say(`Whipped ${L.label}. Debris is loose in the duct.`,'Now the forward nozzle, pushing toward the machine.','good');}); return; }
+      startHold(c.cx,c.cy,2.4,dt=>{const d=Math.min(s.grime,dt*40);s.grime-=d;s.loose+=d;},()=>{s.loose+=s.grime;s.grime=0;say(`Whipped ${L.label}. Debris is loose in the duct.`,'Now the forward nozzle, pushing toward the machine.','good');},k); return; }
     if(s.loose<3) return say('Nothing loose to push.',s.grime>3?'Whip first. Agitate, then push.':'This segment is clean.');
     const wasClean=pathUp(k).filter(clean);
     startHold(c.cx,c.cy,1.6,dt=>{ const d=Math.min(s.loose,dt*70); s.loose-=d; const up=pathUp(k);
@@ -277,14 +301,14 @@ function actSeg(k,tool){
       if(negRunning(L.side)){ if(dirtied.length) flag('order-'+k,`Debris from ${L.label} went through a trunk you already called clean.`,'Branches before the trunk, far end back toward the machine. You just re-dirtied '+dirtied.map(u=>LAYOUT[u].label).join(', ')+'.');
         else say(`Forwarded ${L.label}. Out to the machine.`,'','good'); }
       else say(`Pushed the debris up into ${up[0]?LAYOUT[up[0]].label:'the plenum'}.`,'No suction on this side. It just moved.','bad');
-    }); return; }
+    },k); return; }
   if(tool==='patch'){ if(!h||h.type!=='8') return say(L.kind==='plenum'?'No 8 inch access here.':'A 1 inch hole gets a pop plug, not a patch.',''); if(h.patched) return say('Already patched.',''); if(!h.cut) return say('Not cut yet.',''); if(S.negSide===L.side) return say('Hose is still on this access.','Pull the hose off first.'); if(!sideClean(L.side)) flag('patch-early-'+k,`Patching the ${L.side} side before it is clean.`,'Close out is last. You will need this hole again.'); openPatch(k); return; }
   if(tool==='plug'){ if(!h||h.type!=='1') return say('No bit hole here.',h&&h.type==='8'?'An 8 inch access gets a sheet metal patch.':''); if(h.patched) return say('Already plugged.',''); openPlug(k); return; }
   if(tool==='spray'||tool==='rag') return say('That is for the air handler.','');
 }
 
 // ---------- mini sequences ----------
-function showPanel(html){ panel.innerHTML=html; panel.style.display='block'; }
+function showPanel(html){ delete panel.dataset.flags; panel.innerHTML=html; panel.style.display='block'; }
 function openCut(k,type){
   const L=LAYOUT[k]; let hole={seg:k,type,cut:false,patched:false,sides:[],pilot:false,saw:0,burr:false}; S.holes.push(hole);
   if(L.kind==='trunk') say('8 inch on a trunk works.','A 1 inch bit hole gives the same whip access and closes with a plug instead of a patch.');
@@ -350,10 +374,14 @@ function finish(){
   overlay.querySelector('#back').onclick=()=>{overlay.style.display='none';};
 }
 document.getElementById('finish').onclick=finish;
+document.getElementById('vio').style.cursor='pointer';
+document.getElementById('vio').onclick=()=>{ if(panel.style.display==='block'&&panel.dataset.flags){ panel.style.display='none'; delete panel.dataset.flags; return; }
+  showPanel(`<h3>Flags so far</h3>${S.vio.length?'<ul style="padding-left:16px;margin:0">'+S.vio.map(v=>`<li style="margin:4px 0">${v.text}<span style="display:block;color:#b9b3d6;font-size:12.5px">${v.why}</span></li>`).join('')+'</ul>':'<p>None yet.</p>'}<div class="row"><button class="alt" id="closep">Close</button></div>`); panel.dataset.flags='1'; panel.querySelector('#closep').onclick=()=>{panel.style.display='none';delete panel.dataset.flags;}; };
 document.getElementById('hintBtn').onclick=()=>{ S.hint=!S.hint; render(); if(S.hint) hint(); };
 function hint(){
   if(!holeAt('SP')&&!holeAt('RP')) return say('Hint: the machine needs somewhere to pull from.','8 inch saw on a plenum. Pick either side, it does not matter physically.');
   if(!S.negSide) return say('Hint: hose on the plenum access.','Neg air tool, tap the plenum with the access.');
+  if(!S.tied) return say('Hint: tie the hose off.','Hand on the hose. Then flip the machine on.');
   if(!S.negOn) return say('Hint: flip the machine on before you whip.','Hand on the machine.');
   const side=S.negSide; const dirty=Object.keys(LAYOUT).filter(k=>LAYOUT[k].side===side&&!clean(k));
   if(dirty.length){ const far=dirty.sort((a,b)=>pathUp(b).length-pathUp(a).length)[0]; return say(`Hint: farthest dirty thing on this side is ${LAYOUT[far].label}.`,'Far end first, branches before trunk, whip then forward.'); }
