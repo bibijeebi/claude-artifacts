@@ -64,7 +64,7 @@ button.ghost{background:#fff;color:var(--ink)}
 <div class="wrap">
   <div>
     <div class="stage"><canvas id="c" width="900" height="560"></canvas>
-      <div class="legend"><span><i style="background:var(--ok)"></i>Within 10% of load</span><span><i style="background:var(--cold)"></i>Starved</span><span><i style="background:var(--hot)"></i>Overblown or noisy</span><span><i style="background:var(--galv)"></i>Metal</span><span><i style="background:repeating-linear-gradient(90deg,var(--galv) 0 3px,transparent 3px 6px)"></i>Flex</span></div>
+      <div class="legend"><span><i style="background:var(--ok)"></i>Within 10% of load</span><span><i style="background:var(--cold)"></i>Starved</span><span><i style="background:var(--hot)"></i>Overblown or noisy</span><span><i style="background:var(--galv)"></i>Supply</span><span><i style="background:#5b6f7c"></i>Return</span><span><i style="border:2px dashed var(--ok);width:10px;height:0"></i>Jump duct</span><span><i style="background:repeating-linear-gradient(90deg,var(--galv) 0 3px,transparent 3px 6px)"></i>Flex</span></div>
     </div>
     <div class="card" style="margin-top:12px">
       <h3>Static pressure, where it goes</h3>
@@ -96,12 +96,12 @@ button.ghost{background:#fff;color:var(--ink)}
 const SZ=[4,5,6,7,8,9,10,12,14,16,18,20];
 const GRILLES=[[14,20],[16,25],[20,20],[20,25],[24,30],[30,30]];
 const LEVELS=[
- {name:"Ranch",budget:2600,tons:2.5,retLen:12,ah:[2,14],trunk:[[4,14],[44,14]],
+ {name:"Ranch",budget:2600,tons:2.5,ah:[2,14],trunk:[[4,14],[44,14]],retPath:[[26,16.5],[3.5,16.5],[3.5,15]],
   rooms:[{n:"Living",x:4,y:2,w:16,h:10,cfm:210},{n:"Kitchen",x:22,y:2,w:12,h:10,cfm:150},{n:"Master",x:36,y:2,w:14,h:10,cfm:190,bed:1},{n:"Bed 2",x:4,y:18,w:11,h:10,cfm:95,bed:1},{n:"Bed 3",x:17,y:18,w:11,h:10,cfm:110,bed:1},{n:"Bath",x:30,y:18,w:8,h:10,cfm:45},{n:"Office",x:40,y:18,w:10,h:10,cfm:120,bed:1}]},
- {name:"Long ranch",budget:3500,tons:3,retLen:15,ah:[2,15],trunk:[[4,15],[70,15]],
+ {name:"Long ranch",budget:3500,tons:3,ah:[2,15],trunk:[[4,15],[70,15]],retPath:[[38,17.5],[3.5,17.5],[3.5,16]],
   rooms:[{n:"Garage side bed",x:4,y:2,w:12,h:11,cfm:110,bed:1},{n:"Living",x:18,y:2,w:20,h:11,cfm:260},{n:"Kitchen",x:40,y:2,w:14,h:11,cfm:170},{n:"Master",x:56,y:2,w:18,h:11,cfm:230,bed:1},{n:"Bed 2",x:4,y:19,w:12,h:11,cfm:100,bed:1},{n:"Dining",x:18,y:19,w:14,h:11,cfm:140},{n:"Bath",x:34,y:19,w:8,h:11,cfm:40},{n:"Bed 3",x:44,y:19,w:12,h:11,cfm:105,bed:1},{n:"Master bath",x:58,y:19,w:16,h:11,cfm:45}]},
- {name:"Sprawler",budget:4700,tons:4,retLen:22,ah:[2,20],trunk:[[4,20],[30,20],[30,6],[62,6]],
-  rooms:[{n:"Bed 2",x:4,y:2,w:11,h:11,cfm:105,bed:1},{n:"Bed 3",x:17,y:2,w:11,h:11,cfm:110,bed:1},{n:"Great room",x:34,y:10,w:24,h:15,cfm:360},{n:"Kitchen",x:34,y:27,w:16,h:11,cfm:190},{n:"Master",x:60,y:14,w:18,h:12,cfm:250,bed:1},{n:"Master bath",x:60,y:28,w:12,h:10,cfm:55},{n:"Bed 4",x:4,y:26,w:11,h:11,cfm:100,bed:1},{n:"Laundry",x:17,y:26,w:9,h:11,cfm:50},{n:"Study",x:36,y:0,w:14,h:8,cfm:130,bed:1},{n:"Bonus",x:52,y:0,w:22,h:8,cfm:240,bed:1}]}
+ {name:"Sprawler",budget:4700,tons:4,ah:[2,20],trunk:[[4,20],[31,20],[31,8],[62,8]],retPath:[[31,23.5],[3.5,23.5],[3.5,21]],
+  rooms:[{n:"Bed 2",x:4,y:2,w:11,h:11,cfm:105,bed:1},{n:"Bed 3",x:17,y:2,w:11,h:11,cfm:110,bed:1},{n:"Great room",x:34,y:11,w:24,h:15,cfm:360},{n:"Kitchen",x:34,y:28,w:16,h:11,cfm:190},{n:"Master",x:60,y:11,w:18,h:12,cfm:250,bed:1},{n:"Master bath",x:60,y:26,w:14,h:10,cfm:55},{n:"Bed 4",x:4,y:26,w:11,h:11,cfm:100,bed:1},{n:"Laundry",x:17,y:26,w:9,h:11,cfm:50},{n:"Study",x:34,y:0,w:14,h:6,cfm:130,bed:1},{n:"Bonus",x:50,y:0,w:24,h:6,cfm:240,bed:1}]}
 ];
 const fr=(q,d)=>0.109136*Math.pow(q,1.9)/Math.pow(d,5.02);
 const area=d=>Math.PI*d*d/4/144;
@@ -124,6 +124,7 @@ function load(k){
  L.segs=[];let prev=0;
  order.forEach((r,i)=>{L.segs.push({len:Math.max(1,Math.round(r.s-prev)),room:r,d:12,i});prev=r.s;r.seg=i});
  L.ret={d:16,grille:2,sealed:false};
+ L.retLen=Math.round(L.retPath.reduce((a,q,i)=>i?a+Math.hypot(q[0]-L.retPath[i-1][0],q[1]-L.retPath[i-1][1]):0,0));
  const maxx=Math.max(...L.rooms.map(r=>r.x+r.w)),maxy=Math.max(...L.rooms.map(r=>r.y+r.h));
  px=Math.min(860/maxx,500/maxy);ox=20;oy=30;
  sel={t:"ret"};
@@ -136,7 +137,7 @@ function branchR(r,closed){
  if(r.flex)R*=1.45;
  R+=0.03/(r.cfm*r.cfm);
  if(closed&&r.bed){
-  if(r.jump){R+=0.109136*(10+40)/100*Math.pow(r.cfm,-0.1)/Math.pow(Math.max(r.d,6)+2,5.02)}
+  if(r.jump){R+=0.109136*(nearRet(...r.c).d+40)/100*Math.pow(r.cfm,-0.1)/Math.pow(Math.max(r.d,6)+2,5.02)}
   else R+=1/(500*500);
  }
  return R;
@@ -171,7 +172,7 @@ function solve(closed){
 function run(){
  solve(false);S=solve(true);
  let cost=0;
- L.rooms.forEach(r=>{cost+=ductCost(r.d,r.len,r.flex)+(r.take==="conical"?18:6)+(r.elbow==="radius"?14:5)+25+(r.jump?70:0)});
+ L.rooms.forEach(r=>{cost+=ductCost(r.d,r.len,r.flex)+(r.take==="conical"?18:6)+(r.elbow==="radius"?14:5)+25+(r.jump?40+Math.round(nearRet(...r.c).d)*4:0)});
  L.segs.forEach(g=>cost+=ductCost(g.d,g.len,false)+10);
  const g=GRILLES[L.ret.grille];
  cost+=ductCost(L.ret.d,L.retLen+6,false)+g[0]*g[1]*0.12+(L.ret.sealed?90:0);
@@ -215,16 +216,23 @@ function draw(){
   cx.strokeStyle=sel&&sel.t==="room"&&sel.r===r?"#f2a93b":r.noisy?"#d1552e":"#8d99a1";cx.lineWidth=Math.max(3,r.d*0.6);cx.setLineDash(r.flex?[6,5]:[]);
   cx.beginPath();cx.moveTo(...P(...r.tap));cx.lineTo(...P(...r.c));cx.stroke();cx.setLineDash([]);
   if(r.take==="conical"){cx.fillStyle="#4c5d68";cx.beginPath();const t=P(...r.tap);cx.arc(t[0],t[1],5,0,7);cx.fill()}
-  if(r.bed&&r.jump){cx.strokeStyle="#2f8f6b";cx.lineWidth=2;cx.setLineDash([3,3]);cx.beginPath();const c=P(...r.c);cx.arc(c[0],c[1],10,0,7);cx.stroke();cx.setLineDash([])}
  });
+ cx.strokeStyle=sel&&sel.t==="ret"?"#f2a93b":S.gfpm>500?"#d1552e":"#5b6f7c";cx.lineWidth=Math.max(6,L.ret.d*0.9);cx.lineJoin="round";
+ cx.beginPath();L.retPath.forEach((q,i)=>i?cx.lineTo(...P(...q)):cx.moveTo(...P(...q)));cx.stroke();
+ const gr=GRILLES[L.ret.grille],g0=P(...L.retPath[0]);cx.fillStyle="#fff";cx.strokeStyle="#1c2a33";cx.lineWidth=1.5;
+ cx.fillRect(g0[0]-gr[0]/12*px/2,g0[1]-gr[1]/12*px/2,gr[0]/12*px,gr[1]/12*px);cx.strokeRect(g0[0]-gr[0]/12*px/2,g0[1]-gr[1]/12*px/2,gr[0]/12*px,gr[1]/12*px);
+ const rm=P((L.retPath[0][0]+L.retPath[1][0])/2,(L.retPath[0][1]+L.retPath[1][1])/2);cx.fillStyle="#fff";cx.font="600 12px 'Barlow Condensed'";cx.fillText(`${L.ret.d}" return`,rm[0]-22,rm[1]+4);
+ cx.fillStyle="#1c2a33";cx.font="500 12px Barlow";cx.fillText(`${gr[0]}x${gr[1]} filter grille`,g0[0]-100,g0[1]+gr[1]/12*px/2+13);
+ L.rooms.forEach(r=>{if(r.bed&&r.jump){const n=nearRet(...r.c);cx.strokeStyle="#2f8f6b";cx.lineWidth=3;cx.setLineDash([4,4]);cx.beginPath();cx.moveTo(...P(...r.c));cx.lineTo(...P(...n.p));cx.stroke();cx.setLineDash([])}});
  const ah=P(...L.ah);cx.fillStyle=sel&&sel.t==="ret"?"#f2a93b":"#1c2a33";cx.fillRect(ah[0]-16,ah[1]-16,32,32);
  cx.fillStyle="#fff";cx.font="600 11px 'Barlow Condensed'";cx.fillText("AHU",ah[0]-12,ah[1]+4);
 }
+function nearRet(x,y){let best=null;for(let i=1;i<L.retPath.length;i++){const a=L.retPath[i-1],b=L.retPath[i],dx=b[0]-a[0],dy=b[1]-a[1],l2=dx*dx+dy*dy||1;let t=((x-a[0])*dx+(y-a[1])*dy)/l2;t=Math.max(0,Math.min(1,t));const px_=a[0]+dx*t,py_=a[1]+dy*t,d=Math.hypot(x-px_,y-py_);if(!best||d<best.d)best={d,p:[px_,py_]}}return best}
 function ptAt(s){const pts=L.trunk;let acc=0;for(let i=1;i<pts.length;i++){const len=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);if(s<=acc+len||i===pts.length-1){const t=Math.max(0,Math.min(1,(s-acc)/len));return [pts[i-1][0]+(pts[i][0]-pts[i-1][0])*t,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*t]}acc+=len}return pts[pts.length-1]}
 cv.addEventListener("click",e=>{
  const b=cv.getBoundingClientRect();const x=(e.clientX-b.left)*cv.width/b.width,y=(e.clientY-b.top)*cv.height/b.height;
  const fx=(x-ox)/px,fy=(y-oy)/px;
- if(Math.hypot(fx-L.ah[0],fy-L.ah[1])<2){sel={t:"ret"};return run()}
+ if(Math.hypot(fx-L.ah[0],fy-L.ah[1])<2||nearRet(fx,fy).d<1.4){sel={t:"ret"};return run()}
  for(const g of L.segs){const a=ptAt(g.i?L.segs[g.i-1].room.s:0),c=ptAt(g.room.s);const dx=c[0]-a[0],dy=c[1]-a[1],l2=dx*dx+dy*dy||1;let t=((fx-a[0])*dx+(fy-a[1])*dy)/l2;t=Math.max(0,Math.min(1,t));if(Math.hypot(fx-a[0]-dx*t,fy-a[1]-dy*t)<1.2){sel={t:"seg",g};return run()}}
  for(const r of L.rooms){if(fx>=r.x&&fx<=r.x+r.w&&fy>=r.y&&fy<=r.y+r.h){sel={t:"room",r};return run()}}
 });
@@ -237,14 +245,14 @@ function panel(){
   <label class="row">Material<select data-k="flex">${opt(["Metal","Flex"],r.flex?1:0)}</select></label>
   <label class="row">Takeoff<select data-k="take">${opt(["tap","conical"],["tap","conical"].indexOf(r.take),v=>v==="tap"?"Straight tap (60 EL)":"Conical (20 EL)")}</select></label>
   <label class="row">Elbow<select data-k="elbow">${opt(["mitered","radius"],["mitered","radius"].indexOf(r.elbow),v=>v==="mitered"?"Mitered (35 EL)":"Radius (10 EL)")}</select></label>
-  ${r.bed?`<label class="check"><input type="checkbox" data-k="jump" ${r.jump?"checked":""}> Jump duct to hall return ($70)</label>`:""}`;
+  ${r.bed?`<label class="check"><input type="checkbox" data-k="jump" ${r.jump?"checked":""}> Jump duct to the return ($${40+Math.round(nearRet(...r.c).d)*4})</label>`:""}`;
   I.querySelectorAll("select,input").forEach(el=>el.onchange=()=>{const k=el.dataset.k;if(k==="d")r.d=+el.value;else if(k==="flex")r.flex=el.value==="1";else if(k==="take")r.take=["tap","conical"][+el.value];else if(k==="elbow")r.elbow=["mitered","radius"][+el.value];else if(k==="jump")r.jump=el.checked;run()});
  }else if(sel.t==="seg"){const g=sel.g;
   I.innerHTML=`<h2>Trunk segment ${g.i+1}</h2><p class="muted">${g.len} ft feeding ${L.segs.slice(g.i).map(x=>x.room.n).join(", ")}. Carrying ${Math.round(g.q)} CFM at ${Math.round(g.v)} FPM.</p>
   <label class="row">Trunk size<select data-k="d">${opt(SZ.slice(4),g.d,v=>v+'" round')}</select></label>`;
   I.querySelector("select").onchange=e=>{g.d=+e.target.value;run()};
  }else{
-  I.innerHTML=`<h2>Air handler and return</h2><p class="muted">${L.tons} ton, ${L.tons*400} CFM design. Return run ${L.retLen} ft plus one elbow. Filter face at ${Math.round(S.gfpm)} FPM.</p>
+  I.innerHTML=`<h2>Air handler and return</h2><p class="muted">${L.tons} ton, ${L.tons*400} CFM design. Return run ${L.retLen} ft plus one elbow, drawn on the plan. Filter face at ${Math.round(S.gfpm)} FPM.</p>
   <label class="row">Return duct<select data-k="d">${opt(SZ.slice(5),L.ret.d,v=>v+'" round')}</select></label>
   <label class="row">Filter grille<select data-k="g">${opt(GRILLES,L.ret.grille,v=>v[0]+"x"+v[1])}</select></label>
   <label class="check"><input type="checkbox" data-k="sealed" ${L.ret.sealed?"checked":""}> Mastic every joint ($90, stops 15% leakage)</label>`;
