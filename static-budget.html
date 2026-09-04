@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Static Budget, a duct design game</title>
+<meta property="og:title" content="Static Budget, a duct design game">
+<meta property="og:description" content="Route and size the ductwork for a house against a real blower curve. Every room gets its CFM or it doesn't. Fittings, flex, filters and closed doors all bite.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/static-budget-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/static-budget.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/static-budget-og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#dfe6ea;--ink:#1c2a33;--ink2:#4c5d68;--line:#b7c3ca;--galv:#8d99a1;--ok:#2f8f6b;--cold:#3a7bc8;--hot:#d1552e;--warn:#c98a1e;--sel:#f2a93b;--panel:#f6f8f9}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden;margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Barlow,system-ui,sans-serif}
+h1,h2,h3{font-family:"Barlow Condensed",sans-serif;font-weight:600;margin:0;letter-spacing:.01em}
+h1{font-size:34px;line-height:1}
+h2{font-size:22px}
+h3{font-size:18px;color:var(--ink2)}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 28px;padding:18px 22px 10px}
+header p{margin:0;color:var(--ink2);max-width:60ch}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;padding:0 22px 40px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+.stage{background:#e9eef1;border:1px solid var(--line);position:relative}
+canvas{display:block;width:100%;height:auto;cursor:pointer;touch-action:manipulation}
+.legend{display:flex;gap:14px;flex-wrap:wrap;padding:8px 12px;font-size:13px;color:var(--ink2);border-top:1px solid var(--line)}
+.legend i{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin-right:5px}
+.side{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);padding:12px 14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat b{display:block;font-size:12px;color:var(--ink2);font-weight:400}
+.stat span{font-family:"Barlow Condensed",sans-serif;font-size:30px;font-weight:600;line-height:1.1}
+.stat span.bad{color:var(--hot)}
+.stars{font-size:22px;letter-spacing:2px;color:var(--warn)}
+.bar{display:flex;height:16px;border:1px solid var(--line);margin:8px 0 4px;background:#fff}
+.bar div{height:100%}
+.barkey{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink2)}
+.barkey i{display:inline-block;width:10px;height:10px;margin-right:4px;vertical-align:-1px}
+label.row{display:grid;grid-template-columns:1fr 130px;align-items:center;gap:8px;margin:6px 0;font-size:14px}
+select,button{font:inherit;padding:5px 8px;border:1px solid var(--galv);background:#fff;color:var(--ink);border-radius:3px}
+button{cursor:pointer;background:var(--ink);color:#fff;border-color:var(--ink);padding:7px 12px;font-family:"Barlow Condensed",sans-serif;font-size:17px}
+button.ghost{background:#fff;color:var(--ink)}
+.tips{font-size:14px;margin:0;padding-left:18px}
+.tips li{margin:4px 0}
+.tips li.good{color:var(--ok)}
+.muted{color:var(--ink2);font-size:13px}
+.cost{font-variant-numeric:tabular-nums}
+.leveltabs{display:flex;gap:6px;flex-wrap:wrap}
+.leveltabs button{padding:5px 10px;font-size:15px}
+.leveltabs button.on{background:var(--sel);border-color:var(--sel);color:var(--ink)}
+.help{font-size:14px;color:var(--ink2)}
+.help p{margin:6px 0}
+.check{display:flex;gap:8px;align-items:center;margin:8px 0;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Static Budget</h1><p>You get one blower. Everything you hang off it eats static pressure. Size the trunk, the branches and the return so every room hits its load CFM without whistling, and do it under the material budget. Click any duct or room to change it. The sim reruns instantly.</p></div>
+  <div class="leveltabs" id="levels"></div>
+</header>
+<div class="wrap">
+  <div>
+    <div class="stage"><canvas id="c" width="900" height="560"></canvas>
+      <div class="legend"><span><i style="background:var(--ok)"></i>Within 10% of load</span><span><i style="background:var(--cold)"></i>Starved</span><span><i style="background:var(--hot)"></i>Overblown or noisy</span><span><i style="background:var(--galv)"></i>Metal</span><span><i style="background:repeating-linear-gradient(90deg,var(--galv) 0 3px,transparent 3px 6px)"></i>Flex</span></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3>Static pressure, where it goes</h3>
+      <div class="bar" id="bar"></div>
+      <div class="barkey" id="barkey"></div>
+      <p class="muted" id="fanline"></p>
+    </div>
+    <div class="card help" style="margin-top:12px">
+      <h3>How the sim works</h3>
+      <p>Blower curve: rated CFM at 0.5" ESP, drops off as static climbs. Coil and filter come off the top. Every duct is friction at its CFM and size (ASHRAE round duct equation), plus fittings as equivalent length. Branches share a trunk, so a fat short branch steals air from a long one. Bedrooms are scored with the door closed: a 1" undercut passes roughly 50 CFM before the room pressurizes and chokes its own supply. Jump ducts fix that. Noise flags at 700 FPM in a branch, 900 in the trunk, 500 at the filter grille face.</p>
+    </div>
+  </div>
+  <div class="side">
+    <div class="card">
+      <div class="stats">
+        <div class="stat"><b>Comfort</b><span id="comfort">0</span></div>
+        <div class="stat"><b>Spent</b><span id="spent" class="cost">$0</span></div>
+        <div class="stat"><b>Budget</b><span id="budget" class="cost">$0</span></div>
+      </div>
+      <div class="stars" id="stars"></div>
+      <p class="muted" id="verdict"></p>
+    </div>
+    <div class="card" id="inspector"></div>
+    <div class="card"><h3>Diagnosis</h3><ul class="tips" id="tips"></ul></div>
+    <div class="card"><h3>Rooms</h3><div id="rooms" style="font-size:14px"></div></div>
+  </div>
+</div>
+<script>
+const SZ=[4,5,6,7,8,9,10,12,14,16,18,20];
+const GRILLES=[[14,20],[16,25],[20,20],[20,25],[24,30],[30,30]];
+const LEVELS=[
+ {name:"Ranch",budget:2600,tons:2.5,retLen:12,ah:[2,14],trunk:[[4,14],[44,14]],
+  rooms:[{n:"Living",x:4,y:2,w:16,h:10,cfm:210},{n:"Kitchen",x:22,y:2,w:12,h:10,cfm:150},{n:"Master",x:36,y:2,w:14,h:10,cfm:190,bed:1},{n:"Bed 2",x:4,y:18,w:11,h:10,cfm:95,bed:1},{n:"Bed 3",x:17,y:18,w:11,h:10,cfm:110,bed:1},{n:"Bath",x:30,y:18,w:8,h:10,cfm:45},{n:"Office",x:40,y:18,w:10,h:10,cfm:120,bed:1}]},
+ {name:"Long ranch",budget:3500,tons:3,retLen:15,ah:[2,15],trunk:[[4,15],[70,15]],
+  rooms:[{n:"Garage side bed",x:4,y:2,w:12,h:11,cfm:110,bed:1},{n:"Living",x:18,y:2,w:20,h:11,cfm:260},{n:"Kitchen",x:40,y:2,w:14,h:11,cfm:170},{n:"Master",x:56,y:2,w:18,h:11,cfm:230,bed:1},{n:"Bed 2",x:4,y:19,w:12,h:11,cfm:100,bed:1},{n:"Dining",x:18,y:19,w:14,h:11,cfm:140},{n:"Bath",x:34,y:19,w:8,h:11,cfm:40},{n:"Bed 3",x:44,y:19,w:12,h:11,cfm:105,bed:1},{n:"Master bath",x:58,y:19,w:16,h:11,cfm:45}]},
+ {name:"Sprawler",budget:4700,tons:4,retLen:22,ah:[2,20],trunk:[[4,20],[30,20],[30,6],[62,6]],
+  rooms:[{n:"Bed 2",x:4,y:2,w:11,h:11,cfm:105,bed:1},{n:"Bed 3",x:17,y:2,w:11,h:11,cfm:110,bed:1},{n:"Great room",x:34,y:10,w:24,h:15,cfm:360},{n:"Kitchen",x:34,y:27,w:16,h:11,cfm:190},{n:"Master",x:60,y:14,w:18,h:12,cfm:250,bed:1},{n:"Master bath",x:60,y:28,w:12,h:10,cfm:55},{n:"Bed 4",x:4,y:26,w:11,h:11,cfm:100,bed:1},{n:"Laundry",x:17,y:26,w:9,h:11,cfm:50},{n:"Study",x:36,y:0,w:14,h:8,cfm:130,bed:1},{n:"Bonus",x:52,y:0,w:22,h:8,cfm:240,bed:1}]}
+];
+const fr=(q,d)=>0.109136*Math.pow(q,1.9)/Math.pow(d,5.02);
+const area=d=>Math.PI*d*d/4/144;
+const fpm=(q,d)=>q/area(d);
+const ductCost=(d,l,flex)=>l*(flex?0.55*d:1.15*d);
+let L,S,sel=null;
+const cv=document.getElementById("c"),cx=cv.getContext("2d");
+let px=10,ox=40,oy=40;
+function load(k){
+ L=LEVELS[k];
+ const pts=L.trunk;let s=0;const segs=[];
+ for(let i=1;i<pts.length;i++){const len=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);segs.push({a:pts[i-1],b:pts[i],s0:s,len});s+=len}
+ L.rooms.forEach(r=>{
+  const c=[r.x+r.w/2,r.y+r.h/2];let best=null;
+  segs.forEach(g=>{const dx=g.b[0]-g.a[0],dy=g.b[1]-g.a[1];let t=((c[0]-g.a[0])*dx+(c[1]-g.a[1])*dy)/(g.len*g.len);t=Math.max(0,Math.min(1,t));const p=[g.a[0]+dx*t,g.a[1]+dy*t];const d=Math.hypot(c[0]-p[0],c[1]-p[1]);if(!best||d<best.d)best={d,p,s:g.s0+t*g.len}});
+  r.tap=best.p;r.s=best.s;r.len=Math.round(best.d+4);r.c=c;
+  r.d=SZ.find(d=>fr(r.cfm,d)<=0.08)||10;r.flex=false;r.take="tap";r.elbow="mitered";r.jump=false;
+ });
+ const order=[...L.rooms].sort((a,b)=>a.s-b.s);
+ L.segs=[];let prev=0;
+ order.forEach((r,i)=>{L.segs.push({len:Math.max(1,Math.round(r.s-prev)),room:r,d:12,i});prev=r.s;r.seg=i});
+ L.ret={d:16,grille:2,sealed:false};
+ const maxx=Math.max(...L.rooms.map(r=>r.x+r.w)),maxy=Math.max(...L.rooms.map(r=>r.y+r.h));
+ px=Math.min(860/maxx,500/maxy);ox=20;oy=30;
+ sel={t:"ret"};
+ document.querySelectorAll("#levels button").forEach((b,i)=>b.classList.toggle("on",i===k));
+ run();
+}
+function branchR(r,closed){
+ const el=(r.take==="conical"?20:60)+(r.elbow==="radius"?10:35)+5;
+ let R=0.109136*(r.len+el)/100*Math.pow(r.cfm,-0.1)/Math.pow(r.d,5.02);
+ if(r.flex)R*=1.45;
+ R+=0.03/(r.cfm*r.cfm);
+ if(closed&&r.bed){
+  if(r.jump){R+=0.109136*(10+40)/100*Math.pow(r.cfm,-0.1)/Math.pow(Math.max(r.d,6)+2,5.02)}
+  else R+=1/(500*500);
+ }
+ return R;
+}
+function segR(g,q){return 0.109136*g.len/100*Math.pow(Math.max(q,50),-0.1)/Math.pow(g.d,5.02)}
+function par(a,b){return 1/Math.pow(1/Math.sqrt(a)+1/Math.sqrt(b),2)}
+function solve(closed){
+ const Qd=L.tons*400,Q0=Qd/Math.sqrt(0.5),stall=1.0;
+ const segs=L.segs;const n=segs.length;
+ const flowGuess=segs.map((g,i)=>segs.slice(i).reduce((a,x)=>a+x.room.cfm,0));
+ const Rb=segs.map(g=>branchR(g.room,closed));
+ const Rsub=new Array(n);
+ for(let i=n-1;i>=0;i--){const rest=i<n-1?par(Rb[i],Rsub[i+1]):Rb[i];Rsub[i]=segR(segs[i],flowGuess[i])+rest}
+ const g=GRILLES[L.ret.grille],ga=g[0]*g[1]/144;
+ const coil=0.25/(Qd*Qd),filt=0.1/Math.pow(300*ga,2),grl=0.03/(Qd*Qd);
+ const retR=0.109136*(L.ret.retLen||L.retLen)/100*Math.pow(Qd,-0.1)/Math.pow(L.ret.d,5.02)+0.109136*40/100*Math.pow(Qd,-0.1)/Math.pow(L.ret.d,5.02);
+ const Rfix=coil+filt+grl+retR;
+ const Rtot=Rfix+Rsub[0];
+ const Q=Math.sqrt(stall/(Rtot+stall/(Q0*Q0)));
+ const esp=Rtot*Q*Q;
+ let p=esp-Rfix*Q*Q;const out=[];let qin=Q;
+ for(let i=0;i<n;i++){
+  p-=segR(segs[i],qin)*qin*qin;segs[i].q=qin;segs[i].v=fpm(qin,segs[i].d);
+  const qb=Math.sqrt(Math.max(p,0)/Rb[i]);const qdown=i<n-1?Math.sqrt(Math.max(p,0)/Rsub[i+1]):0;
+  const scale=qin/(qb+qdown||1);
+  out.push(qb*scale);qin=qdown*scale;
+ }
+ const leak=L.ret.sealed?1:0.85;
+ segs.forEach((g,i)=>{const r=g.room;const q=out[i]*leak;if(closed)r.qc=q;else r.qo=q;r.v=fpm(out[i],r.d)});
+ return {Q,esp,parts:{coil:coil*Q*Q,filter:filt*Q*Q,grille:grl*Q*Q,ret:retR*Q*Q,supply:Math.max(0,esp-(coil+filt+grl+retR)*Q*Q)},gfpm:Q/ga};
+}
+function run(){
+ solve(false);S=solve(true);
+ let cost=0;
+ L.rooms.forEach(r=>{cost+=ductCost(r.d,r.len,r.flex)+(r.take==="conical"?18:6)+(r.elbow==="radius"?14:5)+25+(r.jump?70:0)});
+ L.segs.forEach(g=>cost+=ductCost(g.d,g.len,false)+10);
+ const g=GRILLES[L.ret.grille];
+ cost+=ductCost(L.ret.d,L.retLen+6,false)+g[0]*g[1]*0.12+(L.ret.sealed?90:0);
+ S.cost=Math.round(cost);
+ let pts=0,noise=[];const rows=[];
+ L.rooms.forEach(r=>{
+  const q=r.bed?r.qc:r.qo;r.ratio=q/r.cfm;
+  const dev=Math.abs(r.ratio-1);const p=Math.max(0,1-Math.max(0,dev-0.08)/0.3)*100;
+  r.noisy=r.v>700;if(r.noisy)noise.push(`${r.n} branch at ${Math.round(r.v)} FPM, upsize or it whistles`);
+  pts+=p;r.q=q;
+ });
+ L.segs.forEach(g=>{if(g.v>900)noise.push(`Trunk after ${g.i?L.segs[g.i-1].room.n:"the plenum"} at ${Math.round(g.v)} FPM, upsize`)});
+ if(S.gfpm>500)noise.push(`Filter grille face at ${Math.round(S.gfpm)} FPM, go bigger, it's also eating ${S.parts.filter.toFixed(2)}" of static`);
+ S.comfort=Math.round(Math.max(0,pts/L.rooms.length-noise.length*8));
+ S.noise=noise;
+ draw();panel();
+}
+function draw(){
+ const W=cv.width,H=cv.height;cx.clearRect(0,0,W,H);
+ cx.strokeStyle="#cfd8dd";cx.lineWidth=1;
+ for(let x=0;x<W;x+=px)cx.strokeRect(x+ox%px,0,0.01,H);
+ for(let y=0;y<H;y+=px)cx.strokeRect(0,y+oy%px,W,0.01);
+ const P=(x,y)=>[ox+x*px,oy+y*px];
+ L.rooms.forEach(r=>{
+  const [x,y]=P(r.x,r.y);const w=r.w*px,h=r.h*px;
+  const col=r.noisy||r.ratio>1.25?"#d1552e":r.ratio<0.9?"#3a7bc8":r.ratio>1.1?"#c98a1e":"#2f8f6b";
+  cx.fillStyle=col;cx.globalAlpha=0.16+Math.min(0.5,Math.abs(r.ratio-1))*0.5;cx.fillRect(x,y,w,h);cx.globalAlpha=1;
+  cx.strokeStyle=sel&&sel.t==="room"&&sel.r===r?"#f2a93b":"#1c2a33";cx.lineWidth=sel&&sel.t==="room"&&sel.r===r?3:1.5;cx.strokeRect(x,y,w,h);
+  cx.fillStyle="#1c2a33";cx.font="600 15px 'Barlow Condensed'";cx.fillText(r.n+(r.bed?" (door)":""),x+6,y+18);
+  cx.font="500 13px Barlow";cx.fillStyle=col;cx.fillText(`${Math.round(r.q)} / ${r.cfm} cfm`,x+6,y+36);
+  cx.fillStyle="#4c5d68";cx.font="400 12px Barlow";cx.fillText(`${r.d}" ${r.flex?"flex":"metal"} ${r.len} ft`,x+6,y+h-8);
+ });
+ let s=0;const pts=L.trunk;
+ L.segs.forEach((g,i)=>{
+  const a=ptAt(g.i?L.segs[g.i-1].room.s:0),b=ptAt(g.room.s);
+  cx.strokeStyle=sel&&sel.t==="seg"&&sel.g===g?"#f2a93b":g.v>900?"#d1552e":"#8d99a1";cx.lineWidth=Math.max(6,g.d*0.9);cx.lineCap="butt";
+  cx.beginPath();cx.moveTo(...P(...a));cx.lineTo(...P(...b));cx.stroke();
+  const m=P((a[0]+b[0])/2,(a[1]+b[1])/2);cx.fillStyle="#fff";cx.font="600 12px 'Barlow Condensed'";cx.fillText(`${g.d}"`,m[0]-8,m[1]+4);
+ });
+ L.rooms.forEach(r=>{
+  cx.strokeStyle=sel&&sel.t==="room"&&sel.r===r?"#f2a93b":r.noisy?"#d1552e":"#8d99a1";cx.lineWidth=Math.max(3,r.d*0.6);cx.setLineDash(r.flex?[6,5]:[]);
+  cx.beginPath();cx.moveTo(...P(...r.tap));cx.lineTo(...P(...r.c));cx.stroke();cx.setLineDash([]);
+  if(r.take==="conical"){cx.fillStyle="#4c5d68";cx.beginPath();const t=P(...r.tap);cx.arc(t[0],t[1],5,0,7);cx.fill()}
+  if(r.bed&&r.jump){cx.strokeStyle="#2f8f6b";cx.lineWidth=2;cx.setLineDash([3,3]);cx.beginPath();const c=P(...r.c);cx.arc(c[0],c[1],10,0,7);cx.stroke();cx.setLineDash([])}
+ });
+ const ah=P(...L.ah);cx.fillStyle=sel&&sel.t==="ret"?"#f2a93b":"#1c2a33";cx.fillRect(ah[0]-16,ah[1]-16,32,32);
+ cx.fillStyle="#fff";cx.font="600 11px 'Barlow Condensed'";cx.fillText("AHU",ah[0]-12,ah[1]+4);
+}
+function ptAt(s){const pts=L.trunk;let acc=0;for(let i=1;i<pts.length;i++){const len=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);if(s<=acc+len||i===pts.length-1){const t=Math.max(0,Math.min(1,(s-acc)/len));return [pts[i-1][0]+(pts[i][0]-pts[i-1][0])*t,pts[i-1][1]+(pts[i][1]-pts[i-1][1])*t]}acc+=len}return pts[pts.length-1]}
+cv.addEventListener("click",e=>{
+ const b=cv.getBoundingClientRect();const x=(e.clientX-b.left)*cv.width/b.width,y=(e.clientY-b.top)*cv.height/b.height;
+ const fx=(x-ox)/px,fy=(y-oy)/px;
+ if(Math.hypot(fx-L.ah[0],fy-L.ah[1])<2){sel={t:"ret"};return run()}
+ for(const g of L.segs){const a=ptAt(g.i?L.segs[g.i-1].room.s:0),c=ptAt(g.room.s);const dx=c[0]-a[0],dy=c[1]-a[1],l2=dx*dx+dy*dy||1;let t=((fx-a[0])*dx+(fy-a[1])*dy)/l2;t=Math.max(0,Math.min(1,t));if(Math.hypot(fx-a[0]-dx*t,fy-a[1]-dy*t)<1.2){sel={t:"seg",g};return run()}}
+ for(const r of L.rooms){if(fx>=r.x&&fx<=r.x+r.w&&fy>=r.y&&fy<=r.y+r.h){sel={t:"room",r};return run()}}
+});
+const opt=(list,val,fmt)=>list.map((v,i)=>`<option value="${typeof v==="number"?v:i}" ${(typeof v==="number"?v:i)===val?"selected":""}>${fmt?fmt(v):v}</option>`).join("");
+function panel(){
+ const I=document.getElementById("inspector");
+ if(sel.t==="room"){const r=sel.r;
+  I.innerHTML=`<h2>${r.n} branch</h2><p class="muted">${r.len} ft run, needs ${r.cfm} CFM, getting ${Math.round(r.q)} ${r.bed?"(door closed)":""}. ${Math.round(r.v)} FPM.</p>
+  <label class="row">Duct size<select data-k="d">${opt(SZ.slice(0,8),r.d,v=>v+'" round')}</select></label>
+  <label class="row">Material<select data-k="flex">${opt(["Metal","Flex"],r.flex?1:0)}</select></label>
+  <label class="row">Takeoff<select data-k="take">${opt(["tap","conical"],["tap","conical"].indexOf(r.take),v=>v==="tap"?"Straight tap (60 EL)":"Conical (20 EL)")}</select></label>
+  <label class="row">Elbow<select data-k="elbow">${opt(["mitered","radius"],["mitered","radius"].indexOf(r.elbow),v=>v==="mitered"?"Mitered (35 EL)":"Radius (10 EL)")}</select></label>
+  ${r.bed?`<label class="check"><input type="checkbox" data-k="jump" ${r.jump?"checked":""}> Jump duct to hall return ($70)</label>`:""}`;
+  I.querySelectorAll("select,input").forEach(el=>el.onchange=()=>{const k=el.dataset.k;if(k==="d")r.d=+el.value;else if(k==="flex")r.flex=el.value==="1";else if(k==="take")r.take=["tap","conical"][+el.value];else if(k==="elbow")r.elbow=["mitered","radius"][+el.value];else if(k==="jump")r.jump=el.checked;run()});
+ }else if(sel.t==="seg"){const g=sel.g;
+  I.innerHTML=`<h2>Trunk segment ${g.i+1}</h2><p class="muted">${g.len} ft feeding ${L.segs.slice(g.i).map(x=>x.room.n).join(", ")}. Carrying ${Math.round(g.q)} CFM at ${Math.round(g.v)} FPM.</p>
+  <label class="row">Trunk size<select data-k="d">${opt(SZ.slice(4),g.d,v=>v+'" round')}</select></label>`;
+  I.querySelector("select").onchange=e=>{g.d=+e.target.value;run()};
+ }else{
+  I.innerHTML=`<h2>Air handler and return</h2><p class="muted">${L.tons} ton, ${L.tons*400} CFM design. Return run ${L.retLen} ft plus one elbow. Filter face at ${Math.round(S.gfpm)} FPM.</p>
+  <label class="row">Return duct<select data-k="d">${opt(SZ.slice(5),L.ret.d,v=>v+'" round')}</select></label>
+  <label class="row">Filter grille<select data-k="g">${opt(GRILLES,L.ret.grille,v=>v[0]+"x"+v[1])}</select></label>
+  <label class="check"><input type="checkbox" data-k="sealed" ${L.ret.sealed?"checked":""}> Mastic every joint ($90, stops 15% leakage)</label>`;
+  I.querySelectorAll("select,input").forEach(el=>el.onchange=()=>{const k=el.dataset.k;if(k==="d")L.ret.d=+el.value;else if(k==="g")L.ret.grille=+el.value;else L.ret.sealed=el.checked;run()});
+ }
+ document.getElementById("comfort").textContent=S.comfort;
+ const sp=document.getElementById("spent");sp.textContent="$"+S.cost;sp.className="cost"+(S.cost>L.budget?" bad":"");
+ document.getElementById("budget").textContent="$"+L.budget;
+ const over=S.cost>L.budget;const st=over?0:S.comfort>=95?3:S.comfort>=80?2:S.comfort>=60?1:0;
+ document.getElementById("stars").textContent="★".repeat(st)+"☆".repeat(3-st);
+ document.getElementById("verdict").textContent=over?`Over budget by $${S.cost-L.budget}. No stars until it fits.`:st===3?"Every room in spec, quiet, under budget. Ship it.":st===2?"Solid. Chase the last starved rooms for three stars.":st===1?"Runs, but somebody's sleeping hot.":"Jeff's getting a callback.";
+ const parts=S.parts,keys=[["coil","#4c5d68"],["filter","#8d99a1"],["ret","#3a7bc8"],["grille","#b7c3ca"],["supply","#2f8f6b"]];
+ const total=S.esp;
+ document.getElementById("bar").innerHTML=keys.map(([k,c])=>`<div style="width:${parts[k]/total*100}%;background:${c}"></div>`).join("");
+ document.getElementById("barkey").innerHTML=keys.map(([k,c])=>`<span><i style="background:${c}"></i>${k==="ret"?"return duct":k==="supply"?"supply duct":k} ${parts[k].toFixed(2)}"</span>`).join("");
+ document.getElementById("fanline").textContent=`Blower running ${Math.round(S.Q)} CFM at ${S.esp.toFixed(2)}" ESP (design ${L.tons*400} at 0.50"). ${S.esp>0.8?"Way up the curve, airflow is collapsing.":S.Q<L.tons*400*0.9?"Starved blower, coil will freeze in cooling.":"Near the rated point."}`;
+ const tips=[];
+ L.rooms.filter(r=>r.ratio<0.9).sort((a,b)=>a.ratio-b.ratio).slice(0,3).forEach(r=>{
+  const fixes=[];if(r.take==="tap")fixes.push("conical takeoff");if(r.elbow==="mitered")fixes.push("radius elbow");if(r.flex)fixes.push("metal instead of flex");if(r.bed&&!r.jump)fixes.push("jump duct, the closed door is choking it");if(!fixes.length)fixes.push("go up a size, or shrink an overblown neighbor so the trunk stops dumping there");
+  tips.push(`${r.n} at ${Math.round(r.ratio*100)}%: ${fixes.join(", ")}.`)});
+ L.rooms.filter(r=>r.ratio>1.15).slice(0,2).forEach(r=>tips.push(`${r.n} at ${Math.round(r.ratio*100)}%: downsize, it's stealing from the long runs.`));
+ S.noise.forEach(n=>tips.push(n));
+ if(parts.filter>0.15)tips.push("Filter grille is eating the budget. Bigger grille costs less than bigger duct everywhere.");
+ if(!L.ret.sealed)tips.push("Unsealed. 15% of what you move never reaches a register.");
+ if(!tips.length)tips.push("Nothing to fix. Try cutting cost without losing the third star.");
+ document.getElementById("tips").innerHTML=tips.map(t=>`<li class="${t.startsWith("Nothing")?"good":""}">${t}</li>`).join("");
+ document.getElementById("rooms").innerHTML=L.rooms.map(r=>`<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:3px 0"><span>${r.n}</span><span class="cost" style="color:${r.ratio<0.9?"var(--cold)":r.ratio>1.15||r.noisy?"var(--hot)":"var(--ok)"}">${Math.round(r.q)} / ${r.cfm}</span></div>`).join("");
+}
+document.getElementById("levels").innerHTML=LEVELS.map((l,i)=>`<button class="ghost">${l.name}, ${l.tons} ton</button>`).join("");
+document.querySelectorAll("#levels button").forEach((b,i)=>b.onclick=()=>load(i));
+load(0);
+</script>
+</body>
+</html>
