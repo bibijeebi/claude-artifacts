@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crew Sim: Residential Attic Job</title>
+<meta property="og:title" content="Crew Sim: Residential Attic Job">
+<meta property="og:description" content="Click-and-hold duct cleaning trainer. Return first, cut access, hook the vac, rod the whip, wash grilles, patch your holes. Scored like a lead would score you.">
+<meta property="og:url" content="https://niggerfaggot.club/duct-crew-sim.html">
+<meta name="twitter:card" content="summary">
+<style>
+html,body{overflow-x:hidden}
+body{margin:0;background:#2b2621;color:#ece3d3;font:14px/1.4 Georgia,'Times New Roman',serif;user-select:none;-webkit-user-select:none}
+#wrap{max-width:1000px;margin:0 auto;padding:8px}
+svg{width:100%;height:auto;display:block;background:#8fb3c9;border:2px solid #1c1815;touch-action:none}
+#belt{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+#belt button,#finish{font:inherit;padding:8px 12px;border:2px solid #6b5a45;background:#3a322a;color:#ece3d3;cursor:pointer}
+#belt button.on{background:#c9a24d;color:#1c1815;border-color:#f0d27a}
+#finish{background:#7a2f22;border-color:#c0523e;margin-left:auto}
+#hud{display:flex;gap:16px;flex-wrap:wrap;align-items:baseline;font-size:15px}
+#hud b{color:#f0d27a}
+#log{background:#1c1815;padding:8px 10px;min-height:66px;font-size:14px}
+#log div:first-child{color:#f0d27a}
+#log div{opacity:.6}#log div:first-child{opacity:1}
+#score{display:none;background:#1c1815;padding:14px;margin-top:8px}
+#score h2{margin:0 0 6px;font-size:22px;color:#f0d27a}
+#score td{padding:3px 10px 3px 0;vertical-align:top}
+#score ul{margin:6px 0 0 18px;padding:0}
+.seg{cursor:crosshair}.hit{cursor:pointer}
+details{font-size:13px;opacity:.8;margin-top:8px}
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="hud"><span>Job <b>#013-R</b> Residential, attic air handler</span><span>Clock <b id="clock">0:00</b></span><span>System <b id="pw">ON</b></span><span>Vac <b id="vs">off, not hooked</b></span><span>Holding <b id="hold">nothing</b></span></div>
+<svg id="sc" viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg"></svg>
+<div id="belt">
+<button data-t="hand">Hands</button>
+<button data-t="saw">Cutting tool</button>
+<button data-t="hard">Whip on hard rod</button>
+<button data-t="soda">Whip on soda rod</button>
+<button data-t="hose">Hose + degreaser</button>
+<button data-t="screws">Zip screws</button>
+<button data-t="metal">Metal patch + mastic</button>
+<button data-t="fsk">FSK tape</button>
+<button id="finish">Finish job</button>
+</div>
+<div id="log"></div>
+<div id="score"></div>
+<details><summary>How this works</summary>
+Click things with the tool you are holding. Hands pull and reinstall grilles, hook the vac to a cut hole, and toggle the vac and thermostat. Click and hold a duct to whip it. The whip only cleans what the rod can reach from an open entry, with the vac running on that side of the system. Everything else is on you: order, safety, patches, screws. The lead grades you at the end.
+</details>
+</div>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const svg=$("#sc"),logEl=$("#log");
+const S={
+  t:0,tool:null,power:true,vac:{at:null,on:false},dust:0,faults:[],retDoneAt:null,supStartedAt:null,
+  holes:{sup:{cut:false,patch:null,mat:"metal",x:410,y:155,label:"supply plenum (metal)"},
+         far:{cut:false,patch:null,mat:"metal",x:938,y:155,label:"trunk end (metal)"},
+         ret:{cut:false,patch:null,mat:"board",x:293,y:156,label:"return plenum (duct board)"}},
+  gr:{A:{st:"on",screws:true,x:560,y:253,w:44},B:{st:"on",screws:true,x:740,y:253,w:44},
+      C:{st:"on",screws:false,x:910,y:253,w:44},R:{st:"on",screws:true,x:400,y:253,w:70}},
+  seg:{
+    T1:{dirt:100,kind:"trunk",need:"hard",from:["sup"],side:"sup",r:[427,135,131,40]},
+    T2:{dirt:100,kind:"trunk",need:"hard",from:["sup"],side:"sup",r:[558,135,132,40]},
+    T3:{dirt:100,kind:"trunk",need:"hard",from:["sup"],side:"sup",r:[690,135,132,40]},
+    T4:{dirt:100,kind:"trunk",need:"hard",from:["far"],side:"sup",r:[822,135,133,40]},
+    A:{dirt:100,kind:"flex",need:"soda",from:["A"],side:"sup",p:"M490,175 C490,235 560,195 560,250"},
+    B:{dirt:100,kind:"flex",need:"soda",from:["B"],side:"sup",p:"M730,175 C730,215 740,220 740,250"},
+    C:{dirt:100,kind:"flex",need:"soda",from:["C"],side:"sup",p:"M880,175 C880,230 910,200 910,250"},
+    R1:{dirt:100,kind:"flex",need:"soda",from:["R"],side:"ret",p:"M400,250 C400,208 283,225 283,197"},
+    R2:{dirt:100,kind:"board",need:"soda",from:["R","ret"],side:"ret",r:[260,140,46,56]}
+  }
+};
+function say(m,f){logEl.insertAdjacentHTML("afterbegin","<div>"+m+"</div>");while(logEl.children.length>3)logEl.lastChild.remove();if(f&&!S.faults.includes(f))S.faults.push(f)}
+function open(e){return S.holes[e]?S.holes[e].cut&&!S.holes[e].patch:S.gr[e].st!=="on"&&S.gr[e].st!=="back"}
+function entryName(e){return S.holes[e]?S.holes[e].label+" access":"boot "+e+" (grille pulled)"}
+function retClean(){return S.seg.R1.dirt<15&&S.seg.R2.dirt<15}
+
+let held=null,tick=null;
+function startClean(id){
+  const g=S.seg[id];
+  if(!["hard","soda"].includes(S.tool)){say("Grab a whip on a rod to clean the "+id+".");return}
+  const entry=g.from.find(open);
+  if(!entry){say(id+": no open entry that reaches it. Needs "+g.from.map(entryName).join(" or ")+".");return}
+  if(g.kind==="flex"&&S.tool==="hard"){say("Hard rod in flex. You just tore the liner on "+id+". Soda rod for flex and 90s.","tore flex on "+id+" with the hard rod");return}
+  if(g.kind==="trunk"&&S.tool==="soda"){say("Soda rod coils up in a straight metal trunk. Stack the hard rod.");return}
+  if(id==="T4"&&open("sup")&&!open("far")){say("Hard rod maxed at 4 sections from the plenum. Cut a second access at the trunk end.");return}
+  if(S.power){say("System is running with the ducts open. Kill it at the thermostat.","whipped with the system running")}
+  if(!(S.vac.on&&S.vac.at===g.side)){say("No negative air on the "+(g.side==="ret"?"return":"supply")+" side. You are pushing dust into the house.","whipped without vac on the "+g.side+" side");}
+  if(g.side==="sup"&&!retClean()&&!S.supStartedAt){S.supStartedAt=S.t;say("Supply before return is done. Return first, always.","cleaned supply before return")}
+  held=id;
+  tick=setInterval(()=>{
+    const good=S.vac.on&&S.vac.at===g.side;
+    g.dirt=Math.max(0,g.dirt-(good?2.2:1.2));
+    if(!good)S.dust=Math.min(100,S.dust+1.5);
+    if(g.dirt===0){stopClean();say(id+" clean.");if(retClean()&&!S.retDoneAt)S.retDoneAt=S.t}
+    draw();
+  },50);
+}
+function stopClean(){clearInterval(tick);tick=null;held=null}
+
+function click(kind,id){
+  const T=S.tool;
+  if(kind==="stat"){S.power=!S.power;say("Thermostat: system "+(S.power?"ON":"OFF")+".");}
+  else if(kind==="vac"){
+    if(!S.vac.at)say("Vac isn't hooked to anything. Cut an access and hook it with your hands.");
+    else{S.vac.on=!S.vac.on;say("Vac "+(S.vac.on?"running on the ":"off, was on the ")+(S.vac.at==="ret"?"return":"supply")+" side.")}
+  }
+  else if(kind==="hole"){
+    const h=S.holes[id];
+    if(T==="saw"){if(h.cut)say("Already cut.");else{h.cut=true;h.patch=null;say("Cut access in the "+h.label+".")}}
+    else if(T==="hand"){
+      if(!h.cut||h.patch)say("Nothing to hook to here yet.");
+      else if(id==="far")say("Vac goes on the plenum, not the far end of the trunk.");
+      else{if(S.vac.on){say("Kill the vac before moving the hose.");return}S.vac.at=id;say("Vac hooked to the "+h.label+".")}
+    }
+    else if(T==="metal"||T==="fsk"){
+      if(!h.cut)say("No hole here.");
+      else if(h.patch)say("Already patched.");
+      else if(S.vac.at===id&&S.vac.on)say("Vac is still pulling on this hole.");
+      else{
+        if(S.vac.at===id)S.vac.at=null;
+        h.patch=T;
+        const ok=(h.mat==="metal"&&T==="metal")||(h.mat==="board"&&T==="fsk");
+        say(ok?"Patched the "+h.label+" the right way.":"Patched the "+h.label+" with "+(T==="fsk"?"FSK on sheet metal. That peels in a summer attic.":"screws and mastic into duct board. Screws won't hold, you just made more holes."),ok?null:"wrong patch on "+h.label);
+      }
+    }
+    else say("Wrong tool for a hole.");
+  }
+  else if(kind==="gr"){
+    const g=S.gr[id],nm=id==="R"?"return grille":"register "+id;
+    if(T==="hand"){
+      if(g.st==="on"){g.st="pulled";say("Pulled the "+nm+". "+(g.screws?"Screws in your pocket.":"Heads stripped, both screws chewed. You'll need zip screws."));}
+      else if(g.st==="pulled")say(nm+" is still dirty. Wash it at the hose first.");
+      else if(g.st==="washed"){if(g.screws){g.st="back";say(nm+" reinstalled.")}else{g.st="back";g.loose=true;say(nm+" hung with no screws. It's going to fall on someone.","reinstalled "+nm+" with no screws")}}
+      else say(nm+" is back on.");
+    }
+    else if(T==="screws"){
+      if(g.st==="washed"){g.st="back";g.screws=true;g.loose=false;say(nm+" reinstalled with fresh zip screws.")}
+      else if(g.st==="pulled")say("Wash it first.");
+      else say("Nothing to screw here.");
+    }
+    else if(T==="hose"){
+      if(g.st==="pulled"){g.st="washed";say("Washed the "+nm+" with degreaser.")}
+      else say("Pull it first, then wash.");
+    }
+    else if(["hard","soda"].includes(T))say("Pull the grille with your hands before you rod the boot.");
+    else say("Wrong tool for a grille.");
+  }
+  draw();
+}
+
+function finish(){
+  stopClean();
+  const segs=Object.values(S.seg),avg=100-segs.reduce((a,g)=>a+g.dirt,0)/segs.length;
+  const holes=Object.values(S.holes).filter(h=>h.cut);
+  const openHoles=holes.filter(h=>!h.patch),badPatch=holes.filter(h=>h.patch&&!((h.mat==="metal"&&h.patch==="metal")||(h.mat==="board"&&h.patch==="fsk")));
+  const grs=Object.entries(S.gr),notBack=grs.filter(([k,g])=>g.st!=="back"),loose=grs.filter(([k,g])=>g.loose);
+  openHoles.forEach(h=>S.faults.push("left the "+h.label+" open"));
+  notBack.forEach(([k])=>S.faults.push("grille "+k+" not reinstalled"));
+  if(S.power===false)S.faults.push("left the system off at the thermostat");
+  if(S.vac.at&&S.vac.on)S.faults.push("left the vac running");
+  const rows=[
+    ["Dirt removed",Math.round(avg*.5)+"/50",Math.round(avg)+"% average across 9 sections"],
+    ["Return first",(S.retDoneAt!==null&&(S.supStartedAt===null||S.retDoneAt<=S.supStartedAt))?"10/10":"0/10","return clean before any supply whipping"],
+    ["Negative air",Math.round(10-S.dust/10)+"/10","house dust "+Math.round(S.dust)+"%"],
+    ["Patches",holes.length?Math.round(15*(holes.length-openHoles.length-badPatch.length)/holes.length)+"/15":"0/15",holes.length+" cut, "+openHoles.length+" open, "+badPatch.length+" wrong material"],
+    ["Grilles",Math.round(10*(4-notBack.length-loose.length)/4)+"/10",notBack.length+" not back on, "+loose.length+" loose"],
+    ["Closeout",(S.power?3:0)+(S.vac.on?0:2)+"/5","system back on, vac shut down"]
+  ];
+  const total=rows.reduce((a,r)=>a+parseInt(r[1]),0);
+  $("#score").style.display="block";
+  $("#score").innerHTML="<h2>Lead's grade: "+total+"/100 in "+fmt(S.t)+"</h2><table>"+rows.map(r=>"<tr><td>"+r[0]+"</td><td><b>"+r[1]+"</b></td><td>"+r[2]+"</td></tr>").join("")+"</table>"+(S.faults.length?"<div>What the lead saw:</div><ul>"+S.faults.map(f=>"<li>"+f+"</li>").join("")+"</ul>":"<div>Clean job. No notes.</div>")+"<div style='margin-top:8px'><a href='' style='color:#f0d27a'>Run it again</a></div>";
+  $("#score").scrollIntoView({behavior:"smooth"});
+  clearInterval(clockT);
+}
+function fmt(t){return Math.floor(t/60)+":"+String(t%60).padStart(2,"0")}
+const clockT=setInterval(()=>{S.t++;$("#clock").textContent=fmt(S.t)},1000);
+
+function draw(){
+  const d=n=>`rgba(70,45,20,${n/100*.85})`;
+  const hole=(k)=>{const h=S.holes[k];return `<g class="hit" data-k="hole" data-id="${k}"><circle cx="${h.x}" cy="${h.y}" r="12" fill="${h.cut?(h.patch?(h.patch==="fsk"?"#d8d8d8":"#9a9a9a"):"#1c1815"):"none"}" stroke="${h.cut?"#1c1815":"#f0d27a"}" stroke-width="2" stroke-dasharray="${h.cut?0:"4 3"}"/>${S.vac.at===k?`<path d="M${h.x},${h.y} Q ${h.x-60},${h.y+200} 310,405" fill="none" stroke="#333" stroke-width="7"/>`:""}</g>`};
+  const gr=(k)=>{const g=S.gr[k];return `<g class="hit" data-k="gr" data-id="${k}">${g.st==="on"||g.st==="back"?`<rect x="${g.x-g.w/2}" y="${g.y-4}" width="${g.w}" height="8" fill="${g.st==="on"?"#7a6a55":"#e8e2d6"}" stroke="#1c1815"/>${g.loose?`<text x="${g.x+g.w/2+2}" y="${g.y+3}" font-size="11" fill="#7a2f22">loose</text>`:""}`:`<rect x="${g.x-g.w/2}" y="${g.y-4}" width="${g.w}" height="8" fill="#0f0c0a"/>`}</g>`};
+  const pile=Object.entries(S.gr).filter(([k,g])=>g.st==="pulled"||g.st==="washed").map(([k,g],i)=>`<g class="hit" data-k="gr" data-id="${k}"><rect x="${40+i*40}" y="310" width="32" height="10" fill="${g.st==="washed"?"#e8e2d6":"#7a6a55"}" stroke="#1c1815"/><text x="${42+i*40}" y="306" font-size="11" fill="#1c1815">${k}</text></g>`).join("");
+  const seg=(id)=>{const g=S.seg[id];
+    if(g.r){const[x,y,w,h]=g.r;return `<g class="seg" data-id="${id}"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${g.kind==="board"?"#c9b58c":"#b8bcc2"}" stroke="#1c1815"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${d(g.dirt)}"/>${held===id?`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#f0d27a" stroke-width="3"/>`:""}<text x="${x+6}" y="${y+h-8}" font-size="12" fill="#1c1815">${id} ${Math.round(g.dirt)}%</text></g>`}
+    return `<g class="seg" data-id="${id}"><path d="${g.p}" fill="none" stroke="#1c1815" stroke-width="24"/><path d="${g.p}" fill="none" stroke="#c9c2b8" stroke-width="20" stroke-dasharray="6 3"/><path d="${g.p}" fill="none" stroke="${d(g.dirt)}" stroke-width="20"/>${held===id?`<path d="${g.p}" fill="none" stroke="#f0d27a" stroke-width="3"/>`:""}</g>`};
+  svg.innerHTML=`
+  <rect width="1000" height="560" fill="#8fb3c9"/>
+  <rect y="470" width="1000" height="90" fill="#5d7a3a"/>
+  <polygon points="215,250 215,150 600,30 985,150 985,250" fill="#6b3f2e" stroke="#1c1815" stroke-width="3"/>
+  <rect x="222" y="250" width="758" height="220" fill="#e9dcc3" stroke="#1c1815" stroke-width="3"/>
+  <polygon points="232,250 232,158 600,47 968,158 968,250" fill="#a88f6a"/>
+  <line x1="222" y1="250" x2="980" y2="250" stroke="#1c1815" stroke-width="4"/>
+  ${[475,645,815].map(x=>`<line x1="${x}" y1="250" x2="${x}" y2="470" stroke="#1c1815" stroke-width="3"/>`).join("")}
+  <text x="300" y="275" font-size="13" fill="#5a4a38">hallway</text><text x="540" y="275" font-size="13" fill="#5a4a38">bedroom A</text><text x="710" y="275" font-size="13" fill="#5a4a38">bedroom B</text><text x="880" y="275" font-size="13" fill="#5a4a38">bedroom C</text>
+  <rect x="20" y="380" width="170" height="80" rx="8" fill="#e8e2d6" stroke="#1c1815" stroke-width="3"/><rect x="20" y="380" width="60" height="80" rx="8" fill="#c0523e"/><circle cx="55" cy="465" r="12" fill="#1c1815"/><circle cx="160" cy="465" r="12" fill="#1c1815"/><text x="92" y="425" font-size="14" fill="#1c1815">CQA van</text>
+  <rect x="196" y="425" width="8" height="30" fill="#7a7a7a"/><text x="40" y="296" font-size="12" fill="#1c1815">wash pile (hose at the van)</text>${pile}
+  <rect x="306" y="120" width="90" height="90" fill="#8a9099" stroke="#1c1815" stroke-width="2"/><text x="322" y="160" font-size="12" fill="#1c1815">air</text><text x="322" y="176" font-size="12" fill="#1c1815">handler</text>
+  <rect x="396" y="135" width="31" height="40" fill="#b8bcc2" stroke="#1c1815"/>
+  ${seg("R2")}${seg("R1")}${seg("T1")}${seg("T2")}${seg("T3")}${seg("T4")}${seg("A")}${seg("B")}${seg("C")}
+  ${hole("sup")}${hole("far")}${hole("ret")}
+  ${gr("R")}${gr("A")}${gr("B")}${gr("C")}
+  <g class="hit" data-k="stat"><rect x="290" y="320" width="26" height="36" rx="4" fill="${S.power?"#c0523e":"#5a5a5a"}" stroke="#1c1815"/><text x="288" y="372" font-size="11" fill="#1c1815">t-stat</text></g>
+  <g class="hit" data-k="vac"><rect x="280" y="405" width="60" height="60" rx="6" fill="${S.vac.on?"#c9a24d":"#4a4a4a"}" stroke="#1c1815" stroke-width="2"/><text x="286" y="440" font-size="12" fill="#1c1815">neg air</text></g>
+  <rect x="235" y="480" width="${S.dust*2.4}" height="8" fill="#a88f6a"/><text x="235" y="502" font-size="12" fill="#ece3d3">house dust ${Math.round(S.dust)}%</text>`;
+  $("#pw").textContent=S.power?"ON":"OFF";
+  $("#vs").textContent=(S.vac.on?"running":"off")+", "+(S.vac.at?"on "+(S.vac.at==="ret"?"return":"supply"):"not hooked");
+  $("#hold").textContent=S.tool?$(`[data-t="${S.tool}"]`).textContent.toLowerCase():"nothing";
+}
+svg.addEventListener("pointerdown",e=>{const s=e.target.closest(".seg");if(s){e.preventDefault();startClean(s.dataset.id);return}const h=e.target.closest(".hit");if(h)click(h.dataset.k,h.dataset.id)});
+addEventListener("pointerup",stopClean);addEventListener("pointercancel",stopClean);
+$("#belt").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(!b)return;S.tool=b.dataset.t;document.querySelectorAll("#belt [data-t]").forEach(x=>x.classList.toggle("on",x===b));draw()});
+$("#finish").onclick=finish;
+say("Lead: attic unit, three bedrooms of supply, one return. Return first. I'm on the next house, holler if you hit something weird.");
+draw();
+</script>
+</body>
+</html>
