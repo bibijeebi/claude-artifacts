@@ -87,6 +87,21 @@
   .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:4px;font-size:15px;opacity:0;transition:.2s;pointer-events:none}
   .toast.on{opacity:1;transform:translate(-50%,0)}
   footer{margin-top:50px;font-size:13px;color:var(--muted)}
+  .talk{background:var(--paper);border:1.5px solid var(--ink);border-radius:4px;padding:16px 16px 14px;margin:26px 0 6px}
+  .talk label{display:block;font-weight:600;font-size:19px;margin-bottom:6px}
+  .talk textarea{width:100%;font:inherit;font-size:17px;padding:11px 12px;border:1.5px solid var(--line);border-radius:4px;min-height:110px;resize:vertical;color:var(--ink)}
+  .talk .actions{margin-top:10px;align-items:center}
+  .talk .status{font-size:14px;color:var(--muted)}
+  .talk .status.err{color:#8A1F1F}
+  .talk .notes{background:var(--marker);padding:8px 10px;border-radius:3px;font-size:14.5px;margin-top:10px;display:none}
+  .talk .notes.on{display:block}
+  .logo{display:block;width:96px;height:96px;object-fit:contain;margin:0 auto 10px}
+  .logo.ph{opacity:.55}
+  .logoline{text-align:center;font-size:13px;color:var(--muted);margin:-4px 0 14px}
+  .logoline.hide{display:none}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.spin{animation:none}}
   @media (prefers-reduced-motion:reduce){.toast{transition:none}}
   @media print{
     body{background:#fff}
@@ -102,7 +117,7 @@
 
 <h1>Start an LLC in North Carolina</h1>
 <p class="lede">One form, $125, about a week. That's the whole state side.</p>
-<p class="sub">These are the only two documents. The first one you file, the second one you keep. Both are below, and eight questions further down fill them in for you. Nothing you type leaves your phone.</p>
+<p class="sub">These are the only two documents. The first one you file, the second one you keep. Both are below. Describe the business in the box and they fill themselves in, or answer eight questions further down by hand.</p>
 
 <div class="cost noprint">
   <div><b>$125</b><span>one time, to file</span></div>
@@ -111,9 +126,22 @@
   <div><b>$0</b><span>NC sales tax registration</span></div>
 </div>
 
+<div class="talk noprint">
+  <label for="talk">Or just tell it what you're doing.</label>
+  <p class="sub" style="margin-bottom:8px">Who you are, where you live, what the business does. Typed or dictated, doesn't matter. Claude fills in both documents below and draws you a logo while it's at it.</p>
+  <textarea id="talk" placeholder="I'm Thomas Cox, I live at 123 Main St in Greenville, Pitt County, 27858. Pressure washing and gutter cleaning, maybe some handyman stuff. Call it Cox Property Services. 252-555-0100, coxth252@gmail.com."></textarea>
+  <div class="actions">
+    <button type="button" id="talkBtn">Fill it in for me</button>
+    <span class="status" id="talkStatus"></span>
+  </div>
+  <div class="notes" id="talkNotes"></div>
+</div>
+
 <h2>Articles of Organization</h2>
 <p class="note noprint">This is the entire state filing. Ten items, mirrors Form L-01 exactly. Yellow is the only stuff you have to come up with, and it's your name and address. <a href="#answer">Answer eight questions below</a> and this fills in.</p>
 <div class="paper" id="articles">
+  <img class="logo ph" id="logo1" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/nc-llc-logo-placeholder-400.png" alt="Company logo">
+  <p class="logoline noprint" id="logoline1">Sample logo. Yours gets drawn when you fill the box above.</p>
   <p class="t">Limited Liability Company Articles of Organization</p>
   <p class="tt">State of North Carolina, Department of the Secretary of State, Form L-01</p>
   <p>Pursuant to §57D-2-20 of the General Statutes of North Carolina, the undersigned does hereby submit these Articles of Organization for the purpose of forming a limited liability company.</p>
@@ -141,6 +169,7 @@
 <h2>Operating agreement</h2>
 <p class="note noprint">Not filed with the state. Nobody checks it. The bank asks for it when you open the account, and it proves the LLC is a real separate thing if you ever get sued. Sign it, date it, keep a PDF.</p>
 <div class="paper" id="opagree">
+  <img class="logo ph" id="logo2" src="https://claude-deploy.bennyforeman1.workers.dev/r2/file/nc-llc-logo-placeholder-400.png" alt="Company logo">
   <p class="t">Operating Agreement of <span class="f" data-k="llcname"></span></p>
   <p class="tt">A North Carolina single-member limited liability company</p>
   <p>This Operating Agreement is made effective <span class="f" data-k="today"></span> by <span class="f" data-k="owner"></span> (the "Member"), the sole member of <span class="f" data-k="llcname"></span> (the "Company").</p>
@@ -184,6 +213,7 @@
 <div class="actions noprint">
   <button type="button" data-copy="opagree">Copy agreement as text</button>
   <button type="button" class="ghost" onclick="window.print()">Print both</button>
+  <a class="note" id="logoDl" href="#" download="logo.png" style="align-self:center;display:none">Save logo</a>
 </div>
 
 <h2 class="noprint" id="answer">Answer these eight and they fill themselves in</h2>
@@ -365,6 +395,45 @@
     })(stepBoxes[k]);
   }
   render();
+
+  var WORKER='https://nc-llc-gen.bennyforeman1.workers.dev/generate';
+  var talk=$('talk'), talkBtn=$('talkBtn'), talkStatus=$('talkStatus'), talkNotes=$('talkNotes');
+  var st=store.get('ncllc_talk'); if(st) talk.value=st;
+  talk.addEventListener('input',function(){store.set('ncllc_talk',talk.value)});
+  function setLogo(dataUrl){
+    $('logo1').src=dataUrl; $('logo2').src=dataUrl;
+    $('logo1').classList.remove('ph'); $('logo2').classList.remove('ph');
+    $('logoline1').classList.add('hide');
+    var dl=$('logoDl'); dl.href=dataUrl; dl.style.display='inline';
+  }
+  var savedLogo=store.get('ncllc_logo'); if(savedLogo) setLogo(savedLogo);
+  function shrink(dataUrl,cb){
+    var img=new Image(); img.onload=function(){
+      var c=document.createElement('canvas'); c.width=512; c.height=512;
+      c.getContext('2d').drawImage(img,0,0,512,512); cb(c.toDataURL('image/png'));
+    }; img.onerror=function(){cb(dataUrl)}; img.src=dataUrl;
+  }
+  talkBtn.addEventListener('click',function(){
+    var text=talk.value.trim();
+    if(text.length<20){talkStatus.className='status err';talkStatus.textContent='Say a bit more than that.';return}
+    talkBtn.disabled=true; talkStatus.className='status'; talkStatus.innerHTML='<span class="spin"></span>Reading that, then drawing a logo. 20 to 40 seconds.';
+    talkNotes.className='notes';
+    fetch(WORKER,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text})})
+      .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
+      .then(function(res){
+        if(!res.ok||res.j.error) throw new Error(res.j.error||'Something broke');
+        var f=res.j.fields||{};
+        var map={name:'llcname',owner:'owner',street:'street',city:'city',zip:'zip',county:'county',phone:'phone',email:'email',purpose:'purpose'};
+        for(var k in map){ if(f[map[k]]) $(k).value=f[map[k]]; }
+        render();
+        if(res.j.logo){ shrink(res.j.logo,function(small){ setLogo(small); store.set('ncllc_logo',small); }); }
+        talkStatus.textContent=res.j.logo?'Done. Both documents and the logo are filled in below.':'Documents filled in. Logo didn\'t come back'+(res.j.logo_error?' ('+res.j.logo_error.slice(0,80)+')':'')+'.';
+        if(f.notes){talkNotes.textContent=f.notes;talkNotes.className='notes on'}
+        document.getElementById('articles').scrollIntoView({behavior:'smooth',block:'start'});
+      })
+      .catch(function(e){talkStatus.className='status err';talkStatus.textContent=e.message||'Something broke. Try again in a minute.'})
+      .then(function(){talkBtn.disabled=false});
+  });
 })();
 </script>
 </body>
