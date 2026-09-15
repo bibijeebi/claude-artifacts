@@ -130,7 +130,7 @@ const plan = [
 
 // ---- LOG (oldest first; Claude appends). dur in seconds. ----
 const log = [
- {date:"2026-09-14",time:"",dist:1,dur:null,pace:"",notes:"First run back after PT cleared it. Back didn't hurt. Knee felt it, expected.",source:"Told me directly"}
+ {date:"2026-09-14",time:"",dist:1,dur:null,pace:"10:53",extra:["11 min (app rounds)","HR 165-187, max 187","93.6 cal","Stamey Walk / Kennebec Rd loop, Willow Spring"],notes:"First run back after PT cleared it. Knee kind of felt it, nothing crazy, a little achy but it's always like that. Back did not hurt during. A little sore the next day, muscle soreness, not the other thing. Was very conscious of keeping really good straight form.",source:"Apple Fitness screenshot"}
 ];
 
 // ---- render ----
@@ -213,7 +213,7 @@ renderWeek();
 {
   const hms=s=>{if(!s)return"";const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+":":"")+String(m).padStart(h?2:1,"0")+":"+String(x).padStart(2,"0")};
   $("#log").innerHTML=log.length?log.slice().reverse().map(e=>{
-    const bits=[e.dur?hms(e.dur):"",e.pace?e.pace+" /mi":"",e.time||""].filter(Boolean).join(", ");
+    const bits=[e.dur?hms(e.dur):"",e.pace?e.pace+" /mi":"",e.time||"",...(e.extra||[])].filter(Boolean).join(", ");
     return `<div class="entry"><div class="t"><b>${e.dist?fmt(+e.dist.toFixed(2))+" mi":e.type||"entry"}</b><span>${d0(e.date).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</span></div>${bits?`<div class="x">${bits}</div>`:""}${e.notes?`<div class="nt">${e.notes}</div>`:""}</div>`;
   }).join(""):`<p class="empty">Nothing logged yet.</p>`;
 }
