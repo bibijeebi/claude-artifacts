@@ -145,7 +145,7 @@ td.long{font-weight:600;color:var(--glass)}
 
     <h2>Heart rate per run</h2>
     <svg class="chart" id="hrChart" viewBox="0 0 640 200" role="img" aria-label="Heart rate range per run"></svg>
-    <p class="legend">Bar is the range the watch reported, dot is the max.</p>
+    <p class="legend">Bar is the range the watch reported, red dot is the max, hollow dot is the average.</p>
 
     <h2>Days run</h2>
     <div class="cal" id="cal"></div>
@@ -189,7 +189,9 @@ const log = [
  {date:"2026-09-14",time:"",dist:1,dur:null,durText:"11 min (app rounds)",pace:"10:53",hr:[165,187],cal:93.6,
   where:"Stamey Walk / Kennebec Rd loop, Willow Spring",
   notes:"First run back after PT cleared it. Knee kind of felt it, nothing crazy, a little achy but it's always like that. Back did not hurt during. A little sore the next day, muscle soreness, not the other thing. Was very conscious of keeping really good straight form.",
-  source:"Apple Fitness screenshot"}
+  source:"Apple Fitness screenshot"},
+ {date:"2026-09-15",time:"",dist:1,dur:659,pace:"10:51",hrAvg:166,cal:110,cadence:145,elev:47,effort:"moderate",
+  notes:"Easy mile.",source:"Told me directly"}
 ];
 
 // ---- helpers ----
@@ -285,17 +287,20 @@ renderWeek();
 
 // ---- chart: heart rate per run ----
 {
-  const runs=log.filter(e=>e.hr);
+  const runs=log.filter(e=>e.hr||e.hrAvg);
   const W=640,H=200,L=36,R=12,T=14,B=30;
   const el=$("#hrChart");
   if(!runs.length)el.outerHTML=`<p class="empty">No heart rate data yet.</p>`;else{
-    const lo=Math.floor((Math.min(...runs.map(e=>e.hr[0]))-10)/10)*10,hi=Math.ceil((Math.max(...runs.map(e=>e.hr[1]))+5)/10)*10;
+    const allv=runs.flatMap(e=>[...(e.hr||[]),...(e.hrAvg?[e.hrAvg]:[])]);
+    const lo=Math.floor((Math.min(...allv)-10)/10)*10,hi=Math.ceil((Math.max(...allv)+5)/10)*10;
     const n=runs.length,bw=Math.min(40,(W-L-R)/n);
     const x=i=>n===1?W/2:L+(W-L-R)*(i+.5)/n,y=b=>T+(H-T-B)*(1-(b-lo)/(hi-lo));
     let s="";
     for(let g=lo;g<=hi;g+=20){s+=`<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)"/><text x="${L-6}" y="${y(g)+4}" font-size="11" text-anchor="end" fill="var(--ink-2)">${g}</text>`}
-    runs.forEach((e,i)=>{const[a,b]=e.hr;
-      s+=`<rect x="${x(i)-bw/2}" y="${y(b)}" width="${bw}" height="${y(a)-y(b)}" rx="3" fill="var(--glass-2)" stroke="var(--glass)"/><circle cx="${x(i)}" cy="${y(b)}" r="4" fill="var(--coral)"/><text x="${x(i)}" y="${y(b)-9}" font-size="11" text-anchor="middle" fill="var(--ink)">${b}</text><text x="${x(i)}" y="${y(a)+14}" font-size="11" text-anchor="middle" fill="var(--ink-2)">${a}</text>`;
+    runs.forEach((e,i)=>{
+      if(e.hr){const[a,b]=e.hr;
+      s+=`<rect x="${x(i)-bw/2}" y="${y(b)}" width="${bw}" height="${y(a)-y(b)}" rx="3" fill="var(--glass-2)" stroke="var(--glass)"/><circle cx="${x(i)}" cy="${y(b)}" r="4" fill="var(--coral)"/><text x="${x(i)}" y="${y(b)-9}" font-size="11" text-anchor="middle" fill="var(--ink)">${b}</text><text x="${x(i)}" y="${y(a)+14}" font-size="11" text-anchor="middle" fill="var(--ink-2)">${a}</text>`}
+      if(e.hrAvg)s+=`<circle cx="${x(i)}" cy="${y(e.hrAvg)}" r="5" fill="var(--linen)" stroke="var(--glass)" stroke-width="2"/><text x="${x(i)+9}" y="${y(e.hrAvg)+4}" font-size="11" fill="var(--ink-2)">avg ${e.hrAvg}</text>`;
       if(n<=8||i%Math.ceil(n/8)===0)s+=`<text x="${x(i)}" y="${H-12}" font-size="11" text-anchor="middle" fill="var(--ink-2)">${mdy(e.date)}</text>`});
     el.innerHTML=s;
   }
@@ -328,7 +333,7 @@ renderWeek();
 {
   const hms=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+":":"")+String(m).padStart(h?2:1,"0")+":"+String(x).padStart(2,"0")};
   $("#log").innerHTML=log.length?log.slice().reverse().map(e=>{
-    const bits=[e.dur?hms(e.dur):e.durText||"",e.pace?e.pace+" /mi":"",e.hr?`HR ${e.hr[0]} to ${e.hr[1]}`:"",e.cal?e.cal+" cal":"",e.time||"",e.where||""].filter(Boolean).join(", ");
+    const bits=[e.dur?hms(e.dur):e.durText||"",e.pace?e.pace+" /mi":"",e.hr?`HR ${e.hr[0]} to ${e.hr[1]}`:"",e.hrAvg?`avg HR ${e.hrAvg}`:"",e.cadence?e.cadence+" spm":"",e.elev!=null?e.elev+" ft":"",e.effort?"effort "+e.effort:"",e.cal?e.cal+" cal":"",e.time||"",e.where||""].filter(Boolean).join(", ");
     return `<div class="entry"><div class="t"><b>${e.dist?fmt(+e.dist.toFixed(2))+" mi":e.type||"entry"}</b><span>${d0(e.date).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</span></div>${bits?`<div class="x">${bits}</div>`:""}${e.notes?`<div class="nt">${e.notes}</div>`:""}</div>`;
   }).join(""):`<p class="empty">Nothing logged yet.</p>`;
 }
