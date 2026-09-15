@@ -13,34 +13,42 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
 <style>
-:root{
-  --ink:#1c2a3a; --ink-2:#4a5a6b; --linen:#f7f5ef; --sand:#e9e2d2; --glass:#5f9c8f; --glass-2:#d8eae5; --coral:#c9705a; --line:#d9d2c2;
-}
+:root{--ink:#1c2a3a;--ink-2:#4a5a6b;--linen:#f7f5ef;--sand:#e9e2d2;--glass:#5f9c8f;--glass-2:#d8eae5;--coral:#c9705a;--line:#d9d2c2}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--ink:#efeae0;--ink-2:#b5ad9d;--linen:#151b23;--sand:#222b36;--glass:#7fbcae;--glass-2:#22403a;--coral:#e08a74;--line:#2e3946}}
 :root[data-theme=dark]{--ink:#efeae0;--ink-2:#b5ad9d;--linen:#151b23;--sand:#222b36;--glass:#7fbcae;--glass-2:#22403a;--coral:#e08a74;--line:#2e3946}
 *{box-sizing:border-box}
 body{margin:0;background:var(--linen);color:var(--ink);font-family:Newsreader,Georgia,"Times New Roman",serif;font-size:18px;line-height:1.5}
-main{max-width:640px;margin:0 auto;padding:28px 18px 80px}
-h1{font-weight:500;font-size:2.4rem;line-height:1.05;margin:0 0 6px;letter-spacing:-.01em}
-h2{font-weight:500;font-size:1.35rem;margin:38px 0 12px}
+main{max-width:640px;margin:0 auto;padding:24px 18px 80px}
+h1{font-weight:500;font-size:2.3rem;line-height:1.05;margin:0 0 4px;letter-spacing:-.01em}
+h2{font-weight:500;font-size:1.35rem;margin:34px 0 10px}
+h2:first-child{margin-top:8px}
 .sub{color:var(--ink-2);margin:0}
-.count{font-size:1.1rem;margin:4px 0 0}
+a{color:var(--glass)}
+nav{display:flex;gap:4px;margin:18px 0 8px;border-bottom:1px solid var(--line)}
+nav button{flex:1;background:none;border:0;border-bottom:3px solid transparent;font:inherit;font-size:1.05rem;color:var(--ink-2);padding:8px 4px 10px;cursor:pointer;margin-bottom:-1px}
+nav button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--glass);font-weight:500}
+nav button:focus-visible{outline:2px solid var(--glass);outline-offset:-2px;border-radius:4px}
+section[hidden]{display:none}
+.count{font-size:1.15rem;margin:0}
 .count b{font-weight:600;color:var(--glass)}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:22px 0 0}
+.big{font-size:1.7rem;font-weight:500;line-height:1.15;margin:0 0 6px}
+.race p{margin:0 0 12px}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0 0 6px;font-size:1rem}
+dt{color:var(--ink-2)}dd{margin:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0 0}
 .stat{background:var(--sand);border-radius:10px;padding:10px 8px 8px;text-align:center}
-.stat .n{font-size:1.6rem;font-weight:600;line-height:1.1}
+.stat .n{font-size:1.55rem;font-weight:600;line-height:1.1}
 .stat .l{font-size:.78rem;color:var(--ink-2)}
 .week{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .day{background:var(--sand);border-radius:10px;padding:8px 4px 9px;text-align:center;border:2px solid transparent;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .day.today{border-color:var(--glass)}
 .day.done{background:var(--glass-2)}
-.day.rest{opacity:.55;cursor:default}
 .day .d{font-size:.78rem;color:var(--ink-2)}
 .day .m{font-size:1.25rem;font-weight:600;line-height:1.2}
 .day .k{font-size:.8rem;height:1.1em;color:var(--glass)}
 .hint{font-size:.9rem;color:var(--ink-2);margin:8px 0 0}
-.chart{width:100%;height:auto;display:block;margin-top:6px}
-.legend{font-size:.85rem;color:var(--ink-2);margin:4px 0 0}
+svg.chart{width:100%;height:auto;display:block;margin-top:4px}
+.legend{font-size:.85rem;color:var(--ink-2);margin:2px 0 0}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 10px;vertical-align:-1px}
 .phase{margin-top:18px}
 .phase h3{font-weight:500;font-size:1.05rem;margin:0 0 4px}
@@ -54,7 +62,7 @@ tr.past td{color:var(--ink-2)}
 td.tot{font-weight:600}
 td.long{font-weight:600;color:var(--glass)}
 .wk{white-space:nowrap}
-.wk small{display:block;color:var(--ink-2);font-size:.75rem;font-weight:400}
+.wk small{display:block;color:var(--ink-2);font-size:.75rem;font-weight:400;white-space:normal}
 .entry{padding:12px 0;border-bottom:1px solid var(--line)}
 .entry .t{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
 .entry .t b{font-weight:600}
@@ -64,40 +72,88 @@ td.long{font-weight:600;color:var(--glass)}
 .rules p{margin:0 0 10px}
 .empty{color:var(--ink-2);font-style:italic}
 .tw{overflow-x:auto}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;max-width:340px}
+.cal div{aspect-ratio:1;border-radius:3px;background:var(--sand);font-size:.62rem;display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
+.cal .on{background:var(--glass);color:#fff}
+.cal .off{opacity:.35}
+.cal .hd{background:none;font-size:.7rem}
 @media (max-width:420px){.stats{grid-template-columns:repeat(2,1fr)}h1{font-size:2rem}}
-@media (prefers-reduced-motion:no-preference){.day{transition:background .15s}}
 </style>
 </head>
 <body>
 <main>
   <h1>Bekah runs to Great Falls</h1>
-  <p class="sub">Valentine's Day Half, C&amp;O Canal towpath, Potomac MD. Saturday, February 13, 2027, 7:30 am.</p>
   <p class="count" id="count"></p>
 
-  <div class="stats" id="stats"></div>
+  <nav role="tablist">
+    <button role="tab" data-tab="race">The race</button>
+    <button role="tab" data-tab="plan">The plan</button>
+    <button role="tab" data-tab="data">The data</button>
+  </nav>
 
-  <h2 id="wkTitle">This week</h2>
-  <div class="week" id="week"></div>
-  <p class="hint">Green with a check means it's in the log. Tap a day to tick it yourself before Claude logs it. Sunday is off.</p>
+  <section id="tab-race" class="race" role="tabpanel">
+    <h2>What this is</h2>
+    <p class="big">Bekah's comeback: one daily mile in September to a half marathon in February.</p>
+    <p>Physical therapy cleared running on September 14, 2026 after about four months off. The first mile back went fine, so the goal became a real race with a real date. Not every-other-day, not a couch program. Six days a week, every day at least a mile, because the habit is the point and the distance follows.</p>
+    <p>The full marathon comes later. This is the half that proves the back holds.</p>
 
-  <h2>Miles by week</h2>
-  <svg class="chart" id="chart" viewBox="0 0 640 220" role="img" aria-label="Planned vs logged miles by week"></svg>
-  <p class="legend"><i style="background:var(--sand)"></i>planned <i style="background:var(--glass)"></i>logged</p>
+    <h2>The race</h2>
+    <dl>
+      <dt>Event</dt><dd>Valentine's Day 5K, 10K &amp; Half Marathon</dd>
+      <dt>When</dt><dd>Saturday, February 13, 2027, 7:30 am</dd>
+      <dt>Where</dt><dd>Great Falls Park, C&amp;O Canal towpath, Potomac, Maryland</dd>
+      <dt>Course</dt><dd>Along the Potomac River on the towpath, flat, crushed gravel. Small local race, walkers welcome.</dd>
+      <dt>Distance</dt><dd>13.1 miles</dd>
+      <dt>Signup</dt><dd><a href="https://www.runwashington.com/event_category/half-marathon/">runwashington.com listing</a>. Park entrance fee is separate; check the military pass deal.</dd>
+    </dl>
 
-  <h2>The plan</h2>
-  <p class="sub">22 weeks. Six days, Sunday off, every run is at least a mile. Saturday is the long run. Numbers are miles.</p>
-  <div id="plan"></div>
+    <h2>The weekend</h2>
+    <p>Staying with friends in Mount Airy, MD, about 50 minutes from the park and about 50 minutes from Baltimore the other direction. Race in the morning, done by 11, back to the house, then the Baltimore Symphony's <em>The Planets</em> HD Odyssey at the Meyerhoff that evening. Benny's show. Saturday has a 1:30 and a 7:30 performance.</p>
 
-  <h2>Log</h2>
-  <div id="log"></div>
+    <h2>Why this race</h2>
+    <p>Twenty-two weeks from the first mile back. Long enough to build without rushing, short enough not to be ridiculous. The coast races in February (Oak Island, Wilmington) landed on or right after the Baltimore trip, so the race came to the trip instead. Ocracoke's half in April is the likely second one.</p>
+  </section>
 
-  <h2>Rules</h2>
-  <div class="rules">
-    <p>Every run counts, the point is showing up. Easy pace, walk breaks are fine.</p>
-    <p>Distance creeps on a few days a week, never on all six at once. Every fourth week or so holds flat.</p>
-    <p>If the back or knee goes from "feels it" to actually hurting, that day is a walk, not a skip. Streak intact, tissue protected. Still hurting at 3 miles, tell Tim.</p>
-    <p>Feeling good and the back's holding, the plan gets bumped. Tell Claude.</p>
-  </div>
+  <section id="tab-plan" role="tabpanel" hidden>
+    <h2 id="wkTitle">This week</h2>
+    <div class="week" id="week"></div>
+    <p class="hint">Green with a check means it's in the log. Tap a day to tick it yourself before Claude logs it. Sunday is off.</p>
+
+    <h2>The full plan</h2>
+    <p class="sub">22 weeks. Six days, Sunday off, every run is at least a mile. Saturday is the long run because race day is a Saturday. Numbers are miles.</p>
+    <div id="plan"></div>
+
+    <h2>Rules</h2>
+    <div class="rules">
+      <p>Every run counts, the point is showing up. Easy pace, walk breaks are fine.</p>
+      <p>Distance creeps on a few days a week, never on all six at once. Every fourth week or so holds flat.</p>
+      <p>If the back or knee goes from "feels it" to actually hurting, that day is a walk, not a skip. Streak intact, tissue protected. Still hurting at 3 miles, tell Tim.</p>
+      <p>Feeling good and the back's holding, the plan gets bumped. Tell Claude.</p>
+    </div>
+  </section>
+
+  <section id="tab-data" role="tabpanel" hidden>
+    <div class="stats" id="stats"></div>
+
+    <h2>Miles by week</h2>
+    <svg class="chart" id="chart" viewBox="0 0 640 220" role="img" aria-label="Planned vs logged miles by week"></svg>
+    <p class="legend"><i style="background:var(--sand)"></i>planned <i style="background:var(--glass)"></i>logged</p>
+
+    <h2>Pace per run</h2>
+    <svg class="chart" id="paceChart" viewBox="0 0 640 200" role="img" aria-label="Average pace per run"></svg>
+    <p class="legend">Minutes per mile. Lower is faster. Easy days should sit high on this chart.</p>
+
+    <h2>Heart rate per run</h2>
+    <svg class="chart" id="hrChart" viewBox="0 0 640 200" role="img" aria-label="Heart rate range per run"></svg>
+    <p class="legend">Bar is the range the watch reported, dot is the max.</p>
+
+    <h2>Days run</h2>
+    <div class="cal" id="cal"></div>
+    <p class="legend">Last six weeks. Sundays are faded, they're off.</p>
+
+    <h2>Log</h2>
+    <div id="log"></div>
+  </section>
 </main>
 
 <script>
@@ -128,12 +184,15 @@ const plan = [
  {start:"2027-02-08",days:[2,2,1.5,1,1,13.1],phase:"Race",note:"Drive to Mount Airy Thu or Fri. Friday is a shakeout mile. Saturday 7:30 am, then the Planets."}
 ];
 
-// ---- LOG (oldest first; Claude appends). dur in seconds. ----
+// ---- LOG (oldest first; Claude appends). dur in seconds, pace "m:ss", hr [min,max], cal number. ----
 const log = [
- {date:"2026-09-14",time:"",dist:1,dur:null,pace:"10:53",extra:["11 min (app rounds)","HR 165-187, max 187","93.6 cal","Stamey Walk / Kennebec Rd loop, Willow Spring"],notes:"First run back after PT cleared it. Knee kind of felt it, nothing crazy, a little achy but it's always like that. Back did not hurt during. A little sore the next day, muscle soreness, not the other thing. Was very conscious of keeping really good straight form.",source:"Apple Fitness screenshot"}
+ {date:"2026-09-14",time:"",dist:1,dur:null,durText:"11 min (app rounds)",pace:"10:53",hr:[165,187],cal:93.6,
+  where:"Stamey Walk / Kennebec Rd loop, Willow Spring",
+  notes:"First run back after PT cleared it. Knee kind of felt it, nothing crazy, a little achy but it's always like that. Back did not hurt during. A little sore the next day, muscle soreness, not the other thing. Was very conscious of keeping really good straight form.",
+  source:"Apple Fitness screenshot"}
 ];
 
-// ---- render ----
+// ---- helpers ----
 const $=s=>document.querySelector(s);
 const fmt=n=>Number.isInteger(n)?n:String(n).replace(/^0/,"");
 const d0=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
@@ -142,27 +201,34 @@ const addD=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
 const mdy=s=>d0(s).toLocaleDateString("en-US",{month:"short",day:"numeric"});
 const today=new Date();today.setHours(0,0,0,0);
 const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat"];
-
+const paceSec=p=>{if(!p)return null;const[m,s]=p.split(":").map(Number);return m*60+(s||0)};
 const byDate={};log.forEach(e=>{byDate[e.date]=(byDate[e.date]||0)+(e.dist||0)});
 
-// countdown
+// ---- tabs ----
+const tabs=[...document.querySelectorAll("nav button")];
+function show(name){tabs.forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===name));["race","plan","data"].forEach(t=>$("#tab-"+t).hidden=t!==name);try{localStorage.setItem("bekah-tab",name)}catch{}if(location.hash!=="#"+name)history.replaceState(null,"","#"+name)}
+tabs.forEach(b=>b.addEventListener("click",()=>show(b.dataset.tab)));
+{let t=location.hash.slice(1);if(!["race","plan","data"].includes(t)){try{t=localStorage.getItem("bekah-tab")}catch{}}show(["race","plan","data"].includes(t)?t:"race")}
+
+// ---- countdown ----
 const dl=Math.round((d0(RACE)-today)/864e5);
 $("#count").innerHTML=dl>0?`<b>${dl}</b> days to race day.`:dl===0?"<b>Race day.</b>":"Done.";
 
-// current week
+// ---- current week ----
 let wi=plan.findIndex(w=>today>=d0(w.start)&&today<addD(d0(w.start),7));
 if(wi<0)wi=today<d0(plan[0].start)?0:plan.length-1;
+const cw=plan[wi];
 
-// stats
+// ---- stats ----
 const totMi=log.reduce((a,e)=>a+(e.dist||0),0);
 let streak=0;{let d=new Date(today);if(!byDate[iso(d)])d=addD(d,-1);for(;;){const k=iso(d);if(d.getDay()===0){d=addD(d,-1);continue}if(byDate[k]){streak++;d=addD(d,-1)}else break}}
 const longest=log.reduce((a,e)=>Math.max(a,e.dist||0),0);
-const cw=plan[wi];const cwPlanned=cw.days.reduce((a,b)=>a+b,0);
+const cwPlanned=cw.days.reduce((a,b)=>a+b,0);
 const cwDone=cw.days.reduce((a,_,i)=>a+(byDate[iso(addD(d0(cw.start),i))]||0),0);
-$("#stats").innerHTML=[[totMi.toFixed(totMi%1?2:0)+"","miles logged"],[streak,"day streak"],[`${+cwDone.toFixed(2)}/${+cwPlanned.toFixed(2)}`,"this week"],[longest?fmt(+longest.toFixed(2)):"–","longest run"]]
+$("#stats").innerHTML=[[+totMi.toFixed(2),"miles logged"],[streak,"day streak"],[`${+cwDone.toFixed(2)}/${+cwPlanned.toFixed(2)}`,"this week"],[longest?fmt(+longest.toFixed(2)):"–","longest run"]]
  .map(([n,l])=>`<div class="stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
 
-// this week
+// ---- this week ----
 $("#wkTitle").textContent=`Week ${wi+1}, ${cw.phase.toLowerCase()}${cw.note?": "+cw.note:""}`;
 const ticks=(()=>{try{return JSON.parse(localStorage.getItem("bekah-ticks")||"{}")}catch{return{}}})();
 const saveTicks=()=>{try{localStorage.setItem("bekah-ticks",JSON.stringify(ticks))}catch{}};
@@ -181,7 +247,7 @@ function renderWeek(){
 }
 renderWeek();
 
-// chart
+// ---- chart: weekly miles ----
 {
   const W=640,H=220,L=28,R=8,T=14,B=30,n=plan.length;
   const totals=plan.map(w=>w.days.reduce((a,b)=>a+b,0));
@@ -189,7 +255,7 @@ renderWeek();
   const max=Math.ceil(Math.max(...totals,...actual,1)/5)*5;
   const bw=(W-L-R)/n,y=v=>T+(H-T-B)*(1-v/max);
   let s="";
-  for(let g=0;g<=max;g+=10){s+=`<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(g)+4}" font-size="11" text-anchor="end" fill="var(--ink-2)">${g}</text>`}
+  for(let g=0;g<=max;g+=10){s+=`<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)"/><text x="${L-6}" y="${y(g)+4}" font-size="11" text-anchor="end" fill="var(--ink-2)">${g}</text>`}
   totals.forEach((t,i)=>{
     const x=L+i*bw+2,w=bw-4;
     s+=`<rect x="${x}" y="${y(t)}" width="${w}" height="${H-B-y(t)}" rx="2" fill="var(--sand)"${i===wi?' stroke="var(--glass)" stroke-width="1.5"':""}/>`;
@@ -199,21 +265,70 @@ renderWeek();
   $("#chart").innerHTML=s;
 }
 
-// plan table
+// ---- chart: pace per run ----
+{
+  const runs=log.filter(e=>e.pace&&e.dist);
+  const W=640,H=200,L=40,R=12,T=14,B=30;
+  const el=$("#paceChart");
+  if(!runs.length)el.outerHTML=`<p class="empty">No paced runs yet.</p>`;else{
+    const v=runs.map(e=>paceSec(e.pace)/60);
+    const lo=Math.floor(Math.min(...v)-1),hi=Math.ceil(Math.max(...v)+1);
+    const x=i=>runs.length===1?W/2:L+(W-L-R)*i/(runs.length-1),y=p=>T+(H-T-B)*(p-lo)/(hi-lo);
+    let s="";
+    for(let g=lo;g<=hi;g++){s+=`<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)"/><text x="${L-6}" y="${y(g)+4}" font-size="11" text-anchor="end" fill="var(--ink-2)">${g}:00</text>`}
+    if(runs.length>1)s+=`<polyline fill="none" stroke="var(--glass)" stroke-width="2.5" stroke-linejoin="round" points="${v.map((p,i)=>x(i)+","+y(p)).join(" ")}"/>`;
+    v.forEach((p,i)=>{s+=`<circle cx="${x(i)}" cy="${y(p)}" r="5" fill="var(--glass)"/><text x="${x(i)}" y="${y(p)-10}" font-size="11" text-anchor="middle" fill="var(--ink)">${runs[i].pace}</text>`;
+      if(runs.length<=8||i%Math.ceil(runs.length/8)===0)s+=`<text x="${x(i)}" y="${H-12}" font-size="11" text-anchor="middle" fill="var(--ink-2)">${mdy(runs[i].date)}</text>`});
+    el.innerHTML=s;
+  }
+}
+
+// ---- chart: heart rate per run ----
+{
+  const runs=log.filter(e=>e.hr);
+  const W=640,H=200,L=36,R=12,T=14,B=30;
+  const el=$("#hrChart");
+  if(!runs.length)el.outerHTML=`<p class="empty">No heart rate data yet.</p>`;else{
+    const lo=Math.floor((Math.min(...runs.map(e=>e.hr[0]))-10)/10)*10,hi=Math.ceil((Math.max(...runs.map(e=>e.hr[1]))+5)/10)*10;
+    const n=runs.length,bw=Math.min(40,(W-L-R)/n);
+    const x=i=>n===1?W/2:L+(W-L-R)*(i+.5)/n,y=b=>T+(H-T-B)*(1-(b-lo)/(hi-lo));
+    let s="";
+    for(let g=lo;g<=hi;g+=20){s+=`<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)"/><text x="${L-6}" y="${y(g)+4}" font-size="11" text-anchor="end" fill="var(--ink-2)">${g}</text>`}
+    runs.forEach((e,i)=>{const[a,b]=e.hr;
+      s+=`<rect x="${x(i)-bw/2}" y="${y(b)}" width="${bw}" height="${y(a)-y(b)}" rx="3" fill="var(--glass-2)" stroke="var(--glass)"/><circle cx="${x(i)}" cy="${y(b)}" r="4" fill="var(--coral)"/><text x="${x(i)}" y="${y(b)-9}" font-size="11" text-anchor="middle" fill="var(--ink)">${b}</text><text x="${x(i)}" y="${y(a)+14}" font-size="11" text-anchor="middle" fill="var(--ink-2)">${a}</text>`;
+      if(n<=8||i%Math.ceil(n/8)===0)s+=`<text x="${x(i)}" y="${H-12}" font-size="11" text-anchor="middle" fill="var(--ink-2)">${mdy(e.date)}</text>`});
+    el.innerHTML=s;
+  }
+}
+
+// ---- calendar: last six weeks ----
+{
+  const start=addD(d0(plan[0].start),0);
+  let from=addD(today,-(today.getDay()+6)%7-35);if(from<start)from=start;
+  const from0=addD(from,-((from.getDay()+6)%7));
+  let s=DAYS.concat(["Sun"]).map(d=>`<div class="hd">${d}</div>`).join("");
+  for(let d=new Date(from0);d<=addD(today,6-(today.getDay()+6)%7);d=addD(d,1)){
+    const k=iso(d),on=byDate[k],sun=d.getDay()===0,fut=d>today,pre=d<start;
+    s+=`<div class="${on?"on":sun||fut||pre?"off":""}" title="${k}">${on?fmt(+on.toFixed(2)):d.getDate()}</div>`;
+  }
+  $("#cal").innerHTML=s;
+}
+
+// ---- plan table ----
 {
   const phases=[];plan.forEach((w,i)=>{const p=phases[phases.length-1];if(p&&p.name===w.phase)p.rows.push(i);else phases.push({name:w.phase,rows:[i]})});
   const blurb={Base:"Rebuild the habit and get to a 3-mile long run without the back complaining.",Build:"The long run grows about a mile a week with a cutback every fourth week. Weekdays stay short.",Peak:"Longest runs, 10 to 12. Everything else stays easy.",Taper:"Half the volume, legs get fresh.",Race:"Shakeout, travel, run, then the Planets."};
   $("#plan").innerHTML=phases.map(p=>`<div class="phase"><h3>${p.name}</h3><p>${blurb[p.name]||""}</p><div class="tw"><table><thead><tr><th>Week</th>${DAYS.map(d=>`<th>${d}</th>`).join("")}<th>Total</th></tr></thead><tbody>${
     p.rows.map(i=>{const w=plan[i];const tot=w.days.reduce((a,b)=>a+b,0);const past=addD(d0(w.start),7)<=today;
-      return `<tr class="${i===wi?"cur":past?"past":""}"><td class="wk">Week ${i+1}<small>${mdy(w.start)}${w.note?" · "+w.note:""}</small></td>${w.days.map((m,j)=>`<td class="${j===5?"long":""}">${fmt(m)}</td>`).join("")}<td class="tot">${+tot.toFixed(2)}</td></tr>`}).join("")
+      return `<tr class="${i===wi?"cur":past?"past":""}"><td class="wk">Week ${i+1}<small>${mdy(w.start)}${w.note?", "+w.note:""}</small></td>${w.days.map((m,j)=>`<td class="${j===5?"long":""}">${fmt(m)}</td>`).join("")}<td class="tot">${+tot.toFixed(2)}</td></tr>`}).join("")
   }</tbody></table></div></div>`).join("");
 }
 
-// log
+// ---- log ----
 {
-  const hms=s=>{if(!s)return"";const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+":":"")+String(m).padStart(h?2:1,"0")+":"+String(x).padStart(2,"0")};
+  const hms=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+":":"")+String(m).padStart(h?2:1,"0")+":"+String(x).padStart(2,"0")};
   $("#log").innerHTML=log.length?log.slice().reverse().map(e=>{
-    const bits=[e.dur?hms(e.dur):"",e.pace?e.pace+" /mi":"",e.time||"",...(e.extra||[])].filter(Boolean).join(", ");
+    const bits=[e.dur?hms(e.dur):e.durText||"",e.pace?e.pace+" /mi":"",e.hr?`HR ${e.hr[0]} to ${e.hr[1]}`:"",e.cal?e.cal+" cal":"",e.time||"",e.where||""].filter(Boolean).join(", ");
     return `<div class="entry"><div class="t"><b>${e.dist?fmt(+e.dist.toFixed(2))+" mi":e.type||"entry"}</b><span>${d0(e.date).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</span></div>${bits?`<div class="x">${bits}</div>`:""}${e.notes?`<div class="nt">${e.notes}</div>`:""}</div>`;
   }).join(""):`<p class="empty">Nothing logged yet.</p>`;
 }
