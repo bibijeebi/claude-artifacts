@@ -191,7 +191,9 @@ const log = [
   notes:"First run back after PT cleared it. Knee kind of felt it, nothing crazy, a little achy but it's always like that. Back did not hurt during. A little sore the next day, muscle soreness, not the other thing. Was very conscious of keeping really good straight form.",
   source:"Apple Fitness screenshot"},
  {date:"2026-09-15",time:"",dist:1,dur:659,pace:"10:51",hrAvg:166,cal:110,cadence:145,elev:47,effort:"moderate",
-  notes:"Easy mile.",source:"Told me directly"}
+  notes:"Easy mile.",source:"Told me directly"},
+ {date:"2026-09-17",time:"~3:20pm",dist:1,dur:660,pace:"10:57",hrAvg:166,cadence:151,power:174,effort:"moderate",
+  notes:"Skipped Wed (Greenville, working in the vans), making it up Sunday. Watch says moderate but could talk normally right after, no open-mouth breathing, felt pretty good. Period started last night, stomach and the muscles around it a bit sore and back a little sore, reads as period not back. Knee feeling it a little more but not giving out.",source:"Told me directly"}
 ];
 
 // ---- helpers ----
@@ -333,7 +335,7 @@ renderWeek();
 {
   const hms=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+":":"")+String(m).padStart(h?2:1,"0")+":"+String(x).padStart(2,"0")};
   $("#log").innerHTML=log.length?log.slice().reverse().map(e=>{
-    const bits=[e.dur?hms(e.dur):e.durText||"",e.pace?e.pace+" /mi":"",e.hr?`HR ${e.hr[0]} to ${e.hr[1]}`:"",e.hrAvg?`avg HR ${e.hrAvg}`:"",e.cadence?e.cadence+" spm":"",e.elev!=null?e.elev+" ft":"",e.effort?"effort "+e.effort:"",e.cal?e.cal+" cal":"",e.time||"",e.where||""].filter(Boolean).join(", ");
+    const bits=[e.dur?hms(e.dur):e.durText||"",e.pace?e.pace+" /mi":"",e.hr?`HR ${e.hr[0]} to ${e.hr[1]}`:"",e.hrAvg?`avg HR ${e.hrAvg}`:"",e.cadence?e.cadence+" spm":"",e.power?e.power+" W":"",e.elev!=null?e.elev+" ft":"",e.effort?"effort "+e.effort:"",e.cal?e.cal+" cal":"",e.time||"",e.where||""].filter(Boolean).join(", ");
     return `<div class="entry"><div class="t"><b>${e.dist?fmt(+e.dist.toFixed(2))+" mi":e.type||"entry"}</b><span>${d0(e.date).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</span></div>${bits?`<div class="x">${bits}</div>`:""}${e.notes?`<div class="nt">${e.notes}</div>`:""}</div>`;
   }).join(""):`<p class="empty">Nothing logged yet.</p>`;
 }
