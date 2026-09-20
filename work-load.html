@@ -39,6 +39,7 @@ h1 span{color:var(--field)}
 .chart{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .chart svg{display:block;width:100%;min-width:640px;height:auto;overflow:visible}
 .key{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.key span{white-space:nowrap}
 .key s{text-decoration:none;display:inline-block;width:14px;height:10px;vertical-align:middle;margin-right:6px;border-radius:2px}
 .tip{position:absolute;pointer-events:none;background:var(--tip);color:var(--panel);font-family:var(--mono);font-size:11px;line-height:1.45;padding:7px 9px;border-radius:3px;white-space:nowrap;display:none;z-index:2;transform:translate(-50%,calc(-100% - 10px))}
 .tip b{color:#fff;display:block;font-weight:600}
@@ -131,11 +132,11 @@ document.getElementById("totals").innerHTML=[
   hit.addEventListener("mouseleave",()=>tip.style.display="none");
   s.append(hit);
   if(d.date.endsWith("-01")||i===0){s.append(el("text",{x:x+2,y:H-pb+16},new Date(d.date+"T12:00:00").toLocaleDateString("en-US",{month:"short"})))}
-  if(d.steps>=18000){s.append(el("text",{x:x+bw/2,y:y(d.steps)-5,"text-anchor":"middle",class:"lab"},fmt(Math.round(d.steps/1000))+"k"))}
+  if(d.steps>=19000){s.append(el("text",{x:x+bw/2,y:y(d.steps)-5,"text-anchor":"middle",class:"lab"},fmt(Math.round(d.steps/1000))+"k"))}
  });
  s.append(el("line",{x1:pl,x2:W-pr,y1:y(0),y2:y(0),class:"axis"}));
  box.append(s);
- box.insertAdjacentHTML("beforeend",`<div class="key"><s style="background:${C.field}"></s>field job<s style="background:${C.run}"></s>run day<s style="background:${C.admin}"></s>van / admin<s style="background:${C.off}"></s>off</div>`);
+ box.insertAdjacentHTML("beforeend",`<div class="key"><span><s style="background:${C.field}"></s>field job</span><span><s style="background:${C.run}"></s>run day</span><span><s style="background:${C.admin}"></s>van / admin</span><span><s style="background:${C.off}"></s>off</span></div>`);
 })();
 
 // strip plot
@@ -160,17 +161,19 @@ document.getElementById("totals").innerHTML=[
 (()=>{
  const W=820,H=170,s=svg(W,H);
  const panel=(x0,title,rowsV,unit,max)=>{
-  const pl=x0+90,pw=300,rh=34,pt=34;
+  const pl=x0+90,pw=270,rh=34,pt=34;
   s.append(el("text",{x:x0,y:16,class:"lab"},title));
-  rowsV.forEach(([lab,v,col],i)=>{const y=pt+i*rh;
-   s.append(el("text",{x:pl-10,y:y+15,"text-anchor":"end"},lab));
-   s.append(el("rect",{x:pl,y:y,width:pw*v/max,height:22,fill:col,rx:2}));
-   s.append(el("text",{x:pl+pw*v/max+6,y:y+15,class:"lab"},unit(v)))});
+  rowsV.forEach(([name,v,col],i)=>{const y=pt+i*rh;
+   s.append(el("text",{x:pl-10,y:y+15,"text-anchor":"end"},name));
+   const bw=pw*v/max,lab=unit(v);
+   s.append(el("rect",{x:pl,y:y,width:bw,height:22,fill:col,rx:2}));
+   if(pl+bw+6+lab.length*6.3>W-6) s.append(el("text",{x:pl+bw-6,y:y+15,"text-anchor":"end",style:"fill:#fff;font-weight:600"},lab));
+   else s.append(el("text",{x:pl+bw+6,y:y+15,class:"lab"},lab))});
  };
  panel(10,"Median miles per day",[["field job",med(F.map(d=>d.mi)),C.field],["run day",med(R.map(d=>d.mi)),C.run],["off",med(O.map(d=>d.mi)),C.off]],v=>v.toFixed(1)+" mi",8);
  const calHr=g=>med(g.map(d=>d.ae/d.hrs));
  const runHr=med(R.map(d=>d.ae))/0.85;
- panel(420,"Active cal per hour of the activity",[["field job",calHr(F),C.field],["run",runHr,C.run]],v=>Math.round(v)+" cal/h",800);
+ panel(430,"Active cal per hour of the activity",[["field job",calHr(F),C.field],["run",runHr,C.run]],v=>Math.round(v)+" cal/h",800);
  s.append(el("text",{x:510,y:110},"run = run-day calories over ~51 min avg run"));
  s.append(el("text",{x:510,y:124},"job = shift calories over shift hours"));
  document.getElementById("c-intensity").append(s);
@@ -193,12 +196,14 @@ document.getElementById("totals").innerHTML=[
 
 // sites
 (()=>{
- const g=[...F].sort((a,b)=>b.steps-a.steps);const W=820,rh=26,pl=250,pr=60,pt=6,H=pt+rh*g.length+8,max=22000,s=svg(W,H);
+ const g=[...F].sort((a,b)=>b.steps-a.steps);const W=820,rh=26,pl=250,pr=12,pt=6,H=pt+rh*g.length+8,max=22000,s=svg(W,H);
  g.forEach((d,i)=>{const y=pt+i*rh;
   s.append(el("text",{x:pl-10,y:y+15,"text-anchor":"end",class:"lab"},d.site.replace(/\s\(.*\)/,"")));
   s.append(el("text",{x:8,y:y+15},fmtD(d.date).replace(/^\w+, /,"")));
-  s.append(el("rect",{x:pl,y:y+4,width:(W-pl-pr)*d.steps/max,height:16,fill:C.field,rx:2,opacity:d.steps<9000?.45:1}));
-  s.append(el("text",{x:pl+(W-pl-pr)*d.steps/max+6,y:y+15,class:"lab"},fmt(d.steps)+" · "+d.mi+" mi · "+d.hrs.toFixed(1)+" h"))});
+  const bw=(W-pl-pr)*d.steps/max,lab=fmt(d.steps)+" · "+d.mi.toFixed(1)+" mi · "+d.hrs.toFixed(1)+" h",lw=lab.length*6.3;
+  s.append(el("rect",{x:pl,y:y+4,width:bw,height:16,fill:C.field,rx:2,opacity:d.steps<9000?.45:1}));
+  if(pl+bw+6+lw>W-4) s.append(el("text",{x:pl+bw-6,y:y+15,"text-anchor":"end",style:"fill:#fff;font-weight:600"},lab));
+  else s.append(el("text",{x:pl+bw+6,y:y+15,class:"lab"},lab))});
  document.getElementById("c-sites").append(s);
 })();
 
