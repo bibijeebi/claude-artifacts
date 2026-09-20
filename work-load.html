@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Work Load</title>
+<meta name="description" content="How hard a Carolina Quality Air job day actually is, measured against run days and days off. Steps, miles, active calories, per shift.">
+<meta property="og:title" content="Work Load">
+<meta property="og:description" content="Job days vs run days vs days off, Jul 20 to Sep 20 2026. Phone activity data joined to the hours ledger.">
+<meta property="og:url" content="https://niggerfaggot.club/work-load.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#e6e9e1; --panel:#f5f7f1; --ink:#161c15; --muted:#6d7669; --rule:#c9cfc0;
+  --field:#d92b1f; --run:#2f6b8a; --admin:#8b8f84; --off:#c9cfc0; --tip:#161c15;
+  --sans:"IBM Plex Sans",system-ui,sans-serif; --cond:"IBM Plex Sans Condensed",var(--sans); --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px);background-size:100% 88px;background-position:0 -1px}
+.wrap{max-width:820px;margin:0 auto;padding:28px 20px 96px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--cond);font-weight:700;text-transform:uppercase;font-size:clamp(46px,14vw,96px);line-height:.86;letter-spacing:-.02em;margin:6px 0 0}
+h1 span{color:var(--field)}
+.lede{max-width:600px;margin:18px 0 0;font-size:17px}
+.lede b{font-weight:600}
+.totals{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin:22px 0 34px}
+.tot{background:var(--panel);padding:12px}
+.tot b{display:block;font-family:var(--mono);font-weight:600;font-size:clamp(18px,5vw,26px);letter-spacing:-.03em;line-height:1.1}
+.tot i{display:block;font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.sect{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:7px;margin:0 0 6px}
+.read{margin:0 0 14px;max-width:640px;color:var(--ink)}
+.chart{background:var(--panel);border:1px solid var(--rule);padding:16px 14px 10px;margin-bottom:38px;position:relative}
+.chart{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.chart svg{display:block;width:100%;min-width:640px;height:auto;overflow:visible}
+.key{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.key s{text-decoration:none;display:inline-block;width:14px;height:10px;vertical-align:middle;margin-right:6px;border-radius:2px}
+.tip{position:absolute;pointer-events:none;background:var(--tip);color:var(--panel);font-family:var(--mono);font-size:11px;line-height:1.45;padding:7px 9px;border-radius:3px;white-space:nowrap;display:none;z-index:2;transform:translate(-50%,calc(-100% - 10px))}
+.tip b{color:#fff;display:block;font-weight:600}
+svg text{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+svg .lab{fill:var(--ink);font-weight:600}
+svg .grid{stroke:var(--rule);stroke-width:1}
+svg .axis{stroke:var(--rule);stroke-width:1}
+.tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:38px}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:12px;background:var(--panel);border:1px solid var(--rule)}
+th{font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--rule);font-weight:500}
+td{padding:6px 10px;border-bottom:1px solid var(--rule);white-space:nowrap}
+td.n,th.n{text-align:right}
+tr.field td:first-child{border-left:3px solid var(--field)}
+tr.run td:first-child{border-left:3px solid var(--run)}
+tr.van td:first-child,tr.admin td:first-child{border-left:3px solid var(--admin)}
+tr.off td:first-child{border-left:3px solid var(--off)}
+.note{font-family:var(--mono);font-size:11px;color:var(--muted);max-width:640px}
+details summary{cursor:pointer;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+@media (max-width:560px){.totals{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="eyebrow">Benny Foreman · Carolina Quality Air · Jul 20 to Sep 20 2026</div>
+<h1>Work<br><span>Load.</span></h1>
+<p class="lede">Every day for nine weeks, phone activity joined to the hours texted to Meredith. The question was how hard a job day actually is. The answer: <b>a job day moves you as far as a run, at half the intensity, four times as often.</b></p>
+
+<div class="totals" id="totals"></div>
+
+<div class="sect">Every day, by what it was</div>
+<p class="read">Steps per day. Red is a field job, blue is a run, gray is a van day, class, exam or errand, and the pale bars are days off. Hover any bar.</p>
+<div class="chart" id="c-daily"><div class="tip" id="tip"></div></div>
+
+<div class="sect">Where the days land</div>
+<p class="read">Each dot is one day. The tick is the median for that group. Field days and run days sit in the same band; everything else sits with the days off.</p>
+<div class="chart" id="c-strip"></div>
+
+<div class="sect">Distance is equal. Intensity is not.</div>
+<p class="read">Median miles per day are about the same for a job and a run. Median active calories per hour of activity are not. Work is walking under load: volume, not cardio.</p>
+<div class="chart" id="c-intensity"></div>
+
+<div class="sect">Miles, running total</div>
+<p class="read">Cumulative miles walked on the clock at work against cumulative miles run (run distance from the training log, not the whole day). The job is the base. The runs are the sharpening.</p>
+<div class="chart" id="c-cume"></div>
+
+<div class="sect">Job sites, ranked</div>
+<p class="read">Steps inside the shift, per site. Dorms and multi-story jobs are the big days. Long-drive days and anywhere the phone stayed in the van read low.</p>
+<div class="chart" id="c-sites"></div>
+
+<details><summary>Every day, the table</summary>
+<div class="tblwrap"><table id="tbl"></table></div>
+</details>
+
+<p class="note">Source: Apple Health export (iPhone only, no watch) joined to the Meredith hours ledger. Steps, distance and flights are phone-measured and undercount any time the phone was not on Benny, which is the likely explanation for Lenoir County Jail (8 hours, 3,834 in-shift steps) and the Norfolk days. Active calories are Apple's estimate. No heart rate exists in this data. Run-day calories include the run.</p>
+</div>
+<script>
+const D=[{"date":"2026-07-20","dow":"Mon","kind":"field","hrs":13.25,"site":"Garrett Hall ECU","steps":9609,"mi":3.8,"fl":8,"ae":223},{"date":"2026-07-21","dow":"Tue","kind":"field","hrs":10.33,"site":"Garrett Hall ECU","steps":19490,"mi":7.9,"fl":55,"ae":597},{"date":"2026-07-22","dow":"Wed","kind":"field","hrs":9.17,"site":"Garrett Hall ECU","steps":18146,"mi":7.4,"fl":28,"ae":510},{"date":"2026-07-23","dow":"Thu","kind":"off","hrs":0,"site":"","steps":2307,"mi":1.0,"fl":0,"ae":52},{"date":"2026-07-24","dow":"Fri","kind":"off","hrs":0,"site":"","steps":4889,"mi":2.0,"fl":2,"ae":109},{"date":"2026-07-25","dow":"Sat","kind":"field","hrs":9.67,"site":"Clement Hall ECU","steps":17853,"mi":7.2,"fl":16,"ae":468},{"date":"2026-07-26","dow":"Sun","kind":"off","hrs":0,"site":"","steps":6367,"mi":2.7,"fl":0,"ae":156},{"date":"2026-07-27","dow":"Mon","kind":"field","hrs":12.42,"site":"Clement Hall ECU","steps":19131,"mi":7.3,"fl":0,"ae":406},{"date":"2026-07-28","dow":"Tue","kind":"field","hrs":10.17,"site":"Clement Hall ECU","steps":15260,"mi":6.0,"fl":4,"ae":347},{"date":"2026-07-29","dow":"Wed","kind":"field","hrs":10.42,"site":"Clement Hall ECU","steps":16736,"mi":6.4,"fl":15,"ae":421},{"date":"2026-07-30","dow":"Thu","kind":"off","hrs":0,"site":"","steps":2704,"mi":1.2,"fl":0,"ae":56},{"date":"2026-07-31","dow":"Fri","kind":"off","hrs":0,"site":"","steps":9308,"mi":4.0,"fl":2,"ae":241},{"date":"2026-08-01","dow":"Sat","kind":"run","hrs":0,"site":"","steps":11057,"mi":6.2,"fl":0,"ae":583},{"date":"2026-08-02","dow":"Sun","kind":"run","hrs":0,"site":"","steps":12446,"mi":6.8,"fl":16,"ae":693},{"date":"2026-08-03","dow":"Mon","kind":"off","hrs":0,"site":"","steps":6338,"mi":2.6,"fl":5,"ae":182},{"date":"2026-08-04","dow":"Tue","kind":"run","hrs":0,"site":"","steps":12134,"mi":7.0,"fl":8,"ae":701},{"date":"2026-08-05","dow":"Wed","kind":"off","hrs":0,"site":"","steps":4751,"mi":2.0,"fl":0,"ae":131},{"date":"2026-08-06","dow":"Thu","kind":"field","hrs":10.0,"site":"Greenville paint booth (full day)","steps":13206,"mi":5.3,"fl":2,"ae":321},{"date":"2026-08-07","dow":"Fri","kind":"field","hrs":10.0,"site":"Greenville paint booth (full day)","steps":8555,"mi":3.5,"fl":0,"ae":205},{"date":"2026-08-08","dow":"Sat","kind":"off","hrs":0,"site":"","steps":6086,"mi":2.6,"fl":0,"ae":144},{"date":"2026-08-09","dow":"Sun","kind":"off","hrs":0,"site":"","steps":4467,"mi":1.9,"fl":0,"ae":104},{"date":"2026-08-10","dow":"Mon","kind":"off","hrs":0,"site":"","steps":4872,"mi":2.1,"fl":0,"ae":106},{"date":"2026-08-11","dow":"Tue","kind":"run","hrs":0,"site":"","steps":7096,"mi":3.9,"fl":15,"ae":391},{"date":"2026-08-12","dow":"Wed","kind":"off","hrs":0,"site":"","steps":3142,"mi":1.4,"fl":2,"ae":78},{"date":"2026-08-13","dow":"Thu","kind":"field","hrs":10.42,"site":"Blounts Creek + Morgan Printers","steps":12403,"mi":5.3,"fl":13,"ae":324},{"date":"2026-08-14","dow":"Fri","kind":"off","hrs":0,"site":"","steps":7476,"mi":3.2,"fl":0,"ae":194},{"date":"2026-08-15","dow":"Sat","kind":"run","hrs":0,"site":"","steps":12004,"mi":6.6,"fl":1,"ae":593},{"date":"2026-08-16","dow":"Sun","kind":"off","hrs":0,"site":"","steps":3594,"mi":1.6,"fl":0,"ae":83},{"date":"2026-08-17","dow":"Mon","kind":"run","hrs":0,"site":"","steps":13309,"mi":7.1,"fl":4,"ae":640},{"date":"2026-08-18","dow":"Tue","kind":"off","hrs":0,"site":"","steps":4256,"mi":1.8,"fl":0,"ae":102},{"date":"2026-08-19","dow":"Wed","kind":"off","hrs":0,"site":"","steps":2781,"mi":1.2,"fl":1,"ae":75},{"date":"2026-08-20","dow":"Thu","kind":"field","hrs":8.25,"site":"Lenoir County Jail","steps":8324,"mi":3.6,"fl":1,"ae":212},{"date":"2026-08-21","dow":"Fri","kind":"admin","hrs":1.75,"site":"COR Supply w/ Jeff","steps":4668,"mi":2.0,"fl":0,"ae":105},{"date":"2026-08-22","dow":"Sat","kind":"field","hrs":9.75,"site":"Franklin Co Health Dept","steps":13950,"mi":5.9,"fl":3,"ae":367},{"date":"2026-08-23","dow":"Sun","kind":"off","hrs":0,"site":"","steps":3330,"mi":1.4,"fl":0,"ae":98},{"date":"2026-08-24","dow":"Mon","kind":"field","hrs":10.58,"site":"1022 Augusta Ln Greenville","steps":9297,"mi":4.4,"fl":27,"ae":349},{"date":"2026-08-25","dow":"Tue","kind":"field","hrs":12.83,"site":"Ronald McDonald House","steps":18110,"mi":7.7,"fl":37,"ae":587},{"date":"2026-08-26","dow":"Wed","kind":"field","hrs":12.17,"site":"Ronald McDonald House","steps":16802,"mi":7.2,"fl":2,"ae":452},{"date":"2026-08-27","dow":"Thu","kind":"admin","hrs":9.0,"site":"riding with Perry","steps":3900,"mi":1.7,"fl":3,"ae":95},{"date":"2026-08-28","dow":"Fri","kind":"off","hrs":0,"site":"","steps":3542,"mi":1.6,"fl":0,"ae":92},{"date":"2026-08-29","dow":"Sat","kind":"off","hrs":0,"site":"","steps":3767,"mi":1.6,"fl":0,"ae":88},{"date":"2026-08-30","dow":"Sun","kind":"van","hrs":12.08,"site":"van organizing w/ Bekah","steps":16620,"mi":7.3,"fl":0,"ae":446},{"date":"2026-08-31","dow":"Mon","kind":"admin","hrs":6.75,"site":"Sunbelt lift class","steps":2528,"mi":1.1,"fl":5,"ae":72},{"date":"2026-09-01","dow":"Tue","kind":"off","hrs":0,"site":"","steps":5525,"mi":2.3,"fl":2,"ae":133},{"date":"2026-09-02","dow":"Wed","kind":"admin","hrs":2.5,"site":"ASCS exam","steps":3408,"mi":1.5,"fl":0,"ae":85},{"date":"2026-09-03","dow":"Thu","kind":"admin","hrs":3.0,"site":"Green Rd site walk","steps":3540,"mi":1.6,"fl":1,"ae":91},{"date":"2026-09-04","dow":"Fri","kind":"off","hrs":0,"site":"","steps":3220,"mi":1.3,"fl":0,"ae":67},{"date":"2026-09-05","dow":"Sat","kind":"admin","hrs":3.0,"site":"EDDM mailers","steps":2274,"mi":1.0,"fl":0,"ae":48},{"date":"2026-09-06","dow":"Sun","kind":"off","hrs":0,"site":"","steps":6180,"mi":2.8,"fl":0,"ae":155},{"date":"2026-09-07","dow":"Mon","kind":"van","hrs":10.0,"site":"van organizing w/ Bekah","steps":9256,"mi":4.2,"fl":1,"ae":236},{"date":"2026-09-08","dow":"Tue","kind":"off","hrs":0,"site":"","steps":9241,"mi":4.1,"fl":0,"ae":217},{"date":"2026-09-09","dow":"Wed","kind":"field","hrs":8.17,"site":"New Bern residential","steps":14153,"mi":6.2,"fl":2,"ae":375},{"date":"2026-09-10","dow":"Thu","kind":"field","hrs":8.92,"site":"Livedo coils + drive to Norfolk","steps":8528,"mi":3.6,"fl":0,"ae":197},{"date":"2026-09-11","dow":"Fri","kind":"field","hrs":13.0,"site":"Norfolk VA","steps":7173,"mi":3.1,"fl":4,"ae":190},{"date":"2026-09-12","dow":"Sat","kind":"field","hrs":13.92,"site":"Norfolk VA + drive home","steps":7986,"mi":3.6,"fl":0,"ae":208},{"date":"2026-09-13","dow":"Sun","kind":"off","hrs":0,"site":"","steps":5384,"mi":2.4,"fl":0,"ae":154},{"date":"2026-09-14","dow":"Mon","kind":"field","hrs":11.33,"site":"New Bern residential","steps":11089,"mi":5.0,"fl":4,"ae":305},{"date":"2026-09-15","dow":"Tue","kind":"field","hrs":8.42,"site":"3475 Erwin Rd Durham","steps":10698,"mi":4.7,"fl":1,"ae":294},{"date":"2026-09-16","dow":"Wed","kind":"van","hrs":10.08,"site":"van organizing + new van","steps":5802,"mi":2.6,"fl":0,"ae":140},{"date":"2026-09-17","dow":"Thu","kind":"field","hrs":12.75,"site":"Hopewell VA","steps":21544,"mi":9.0,"fl":4,"ae":562},{"date":"2026-09-18","dow":"Fri","kind":"field","hrs":10.08,"site":"Hopewell VA","steps":16855,"mi":7.6,"fl":0,"ae":506},{"date":"2026-09-19","dow":"Sat","kind":"off","hrs":0,"site":"","steps":6224,"mi":2.5,"fl":0,"ae":179},{"date":"2026-09-20","dow":"Sun","kind":"run","hrs":0,"site":"","steps":9509,"mi":5.9,"fl":8,"ae":634}];
+const RUNMI={"2026-08-01":5.05,"2026-08-02":4.72,"2026-08-04":5.83,"2026-08-11":2.37,"2026-08-15":4.14,"2026-08-17":4.72,"2026-09-20":4.63};
+const C={field:"#d92b1f",run:"#2f6b8a",van:"#8b8f84",admin:"#8b8f84",off:"#c9cfc0"};
+const KIND={field:"Field job",run:"Run day",van:"Van / admin",admin:"Van / admin",off:"Off"};
+const med=a=>{a=[...a].sort((x,y)=>x-y);const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2};
+const grp=k=>D.filter(d=>k==="admin"?(d.kind==="admin"||d.kind==="van"):d.kind===k);
+const fmt=n=>n.toLocaleString("en-US");
+const fmtD=s=>new Date(s+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+const svg=(w,h)=>{const s=document.createElementNS("http://www.w3.org/2000/svg","svg");s.setAttribute("viewBox",`0 0 ${w} ${h}`);return s};
+const el=(t,a,txt)=>{const e=document.createElementNS("http://www.w3.org/2000/svg",t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;return e};
+
+// totals
+const F=grp("field"),R=grp("run"),A=grp("admin"),O=grp("off");
+const workMi=F.reduce((a,d)=>a+d.mi,0), runMi=R.reduce((a,d)=>a+RUNMI[d.date],0);
+document.getElementById("totals").innerHTML=[
+ [fmt(Math.round(med(F.map(d=>d.steps)))),"median steps, job day"],
+ [fmt(Math.round(med(O.map(d=>d.steps)))),"median steps, day off"],
+ [Math.round(workMi)+" mi","walked on the clock"],
+ [Math.round(runMi)+" mi","run, same window"]
+].map(([b,i])=>`<div class="tot"><b>${b}</b><i>${i}</i></div>`).join("");
+
+// daily bars
+(()=>{
+ const W=820,H=300,pl=44,pr=8,pt=18,pb=40,n=D.length,bw=(W-pl-pr)/n,max=22000;
+ const s=svg(W,H),y=v=>pt+(H-pt-pb)*(1-v/max);
+ [0,5000,10000,15000,20000].forEach(v=>{s.append(el("line",{x1:pl,x2:W-pr,y1:y(v),y2:y(v),class:"grid"}));s.append(el("text",{x:pl-6,y:y(v)+3,"text-anchor":"end"},v?fmt(v/1000)+"k":"0"))});
+ const tip=document.getElementById("tip"),box=document.getElementById("c-daily");
+ D.forEach((d,i)=>{const x=pl+i*bw,h=(H-pt-pb)*d.steps/max;
+  const r=el("rect",{x:x+1,y:y(d.steps),width:Math.max(bw-2,2),height:h,fill:C[d.kind],rx:2});
+  s.append(r);
+  const hit=el("rect",{x:x,y:pt,width:bw,height:H-pt-pb,fill:"transparent"});
+  hit.addEventListener("mousemove",e=>{const b=box.getBoundingClientRect();tip.style.display="block";tip.style.left=(e.clientX-b.left)+"px";tip.style.top=(e.clientY-b.top)+"px";
+   tip.innerHTML=`<b>${fmtD(d.date)} · ${KIND[d.kind]}${d.hrs?" · "+d.hrs.toFixed(1)+" h":""}</b>${d.site?d.site+"<br>":""}${fmt(d.steps)} steps · ${d.mi} mi · ${d.fl} fl · ${d.ae} cal`});
+  hit.addEventListener("mouseleave",()=>tip.style.display="none");
+  s.append(hit);
+  if(d.date.endsWith("-01")||i===0){s.append(el("text",{x:x+2,y:H-pb+16},new Date(d.date+"T12:00:00").toLocaleDateString("en-US",{month:"short"})))}
+  if(d.steps>=18000){s.append(el("text",{x:x+bw/2,y:y(d.steps)-5,"text-anchor":"middle",class:"lab"},fmt(Math.round(d.steps/1000))+"k"))}
+ });
+ s.append(el("line",{x1:pl,x2:W-pr,y1:y(0),y2:y(0),class:"axis"}));
+ box.append(s);
+ box.insertAdjacentHTML("beforeend",`<div class="key"><s style="background:${C.field}"></s>field job<s style="background:${C.run}"></s>run day<s style="background:${C.admin}"></s>van / admin<s style="background:${C.off}"></s>off</div>`);
+})();
+
+// strip plot
+(()=>{
+ const rowsK=[["field",F],["run",R],["admin",A],["off",O]];const W=820,rh=46,pl=110,pr=20,pt=24,H=pt+rh*4+30,max=22000;
+ const s=svg(W,H),x=v=>pl+(W-pl-pr)*v/max;
+ [0,5000,10000,15000,20000].forEach(v=>{s.append(el("line",{x1:x(v),x2:x(v),y1:pt-6,y2:H-30,class:"grid"}));s.append(el("text",{x:x(v),y:H-12,"text-anchor":"middle"},v?fmt(v/1000)+"k":"0"))});
+ rowsK.forEach(([k,g],i)=>{const cy=pt+rh*i+rh/2;
+  s.append(el("text",{x:pl-12,y:cy+4,"text-anchor":"end",class:"lab"},KIND[k]));
+  s.append(el("text",{x:pl-12,y:cy+16,"text-anchor":"end"},g.length+" days"));
+  const sorted=[...g].sort((a,b)=>a.steps-b.steps);const seen=[];
+  sorted.forEach(d=>{let cx=x(d.steps),dy=0;while(seen.some(p=>Math.abs(p.x-cx)<11&&p.dy===dy))dy+=1;seen.push({x:cx,dy});
+   const yy=cy+(dy%2?-1:1)*Math.ceil(dy/2)*11;
+   s.append(el("circle",{cx,cy:yy,r:5,fill:C[k],stroke:"#f5f7f1","stroke-width":2}))});
+  const m=med(g.map(d=>d.steps));s.append(el("line",{x1:x(m),x2:x(m),y1:cy-18,y2:cy+18,stroke:"#161c15","stroke-width":2}));
+  s.append(el("text",{x:x(m),y:cy-22,"text-anchor":"middle",class:"lab"},fmt(Math.round(m))));
+ });
+ document.getElementById("c-strip").append(s);
+})();
+
+// intensity: two small charts side by side, single axis each
+(()=>{
+ const W=820,H=170,s=svg(W,H);
+ const panel=(x0,title,rowsV,unit,max)=>{
+  const pl=x0+90,pw=300,rh=34,pt=34;
+  s.append(el("text",{x:x0,y:16,class:"lab"},title));
+  rowsV.forEach(([lab,v,col],i)=>{const y=pt+i*rh;
+   s.append(el("text",{x:pl-10,y:y+15,"text-anchor":"end"},lab));
+   s.append(el("rect",{x:pl,y:y,width:pw*v/max,height:22,fill:col,rx:2}));
+   s.append(el("text",{x:pl+pw*v/max+6,y:y+15,class:"lab"},unit(v)))});
+ };
+ panel(10,"Median miles per day",[["field job",med(F.map(d=>d.mi)),C.field],["run day",med(R.map(d=>d.mi)),C.run],["off",med(O.map(d=>d.mi)),C.off]],v=>v.toFixed(1)+" mi",8);
+ const calHr=g=>med(g.map(d=>d.ae/d.hrs));
+ const runHr=med(R.map(d=>d.ae))/0.85;
+ panel(420,"Active cal per hour of the activity",[["field job",calHr(F),C.field],["run",runHr,C.run]],v=>Math.round(v)+" cal/h",800);
+ s.append(el("text",{x:510,y:110},"run = run-day calories over ~51 min avg run"));
+ s.append(el("text",{x:510,y:124},"job = shift calories over shift hours"));
+ document.getElementById("c-intensity").append(s);
+})();
+
+// cumulative
+(()=>{
+ const W=820,H=260,pl=44,pr=8,pt=18,pb=34,s=svg(W,H),n=D.length;
+ let a=0,b=0;const cw=D.map(d=>a+=(d.kind==="field"?d.mi:0)),cr=D.map(d=>b+=(d.kind==="run"?RUNMI[d.date]:0));
+ const max=150,x=i=>pl+(W-pl-pr)*i/(n-1),y=v=>pt+(H-pt-pb)*(1-v/max);
+ [0,50,100,150].forEach(v=>{s.append(el("line",{x1:pl,x2:W-pr,y1:y(v),y2:y(v),class:"grid"}));s.append(el("text",{x:pl-6,y:y(v)+3,"text-anchor":"end"},v+""))});
+ const path=(arr,col)=>{let d="";arr.forEach((v,i)=>{d+=(i?"L":"M")+x(i)+" "+y(v)+" "});s.append(el("path",{d,fill:"none",stroke:col,"stroke-width":2.5,"stroke-linejoin":"round"}))};
+ path(cw,C.field);path(cr,C.run);
+ s.append(el("text",{x:W-pr,y:y(cw[n-1])-8,"text-anchor":"end",class:"lab"},Math.round(cw[n-1])+" mi on the job"));
+ s.append(el("text",{x:W-pr,y:y(cr[n-1])-8,"text-anchor":"end",class:"lab"},Math.round(cr[n-1])+" mi running"));
+ D.forEach((d,i)=>{if(d.date.endsWith("-01")||i===0)s.append(el("text",{x:x(i),y:H-pb+16},new Date(d.date+"T12:00:00").toLocaleDateString("en-US",{month:"short"})))});
+ s.append(el("line",{x1:pl,x2:W-pr,y1:y(0),y2:y(0),class:"axis"}));
+ document.getElementById("c-cume").append(s);
+})();
+
+// sites
+(()=>{
+ const g=[...F].sort((a,b)=>b.steps-a.steps);const W=820,rh=26,pl=250,pr=60,pt=6,H=pt+rh*g.length+8,max=22000,s=svg(W,H);
+ g.forEach((d,i)=>{const y=pt+i*rh;
+  s.append(el("text",{x:pl-10,y:y+15,"text-anchor":"end",class:"lab"},d.site.replace(/\s\(.*\)/,"")));
+  s.append(el("text",{x:8,y:y+15},fmtD(d.date).replace(/^\w+, /,"")));
+  s.append(el("rect",{x:pl,y:y+4,width:(W-pl-pr)*d.steps/max,height:16,fill:C.field,rx:2,opacity:d.steps<9000?.45:1}));
+  s.append(el("text",{x:pl+(W-pl-pr)*d.steps/max+6,y:y+15,class:"lab"},fmt(d.steps)+" · "+d.mi+" mi · "+d.hrs.toFixed(1)+" h"))});
+ document.getElementById("c-sites").append(s);
+})();
+
+// table
+document.getElementById("tbl").innerHTML=`<tr><th>Date</th><th>Type</th><th class="n">Hours</th><th>Site</th><th class="n">Steps</th><th class="n">Miles</th><th class="n">Flights</th><th class="n">Active cal</th></tr>`+
+ D.map(d=>`<tr class="${d.kind}"><td>${fmtD(d.date)}</td><td>${KIND[d.kind]}</td><td class="n">${d.hrs?d.hrs.toFixed(2):""}</td><td>${d.site}</td><td class="n">${fmt(d.steps)}</td><td class="n">${d.mi.toFixed(1)}</td><td class="n">${d.fl}</td><td class="n">${d.ae}</td></tr>`).join("");
+</script>
+</body>
+</html>
