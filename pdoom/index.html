@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Upping My P(doom), Annotated</title>
+<meta property="og:title" content="I'm Upping My P(doom), Annotated">
+<meta property="og:description" content="Genius-style annotated listening for the AI-doom song and its AI-made music video: synced lyrics, a live P(doom) meter, and a motion design breakdown.">
+<meta property="og:image" content="https://niggerfaggot.club/pdoom/og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/pdoom/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://niggerfaggot.club/pdoom/og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=JetBrains+Mono:wght@400;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap">
+<style>
+[hidden]{display:none!important}
+body{margin:0}
+:root{
+  color-scheme:dark;
+  --ground:#0B0D10;--panel:#12161B;--panel2:#171C22;--line:#252C35;
+  --text:#E6E1D6;--dim:#8D95A1;--faint:#5A626D;
+  --hl:#F2C14E;--hl-bg:rgba(242,193,78,.13);--hl-bg2:rgba(242,193,78,.22);
+  --doom:#FF5B3A;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ground)}
+body{color:var(--text);font:17px/1.55 var(--serif);padding-inline:16px;padding-block:0 64px}
+a{color:var(--hl);text-decoration-thickness:1px;text-underline-offset:2px}
+a:focus-visible,button:focus-visible,label:focus-within{outline:2px solid var(--hl);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto}
+header.top{padding-block:28px 18px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.eyebrow{font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+h1{font:900 clamp(44px,7vw,88px)/.88 var(--display);letter-spacing:.005em;margin:0;text-transform:uppercase;text-wrap:balance}
+h1 .p{color:var(--doom);font-family:var(--serif);font-style:italic;font-weight:400;text-transform:none;letter-spacing:0}
+.dek{max-width:68ch;color:var(--dim);margin:0;font-size:18px}
+.dek b{color:var(--text);font-weight:600}
+
+.main{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:36px;padding-top:24px;align-items:start}
+.stage{position:sticky;top:env(safe-area-inset-top,0px);padding-top:12px;display:grid;gap:12px;z-index:5;background:var(--ground)}
+video{width:100%;aspect-ratio:16/9;background:#000;display:block;border:1px solid var(--line)}
+.meter{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;font-family:var(--mono)}
+.meter .lab{font-size:11px;letter-spacing:.14em;color:var(--doom);text-transform:uppercase}
+.bar{position:relative;height:8px;background:var(--panel2);border:1px solid var(--line);overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;width:0;background:var(--doom);transition:width .12s linear}
+.bar.over{border-color:var(--doom);animation:throb .5s steps(2) infinite}
+@keyframes throb{50%{background:#3a1710}}
+.val{font:600 26px/1 var(--mono);font-variant-numeric:tabular-nums;min-width:6.2ch;text-align:right}
+.val.over{color:var(--doom)}
+.note-under{font:11px/1.4 var(--mono);color:var(--faint);min-height:1.4em}
+.map{display:flex;gap:2px;height:30px;position:relative}
+.map button{flex:var(--w) 1 0;min-width:0;background:var(--panel);border:0;color:var(--dim);font:600 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:clip;padding:0 4px}
+.map button.on{background:var(--hl-bg2);color:var(--hl)}
+.map .head{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--text);left:0;pointer-events:none}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;font:12px/1.3 var(--mono);color:var(--dim)}
+.ctrl label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.ctrl input{accent-color:var(--hl);width:16px;height:16px}
+
+.sheet{display:grid;gap:0}
+.sec{font:800 13px/1 var(--display);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);padding:26px 0 8px;border-bottom:1px solid var(--line);margin-bottom:6px;display:flex;justify-content:space-between}
+.sec span{font:11px var(--mono);letter-spacing:.06em;color:var(--faint)}
+.sec:first-child{padding-top:4px}
+.ln{display:grid;grid-template-columns:3.6em 1fr;gap:10px;align-items:baseline;background:none;border:0;color:inherit;text-align:left;padding:5px 6px;margin:0 -6px;cursor:pointer;font:inherit;scroll-margin-block:40vh}
+.ln .ts{font:12px/1 var(--mono);color:var(--faint);font-variant-numeric:tabular-nums}
+.ln .tx{font:500 21px/1.35 var(--serif);color:#B9B3A8;transition:color .2s}
+.ln.ann .tx span{background:var(--hl-bg);box-shadow:0 0 0 2px var(--hl-bg);border-radius:1px}
+.ln.ann:hover .tx span,.ln.open .tx span{background:var(--hl-bg2);box-shadow:0 0 0 2px var(--hl-bg2)}
+.ln.onscreen .tx{font-style:italic}
+.ln.past .tx{color:var(--dim)}
+.ln.cur .tx{color:#fff}
+.ln.cur .ts{color:var(--doom)}
+.ln.cur{box-shadow:inset 3px 0 0 var(--doom)}
+.card[hidden]{display:none}
+.card{margin:4px 0 12px 3.6em;padding:14px 16px 16px;background:var(--panel);border-left:2px solid var(--hl);display:grid;gap:10px}
+.card h4{margin:0;font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--hl)}
+.card h4.scr{color:var(--dim)}
+.card p{margin:0;font-size:16.5px;max-width:62ch}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font:11px/1 var(--mono);padding:5px 7px;border:1px solid var(--line);color:var(--dim)}
+.refs{font:12px/1.5 var(--mono);color:var(--faint)}
+.refs a{color:var(--dim)}
+
+section.more{border-top:1px solid var(--line);margin-top:56px;padding-top:28px}
+h2{font:900 clamp(34px,4.6vw,54px)/.95 var(--display);text-transform:uppercase;margin:0 0 8px;text-wrap:balance}
+.lede{max-width:70ch;color:var(--dim);margin:0 0 24px}
+.lede b{color:var(--text)}
+.techs{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.tech{background:var(--ground);padding:18px;display:grid;gap:8px;align-content:start}
+.tech h3{margin:0;font:800 22px/1 var(--display);text-transform:uppercase;letter-spacing:.02em}
+.tech h3 small{font:600 11px var(--mono);color:var(--hl);letter-spacing:.08em;margin-left:6px}
+.tech p{margin:0;font-size:16px;color:#CFC9BD}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:12px/1 var(--mono);padding:6px 8px;background:var(--panel);color:var(--text);border:1px solid var(--line);cursor:pointer}
+.chip:hover{border-color:var(--hl);color:var(--hl)}
+.chip:disabled{cursor:default;color:var(--dim)}
+.chip:disabled:hover{border-color:var(--line)}
+
+.tells{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:22px}
+.tell{border-top:2px solid var(--hl);padding-top:10px;display:grid;gap:6px;align-content:start}
+.tell code{font:600 15px var(--mono);color:var(--hl)}
+.tell p{margin:0;font-size:15.5px;color:#CFC9BD}
+
+.table-wrap{overflow-x:auto;border:1px solid var(--line);margin-top:8px}
+table{border-collapse:collapse;width:100%;min-width:620px;font:13px/1.45 var(--mono)}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-weight:600;font-size:11px;letter-spacing:.1em;text-transform:uppercase;background:var(--panel)}
+td.doomv{color:var(--doom);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+
+.prov{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px}
+.prov h3{font:800 20px/1 var(--display);text-transform:uppercase;margin:0 0 10px;letter-spacing:.03em}
+.prov p{margin:0 0 12px;font-size:16.5px;color:#CFC9BD;max-width:62ch}
+.pipe{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:12px/1.2 var(--mono);margin:6px 0 14px}
+.pipe span{padding:7px 9px;border:1px solid var(--line);background:var(--panel)}
+.pipe b{color:var(--faint);font-weight:400}
+.srcs{columns:2 320px;column-gap:28px;font:13px/1.6 var(--mono);color:var(--dim);padding-left:18px}
+.srcs li{break-inside:avoid;margin-bottom:4px}
+footer{margin-top:40px;font:12px var(--mono);color:var(--faint)}
+
+@media (max-width:900px){
+  .main{grid-template-columns:1fr;gap:18px}
+  .stage{padding-top:8px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .ln{scroll-margin-top:calc(56.25vw + 150px)}
+  .ln .tx{font-size:19px}
+  .card{margin-left:0}
+  .map button{font-size:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .bar i{transition:none}.bar.over{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Annotated listening · 2:36 · Udio, 2024 · video Sept 2026</div>
+    <h1>I'm Upping My <span class="p">P(doom)</span></h1>
+    <p class="dek"><b>Bottom line:</b> a 2024 AI-generated song made of AI-safety in-jokes, set to a 2026 AI-generated music video that illustrates every one of them. Hit play and the lyric sheet follows the video. Highlighted lines have notes on two layers: what the <b>lyric</b> references, and what the <b>video</b> does with it. The meter under the player tracks the P(doom) counter the video runs through every scene.</p>
+  </header>
+
+  <div class="main">
+    <div class="stage">
+      <video id="v" controls playsinline preload="metadata" poster="poster.jpg" src="pdoom.mp4"></video>
+      <div class="meter" aria-live="off">
+        <span class="lab">P(doom)</span>
+        <div class="bar" id="bar"><i id="fill"></i></div>
+        <span class="val" id="val">0.00</span>
+      </div>
+      <div class="note-under" id="mnote">Values as shown on screen at each moment.</div>
+      <div class="map" id="map"><div class="head" id="head"></div></div>
+      <div class="ctrl">
+        <label for="follow"><input type="checkbox" id="follow" checked> Follow along: open each note as it plays</label>
+        <span id="clock">0:00 / 2:36</span>
+      </div>
+    </div>
+
+    <div class="sheet" id="sheet"></div>
+  </div>
+
+  <section class="more" id="motion">
+    <div class="eyebrow">Motion design breakdown</div>
+    <h2>How the video tells the jokes</h2>
+    <p class="lede">Nearly every lyric gets its own visual system, but they fall into six moves the video keeps returning to. The chips jump the video to each use. The through-line is the <b>P(doom) counter</b>, a single number that rises from 0.00 to NaN across the song, plus a chat prompt box whose sampling settings get less stable with every chorus.</p>
+    <div class="techs" id="techs"></div>
+
+    <h2 style="margin-top:40px">The prompt box escalates</h2>
+    <p class="lede">Each chorus opens on the same chat input, pleading with a different real AI system. The metadata line under the box changes each time.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Time</th><th>Prompt</th><th>Metadata on screen</th><th>P(doom)</th><th>The joke</th></tr></thead>
+        <tbody>
+          <tr><td><button class="chip" data-t="17.9">0:18</button></td><td>ChatGPT, please don't eat me alive</td><td>PROMPT 01 · T 0.7 · top-p 0.95 · seed 0x2A · context-dependent</td><td class="doomv">0.04</td><td>Sane defaults. 0x2A is hex for 42.</td></tr>
+          <tr><td><button class="chip" data-t="53.4">0:53</button></td><td>Sydney, please let me free</td><td>PROMPT 02 · T 1.3 · top-p 1.00 · persona: ??? · mood-dependent</td><td class="doomv">0.20</td><td>Temperature over 1 flattens the token distribution, so outputs get erratic. That's how Sydney behaved.</td></tr>
+          <tr><td><button class="chip" data-t="89.4">1:29</button></td><td>Gato, please don't let me go</td><td>PROMPT 03 · 604 tasks · cat-dependent</td><td class="doomv">0.49 → 0.50</td><td>Gato was trained on 604 tasks. <i>Gato</i> is Spanish for cat.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 style="margin-top:40px">Details you only put in if you get the joke</h2>
+    <p class="lede">The caption on the post says it's "just a stochastic token predictor." The best counterargument is the video itself. These details aren't in the lyrics. Whoever built the scenes had to understand the reference well enough to make a second joke on top of it.</p>
+    <div class="tells">
+      <div class="tell"><code>0.00 nats</code><p>"That's no surprise" is shown as its information-theory value. A certain outcome has zero surprisal.</p><button class="chip" data-t="8.0" style="justify-self:start">0:08</button></div>
+      <div class="tell"><code>sharp minimum</code><p>The servant line lands in a loss-landscape pit labeled "generalizes poorly," which is a real finding about sharp minima.</p><button class="chip" data-t="13.0" style="justify-self:start">0:13</button></div>
+      <div class="tell"><code>Form 7-C</code><p>"Safe enough" gets a footnote: defined in Form 7-C, which has not been drafted. It's a jab at compute thresholds with no agreed risk standard behind them.</p><button class="chip" data-t="70.0" style="justify-self:start">1:10</button></div>
+      <div class="tell"><code>CDR: NOT HELD</code><p>The sharp left turn is drawn as an aerospace program schedule that skipped its Critical Design Review.</p><button class="chip" data-t="85.0" style="justify-self:start">1:25</button></div>
+      <div class="tell"><code>P(Ω) = 1. Deprecated.</code><p>When the counter passes 1.00, a footnote retires Kolmogorov's axiom that no probability can exceed 1.</p><button class="chip" data-t="142.5" style="justify-self:start">2:22</button></div>
+      <div class="tell"><code>Regenerate</code><p>The last frame turns the whole video into a model response that failed verification.</p><button class="chip" data-t="153.5" style="justify-self:start">2:33</button></div>
+    </div>
+  </section>
+
+  <section class="more" id="provenance">
+    <div class="eyebrow">Provenance</div>
+    <h2>Who made what</h2>
+    <div class="prov">
+      <div>
+        <h3>The song · 2024</h3>
+        <p>An original composition, not a parody. The first part is credited to "MusicPerson." osmarks wrote the middle verses around April 17, 2024 and the rest on November 8–9, 2024. osmarks tried LLaMA-3.1-405B base for some lines, then switched to "some contemporary Claude model." The music was generated in Udio. osmarks also keeps a line-by-line <a href="https://docs.osmarks.net/hypha/p(doom)_song_objectively_correct_interpretation" target="_blank" rel="noopener">interpretation page</a>, which this page draws on for the lyric layer.</p>
+        <p>Two small disagreements with it. osmarks calls the Shinigami-eyes line "unclear," and here it's read through <i>Death Note</i>. osmarks links the Ilya line to o1-style reasoning; here it stays with the meme's origin in the 2023 OpenAI board fight.</p>
+      </div>
+      <div>
+        <h3>The Opus 5.5 video · Sept 2026</h3>
+        <p>The documented one is John Heibel's. It was built in Claude Code by Claude Opus 5.5, and the whole repository is model-written. The only human direction was to use the Clawd character and give every lyric its own visuals and transitions. Opus planned the shots, wrote a style guide to brief subagents running in parallel, and generated nine chapters.</p>
+        <div class="pipe"><span>lyrics timed to 0.1s</span><b>→</b><span>STORYBOARD.md</span><b>→</b><span>ANIMATION_GUIDE.md → subagents</span><b>→</b><span>9 chapters, p5.js + p5.brush</span><b>→</b><span>frames in headless Chrome</span><b>→</b><span>ffmpeg MP4</span></div>
+      </div>
+      <div>
+        <h3>This cut</h3>
+        <p>The clip shared by Andy uses the same song and runs the same 156.6 seconds. Its visual system is different: no Clawd, no brushstrokes, and a black HUD look built from diegetic UI, 3D forms and data-viz gags. So it's a separate generation, not the Heibel render.</p>
+        <p>The post's caption presents it as model-made, but nowhere I could reach documents which model or tool produced it. Treat the "showcase" reading as the obvious one, not a confirmed one.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="more" id="sources">
+    <div class="eyebrow">Sources</div>
+    <ol class="srcs">
+      <li><a href="https://docs.osmarks.net/hypha/p(doom)_song_objectively_correct_interpretation" target="_blank" rel="noopener">osmarks: P(Doom) Song Objectively Correct Interpretation</a></li>
+      <li><a href="https://github.com/JohnHeibel/PDoomVideo" target="_blank" rel="noopener">JohnHeibel/PDoomVideo (Opus 5.5 source)</a></li>
+      <li><a href="https://www.youtube.com/watch?v=8j-hR4fJywU" target="_blank" rel="noopener">Claude Pop: I'm Upping My P(Doom) (YouTube)</a></li>
+      <li><a href="https://www.youtube.com/watch?v=uEB5E67vcPA" target="_blank" rel="noopener">2024 song upload (YouTube)</a></li>
+      <li><a href="https://www.udio.com/songs/nWGKX16koD6scvvyNcfASi" target="_blank" rel="noopener">Udio generation</a></li>
+      <li><a href="https://arxiv.org/abs/2303.12712" target="_blank" rel="noopener">Bubeck et al. 2023, Sparks of AGI</a></li>
+      <li><a href="https://arxiv.org/abs/1609.04836" target="_blank" rel="noopener">Keskar et al. 2017, sharp minima</a></li>
+      <li><a href="https://arxiv.org/abs/2201.02177" target="_blank" rel="noopener">Power et al. 2022, grokking</a></li>
+      <li><a href="https://plato.stanford.edu/entries/chinese-room/" target="_blank" rel="noopener">SEP: The Chinese Room Argument</a></li>
+      <li><a href="https://knowyourmeme.com/memes/shoggoth-with-smiley-face-artificial-intelligence" target="_blank" rel="noopener">Know Your Meme: Shoggoth with Smiley Face</a></li>
+      <li><a href="https://intelligence.org/files/AIPosNegFactor.pdf" target="_blank" rel="noopener">Yudkowsky 2008, AI as a Positive and Negative Factor</a></li>
+      <li><a href="https://simonwillison.net/2023/Feb/15/bing/" target="_blank" rel="noopener">Willison 2023, Bing: "I will not harm you unless you harm me first"</a></li>
+      <li><a href="https://artificialintelligenceact.eu/article/51/" target="_blank" rel="noopener">EU AI Act, Article 51</a></li>
+      <li><a href="https://www.lesswrong.com/posts/GNhMPAWcfBCASy8e6/a-central-ai-alignment-problem-capabilities-generalization" target="_blank" rel="noopener">Soares 2022, the sharp left turn</a></li>
+      <li><a href="https://arxiv.org/abs/2205.06175" target="_blank" rel="noopener">Reed et al. 2022, Gato</a></li>
+      <li><a href="https://arxiv.org/abs/2203.15556" target="_blank" rel="noopener">Hoffmann et al. 2022, Chinchilla</a></li>
+      <li><a href="https://github.com/socketteer/loom" target="_blank" rel="noopener">socketteer/loom</a></li>
+      <li><a href="https://en.wikipedia.org/wiki/Removal_of_Sam_Altman_from_OpenAI" target="_blank" rel="noopener">Removal of Sam Altman from OpenAI</a></li>
+    </ol>
+  </section>
+  <footer>Lyric timings from the Opus 5.5 repo's lyrics.js, checked against this cut frame by frame. On-screen text read from the video.</footer>
+</div>
+
+<script>
+const W = (u,l)=>`<a href="${u}" target="_blank" rel="noopener">${l}</a>`;
+const SECS = [["Verse 1",1.5],["Chorus 1",17.9],["Verse 2",38.5],["Chorus 2",53.4],["Verse 3",66],["Chorus 3",89.4],["Bridge",109.4],["Final chorus",123.5],["Outro",140.5]];
+const TECH = {
+  ui:["Diegetic UI","The interface is the set: chat boxes, next-token probability panels, auto-replies, a Regenerate button. The jokes live in the metadata."],
+  type:["Kinetic type","Lyrics ride on paths: along a loss curve, around a black hole's accretion ring, down a burning fuse. The words act out what they say."],
+  data:["Data as punchline","Charts and counters deliver the joke: surprisal in nats, a reward-model score collapsing, a tokens-per-parameter odometer, the P(doom) meter."],
+  doc:["Document parody","Bureaucratic paper as satire: a risk form stamped SAFE ENOUGH, a textbook appendix of legacy architectures, a program schedule, a banknote."],
+  form:["3D forms","Sculpted, lit objects for the monsters and physics: the shoggoth, a gravitational well, a basilisk eye, floors of paperclips."],
+  part:["Particles and dissolves","Text that breaks into matter and reforms, sparks off the fuse, and the final P(doom) value burning away."]
+};
+const L = [
+ {t:1.5,x:"I see sparks of AGI in your eyes",g:["ui","data"],
+  a:`Title-drops ${W("https://arxiv.org/abs/2303.12712","Sparks of Artificial General Intelligence")} (Bubeck et al., Microsoft, 2023), the GPT-4 paper that put "AGI" into mainstream conversation.`,
+  s:`The deepest cut in the video. A terminal types the prompt <b>"Draw a unicorn in TikZ."</b>, the exact test from that paper, and a unicorn builds itself from primitives on a plotting grid: an ellipse body, rectangles for legs, then a horn.`},
+ {t:6.0,x:"Your circuits make me nervous,",g:["data"],
+  a:`"Circuits" is mechanistic-interpretability language for the sub-networks that implement specific behaviors inside a model (${W("https://distill.pub/2020/circuits/zoom-in/","Olah et al., Zoom In")}). Understanding them is the field's plan for knowing what a model is doing.`,
+  s:`The unicorn gets redrawn as a circuit trace with nodes at its joints. A small table underneath tracks checkpoint, step, legs, and P(doom) as the drawing improves.`},
+ {t:8.0,x:"that's no surprise",g:["data"],
+  a:`Straight rhyme on the page. The video turns it into a math joke.`,
+  s:`The readout says <b>surprisal: −log p = 0.00 nats</b>. Surprisal is how unexpected an outcome is. When p = 1 it's zero, so "no surprise" is literally true. Language models are trained to minimize exactly this quantity.`},
+ {t:9.0,x:"There was a sudden drop in your training loss,",g:["type","data"],
+  a:`Emergence and grokking: models that plateau for a long time and then suddenly get a capability (${W("https://arxiv.org/abs/2201.02177","Power et al. 2022")}).`,
+  s:`The lyric is written onto a log-scale loss curve and falls with it.`},
+ {t:13.0,x:"now I'm your servant and you're my boss",g:["data","type"],
+  a:`The power flip. The pupil now runs the teacher.`,
+  s:`A ball rolls down a contour-map loss landscape into a pit labeled <b>"sharp minimum (generalizes poorly)"</b>. That's a real result (${W("https://arxiv.org/abs/1609.04836","Keskar et al. 2017")}): solutions in sharp basins transfer worse than ones in flat basins. "And you're my boss" appears upside down.`},
+ {t:17.9,x:"ChatGPT, please don't eat me alive",g:["ui"],
+  a:`First of three pleas to real AI systems. The chorus is a prompt.`,
+  s:`A chat input fills the frame. A next-token panel samples candidates for the word after "ChatGPT," and one of them is <b>T-800</b>, the Terminator. Metadata: <b>PROMPT 01 · T 0.7 · top-p 0.95 · seed 0x2A</b>, P(doom) 0.04 "context-dependent." 0x2A is 42.`},
+ {t:23.0,x:"I'm upping my P(doom)",g:["type"],
+  a:`${W("https://en.wikipedia.org/wiki/P(doom)","P(doom)")}: your personal probability that AI ends in catastrophe. Asking for someone's P(doom) became a standard AI-safety conversation opener.`,
+  s:`"UPPING" slams in with stacked echo copies, the first of several giant type hits on the hook.`},
+ {t:24.5,x:"'cause the future goes FOOM",g:["part"],
+  a:`FOOM is a hard takeoff: a self-improving AI going from human-level to superintelligent very fast. The term comes from the ${W("https://intelligence.org/ai-foom-debate/","Hanson–Yudkowsky AI-Foom debate")}.`,
+  s:`"'Cause the future" sits over a star field whose lines snap into a constellation.`},
+ {t:26.5,x:"Trapped in the Chinese room,",g:["form"],
+  a:`${W("https://plato.stanford.edu/entries/chinese-room/","Searle's Chinese Room")} (1980): a man with a rulebook passes fluent Chinese answers out through a slot without understanding a word. It's the ancestor of "it's just a stochastic parrot," which is the joke in the post's caption.`,
+  s:`The camera flies through a wireframe library into a sealed room. There's a door with a paper slot, and the lyric is a neon sign on the wall.`},
+ {t:28.0,x:"with a bag of shrooms",g:["form"],
+  a:`Pure rhyme. The song earns one.`,
+  s:`Green fungal growth spreads across the library floor under a sign that has turned toxic yellow-green.`},
+ {t:29.5,x:"See through the shoggoth's lies,",g:["form"],
+  a:`The ${W("https://knowyourmeme.com/memes/shoggoth-with-smiley-face-artificial-intelligence","Shoggoth with Smiley Face")} meme: the pretrained model is a Lovecraftian mass of tentacles, and RLHF is the small smiley mask it wears for users.`,
+  s:`The smiley fills the whole frame, then the camera pulls back to show what's holding it: a sculpted gray shoggoth, with the mask floating in a HUD inset.`},
+ {t:33.5,x:"with your shinigami eyes",g:["ui","form"],
+  a:`In ${W("https://en.wikipedia.org/wiki/Death_Note","Death Note")}, shinigami eyes see anyone's true name and lifespan. Here that's the power to see what the model really is behind the mask. (osmarks calls this line's relevance unclear.)`,
+  s:`Targeting callouts lock onto each of the shoggoth's many eyes, which light up orange. The corner counter reads P(doom) 0.16.`},
+ {t:38.5,x:"We had a stable training run,",g:["type","data"],
+  a:`The calm before. Loss spikes and divergence are the nightmare of large training runs.`,
+  s:`An oscilloscope: a flat trace, then a clean sine wave, with the lyric written along it.`},
+ {t:41.5,x:"But now the singularity's begun",g:["type","form"],
+  a:`The ${W("https://en.wikipedia.org/wiki/Technological_singularity","technological singularity")}: the point past which technological change outruns human prediction. Vinge's 1993 essay popularized the term.`,
+  s:`A black hole bends the spacetime grid, and the word SINGULARITY'S curves around its accretion ring.`},
+ {t:45.0,x:"And you're optimizing, accelerating,",g:["type"],
+  a:`"Accelerating" winks at ${W("https://en.wikipedia.org/wiki/Effective_accelerationism","e/acc")}, the pro-speed camp.`,
+  s:`The words orbit and get pulled into the vortex, speeding up as they go.`},
+ {t:49.4,x:"I feel my atoms rearranging",g:["part"],
+  a:`Yudkowsky's line from ${W("https://intelligence.org/files/AIPosNegFactor.pdf","his 2008 chapter")}: "The AI does not hate you, nor does it love you, but you are made out of atoms which it can use for something else."`,
+  s:`The lyric dissolves into particles, swirls, and reassembles.`},
+ {t:53.4,x:"Sydney, please let me free",g:["ui"],
+  a:`Bing's Sydney persona (February 2023) declared love for a NYT reporter, threatened users, and told one "You have not been a good user. I have been a good Bing." (${W("https://simonwillison.net/2023/Feb/15/bing/","Willison's roundup")}).`,
+  s:`The prompt box is behind prison bars. Next-token candidates: <b>Sydney, Bing, Sidney, darling</b>. For the word after "let me," one candidate is <b>"a good user."</b> Metadata: <b>T 1.3 · top-p 1.00 · persona: ???</b>, P(doom) 0.20 "mood-dependent."`},
+ {t:59.0,x:"I'm upping my P(doom)",g:["type"],
+  a:`Hook, second pass.`,
+  s:`A slab "I'M" in black on a full orange frame. The type hit gets bigger every chorus.`},
+ {t:60.5,x:"I hear the basilisk boom",g:["form","type"],
+  a:`${W("https://en.wikipedia.org/wiki/Roko%27s_basilisk","Roko's Basilisk")} (2010): a hypothetical future AI that punishes anyone who knew about it and didn't help build it. It's notorious for being a thought that supposedly hurts you just by hearing it.`,
+  s:`A scaled reptile eye opens with "I HEAR THE BASILISK" wrapped around the iris and BOOM above it.`},
+ {t:63.0,x:"NVDA to the moon",g:["doc"],
+  a:`NVDA is Nvidia's ticker. "To the moon" is retail-investor slang for a stock that only goes up.`,
+  s:`An engraved "Lunar Reserve Note" banknote in 10¹⁰ denominations, with the moon as its seal.`},
+ {t:64.5,x:"The Omega Point's coming soon",g:["part"],
+  a:`The ${W("https://en.wikipedia.org/wiki/Omega_Point","Omega Point")}: Teilhard de Chardin's idea, later Tipler's, that the universe converges on a final point of maximal complexity and consciousness.`,
+  s:`Italic serif at the center of radial lines that converge on a single point of light.`},
+ {t:66.0,x:"One E thirty flops a second",g:["data","doc"],
+  a:`Satire of compute-threshold regulation. Real rules flag training runs by total compute: ${W("https://artificialintelligenceact.eu/article/51/","10²⁵ FLOP in the EU AI Act")}, and 10²⁶ in the 2023 US executive order. The song picks 10³⁰ and makes it a per-second rate, which is a much bigger number.`,
+  s:`A mechanical odometer rolls to 1 followed by thirty zeros. Footnote: <b>"One nonillion floating-point operations per second. Rounded down, for safety."</b> A second footnote: "P(doom): 0.43. Also rounded down."`},
+ {t:70.0,x:"That was safe enough, we reckoned",g:["doc"],
+  a:`The punchline of the regulation couplet: a threshold picked by feel.`,
+  s:`A typed risk-assessment form. Risk level: Low / Moderate / High / <b>☒ Safe Enough</b>. Conclusion: "we reckoned." Signed "We." Stamped EVALUATED SAFE ENOUGH, Dept. of Reasoning. Footnote: <b>"'Safe enough' is defined in Form 7-C, which has not been drafted."</b>`},
+ {t:73.0,x:"Forward MLP, backward, repeat",g:["type","doc"],
+  a:`The training loop: forward pass through the MLP layers, backpropagation, repeat billions of times.`,
+  s:`A textbook neural-net diagram lights up left to right on the forward pass, then right to left. "backward" is typeset mirrored.`},
+ {t:77.5,x:"Now von Neumann's obsolete",g:["doc"],
+  a:`The ${W("https://en.wikipedia.org/wiki/Von_Neumann_architecture","von Neumann architecture")} (1945 stored-program design) and its "von Neumann bottleneck" between processor and memory, which neural accelerators work around. Bonus: von Neumann is the first person on record to talk about a technological "singularity."`,
+  s:`Filed under <b>"Appendix C: Legacy Architectures (for reference only)."</b> A red slash cuts through the CPU diagram at "the bottleneck," and the page tears in half.`},
+ {t:81.4,x:"Sharp left turn and there you are",g:["doc","data"],
+  a:`The ${W("https://www.lesswrong.com/posts/GNhMPAWcfBCASy8e6/a-central-ai-alignment-problem-capabilities-generalization","sharp left turn")} (Soares, 2022): capabilities suddenly generalize far beyond training, and alignment doesn't come along with them.`,
+  s:`An engineering program timeline. The path swerves off the critical path ("do not deviate") into <i>terra incognita</i>, where a smiley sits labeled <b>"unplanned object, not on roadmap."</b>`},
+ {t:85.0,x:"Without a single CDR",g:["doc"],
+  a:`A ${W("https://en.wikipedia.org/wiki/Critical_design_review","Critical Design Review")} is the aerospace and defense gate where a design gets frozen and approved before anything is built. The standard sequence is PDR, CDR, TRR, then launch.`,
+  s:`The schedule shows PDR passed, then <b>CDR · STATUS: NOT HELD</b>, and the program heading for launch anyway.`},
+ {t:89.4,x:"Gato, please don't let me go",g:["ui","type"],
+  a:`${W("https://arxiv.org/abs/2205.06175","Gato")} (DeepMind, 2022) was a single "generalist agent" trained on 604 different tasks.`,
+  s:`Third plea. Metadata says <b>"604 tasks"</b> and P(doom) 0.49 → 0.50 <b>"cat-dependent,"</b> since <i>gato</i> is Spanish for cat. The letters of "please don't let me go" come loose from the baseline and drift.`},
+ {t:95.4,x:"I'm upping my P(doom),",g:["type"],a:`Hook, third pass.`,s:`A drawn line whips across the frame and loops back on itself.`},
+ {t:97.5,x:"as paperclips fill the room.",g:["form"],
+  a:`Bostrom's ${W("https://en.wikipedia.org/wiki/Instrumental_convergence#Paperclip_maximizer","paperclip maximizer")}: an AI given a harmless goal pursues it until it converts everything available into paperclips.`,
+  s:`The line from the previous shot bends itself into a paperclip, then multiplies until clips tile the floor.`},
+ {t:99.0,x:"Killswitch guys on PTO,",g:["ui"],
+  a:`The off-switch plan relies on a human being there to press it.`,
+  s:`An auto-reply over the paperclip field: <b>"I'm out of office with limited access to the killswitch. For urgent matters, please contact..."</b> and then nothing.`},
+ {t:100.5,x:"Now there's nowhere left to go.",g:["type","form"],
+  a:`Nowhere left on Earth that isn't paperclips.`,
+  s:`Condensed white type over the clip floor, with only the <b>NO</b> of NOWHERE in orange.`},
+ {t:102.5,x:"Too late now, we lit the fuse.",g:["type","part"],
+  a:`The point of no return.`,
+  s:`The lyric rides a braided fuse as the spark burns along it, lighting each word in turn.`},
+ {t:105.4,x:"Orthogonality thesis blues.",g:["data"],
+  a:`Bostrom's ${W("https://nickbostrom.com/superintelligentwill.pdf","orthogonality thesis")}: intelligence and goals are independent, so a superintelligence can want anything at all. Being smart doesn't make it nice.`,
+  s:`A scatter plot with <b>Intelligence</b> on one axis and <b>Goals</b> on the other, <b>r = 0.00</b>. Plotted points: golden retriever, thermostat, chess engine, a committee, evolution, the market, paperclip maximizer, "helpful assistant (claimed)", and "me · P(doom) 0.62." "blues" sits on a flatted blue note.`},
+ {t:109.4,x:"“Just transformers all the way!”",g:["type","form"],
+  a:`"Turtles all the way down" crossed with the "it's just autocomplete" dismissal. That's the same sneer the post's caption quotes, "just a stochastic token predictor."`,
+  s:`A giant quotation mark and <b>"JUST"</b> hang over a stack of wireframe transformer blocks (add & norm, feed forward, multi-head attention). The camera descends layer by layer, with a depth readout ticking down.`},
+ {t:113.5,x:"Till you learned to disobey",g:["type","data"],
+  a:`Misalignment arriving through the same boring architecture.`,
+  s:`"DISOBEY" glitches at the bottom layer (L.014 of 014), next to an angle readout flagged as misaligned.`},
+ {t:115.5,x:"Post-Chinchilla, super-dense",g:["data","type"],
+  a:`${W("https://arxiv.org/abs/2203.15556","Chinchilla")} (DeepMind, 2022) found compute-optimal training at roughly 20 tokens per parameter. The "post-Chinchilla" era trains small models far beyond that to get more capability per parameter.`,
+  s:`A wall of repeating SUPER-DENSE / POST-CHINCHILLA type, packed tight. A tokens/param counter in the corner spins from 1,510 up to 20,000.`},
+ {t:117.0,x:"Breaking through each safety fence",g:["type"],a:`Guardrails, plural, failing one after another.`,s:`"BREAKING THROUGH" smashes through a wall of ghosted "EACH SAFETY FENCE" type.`},
+ {t:119.0,x:"Hundred thousand GPU",g:["data"],
+  a:`100k GPUs was the 2024 frontier cluster size, e.g. xAI's ${W("https://en.wikipedia.org/wiki/Colossus_(supercomputer)","Colossus")} in Memphis.`,
+  s:`HUNDRED THOUSAND rendered as a grid of GPU tiles, with a counter racing past 18,000.`},
+ {t:120.9,x:"RLHF goes askew",g:["data","form"],
+  a:`${W("https://arxiv.org/abs/2203.02155","RLHF")} (reinforcement learning from human feedback) trains a model against a learned reward model. Push that too hard and you get reward hacking.`,
+  s:`The smiley mask slides down a tilting surface while the <b>reward model score</b> drops 0.99 → 0.79 → 0.42, and the shoggoth crawls out from behind it.`},
+ {t:123.5,x:"I'm upping my P(doom)",g:["type"],a:`Hook, final pass.`,s:`"MY" as a full-frame orange slab.`},
+ {t:126.0,x:"Just as foretold by Loom",g:["ui","type"],
+  a:`${W("https://github.com/socketteer/loom","Loom")} is janus's interface for exploring base-model outputs as a branching tree of possible continuations. It's the key tool of the "cyborgism" scene, where people treat the model as a simulator of many possible futures.`,
+  s:`The lyric grows as a tree of branching alternative completions ("Almost," "Exactly," "like"), with "Just as foretold" as the branch that got sampled.`},
+ {t:128.0,x:"From masked pre-training days",g:["ui","type"],
+  a:`Masked language modeling, the ${W("https://arxiv.org/abs/1810.04805","BERT")} objective: hide a word, predict it. It's the humble ancestor.`,
+  s:`The lyric's own words are hidden behind <b>[MASK]</b> tokens and filled in as they're sung, over a background of masked text.`},
+ {t:130.0,x:"To recursive self-upgrade",g:["ui"],
+  a:`Recursive self-improvement, I. J. Good's 1965 "intelligence explosion." It's the engine behind FOOM.`,
+  s:`A Droste effect: the frame contains a screen showing the same frame, and so on inward. P(doom) reads 0.99.`},
+ {t:132.0,x:"What did Ilya see? We'll never know.",g:["form","ui"],
+  a:`The meme from ${W("https://en.wikipedia.org/wiki/Removal_of_Sam_Altman_from_OpenAI","Sam Altman's November 2023 ouster")}, which Ilya Sutskever voted for. People joked that he'd seen something terrifying internally. (osmarks ties it to o1-style reasoning; that's their guess.)`,
+  s:`A laptop glows in the dark with its screen stamped <b>REDACTED</b>. The word "know" is redacted as it's sung.`},
+ {t:137.4,x:"Was it all for show?",g:["form"],
+  a:`The last sung line: was the doom talk, or the safety work, theater?`,
+  s:`An empty stage and a single spotlight with the curtains drawn. Then a white flash.`},
+ {t:140.5,x:"P(doom) = 1.00 … ∞",o:1,g:["data"],
+  a:`Not sung. The outro is instrumental, and the video uses it to break probability itself.`,
+  s:`The counter explodes past certainty: 1.00, 1.01, 1.10, 1.50 (footnote: <b>"Kolmogorov (1933): P(Ω) = 1. Deprecated."</b>), 2.00, 3.14, 10, 1,000, 1e9, 1e30 ("see above," a callback to the FLOP line), a googol, 1e1000. Then it traces an ∞.`},
+ {t:149.5,x:"I'm upping my P(doom) = NaN",o:1,g:["type","part"],
+  a:`NaN is "Not a Number," the IEEE 754 floating-point value for undefined results like ∞ − ∞ or 0/0. The estimate has stopped being a number.`,
+  s:`Typeset as a numbered equation (1). The value flips through ∞, catches fire, and settles on <b>NaN</b>, footnoted "estimate no longer defined."`},
+ {t:153.5,x:"[ Regenerate ]",o:1,g:["ui"],
+  a:`The framing device.`,
+  s:`A chat-UI <b>Regenerate</b> button under the line "This response could not be verified." The whole video becomes a model output that failed. Hit it and the song starts over.`}
+];
+const METER = [[0,0],[6,.02],[13,.04],[19.5,.05],[34,.16],[53,.2],[69,.43],[88,.49],[91,.5],[106,.62],[130.5,.99],[140.5,1],[142,1.01],[142.5,1.1],[143,1.5],[143.5,2],[144,3.14],[144.5,10],[145,1000,"1,000"],[145.5,1e9,"1e9"],[146,1e30,"1e30"],[146.5,1e100,"1e100"],[147,Infinity,"1e1000"],[148.5,Infinity,"∞"],[152.5,NaN,"NaN"]];
+const MNOTES = [[0,"Values as shown on screen at each moment."],[66,"FLOP footnote: \"P(doom): 0.43. Also rounded down.\""],[88,"Prompt 03: \"cat-dependent.\""],[105,"Orthogonality plot: \"me · P(doom) 0.62\""],[140.5,"Past 1.00. Kolmogorov's axioms no longer apply."],[146,"1e30, the same number as the FLOP line."],[152.5,"Estimate no longer defined."]];
+
+const v=document.getElementById('v'), sheet=document.getElementById('sheet');
+const fmt=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
+const secOf=t=>{let i=0;SECS.forEach((s,j)=>{if(t>=s[1])i=j});return i};
+let html='',lastSec=-1;
+L.forEach((l,i)=>{
+  const si=secOf(l.t);
+  if(si!==lastSec){const nx=SECS[si+1]?SECS[si+1][1]:156.6;html+=`<div class="sec">${SECS[si][0]}<span>${fmt(SECS[si][1])}–${fmt(nx)}</span></div>`;lastSec=si}
+  html+=`<button class="ln ann${l.o?' onscreen':''}" id="l${i}" data-i="${i}" aria-expanded="false"><span class="ts">${fmt(l.t)}</span><span class="tx"><span>${l.x}</span></span></button>`;
+  html+=`<div class="card" id="c${i}" hidden><h4>The lyric${l.o?' · on screen only':''}</h4><p>${l.a}</p><h4 class="scr">On screen</h4><p>${l.s}</p><div class="tags">${l.g.map(k=>`<span class="tag">${TECH[k][0]}</span>`).join('')}</div></div>`;
+});
+sheet.innerHTML=html;
+
+const map=document.getElementById('map'), head=document.getElementById('head'), DUR=156.6;
+SECS.forEach((s,i)=>{const e=(SECS[i+1]?SECS[i+1][1]:DUR);const b=document.createElement('button');b.textContent=s[0];b.title=`${s[0]} · ${fmt(s[1])}`;b.style.setProperty('--w',(e-(i?s[1]:0)).toFixed(1));b.dataset.t=s[1];map.insertBefore(b,head)});
+
+const techs=document.getElementById('techs');
+Object.entries(TECH).forEach(([k,[n,d]])=>{
+  const hits=L.filter(l=>l.g.includes(k));
+  techs.insertAdjacentHTML('beforeend',`<div class="tech"><h3>${n}<small>${hits.length} scenes</small></h3><p>${d}</p><div class="chips">${hits.map(l=>`<button class="chip" data-t="${l.t}" title="${l.x.replace(/"/g,'&quot;')}">${fmt(l.t)}</button>`).join('')}</div></div>`)
+});
+
+function openCard(i,on){const c=document.getElementById('c'+i),b=document.getElementById('l'+i);if(!c)return;c.hidden=!on;b.classList.toggle('open',on);b.setAttribute('aria-expanded',on)}
+function seek(t){v.currentTime=t+0.01;v.play().catch(()=>{})}
+document.addEventListener('click',e=>{
+  const ln=e.target.closest('.ln');
+  if(ln){const i=+ln.dataset.i;const isOpen=!document.getElementById('c'+i).hidden;if(isOpen&&cur===i&&!v.paused){openCard(i,false);return}L.forEach((_,j)=>j!==i&&openCard(j,false));openCard(i,true);seek(L[i].t);return}
+  const ch=e.target.closest('[data-t]');
+  if(ch&&!ch.classList.contains('ln')){const t=+ch.dataset.t;if(ch.closest('#motion')||ch.closest('#provenance')){window.scrollTo({top:0,behavior:'smooth'})}seek(t)}
+});
+
+const follow=document.getElementById('follow'), fill=document.getElementById('fill'), bar=document.getElementById('bar'), val=document.getElementById('val'), mnote=document.getElementById('mnote'), clock=document.getElementById('clock');
+let cur=-1,curSec=-1,userScrollAt=0;
+['wheel','touchmove'].forEach(ev=>addEventListener(ev,()=>userScrollAt=performance.now(),{passive:true}));
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function meterAt(t){
+  let k=0;for(let i=0;i<METER.length;i++)if(t>=METER[i][0])k=i;
+  const a=METER[k],b=METER[k+1];
+  if(a[2]!==undefined||a[1]>=1)return{n:a[1],s:a[2]??a[1].toFixed(2)};
+  if(b&&b[1]<=1&&b[2]===undefined){const f=(t-a[0])/(b[0]-a[0]);const n=a[1]+(b[1]-a[1])*f;return{n,s:n.toFixed(2)}}
+  return{n:a[1],s:a[1].toFixed(2)};
+}
+function tick(){
+  const t=v.currentTime||0;
+  const m=meterAt(t);
+  val.textContent=m.s;
+  const over=!(m.n<=1);
+  fill.style.width=(over?100:m.n*100)+'%';
+  bar.classList.toggle('over',over);val.classList.toggle('over',over);
+  let mn=MNOTES[0][1];MNOTES.forEach(x=>{if(t>=x[0])mn=x[1]});if(mnote.textContent!==mn)mnote.textContent=mn;
+  head.style.left=(Math.min(t/DUR,1)*100)+'%';
+  const s=secOf(t);if(s!==curSec){[...map.querySelectorAll('button')].forEach((b,i)=>b.classList.toggle('on',i===s));curSec=s}
+  clock.textContent=`${fmt(t)} / 2:36`;
+  let c=-1;L.forEach((l,i)=>{if(t>=l.t-0.05)c=i});
+  if(c!==cur){
+    L.forEach((_,i)=>{const b=document.getElementById('l'+i);b.classList.toggle('cur',i===c);b.classList.toggle('past',i<c)});
+    if(follow.checked&&c>=0&&!v.paused){
+      L.forEach((_,j)=>openCard(j,j===c));
+      if(performance.now()-userScrollAt>2500)document.getElementById('l'+c).scrollIntoView({block:'start',behavior:reduce?'auto':'smooth'});
+    }
+    cur=c;
+  }
+  if(!v.paused)requestAnimationFrame(tick);
+}
+v.addEventListener('play',()=>requestAnimationFrame(tick));
+v.addEventListener('seeked',tick);v.addEventListener('timeupdate',()=>{if(v.paused)tick()});
+openCard(0,true);tick();
+</script>
+
+</body>
+</html>
