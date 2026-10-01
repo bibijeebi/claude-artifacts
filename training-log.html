@@ -162,6 +162,7 @@ h2{font-weight:800;font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;line-h
 /* shoes */
 .shoes{margin-top:18px;display:grid;gap:30px}
 @media(min-width:560px){.shoes{grid-template-columns:1fr 1fr}}
+@media(min-width:900px){.shoes{grid-template-columns:repeat(3,1fr)}}
 .shoe{margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none}
 .stage{position:relative;height:150px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:16px}
 .stage .ground{position:absolute;left:8%;right:8%;bottom:10px;height:14px;border-radius:50%;background:radial-gradient(closest-side,color-mix(in oklab,var(--ink) 30%,transparent),transparent);transform-origin:70% 50%}
@@ -195,6 +196,7 @@ h2{font-weight:800;font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;line-h
 .rec dt{font-size:15px;color:var(--ink2)}
 .rec dd{margin:0;font-weight:800;font-size:20px;letter-spacing:-.01em;text-align:right}
 .rec small{grid-column:1/-1;font-size:13px;color:var(--muted)}
+@media(min-width:900px){.rec{grid-template-columns:1fr 1fr;column-gap:48px}.rec div{border-top:0;border-bottom:1px solid var(--rule)}.rec div:nth-child(-n+2){border-top:1px solid var(--rule)}}
 
 /* sessions */
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;align-items:center}
@@ -288,17 +290,15 @@ footer{margin:64px 0 0;padding:18px 0 48px;border-top:1px solid var(--rule);font
     <div class="fp" id="fp"></div>
   </section>
 
-  <div class="grid2">
-    <section id="shoes">
-      <h2>Shoes</h2>
-      <p class="lede">Miles on each pair, counted from the log. Hover or tap a shoe.</p>
-      <div class="shoes" id="shoeList"></div>
-    </section>
-    <section id="records">
-      <h2>Records</h2>
-      <dl class="rec" id="rec"></dl>
-    </section>
-  </div>
+  <section id="shoes">
+    <h2>Shoes</h2>
+    <p class="lede">Miles on each pair, counted from the log. Hover or tap a shoe.</p>
+    <div class="shoes" id="shoeList"></div>
+  </section>
+  <section id="records">
+    <h2>Records</h2>
+    <dl class="rec" id="rec"></dl>
+  </section>
 
   <section id="log">
     <h2>Every session</h2>
@@ -306,7 +306,7 @@ footer{margin:64px 0 0;padding:18px 0 48px;border-top:1px solid var(--rule);font
     <div class="log" id="sessions"></div>
   </section>
 
-  <footer><span id="stamp"></span><span>Map data &copy; OpenStreetMap contributors. Shoe photos from Altra and Vivobarefoot.</span></footer>
+  <footer><span id="stamp"></span><span>Map data &copy; OpenStreetMap contributors. Shoe photos from Altra, Vivobarefoot, and Xero Shoes.</span></footer>
 </main>
 
 <div class="tip" id="tip"></div>
@@ -513,7 +513,7 @@ const isDistance = e => e.dist && e.pace;
 const routeOf = e => { const hay=[e.route?.name,e.title,e.where].join(" "); return ROUTES.find(r=>r.re.test(hay)); };
 const routeKeyOf = e => routeOf(e)?.k || (e.route?.name ? "n:"+e.route.name : null);
 const tempOf = e => { for (const [l,v] of (e.extra||[])) if (/weather/i.test(l)) { const m=String(v).match(/(\d+)\s*\u00b0\s*F/); if (m) return +m[1]; } return null; };
-const shoeOf = e => { const v=extraV(e,/^shoes$/i)||""; return /vivo/i.test(v)?"vivo":/altra/i.test(v)?"altra":null; };
+const shoeOf = e => { const v=extraV(e,/^shoes$/i)||""; return /vivo/i.test(v)?"vivo":/xero/i.test(v)?"xero":/altra/i.test(v)?"altra":null; };
 const avgHR = e => num(metric(e,/^avg hr/i));
 const maxHR = e => num(metric(e,/^max hr/i));
 function splitsOf(e){
@@ -651,8 +651,9 @@ function drawCharts(){
 /* ---------- shoes ---------- */
 (function(){
   const SHOES=[
-    {k:"altra",name:"Altra Escalante 5",color:"Birch, men's 10",img:"/assets/training-log/altra-escalante-5.webp",anim:"whole"},
-    {k:"vivo",name:"Vivobarefoot Primus",color:"Barefoot, zero drop",img:"/assets/training-log/vivo-primus-lite-3.webp",anim:"bend"},
+    {k:"altra",name:"Altra Escalante 5",bought:"Aug 2026",img:"/assets/training-log/altra-escalante-5.webp",anim:"whole"},
+    {k:"vivo",name:"Vivobarefoot Primus Lite III",bought:"Dec 2024",img:"/assets/training-log/vivo-primus-lite-3-white.webp",anim:"bend",preLog:"Worn out. Most of their miles came before this log started."},
+    {k:"xero",name:"Xero Shoes Prio",bought:"Oct 2024",img:"/assets/training-log/xero-prio.webp",anim:"bend",preLog:"Not worn on a logged run yet."},
   ];
   const LIFE=400;
   $("shoeList").innerHTML=SHOES.map(s=>{
@@ -666,8 +667,8 @@ function drawCharts(){
       <figcaption><div class="nm">${esc(s.name)}</div>
         <div class="mi"><b class="count">${mi.toFixed(1)}</b> <span>mi</span></div>
         <div class="det">${es.length} ${es.length===1?"session":"sessions"}${lastE?`, last on ${fmtDay(lastE.date)}`:""}</div>
-        <div class="wear" title="${mi.toFixed(1)} of a typical ${LIFE} mi"><i style="width:${Math.min(mi/LIFE*100,100).toFixed(1)}%"></i></div>
-        <div class="det">${Math.round(mi/LIFE*100)}% of a typical ${LIFE} mi life</div></figcaption></figure>`}).join("");
+        ${s.preLog?`<div class="det">Bought ${esc(s.bought)}. ${esc(s.preLog)}</div>`:`<div class="wear" title="${mi.toFixed(1)} of a typical ${LIFE} mi"><i style="width:${Math.min(mi/LIFE*100,100).toFixed(1)}%"></i></div>
+        <div class="det">Bought ${esc(s.bought)}. ${Math.round(mi/LIFE*100)}% of a typical ${LIFE} mi life.</div>`}</figcaption></figure>`}).join("");
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.querySelectorAll(".shoe").forEach(f=>{
     const c=f.querySelector(".count"), mi=+f.dataset.mi; let raf;
