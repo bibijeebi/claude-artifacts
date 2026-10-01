@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Training Log</title>
+<meta name="description" content="Every logged workout: runs, treadmill, lifts, rucks, anything. Full numbers, splits, and notes.">
+<meta property="og:title" content="Training Log">
+<meta property="og:description" content="Every logged workout in one place. Runs, treadmill, lifts, rucks, whatever gets done, with full numbers, splits, and notes.">
+<meta property="og:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/training-log-og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/training-log.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://claude-deploy.bennyforeman1.workers.dev/r2/file/training-log-og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#e6e9e1; --panel:#f5f7f1; --ink:#161c15; --muted:#6d7669;
+  --rule:#c9cfc0; --route:#d92b1f; --bar:#f2c9c5; --cad:#2f6b8a;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --cond:"IBM Plex Sans Condensed",var(--sans);
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{
+  margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--rule) 1px,transparent 1px);
+  background-size:100% 88px;background-position:0 -1px;
+}
+.wrap{max-width:820px;margin:0 auto;padding:28px 20px 96px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--cond);font-weight:700;text-transform:uppercase;font-size:clamp(46px,14vw,96px);line-height:.86;letter-spacing:-.02em;margin:6px 0 0}
+h1 span{color:var(--route)}
+.totals{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin:22px 0 34px}
+.tot{background:var(--panel);padding:12px}
+.tot b{display:block;font-family:var(--mono);font-weight:600;font-size:clamp(18px,5vw,26px);letter-spacing:-.03em;line-height:1.1}
+.tot i{display:block;font-style:normal;font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.sect{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:7px;margin:0 0 16px}
+.chart{background:var(--panel);border:1px solid var(--rule);padding:16px 14px 10px;margin-bottom:38px}
+.chart svg{display:block;width:100%;height:auto}
+.key{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.key s{text-decoration:none;display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:6px}
+.trace{position:relative;padding-left:30px}
+.trace:before{content:"";position:absolute;left:5px;top:10px;bottom:26px;width:2px;background:var(--route);opacity:.45}
+.entry{position:relative;background:var(--panel);border:1px solid var(--rule);padding:16px 16px 14px;margin-bottom:16px}
+.entry:before{content:"";position:absolute;left:-30px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--ground);border:3px solid var(--route)}
+.entry:after{content:"";position:absolute;left:-18px;top:25px;width:18px;height:1px;background:var(--rule)}
+.ehead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:10px}
+.title{font-family:var(--cond);font-weight:700;font-size:34px;line-height:1;letter-spacing:-.02em}
+.chip{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--panel);background:var(--ink);padding:3px 7px;vertical-align:6px;margin-left:9px}
+.when{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;max-width:100%}
+.when b{display:block;color:var(--ink);font-weight:600}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:11px;margin:12px 0 2px}
+.m b{display:block;font-family:var(--mono);font-weight:600;font-size:17px;letter-spacing:-.02em;white-space:nowrap}
+.m i{display:block;font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.tblwrap{margin-top:14px;border-top:1px solid var(--rule);padding-top:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;min-width:320px;font-family:var(--mono);font-size:12px}
+th{text-align:left;font-weight:500;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);padding:0 8px 6px 0;white-space:nowrap}
+td{padding:4px 8px 4px 0;white-space:nowrap;border-bottom:1px solid #e3e7dd}
+td:first-child{color:var(--muted)}
+.notes{margin-top:13px;border-top:1px solid var(--rule);padding-top:11px;font-size:14.5px;color:#2a332a}
+.extra{margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.7}
+.extra em{font-style:normal;color:var(--ink)}
+.route{margin-top:12px;border:1px solid var(--rule);border-left:3px solid var(--route);padding:10px 12px;background:#eef1ea}
+.route h4{margin:0 0 7px;font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.route b{display:block;font-family:var(--cond);font-weight:700;font-size:19px;letter-spacing:-.01em;margin-bottom:6px}
+.route dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2px 16px;margin:0;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.route dl div em{font-style:normal;color:var(--ink)}
+.route p{margin:8px 0 0;font-family:var(--sans);font-size:13.5px;color:#2a332a}
+.src{margin-top:11px;font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+footer{margin-top:44px;border-top:1px solid var(--rule);padding-top:12px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media(max-width:520px){
+  .totals{grid-template-columns:repeat(2,1fr)}
+  .title{font-size:28px}
+  .trace{padding-left:24px}.trace:before{left:0}
+  .entry:before{left:-24px}.entry:after{left:-13px;width:13px}
+  .when{text-align:left}
+}
+@media(prefers-reduced-motion:no-preference){
+  .entry{animation:rise .5s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Benny Foreman &middot; Wake County NC</div>
+  <h1>Training<br>Log<span>.</span></h1>
+
+  <div class="totals" id="totals"></div>
+
+  <div class="sect">Distance and pace, distance work only</div>
+  <div class="chart">
+    <svg id="chart" viewBox="0 0 700 220" preserveAspectRatio="none" aria-label="Distance bars and pace line"></svg>
+    <div class="key">
+      <span><s style="background:var(--route);opacity:.28"></s>Distance</span>
+      <span><s style="background:var(--ink)"></s>Pace (higher = faster)</span>
+    </div>
+  </div>
+
+  <div class="sect">Everything logged, newest first</div>
+  <div class="trace" id="entries"></div>
+
+  <footer><span id="stamp"></span><span>Log anything: screenshot, photo, or just talk</span></footer>
+</div>
+
+<script>
+// Add an entry: only date, time, type, title are required. Everything else optional.
+// metrics: [[label, value], ...]   table: {cols:[], rows:[[]], barCol:n, barLowerIsBetter:true}
+// route: {name, src, stats:[[label,value]], note}  for a trail/route the session was run on
+// extra: [[label, value], ...]     notes: "free text"     source: where it came from
+// dist (mi) and dur (seconds) feed the totals and chart. pace is the displayed string.
+const entries = [
+{
+  date:"2026-08-01", time:"4:01 pm", type:"run", title:"5.05 mi on the American Tobacco Trail",
+  dist:5.05, dur:3749, pace:"12:22",
+  where:"American Tobacco Trail, Wake County section. Out and back on the old rail corridor near Copperleaf and Green Level West, with Thomas Brooks Park and Green Level High School off to the east.",
+  route:{name:"American Tobacco Trail from Southern Terminus", src:"AllTrails",
+    stats:[["Full route","22.2 mi point to point"],["Route elev gain","816 ft"],["Route elev loss","748 ft"],["AllTrails avg","7h 6m"],["Est. time","7 to 8 hr"],["Rating","4.7 stars, moderate"],["Trailhead","New Hill, NC"]],
+    note:"Ran a 5.05 mi out-and-back bite of the 22.2 mi corridor, not the whole point-to-point."},
+  metrics:[["Distance","5.05 mi"],["Duration","1:02:29"],["Avg pace","12:22 /mi"],["Avg cadence","136 spm"],["Elev gain","169 ft"],["Calories","607"]],
+  table:{cols:["Mile","Split pace","Cadence","Elapsed"],
+    rows:[["1","12:43","132","12:42"],["2","12:27","138","25:09"],["3","11:41","140","36:50"],["4","12:20","136","49:10"],["5.05","12:43","134","1:02:29"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Shoes","Vivobarefoot Primus (pre-Altra)"],["Weather","Partly cloudy"],["Weather (backfilled)","90\u00b0F, feels like 95\u00b0F, 52% RH, 8 mph wind. Open-Meteo hourly, 4 pm"],["Split pace range","11:41 to 13:00"],["Splits-chart avg","12:23 /mi"],["Trail status","Open. Wake County's posted Aug 1 to Oct 31 closure was not in effect."]],
+  notes:"Fastest mile was 3 at 11:41, which was also the highest cadence at 140. Held everything inside a 62 second spread from first mile to last.",
+  source:"MapMyRun screenshot"
+},
+{
+  date:"2026-08-02", time:"3:17 pm", type:"run", title:"4.72 mi on Hinshaw and Pirate's Cove",
+  dist:4.72, dur:3601, pace:"12:41",
+  where:"Hinshaw and Pirate's Cove Greenways, Macdonald Woods Park, Cary. Off SE Cary Pkwy near US 64 and Seabrook Ave. Ran Hinshaw out, came back to the bridge where Pirate's Cove splits off, ran that, then went back out the same way.",
+  route:{name:"Hinshaw and Pirate's Cove Greenways", src:"AllTrails",
+    stats:[["Listed route","3.7 mi out and back"],["Route elev gain","180 ft"],["Route elev loss","187 ft"],["AllTrails avg","1h 14m"],["Est. time","1 to 2 hr"],["Rating","4.2 stars, easy"],["Route elev range","346 to 446 ft"],["Park","Macdonald Woods Park, Cary NC"]],
+    note:"Listed at 3.7 mi. Came out to 4.72 because of the doubling back for the Pirate's Cove spur, 1.02 mi over the mapped route."},
+  metrics:[["Distance","4.72 mi"],["Duration","1:00:01"],["Avg pace","12:41 /mi"],["Avg cadence","136 spm"],["Elev gain","110 ft"],["Calories","560"]],
+  table:{cols:["Mile","Split pace","Cadence","Elapsed"],
+    rows:[["1","9:49","154","9:48"],["2","11:50","144","21:39"],["3","15:35","120","37:14"],["4","13:22","132","50:36"],["4.72","12:58","136","1:00:01"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Shoes","Vivobarefoot Primus (pre-Altra)"],["Weather","Mostly cloudy"],["Weather (backfilled)","87\u00b0F, feels like 94\u00b0F, 64% RH, 8 mph wind. Open-Meteo hourly, 3 pm"],["Elevation range","355.6 to 452.6 ft"],["Split pace range","9:49 to 18:17"],["Splits-chart avg","12:42 /mi"]],
+  notes:"Went out at 9:49 and paid for it. Mile 3 blew up to 15:35 with cadence dropping to 120, then clawed back to 12:58 on the last stretch. Cadence tracked the pace almost exactly, so the fade was turnover, not just stride.",
+  source:"MapMyRun screenshot"
+},
+{
+  date:"2026-08-04", time:"4:26 pm", type:"run", title:"5.83 mi on the Neuse River Greenway",
+  dist:5.83, dur:4410, pace:"12:36",
+  where:"Neuse River Trail from the Poole Rd access, north upstream past Anderson Point Park and the I-87 / US 64 / 264 crossing toward Milburnie, then back the same way.",
+  route:{name:"Neuse River Greenway: Anderson Point Park to Milburnie Park", src:"AllTrails",
+    stats:[["Listed route","4.3 mi out and back"],["Route elev gain","62 ft"],["Route elev loss","69 ft"],["AllTrails avg","1h 17m"],["Est. time","1 to 2 hr"],["Rating","4.2 stars, easy"],["Route elev range","130 to 230 ft"],["Trailhead","Anderson Point Park, Raleigh NC"]],
+    note:"Started at the Poole Rd access south of the mapped trailhead instead of Anderson Point, ran the same corridor north. 5.83 total against the 4.3 listed."},
+  metrics:[["Distance","5.83 mi"],["Duration","1:13:30"],["Avg pace","12:36 /mi"],["Avg cadence","134 spm"],["Elev gain","178 ft"],["Calories","693"]],
+  table:{cols:["Mile","Split pace","Cadence","Elapsed"],
+    rows:[["1","9:42","154","9:41"],["2","10:38","152","20:20"],["3","12:20","134","32:40"],["4","15:17","120","47:57"],["5","13:59","128","1:01:55"],["5.83","13:59","124","1:13:30"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Shoes","Altra Escalante 5"],["Weather","Mostly cloudy"],["Weather (backfilled)","78\u00b0F but feels like 88\u00b0F at 95% RH, 5 mph wind. Open-Meteo hourly, 4 pm"],["Elevation chart range","172.4 to 224.8 ft"],["Splits-chart avg","12:37 /mi"]],
+  notes:"Longest run in the log. Same story as Hinshaw: out at 9:42 with cadence at 154, mile 4 blew up to 15:17 and 120 spm, then part of it came back. Day one of the cut week.",
+  source:"MapMyRun screenshot + AllTrails route screenshots"
+},
+{
+  date:"2026-08-05", time:"8:30 pm", type:"treadmill", title:"1.71 mi on the SOLE F80",
+  dist:1.71, dur:1045, pace:"10:11",
+  metrics:[["Distance","1.71 mi"],["Duration","17:25"],["Avg pace","10:11 /mi"],["Incline","level 1 of 12"],["Calories","247"]],
+  extra:[["Shoes","Altra Escalante 5"],["Speed","mostly 7 to 8 mph, ranged about 6 to 8, walk breaks around 3.5 mph"],["Incline","held at level 1 the whole run, out of the console's 0 to 12 range, to mimic outdoor running resistance. Not sure level 1 equals 1%."],["Avg pace","computed from console time and distance, console doesn't report pace"],["Console at stop","speed 0.0, incline showing 0, pulse P"]],
+  notes:"Ran mostly at 7 to 8 mph with some walk breaks around 3.5. Incline stayed at level 1 the entire time to approximate road resistance. Console said 247 calories but it's not tracking anything, that's just the machine's guess.",
+  source:"Treadmill console photo (SOLE F80)"
+},
+{
+  date:"2026-08-11", time:"4:57 pm", type:"run", title:"2.37 mi on the Hilltop Needmore Red Trail",
+  dist:2.37, dur:1606, pace:"11:18",
+  where:"Hilltop Needmore Town Park & Preserve, Willow Spring. Started off Hilltop Needmore Rd near Crooked Creek, connector north into the preserve, then the Red Trail loop up along Middle Creek with the double loop around the ponds at the top, and back out the same connector.",
+  route:{name:"Hilltop Needmore Red Trail", src:"AllTrails",
+    stats:[["Listed route","1.9 mi loop"],["Route elev gain","150 ft"],["Route elev loss","144 ft"],["AllTrails avg","42m"],["Est. time","under 1 hr"],["Rating","4.7 stars (563), easy"],["Route elev range","253 to 415 ft"],["Park","Hilltop Needmore Town Park & Preserve"]],
+    note:"Track sits north of Hilltop Needmore Rd along Middle Creek, matching the Red Trail geometry, not Yellow (south of the road) or Blue (short lollipop). 2.37 against the 1.9 listed from the connector out and back, which also pushed gain to 213 ft over the route's 150."},
+  metrics:[["Distance","2.37 mi"],["Duration","26:46"],["Avg pace","11:18 /mi"],["Avg cadence","148 spm"],["Elev gain","213 ft"],["Calories","300"]],
+  table:{cols:["Mile","Split pace","Cadence","Elapsed"],
+    rows:[["1","9:46","154","9:45"],["2","12:17","142","22:02"],["2.37","12:55","144","26:46"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Shoes","Altra Escalante 5"],["Weather","Sunny"],["Weather (backfilled)","93\u00b0F, feels like 99\u00b0F, 51% RH, 8 mph wind. Open-Meteo hourly, 5 pm"],["Elevation chart range","269.0 to 395.2 ft"],["Split pace range","9:46 to 14:03"],["Splits-chart avg","11:19 /mi"],["Other park trails","Yellow 2.2 mi / 101 ft, Blue 0.6 mi / 45 ft"]],
+  notes:"Same opening pattern, out at 9:46 and 154 spm then the trail hills took over. 213 ft of gain in 2.37 miles is nearly the ATT's 169 in less than half the distance. Cadence held better than the greenway blowups though, 142 to 144 in the back miles instead of 120s.",
+  source:"MapMyRun screenshot + AllTrails trail screenshots"
+},
+{
+  date:"2026-08-15", time:"6:28 pm", type:"run", title:"4.14 mi on Park Depot Greenway",
+  dist:4.14, dur:2547, pace:"10:15",
+  where:"Park Depot Greenway, Fuquay-Varina. Started at the Honeycutt Road Park end by NC 55, ran the greenway southeast past South Lakes to the lake at the east end near Long Lake Dr, where the trace ends.",
+  route:{name:"Park Depot Greenway", src:"AllTrails",
+    stats:[["Listed route","3.2 mi out and back"],["Route elev gain","85 ft"],["Route elev loss","92 ft"],["AllTrails avg","1h"],["Est. time","1 to 2 hr"],["Rating","4.6 stars, easy"],["Route elev range","287 to 387 ft"],["Trailhead","Honeycutt Road Park, Fuquay-Varina NC"]],
+    note:"4.14 against the 3.2 listed. MapMyRun trace starts at Honeycutt Road Park and ends at the east end by the lake, not back at the start."},
+  metrics:[["Distance","4.14 mi"],["Duration","42:27"],["Avg pace","10:15 /mi"],["Avg cadence","156 spm"],["Elev gain","118 ft"],["Calories","504"]],
+  table:{cols:["Mile","Split pace","Cadence","Elapsed"],
+    rows:[["1","8:27","168","8:26"],["2","9:59","158","18:25"],["3","10:46","154","29:11"],["4","10:43","152","39:54"],["4.14","18:24","110","42:27"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Shoes","Vivobarefoot Primus"],["Weather","Partly cloudy (temps cut off in screenshot)"],["Weather (backfilled)","89\u00b0F, feels like 97\u00b0F, 63% RH, 7 mph wind. Open-Meteo hourly, 6 pm"],["Elevation chart range","293.7 to 387.2 ft"],["Split pace chart range","8:27 to 26:05"]],
+  notes:"Fastest logged run by over a minute a mile. 8:27 opener at 168 spm, then held 9:59 to 10:46 through mile 4 with cadence stepping down 168, 158, 154, 152. The 18:24 on the last 0.14 at 110 spm is the walk-off. Ran it in the Vivos instead of the Altras.",
+  source:"MapMyRun screenshot + AllTrails route screenshots"
+},
+{
+  date:"2026-08-15", time:"", type:"weigh-in", title:"Weigh-in: 158.1 lbs",
+  metrics:[["Weight","158.1 lbs"]],
+  source:"Told me directly"
+},
+{
+  date:"2026-08-15", time:"7:20 pm", type:"tennis", title:"~20 min tennis with Bekah and Rachel",
+  dur:1200,
+  metrics:[["Duration","~20 min"],["Who","Bekah and Rachel"]],
+  extra:[["Weather (backfilled)","89\u00b0F, feels like 96\u00b0F, 58% RH, 6 mph wind. Open-Meteo hourly, 7 pm"]],
+  notes:"Straight off the run. Started about 10 minutes after finishing (run ended ~7:10), played until 7:40. Times are from his description, not tracked.",
+  source:"Told me directly"
+},
+{
+  date:"2026-08-17", time:"5:44 pm", type:"run", title:"4.72 mi on Carl Dean Greenway and Bass Lake",
+  dist:4.72, dur:3820, pace:"13:28",
+  where:"Carl Dean Greenway and Bass Lake loop, Holly Springs. Started at the Fair Hill / Womble Park end, greenway east past Sugg Farm at Bass Lake Park, looped Bass Lake past the dam, back the same greenway.",
+  route:{name:"Carl Dean Greenway and Bass Lake", src:"AllTrails",
+    stats:[["Listed route","4.7 mi loop"],["Route elev gain","219 ft"],["Route elev loss","220 ft"],["AllTrails avg","1h 34m"],["Est. time","1 to 2 hr"],["Rating","4.7 stars, easy"],["Route elev profile","300 to 448 ft"],["Area","Womble Park, Holly Springs NC"]],
+    note:"4.72 against the 4.7 listed, ran it as mapped."},
+  metrics:[["Distance","4.72 mi"],["Duration","1:03:40"],["Avg pace","13:28 /mi"],["Avg HR","156 bpm"],["Max HR","193 bpm"],["Avg cadence","128 spm"],["Elev gain","203 ft"],["Calories","533"]],
+  table:{cols:["Mile","Split pace","Cadence","Avg HR","Elapsed"],
+    rows:[["1","9:43","150","160","9:43"],["2","10:15","154","174","19:58"],["3","11:39","142","181","31:37"],["4","17:56","108","147","49:33"],["4.72","19:29","104","132","1:03:40"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Shoes","Altra Escalante 5"],["HRM","Coospo H6 chest strap, first run with it"],["Weather","93\u00b0F, cloudy at 6:51 pm per his Weather app (Holly Springs), sunset 8:02 pm. MapMyRun strip said Fair/Mostly Sunny, temps cut off"],["Weather (backfill)","Skipped, Open-Meteo daily API limit hit, retry later"],["Elevation","min 317 ft, max 436 ft, chart 228.9 to 524.2 ft axis"],["HR chart axis","86 to 202 bpm"],["Max pace","4:11 /mi (GPS spike on the pace chart)"]],
+  notes:"First run with real HR data and it told on him. Out at 9:43 with HR already at 160, mile 2 at 174, mile 3 averaged 181 with a 193 max somewhere in there, that's redline for a 93 degree evening. Backed way off after, miles 4 and 5 mostly walking at 17:56 and 19:29 with HR falling to 147 then 132. Classic first-half-too-hot split. 93 and cloudy the whole way.",
+  source:"MapMyRun screenshots + AllTrails route screenshots + Weather app screenshot"
+},
+{
+  date:"2026-09-20", time:"4:21 pm", type:"run", title:"4.63 mi on Carl Dean Greenway and Bass Lake",
+  dist:4.63, dur:2687, pace:"9:40",
+  where:"Carl Dean Greenway and Bass Lake loop, Holly Springs. Started at the Fair Hill / Womble Park end, greenway east past Sugg Farm at Bass Lake Park, looped Bass Lake past the dam and Fishermans Cove, back the same greenway.",
+  route:{name:"Carl Dean Greenway and Bass Lake", src:"AllTrails",
+    stats:[["Listed route","4.7 mi loop"],["Route elev gain","219 ft"],["Route elev loss","220 ft"],["AllTrails avg","1h 34m"],["Est. time","1 to 2 hr"],["Rating","4.7 stars, easy"],["Route elev profile","300 to 448 ft"],["Area","Womble Park, Holly Springs NC"]],
+    note:"4.63 against the 4.7 listed, same loop as Aug 17. Beat the AllTrails 1h 34m estimate by 49 minutes."},
+  metrics:[["Distance","4.63 mi"],["Duration","44:47"],["Avg pace","9:40 /mi"],["Avg HR","183 bpm"],["Max HR","197 bpm"],["Avg cadence","150 spm"],["Elev gain","204 ft"],["Calories","551"]],
+  table:{cols:["Mile","Split pace","Cadence","Avg HR","Elapsed"],
+    rows:[["1","8:02","158","171","8:01"],["2","8:37","158","188","16:38"],["3","10:16","148","187","26:54"],["4","10:58","142","184","37:51"],["4.63","11:02","146","185","44:47"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Shoes","Altra Escalante 5"],["HRM","Coospo H6 chest strap"],["Weather","87\u00b0F mostly sunny at 5:13 pm per his Weather app (Holly Springs), feels like 91\u00b0F, 52% RH, dew point 68\u00b0F, wind 4 mph SSE gusting 7, UV 2, pressure 29.92 inHg falling, visibility 25+ mi. Day H 90 / L 66, 10\u00b0 above the average high. Sunset 7:14 pm. MapMyRun strip said Partly Cloudy, temps cut off"],["Weather (backfill)","Skipped, Open-Meteo unreachable from this session"],["Elevation","min 317 ft, max 437 ft, analysis chart axis 229.7 to 524.9 ft, splits chart 311.2 to 443.4 ft"],["HR chart axis","90 to 207 bpm"],["Pace chart axis","0:00 to 2:08 /mi"],["Max pace","2:20 /mi (GPS spike on the pace chart near 36 min)"],["Splits chart avg line","9:41"]],
+  notes:"Same loop as Aug 17, 19 minutes faster. 13:28 down to 9:40 average. Went out at 8:02 with HR climbing from 90 to 171 in mile 1, then sat at 184 to 188 for the rest of it, 197 max. Mile 2 at 8:37 was the last fast one, miles 3 to 4.63 settled into 10:16, 10:58, 11:02 with cadence dropping from 158 to the low 140s. No walking this time. Pace chart is noisy around the lake with the dips and spikes, HR chart shows the sawtooth on the climbs back out. 87 and sunny, felt like 91.",
+  source:"MapMyRun screenshots + AllTrails route screenshots + Weather app screenshots"
+},
+{
+  date:"2026-09-21", time:"3:51 pm", type:"run", title:"2.57 mi at Yates Mill Pond",
+  dist:2.57, dur:1629, pace:"10:34",
+  where:"Historic Yates Mill County Park, Lake Wheeler Rd, Raleigh. Started at the parking lot on the east side of the millpond, ran the pond edge and the creekside trail west along Steep Hill Creek to the loop at the far end, back the same way. Two climbs on the elevation profile, one out and one back.",
+  route:{name:"Millpond and Creekside Trail", src:"AllTrails",
+    stats:[["Listed route","2.1 mi loop"],["Route elev gain","59 ft"],["Route max elev","334 ft"],["AllTrails avg","40 min"],["Est. time","0.5 to 1 hr"],["Rating","4.7 stars, easy"],["Area","Historic Yates Mill County Park, Raleigh NC"]],
+    note:"2.57 against the 2.1 listed, extra on the pond side. 27:09 against the 40 min AllTrails average."},
+  metrics:[["Distance","2.57 mi"],["Duration","27:09"],["Avg pace","10:34 /mi"],["Avg HR","168 bpm"],["Max HR","192 bpm"],["Avg cadence","148 spm"],["Elev gain","111 ft"],["Calories","317"]],
+  table:{cols:["Mile","Split pace","Cadence","Avg HR","Elapsed"],
+    rows:[["1","9:08","158","160","9:07"],["2","11:10","146","171","20:17"],["2.57","12:03","138","172","27:09"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Shoes","Altra Escalante 5"],["HRM","Coospo H6 chest strap"],["Weather","90\u00b0F partly cloudy at 4:21 pm per his Weather app (Raleigh), feels like 93\u00b0F, 51% RH, dew point 69\u00b0F, wind 5 mph SE gusting 7, UV 3, pressure 29.91 inHg falling, visibility 24 mi, AQI 47. Day H 91 / L 69, 11\u00b0 above the average high, .05 in rain today. Sunset 7:12 pm. MapMyRun strip said Partly Cloudy, temps cut off"],["Elevation","min 292 ft, max 375 ft, analysis chart axis 186.0 to 481.3 ft, splits chart 288.2 to 379.0 ft"],["HR chart axis","89 to 202 bpm"],["Pace chart axis","0:00 to 1:02 /mi"],["Max pace","1:09 /mi (GPS spike on the pace chart around 18 min)"],["In-run screen at 26:11","2.47 mi, 10:32 current pace, 10:36 avg, 305 cal"]],
+  notes:"Short one at Yates Mill the day after the Bass Lake 4.63. Out at 9:08 with HR ramping from 89 to the high 170s inside the first two minutes, then 11:10 and 12:03 for the back half with cadence sliding 158 to 146 to 138. HR chart is a sawtooth, three big drops to the 130s and 150s that line up with the walk breaks, 192 max on the last climb back to the pond. 90 and partly cloudy, felt like 93.",
+  source:"MapMyRun screenshots + AllTrails route lookup + Weather app screenshots"
+},
+{
+  date:"2026-10-01", time:"3:56 pm", type:"run", title:"4.00 mi on Park Depot Greenway",
+  dist:4.00, dur:2213, pace:"9:13",
+  where:"Park Depot Greenway from Honeycutt Road Park, Fuquay-Varina, east under 55 past South Lakes to the school end and back, same path both ways. Exactly 4.00 mi.",
+  route:{name:"Park Depot Greenway", src:"AllTrails",
+    stats:[["Listed route","3.2 mi out and back"],["Route elev gain","85 ft"],["Route max elev","370 ft"],["AllTrails avg","1 to 1.5 hr"],["Rating","4.6 stars, easy"],["Surface","Paved asphalt and boardwalk, mostly 5% grade or less"],["Area","Honeycutt Road Park, Fuquay-Varina NC"]],
+    note:"4.00 against the 3.2 listed, ran it all the way to the school end. Same greenway as Aug 15 (4.14 mi at 10:15), 1:02 /mi faster today. 36:53 against the 1 to 1.5 hr AllTrails average."},
+  metrics:[["Distance","4.00 mi"],["Duration","36:53"],["Avg pace","9:13 /mi"],["Max pace","5:33 /mi"],["Avg HR","179 bpm"],["Max HR","196 bpm"],["Elev gain","120 ft"],["Calories","468"]],
+  table:{cols:["Mile","Split pace","Avg HR","Elapsed"],
+    rows:[["1","8:14","170","8:14"],["2","9:00","183","17:14"],["3","10:17","178","27:31"],["4","9:21","186","36:53"]],
+    barCol:1, barLowerIsBetter:true},
+  extra:[["Shoes","Altra Escalante 5"],["HRM","Coospo H6 chest strap"],["Weather","84°F sunny at 3:58 pm per his Weather app (Fuquay-Varina), day H 87 / L 60, 84 at 4 pm, 83 at 5 pm, sunset 6:58 pm. MapMyRun strip said Sunny, temps cut off"],["Walk break","Only walk of the run: 2.70 to 2.79 mi, 24:05 to 25:35 elapsed (90 s, 0.09 mi). HR dropped from mid 180s to about 145 and came right back"],["First urge to walk","1.84 mi at 15:39, held off until 2.70"],["In-run screen 15:39","1.84 mi, 9:55 current pace, 8:30 avg, 213 cal"],["In-run screen 24:05","2.70 mi, 9:11 current pace, 8:55 avg, 313 cal"],["In-run screen 25:35","2.79 mi, 15:40 current pace (walking), 9:10 avg, 325 cal"],["Elevation","min 298 ft, max 383 ft, analysis chart axis 192.6 to 487.9 ft, splits chart 293.5 to 387.1 ft, HR/pace overlay axis 194 to 490 ft"],["HR chart axis","91 to 205 bpm"],["Pace chart axis","5:10 to 27:59 /mi"],["HR zones (MapMyRun MVP, paywalled)","Zone 1 75 to 112 bpm readable, zones 2 to 5 blurred behind the upgrade prompt"]],
+  notes:"Same greenway as Aug 15, 4.14 at 10:15 that day, 4.00 at 9:13 today. Out at 8:14 again, faded to 9:00 then 10:17 on mile 3 with the one walk break, then picked it back up to 9:21 on mile 4 which is the climb back to the park. HR ramped 91 to 170s in the first few minutes, sat 180 to 186 through the middle, kicked to 196 on the finish. Wanted to walk at 1.84, held it to 2.70, walked 90 seconds, ran the rest. 84 and sunny.",
+  source:"MapMyRun screenshots (summary, splits, analysis, 3 in-run screens) + AllTrails route lookup + Weather app screenshot"
+}
+,
+{
+  date:"2026-10-01", time:"", type:"weigh-in", title:"Weigh-in: 154.9 lbs",
+  metrics:[["Weight","154.9 lbs"]],
+  extra:[["Change","down 3.2 lbs from the Aug 15 weigh-in (158.1)"]],
+  source:"Told me directly"
+}
+];
+
+const s2=t=>String(t).split(":").reduce((a,b)=>a*60+ +b,0);
+const clock=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=Math.round(s%60);
+  return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0")};
+const fmtDate=d=>new Date(d+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+const withDist=entries.filter(e=>e.dist), withDur=entries.filter(e=>e.dur);
+const mi=withDist.reduce((a,e)=>a+e.dist,0), sec=withDur.reduce((a,e)=>a+e.dur,0);
+const dsec=withDist.reduce((a,e)=>a+(e.dur||0),0);
+const wo=entries.filter(e=>e.dist||e.dur);
+const wk=wo.filter(e=>(Date.now()-new Date(e.date+"T12:00:00"))/864e5<7);
+document.getElementById("totals").innerHTML=[
+  [wo.length,"Sessions logged"],[mi.toFixed(2),"Total miles"],
+  [clock(sec),"Time training"],[dsec?clock(dsec/mi):"—","Avg pace /mi"],
+].map(([v,l])=>`<div class="tot"><b>${v}</b><i>${l}</i></div>`).join("")
++`<div class="tot" style="grid-column:1/-1"><b>${wk.length} sessions &middot; ${wk.reduce((a,e)=>a+(e.dist||0),0).toFixed(2)} mi</b><i>Last 7 days</i></div>`;
+
+(function(){
+  const d=withDist.filter(e=>e.pace); if(!d.length){document.getElementById("chart").closest(".chart").previousElementSibling.style.display="none";document.getElementById("chart").closest(".chart").style.display="none";return}
+  const W=700,H=220,P={l:8,r:8,t:14,b:26},n=d.length;
+  const paces=d.map(e=>s2(e.pace)),dmax=Math.max(...d.map(e=>e.dist))*1.15;
+  const pmin=Math.min(...paces)-30,pmax=Math.max(...paces)+30;
+  const slot=(W-P.l-P.r)/n,x=i=>P.l+slot*i+slot/2,bw=Math.min(slot*.46,64);
+  const yb=v=>H-P.b-(v/dmax)*(H-P.t-P.b),yp=v=>P.t+((v-pmin)/(pmax-pmin))*(H-P.t-P.b);
+  let g=`<line x1="0" y1="${H-P.b}" x2="${W}" y2="${H-P.b}" stroke="#c9cfc0"/>`;
+  d.forEach((e,i)=>{g+=`<rect x="${x(i)-bw/2}" y="${yb(e.dist)}" width="${bw}" height="${H-P.b-yb(e.dist)}" fill="#d92b1f" opacity=".28"/>`
+    +`<text x="${x(i)}" y="${H-P.b+16}" font-family="IBM Plex Mono" font-size="11" fill="#6d7669" text-anchor="middle">${e.dist.toFixed(2)}</text>`});
+  g+=`<polyline fill="none" stroke="#161c15" stroke-width="2" points="${d.map((e,i)=>x(i)+","+yp(s2(e.pace))).join(" ")}"/>`;
+  d.forEach((e,i)=>{g+=`<circle cx="${x(i)}" cy="${yp(s2(e.pace))}" r="4.5" fill="#f5f7f1" stroke="#161c15" stroke-width="2"/>`
+    +`<text x="${x(i)}" y="${yp(s2(e.pace))-12}" font-family="IBM Plex Mono" font-size="11.5" fill="#161c15" text-anchor="middle">${e.pace}</text>`});
+  document.getElementById("chart").innerHTML=g;
+})();
+
+document.getElementById("entries").innerHTML=[...entries].reverse().map(e=>{
+  let tbl="";
+  if(e.table){
+    const t=e.table, bc=t.barCol;
+    let lo=0,hi=1,vals=[];
+    if(bc!=null){vals=t.rows.map(r=>s2(r[bc]));lo=Math.min(...vals);hi=Math.max(...vals)}
+    const span=(hi-lo)||1;
+    tbl=`<div class="tblwrap"><table><thead><tr>${t.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`
+      +t.rows.map((r,i)=>{
+        let bg="";
+        if(bc!=null){const f=t.barLowerIsBetter?1-(vals[i]-lo)/span:(vals[i]-lo)/span;
+          const p=(26+f*74).toFixed(1);bg=` style="background:linear-gradient(90deg,var(--bar) ${p}%,transparent ${p}%)"`}
+        return `<tr${bg}>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`}).join("")
+      +`</tbody></table></div>`;
+  }
+  return `<article class="entry">
+    <div class="ehead">
+      <div class="title">${esc(e.title)}<span class="chip">${esc(e.type)}</span></div>
+      <div class="when"><b>${fmtDate(e.date)}</b>${esc(e.time||"")}</div>
+    </div>
+    ${e.metrics?`<div class="metrics">${e.metrics.map(([l,v])=>`<div class="m"><b>${esc(v)}</b><i>${esc(l)}</i></div>`).join("")}</div>`:""}
+    ${tbl}
+    ${e.route?`<div class="route"><h4>Route${e.route.src?" &middot; "+esc(e.route.src):""}</h4><b>${esc(e.route.name)}</b>
+      <dl>${(e.route.stats||[]).map(([l,v])=>`<div>${esc(l)}: <em>${esc(v)}</em></div>`).join("")}</dl>
+      ${e.route.note?`<p>${esc(e.route.note)}</p>`:""}</div>`:""}
+    ${e.notes?`<div class="notes">${esc(e.notes)}</div>`:""}
+    ${e.where||e.extra?`<div class="extra">${e.where?`<div>${esc(e.where)}</div>`:""}${(e.extra||[]).map(([l,v])=>`<div>${esc(l)}: <em>${esc(v)}</em></div>`).join("")}</div>`:""}
+    ${e.source?`<div class="src">Source: ${esc(e.source)}</div>`:""}
+  </article>`}).join("");
+
+document.getElementById("stamp").textContent="Updated "+new Date(entries[entries.length-1].date+"T12:00:00")
+  .toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+</script>
+</body>
+</html>
