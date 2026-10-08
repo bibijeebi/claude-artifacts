@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: Kong's Water</title>
+<meta name="description" content="A self-dumping, self-refilling stainless bowl for Kong. Full build resource: CAD, fluid sim, parts with links, plumbing, wiring, HomeSpan firmware.">
+<meta property="og:title" content="Proposal #039: Kong's Water, the Self-Dumping Bowl">
+<meta property="og:description" content="Dumps the slobber, refills itself, shows up in Apple Home as a faucet. CAD model, fluid sim, buy list, plumbing, wiring and firmware.">
+<meta property="og:image" content="https://niggerfaggot.club/kongwater/og.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/proposal-kong-water.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://niggerfaggot.club/kongwater/og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<style>
+html, body { overflow-x: hidden; }
+:root {
+  --espresso: #24170F; --walnut: #362417; --timber: #4A3320; --leather: #5C4433; --taupe: #8B7B6B;
+  --brass: #C9A24B; --brass-light: #E3C77E; --cream: #F2EBDD; --linen: #FBF6EC; --sage: #4F6B45; --danger: #A5432F;
+  --line: #E5DCCB; --paper: #fff; --ink: #24170F; --muted: #6E6052;
+  --steel: #1F3A4D; --water: #2a78d6; --v12: #C4372B; --v5: #D9822B; --gnd: #24170F; --sig: #2a78d6;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Source Sans 3', system-ui, sans-serif; background: var(--linen); color: var(--ink); line-height: 1.7; font-size: 17px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 500; color: var(--leather); text-decoration: none; letter-spacing: 0.5px; text-transform: uppercase; }
+.back-link:hover { color: var(--brass); }
+.hero { position: relative; padding: 3.5rem 1.5rem 0; background: linear-gradient(135deg, var(--espresso) 0%, var(--walnut) 55%, var(--timber) 100%); color: var(--cream); overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0px, transparent 46px, rgba(255,255,255,0.02) 46px, rgba(255,255,255,0.02) 48px); }
+.hero-inner { position: relative; max-width: 960px; margin: 0 auto; }
+.badge { display: inline-block; padding: 4px 14px; border: 1px solid var(--brass); border-radius: 999px; color: var(--brass-light); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.2rem; }
+h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(2.1rem, 5.5vw, 3.4rem); line-height: 1.1; margin-bottom: 0.8rem; }
+.subtitle { color: var(--cream); opacity: 0.88; max-width: 680px; font-weight: 300; font-size: 1.1rem; }
+.meta-bar { display: flex; flex-wrap: wrap; gap: 1.8rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(201,162,75,0.35); }
+.meta-item { display: flex; flex-direction: column; gap: 2px; }
+.meta-label { font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: #B9A891; }
+.meta-value { font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--cream); }
+.meta-value.cost { color: var(--brass-light); }
+.hero-shot { position: relative; margin: 2.2rem auto 0; max-width: 960px; }
+.hero-shot img { width: 100%; display: block; border-radius: 12px 12px 0 0; }
+nav.toc { position: sticky; top: 0; z-index: 5; background: rgba(251,246,236,0.94); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+nav.toc .in { max-width: 960px; margin: 0 auto; padding: 0.55rem 1.5rem; display: flex; gap: 1.1rem; overflow-x: auto; scrollbar-width: none; }
+nav.toc a { white-space: nowrap; font-size: 0.82rem; letter-spacing: 0.6px; text-transform: uppercase; color: var(--leather); text-decoration: none; font-weight: 500; }
+nav.toc a:hover { color: var(--brass); }
+.content { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.section { margin-bottom: 3.4rem; scroll-margin-top: 3rem; }
+h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.75rem; margin-bottom: 0.9rem; color: var(--walnut); }
+h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.2rem; margin: 1.6rem 0 0.5rem; color: var(--walnut); }
+p + p { margin-top: 0.8rem; }
+a { color: var(--sage); font-weight: 500; }
+a:hover { color: var(--brass); }
+code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.86em; }
+:not(pre) > code { background: var(--cream); padding: 1px 6px; border-radius: 4px; }
+.bottom-line { background: var(--paper); border: 1px solid var(--line); border-left: 5px solid var(--brass); border-radius: 0 10px 10px 0; padding: 1.3rem 1.5rem; box-shadow: 0 6px 18px rgba(36,23,15,0.06); }
+.bottom-line strong { color: var(--walnut); }
+.callout { background: var(--cream); border-left: 4px solid var(--brass); border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1.2rem 0; font-size: 0.97rem; }
+.callout.danger { border-left-color: var(--danger); }
+.callout.go { border-left-color: var(--sage); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; }
+figure.shot { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 0.7rem; box-shadow: 0 6px 18px rgba(36,23,15,0.06); }
+figure.shot img, figure.shot video { width: 100%; display: block; border-radius: 7px; }
+figure.shot figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; text-align: center; }
+.video-wrap { background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(36,23,15,0.18); }
+.video-wrap video { width: 100%; display: block; aspect-ratio: 16/9; }
+model-viewer { width: 100%; height: 520px; background: radial-gradient(circle at 50% 35%, #ffffff 0%, #EFE7D7 70%); border-radius: 12px; border: 1px solid var(--line); --poster-color: transparent; }
+.mv-hint { font-size: 0.85rem; color: var(--muted); margin-top: 0.4rem; }
+.cycle { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.9rem; margin: 1.2rem 0; counter-reset: c; }
+.cycle .step { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; position: relative; counter-increment: c; }
+.cycle .step::before { content: counter(c); position: absolute; top: -12px; left: 14px; width: 26px; height: 26px; border-radius: 50%; background: var(--walnut); color: var(--brass-light); font-family: 'Fraunces', serif; display: grid; place-items: center; font-size: 0.9rem; }
+.cycle .step b { display: block; font-family: 'Fraunces', serif; font-weight: 500; color: var(--walnut); margin: 0.3rem 0 0.2rem; }
+.cycle .step span { font-size: 0.92rem; color: var(--muted); }
+.checklist { list-style: none; counter-reset: k; }
+.checklist li { counter-increment: k; position: relative; padding: 0.9rem 1rem 0.9rem 3.2rem; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 0.65rem; }
+.checklist li::before { content: counter(k); position: absolute; left: 0.9rem; top: 0.85rem; width: 28px; height: 28px; border-radius: 6px; background: var(--brass); color: var(--espresso); font-weight: 600; display: grid; place-items: center; font-size: 0.9rem; }
+.checklist li b { color: var(--walnut); }
+.checklist .why { display: block; font-size: 0.9rem; color: var(--muted); margin-top: 0.2rem; }
+.table-wrap { overflow-x: auto; margin-top: 0.8rem; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+th { text-align: left; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 9px 12px; border-bottom: 2px solid var(--cream); background: #FDFAF4; }
+td { padding: 9px 12px; border-bottom: 1px solid #EFE8D8; vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.price, th.price { text-align: right; white-space: nowrap; }
+td.price { color: var(--walnut); font-weight: 600; }
+td small { display: block; color: var(--muted); font-size: 0.82rem; line-height: 1.45; margin-top: 2px; }
+tr.total td { font-weight: 600; background: #FDFAF4; }
+.store-tag { display: inline-block; font-size: 0.68rem; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--cream); color: var(--leather); margin-left: 6px; vertical-align: middle; }
+.have { color: var(--sage); font-weight: 600; }
+.diagram { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 0.8rem; overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 680px; height: auto; }
+.diagram svg text { font-family: 'Source Sans 3', sans-serif; }
+.legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: var(--muted); margin-top: 0.6rem; }
+.legend i { display: inline-block; width: 22px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+pre { background: #1E1712; color: #EDE3D1; border-radius: 10px; padding: 1.1rem 1.2rem; overflow-x: auto; font-size: 0.8rem; line-height: 1.55; max-height: 560px; }
+pre .c { color: #9C8B74; }
+details { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.8rem 1rem; margin-top: 0.8rem; }
+details summary { cursor: pointer; font-weight: 600; color: var(--walnut); }
+details[open] summary { margin-bottom: 0.7rem; }
+.chart { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1rem 0.6rem; position: relative; }
+.chart h4 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.05rem; color: var(--walnut); }
+.chart .sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.4rem; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .axis text { font-size: 11px; fill: var(--muted); }
+.chart .grid line { stroke: #EEE6D6; }
+.chart .tip { position: absolute; pointer-events: none; background: var(--espresso); color: var(--cream); font-size: 0.8rem; padding: 6px 9px; border-radius: 6px; opacity: 0; transition: opacity .1s; white-space: nowrap; }
+.chart .keys { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: var(--muted); }
+.chart .keys span::before { content: ''; display: inline-block; width: 14px; height: 3px; border-radius: 2px; background: var(--k); margin-right: 6px; vertical-align: middle; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; margin: 1rem 0; }
+.stat { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.8rem 1rem; }
+.stat .n { font-family: 'Fraunces', serif; font-size: 1.7rem; color: var(--walnut); line-height: 1.1; }
+.stat .l { font-size: 0.82rem; color: var(--muted); }
+ol.steps { padding-left: 1.4rem; }
+ol.steps li { margin-bottom: 0.45rem; padding-left: 0.2rem; }
+ul.plain { padding-left: 1.3rem; }
+ul.plain li { margin-bottom: 0.35rem; }
+.gotcha { display: grid; grid-template-columns: 1fr; gap: 0.7rem; }
+.gotcha div { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 0.85rem 1.05rem; font-size: 0.95rem; }
+.gotcha b { color: var(--danger); }
+.dl { display: inline-flex; align-items: center; gap: 8px; background: var(--walnut); color: var(--brass-light); padding: 0.55rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 0.92rem; margin: 0.3rem 0.4rem 0.3rem 0; }
+.dl:hover { color: #fff; background: var(--timber); }
+.footer-note { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
+.footer-note li { margin-bottom: 0.25rem; }
+@media (max-width: 640px) { body { font-size: 16px; } model-viewer { height: 380px; } .hero { padding-top: 2.5rem; } }
+</style>
+</head>
+<body>
+
+<a href="/proposals" class="back-link">&larr; All Proposals</a>
+
+<header class="hero">
+  <div class="hero-inner">
+    <span class="badge">Proposal #039</span>
+    <h1>Kong's Water: The Self-Dumping Bowl</h1>
+    <p class="subtitle">Kong's slobber floats on top of his water as a raft, so skimming it doesn't work. This bowl doesn't try to separate anything. On a schedule it dumps all the water, refills with fresh, and shows up in Apple Home as a faucet you can tap.</p>
+    <div class="meta-bar">
+      <div class="meta-item"><span class="meta-label">Prototype cost</span><span class="meta-value cost">~$430 parts + ~$60 tools</span></div>
+      <div class="meta-item"><span class="meta-label">Difficulty</span><span class="meta-value">3/5</span></div>
+      <div class="meta-item"><span class="meta-label">Build time</span><span class="meta-value">One weekend</span></div>
+      <div class="meta-item"><span class="meta-label">Brains</span><span class="meta-value">Spare ESP32 + HomeSpan</span></div>
+      <div class="meta-item"><span class="meta-label">Category</span><span class="meta-value">Home</span></div>
+    </div>
+  </div>
+  <div class="hero-shot"><img src="kongwater/hero_top.webp" alt="3D render of the prototype: a stainless brazier pan with a white floating disc, set into a wooden stand inside a bathtub" width="1600" height="900"></div>
+</header>
+
+<nav class="toc"><div class="in">
+  <a href="#bottom-line">Bottom line</a><a href="#video">Video</a><a href="#how">How it works</a><a href="#model">3D model</a><a href="#sim">Fluid sim</a><a href="#now">Do this now</a><a href="#buy">Buy list</a><a href="#plumbing">Plumbing</a><a href="#wiring">Wiring</a><a href="#firmware">Firmware</a><a href="#build">Build steps</a><a href="#test">Test plan</a><a href="#gotchas">Gotchas</a><a href="#v2">v2</a>
+</div></nav>
+
+<main class="content">
+
+<section class="section" id="bottom-line">
+  <h2>Bottom line</h2>
+  <div class="bottom-line">
+    <p><strong>Build the prototype as a standalone rig that sits in the bathtub.</strong> It's a 20 qt stainless brazier pan with a 3/4" drain in the bottom, a floating HDPE disc so Kong can only drink from the center, a float valve to refill it, and two motorized ball valves run by one of your spare ESP32s.</p>
+    <p>Every few hours, and whenever you tap it in Apple Home, it does the same thing. It shuts the inlet, opens the drain, and holds it open for 75 seconds. The model says 2.2 gallons drain out in about 20 seconds. Then it shuts the drain and reopens the inlet, and the float refills the pan. A motion sensor keeps it from dumping while he's standing there. A leak probe on the floor locks the inlet shut if anything gets wet.</p>
+    <p>Because it sits in the tub, any failure goes down the tub drain. Once it's run a week with Kong using it, v2 gets plumbed into the kitchen tee and a crawlspace drain.</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="n">2.2 gal</div><div class="l">water per dump at 2.75" deep</div></div>
+    <div class="stat"><div class="n">~20 s</div><div class="l">to empty through the 3/4" full-port valve</div></div>
+    <div class="stat"><div class="n">~4 min</div><div class="l">to refill at 0.5 gpm (depends on your line)</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">valves, both on your kit's 2-relay board</div></div>
+  </div>
+</section>
+
+<section class="section" id="video">
+  <h2>Video proposal</h2>
+  <div class="video-wrap"><video controls preload="metadata" playsinline poster="kongwater/hero_low.webp" src="kongwater/kong-water-proposal.mp4"></video></div>
+  <p class="mv-hint">90-second walkthrough: the problem, the rig, the dump cycle, the sim, the electronics and the next moves.</p>
+</section>
+
+<section class="section" id="how">
+  <h2>How it works</h2>
+  <p>Kong's drool is mostly water and mucin, so it's about as dense as water. Air gets whipped into it while he drinks, which is why it floats as a raft and doesn't sink. Nothing can reliably sense or skim it, so the bowl doesn't try. It just throws out all the water and starts over.</p>
+  <div class="cycle">
+    <div class="step"><b>Close the inlet</b><span>Relay 1 powers the 1/4" normally-open valve, which closes it. Fresh water stops coming in.</span></div>
+    <div class="step"><b>Open the drain</b><span>Relay 2 powers the 3/4" normally-closed valve, which opens it full-bore. Everything goes out the bottom, raft included.</span></div>
+    <div class="step"><b>Hold 75 s</b><span>The pan is empty by about 20 s. The rest of the hold rinses the walls and gives the valve's return capacitor its minimum one minute of power.</span></div>
+    <div class="step"><b>Close drain, reopen inlet</b><span>Relay 2 drops and the drain springs shut. 8 s later relay 1 drops, the inlet springs open, and the float valve refills to the set line.</span></div>
+  </div>
+  <div class="grid2">
+    <figure class="shot"><img src="kongwater/cut_closed.webp" alt="Cutaway render showing water in the pan and the ball valve closed" loading="lazy"><figcaption>Between dumps: drain ball turned sideways, disc floating on the water</figcaption></figure>
+    <figure class="shot"><img src="kongwater/cut_open.webp" alt="Cutaway render showing the ball valve bore lined up with the drain" loading="lazy"><figcaption>During a dump: ball bore lined up with the drain, full 3/4" opening</figcaption></figure>
+  </div>
+  <h3>Why these choices</h3>
+  <ul class="plain">
+    <li><b>Ball valve on the drain, not a solenoid.</b> Gravity gives you about 0.1 psi. Pilot solenoids need a few psi to open. The direct-acting ones that work at zero psi have a 2-3 mm hole that slobber strings clog. A full-port ball wipes its own bore every quarter turn.</li>
+    <li><b>Motorized valve on the inlet too.</b> It turns out U.S. Solid doesn't sell a stainless, normally-open, 12V 1/4" solenoid. The brass one isn't rated for drinking water and can't be held closed more than 8 hours at a time. Their 1/4" stainless motorized ball valve is NSF 61, normally open, uses 5 W and costs $34. It also matches the drain valve, so both are the same kind of part.</li>
+    <li><b>Normally-open inlet, normally-closed drain.</b> If the power dies or the ESP32 crashes, both relays drop. That leaves the inlet open and the drain shut, so it keeps working as a plain float bowl. A dead controller never leaves Kong dry.</li>
+    <li><b>A pan with a flat floor.</b> The floating disc has to ride all the way down to the floor and back up. The Vigor 20 qt has a 15" flat floor and 6" walls. The 15 qt version's floor is only 12.5", which is too small for the disc.</li>
+    <li><b>ESP32 + HomeSpan, not dumb timers.</b> One outlet timer could run both valves. But it can't close the inlet <i>before</i> opening the drain, can't wait until Kong walks away, can't lock out on a leak, and can't show up in Apple Home. You already have three ESP32s and the relay/PIR kit, and HomeSpan already worked for you at Laurel's.</li>
+  </ul>
+</section>
+
+<section class="section" id="model">
+  <h2>3D model</h2>
+  <model-viewer src="kongwater/kong-waterer.glb" alt="Interactive 3D model of the Kong waterer prototype" camera-controls touch-action="pan-y" auto-rotate rotation-per-second="18deg" shadow-intensity="0.8" exposure="1.05" camera-orbit="35deg 62deg 1.55m" field-of-view="32deg" interaction-prompt="none"></model-viewer>
+  <p class="mv-hint">Drag to orbit, pinch or scroll to zoom. The model is built from measurements: Vigor 20 qt pan (15" floor, 16-3/4" top, 6" tall), 1/2" HDPE disc, Banjo TF075 bulkhead, both U.S. Solid valves, and the 2x4 stand with its rim at 18". The rim height is a guess until you measure Kong.</p>
+  <a class="dl" href="kongwater/kong-waterer.glb" download>Download model (.glb)</a>
+  <a class="dl" href="kongwater/disc-template.svg" download>Disc cutting template (1:1 SVG)</a>
+  <h3>Key dimensions</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Part</th><th>Dimension</th><th>Why</th></tr>
+    <tr><td>Water depth</td><td>2.75" (float set point)</td><td>2.2 gal. Shallow enough to dump fast, deep enough that the disc never touches the floor while he drinks.</td></tr>
+    <tr><td>Disc</td><td>14.75" OD, 3.5" center hole, 1/2" HDPE</td><td>1/8" clearance to the 15" floor. The pan widens to 15.8" at the water line, so there's about a 1/2" ring of gap at full. The center hole size is a guess until you measure his muzzle.</td></tr>
+    <tr><td>Float notch</td><td>2.9" round notch at the float</td><td>Keys the disc so it can't spin or tilt into the float arm.</td></tr>
+    <tr><td>Pontoons</td><td>2 layers of 1/2" closed-cell PE ring, 6" ID x 10.4" OD</td><td>On its own, HDPE has about 70 g of float reserve. The foam adds about 0.9 kg so his tongue can't sink it.</td></tr>
+    <tr><td>Feet</td><td>3 bumps under the foam, 1/4" tall</td><td>Keep the disc from suctioning flat to the floor when the pan's empty.</td></tr>
+    <tr><td>Drain hole</td><td>1-5/8" dead center</td><td>Banjo TF075 spec. Use a carbide hole saw, since the floor is stainless + 4 mm aluminum + stainless.</td></tr>
+    <tr><td>Float hole</td><td>5/8" in the wall, center 3.35" above the floor</td><td>The JBTOZIUY float valve body is 5/8". Set the shutoff height with the arm.</td></tr>
+    <tr><td>Stand</td><td>21" square, top 3/4" ply with a 16.9" hole, rim at 18"</td><td>Fits inside the tub. The pan hangs by its handles, so the valve hangs free underneath.</td></tr>
+  </table></div>
+</section>
+
+<section class="section" id="sim">
+  <h2>Fluid sim + drain math</h2>
+  <div class="grid2">
+    <figure class="shot"><video src="kongwater/fluid-cutaway.mp4" autoplay muted loop playsinline poster="kongwater/cut_closed.webp"></video><figcaption>Mantaflow sim (Blender 4.5), cut in half. The valve opens over 7 s and the disc rides down with the water. Time is compressed 5x.</figcaption></figure>
+    <figure class="shot"><video src="kongwater/kong-concept.mp4" autoplay muted loop playsinline poster="kongwater/hero_low.webp"></video><figcaption>Concept shot only: AI video (MiniMax-H3) generated from the render, as a Saint Bernard scale check. It isn't a test, so measure Kong for the real rim height.</figcaption></figure>
+  </div>
+  <p style="margin-top:1rem">The visual sim runs at about 8 mm cells, which makes the 3/4" bore only about 2.5 cells wide. That's why it drains slower on screen than the real valve will. Use it to see what the water and the disc do, not for timing. The timing numbers come from a separate drain model that's easier to check. It uses Torricelli flow through a 3/4" bore, with 8.8" of pipe below the floor adding head, entrance and pipe losses (discharge coefficient about 0.72), and the tapered pan's real area at every depth. The valve opens on a 4 s smooth curve.</p>
+
+  <div class="chart" id="chart-bore" style="margin-top:1rem">
+    <h4>Water depth during a dump, by drain size</h4>
+    <div class="sub">Inlet shut. The valve starts opening at t = 0.</div>
+    <div class="keys"></div>
+    <svg viewBox="0 0 720 300" role="img" aria-label="Water depth versus time for 1/2, 3/4 and 1 inch drains"></svg>
+    <div class="tip"></div>
+  </div>
+  <div class="chart" id="chart-cycle" style="margin-top:1rem">
+    <h4>One full cycle at 0.5 gpm supply</h4>
+    <div class="sub">Close the inlet, open the drain, hold 75 s, close the drain, reopen the inlet, let the float refill.</div>
+    <svg viewBox="0 0 720 300" role="img" aria-label="Water depth over one full dump and refill cycle"></svg>
+    <div class="tip"></div>
+  </div>
+  <h3>What the numbers say</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Question</th><th>Answer</th></tr>
+    <tr><td>Is 3/4" big enough?</td><td>Yes. It empties in <b>19.9 s</b>. A 1/2" drain takes 44 s, and 1" takes 12 s but needs a bigger hole and fittings for no real gain.</td></tr>
+    <tr><td>How long until he has water again?</td><td>The dump takes 75 s plus 8 s for the valve, then the refill: <b>~9.5 min at 0.25 gpm, ~5.4 min at 0.5, ~3.3 min at 1.0</b>. Time a gallon jug from your line to find out which.</td></tr>
+    <tr><td>Do we even need the inlet valve?</td><td>The model says no. With the float running wide open the whole time, the bowl still empties fully: 20.5 s at 0.25 gpm, 21.2 at 0.5, 22.6 at 1.0, and 24.4 at 1.5 gpm. Near the bottom the drain moves about 6.8 gpm, which beats any float. What the valve saves is the water the float would pour straight down the drain during the hold: 0.3 to 1.9 gal per dump. Keep it in prototype one as planned, and run the bypass test in the <a href="#test">test plan</a> to decide for v2.</td></tr>
+    <tr><td>Water use</td><td>2.2 gal per dump. Six dumps a day is about 13 gal/day, roughly 400 gal/month. Multiply by your bill's combined water + sewer rate per 1,000 gal.</td></tr>
+  </table></div>
+</section>
+
+<section class="section" id="now">
+  <h2>Do this now</h2>
+  <p>None of this needs parts you don't already have, and it sets every number the build depends on.</p>
+  <ol class="checklist">
+    <li><b>Measure Kong's elbow height</b> with him standing square: floor to the back of the elbow. The rim of the pan goes right at that height, or up to 2" below it. The model uses 18" as a placeholder.<span class="why">This sets the stand height, the 2x4 cut list, and whether the rig still fits under the tub's grab bar or shelf.</span></li>
+    <li><b>Measure his muzzle width</b> about 2" back from the nose, and his lower-jaw depth.<span class="why">The disc hole needs to be about 1/2" wider than the muzzle. 3.5" is the placeholder.</span></li>
+    <li><b>Time a gallon jug</b> filling from the existing 1/4" kitchen tee line with its ball valve wide open. 60 ÷ seconds = gpm.<span class="why">This sets the refill time and tells you whether the float valve's 60 psi rating matters. If it fills faster than 1.5 gpm, add a flow restrictor.</span></li>
+    <li><b>Flash a spare ESP32 tonight.</b> Follow the <a href="#firmware">firmware</a> steps, pair it in Apple Home, and watch the relay board click through a dump with nothing connected.<span class="why">This proves out the brains before any water gets near them. Also confirm your kit's relay board actually switches off at 3.3 V (see <a href="#gotchas">gotchas</a>).</span></li>
+    <li><b>Find the water source for the tub test.</b> You need a garden-hose thread within 20 ft of the tub, like an outside spigot or the washer valve. Or test in the kitchen on the tee line, draining into a 5-gal bucket, while you watch it.<span class="why">The Buddie Fit adapter on the buy list goes from a hose thread to 1/4" tube.</span></li>
+    <li><b>Place the orders</b> in the <a href="#buy">buy list</a>: WebstaurantStore for the pan, U.S. Solid direct for both valves, Quality Farm Supply for the bulkhead, and one Amazon cart for everything else.</li>
+    <li><b>Home Depot run (Garner).</b> The arbor, cutting oil, 2x4s and plywood are pickup-in-store. Order the 1-5/8" carbide hole saw and close nipple ship-to-store at the same time.</li>
+  </ol>
+</section>
+
+<section class="section" id="buy">
+  <h2>Buy list</h2>
+  <p>Prices as seen Oct 8, 2026. Specs were checked against the manufacturer or listing pages; anything that couldn't be confirmed is marked.</p>
+
+  <h3>Already have <span class="store-tag">your kit</span></h3>
+  <div class="table-wrap"><table>
+    <tr><th>Part</th><th>Use</th></tr>
+    <tr><td><span class="have">✓</span> ESP32 WROOM + screw-terminal adapter (3 sets from the driveway project)</td><td>Controller. One gets used, two are spares.</td></tr>
+    <tr><td><span class="have">✓</span> 2-channel relay module (kit)</td><td>Relay 1 runs the inlet valve, relay 2 runs the drain valve</td></tr>
+    <tr><td><span class="have">✓</span> HC-SR501 PIR (kit)</td><td>Holds off a dump while Kong is at the bowl</td></tr>
+    <tr><td><span class="have">✓</span> Jumpers, hookup wire, USB brick, screws, PTFE tape</td><td>Bench wiring, plus the threads on the drain side</td></tr>
+  </table></div>
+
+  <h3>Bowl + drain</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Item</th><th>Where</th><th>Qty</th><th class="price">Price</th></tr>
+    <tr><td><a href="https://www.webstaurantstore.com/vigor-20-qt-heavy-duty-stainless-steel-aluminum-clad-brazier-with-cover/473SSBRZR20.html">Vigor 20 qt brazier, 473SSBRZR20</a><small>15" floor, 16-3/4" top, 6" tall, 20 ga, 4 mm aluminum-clad bottom. Not the 15 qt, whose floor is only 12.5".</small></td><td>WebstaurantStore</td><td>1</td><td class="price">$104.99</td></tr>
+    <tr><td><a href="https://qualityfarmsupply.com/collections/poly-tank-fittings/products/banjo-tf075-polypropylene-bulkhead-tank-fitting-3-4-fnpt">Banjo TF075 3/4" bulkhead</a><small>Polypropylene, female NPT on both ends, 1-5/8" hole, EPDM gasket. The gasket isn't FDA-listed; fine for a prototype (see v2).</small></td><td>Quality Farm Supply</td><td>1</td><td class="price">$12.99</td></tr>
+    <tr><td><a href="https://www.homedepot.com/p/Guardian-3-4-in-x-Close-304-304L-S80-Stainless-Steel-Nipple-TBE-Seamless-E4BNE01/321836838">Guardian 3/4" close nipple, 304 SS</a><small>Bulkhead to valve</small></td><td>Home Depot <span class="store-tag">ship-to-store</span></td><td>1</td><td class="price">$5.73</td></tr>
+    <tr><td><a href="https://ussolid.com/products/u-s-solid-motorized-ball-valve-3-4-stainless-steel-electrical-ball-valve-with-full-port-9-24-v-ac-dc-2-wire-auto-return-html">U.S. Solid 3/4" SS motorized ball valve, 9-24V, 2-wire auto-return, NC</a><small>USS-MSV00008. Full port, 3-5 s stroke, 5 W, NSF 61, IP65. <b>Order the NPT version; the "G" thread version is standard port, not full port.</b> Same valve <a href="https://www.amazon.com/dp/B06XW8MSTX">on Amazon</a> for $57.19.</small></td><td>U.S. Solid</td><td>1</td><td class="price">$48.42</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B0DFYGSCJ8">GeilSpace 3/4" x 4" 304 SS nipple, 2-pack</a><small>Tail pipe under the valve. The extra drop speeds up the drain.</small></td><td>Amazon</td><td>1</td><td class="price">$13.29</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B004V40R2M">Momentive RTV108 silicone, 2.8 oz</a><small>NSF 51, FDA 21 CFR 177.2600. Seals the cut aluminum edge of the hole and beds the gasket.</small></td><td>Amazon</td><td>1</td><td class="price">$26.26</td></tr>
+  </table></div>
+
+  <h3>Fill side</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Item</th><th>Where</th><th>Qty</th><th class="price">Price</th></tr>
+    <tr><td><a href="https://ussolid.com/products/u-s-solid-motorized-ball-valve-1-4-stainless-steel-electrical-ball-valve-with-full-port-9-24-v-ac-dc-2-wire-auto-return-normally-open-html">U.S. Solid 1/4" SS motorized ball valve, 9-24V, 2-wire auto-return, NO</a><small>USS-MSV00077. Normally open, NSF 61, 5 W. Port thread is listed as 1/4" NPT; female is likely but UNVERIFIED, so check it before ordering the adapters. Also <a href="https://www.amazon.com/dp/B0993GQKQL">on Amazon</a> for $35.69.</small></td><td>U.S. Solid</td><td>1</td><td class="price">$33.63</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B09XGSK4N3">JBTOZIUY 1/4" adjustable float valve kit</a><small>Side mount, 5/8" body, walls up to 11 mm, push-connect inlet</small></td><td>Amazon</td><td>1</td><td class="price">$9.99</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B01MRBHLGY">John Guest 1/4" PE tubing, 20 ft</a><small>NSF 51, 120 psi</small></td><td>Amazon</td><td>1</td><td class="price">$9.50</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B00AELC3MI">John Guest 1/4" check valve</a><small>Stops bowl water from ever siphoning back into the house line</small></td><td>Amazon</td><td>1</td><td class="price">$16.50</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B005S4NYI8">John Guest PP0208WP 1/4" union tee</a><small>Splits off and rejoins the bypass</small></td><td>Amazon</td><td>2</td><td class="price">$14.32</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B003YKF2E2">John Guest PPSV040808WP 1/4" shutoff</a><small>Bypass valve, normally shut</small></td><td>Amazon</td><td>1</td><td class="price">$9.90</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B005S4NNZ2">John Guest PP010822WP 1/4" tube x 1/4" MNPT</a><small>Into and out of the inlet valve</small></td><td>Amazon</td><td>2</td><td class="price">$10.00</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B00EPV48MG">AquaticLife Buddie Fit hose adapter, 2-pack</a><small>Garden-hose thread (GHT) to 1/4" push-fit, for the tub test. Skip it if you test off the kitchen tee.</small></td><td>Amazon</td><td>1</td><td class="price">$8.00</td></tr>
+  </table></div>
+
+  <h3>Disc</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Item</th><th>Where</th><th>Qty</th><th class="price">Price</th></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B078GFBYDL">Thirteen Chefs 24x18x1/2" HDPE board</a><small>NSF. The disc gets cut from it with a router circle jig or a jigsaw.</small></td><td>Amazon</td><td>1</td><td class="price">$34.95</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B0D894G42V">DRENIS closed-cell PE foam, 4 sheets 12x16x1/2"</a><small>Pontoons. Make sure it's polyethylene; the Artilife "closed cell" roll is EPDM.</small></td><td>Amazon</td><td>1</td><td class="price">not shown</td></tr>
+    <tr><td>Nylon or 316 SS screws, #8 x 3/4"<small>To hold the foam on. Glue won't stick to HDPE.</small></td><td>Home Depot</td><td>6</td><td class="price">~$5</td></tr>
+  </table></div>
+
+  <h3>Electronics</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Item</th><th>Where</th><th>Qty</th><th class="price">Price</th></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B07HNV6SBJ">Chanzon 12V 3A adapter</a><small>UL listed, 5.5x2.1 mm plug, center positive. Both valves draw 10 W together.</small></td><td>Amazon</td><td>1</td><td class="price">~$16.99</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B0C4JJ2HB4">ANLINK barrel-to-screw-terminal, 20-pack</a></td><td>Amazon</td><td>1</td><td class="price">$6.99</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B0DBVYP91F">LM2596 buck converter, 5-pack</a><small>Turns the 12V into 5.0V for the ESP32, relays and PIR. Optional if you'd rather power the ESP32 off a USB brick.</small></td><td>Amazon</td><td>1</td><td class="price">$7.99</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B0BXKMLB4D">DIYables water sensor, 5-pack</a><small>Leak probe on the floor under the rig</small></td><td>Amazon</td><td>1</td><td class="price">$5.99</td></tr>
+    <tr><td><a href="https://www.amazon.com/dp/B09VDBZFP2">LeMotech IP65 ABS box, 5.9x4.3x2.8"</a><small>Comes with cable glands. Mount it high on the stand leg, away from his face.</small></td><td>Amazon</td><td>1</td><td class="price">$9.99</td></tr>
+  </table></div>
+
+  <h3>Tools + lumber <span class="store-tag">Home Depot Garner #3631</span></h3>
+  <div class="table-wrap"><table>
+    <tr><th>Item</th><th>Availability</th><th>Qty</th><th class="price">Price</th></tr>
+    <tr><td><a href="https://www.homedepot.com/p/301697684">Diablo DHS1625CT 1-5/8" carbide hole saw</a><small>Rated for stainless. No arbor included.</small></td><td>ship-to-store</td><td>1</td><td class="price">$16.52</td></tr>
+    <tr><td><a href="https://www.homedepot.com/p/202256264">Milwaukee 49-56-7250 arbor</a></td><td>pickup, 6 in stock</td><td>1</td><td class="price">$26.97</td></tr>
+    <tr><td><a href="https://www.homedepot.com/p/Drill-America-1-4-in-to-1-in-to-3-8-in-5-High-Speed-Steel-Black-and-Gold-Step-Drill-Bit-with-Quick-Change-Hex-Shank-STE5HEX/317371349">Drill America STE5HEX step bit, 1/4" to 1"</a><small>For the 5/8" float hole in the pan wall</small></td><td>check page</td><td>1</td><td class="price">see page</td></tr>
+    <tr><td><a href="https://www.homedepot.com/p/Oatey-16-oz-Dark-Thread-Cutting-Oil-302032/203461243">Oatey dark thread cutting oil, 16 oz</a></td><td>pickup, 9 in stock</td><td>1</td><td class="price">$8.48</td></tr>
+    <tr><td><a href="https://www.homedepot.com/p/2-in-x-4-in-x-96-in-Premium-Kiln-Dried-Whitewood-Stud-HD0133158/325286259">2x4x96" premium stud</a></td><td>pickup</td><td>3</td><td class="price">$12.75</td></tr>
+    <tr><td><a href="https://www.homedepot.com/p/202093835">ProWood 23/32" 2x2 ft sanded plywood panel</a><small>Stand top, with a 16.9" hole for the pan</small></td><td>pickup, 8 in stock</td><td>1</td><td class="price">$13.75</td></tr>
+  </table></div>
+  <div class="table-wrap" style="margin-top:1rem"><table>
+    <tr class="total"><td>Parts</td><td class="price">~$430</td></tr>
+    <tr class="total"><td>Tools you keep (hole saw, arbor, step bit, oil)</td><td class="price">~$60</td></tr>
+    <tr><td colspan="2"><small>Plus shipping on the pan, bulkhead and U.S. Solid orders, and the foam, whose price wasn't shown. Buying both valves on Amazon instead of direct adds about $11.</small></td></tr>
+  </table></div>
+</section>
+
+<section class="section" id="plumbing">
+  <h2>Plumbing</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 900 470" role="img" aria-label="Plumbing diagram: supply through check valve, tee, normally open valve with bypass, tee, float valve into pan; pan drains through bulkhead, close nipple, normally closed ball valve and tail pipe into tub">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M1 1L9 5L1 9z" fill="#2a78d6"/></marker></defs>
+      <text x="20" y="28" font-size="13" fill="#6E6052" letter-spacing="1.5">SUPPLY (1/4" PUSH-CONNECT)</text>
+      <g font-size="13" fill="#24170F">
+        <rect x="20" y="52" width="118" height="54" rx="8" fill="#F2EBDD" stroke="#C9A24B"/><text x="79" y="75" text-anchor="middle" font-weight="600">Hose bib</text><text x="79" y="93" text-anchor="middle" fill="#6E6052" font-size="11.5">or kitchen tee</text>
+        <rect x="170" y="52" width="108" height="54" rx="8" fill="#fff" stroke="#8B7B6B"/><text x="224" y="75" text-anchor="middle" font-weight="600">Buddie Fit</text><text x="224" y="93" text-anchor="middle" fill="#6E6052" font-size="11.5">GHT → 1/4"</text>
+        <rect x="310" y="52" width="100" height="54" rx="8" fill="#fff" stroke="#A5432F"/><text x="360" y="75" text-anchor="middle" font-weight="600">Check valve</text><text x="360" y="93" text-anchor="middle" fill="#6E6052" font-size="11.5">arrow → bowl</text>
+        <circle cx="452" cy="79" r="16" fill="#fff" stroke="#8B7B6B"/><text x="452" y="84" text-anchor="middle" font-weight="600">A</text>
+        <rect x="500" y="40" width="148" height="78" rx="8" fill="#E6F0FB" stroke="#2a78d6"/><text x="574" y="64" text-anchor="middle" font-weight="600">1/4" motorized ball</text><text x="574" y="82" text-anchor="middle" fill="#1F3A4D">Normally OPEN</text><text x="574" y="100" text-anchor="middle" fill="#6E6052" font-size="11.5">MNPT adapters both ends</text>
+        <circle cx="694" cy="79" r="16" fill="#fff" stroke="#8B7B6B"/><text x="694" y="84" text-anchor="middle" font-weight="600">B</text>
+        <rect x="740" y="52" width="140" height="54" rx="8" fill="#fff" stroke="#8B7B6B"/><text x="810" y="75" text-anchor="middle" font-weight="600">Float valve</text><text x="810" y="93" text-anchor="middle" fill="#6E6052" font-size="11.5">5/8" hole in pan wall</text>
+        <rect x="500" y="150" width="148" height="44" rx="8" fill="#fff" stroke="#8B7B6B" stroke-dasharray="5 4"/><text x="574" y="170" text-anchor="middle" font-weight="600">Bypass shutoff</text><text x="574" y="186" text-anchor="middle" fill="#6E6052" font-size="11.5">normally SHUT</text>
+      </g>
+      <g stroke="#2a78d6" stroke-width="3" fill="none">
+        <line x1="138" y1="79" x2="166" y2="79" marker-end="url(#ar)"/><line x1="278" y1="79" x2="306" y2="79" marker-end="url(#ar)"/><line x1="410" y1="79" x2="434" y2="79" marker-end="url(#ar)"/>
+        <line x1="468" y1="79" x2="496" y2="79" marker-end="url(#ar)"/><line x1="648" y1="79" x2="676" y2="79" marker-end="url(#ar)"/><line x1="710" y1="79" x2="736" y2="79" marker-end="url(#ar)"/>
+        <path d="M452 95 V172 H496" stroke-dasharray="6 5"/><path d="M648 172 H694 V95" stroke-dasharray="6 5"/>
+      </g>
+      <line x1="20" y1="232" x2="880" y2="232" stroke="#E5DCCB"/>
+      <text x="20" y="262" font-size="13" fill="#6E6052" letter-spacing="1.5">DRAIN (3/4" NPT, top to bottom)</text>
+      <g font-size="13" fill="#24170F">
+        <path d="M150 300 L170 395 L410 395 L430 300" fill="#E6F0FB" stroke="#8B7B6B" stroke-width="2"/>
+        <rect x="160" y="352" width="260" height="10" fill="#fff" stroke="#24170F" rx="2"/>
+        <rect x="270" y="388" width="40" height="18" fill="#24170F"/><rect x="278" y="406" width="24" height="14" fill="#8B7B6B"/><rect x="266" y="420" width="48" height="30" rx="5" fill="#2a78d6"/>
+        <rect x="278" y="450" width="24" height="18" fill="#8B7B6B"/>
+        <text x="200" y="330" fill="#1F3A4D">Pan (water + floating disc)</text>
+        <line x1="316" y1="397" x2="470" y2="314" stroke="#8B7B6B" stroke-width="1"/><text x="476" y="310"><tspan font-weight="600">Banjo TF075 bulkhead</tspan> · gasket inside on the floor, nut underneath · 1-5/8" hole · RTV108 on the cut edge</text>
+        <line x1="304" y1="412" x2="470" y2="352" stroke="#8B7B6B" stroke-width="1"/><text x="476" y="348"><tspan font-weight="600">3/4" close nipple</tspan> · PTFE tape, 3 wraps clockwise</text>
+        <line x1="316" y1="434" x2="470" y2="392" stroke="#8B7B6B" stroke-width="1"/><text x="476" y="388"><tspan font-weight="600">3/4" motorized ball, normally CLOSED</tspan> · actuator facing out</text>
+        <line x1="304" y1="460" x2="470" y2="430" stroke="#8B7B6B" stroke-width="1"/><text x="476" y="426"><tspan font-weight="600">3/4" x 4" nipple</tspan> · open end into the tub, no cap, no hose</text>
+      </g>
+    </svg>
+  </div>
+  <div class="legend"><span><i style="background:#2a78d6"></i>water path</span><span><i style="background:repeating-linear-gradient(90deg,#2a78d6 0 6px,transparent 6px 11px)"></i>bypass, shut in normal use</span></div>
+  <h3>Rules for the threads</h3>
+  <ul class="plain">
+    <li><b>NPT threads (drain side, inlet valve adapters):</b> 3 wraps of PTFE tape, clockwise as you look at the thread end. Hand tight, then 1 to 2 turns with a wrench. Don't tape the bulkhead's big outer nut, since it seals on the gasket.</li>
+    <li><b>Push-connect (everything 1/4"):</b> no tape. Cut the tube square, push it in until it bottoms (about 5/8"), then tug to check it's locked. Push the collet in to release.</li>
+    <li><b>Check valve direction:</b> the arrow points toward the bowl.</li>
+    <li><b>Air gap:</b> the float valve's outlet sits above the highest the water can ever reach. Together with the check valve, that keeps bowl water from ever siphoning back into the house line. v2 needs both once it's tied into the kitchen supply.</li>
+  </ul>
+</section>
+
+<section class="section" id="wiring">
+  <h2>Wiring</h2>
+  <p>The diagram uses net labels instead of drawn wires: every pin with the same label gets wired together. The netlist table under it is the checklist to wire from.</p>
+  <div class="diagram">
+<svg viewBox="0 0 900 575" role="img" aria-label="Wiring diagram drawn with net labels: matching labels are connected">
+<rect x="20" y="40" width="150" height="98" rx="8" fill="#fff" stroke="#8B7B6B"/>
+<text x="32" y="62" font-size="13.5" font-weight="600" fill="#24170F">12V 3A adapter</text>
+<text x="32" y="79" font-size="11" fill="#6E6052">barrel screw terminal</text>
+<text x="160" y="106" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">+</text>
+<circle cx="170" cy="102" r="3" fill="#C4372B"/>
+<line x1="170" y1="102" x2="192" y2="102" stroke="#C4372B" stroke-width="2.5"/>
+<rect x="192" y="92" width="44" height="20" rx="10" fill="#FBE7E4" stroke="#C4372B" stroke-width="1.2"/>
+<text x="214" y="106" font-size="11.5" font-weight="600" text-anchor="middle" fill="#C4372B">+12V</text>
+<text x="160" y="130" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">−</text>
+<circle cx="170" cy="126" r="3" fill="#24170F"/>
+<line x1="170" y1="126" x2="192" y2="126" stroke="#24170F" stroke-width="2.5"/>
+<rect x="192" y="116" width="37" height="20" rx="10" fill="#E9E3D8" stroke="#24170F" stroke-width="1.2"/>
+<text x="210" y="130" font-size="11.5" font-weight="600" text-anchor="middle" fill="#24170F">GND</text>
+<rect x="20" y="165" width="150" height="146" rx="8" fill="#fff" stroke="#8B7B6B"/>
+<text x="32" y="187" font-size="13.5" font-weight="600" fill="#24170F">LM2596 buck</text>
+<text x="32" y="204" font-size="11" fill="#6E6052">set 5.0 V before wiring</text>
+<text x="160" y="231" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">IN+</text>
+<circle cx="170" cy="227" r="3" fill="#C4372B"/>
+<line x1="170" y1="227" x2="192" y2="227" stroke="#C4372B" stroke-width="2.5"/>
+<rect x="192" y="217" width="44" height="20" rx="10" fill="#FBE7E4" stroke="#C4372B" stroke-width="1.2"/>
+<text x="214" y="231" font-size="11.5" font-weight="600" text-anchor="middle" fill="#C4372B">+12V</text>
+<text x="160" y="255" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">IN−</text>
+<circle cx="170" cy="251" r="3" fill="#24170F"/>
+<line x1="170" y1="251" x2="192" y2="251" stroke="#24170F" stroke-width="2.5"/>
+<rect x="192" y="241" width="37" height="20" rx="10" fill="#E9E3D8" stroke="#24170F" stroke-width="1.2"/>
+<text x="210" y="255" font-size="11.5" font-weight="600" text-anchor="middle" fill="#24170F">GND</text>
+<text x="160" y="279" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">OUT+</text>
+<circle cx="170" cy="275" r="3" fill="#C46A12"/>
+<line x1="170" y1="275" x2="192" y2="275" stroke="#C46A12" stroke-width="2.5"/>
+<rect x="192" y="265" width="37" height="20" rx="10" fill="#FCEFDF" stroke="#C46A12" stroke-width="1.2"/>
+<text x="210" y="279" font-size="11.5" font-weight="600" text-anchor="middle" fill="#C46A12">+5V</text>
+<text x="160" y="303" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">OUT−</text>
+<circle cx="170" cy="299" r="3" fill="#24170F"/>
+<line x1="170" y1="299" x2="192" y2="299" stroke="#24170F" stroke-width="2.5"/>
+<rect x="192" y="289" width="37" height="20" rx="10" fill="#E9E3D8" stroke="#24170F" stroke-width="1.2"/>
+<text x="210" y="303" font-size="11.5" font-weight="600" text-anchor="middle" fill="#24170F">GND</text>
+<rect x="20" y="330" width="150" height="98" rx="8" fill="#fff" stroke="#8B7B6B"/>
+<text x="32" y="352" font-size="13.5" font-weight="600" fill="#24170F">Inlet valve 1/4" NO</text>
+<text x="32" y="369" font-size="11" fill="#6E6052">U.S. Solid MSV00077</text>
+<text x="160" y="396" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">red</text>
+<circle cx="170" cy="392" r="3" fill="#8E2A5E"/>
+<line x1="170" y1="392" x2="192" y2="392" stroke="#8E2A5E" stroke-width="2.5"/>
+<rect x="192" y="382" width="60" height="20" rx="10" fill="#F6E3EE" stroke="#8E2A5E" stroke-width="1.2"/>
+<text x="222" y="396" font-size="11.5" font-weight="600" text-anchor="middle" fill="#8E2A5E">INLET+</text>
+<text x="160" y="420" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">black</text>
+<circle cx="170" cy="416" r="3" fill="#24170F"/>
+<line x1="170" y1="416" x2="192" y2="416" stroke="#24170F" stroke-width="2.5"/>
+<rect x="192" y="406" width="37" height="20" rx="10" fill="#E9E3D8" stroke="#24170F" stroke-width="1.2"/>
+<text x="210" y="420" font-size="11.5" font-weight="600" text-anchor="middle" fill="#24170F">GND</text>
+<rect x="20" y="440" width="150" height="98" rx="8" fill="#fff" stroke="#8B7B6B"/>
+<text x="32" y="462" font-size="13.5" font-weight="600" fill="#24170F">Drain valve 3/4" NC</text>
+<text x="32" y="479" font-size="11" fill="#6E6052">U.S. Solid MSV00008</text>
+<text x="160" y="506" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">red</text>
+<circle cx="170" cy="502" r="3" fill="#8E2A5E"/>
+<line x1="170" y1="502" x2="192" y2="502" stroke="#8E2A5E" stroke-width="2.5"/>
+<rect x="192" y="492" width="60" height="20" rx="10" fill="#F6E3EE" stroke="#8E2A5E" stroke-width="1.2"/>
+<text x="222" y="506" font-size="11.5" font-weight="600" text-anchor="middle" fill="#8E2A5E">DRAIN+</text>
+<text x="160" y="530" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">black</text>
+<circle cx="170" cy="526" r="3" fill="#24170F"/>
+<line x1="170" y1="526" x2="192" y2="526" stroke="#24170F" stroke-width="2.5"/>
+<rect x="192" y="516" width="37" height="20" rx="10" fill="#E9E3D8" stroke="#24170F" stroke-width="1.2"/>
+<text x="210" y="530" font-size="11.5" font-weight="600" text-anchor="middle" fill="#24170F">GND</text>
+<rect x="320" y="40" width="150" height="242" rx="8" fill="#fff" stroke="#8B7B6B"/>
+<text x="332" y="62" font-size="13.5" font-weight="600" fill="#24170F">ESP32 + adapter</text>
+<text x="332" y="79" font-size="11" fill="#6E6052">KongWater.ino</text>
+<text x="460" y="106" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">VIN</text>
+<circle cx="470" cy="102" r="3" fill="#C46A12"/>
+<line x1="470" y1="102" x2="492" y2="102" stroke="#C46A12" stroke-width="2.5"/>
+<rect x="492" y="92" width="37" height="20" rx="10" fill="#FCEFDF" stroke="#C46A12" stroke-width="1.2"/>
+<text x="510" y="106" font-size="11.5" font-weight="600" text-anchor="middle" fill="#C46A12">+5V</text>
+<text x="460" y="130" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">GND</text>
+<circle cx="470" cy="126" r="3" fill="#24170F"/>
+<line x1="470" y1="126" x2="492" y2="126" stroke="#24170F" stroke-width="2.5"/>
+<rect x="492" y="116" width="37" height="20" rx="10" fill="#E9E3D8" stroke="#24170F" stroke-width="1.2"/>
+<text x="510" y="130" font-size="11.5" font-weight="600" text-anchor="middle" fill="#24170F">GND</text>
+<text x="460" y="154" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">GPIO26</text>
+<circle cx="470" cy="150" r="3" fill="#1F5FAD"/>
+<line x1="470" y1="150" x2="492" y2="150" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="492" y="140" width="37" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="510" y="154" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">IN1</text>
+<text x="460" y="178" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">GPIO27</text>
+<circle cx="470" cy="174" r="3" fill="#1F5FAD"/>
+<line x1="470" y1="174" x2="492" y2="174" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="492" y="164" width="37" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="510" y="178" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">IN2</text>
+<text x="460" y="202" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">GPIO14</text>
+<circle cx="470" cy="198" r="3" fill="#1F5FAD"/>
+<line x1="470" y1="198" x2="492" y2="198" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="492" y="188" width="37" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="510" y="202" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">PIR</text>
+<text x="460" y="226" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">GPIO25</text>
+<circle cx="470" cy="222" r="3" fill="#1F5FAD"/>
+<line x1="470" y1="222" x2="492" y2="222" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="492" y="212" width="60" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="522" y="226" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">PROBE+</text>
+<text x="460" y="250" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">GPIO34</text>
+<circle cx="470" cy="246" r="3" fill="#1F5FAD"/>
+<line x1="470" y1="246" x2="492" y2="246" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="492" y="236" width="67" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="526" y="250" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">PROBE S</text>
+<text x="460" y="274" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">GPIO2</text>
+<circle cx="470" cy="270" r="3" fill="#6E6052"/>
+<line x1="470" y1="270" x2="492" y2="270" stroke="#6E6052" stroke-width="2.5"/>
+<rect x="492" y="260" width="37" height="20" rx="10" fill="#F2EBDD" stroke="#6E6052" stroke-width="1.2"/>
+<text x="510" y="274" font-size="11.5" font-weight="600" text-anchor="middle" fill="#6E6052">LED</text>
+<rect x="620" y="40" width="150" height="242" rx="8" fill="#fff" stroke="#8B7B6B"/>
+<text x="632" y="62" font-size="13.5" font-weight="600" fill="#24170F">2-relay module</text>
+<text x="632" y="79" font-size="11" fill="#6E6052">kit board, active-low</text>
+<text x="760" y="106" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">IN1</text>
+<circle cx="770" cy="102" r="3" fill="#1F5FAD"/>
+<line x1="770" y1="102" x2="792" y2="102" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="792" y="92" width="37" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="810" y="106" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">IN1</text>
+<text x="760" y="130" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">IN2</text>
+<circle cx="770" cy="126" r="3" fill="#1F5FAD"/>
+<line x1="770" y1="126" x2="792" y2="126" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="792" y="116" width="37" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="810" y="130" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">IN2</text>
+<text x="760" y="154" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">VCC</text>
+<circle cx="770" cy="150" r="3" fill="#C46A12"/>
+<line x1="770" y1="150" x2="792" y2="150" stroke="#C46A12" stroke-width="2.5"/>
+<rect x="792" y="140" width="37" height="20" rx="10" fill="#FCEFDF" stroke="#C46A12" stroke-width="1.2"/>
+<text x="810" y="154" font-size="11.5" font-weight="600" text-anchor="middle" fill="#C46A12">+5V</text>
+<text x="760" y="178" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">GND</text>
+<circle cx="770" cy="174" r="3" fill="#24170F"/>
+<line x1="770" y1="174" x2="792" y2="174" stroke="#24170F" stroke-width="2.5"/>
+<rect x="792" y="164" width="37" height="20" rx="10" fill="#E9E3D8" stroke="#24170F" stroke-width="1.2"/>
+<text x="810" y="178" font-size="11.5" font-weight="600" text-anchor="middle" fill="#24170F">GND</text>
+<text x="760" y="202" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">K1 COM</text>
+<circle cx="770" cy="198" r="3" fill="#C4372B"/>
+<line x1="770" y1="198" x2="792" y2="198" stroke="#C4372B" stroke-width="2.5"/>
+<rect x="792" y="188" width="44" height="20" rx="10" fill="#FBE7E4" stroke="#C4372B" stroke-width="1.2"/>
+<text x="814" y="202" font-size="11.5" font-weight="600" text-anchor="middle" fill="#C4372B">+12V</text>
+<text x="760" y="226" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">K1 NO</text>
+<circle cx="770" cy="222" r="3" fill="#8E2A5E"/>
+<line x1="770" y1="222" x2="792" y2="222" stroke="#8E2A5E" stroke-width="2.5"/>
+<rect x="792" y="212" width="60" height="20" rx="10" fill="#F6E3EE" stroke="#8E2A5E" stroke-width="1.2"/>
+<text x="822" y="226" font-size="11.5" font-weight="600" text-anchor="middle" fill="#8E2A5E">INLET+</text>
+<text x="760" y="250" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">K2 COM</text>
+<circle cx="770" cy="246" r="3" fill="#C4372B"/>
+<line x1="770" y1="246" x2="792" y2="246" stroke="#C4372B" stroke-width="2.5"/>
+<rect x="792" y="236" width="44" height="20" rx="10" fill="#FBE7E4" stroke="#C4372B" stroke-width="1.2"/>
+<text x="814" y="250" font-size="11.5" font-weight="600" text-anchor="middle" fill="#C4372B">+12V</text>
+<text x="760" y="274" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">K2 NO</text>
+<circle cx="770" cy="270" r="3" fill="#8E2A5E"/>
+<line x1="770" y1="270" x2="792" y2="270" stroke="#8E2A5E" stroke-width="2.5"/>
+<rect x="792" y="260" width="60" height="20" rx="10" fill="#F6E3EE" stroke="#8E2A5E" stroke-width="1.2"/>
+<text x="822" y="274" font-size="11.5" font-weight="600" text-anchor="middle" fill="#8E2A5E">DRAIN+</text>
+<rect x="620" y="300" width="150" height="122" rx="8" fill="#fff" stroke="#8B7B6B"/>
+<text x="632" y="322" font-size="13.5" font-weight="600" fill="#24170F">HC-SR501 PIR</text>
+<text x="632" y="339" font-size="11" fill="#6E6052">time pot min</text>
+<text x="760" y="366" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">VCC</text>
+<circle cx="770" cy="362" r="3" fill="#C46A12"/>
+<line x1="770" y1="362" x2="792" y2="362" stroke="#C46A12" stroke-width="2.5"/>
+<rect x="792" y="352" width="37" height="20" rx="10" fill="#FCEFDF" stroke="#C46A12" stroke-width="1.2"/>
+<text x="810" y="366" font-size="11.5" font-weight="600" text-anchor="middle" fill="#C46A12">+5V</text>
+<text x="760" y="390" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">OUT</text>
+<circle cx="770" cy="386" r="3" fill="#1F5FAD"/>
+<line x1="770" y1="386" x2="792" y2="386" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="792" y="376" width="37" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="810" y="390" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">PIR</text>
+<text x="760" y="414" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">GND</text>
+<circle cx="770" cy="410" r="3" fill="#24170F"/>
+<line x1="770" y1="410" x2="792" y2="410" stroke="#24170F" stroke-width="2.5"/>
+<rect x="792" y="400" width="37" height="20" rx="10" fill="#E9E3D8" stroke="#24170F" stroke-width="1.2"/>
+<text x="810" y="414" font-size="11.5" font-weight="600" text-anchor="middle" fill="#24170F">GND</text>
+<rect x="620" y="436" width="150" height="122" rx="8" fill="#fff" stroke="#8B7B6B"/>
+<text x="632" y="458" font-size="13.5" font-weight="600" fill="#24170F">Leak probe</text>
+<text x="632" y="475" font-size="11" fill="#6E6052">DIYables, on tub floor</text>
+<text x="760" y="502" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">+</text>
+<circle cx="770" cy="498" r="3" fill="#1F5FAD"/>
+<line x1="770" y1="498" x2="792" y2="498" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="792" y="488" width="60" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="822" y="502" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">PROBE+</text>
+<text x="760" y="526" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">S</text>
+<circle cx="770" cy="522" r="3" fill="#1F5FAD"/>
+<line x1="770" y1="522" x2="792" y2="522" stroke="#1F5FAD" stroke-width="2.5"/>
+<rect x="792" y="512" width="67" height="20" rx="10" fill="#E3EEFA" stroke="#1F5FAD" stroke-width="1.2"/>
+<text x="826" y="526" font-size="11.5" font-weight="600" text-anchor="middle" fill="#1F5FAD">PROBE S</text>
+<text x="760" y="550" font-size="11.5" text-anchor="end" fill="#24170F" font-family="JetBrains Mono, monospace">−</text>
+<circle cx="770" cy="546" r="3" fill="#24170F"/>
+<line x1="770" y1="546" x2="792" y2="546" stroke="#24170F" stroke-width="2.5"/>
+<rect x="792" y="536" width="37" height="20" rx="10" fill="#E9E3D8" stroke="#24170F" stroke-width="1.2"/>
+<text x="810" y="550" font-size="11.5" font-weight="600" text-anchor="middle" fill="#24170F">GND</text>
+<text x="320" y="300" font-size="12" fill="#6E6052"><tspan x="320" dy="0">Same label = same wire.</tspan><tspan x="320" dy="17">Every GND is one common ground,</tspan><tspan x="320" dy="17">including the 12V adapter −.</tspan></text>
+</svg>
+  </div>
+  <div class="legend"><span><i style="background:#C4372B"></i>+12V</span><span><i style="background:#8E2A5E"></i>switched 12V to a valve</span><span><i style="background:#C46A12"></i>+5V</span><span><i style="background:#24170F"></i>ground</span><span><i style="background:#1F5FAD"></i>signal</span></div>
+  <h3>Netlist (wire it from this)</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Net</th><th>Connect together</th><th>Wire</th></tr>
+    <tr><td><b style="color:#C4372B">+12V</b></td><td>Adapter + · Buck IN+ · Relay K1 COM · Relay K2 COM</td><td>18 AWG</td></tr>
+    <tr><td><b style="color:#8E2A5E">INLET+</b></td><td>Relay K1 NO → inlet valve red</td><td>18 AWG</td></tr>
+    <tr><td><b style="color:#8E2A5E">DRAIN+</b></td><td>Relay K2 NO → drain valve red</td><td>18 AWG</td></tr>
+    <tr><td><b style="color:#C46A12">+5V</b></td><td>Buck OUT+ · ESP32 VIN · Relay VCC · PIR VCC</td><td>22 AWG / jumpers</td></tr>
+    <tr><td><b>GND</b></td><td>Adapter − · Buck IN− · Buck OUT− · ESP32 GND · Relay GND · PIR GND · Probe − · inlet black · drain black</td><td>18 AWG trunk, Wago lever nut</td></tr>
+    <tr><td><b style="color:#1F5FAD">Signals</b></td><td>GPIO26 → IN1 · GPIO27 → IN2 · PIR OUT → GPIO14 · GPIO25 → Probe + · Probe S → GPIO34</td><td>jumpers</td></tr>
+  </table></div>
+<h3>Pin map</h3>
+  <div class="table-wrap"><table>
+    <tr><th>ESP32 pin</th><th>Goes to</th><th>Notes</th></tr>
+    <tr><td class="mono">GPIO26</td><td>Relay IN1</td><td>Energized closes the inlet (NO valve)</td></tr>
+    <tr><td class="mono">GPIO27</td><td>Relay IN2</td><td>Energized opens the drain (NC valve)</td></tr>
+    <tr><td class="mono">GPIO14</td><td>PIR OUT</td><td>The HC-SR501 outputs 3.3 V high, which is safe for the ESP32. Set its time pot to minimum and its sensitivity pot to the middle.</td></tr>
+    <tr><td class="mono">GPIO25</td><td>Leak probe +</td><td>Only powered for 10 ms every 5 s, so the traces don't corrode</td></tr>
+    <tr><td class="mono">GPIO34</td><td>Leak probe S</td><td>ADC1 input-only pin. At 3.3 V the signal can go straight in.</td></tr>
+    <tr><td class="mono">VIN / GND</td><td>Buck 5.0 V out</td><td>Set the buck to 5.0 V with a meter <b>before</b> connecting the ESP32. Unplug USB while it's powered from VIN.</td></tr>
+  </table></div>
+  <h3>How the valves get power</h3>
+  <p>Each U.S. Solid valve has two wires. Per U.S. Solid, red goes to +, black goes to −, and powering it moves it to its powered position. Cut the power and an internal capacitor drives it back to its resting position. Each valve's black wire goes straight to ground. Each red wire goes to its relay's <b>NO</b> terminal, and both relay <b>COM</b> terminals get +12V. The capacitor needs about a minute of power to charge, which is why the firmware never holds the drain open for less than 60 s.</p>
+</section>
+
+<section class="section" id="firmware">
+  <h2>Firmware</h2>
+  <p>A single Arduino sketch built on <a href="https://github.com/HomeSpan/HomeSpan">HomeSpan</a>, the same library you used at Laurel's. It was compiled here against HomeSpan 2.1.8 and ESP32 core 3.3.12: 1.43 MB with the "Minimal SPIFFS" partition scheme. The default partition scheme is too small for it.</p>
+  <h3>What shows up in Apple Home</h3>
+  <ul class="plain">
+    <li><b>Kong's Water: a faucet tile.</b> Tap it to run a dump now. It shows "in use" and counts down the drain time. Its duration setting is the drain hold, 60 to 300 s, default 75, and it's saved through reboots.</li>
+    <li><b>Motion sensor.</b> The PIR, which you can also use in other automations ("Kong is at his bowl").</li>
+    <li><b>Leak sensor.</b> Goes to "Leak detected" and sends Apple's critical leak alert to your phone.</li>
+  </ul>
+  <h3>What it does on its own</h3>
+  <ul class="plain">
+    <li><b>Waits for Kong to leave.</b> A dump only starts after 2 minutes with no motion. If he camps at the bowl for 30 minutes, it skips that dump.</li>
+    <li><b>Runs a fallback dump every 4 hours</b> if nothing else has triggered one. Set your real schedule as Home app automations, for example "at 7 AM, 12 PM, 5 PM and 10 PM, turn on Kong's Water." The chip's own timer still works if Wi-Fi drops.</li>
+    <li><b>Leak lockout.</b> If the probe gets wet, it shuts the inlet, keeps the drain shut, flags a fault, and blinks the onboard LED fast. It releases one minute after the probe reads dry.</li>
+    <li><b>Fails safe.</b> On boot, after a crash, or when power drops, both relays are off. That leaves the inlet open and the drain shut, so it's a plain float bowl.</li>
+    <li><b>Web log</b> at <code>http://kongwater.local/log</code> shows every phase change with a timestamp.</li>
+  </ul>
+  <h3>Flash it</h3>
+  <ol class="steps">
+    <li>Arduino IDE → Boards Manager → install <b>esp32 by Espressif</b>. Library Manager → install <b>HomeSpan</b>.</li>
+    <li>Open <code>KongWater.ino</code>. Board: <b>ESP32 Dev Module</b>. Tools → Partition Scheme: <b>Minimal SPIFFS (1.9MB APP with OTA)</b>.</li>
+    <li>Upload. Open Serial Monitor at 115200 baud.</li>
+    <li>Type <code>W</code> and pick your Wi-Fi. It reboots onto the network.</li>
+    <li>Type <code>S 12345678</code> using your own 8 digits to replace the default setup code, <code>466-37-726</code>.</li>
+    <li>Apple Home → + → Add Accessory → More options → <b>Kong's Water</b> → enter the code.</li>
+    <li>Tap the faucet with nothing wired to the relays. You should hear relay 1 click, then 8 s later relay 2, then 75 s later relay 2 release, then 8 s later relay 1 release.</li>
+  </ol>
+  <p>Or from the terminal (nushell):</p>
+<pre>arduino-cli core install esp32:esp32; arduino-cli lib install HomeSpan
+arduino-cli compile -b esp32:esp32:esp32:PartitionScheme=min_spiffs ~/src/kongwater/KongWater
+arduino-cli upload -b esp32:esp32:esp32:PartitionScheme=min_spiffs -p (ls /dev/cu.usbserial-* | get name.0) ~/src/kongwater/KongWater</pre>
+  <a class="dl" href="kongwater/KongWater.ino" download>Download KongWater.ino</a>
+  <details><summary>Full sketch</summary><pre id="sketch">loading…</pre></details>
+  <h3>Settings worth knowing (top of the sketch)</h3>
+  <div class="table-wrap"><table>
+    <tr><th>Constant</th><th>Default</th><th>Change it when</th></tr>
+    <tr><td class="mono">RELAY_ACTIVE_LOW</td><td>true</td><td>The relays turn on when they should be off</td></tr>
+    <tr><td class="mono">VALVE_STROKE_MS</td><td>8000</td><td>Your valves take longer than 8 s to travel</td></tr>
+    <tr><td class="mono">MAX_AGE_MS</td><td>4 h</td><td>You want the fallback timer tighter or looser</td></tr>
+    <tr><td class="mono">PIR_QUIET_MS</td><td>2 min</td><td>He comes back for seconds a lot</td></tr>
+    <tr><td class="mono">LEAK_THRESHOLD</td><td>1200</td><td>The probe trips when dry, or doesn't trip when wet. Check the readings in the web log.</td></tr>
+  </table></div>
+</section>
+
+<section class="section" id="build">
+  <h2>Build steps</h2>
+  <h3>Pan</h3>
+  <ol class="steps">
+    <li>Find the center of the pan floor: measure two diameters across the outside bottom and mark where they cross. Center-punch it.</li>
+    <li>Drill a 1/4" pilot hole with cutting oil at low speed.</li>
+    <li>Cut the 1-5/8" hole with the carbide hole saw, slow, with steady pressure and plenty of oil. It's stainless, then aluminum, then stainless. Let the saw do the work.</li>
+    <li>Deburr inside and out. Wipe the hole down with alcohol.</li>
+    <li>Put a thin bead of RTV108 around the cut edge so no aluminum is left exposed. Let it skin over for about 15 min.</li>
+    <li>Install the bulkhead: flange and gasket <b>inside</b> on the floor, nut underneath. Snug it plus a quarter turn. Overtightening rolls the gasket.</li>
+    <li>Mark the float hole on the wall, centered 3.35" above the floor and 90° from a handle. Drill it with the step bit to 5/8". Mount the float and set the arm so it shuts off at 2.75".</li>
+  </ol>
+  <h3>Drain stack</h3>
+  <ol class="steps">
+    <li>PTFE tape the close nipple and thread it into the bulkhead from below.</li>
+    <li>Thread the 3/4" valve onto it with the actuator pointing out the open side of the stand. Hold the valve body with a wrench, never the actuator.</li>
+    <li>Tape and thread the 4" tail into the valve outlet.</li>
+    <li>Leak-check before anything else: fill the pan with the valve unpowered (closed) and leave it 30 min over a towel.</li>
+  </ol>
+  <h3>Disc</h3>
+  <ol class="steps">
+    <li>Print the 1:1 template, or lay it out with a trammel: 14.75" OD, 3.5" center hole, and a 2.9" notch with its center 6.0" from the disc's center.</li>
+    <li>Cut it with a router circle jig, or a jigsaw then a flush trim. Round over the center hole's top edge with a 1/4" round-over bit so his chin rides a smooth lip.</li>
+    <li>Cut two foam rings, 6" ID x 10.4" OD, notched the same as the disc. Screw them to the underside with 6 screws through both layers.</li>
+    <li>Add 3 feet underneath, 1/4" tall. Nylon screw heads left proud work fine.</li>
+    <li>Float test in the sink. Push down on the rim with one finger and it should spring back without water coming over the top.</li>
+  </ol>
+  <h3>Stand</h3>
+  <ol class="steps">
+    <li>Cut 4 legs at (rim height − 1.7"), which is 16.3" for an 18" rim. Cut 4 aprons/stretchers at 14".</li>
+    <li>Build two side frames, each with 2 legs, an apron at the top and a stretcher 3" up. Join them with the plywood top.</li>
+    <li>Cut the 16.9" hole in the plywood with a jigsaw. The pan drops in and hangs by its handles.</li>
+    <li>Seal the wood with whatever exterior finish you have. It lives in a wet tub.</li>
+  </ol>
+  <h3>Electronics</h3>
+  <ol class="steps">
+    <li>Set the buck to 5.0 V with a meter before connecting anything to it.</li>
+    <li>Mount the relay board, buck and ESP32 in the IP65 box. Run wires through the glands, each with a drip loop.</li>
+    <li>Mount the box high on the back leg. Mount the PIR on the front apron facing out at chest height. Put the leak probe flat on the tub floor under the valve, face up.</li>
+    <li>Plumb the fill side: hose → Buddie Fit → check valve → tee A → adapter → inlet valve → adapter → tee B → float. Then run tee A → bypass shutoff → tee B, with the bypass shut.</li>
+  </ol>
+</section>
+
+<section class="section" id="test">
+  <h2>Test plan</h2>
+  <ol class="checklist">
+    <li><b>Dry run.</b> Water off, valves wired. Trigger it from Apple Home and watch both valves stroke in the right order.<span class="why">Confirms the relays, the polarity, and that the inlet closes before the drain opens.</span></li>
+    <li><b>Wet run, supervised.</b> Water on. Time from tap to empty, and from empty to full. Compare with the charts: ~20 s to empty, refill per your gpm.<span class="why">If it drains a lot slower, the bulkhead's bore is the bottleneck. Check for a reducer or burr.</span></li>
+    <li><b>Leak test.</b> With the system idle, drip water on the probe.<span class="why">The inlet should close within 5 s, Apple Home should send a leak alert, and the LED should fast-blink.</span></li>
+    <li><b>Bypass test (decides v2).</b> Open the bypass shutoff and run a dump.<span class="why">The model says it still empties fully even with the float running. If it does, v2 can drop the inlet valve, and the only cost is 0.3 to 1.9 gal of extra water per dump.</span></li>
+    <li><b>Kong week.</b> Fallback timer only, plus 4 Home automations. Watch whether he flinches at the valve noise or the disc dropping, and check the slobber film on the walls each day.<span class="why">This decides between night-only dumps and every-4-hours, and whether the walls need the rim spray-ring from v2.</span></li>
+  </ol>
+</section>
+
+<section class="section" id="gotchas">
+  <h2>Gotchas</h2>
+  <div class="gotcha">
+    <div><b>Relay boards on 3.3 V logic.</b> Many kit boards are 5V active-low with optocouplers. A 3.3V HIGH can leave the opto partly on, so the relay never releases. Test it on the bench first. If it sticks: remove the JD-VCC jumper, feed JD-VCC 5V and VCC 3.3V, or add a 2N2222 per channel.</div>
+    <div><b>The valve capacitor needs about a minute of power.</b> If a dump is cut short, the drain may stay open after power drops. The firmware enforces 60 s minimum. Don't lower <span class="mono">MIN_DRAIN_S</span>.</div>
+    <div><b>Order NPT, not G.</b> U.S. Solid sells both threads, and the 3/4" G version is standard port, which is a smaller bore.</div>
+    <div><b>The pan bottom is a sandwich.</b> 400-series stainless + 4 mm aluminum + stainless. Seal the cut edge with RTV108 or the aluminum will corrode in standing water.</div>
+    <div><b>The disc will want to stick.</b> A flat disc on a flat wet floor suctions down. The 3 feet underneath are what let it float back up on refill.</div>
+    <div><b>The pan widens toward the top.</b> At full water there's about a 1/2" gap around the disc. If he works his tongue into the gap, add a 1/2" HDPE ring around the disc's edge (v1.1) or move to a straight-walled vessel in v2.</div>
+    <div><b>Supply pressure.</b> The float valves are rated to 60 psi. If your line is higher, or the float chatters, add an inline 1/4" pressure regulator or flow restrictor before the check valve.</div>
+    <div><b>Dumping mid-drink spooks dogs.</b> The motion hold-off covers most of it. During Kong week, put the dumps where he usually isn't around: walks, crate time, overnight.</div>
+    <div><b>Kong-proofing.</b> He'll shove it and chew anything that dangles. Weight the stretchers or screw the stand to a board across the tub. Run the tubing and wires along the back legs.</div>
+  </div>
+</section>
+
+<section class="section" id="v2">
+  <h2>v2: plumbed in place</h2>
+  <ul class="plain">
+    <li><b>Supply:</b> off your existing kitchen tee and ball valve, through the crawlspace, keeping the check valve and the float's air gap. Sleeve the tube if there's any sign of rodents down there.</li>
+    <li><b>Drain:</b> tail pipe through the floor to a trapped, vented tie-in with at least 1/4" per foot of slope. The overflow and the dump share the line, so a stuck valve just goes down the drain.</li>
+    <li><b>Overflow slot</b> at the rim into the same line. Required once it's out of the tub.</li>
+    <li><b>Rim spray-ring refill</b> in place of the float outlet, to hose the walls on every refill.</li>
+    <li><b>316 stainless bulkhead</b> (Banjo TF075SS, about $166) and an FDA gasket, once the design is locked.</li>
+    <li><b>Non-contact level sensor</b> in place of the float, if the float arm gums up during Kong week.</li>
+    <li><b>Maybe no inlet valve,</b> if the bypass test passes.</li>
+  </ul>
+</section>
+
+<div class="footer-note">
+  <p><b>Sources</b></p>
+  <ul class="plain">
+    <li><a href="https://www.webstaurantstore.com/vigor-20-qt-heavy-duty-stainless-steel-aluminum-clad-brazier-with-cover/473SSBRZR20.html">Vigor 20 qt brazier spec</a> and <a href="https://www.webstaurantstore.com/vigor-15-qt-heavy-duty-stainless-steel-aluminum-clad-brazier-with-cover/473SSBRZR15.html">15 qt spec</a> (WebstaurantStore)</li>
+    <li><a href="https://ussolid.com/products/u-s-solid-motorized-ball-valve-3-4-stainless-steel-electrical-ball-valve-with-full-port-9-24-v-ac-dc-2-wire-auto-return-html">U.S. Solid 3/4" valve</a>, <a href="https://ussolid.com/products/u-s-solid-motorized-ball-valve-1-4-stainless-steel-electrical-ball-valve-with-full-port-9-24-v-ac-dc-2-wire-auto-return-normally-open-html">1/4" NO valve</a>, and the <a href="https://www.walmart.com/ip/U-S-Solid-Motorized-Ball-Valve-1-2-inch-Stainless-Steel-9-24V-AC-DC-2-Wire-Auto-Return-Setup/1985347338">2-wire auto-return wiring and capacitor note</a></li>
+    <li><a href="https://electricsolenoidvalves.com/1-4-110-120v-ac-stainless-electric-solenoid-valve">Electric Solenoid Valves SS-3J</a>: "not recommended for gravity fed systems because of the small orifice size"</li>
+    <li>HomeSpan <a href="https://github.com/HomeSpan/HomeSpan/blob/master/docs/ServiceList.md">service list</a>, <a href="https://github.com/HomeSpan/HomeSpan/blob/master/docs/Categories.md">categories</a>, <a href="https://github.com/HomeSpan/HomeSpan/blob/master/docs/CLI.md">CLI</a>, <a href="https://github.com/HomeSpan/HomeSpan/blob/master/docs/Reference.md">API reference</a></li>
+    <li>Home Depot stock checked Oct 8, 2026 for Garner #3631 and Fuquay-Varina #3652</li>
+  </ul>
+  <p style="margin-top:1rem">Model, renders and fluid sim made in Blender 4.5 with Mantaflow. The drain math is an independent Torricelli model with losses; the code and data are in the repo under <span class="mono">kongwater/</span>.</p>
+</div>
+</main>
+
+<script>
+const SIM = {"vol":2.19,"bore":{"0.5":{"empty":44.1,"t":[[0.0,2.75],[0.5,2.749],[1.0,2.746],[1.5,2.739],[2.0,2.725],[2.5,2.705],[3.0,2.68],[3.5,2.65],[4.0,2.618],[4.5,2.585],[5.0,2.553],[5.5,2.52],[6.0,2.487],[6.5,2.454],[7.0,2.421],[7.5,2.389],[8.0,2.356],[8.5,2.323],[9.0,2.29],[9.5,2.258],[10.0,2.225],[10.5,2.192],[11.0,2.16],[11.5,2.127],[12.0,2.094],[12.5,2.062],[13.0,2.029],[13.5,1.996],[14.0,1.964],[14.5,1.931],[15.0,1.898],[15.5,1.866],[16.0,1.833],[16.5,1.801],[17.0,1.768],[17.5,1.735],[18.0,1.703],[18.5,1.67],[19.0,1.638],[19.5,1.605],[20.0,1.573],[20.5,1.54],[21.0,1.508],[21.5,1.475],[22.0,1.443],[22.5,1.41],[23.0,1.378],[23.5,1.345],[24.0,1.313],[24.5,1.281],[25.0,1.248],[25.5,1.216],[26.0,1.183],[26.5,1.151],[27.0,1.119],[27.5,1.086],[28.0,1.054],[28.5,1.022],[29.0,0.989],[29.5,0.957],[30.0,0.925],[30.5,0.892],[31.0,0.86],[31.5,0.828],[32.0,0.796],[32.5,0.764],[33.0,0.731],[33.5,0.699],[34.0,0.667],[34.5,0.635],[35.0,0.603],[35.5,0.571],[36.0,0.538],[36.5,0.506],[37.0,0.474],[37.5,0.442],[38.0,0.41],[38.5,0.378],[39.0,0.346],[39.5,0.314],[40.0,0.282],[40.5,0.25],[41.0,0.218],[41.5,0.186],[42.0,0.154],[42.5,0.122],[43.0,0.091],[43.5,0.059],[44.0,0.027],[44.5,0.0],[45.0,0.0],[45.5,0.0],[46.0,0.0],[46.5,0.0],[47.0,0.0],[47.5,0.0],[48.0,0.0],[48.5,0.0],[49.0,0.0],[49.5,0.0],[50.0,0.0],[50.5,0.0],[51.0,0.0],[51.5,0.0],[52.0,0.0],[52.5,0.0],[53.0,0.0],[53.5,0.0],[54.0,0.0],[54.5,0.0],[55.0,0.0],[55.5,0.0],[56.0,0.0],[56.5,0.0],[57.0,0.0],[57.5,0.0],[58.0,0.0],[58.5,0.0],[59.0,0.0],[59.5,0.0],[60.0,0.0]]},"0.75":{"empty":19.9,"t":[[0.0,2.75],[0.5,2.749],[1.0,2.741],[1.5,2.723],[2.0,2.691],[2.5,2.645],[3.0,2.586],[3.5,2.516],[4.0,2.44],[4.5,2.363],[5.0,2.286],[5.5,2.21],[6.0,2.133],[6.5,2.056],[7.0,1.979],[7.5,1.903],[8.0,1.826],[8.5,1.75],[9.0,1.673],[9.5,1.597],[10.0,1.52],[10.5,1.444],[11.0,1.368],[11.5,1.291],[12.0,1.215],[12.5,1.139],[13.0,1.063],[13.5,0.987],[14.0,0.912],[14.5,0.836],[15.0,0.76],[15.5,0.684],[16.0,0.609],[16.5,0.533],[17.0,0.458],[17.5,0.383],[18.0,0.308],[18.5,0.233],[19.0,0.158],[19.5,0.083],[20.0,0.008],[20.5,0.0],[21.0,0.0],[21.5,0.0],[22.0,0.0],[22.5,0.0],[23.0,0.0],[23.5,0.0],[24.0,0.0],[24.5,0.0],[25.0,0.0],[25.5,0.0],[26.0,0.0],[26.5,0.0],[27.0,0.0],[27.5,0.0],[28.0,0.0],[28.5,0.0],[29.0,0.0],[29.5,0.0],[30.0,0.0],[30.5,0.0],[31.0,0.0],[31.5,0.0],[32.0,0.0],[32.5,0.0],[33.0,0.0],[33.5,0.0],[34.0,0.0],[34.5,0.0],[35.0,0.0],[35.5,0.0],[36.0,0.0],[36.5,0.0],[37.0,0.0],[37.5,0.0],[38.0,0.0],[38.5,0.0],[39.0,0.0],[39.5,0.0],[40.0,0.0],[40.5,0.0],[41.0,0.0],[41.5,0.0],[42.0,0.0],[42.5,0.0],[43.0,0.0],[43.5,0.0],[44.0,0.0],[44.5,0.0],[45.0,0.0],[45.5,0.0],[46.0,0.0],[46.5,0.0],[47.0,0.0],[47.5,0.0],[48.0,0.0],[48.5,0.0],[49.0,0.0],[49.5,0.0],[50.0,0.0],[50.5,0.0],[51.0,0.0],[51.5,0.0],[52.0,0.0],[52.5,0.0],[53.0,0.0],[53.5,0.0],[54.0,0.0],[54.5,0.0],[55.0,0.0],[55.5,0.0],[56.0,0.0],[56.5,0.0],[57.0,0.0],[57.5,0.0],[58.0,0.0],[58.5,0.0],[59.0,0.0],[59.5,0.0],[60.0,0.0]]},"1.0":{"empty":11.9,"t":[[0.0,2.75],[0.5,2.748],[1.0,2.734],[1.5,2.701],[2.0,2.643],[2.5,2.56],[3.0,2.452],[3.5,2.325],[4.0,2.187],[4.5,2.047],[5.0,1.908],[5.5,1.769],[6.0,1.629],[6.5,1.49],[7.0,1.352],[7.5,1.213],[8.0,1.075],[8.5,0.937],[9.0,0.799],[9.5,0.661],[10.0,0.524],[10.5,0.387],[11.0,0.25],[11.5,0.114],[12.0,0.0],[12.5,0.0],[13.0,0.0],[13.5,0.0],[14.0,0.0],[14.5,0.0],[15.0,0.0],[15.5,0.0],[16.0,0.0],[16.5,0.0],[17.0,0.0],[17.5,0.0],[18.0,0.0],[18.5,0.0],[19.0,0.0],[19.5,0.0],[20.0,0.0],[20.5,0.0],[21.0,0.0],[21.5,0.0],[22.0,0.0],[22.5,0.0],[23.0,0.0],[23.5,0.0],[24.0,0.0],[24.5,0.0],[25.0,0.0],[25.5,0.0],[26.0,0.0],[26.5,0.0],[27.0,0.0],[27.5,0.0],[28.0,0.0],[28.5,0.0],[29.0,0.0],[29.5,0.0],[30.0,0.0],[30.5,0.0],[31.0,0.0],[31.5,0.0],[32.0,0.0],[32.5,0.0],[33.0,0.0],[33.5,0.0],[34.0,0.0],[34.5,0.0],[35.0,0.0],[35.5,0.0],[36.0,0.0],[36.5,0.0],[37.0,0.0],[37.5,0.0],[38.0,0.0],[38.5,0.0],[39.0,0.0],[39.5,0.0],[40.0,0.0],[40.5,0.0],[41.0,0.0],[41.5,0.0],[42.0,0.0],[42.5,0.0],[43.0,0.0],[43.5,0.0],[44.0,0.0],[44.5,0.0],[45.0,0.0],[45.5,0.0],[46.0,0.0],[46.5,0.0],[47.0,0.0],[47.5,0.0],[48.0,0.0],[48.5,0.0],[49.0,0.0],[49.5,0.0],[50.0,0.0],[50.5,0.0],[51.0,0.0],[51.5,0.0],[52.0,0.0],[52.5,0.0],[53.0,0.0],[53.5,0.0],[54.0,0.0],[54.5,0.0],[55.0,0.0],[55.5,0.0],[56.0,0.0],[56.5,0.0],[57.0,0.0],[57.5,0.0],[58.0,0.0],[58.5,0.0],[59.0,0.0],[59.5,0.0],[60.0,0.0]]}},"cycle":{"0.25":{"empty":19.9,"refill":565,"t":[[0.0,2.75],[2.0,2.691],[4.0,2.44],[6.0,2.133],[8.0,1.826],[10.0,1.52],[12.0,1.215],[14.0,0.912],[16.0,0.609],[18.0,0.308],[20.0,0.008],[22.0,0.0],[24.0,0.0],[26.0,0.0],[28.0,0.0],[30.0,0.0],[32.0,0.0],[34.0,0.0],[36.0,0.0],[38.0,0.0],[40.0,0.0],[42.0,0.0],[44.0,0.0],[46.0,0.0],[48.0,0.0],[50.0,0.0],[52.0,0.0],[54.0,0.0],[56.0,0.0],[58.0,0.0],[60.0,0.0],[62.0,0.0],[64.0,0.0],[66.0,0.0],[68.0,0.0],[70.0,0.0],[72.0,0.0],[74.0,0.0],[76.0,0.0],[78.0,0.0],[80.0,0.006],[82.0,0.017],[84.0,0.028],[86.0,0.039],[88.0,0.05],[90.0,0.061],[92.0,0.072],[94.0,0.083],[96.0,0.094],[98.0,0.105],[100.0,0.116],[102.0,0.127],[104.0,0.138],[106.0,0.149],[108.0,0.16],[110.0,0.171],[112.0,0.182],[114.0,0.193],[116.0,0.204],[118.0,0.214],[120.0,0.225],[122.0,0.236],[124.0,0.247],[126.0,0.258],[128.0,0.269],[130.0,0.28],[132.0,0.291],[134.0,0.302],[136.0,0.313],[138.0,0.324],[140.0,0.335],[142.0,0.345],[144.0,0.356],[146.0,0.367],[148.0,0.378],[150.0,0.389],[152.0,0.4],[154.0,0.411],[156.0,0.422],[158.0,0.432],[160.0,0.443],[162.0,0.454],[164.0,0.465],[166.0,0.476],[168.0,0.487],[170.0,0.498],[172.0,0.508],[174.0,0.519],[176.0,0.53],[178.0,0.541],[180.0,0.552],[182.0,0.562],[184.0,0.573],[186.0,0.584],[188.0,0.595],[190.0,0.606],[192.0,0.616],[194.0,0.627],[196.0,0.638],[198.0,0.649],[200.0,0.659],[202.0,0.67],[204.0,0.681],[206.0,0.692],[208.0,0.702],[210.0,0.713],[212.0,0.724],[214.0,0.735],[216.0,0.745],[218.0,0.756],[220.0,0.767],[222.0,0.777],[224.0,0.788],[226.0,0.799],[228.0,0.81],[230.0,0.82],[232.0,0.831],[234.0,0.842],[236.0,0.852],[238.0,0.863],[240.0,0.874],[242.0,0.884],[244.0,0.895],[246.0,0.906],[248.0,0.916],[250.0,0.927],[252.0,0.938],[254.0,0.948],[256.0,0.959],[258.0,0.97],[260.0,0.98],[262.0,0.991],[264.0,1.001],[266.0,1.012],[268.0,1.023],[270.0,1.033],[272.0,1.044],[274.0,1.054],[276.0,1.065],[278.0,1.076],[280.0,1.086],[282.0,1.097],[284.0,1.107],[286.0,1.118],[288.0,1.129],[290.0,1.139],[292.0,1.15],[294.0,1.16],[296.0,1.171],[298.0,1.181],[300.0,1.192],[302.0,1.202],[304.0,1.213],[306.0,1.223],[308.0,1.234],[310.0,1.245],[312.0,1.255],[314.0,1.266],[316.0,1.276],[318.0,1.287],[320.0,1.297],[322.0,1.308],[324.0,1.318],[326.0,1.329],[328.0,1.339],[330.0,1.35],[332.0,1.36],[334.0,1.37],[336.0,1.381],[338.0,1.391],[340.0,1.402],[342.0,1.412],[344.0,1.423],[346.0,1.433],[348.0,1.444],[350.0,1.454],[352.0,1.465],[354.0,1.475],[356.0,1.485],[358.0,1.496],[360.0,1.506],[362.0,1.517],[364.0,1.527],[366.0,1.537],[368.0,1.548],[370.0,1.558],[372.0,1.569],[374.0,1.579],[376.0,1.589],[378.0,1.6],[380.0,1.61],[382.0,1.621],[384.0,1.631],[386.0,1.641],[388.0,1.652],[390.0,1.662],[392.0,1.672],[394.0,1.683],[396.0,1.693],[398.0,1.703],[400.0,1.714],[402.0,1.724],[404.0,1.734],[406.0,1.745],[408.0,1.755],[410.0,1.765],[412.0,1.776],[414.0,1.786],[416.0,1.796],[418.0,1.807],[420.0,1.817],[422.0,1.827],[424.0,1.837],[426.0,1.848],[428.0,1.858],[430.0,1.868],[432.0,1.879],[434.0,1.889],[436.0,1.899],[438.0,1.909],[440.0,1.92],[442.0,1.93],[444.0,1.94],[446.0,1.95],[448.0,1.961],[450.0,1.971],[452.0,1.981],[454.0,1.991],[456.0,2.001],[458.0,2.012],[460.0,2.022],[462.0,2.032],[464.0,2.042],[466.0,2.053],[468.0,2.063],[470.0,2.073],[472.0,2.083],[474.0,2.093],[476.0,2.104],[478.0,2.114],[480.0,2.124],[482.0,2.134],[484.0,2.144],[486.0,2.154],[488.0,2.165],[490.0,2.175],[492.0,2.185],[494.0,2.195],[496.0,2.205],[498.0,2.215],[500.0,2.225],[502.0,2.236],[504.0,2.246],[506.0,2.256],[508.0,2.266],[510.0,2.276],[512.0,2.286],[514.0,2.296],[516.0,2.306],[518.0,2.316],[520.0,2.327],[522.0,2.337],[524.0,2.347],[526.0,2.357],[528.0,2.367],[530.0,2.377],[532.0,2.387],[534.0,2.397],[536.0,2.407],[538.0,2.417],[540.0,2.427],[542.0,2.437],[544.0,2.448],[546.0,2.458],[548.0,2.468],[550.0,2.478],[552.0,2.488],[554.0,2.498],[556.0,2.508],[558.0,2.518],[560.0,2.528],[562.0,2.538],[564.0,2.548],[566.0,2.558],[568.0,2.568],[570.0,2.578],[572.0,2.588],[574.0,2.593]]},"0.5":{"empty":19.9,"refill":322,"t":[[0.0,2.75],[2.0,2.691],[4.0,2.44],[6.0,2.133],[8.0,1.826],[10.0,1.52],[12.0,1.215],[14.0,0.912],[16.0,0.609],[18.0,0.308],[20.0,0.008],[22.0,0.0],[24.0,0.0],[26.0,0.0],[28.0,0.0],[30.0,0.0],[32.0,0.0],[34.0,0.0],[36.0,0.0],[38.0,0.0],[40.0,0.0],[42.0,0.0],[44.0,0.0],[46.0,0.0],[48.0,0.0],[50.0,0.0],[52.0,0.0],[54.0,0.0],[56.0,0.0],[58.0,0.0],[60.0,0.0],[62.0,0.0],[64.0,0.0],[66.0,0.0],[68.0,0.0],[70.0,0.0],[72.0,0.0],[74.0,0.0],[76.0,0.0],[78.0,0.0],[80.0,0.011],[82.0,0.033],[84.0,0.055],[86.0,0.077],[88.0,0.099],[90.0,0.121],[92.0,0.143],[94.0,0.165],[96.0,0.187],[98.0,0.209],[100.0,0.231],[102.0,0.253],[104.0,0.275],[106.0,0.297],[108.0,0.318],[110.0,0.34],[112.0,0.362],[114.0,0.384],[116.0,0.405],[118.0,0.427],[120.0,0.449],[122.0,0.471],[124.0,0.492],[126.0,0.514],[128.0,0.535],[130.0,0.557],[132.0,0.579],[134.0,0.6],[136.0,0.622],[138.0,0.643],[140.0,0.665],[142.0,0.686],[144.0,0.708],[146.0,0.729],[148.0,0.751],[150.0,0.772],[152.0,0.794],[154.0,0.815],[156.0,0.836],[158.0,0.858],[160.0,0.879],[162.0,0.9],[164.0,0.922],[166.0,0.943],[168.0,0.964],[170.0,0.986],[172.0,1.007],[174.0,1.028],[176.0,1.049],[178.0,1.07],[180.0,1.092],[182.0,1.113],[184.0,1.134],[186.0,1.155],[188.0,1.176],[190.0,1.197],[192.0,1.218],[194.0,1.239],[196.0,1.26],[198.0,1.281],[200.0,1.302],[202.0,1.323],[204.0,1.344],[206.0,1.365],[208.0,1.386],[210.0,1.407],[212.0,1.428],[214.0,1.449],[216.0,1.47],[218.0,1.491],[220.0,1.512],[222.0,1.532],[224.0,1.553],[226.0,1.574],[228.0,1.595],[230.0,1.615],[232.0,1.636],[234.0,1.657],[236.0,1.678],[238.0,1.698],[240.0,1.719],[242.0,1.74],[244.0,1.76],[246.0,1.781],[248.0,1.802],[250.0,1.822],[252.0,1.843],[254.0,1.863],[256.0,1.884],[258.0,1.904],[260.0,1.925],[262.0,1.945],[264.0,1.966],[266.0,1.986],[268.0,2.007],[270.0,2.027],[272.0,2.048],[274.0,2.068],[276.0,2.088],[278.0,2.109],[280.0,2.129],[282.0,2.149],[284.0,2.17],[286.0,2.19],[288.0,2.21],[290.0,2.231],[292.0,2.251],[294.0,2.271],[296.0,2.291],[298.0,2.312],[300.0,2.332],[302.0,2.352],[304.0,2.372],[306.0,2.392],[308.0,2.412],[310.0,2.433],[312.0,2.453],[314.0,2.473],[316.0,2.493],[318.0,2.513],[320.0,2.533],[322.0,2.553],[324.0,2.573],[326.0,2.593],[328.0,2.593],[330.0,2.593],[332.0,2.593]]},"1.0":{"empty":19.9,"refill":201,"t":[[0.0,2.75],[2.0,2.691],[4.0,2.44],[6.0,2.133],[8.0,1.826],[10.0,1.52],[12.0,1.215],[14.0,0.912],[16.0,0.609],[18.0,0.308],[20.0,0.008],[22.0,0.0],[24.0,0.0],[26.0,0.0],[28.0,0.0],[30.0,0.0],[32.0,0.0],[34.0,0.0],[36.0,0.0],[38.0,0.0],[40.0,0.0],[42.0,0.0],[44.0,0.0],[46.0,0.0],[48.0,0.0],[50.0,0.0],[52.0,0.0],[54.0,0.0],[56.0,0.0],[58.0,0.0],[60.0,0.0],[62.0,0.0],[64.0,0.0],[66.0,0.0],[68.0,0.0],[70.0,0.0],[72.0,0.0],[74.0,0.0],[76.0,0.0],[78.0,0.0],[80.0,0.023],[82.0,0.067],[84.0,0.111],[86.0,0.155],[88.0,0.198],[90.0,0.242],[92.0,0.286],[94.0,0.329],[96.0,0.373],[98.0,0.417],[100.0,0.46],[102.0,0.503],[104.0,0.547],[106.0,0.59],[108.0,0.633],[110.0,0.676],[112.0,0.719],[114.0,0.762],[116.0,0.805],[118.0,0.847],[120.0,0.89],[122.0,0.933],[124.0,0.975],[126.0,1.018],[128.0,1.06],[130.0,1.102],[132.0,1.145],[134.0,1.187],[136.0,1.229],[138.0,1.271],[140.0,1.313],[142.0,1.355],[144.0,1.397],[146.0,1.439],[148.0,1.48],[150.0,1.522],[152.0,1.564],[154.0,1.605],[156.0,1.647],[158.0,1.688],[160.0,1.73],[162.0,1.771],[164.0,1.812],[166.0,1.853],[168.0,1.894],[170.0,1.935],[172.0,1.976],[174.0,2.017],[176.0,2.058],[178.0,2.099],[180.0,2.139],[182.0,2.18],[184.0,2.221],[186.0,2.261],[188.0,2.302],[190.0,2.342],[192.0,2.382],[194.0,2.423],[196.0,2.463],[198.0,2.503],[200.0,2.543],[202.0,2.583],[204.0,2.593],[206.0,2.593],[208.0,2.593],[210.0,2.593]]}},"noinlet":{"0.25":{"empty_s":20.53999999999965,"min_depth_in":0.0,"wasted_gal":0.31},"0.5":{"empty_s":21.179999999999637,"min_depth_in":0.0,"wasted_gal":0.62},"1.0":{"empty_s":22.639999999999606,"min_depth_in":0.0,"wasted_gal":1.25},"1.5":{"empty_s":24.35999999999957,"min_depth_in":0.0,"wasted_gal":1.88}}};
+fetch('kongwater/KongWater.ino').then(r => r.text()).then(t => { document.getElementById('sketch').textContent = t; }).catch(() => {});
+
+function lineChart(id, series, opts) {
+  const root = document.getElementById(id), svg = root.querySelector('svg'), tip = root.querySelector('.tip');
+  const W = 720, H = 300, m = { l: 46, r: 16, t: 12, b: 36 };
+  const xMax = opts.xMax, yMax = opts.yMax;
+  const X = x => m.l + (x / xMax) * (W - m.l - m.r), Y = y => H - m.b - (y / yMax) * (H - m.t - m.b);
+  let g = '';
+  if (opts.bands) opts.bands.forEach(b => { g += `<rect x="${X(b[0])}" y="${m.t}" width="${X(b[1]) - X(b[0])}" height="${H - m.t - m.b}" fill="${b[2]}"/><text x="${(X(b[0]) + X(b[1])) / 2}" y="${m.t + 14}" text-anchor="middle" font-size="11" fill="#6E6052">${b[3]}</text>`; });
+  g += '<g class="grid">';
+  for (let y = 0; y <= yMax; y += opts.yStep) g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(y)}" y2="${Y(y)}"/>`;
+  g += '</g><g class="axis">';
+  for (let y = 0; y <= yMax; y += opts.yStep) g += `<text x="${m.l - 8}" y="${Y(y) + 4}" text-anchor="end">${y}"</text>`;
+  for (let x = 0; x <= xMax; x += opts.xStep) g += `<text x="${X(x)}" y="${H - m.b + 18}" text-anchor="middle">${opts.xFmt(x)}</text>`;
+  g += `<line x1="${m.l}" x2="${W - m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="#B9A891"/></g>`;
+  series.forEach(s => { g += `<polyline fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round" points="${s.pts.filter(p => p[0] <= xMax).map(p => X(p[0]).toFixed(1) + ',' + Y(p[1]).toFixed(1)).join(' ')}"/>`; });
+  if (opts.labels) series.forEach(s => { const p = s.label; if (p) g += `<text x="${X(p[0]) + 6}" y="${Y(p[1]) - 6}" font-size="12" fill="#24170F">${s.name}</text>`; });
+  g += `<line class="cross" y1="${m.t}" y2="${H - m.b}" stroke="#8B7B6B" stroke-dasharray="3 3" opacity="0"/>`;
+  series.forEach((s, i) => { g += `<circle class="dot d${i}" r="4.5" fill="${s.color}" stroke="#fff" stroke-width="2" opacity="0"/>`; });
+  g += `<rect x="${m.l}" y="${m.t}" width="${W - m.l - m.r}" height="${H - m.t - m.b}" fill="transparent" class="hit"/>`;
+  svg.innerHTML = g;
+  const keys = root.querySelector('.keys');
+  if (keys && series.length > 1) keys.innerHTML = series.map(s => `<span style="--k:${s.color}">${s.name}</span>`).join('');
+  const hit = svg.querySelector('.hit'), cross = svg.querySelector('.cross');
+  function move(ev) {
+    const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) / r.width * W;
+    const x = Math.max(0, Math.min(xMax, (sx - m.l) / (W - m.l - m.r) * xMax));
+    cross.setAttribute('x1', X(x)); cross.setAttribute('x2', X(x)); cross.setAttribute('opacity', 1);
+    let rows = [];
+    series.forEach((s, i) => {
+      let best = s.pts[0]; for (const p of s.pts) { if (p[0] > xMax) break; if (Math.abs(p[0] - x) < Math.abs(best[0] - x)) best = p; }
+      const d = svg.querySelector('.d' + i); d.setAttribute('cx', X(best[0])); d.setAttribute('cy', Y(best[1])); d.setAttribute('opacity', 1);
+      rows.push(`${series.length > 1 ? s.name + ': ' : ''}${best[1].toFixed(2)}"`);
+    });
+    tip.innerHTML = `<b>${opts.xFmt(x, true)}</b><br>` + rows.join('<br>');
+    tip.style.opacity = 1;
+    const px = (X(x) / W) * r.width, rootR = root.getBoundingClientRect();
+    tip.style.left = Math.min(px + (r.left - rootR.left) + 12, rootR.width - 150) + 'px';
+    tip.style.top = (r.top - rootR.top + 20) + 'px';
+  }
+  hit.addEventListener('pointermove', move);
+  hit.addEventListener('pointerleave', () => { tip.style.opacity = 0; cross.setAttribute('opacity', 0); svg.querySelectorAll('.dot').forEach(d => d.setAttribute('opacity', 0)); });
+}
+const colors = { '0.5': 'var(--s2)', '0.75': 'var(--s1)', '1.0': 'var(--s3)' };
+const names = { '0.5': '1/2" drain', '0.75': '3/4" drain', '1.0': '1" drain' };
+lineChart('chart-bore', ['0.75', '0.5', '1.0'].map(k => ({ name: names[k] + ' · ' + SIM.bore[k].empty + ' s', color: colors[k], pts: SIM.bore[k].t })),
+  { xMax: 50, xStep: 10, yMax: 3, yStep: 0.5, xFmt: (x, f) => f ? x.toFixed(1) + ' s' : x + ' s' });
+const cyc = SIM.cycle['0.5'];
+lineChart('chart-cycle', [{ name: 'depth', color: 'var(--s1)', pts: cyc.t }],
+  { xMax: 340, xStep: 60, yMax: 3, yStep: 0.5, xFmt: (x, f) => { const mm = Math.floor(x / 60), ss = Math.round(x % 60); return f ? `${mm}:${String(ss).padStart(2, '0')}` : `${mm}:${String(ss).padStart(2, '0')}`; },
+    bands: [[0, 75, 'rgba(42,120,214,0.07)', 'drain open'], [75, 83, 'rgba(201,162,75,0.15)', ''], [83, cyc.refill, 'rgba(27,175,122,0.07)', 'float refilling']] });
+</script>
+</body>
+</html>
