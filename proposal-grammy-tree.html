@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal: Grammy's Tree</title>
+<meta property="og:title" content="Proposal #040: Grammy's Tree, Relit With Pixels">
+<meta property="og:description" content="Grammy's premium Balsam Hill tree, free, with the junk factory lights swapped for WS2811 pixels already in the garage. WLED on a phone, warm white by default.">
+<meta property="og:image" content="https://niggerfaggot.club/img/grammy-tree-hero.jpg">
+<meta property="og:url" content="https://niggerfaggot.club/proposal-grammy-tree.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://niggerfaggot.club/img/grammy-tree-hero.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+html, body { overflow-x: hidden; }
+:root {
+  --espresso: #24170F; --walnut: #362417; --timber: #4A3320; --leather: #5C4433; --taupe: #8B7B6B;
+  --brass: #C9A24B; --brass-light: #E3C77E; --cream: #F2EBDD; --linen: #FBF6EC; --sage: #6B7A5A; --danger: #A5432F;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Source Sans 3', system-ui, sans-serif; background: var(--linen); color: var(--espresso); line-height: 1.75; font-size: 17px; }
+.back-link { display: inline-flex; align-items: center; gap: 6px; padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 500; color: var(--leather); text-decoration: none; letter-spacing: 0.5px; text-transform: uppercase; }
+.back-link:hover { color: var(--brass); }
+.hero { position: relative; padding: 4rem 1.5rem 3rem; background: linear-gradient(135deg, var(--espresso) 0%, var(--walnut) 55%, var(--timber) 100%); color: var(--cream); overflow: hidden; }
+.hero::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0px, transparent 46px, rgba(255,255,255,0.02) 46px, rgba(255,255,255,0.02) 48px); }
+.hero-inner { position: relative; max-width: 800px; margin: 0 auto; }
+.badge { display: inline-block; padding: 4px 14px; border: 1px solid var(--brass); border-radius: 999px; color: var(--brass-light); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1.2rem; }
+h1 { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin-bottom: 0.8rem; }
+.subtitle { color: var(--cream); opacity: 0.85; max-width: 640px; font-weight: 300; }
+.meta-bar { display: flex; flex-wrap: wrap; gap: 1.8rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(201,162,75,0.35); }
+.meta-item { display: flex; flex-direction: column; gap: 2px; }
+.meta-label { font-size: 0.72rem; letter-spacing: 1.5px; text-transform: uppercase; color: var(--taupe); }
+.meta-value { font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--cream); }
+.meta-value.cost { color: var(--brass-light); }
+.content { max-width: 800px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.section { margin-bottom: 2.8rem; }
+h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.6rem; margin-bottom: 0.9rem; color: var(--walnut); }
+p + p { margin-top: 0.8rem; }
+a { color: var(--sage); font-weight: 500; }
+a:hover { color: var(--brass); }
+.photo-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 1.2rem 0 0.4rem; }
+.photo-row.three { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+figure.shot { background: #fff; border: 1px solid #E5DCCB; border-radius: 10px; padding: 0.8rem; box-shadow: 0 6px 18px rgba(36,23,15,0.08); }
+figure.shot img { width: 100%; height: 220px; object-fit: contain; display: block; }
+.photo-row.three figure.shot img { height: 160px; }
+figure.shot figcaption { font-size: 0.82rem; color: var(--taupe); margin-top: 0.5rem; font-style: italic; text-align: center; }
+.callout { background: var(--cream); border-left: 4px solid var(--brass); border-radius: 0 8px 8px 0; padding: 1.1rem 1.3rem; margin: 1.2rem 0; }
+.callout strong { color: var(--walnut); }
+.callout.danger { border-left-color: var(--danger); }
+.phase-card { background: #fff; border: 1px solid #E5DCCB; border-radius: 10px; padding: 1.3rem 1.4rem; margin-bottom: 1.1rem; box-shadow: 0 4px 14px rgba(36,23,15,0.05); }
+.phase-header { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+.phase-name { font-family: 'Fraunces', serif; font-size: 1.15rem; color: var(--walnut); font-weight: 600; }
+.phase-cost { font-family: 'Fraunces', serif; color: var(--brass); font-weight: 600; white-space: nowrap; }
+.phase-desc { font-size: 0.97rem; }
+.phase-desc + .phase-desc { margin-top: 0.6rem; }
+.table-wrap { overflow-x: auto; margin-top: 0.9rem; }
+.materials-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.materials-table th { text-align: left; font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; color: var(--taupe); padding: 6px 10px; border-bottom: 2px solid var(--cream); }
+.materials-table td { padding: 7px 10px; border-bottom: 1px solid #EFE8D8; }
+.materials-table .price { text-align: right; white-space: nowrap; color: var(--walnut); font-weight: 600; }
+ol.steps, ul.plain { padding-left: 1.3rem; margin: 0.6rem 0; }
+ol.steps li, ul.plain li { margin-bottom: 0.35rem; }
+.footer-note { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #E5DCCB; font-size: 0.85rem; color: var(--taupe); font-style: italic; }
+.hero-img { width:100%; border-radius:10px; display:block; margin:1rem 0 0.4rem; box-shadow:0 6px 18px rgba(36,23,15,0.12); }
+svg.diagram { width:100%; height:auto; background:#fff; border:1px solid #E5DCCB; border-radius:10px; margin-top:1rem; }
+</style>
+</head>
+<body>
+
+<a href="/proposals" class="back-link">&larr; All Proposals</a>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="badge">Proposal #040</span>
+    <h1>Grammy's Tree, Relit</h1>
+    <p class="subtitle">Grammy is giving us her Balsam Hill tree. The tree is premium, the factory lights are junk. Strip them, relight it with the WS2811 bullet pixels already sitting in garbage bags in the garage, and run it off WLED. Warm white the second it's plugged in, anything else from a phone.</p>
+    <div class="meta-bar">
+      <div class="meta-item"><span class="meta-label">Cost</span><span class="meta-value cost">$15&ndash;75</span></div>
+      <div class="meta-item"><span class="meta-label">Difficulty</span><span class="meta-value">2/5, mostly tedium</span></div>
+      <div class="meta-item"><span class="meta-label">Time</span><span class="meta-value">One weekend</span></div>
+      <div class="meta-item"><span class="meta-label">Category</span><span class="meta-value">Home</span></div>
+      <div class="meta-item"><span class="meta-label">Deadline</span><span class="meta-value">Up by Thanksgiving</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="section">
+    <h2>Bottom Line</h2>
+    <p>A free premium tree plus pixels, power supplies, ESP32s and project boxes we already own means the only real cost is one weekend of snipping. New spend is connectors and wire, $15&ndash;30. Spending more only buys convenience (a ready-made WLED controller, a fresh power supply). The result beats any store pre-lit tree, because nothing in it is proprietary and every bulb is replaceable.</p>
+    <img class="hero-img" src="/img/grammy-tree-hero.jpg" alt="Concept render of a full artificial fir lit warm white with bullet pixels, controller box hidden at the base">
+    <p style="font-size:0.82rem;color:var(--taupe);font-style:italic;text-align:center;">Concept render, not the actual tree. Target look: warm white, pixels pushed deep into the branches, controller hidden on the skirt.</p>
+  </div>
+
+  <div class="section">
+    <h2>The Deal</h2>
+    <p>Last December Benny tried to fix the lights on Grammy's tree and pitched her exactly this relight. On 10/10/26 she offered the tree outright. Benny offered to give it back once relit; she said keep it. It's in Kim's storage unit, and Kim can't get there until next weekend (around 10/17&ndash;18), so pickup is then. Two things to settle at pickup: what it's called on the box (model and height, for pixel count), and whether the original box and storage bag come with it.</p>
+    <div class="callout"><strong>Storage reality check:</strong> this is a full-size tree that lives somewhere 11 months a year. Before pickup, decide where it goes (garage attic, shed, closet). That's the real cost of a free tree.</div>
+  </div>
+
+  <div class="section">
+    <h2>Why Bother: The Options Compared</h2>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <tr><th>Option</th><th>Cost</th><th>Result</th><th>Verdict</th></tr>
+      <tr><td>Fix the factory lights</td><td>$0&ndash;20</td><td>Already tried last Christmas. Balsam Hill pre-lits feed power through connectors in the trunk sections, and one bad section or bulb takes out runs. It'll fail again.</td><td>No</td></tr>
+      <tr><td>Kill the factory wiring, throw on plain warm white strings</td><td>$40&ndash;80</td><td>Fine, dumb, one look forever. Ten strings of plugs and cords stacked at the base.</td><td>Fallback</td></tr>
+      <tr><td><strong>Relight with WS2811 pixels + WLED</strong></td><td><strong>$15&ndash;75</strong></td><td>One plug. Warm white, candle flicker, multicolor, slow twinkle, or anything else from a phone. Per-bulb repairs. Cheaper than the dumb option because the pixels are already owned.</td><td><strong>Do this</strong></td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>How It's Wired</h2>
+    <p>One pixel run per tree section, joined at each section seam with a 3-pin pigtail so the tree still comes apart for storage. Power gets re-injected at every seam, which is where the run breaks anyway.</p>
+    <svg class="diagram" viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="Source Sans 3, sans-serif" font-size="14">
+      <rect x="20" y="210" width="150" height="60" rx="8" fill="#F2EBDD" stroke="#5C4433"/>
+      <text x="95" y="236" text-anchor="middle" fill="#24170F" font-weight="600">12V supply</text>
+      <text x="95" y="256" text-anchor="middle" fill="#8B7B6B" font-size="12">+ inline fuse</text>
+      <rect x="20" y="110" width="150" height="60" rx="8" fill="#F2EBDD" stroke="#5C4433"/>
+      <text x="95" y="136" text-anchor="middle" fill="#24170F" font-weight="600">ESP32 + WLED</text>
+      <text x="95" y="156" text-anchor="middle" fill="#8B7B6B" font-size="12">project box at base</text>
+      <line x1="95" y1="210" x2="95" y2="170" stroke="#A5432F" stroke-width="2"/>
+      <text x="102" y="194" fill="#A5432F" font-size="11">buck to 5V</text>
+      <g>
+        <rect x="250" y="40" width="140" height="230" rx="8" fill="none" stroke="#6B7A5A" stroke-dasharray="5 4"/>
+        <text x="320" y="62" text-anchor="middle" fill="#6B7A5A" font-weight="600">Bottom section</text>
+        <rect x="430" y="70" width="130" height="200" rx="8" fill="none" stroke="#6B7A5A" stroke-dasharray="5 4"/>
+        <text x="495" y="92" text-anchor="middle" fill="#6B7A5A" font-weight="600">Middle</text>
+        <rect x="600" y="110" width="130" height="160" rx="8" fill="none" stroke="#6B7A5A" stroke-dasharray="5 4"/>
+        <text x="665" y="132" text-anchor="middle" fill="#6B7A5A" font-weight="600">Top</text>
+      </g>
+      <polyline points="170,140 260,140 380,140" fill="none" stroke="#C9A24B" stroke-width="3"/>
+      <polyline points="380,140 440,140 550,140" fill="none" stroke="#C9A24B" stroke-width="3"/>
+      <polyline points="550,140 610,160 720,160" fill="none" stroke="#C9A24B" stroke-width="3"/>
+      <circle cx="410" cy="140" r="6" fill="#362417"/><circle cx="580" cy="150" r="6" fill="#362417"/>
+      <text x="410" y="125" text-anchor="middle" fill="#362417" font-size="11">pigtail</text>
+      <text x="580" y="128" text-anchor="middle" fill="#362417" font-size="11">pigtail</text>
+      <polyline points="170,240 410,240 410,146" fill="none" stroke="#A5432F" stroke-width="2"/>
+      <polyline points="410,240 580,240 580,156" fill="none" stroke="#A5432F" stroke-width="2"/>
+      <text x="300" y="232" fill="#A5432F" font-size="12">12V injection at each seam (18 AWG)</text>
+      <text x="320" y="290" text-anchor="middle" fill="#8B7B6B" font-size="12">data (gold) runs bottom to top</text>
+    </svg>
+    <p style="margin-top:0.8rem">Pixel count depends on the tree. Balsam Hill doesn't publish one per-foot rule, so count after pickup. The working target is roughly the factory bulb count in pixels or a bit under, since pixels are brighter than mini lights. For a 7.5 ft tree that's ballpark 8&ndash;12 strings of 50.</p>
+  </div>
+
+  <div class="section">
+    <h2>Power Math</h2>
+    <p>A 12V, 50-count, 4&Prime;-spacing bullet string is rated <a href="https://store.lightorama.com/products/rgb-strings-12v-50-count-bullet-4-lor-end-connector">15 W, 1.25 A per string</a> (Light-O-Rama spec), about 0.025 A per pixel at full white. Generic bullets run close to that.</p>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <tr><th>Pixels</th><th>Full white</th><th>Warm white at ~40%</th><th class="price">Supply</th></tr>
+      <tr><td>400 (8 strings)</td><td>10 A</td><td>~4 A</td><td class="price">12V 10&ndash;15 A</td></tr>
+      <tr><td>500 (10 strings)</td><td>12.5 A</td><td>~5 A</td><td class="price">12V 15 A</td></tr>
+      <tr><td>600 (12 strings)</td><td>15 A</td><td>~6 A</td><td class="price">12V 20 A</td></tr>
+    </table>
+    </div>
+    <div class="callout">Set WLED's automatic brightness limiter (LED settings) to the supply's real amp rating minus 15%. Then even a full-white accident can't overload anything. A tree never runs full white anyway; it looks like a stadium.</div>
+  </div>
+
+  <div class="section">
+    <h2>Shopping List</h2>
+    <p>Already owned: the pixels, 12V supplies, ESP32 boards, project boxes, solder and heat shrink. New buys only:</p>
+    <div class="table-wrap">
+    <table class="materials-table">
+      <tr><th>Item</th><th>Why</th><th class="price">Est.</th></tr>
+      <tr><td><a href="https://www.amazon.com/s?k=3+pin+JST+SM+connector+pigtail+led">3-pin JST-SM pigtail pairs</a></td><td>Section-seam disconnects so the tree still breaks down. Match whatever the bullet strings already use</td><td class="price">$8&ndash;12</td></tr>
+      <tr><td><a href="https://www.amazon.com/s?k=18+awg+2+conductor+red+black+wire">18 AWG red/black wire</a></td><td>12V injection runs up the trunk to each seam</td><td class="price">$8&ndash;12</td></tr>
+      <tr><td><a href="https://www.amazon.com/s?k=inline+blade+fuse+holder+waterproof">Inline blade fuse holder</a></td><td>Fuse the 12V out of the supply, sized just above the supply rating</td><td class="price">$5</td></tr>
+      <tr><td><a href="https://www.amazon.com/s?k=12v+to+5v+buck+converter+usb">12V-to-5V buck converter</a></td><td>Runs the ESP32 off the same supply, one plug total. Skip if a USB brick lives at the base</td><td class="price">$0&ndash;8</td></tr>
+      <tr><td><a href="https://www.amazon.com/s?k=SN74AHCT125+level+shifter">74AHCT125 level shifter</a> (optional)</td><td>ESP32 data is 3.3V. Short lead usually works fine; add this only if the first pixel flickers</td><td class="price">$0&ndash;7</td></tr>
+      <tr><td><a href="https://www.amazon.com/s?k=gledopto+esp32+wled+controller">Gledopto ESP32 WLED controller</a> (optional)</td><td>Pre-flashed, screw terminals, fused, level-shifted. Buys convenience, not results</td><td class="price">$0&ndash;30</td></tr>
+      <tr><td><strong>Total</strong></td><td>Low end skips the optionals</td><td class="price">$15&ndash;75</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Build Steps</h2>
+    <ol class="steps">
+      <li>Pick up the tree from Kim's unit next weekend. Get the model/height off the box.</li>
+      <li>Set it up and count factory bulbs on one section to set the pixel target.</li>
+      <li>Cut the factory strings off. Leave the trunk wiring in place, dead. Don't pull wire out of the pole.</li>
+      <li>Flash an ESP32 with WLED from <a href="https://install.wled.me">install.wled.me</a> in Chrome. Bench-test every pixel string before it goes on the tree; pull dead pixels now, not after it's woven in.</li>
+      <li>Wire each section as its own run with a pigtail at each seam. Weave from trunk outward along each branch and back, so pixels sit deep, not just on the tips.</li>
+      <li>Run 12V injection up the trunk to each seam. Fuse the supply output.</li>
+      <li>In WLED: set LED count and the brightness limiter, build presets (Warm White, Candle, Slow Twinkle, Multicolor), set Warm White as the boot preset. Add it to the WLED phone app.</li>
+      <li>Take it apart once and put it back together to prove the seams work before December.</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2>What It Unlocks</h2>
+    <ul class="plain">
+      <li>A premium tree that turns on like a normal one: plug in, warm white, done.</li>
+      <li>Phone or voice control. WLED shows up in Alexa and Home Assistant, which ties into the smart-home phases of #023.</li>
+      <li>Repairs are one bulb, not a dead section.</li>
+      <li>Uses up some of the garage pixel stash without touching what the house exterior needs.</li>
+    </ul>
+  </div>
+
+  <div class="footer-note">Proposal #040 &middot; Drafted by Benny &middot; Oct 10, 2026 &middot; Power figure from the Light-O-Rama 12V 50-count bullet spec; Balsam Hill lighting details from their lights guide; connector and wire prices are estimates. Hero image is a concept render.</div>
+
+</div>
+</body>
+</html>
