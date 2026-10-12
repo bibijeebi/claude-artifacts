@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 NS = {"t": "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"}
 MI = 1609.344
-ACT = {"16": "run", "197": "treadmill", "208": "walk"}
+ACT = {"16": "run", "197": "run", "208": "treadmill"}
 
 class Split(BaseModel):
     mile: str
