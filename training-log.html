@@ -244,6 +244,17 @@ h2{font-weight:800;font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;line-h
 footer{margin:64px 0 0;padding:18px 0 48px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
+/* ---------- races ---------- */
+.hr .race{border:1px solid var(--rule);background:var(--surface);padding:16px 16px 12px;margin:0 0 14px}
+.hr .race h4{margin:0;font-size:18px}
+.hr .race .rm{color:var(--muted);font-size:14px;margin:2px 0 10px}
+.hr .race table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.hr .race th,.hr .race td{text-align:left;padding:5px 8px 5px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+.hr .race th{color:var(--muted);font-weight:600;font-size:12.5px}
+.hr .race tr.me td:first-child{color:var(--trace);font-weight:700}
+.hr .race .who small{display:block;color:var(--muted);font-size:12px;font-weight:400}
+.hr .race p{color:var(--ink2);font-size:14px;margin:10px 0 0}
+.hr .race .pl{color:var(--muted);font-size:12.5px;white-space:normal}
 /* ---------- history ---------- */
 #history{border-top:1px solid var(--rule);margin-top:52px}
 .h-gap .lede{margin-top:4px}
@@ -361,9 +372,11 @@ footer{margin:64px 0 0;padding:18px 0 48px;border-top:1px solid var(--rule);font
     <div class="cal-key" id="hmKey"></div>
     <h3 class="sub-h">Best 4 miles each season</h3>
     <div class="h4" id="h4"></div>
+    <h3 class="sub-h">Races</h3>
+    <div class="hr" id="hRace"></div>
     <h3 class="sub-h">Each season</h3>
     <div class="hs" id="hs"></div>
-    <p class="h-note">From the full MapMyRun export (182 workouts, Aug 2017 to Oct 2026). 4-mile and mile times come from the GPS track, so they can differ from the app by a second or two. Heart rate only exists from Aug 2026 on.</p>
+    <p class="h-note">From the full MapMyRun export (182 workouts, Aug 2017 to Oct 2026), plus race results pulled from the official timing (RTRT.me). 4-mile and mile times come from the GPS track, so they can differ from the app by a second or two. Heart rate only exists from Aug 2026 on.</p>
   </section>
 
   <footer><span id="stamp"></span><span>Map data &copy; OpenStreetMap contributors. Shoe photos from Altra, Vivobarefoot, and Xero Shoes.</span></footer>
@@ -932,6 +945,8 @@ $("stamp").textContent="Updated "+D(entries.at(-1).date).toLocaleDateString("en-
   const median = a => { const s = [...a].sort((x,y)=>x-y); const n = s.length; return n ? (n % 2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2) : null; };
   const span = d => { if (d < 14) return d === 1 ? "1 day" : `${d} days`; if (d < 70) return `${Math.round(d/7)} weeks`; const mo = Math.round(d/30.4); return mo < 24 ? `${mo} months` : `${(d/365.25).toFixed(1).replace(/\.0$/,"")} years`; };
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  // Races not in the MapMyRun export, from official timing.
+  const RACES = [{"id":"rtrt-MCM-HHALF-2025","date":"2025-05-18","start_local":"2025-05-18 06:04 EDT","type":"run","name":"Marine Corps Historic Half","source":"RTRT.me official results (chip time, preliminary), not in MapMyRun","dist_mi":13.1,"active_s":8118,"elapsed_s":8118,"pace_s":620,"hr_avg":null,"hr_max":null,"cadence_avg":null,"steps":null,"kcal":null,"elev_gain_ft":null,"elev_min_ft":null,"elev_max_ft":null,"start_ll":null,"end_ll":null,"t_1mi":null,"t_5k":1734,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Marine Corps Historic Half, Fredericksburg VA","area":"Fredericksburg, VA","race":{"name":"Marine Corps Historic Half","where":"Fredericksburg, VA","date":"2025-05-18","field":4419,"note":"All four started within 11 seconds. Bekah, Clifford and Rachel came through the 5K within a second of each other; Bekah and Clifford stayed together to the line, 1 second apart. Places are RTRT's preliminary numbers.","results":[{"name":"Benny","reg":"Benjamin Foreman","bib":3126,"div":"M 25-29","from":"Willow Spring, NC","time":"2:15:18","pace":"10:20","start":"6:04:39 am","finish_tod":"8:19:56 am","splits":[["5K","28:54","9:18"],["10K","58:28","9:31"],["15K","1:30:05","10:11"],["20K","2:06:54","11:51"],["Finish","2:15:18","12:20"]],"place":"1,832 of 4,419 overall · 1,343 of 2,559 men · 180 of 317 M 25-29"},{"name":"Clifford","reg":"Clifford Polheber","bib":3124,"div":"M 25-29","from":"Sneads Ferry, NC","time":"2:29:52","pace":"11:26","start":"6:04:50 am","finish_tod":"8:34:41 am","splits":[["5K","34:05","10:59"],["10K","1:11:38","12:06"],["15K","1:45:05","10:46"],["20K","2:22:36","12:05"],["Finish","2:29:52","10:40"]],"place":"2,684 of 4,419 overall · 1,821 of 2,559 men · 248 of 317 M 25-29"},{"name":"Bekah","reg":"Rebekah Hoskins","bib":3125,"div":"F 20-24","from":"Willow Spring, NC","time":"2:29:53","pace":"11:26","start":"6:04:49 am","finish_tod":"8:34:41 am","splits":[["5K","34:07","10:59"],["10K","1:11:39","12:05"],["15K","1:45:05","10:46"],["20K","2:22:37","12:05"],["Finish","2:29:53","10:40"]],"place":"2,685 of 4,419 overall · 863 of 1,855 women · 109 of 198 F 20-24"},{"name":"Rachel","reg":"Rachael Satalino","bib":2507,"div":"F 30-34","from":"West Palm Bch, FL","time":"2:59:30","pace":"13:42","start":"6:04:50 am","finish_tod":"9:04:19 am","splits":[["5K","34:07","10:59"],["10K","1:14:43","13:05"],["15K","2:02:46","15:28"],["20K","2:50:17","15:18"],["Finish","2:59:30","13:32"]],"place":"3,841 of 4,419 overall · 1,489 of 1,855 women · 219 of 261 F 30-34"}]}}];
   const FLOOR = 30, K = 6, WIN = 6;
   let runs = [], seasons = [], gaps = [], sel = null;
 
@@ -1048,7 +1063,7 @@ $("stamp").textContent="Updated "+D(entries.at(-1).date).toLocaleDateString("en-
 
   function renderSeasons() {
     $("hs").innerHTML = [...seasons].reverse().map(s => {
-      const rows = s.runs.map(r => `<tr><td>${day(r.date).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</td><td>${r.type === "treadmill" ? "treadmill" : esc(r.place || "–")}</td><td>${r.dist_mi.toFixed(2)}</td><td>${ms(r.active_s)}</td><td>${ms(r.pace_s)}</td><td>${ms(r.t_4mi)}</td><td>${ms(r.fastest_mile_s)}</td></tr>`).join("");
+      const rows = s.runs.map(r => `<tr><td>${day(r.date).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</td><td>${r.type === "treadmill" ? "treadmill" : esc(r.place || "–")}${r.race ? " <b style=\"color:var(--trace)\">RACE</b>" : ""}</td><td>${r.dist_mi.toFixed(2)}</td><td>${ms(r.active_s)}</td><td>${ms(r.pace_s)}</td><td>${ms(r.t_4mi)}</td><td>${ms(r.fastest_mile_s)}</td></tr>`).join("");
       return `<div class="hs-row${sel === s.i ? " sel open" : ""}" data-i="${s.i}" tabindex="0" role="button" aria-expanded="${sel === s.i}">
         <div class="hs-top"><div class="hs-name">${esc(s.name)}${s.now ? `<span class="now">NOW</span>` : ""}</div>
         <div class="hs-meta">${esc(s.area)} · ${span(s.days)}${s.gapBefore != null ? ` · after ${span(s.gapBefore)} off` : " · first season on record"}</div></div>
@@ -1079,9 +1094,24 @@ $("stamp").textContent="Updated "+D(entries.at(-1).date).toLocaleDateString("en-
     $("hLede").textContent = `${runs.length} runs, ${tot.toFixed(0)} miles, ${seasons.length} seasons since ${day(runs[0].date).getFullYear()}. Biggest season: ${big.name}, ${big.miles.toFixed(0)} mi. Fastest 4 miles: ${ms(b4.best4.t_4mi)} in ${b4.name}. Tap a season to see its runs and light up its months.`;
   }
 
-  function all() { build(); renderGap(); renderHeat(); render4(); renderSeasons(); renderLede(); }
+  function renderRaces() {
+    const rs = runs.filter(r => r.race);
+    if (!rs.length) { $("hRace").innerHTML = ""; return; }
+    $("hRace").innerHTML = rs.map(r => {
+      const R = r.race, pts = R.results[0].splits.map(x => x[0]);
+      const head = `<tr><th>Runner</th>${pts.map(p => `<th>${esc(p)}</th>`).join("")}<th>Pace</th></tr>`;
+      const rows = R.results.map((x, i) => `<tr class="${i === 0 ? "me" : ""}"><td class="who">${esc(x.name)}<small>${esc(x.reg)} · bib ${x.bib}</small></td>${x.splits.map(s => `<td>${esc(s[1])}<br><span class="pl">${esc(s[2])}/mi</span></td>`).join("")}<td><b>${esc(x.pace)}</b></td></tr>`).join("");
+      const pl = R.results.map(x => `<div class="pl"><b>${esc(x.name)}:</b> ${esc(x.place)}</div>`).join("");
+      return `<div class="race"><h4>${esc(R.name)}</h4><div class="rm">${esc(R.where)} · ${day(R.date).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} · 13.1 mi · ${R.field.toLocaleString()} finishers</div>
+        <div class="wrapx"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>
+        <p>${esc(R.note)}</p><div style="margin-top:8px">${pl}</div></div>`;
+    }).join("");
+  }
+
+  function all() { build(); renderGap(); renderHeat(); render4(); renderRaces(); renderSeasons(); renderLede(); }
 
   fetch(SRC).then(r => r.json()).then(d => {
+    RACES.forEach(x => { if (!d.some(r => r.id === x.id)) d.push(x); });
     runs = d.filter(r => r.dist_mi >= 0.3 && r.type !== "walk").sort((a, b) => a.start_local < b.start_local ? -1 : 1);
     if (runs.length) all();
   }).catch(() => { $("hLede").textContent = "History data failed to load."; });
