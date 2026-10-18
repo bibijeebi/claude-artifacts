@@ -53,7 +53,7 @@ section{margin-top:40px;min-width:0}
 @keyframes draw{to{stroke-dashoffset:0}}
 .pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.2s ease-out infinite}
 @keyframes pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.6);opacity:0}}
-.climb{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:0 4px;margin-top:10px;font-size:14px;color:var(--muted)}
+.climb{padding:0 4px;margin-top:10px;font-size:14px;color:var(--muted)}
 .climb b{color:var(--ink);font-weight:700}
 
 /* trail sign */
@@ -74,7 +74,7 @@ section{margin-top:40px;min-width:0}
 .pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
 .panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px}
 .sitemap{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
-.dog{position:relative;width:96px;justify-self:center}
+.dog{position:relative;width:112px;justify-self:center}
 .dog img{display:block;width:100%;height:auto}
 .pin{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:3px solid var(--paper);background:var(--muted);box-shadow:0 1px 3px rgba(0,0,0,.35)}
 .pin.used{background:var(--coat)}
@@ -88,10 +88,10 @@ section{margin-top:40px;min-width:0}
 .sites .sh{grid-column:2;font-size:14px;color:var(--muted)}
 .tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--sign);color:var(--signink);margin-left:6px;vertical-align:1px}
 .vials{display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap}
-.vial{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:end;min-width:150px;flex:1}
+.vial{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:end;min-width:140px;flex:1}
 .vial svg{width:44px;height:auto;display:block}
 .vial .vn{font-weight:800;font-stretch:112%}
-.vial .vu{font-size:20px;font-weight:700}
+.vial .vu{font-size:15px;font-weight:600}
 .vial .vt{font-size:13px;color:var(--muted)}
 .vial .vt.warn{color:var(--warn);font-weight:700}.vial .vt.bad{color:var(--red);font-weight:700}
 
@@ -135,6 +135,7 @@ a,summary{outline-offset:3px}
 @media (max-width:460px){
   .sign{padding:14px 44px 14px 16px}.sign .to{font-size:21px}.sign .eta{font-size:24px}
   th,td{padding:9px 10px}
+  .vc{display:none}
 }
 @media (prefers-reduced-motion:reduce){.trail-done{animation:none;stroke-dashoffset:0}.pulse,.pin.next::after{animation:none;opacity:0}}
 </style>
@@ -149,7 +150,7 @@ a,summary{outline-offset:3px}
   <div class="hero">
     <svg id="climb" viewBox="0 0 560 330" role="img" aria-label="Build-up progress drawn as a mountain climb"></svg>
   </div>
-  <div class="climb"><span id="climb-l"></span><span id="climb-r">Height is allergen strength</span></div>
+  <p class="climb" id="climb-l"></p>
 
   <div class="sign" id="sign">
     <div class="to" id="sg-to">Shot 1</div>
@@ -169,7 +170,7 @@ a,summary{outline-offset:3px}
       <div class="panel">
         <h2>Where it goes</h2>
         <div class="sitemap">
-          <div class="dog"><img src="kong-top.webp" alt="Kong seen from above"><span class="pin" id="pin-L" style="left:31%;top:38%"></span><span class="pin" id="pin-R" style="left:69%;top:38%"></span><span class="pin" id="pin-M" style="left:50%;top:51%"></span></div>
+          <div class="dog"><img src="kong-top.webp" alt="Kong seen from above"><span class="pin" id="pin-L" style="left:31%;top:43%"></span><span class="pin" id="pin-R" style="left:69%;top:43%"></span><span class="pin" id="pin-M" style="left:50%;top:56%"></span></div>
           <ul class="sites" id="sites"></ul>
         </div>
         <p class="small" style="margin-top:14px">Left and right are Kong's. Alternate shoulders each shot.</p>
@@ -184,9 +185,10 @@ a,summary{outline-offset:3px}
   <section>
     <h2>Schedule</h2>
     <div class="tbl"><table>
-      <thead><tr><th class="r">Shot</th><th>Vial</th><th class="r">Dose</th><th>Date</th><th>Status</th></tr></thead>
+      <thead><tr><th class="r">Shot</th><th class="vc">Vial</th><th class="r">Dose</th><th>Date</th><th>Status</th></tr></thead>
       <tbody id="sched"></tbody>
     </table></div>
+    <p class="small" style="margin-top:8px">The heavy line marks the switch to Vial 2.</p>
   </section>
 
   <section>
@@ -296,14 +298,14 @@ function renderClimb(s,nxN){
   const v2=pts[5];
   $('climb').innerHTML=`
     <defs><clipPath id="mtn"><path d="${ridge}"/></clipPath></defs>
-    <circle cx="452" cy="62" r="30" fill="var(--sign)" opacity=".28"/>
+    <circle cx="408" cy="50" r="22" fill="var(--sign)" opacity=".3"/>
     <path d="M0,214 L52,168 L104,190 L168,126 L226,170 L292,112 L352,154 L414,98 L470,138 L560,104 L560,330 L0,330Z" fill="var(--far)"/>
     <path d="M0,262 L74,218 L138,244 L206,188 L276,230 L346,184 L424,222 L494,170 L560,206 L560,330 L0,330Z" fill="var(--mid)"/>
     <path d="${ridge}" fill="var(--face)"/>
     <g clip-path="url(#mtn)"><path d="M0,${YHI+40} L${W},${YHI+6} L${W},0 L0,0Z" fill="var(--snow)" opacity=".92"/></g>
     <polyline points="${trailPts.join(' ')}" fill="none" stroke="var(--snow)" stroke-width="2.5" stroke-dasharray="1 7" stroke-linecap="round" opacity=".9"/>
     ${donePts.length>1?`<polyline class="${drawn?'':'trail-done'}" style="--len:${len.toFixed(0)}" points="${donePts.map(p=>`${p.x},${p.y.toFixed(1)}`).join(' ')}" fill="none" stroke="var(--coat)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`:''}
-    <g transform="translate(${kong.x-30},${kong.y-118})"><image href="kong-sit.webp" width="80" height="120" transform="translate(80,0) scale(-1,1)"/></g>
+    <g transform="translate(${kong.x-44},${kong.y-146})"><image href="kong-sit.webp" width="100" height="150" transform="translate(100,0) scale(-1,1)"/></g>
     ${marks}
     <line x1="${sum.x}" y1="${sum.y}" x2="${sum.x}" y2="${sum.y-38}" stroke="var(--ink)" stroke-width="2.5"/>
     <path d="M${sum.x},${sum.y-38} l26,8 l-26,8z" fill="${summitReached?'var(--coat)':'var(--red)'}"/>
@@ -311,7 +313,7 @@ function renderClimb(s,nxN){
     <text x="${v2.x}" y="${v2.y+28}" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--snow)" style="fill:var(--snow)">Vial 2</text>
     <text x="${pts[0].x-6}" y="${H-14}" font-size="12.5" font-weight="700" style="fill:var(--snow)">Shot 1</text>`;
   const done=[...given.keys()].length;
-  $('climb-l').innerHTML=done>=11?'<b>At the top.</b> Weekly maintenance.':`<b>${done} of 11</b> build-up shots done, ${11-done} to go`;
+  $('climb-l').innerHTML=done>=11?'<b>At the top.</b> Weekly maintenance.':`<b>${done} of 11</b> build-up shots done, ${11-done} to go. The trail climbs with allergen strength.`;
 }
 
 function render(){
@@ -369,7 +371,7 @@ function render(){
     const off=g&&n<=11&&Math.abs(g.dose-PLAN[n-1][2])>.001;
     const pill=r.st==='done'?`<span class="pill done">Given${g.time?' '+fmtT(g.time):''}</span>`:r.st==='over'?'<span class="pill over">Overdue</span>':r.st==='next'?'<span class="pill next">Next</span>':'<span class="pill plan">Planned</span>';
     const trc=[ch?'vialchange':'',r.st==='next'||r.st==='over'?'is-next':'',r.st==='plan'?'is-plan':''].join(' ');
-    rows.push(`<tr class="${trc}"><td class="r">${n}</td><td>${vialLabel(r.vial)}</td><td class="r">${mL(r.dose)}${off?' <span class="pill warn">off plan</span>':''}</td><td>${fmt(r.date)}</td><td>${pill}</td></tr>`);
+    rows.push(`<tr class="${trc}"><td class="r">${n}</td><td class="vc">${vialLabel(r.vial)}</td><td class="r">${mL(r.dose)}${off?' <span class="pill warn">off plan</span>':''}</td><td>${fmt(r.date)}</td><td>${pill}</td></tr>`);
   }
   $('sched').innerHTML=rows.join('');
 
