@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Voice Mirror</title>
+<meta property="og:title" content="Voice Mirror">
+<meta property="og:description" content="Mexican Spanish pronunciation drill in your own cloned voice.">
+<meta property="og:url" content="https://niggerfaggot.club/voice-mirror/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column of drill rows; each row = phrase, sound note, three source buttons, record, waveform compare */
+:root{
+  --bg:#eef2f0; --panel:#fbfcfb; --ink:#14201c; --muted:#5a6a64; --line:#d3ddd8;
+  --native:#0f6e5a; --you:#3c4fb0; --take:#b5730c; --rec:#c2352b;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0f1513; --panel:#161e1b; --ink:#e4ece8; --muted:#8fa19a; --line:#2a3632;
+  --native:#3fbf9b; --you:#8c9cff; --take:#e5a640; --rec:#ff6b5e; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 60px}
+.wrap{max-width:860px;margin:0 auto;display:grid;gap:22px}
+header{display:grid;gap:8px}
+h1{font:800 clamp(34px,7vw,56px)/1 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 span{color:var(--native)}
+.lede{color:var(--muted);max-width:62ch;margin:0}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font:500 12px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--ink);font:inherit;padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.legend{display:flex;flex-wrap:wrap;gap:14px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.status{border:1px dashed var(--line);border-radius:10px;padding:10px 14px;font-size:13.5px;color:var(--muted)}
+.status b{color:var(--ink)}
+ol{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.row{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px}
+.top{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between}
+.es{font:600 clamp(19px,3.6vw,23px)/1.25 var(--display);margin:0;min-width:0}
+.en{color:var(--muted);font-size:13.5px}
+.note{font:400 12.5px/1.45 var(--mono);color:var(--muted)}
+.note b{color:var(--native);font-weight:500}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btns button{font:500 13px var(--body);border-radius:8px;padding:8px 12px;cursor:pointer;border:1.5px solid currentColor;background:transparent;display:inline-flex;gap:7px;align-items:center}
+.btns button:disabled{opacity:.35;cursor:not-allowed}
+.btns button:focus-visible,.seg button:focus-visible{outline:2px solid var(--you);outline-offset:2px}
+.b-native{color:var(--native)} .b-you{color:var(--you)} .b-take{color:var(--take)} .b-rec{color:var(--rec)} .b-seq{color:var(--ink)}
+.btns button.playing{background:currentColor}
+.btns button.playing span{color:var(--panel)}
+.b-rec.on{background:var(--rec)} .b-rec.on span{color:var(--panel)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.waves{display:grid;gap:4px}
+.wave{display:grid;grid-template-columns:62px 1fr;gap:8px;align-items:center;font:500 10.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+canvas{width:100%;height:30px;display:block}
+footer{color:var(--muted);font-size:13px;max-width:62ch}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Voice <span>Mirror</span></h1>
+  <p class="lede">Mexican Spanish in your own voice. Hear the native speaker, hear yourself saying it right, then record your attempt and compare the shapes.</p>
+</header>
+<div class="bar">
+  <span>Speed</span>
+  <div class="seg" id="speed"><button type="button" data-r="1" aria-pressed="true">1×</button><button type="button" data-r="0.8" aria-pressed="false">0.8×</button><button type="button" data-r="0.65" aria-pressed="false">0.65×</button></div>
+  <div class="legend"><span><i style="background:var(--native)"></i>Native</span><span><i style="background:var(--you)"></i>You, clone</span><span><i style="background:var(--take)"></i>Your take</span></div>
+</div>
+<div class="status" id="status"></div>
+<ol id="list"></ol>
+<footer>Drill: play Native, then You, then hit Record and say it once. Match the rhythm in the waveforms first, sounds second. Recordings stay in this tab and vanish on reload.</footer>
+</div>
+<script>
+const CLONE_READY = false;
+const P = [
+  ["01","¿Dónde está el cuarto de máquinas?","Where's the mechanical room?","<b>d</b> between vowels softens to a light “th” in <i>dónde</i>, <b>qu</b> = k, stress on <i>MÁ</i>"],
+  ["02","Buenos días, ¿cómo amaneció?","Morning, how'd you wake up?","Pure vowels, no English glide. <i>amaneció</i> ends on a crisp <b>ó</b>"],
+  ["03","Hay que cerrar la llave del agua antes de empezar.","Gotta shut the water valve before we start.","<b>rr</b> trill in <i>cerrar</i>, <b>ll</b> = y in <i>llave</i> (Mexican yeísmo, not “j” or “sh”)"],
+  ["04","El carro rojo está atrás del edificio.","The red car's behind the building.","Word-initial <b>r</b> in <i>rojo</i> trills like rr. <b>j</b> is a throat rasp, not English h"],
+  ["05","Ahorita regreso, voy por la manguera.","Be right back, grabbing the hose.","Tap <b>r</b> in <i>ahorita</i> and <i>manguera</i>, trill on <i>regreso</i>"],
+  ["06","¿Me pasas la aspiradora, por favor?","Hand me the vacuum, please?","<b>v</b> = soft b in <i>favor</i>. Every vowel full length, no “uh”"],
+  ["07","Está bien sucio el ducto, mira nada más.","This duct is filthy, look at that.","<i>nada</i>: the <b>d</b> softens. <i>bien</i> is one syllable"],
+  ["08","Ya terminamos, nos vemos mañana temprano.","We're done, see you early tomorrow.","<b>ñ</b> = “ny”. <b>t</b> is dental, tongue on teeth, no puff of air"],
+];
+const rate = {v:1};
+const takes = {};
+let cur = null;
+const AC = window.AudioContext||window.webkitAudioContext;
+let ac = null;
+const status = document.getElementById("status");
+status.innerHTML = CLONE_READY
+  ? "<b>Your clone is loaded.</b> “You” plays a TTS read in your voice, “You, native rhythm” plays the native recording converted into your voice."
+  : "<b>Native audio is live. Your-voice clips are coming.</b> The clone is still being set up, so the two “You” buttons are off for now. Record and compare already work.";
+
+function stop(){ if(cur){cur.a.pause();cur.b.classList.remove("playing");cur=null} }
+function play(src,btn){
+  return new Promise(res=>{
+    stop();
+    const a=new Audio(src); a.playbackRate=rate.v; a.preservesPitch=true;
+    cur={a,b:btn}; btn.classList.add("playing");
+    a.onended=a.onerror=()=>{btn.classList.remove("playing"); if(cur&&cur.a===a)cur=null; res()};
+    a.play().catch(()=>{btn.classList.remove("playing");res()});
+  });
+}
+async function draw(canvas,src,color){
+  try{
+    ac=ac||new AC();
+    const buf=await (src instanceof Blob?src.arrayBuffer():fetch(src).then(r=>r.arrayBuffer()));
+    const au=await ac.decodeAudioData(buf);
+    const d=au.getChannelData(0), dpr=devicePixelRatio||1;
+    const w=canvas.clientWidth*dpr, h=canvas.clientHeight*dpr;
+    canvas.width=w; canvas.height=h;
+    const g=canvas.getContext("2d"); g.clearRect(0,0,w,h); g.fillStyle=color;
+    const step=Math.max(1,Math.floor(d.length/w)); let peak=0;
+    const pk=[]; for(let x=0;x<w;x++){let m=0;for(let i=x*step;i<(x+1)*step&&i<d.length;i++){const v=Math.abs(d[i]);if(v>m)m=v}pk.push(m);if(m>peak)peak=m}
+    pk.forEach((m,x)=>{const y=(m/(peak||1))*h*.92;g.fillRect(x,(h-y)/2,Math.max(1,dpr*.8),Math.max(dpr,y))});
+  }catch(e){}
+}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const list=document.getElementById("list");
+P.forEach(([id,es,en,note])=>{
+  const li=document.createElement("li"); li.className="row";
+  li.innerHTML=`<div class="top"><p class="es" lang="es-MX">${es}</p><span class="en">${en}</span></div>
+  <div class="note">${note}</div>
+  <div class="btns">
+    <button type="button" class="b-native" id="n${id}"><span>▶ Native</span></button>
+    <button type="button" class="b-you" id="y${id}" ${CLONE_READY?"":"disabled"}><span>▶ You</span></button>
+    <button type="button" class="b-you" id="s${id}" ${CLONE_READY?"":"disabled"}><span>▶ You, native rhythm</span></button>
+    <button type="button" class="b-rec" id="r${id}"><span class="dot"></span><span>Record</span></button>
+    <button type="button" class="b-take" id="t${id}" disabled><span>▶ Your take</span></button>
+  </div>
+  <div class="waves">
+    <div class="wave"><span>Native</span><canvas id="wn${id}"></canvas></div>
+    <div class="wave"><span>You</span><canvas id="wy${id}"></canvas></div>
+    <div class="wave"><span>Take</span><canvas id="wt${id}"></canvas></div>
+  </div>`;
+  list.appendChild(li);
+  const f={n:`audio/native-${id}.mp3`,y:`audio/you-${id}.mp3`,s:`audio/you-rhythm-${id}.mp3`};
+  const $=x=>li.querySelector("#"+x+id);
+  $("n").onclick=e=>play(f.n,e.currentTarget);
+  $("y").onclick=e=>play(f.y,e.currentTarget);
+  $("s").onclick=e=>play(f.s,e.currentTarget);
+  $("t").onclick=e=>takes[id]&&play(takes[id].url,e.currentTarget);
+  let rec=null;
+  $("r").onclick=async e=>{
+    const b=e.currentTarget;
+    if(rec){rec.stop();return}
+    stop();
+    try{
+      const st=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:true}});
+      const ch=[]; rec=new MediaRecorder(st);
+      rec.ondataavailable=ev=>ch.push(ev.data);
+      rec.onstop=()=>{st.getTracks().forEach(t=>t.stop());const bl=new Blob(ch,{type:rec.mimeType});
+        if(takes[id])URL.revokeObjectURL(takes[id].url); takes[id]={url:URL.createObjectURL(bl)};
+        rec=null; b.classList.remove("on"); b.querySelector("span:last-child").textContent="Record";
+        $("t").disabled=false; draw($("wt"),bl,css("--take"));};
+      rec.start(); b.classList.add("on"); b.querySelector("span:last-child").textContent="Stop";
+    }catch(err){status.innerHTML="<b>Mic blocked.</b> Allow microphone access for this site in your browser settings, then tap Record again."}
+  };
+  draw($("wn"),f.n,css("--native"));
+  if(CLONE_READY) draw($("wy"),f.s,css("--you"));
+});
+document.getElementById("speed").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+  rate.v=+b.dataset.r; document.querySelectorAll("#speed button").forEach(x=>x.setAttribute("aria-pressed",x===b)); if(cur)cur.a.playbackRate=rate.v};
+</script>
+</body>
+</html>
