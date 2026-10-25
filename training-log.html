@@ -16,36 +16,43 @@
 <meta name="theme-color" content="#111915" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,300..900;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,300..900;1,400&family=Overpass+Mono:wght@400;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
 :root{
-  --paper:#f2f4ec; --surface:#fafbf6; --ink:#1c2b24; --ink2:#3a4941; --muted:#66726b; --rule:#d4dacd;
+  --paper:#f2f4ec; --surface:#fafbf6; --ink:#1c2b24; --ink2:#3a4941; --muted:#66726b; --rule:#d4dacd; --rule2:#e3e7dc;
   --trace:#c8392b; --water:#2a76b8; --water-fill:#c9dceb; --wood:#dde7cf; --road:#c9cec3; --road-major:#a7ae9f;
+  --gold:#b07a12;
   --halo:#fafbf6;
   --sans:"Overpass",system-ui,-apple-system,sans-serif;
+  --mono:"Overpass Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
   --serif:"Source Serif 4",Georgia,serif;
-  --gut:16px;
+  --gut:16px; --navh:48px;
 }
 @media (prefers-color-scheme:dark){:root{
-  --paper:#111915; --surface:#17211c; --ink:#e4ebe3; --ink2:#c3cec6; --muted:#8f9c94; --rule:#2a3630;
+  --paper:#111915; --surface:#17211c; --ink:#e4ebe3; --ink2:#c3cec6; --muted:#8f9c94; --rule:#2a3630; --rule2:#1f2a25;
   --trace:#f05a46; --water:#4b98d4; --water-fill:#1b3446; --wood:#19251f; --road:#2c3832; --road-major:#43514a;
+  --gold:#e0a93a;
   --halo:#111915;
 }}
 *{box-sizing:border-box}
-html,body{overflow-x:hidden}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.5 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html,body{overflow-x:hidden;overflow-x:clip}
+html{scroll-padding-top:calc(var(--navh) + 12px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 17px/1.5 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;-webkit-text-size-adjust:100%}
 a{color:inherit}
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--trace);outline-offset:2px}
 .wrap{max-width:1120px;margin:0 auto;padding:0 var(--gut)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mut{color:var(--muted)}
+.up{color:var(--trace)}
 
 /* ---------- atlas (hero) ---------- */
 .atlas{position:relative}
 .title{padding:28px var(--gut) 18px;max-width:1120px;margin:0 auto}
 h1{font-weight:900;font-size:clamp(44px,11vw,104px);line-height:.88;letter-spacing:-.035em;margin:0}
 .title p{margin:12px 0 0;max-width:34em;color:var(--ink2);font-size:17px}
-#map{height:clamp(320px,100vw,560px);background:var(--paper);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+#map{position:relative;z-index:0;isolation:isolate;height:clamp(320px,100vw,560px);background:var(--paper);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 @media(min-width:860px){
   #map{height:min(78vh,700px)}
   .title{position:absolute;z-index:500;top:28px;left:max(var(--gut),calc((100vw - 1120px)/2 + var(--gut)));padding:20px 24px 22px;background:color-mix(in oklab,var(--paper) 88%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid var(--rule);max-width:440px;pointer-events:none}
@@ -54,6 +61,7 @@ h1{font-weight:900;font-size:clamp(44px,11vw,104px);line-height:.88;letter-spaci
 }
 .ledger{display:flex;flex-wrap:wrap;gap:6px 22px;margin:16px 0 0;padding:0;list-style:none;font-size:15px;color:var(--muted)}
 .ledger b{display:block;color:var(--ink);font-weight:800;font-size:24px;letter-spacing:-.02em;line-height:1.1}
+@media(max-width:480px){.ledger{gap:6px 15px;font-size:14px}.ledger b{font-size:21px}}
 .leaflet-container{font-family:var(--sans);background:var(--paper)}
 .leaflet-control-attribution{background:color-mix(in oklab,var(--paper) 80%,transparent)!important;color:var(--muted)!important;font-size:11px}
 .leaflet-control-attribution a{color:var(--muted)!important}
@@ -62,26 +70,20 @@ h1{font-weight:900;font-size:clamp(44px,11vw,104px);line-height:.88;letter-spaci
 .leaflet-bar a:hover{background:var(--paper)}
 .m-tiles{filter:grayscale(1) contrast(1.08);mix-blend-mode:multiply}
 @media (prefers-color-scheme:dark){.m-tiles{filter:grayscale(1) contrast(1.1);mix-blend-mode:normal}}
-path.m-park{fill:var(--wood);stroke:none}
-path.m-lake{fill:var(--water-fill);stroke:none}
-path.m-river{stroke:var(--water);fill:none;opacity:.55}
-path.m-creek{stroke:var(--water);fill:none;opacity:.35}
-path.m-shore{stroke:var(--water);fill:none;opacity:.45}
-path.m-road{stroke:var(--road);fill:none}
-path.m-road-major{stroke:var(--road-major);fill:none}
 path.m-halo{stroke:var(--halo);fill:none}
 path.m-route{stroke:var(--trace);fill:none;cursor:pointer;transition:stroke-width .15s}
 path.m-route.dim{opacity:.35}
 path.m-hit{stroke:transparent;fill:none;cursor:pointer}
 .m-town{display:inline-block;transform:translate(-50%,-50%);font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--muted);white-space:nowrap;text-shadow:0 0 3px var(--paper),0 0 3px var(--paper)}
 .m-town.city{font-size:13px;color:var(--ink2)}
-.m-pin{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--trace);color:#fff;font-weight:800;font-size:13px;border:2px solid var(--halo);box-shadow:0 1px 2px rgba(0,0,0,.25);cursor:pointer}
+.m-pin{display:grid;place-items:center;width:26px;height:26px;padding:0;border-radius:50%;background:var(--trace);color:#fff;font-weight:800;font-size:13px;border:2px solid var(--halo);box-shadow:0 1px 2px rgba(0,0,0,.25);cursor:pointer}
 .m-pin.on{background:var(--ink);color:var(--paper)}
 .m-label{position:absolute;white-space:nowrap;font-weight:700;font-size:13px;line-height:1.15;color:var(--ink);text-shadow:0 0 3px var(--halo),0 0 3px var(--halo),0 0 3px var(--halo);pointer-events:none}
 .m-label small{display:block;font-weight:500;font-size:11.5px;color:var(--muted)}
 .map-hide-labels .m-label{display:none}
-.panbtn{position:absolute;z-index:600;right:12px;display:none}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:12px var(--gut) 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.panctl{margin:10px 10px 0 0!important}
+.panctl .btn{box-shadow:0 1px 3px rgba(0,0,0,.18)}
+.chips{position:relative;display:flex;gap:8px;overflow-x:auto;padding:12px var(--gut) 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .chips::-webkit-scrollbar{display:none}
 .chips .btn{white-space:nowrap;flex:none}
 .chips .btn b{color:var(--trace);margin-right:5px}
@@ -91,24 +93,159 @@ path.m-hit{stroke:transparent;fill:none;cursor:pointer}
 .route-card[hidden]{display:none}
 .route-card h3{margin:0;font-weight:800;font-size:22px;letter-spacing:-.01em}
 .route-card .sub{color:var(--muted);font-size:14px;margin-top:2px}
-.route-card table{margin-top:10px;max-width:640px}
+.route-card .ttb{margin-top:8px;font-size:15px;color:var(--ink2)}
+.route-card .ttb b{font-weight:800;color:var(--ink);font-size:18px}
+.route-card .tscroll{margin-top:6px;max-width:640px}
 .route-card .acts{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
 
+/* ---------- section nav ---------- */
+.toc{position:sticky;top:0;z-index:1200;background:color-mix(in oklab,var(--paper) 90%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--rule)}
+.toc-in{position:relative;max-width:1120px;margin:0 auto;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding:0 calc(var(--gut) - 8px);height:var(--navh);align-items:center;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.toc-in::-webkit-scrollbar{display:none}
+.toc a{flex:none;text-decoration:none;font-size:14px;font-weight:700;color:var(--muted);padding:6px 9px 5px;border-radius:999px;white-space:nowrap;transition:color .15s,background .15s}
+.toc a span{font-family:var(--mono);font-weight:600;font-size:11px;margin-right:5px;color:var(--trace);opacity:.85}
+.toc a:hover{color:var(--ink)}
+.toc a.on{color:var(--paper);background:var(--ink)}
+.toc a.on span{color:inherit;opacity:.7}
+
 /* ---------- sections ---------- */
-section{padding:52px 0 0}
-h2{font-weight:800;font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;line-height:1.1;margin:0}
-.lede{color:var(--ink2);margin:8px 0 0;max-width:40em}
-.grid2{display:grid;gap:52px 48px}
-@media(min-width:860px){.grid2{grid-template-columns:1.25fr 1fr}.grid2>section{padding-top:0}.grid2{padding-top:52px}}
-.btn{appearance:none;border:1px solid var(--rule);background:var(--surface);border-radius:999px;padding:7px 14px 6px;font-size:14px;font-weight:600;cursor:pointer}
+section{padding:56px 0 0;min-width:0}
+.sec-h{display:flex;align-items:baseline;gap:12px;margin:0;flex-wrap:wrap}
+.sec-h .num{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--trace);letter-spacing:.04em;transform:translateY(-3px)}
+h2{font-weight:800;font-size:clamp(28px,4.6vw,36px);letter-spacing:-.025em;line-height:1.08;margin:0}
+.lede{color:var(--ink2);margin:8px 0 0;max-width:42em}
+.grid2{display:grid;gap:52px 48px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:860px){.grid2{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.grid2>section{padding-top:0}.grid2{padding-top:56px}}
+.btn{appearance:none;border:1px solid var(--rule);background:var(--surface);border-radius:999px;padding:7px 14px 6px;font-size:14px;font-weight:600;cursor:pointer;line-height:1.3}
 .btn:hover{border-color:var(--ink2)}
 .btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.btn.solid{background:var(--trace);border-color:var(--trace);color:#fff}
+.btn.solid:hover{filter:brightness(1.06)}
+.kick{font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.badge{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.02em;border-radius:4px;padding:2px 6px 1px;vertical-align:2px;margin-left:6px;white-space:nowrap;border:1px solid currentColor;line-height:1.35}
+.badge.pr{color:var(--trace)}
+.badge.base{color:var(--water)}
+.badge.gold{color:var(--gold)}
+.badge.plain{color:var(--muted)}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.big{font-weight:900;letter-spacing:-.035em;line-height:.95}
+
+/* ---------- 01 now ---------- */
+.now{display:grid;grid-template-columns:minmax(0,1fr);margin-top:22px;border-top:1px solid var(--rule)}
+.now>div{padding:20px 0 22px;border-bottom:1px solid var(--rule);min-width:0}
+@media(min-width:900px){
+  .now{grid-template-columns:minmax(0,.9fr) minmax(0,1.45fr) minmax(0,1fr);border-bottom:1px solid var(--rule)}
+  .now>div{border-bottom:0;padding:22px 26px 24px}
+  .now>div:first-child{padding-left:0}
+  .now>div:last-child{padding-right:0}
+  .now>div+div{border-left:1px solid var(--rule)}
+}
+.now .big{font-size:52px;margin-top:10px}
+.now .big small{font-size:18px;font-weight:700;letter-spacing:0;color:var(--muted);margin-left:6px}
+.now .line{font-size:15px;color:var(--ink2);margin-top:8px}
+.now .line b{color:var(--ink)}
+.pips{display:inline-flex;gap:6px;vertical-align:middle}
+.pips i{width:15px;height:15px;border-radius:50%;border:2px solid var(--trace)}
+.pips i.on{background:var(--trace)}
+.pips i.over{background:var(--gold);border-color:var(--gold)}
+.wk6{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:end;height:92px;margin-top:16px;position:relative}
+.wk6 .col{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;min-width:0}
+.wk6 .bar{width:100%;max-width:34px;border-radius:3px 3px 0 0;background:color-mix(in oklab,var(--trace) 45%,var(--paper));min-height:2px}
+.wk6 .col.cur .bar{background:var(--trace)}
+.wk6 .n{font-size:12px;font-weight:700;color:var(--ink2);line-height:1}
+.wk6 .d{font-size:11px;color:var(--muted);line-height:1;white-space:nowrap}
+.wk6 .goal3{position:absolute;left:0;right:0;border-top:1px dashed var(--muted);opacity:.6}
+.latest .ttl{font-weight:800;font-size:22px;letter-spacing:-.015em;line-height:1.15;margin-top:8px}
+.latest .stats{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px}
+.latest .stats div{font-size:13px;color:var(--muted)}
+.latest .stats b{display:block;font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1.1}
+.latest .vs{margin-top:14px;font-size:15.5px;color:var(--ink2);max-width:34em}
+.latest .vs b{color:var(--ink)}
+.latest .pres{margin-top:10px;font-size:14px;color:var(--muted);max-width:36em}
+.latest .pres b{color:var(--ink2);font-weight:700}
+.mini{display:flex;gap:3px;align-items:flex-end;height:34px;margin-top:14px;max-width:260px}
+.mini i{flex:1;background:var(--trace);border-radius:2px 2px 0 0;min-height:3px;position:relative}
+.mini i.part{opacity:.5}
+.mini-cap{font-size:12.5px;color:var(--muted);margin-top:5px}
+.fit .sp{display:block;width:100%;max-width:300px;height:64px;margin-top:12px;overflow:visible}
+.fit .sp text{font:600 10.5px var(--sans);fill:var(--muted)}
+
+/* ---------- 02 time to beat ---------- */
+.courses{display:grid;gap:28px;margin-top:24px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:980px){.courses{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.course{border:1px solid var(--rule);background:var(--surface);border-radius:8px;padding:18px 18px 16px;min-width:0}
+.course .nm{font-weight:800;font-size:18px;letter-spacing:-.01em;line-height:1.2}
+.course .nm small{display:block;font-weight:500;font-size:13.5px;color:var(--muted);letter-spacing:0;margin-top:2px}
+.course .pr{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:12px}
+.course .pr .big{font-size:48px}
+.course .pr .meta{font-size:14px;color:var(--muted);line-height:1.35}
+.course .pr .meta b{color:var(--trace);font-weight:800}
+.course .seq{font-size:14px;color:var(--ink2);margin-top:6px}
+.course .seq b{color:var(--ink)}
+.race{margin-top:16px;border-top:1px solid var(--rule);padding-top:14px}
+.race svg{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y}
+.race svg text{font-family:var(--sans)}
+.race .ctl{display:flex;align-items:center;gap:10px;margin-top:10px}
+.race .ctl .btn{flex:none;min-width:84px}
+.race input[type=range]{flex:1;min-width:0;accent-color:var(--trace);height:28px}
+.race .clk{font-weight:700;font-size:15px;min-width:62px;text-align:right;color:var(--ink2);font-variant-numeric:tabular-nums}
+.race .after{font-size:14px;color:var(--ink2);margin-top:10px;min-height:2.6em}
+.tobeat{font-size:13.5px;color:var(--muted);margin-top:8px}
+.tobeat b{color:var(--ink);font-weight:800;font-size:14px}
+.bases{margin-top:34px}
+.bases h3{font-size:18px;font-weight:800;margin:0}
+.bases p{margin:4px 0 0;font-size:14.5px;color:var(--muted)}
+.btab{width:100%;border-collapse:collapse;margin-top:10px;font-size:15px}
+.btab th{text-align:left;font-weight:600;font-size:12.5px;color:var(--muted);padding:0 12px 6px 0;white-space:nowrap}
+.btab td{padding:9px 12px 9px 0;border-top:1px solid var(--rule);white-space:nowrap;vertical-align:baseline}
+.btab td.t{font-weight:800;font-size:17px}
+.btab td.r{white-space:normal;min-width:120px;font-weight:600}
+.btab td.r small{display:block;font-weight:400;font-size:12.5px;color:var(--muted)}
+@media(max-width:480px){.btab .pc{display:none}.btab td{padding-right:10px}}
+.btab tr.go{cursor:pointer}
+.btab tr.go:hover td{background:color-mix(in oklab,var(--ink) 4%,transparent)}
+.btab .maplink{font-size:13px}
+
+/* ---------- 03 engine ---------- */
+.eng{display:grid;grid-template-columns:minmax(0,1fr);gap:40px 48px;margin-top:8px}
+@media(min-width:900px){.eng{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.eng h3,.sub-h{font-weight:800;font-size:18px;margin:30px 0 0;letter-spacing:-.01em}
+.eng h3{margin-top:0}
+.vd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:10px}
+.vd .big{font-size:56px}
+.vd .meta{font-size:14px;color:var(--muted);max-width:22em;line-height:1.35}
+.ptab{width:100%;border-collapse:collapse;margin-top:14px;font-size:15px}
+.ptab th{text-align:left;font-weight:600;font-size:12.5px;color:var(--muted);padding:0 10px 6px 0}
+.ptab td{padding:8px 10px 8px 0;border-top:1px solid var(--rule);vertical-align:baseline}
+.ptab td:first-child{font-weight:700}
+.ptab td small{display:block;font-size:12.5px;color:var(--muted);font-weight:400}
+.ptab td.p{font-weight:800;white-space:nowrap}
+.ptab td.h{color:var(--ink2);min-width:96px}
+.eqs{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px 16px;margin-top:14px}
+.eqs div{font-size:12.5px;color:var(--muted)}
+.eqs b{display:block;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1.15}
+.eqs i{display:block;font-style:normal;font-size:12px;color:var(--ink2)}
+.note{font-size:13px;color:var(--muted);margin-top:12px;max-width:42em}
+.zr{margin-top:12px;border-top:1px solid var(--rule)}
+.zr .z{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1.6fr) 26px;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule)}
+.zr .zn{font-weight:700;font-size:15px;line-height:1.2}
+.zr .zn small{display:block;font-weight:400;font-size:12.5px;color:var(--muted);margin-top:2px}
+.zr .zd{display:flex;gap:7px;flex-wrap:wrap}
+.zr .zd i{width:14px;height:14px;border-radius:50%;background:var(--zc);display:inline-block;cursor:default}
+.zr .zd i.tm{background:transparent;border:2px solid var(--zc)}
+.zr .z b{text-align:right;font-size:18px;font-weight:800}
+.tkey{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+.tkey .ramp{width:120px;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--water),color-mix(in oklab,var(--water) 50%,var(--trace)),var(--trace))}
 
 /* calendar */
-.cal{margin-top:20px;display:grid;grid-template-columns:auto repeat(7,minmax(0,1fr)) auto;gap:4px;align-items:center;max-width:440px}
+.cal{margin-top:20px;display:grid;grid-template-columns:auto repeat(7,minmax(0,1fr)) minmax(62px,1.4fr);gap:4px;align-items:center;max-width:520px}
 .cal .dow{font-size:12px;color:var(--muted);text-align:center;font-weight:600}
 .cal .wk{font-size:12.5px;color:var(--muted);padding-right:6px;white-space:nowrap}
-.cal .tot{font-size:13px;padding-left:8px;white-space:nowrap;color:var(--ink2);font-weight:600;min-width:58px}
+.cal .tot{font-size:13px;padding-left:8px;white-space:nowrap;color:var(--ink2);font-weight:700;display:flex;align-items:center;gap:6px;min-width:0}
+.cal .tot i{display:block;height:6px;border-radius:3px;background:color-mix(in oklab,var(--ink) 22%,var(--paper));flex:none}
+.cal .tot.hit i{background:var(--trace)}
+.cal .tot.hit{color:var(--trace)}
+@media(max-width:400px){.cal{gap:3px}.cal .tot i{display:none}.cal .tot{padding-left:4px}}
 .cal .tot span{color:var(--muted);font-weight:400}
 .day{aspect-ratio:1;border-radius:5px;background:color-mix(in oklab,var(--ink) 6%,var(--paper));position:relative;display:grid;place-items:center;font-size:11px;font-weight:700;color:transparent}
 .day.l1{background:color-mix(in oklab,var(--trace) 30%,var(--paper))}
@@ -123,20 +260,7 @@ h2{font-weight:800;font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;line-h
 .day.out{visibility:hidden}
 .cal-key{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:13px;color:var(--muted);align-items:center}
 .cal-key i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:5px}
-.goal{margin-top:18px;display:flex;align-items:center;gap:12px;font-size:15px}
-.pips{display:flex;gap:5px}
-.pips i{width:14px;height:14px;border-radius:50%;border:2px solid var(--trace)}
-.pips i.on{background:var(--trace)}
-
-/* rematch */
-.rm{margin-top:22px}
-.rm-row{padding:14px 0;border-top:1px solid var(--rule)}
-.rm-row:last-child{border-bottom:1px solid var(--rule)}
-.rm-name{font-weight:700;font-size:16px}
-.rm-meta{font-size:13.5px;color:var(--muted)}
-.rm-big{font-weight:800;font-size:28px;letter-spacing:-.02em;line-height:1.1;margin-top:6px}
-.rm-big span{font-weight:500;font-size:15px;color:var(--muted);letter-spacing:0}
-.rm svg{display:block;width:100%;max-width:420px;height:auto;margin-top:4px;overflow:visible}
+.goal{margin-top:18px;display:flex;align-items:center;gap:12px;font-size:15px;flex-wrap:wrap}
 
 /* charts */
 .chart{margin-top:20px;position:relative}
@@ -145,17 +269,17 @@ h2{font-weight:800;font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;line-h
 .chart .grid line{stroke:var(--rule);stroke-width:1}
 .chart .base{stroke:var(--ink2);stroke-width:1}
 .chart .lbl{fill:var(--ink);font-weight:700}
-.sub-h{font-weight:700;font-size:16px;margin:26px 0 0}
-.tip{position:absolute;z-index:20;pointer-events:none;background:var(--ink);color:var(--paper);padding:7px 10px 6px;border-radius:6px;font-size:13px;line-height:1.35;white-space:nowrap;transform:translate(-50%,calc(-100% - 12px));opacity:0;transition:opacity .1s}
+.tip{position:fixed;z-index:3000;pointer-events:none;background:var(--ink);color:var(--paper);padding:7px 10px 6px;border-radius:6px;font-size:13px;line-height:1.35;max-width:min(320px,calc(100vw - 24px));white-space:normal;opacity:0;transition:opacity .1s;left:0;top:0}
 .tip.on{opacity:1}
 .tip b{font-weight:800}
 
 /* fingerprints */
 .fp{margin-top:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 18px}
-.fp figure{margin:0}
+.fp figure{margin:0;min-width:0}
 .fp svg{display:block;width:100%;height:64px;overflow:visible}
 .fp figcaption{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.3}
 .fp figcaption b{display:block;color:var(--ink);font-weight:700;font-size:14px}
+.fp figcaption em{display:block;font-style:normal;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fp-key{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
 .fp-key i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:0}
 
@@ -163,7 +287,7 @@ h2{font-weight:800;font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;line-h
 .shoes{margin-top:18px;display:grid;gap:30px}
 @media(min-width:560px){.shoes{grid-template-columns:1fr 1fr}}
 @media(min-width:900px){.shoes{grid-template-columns:repeat(3,1fr)}}
-.shoe{margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none}
+.shoe{margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;min-width:0}
 .stage{position:relative;height:150px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:16px}
 .stage .ground{position:absolute;left:8%;right:8%;bottom:10px;height:14px;border-radius:50%;background:radial-gradient(closest-side,color-mix(in oklab,var(--ink) 30%,transparent),transparent);transform-origin:70% 50%}
 .shoe img{display:block;width:100%;height:auto;position:relative}
@@ -190,43 +314,42 @@ h2{font-weight:800;font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;line-h
 .hint{font-size:13px;color:var(--muted);margin-top:14px}
 
 /* records */
-.rec{margin:18px 0 0;display:grid;grid-template-columns:1fr;gap:0}
-.rec div{display:grid;grid-template-columns:1fr auto;gap:2px 14px;padding:12px 0;border-top:1px solid var(--rule)}
+.rec{margin:18px 0 0;display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+.rec div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 14px;padding:12px 0;border-top:1px solid var(--rule)}
 .rec div:last-child{border-bottom:1px solid var(--rule)}
 .rec dt{font-size:15px;color:var(--ink2)}
-.rec dd{margin:0;font-weight:800;font-size:20px;letter-spacing:-.01em;text-align:right}
+.rec dd{margin:0;font-weight:800;font-size:20px;letter-spacing:-.01em;text-align:right;white-space:nowrap}
 .rec small{grid-column:1/-1;font-size:13px;color:var(--muted)}
 @media(min-width:900px){.rec{grid-template-columns:1fr 1fr;column-gap:48px}.rec div{border-top:0;border-bottom:1px solid var(--rule)}.rec div:nth-child(-n+2){border-top:1px solid var(--rule)}}
 
 /* sessions */
 .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;align-items:center}
-.filters .clear{display:none}
 .log{margin-top:16px;max-width:860px}
 .ses{border-top:1px solid var(--rule)}
 .ses:last-child{border-bottom:1px solid var(--rule)}
-.ses>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:62px 1fr auto;gap:2px 14px;padding:14px 0;align-items:start}
+.ses>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:2px 14px;padding:14px 0;align-items:start}
 .ses>summary::-webkit-details-marker{display:none}
 .ses .d{font-size:13px;color:var(--muted);line-height:1.25;padding-top:3px}
 .ses .d b{display:block;font-size:20px;font-weight:800;color:var(--ink);letter-spacing:-.02em;line-height:1}
-.ses .t{font-weight:700;font-size:17px;line-height:1.25}
+.ses .t{font-weight:700;font-size:17px;line-height:1.3}
 .ses .k{font-size:14px;color:var(--muted);margin-top:3px}
 .ses .k b{color:var(--ink2);font-weight:700}
 .ses .type{display:inline-block;font-size:12px;font-weight:700;color:var(--muted);border:1px solid var(--rule);border-radius:999px;padding:1px 8px 0;margin-left:6px;vertical-align:2px}
 .ses .spark{width:64px;height:30px;margin-top:4px}
 .ses .chev{transition:transform .2s;color:var(--muted);margin-top:4px}
 .ses[open] .chev{transform:rotate(180deg)}
-.ses .body{padding:0 0 22px 76px}
-@media(max-width:560px){.ses .body{padding-left:0}.ses .spark{display:none}}
+.ses .body{padding:0 0 22px 76px;min-width:0}
+@media(max-width:560px){.ses .body{padding-left:0}.ses .spark{display:none}.ses>summary{grid-template-columns:52px minmax(0,1fr) auto;gap:2px 10px}}
 .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:12px 16px;margin:4px 0 0}
-.metrics div b{display:block;font-weight:800;font-size:19px;letter-spacing:-.01em;line-height:1.15}
+.metrics div{min-width:0}
+.metrics div b{display:block;font-weight:800;font-size:19px;letter-spacing:-.01em;line-height:1.15;overflow-wrap:anywhere}
 .metrics div span{font-size:12.5px;color:var(--muted)}
 .splits{width:100%;border-collapse:collapse;margin-top:18px;font-size:14px}
 .splits th{text-align:left;font-weight:600;font-size:12.5px;color:var(--muted);padding:0 10px 6px 0;white-space:nowrap}
 .splits td{padding:5px 10px 5px 0;border-top:1px solid var(--rule);white-space:nowrap}
-.splits td.bar{width:40%;padding-right:0}
+.splits td.bar{width:40%;min-width:60px;padding-right:0}
 .splits td.bar i{display:block;height:8px;border-radius:0 4px 4px 0;background:var(--trace)}
 .splits td.bar i.walk{background:color-mix(in oklab,var(--trace) 35%,var(--paper))}
-.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .notes{font-family:var(--serif);font-size:17.5px;line-height:1.6;color:var(--ink);margin:18px 0 0;max-width:36em}
 .route{margin-top:18px;padding:14px 16px;background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--trace);border-radius:0 6px 6px 0}
 .route b{font-weight:800}
@@ -235,29 +358,32 @@ h2{font-weight:800;font-size:clamp(26px,4.4vw,34px);letter-spacing:-.02em;line-h
 .route dl div{color:var(--muted)}
 .route dl dd{display:inline;margin:0;color:var(--ink)}
 .route p{margin:10px 0 0;font-size:14.5px;color:var(--ink2)}
+.cmp{margin-top:16px;padding:12px 14px;border:1px dashed var(--rule);border-radius:6px;font-size:14.5px;color:var(--ink2)}
+.cmp b{color:var(--ink)}
 .kv{margin:16px 0 0;font-size:14px;color:var(--muted);display:grid;gap:5px}
+.kv div{overflow-wrap:anywhere}
 .kv div span{color:var(--ink)}
 .kv .where{color:var(--ink2)}
 .srcline{font-size:12.5px;color:var(--muted);margin-top:14px}
 .maplink{appearance:none;border:0;background:none;padding:0;color:var(--trace);font-weight:700;font-size:14px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 
 footer{margin:64px 0 0;padding:18px 0 48px;border-top:1px solid var(--rule);font-size:13.5px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 
 /* ---------- races ---------- */
-.hr .race{border:1px solid var(--rule);background:var(--surface);padding:16px 16px 12px;margin:0 0 14px}
+.wrapx{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+.hr .race{border:1px solid var(--rule);background:var(--surface);padding:16px 16px 12px;margin:0 0 14px;border-radius:6px;min-width:0}
 .hr .race h4{margin:0;font-size:18px}
 .hr .race .rm{color:var(--muted);font-size:14px;margin:2px 0 10px}
 .hr .race table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
-.hr .race th,.hr .race td{text-align:left;padding:5px 8px 5px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
+.hr .race th,.hr .race td{text-align:left;padding:5px 10px 5px 0;border-bottom:1px solid var(--rule);white-space:nowrap}
 .hr .race th{color:var(--muted);font-weight:600;font-size:12.5px}
 .hr .race tr.me td:first-child{color:var(--trace);font-weight:700}
 .hr .race .who small{display:block;color:var(--muted);font-size:12px;font-weight:400}
 .hr .race p{color:var(--ink2);font-size:14px;margin:10px 0 0}
 .hr .race .pl{color:var(--muted);font-size:12.5px;white-space:normal}
 /* ---------- history ---------- */
-#history{border-top:1px solid var(--rule);margin-top:52px}
-.h-gap .lede{margin-top:4px}
+#seasons .chart{margin-top:12px}
 .gapviz{display:block;width:100%;max-width:560px;height:auto;margin-top:8px;overflow:visible}
 .gapviz text{font:600 10.5px var(--sans);fill:var(--muted)}
 .hm{margin-top:12px;display:grid;grid-template-columns:38px repeat(12,minmax(0,1fr)) 46px;gap:3px;max-width:640px;align-items:center}
@@ -271,15 +397,16 @@ footer{margin:64px 0 0;padding:18px 0 48px;border-top:1px solid var(--rule);font
 .hm .c.l4{background:var(--trace);color:#fff}
 .hm .c.sel{box-shadow:0 0 0 2px var(--ink)}
 .hm .c.fut{background:transparent;outline:1px dashed var(--rule);outline-offset:-1px}
+@media(max-width:420px){.hm .c{font-size:0}}
 .h4{margin-top:12px;display:grid;gap:6px;max-width:640px}
-.h4 .r{display:grid;grid-template-columns:118px 1fr 52px;gap:10px;align-items:center;font-size:13.5px}
+.h4 .r{display:grid;grid-template-columns:minmax(0,118px) minmax(0,1fr) 52px;gap:10px;align-items:center;font-size:13.5px}
 .h4 .r span:first-child{color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .h4 .bar{height:14px;border-radius:3px;background:color-mix(in oklab,var(--ink) 22%,var(--paper))}
 .h4 .r.best .bar{background:var(--trace)}
 .h4 .r b{font-weight:700;text-align:right}
 .h4 .r.none{color:var(--muted)}
 .hs{margin-top:12px}
-.hs-row{padding:16px 0;border-top:1px solid var(--rule);cursor:pointer}
+.hs-row{padding:16px 0;border-top:1px solid var(--rule);cursor:pointer;min-width:0}
 .hs-row:last-child{border-bottom:1px solid var(--rule)}
 .hs-row.sel{background:color-mix(in oklab,var(--trace) 6%,var(--paper))}
 .hs-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 16px;align-items:baseline}
@@ -297,7 +424,7 @@ footer{margin:64px 0 0;padding:18px 0 48px;border-top:1px solid var(--rule);font
 .hs-list td,.hs-list th{padding:5px 6px 4px;border-top:1px solid var(--rule);text-align:right;white-space:nowrap}
 .hs-list th{font-weight:600;color:var(--muted);font-size:12px}
 .hs-list td:first-child,.hs-list th:first-child{text-align:left}
-.hs-list .wrapx{overflow-x:auto}
+.hs-more{margin-top:14px}
 .h-note{font-size:13px;color:var(--muted);margin-top:16px;max-width:44em}
 </style>
 </head>
@@ -310,61 +437,101 @@ footer{margin:64px 0 0;padding:18px 0 48px;border-top:1px solid var(--rule);font
     <ul class="ledger" id="ledger"></ul>
   </div>
   <div id="map" role="region" aria-label="Map of every route run. Select a pin to see the runs on it."></div>
-  <button class="btn panbtn" id="panbtn" aria-pressed="false">Pan and zoom</button>
   <div class="chips" id="chips" aria-label="Routes"></div>
   <div class="route-card" id="routeCard" hidden></div>
 </header>
 
+<nav class="toc" aria-label="Sections"><div class="toc-in" id="toc">
+  <a href="#now"><span>01</span>Now</a>
+  <a href="#beat"><span>02</span>Time to beat</a>
+  <a href="#engine"><span>03</span>Engine</a>
+  <a href="#weeks"><span>04</span>Weeks</a>
+  <a href="#pace"><span>05</span>Progress</a>
+  <a href="#pacing"><span>06</span>Pacing</a>
+  <a href="#shoes"><span>07</span>Shoes</a>
+  <a href="#records"><span>08</span>Records</a>
+  <a href="#log"><span>09</span>Every session</a>
+  <a href="#seasons"><span>10</span>Seasons</a>
+</div></nav>
+
 <main class="wrap">
+  <section id="now">
+    <div class="sec-h"><span class="num">01</span><h2>Where things stand</h2></div>
+    <div class="now">
+      <div id="nowWeek"></div>
+      <div class="latest" id="nowLatest"></div>
+      <div class="fit" id="nowFit"></div>
+    </div>
+  </section>
+
+  <section id="beat">
+    <div class="sec-h"><span class="num">02</span><h2>Time to beat</h2></div>
+    <p class="lede" id="beatLede"></p>
+    <div class="courses" id="courses"></div>
+    <div class="bases" id="bases"></div>
+  </section>
+
+  <section id="engine">
+    <div class="sec-h"><span class="num">03</span><h2>Engine</h2></div>
+    <p class="lede" id="effLede"></p>
+    <div class="chart" id="effChart"></div>
+    <div class="tkey"><span>Dot color is the temperature:</span><span class="ramp" aria-hidden="true"></span><span id="tkeyRange"></span><span>Hollow dots are treadmill.</span></div>
+    <div class="eng" style="margin-top:40px">
+      <div id="vdot"></div>
+      <div>
+        <div class="zones" id="zones"></div>
+        <div id="eqs"></div>
+      </div>
+    </div>
+  </section>
+
   <div class="grid2">
     <section id="weeks">
-      <h2>Week by week</h2>
-      <p class="lede">Darker days are longer runs. The goal from October on is three runs a week.</p>
+      <div class="sec-h"><span class="num">04</span><h2>Week by week</h2></div>
+      <p class="lede">Darker days are longer runs. Week totals sit on the right, red when the week hit three runs. The goal from October on is three a week.</p>
       <div class="goal" id="goal"></div>
       <div class="cal" id="cal"></div>
       <div class="cal-key" id="calKey"></div>
     </section>
-    <section id="rematch">
-      <h2>Rematches</h2>
-      <p class="lede">Same route, run again. First time against the latest.</p>
-      <div class="rm" id="rm"></div>
+    <section id="pace">
+      <div class="sec-h"><span class="num">05</span><h2>Pace and heart rate</h2></div>
+      <p class="lede" id="paceLede"></p>
+      <div class="chart" id="paceChart"></div>
+      <h3 class="sub-h">Average heart rate</h3>
+      <div class="chart" id="hrChart"></div>
     </section>
   </div>
 
-  <section id="pace">
-    <h2>Average pace, run by run</h2>
-    <p class="lede" id="paceLede"></p>
-    <div class="chart" id="paceChart"></div>
-    <h3 class="sub-h">Average heart rate</h3>
-    <div class="chart" id="hrChart"></div>
-  </section>
-
   <section id="pacing">
-    <h2>How each run was paced</h2>
+    <div class="sec-h"><span class="num">06</span><h2>How each run was paced</h2></div>
     <p class="lede" id="fpLede"></p>
     <div class="fp-key"><span><i style="background:var(--trace)"></i>Faster than that run's average</span><span><i style="background:var(--water)"></i>Slower</span></div>
     <div class="fp" id="fp"></div>
   </section>
 
   <section id="shoes">
-    <h2>Shoes</h2>
+    <div class="sec-h"><span class="num">07</span><h2>Shoes</h2></div>
     <p class="lede">Miles on each pair, counted from the log. Hover or tap a shoe.</p>
     <div class="shoes" id="shoeList"></div>
   </section>
+
   <section id="records">
-    <h2>Records</h2>
+    <div class="sec-h"><span class="num">08</span><h2>Records</h2></div>
     <dl class="rec" id="rec"></dl>
   </section>
 
   <section id="log">
-    <h2>Every session</h2>
+    <div class="sec-h"><span class="num">09</span><h2>Every session</h2></div>
     <div class="filters" id="filters"></div>
     <div class="log" id="sessions"></div>
   </section>
 
-  <section id="history">
-    <h2>Running seasons, 2017 to now</h2>
+  <section id="seasons">
+    <div class="sec-h"><span class="num">10</span><h2>Running seasons, 2017 to now</h2></div>
     <p class="lede" id="hLede"></p>
+    <h3 class="sub-h">Fitness, every run since 2017</h3>
+    <p class="lede" id="hFitLede" style="font-size:15px"></p>
+    <div class="chart" id="hFit"></div>
     <h3 class="sub-h">Where the breaks fall</h3>
     <div class="h-gap" id="hGap"></div>
     <h3 class="sub-h">Miles by month</h3>
@@ -376,16 +543,18 @@ footer{margin:64px 0 0;padding:18px 0 48px;border-top:1px solid var(--rule);font
     <div class="hr" id="hRace"></div>
     <h3 class="sub-h">Each season</h3>
     <div class="hs" id="hs"></div>
-    <p class="h-note">From the full MapMyRun export (182 workouts, Aug 2017 to Oct 2026), plus race results pulled from the official timing (RTRT.me) and 12 treadmill sessions from the old health tracker (Jan to Feb 2026; two of its entries were already in MapMyRun and were dropped). Tracker times are when the session was logged, not when it started. 4-mile and mile times come from the GPS track, so they can differ from the app by a second or two. Heart rate only exists from Aug 2026 on.</p>
+    <div class="hs-more" id="hsMore"></div>
+    <p class="h-note" id="hNote"></p>
   </section>
 
-  <footer><span id="stamp"></span><span>Map data &copy; OpenStreetMap contributors. Shoe photos from Altra, Vivobarefoot, and Xero Shoes.</span></footer>
+  <footer><span id="stamp"></span><span>Map data &copy; OpenStreetMap contributors. Shoe photos from Altra, Vivobarefoot, and Xero Shoes. VDOT and training paces use Jack Daniels' published formulas.</span></footer>
 </main>
 
-<div class="tip" id="tip"></div>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
+
 // Add an entry: only date, time, type, title are required. Everything else optional.
 // metrics: [[label, value], ...]   table: {cols:[], rows:[[]], barCol:n, barLowerIsBetter:true}
 // route: {name, src, stats:[[label,value]], note}  for a trail/route the session was run on
@@ -634,15 +803,22 @@ const entries = [
 
 // Routes drawn on the map. Geometry lives in /assets/training-log/map.json under the same key.
 // To map a new route: add a line here and its trail geometry to map.json.
+// course: optional short name for a route run often enough to have its own name.
 const ROUTES = [
   {k:"att",       name:"American Tobacco Trail",      re:/tobacco/i,                dir:"right"},
   {k:"hinshaw",   name:"Hinshaw and Pirate's Cove",   re:/hinshaw|pirate/i,         dir:"left"},
   {k:"neuse",     name:"Neuse River Trail",           re:/neuse/i,                  dir:"left"},
   {k:"needmore",  name:"Hilltop Needmore",            re:/needmore/i,               dir:"right"},
-  {k:"parkdepot", name:"Park Depot Greenway",         re:/park depot/i,             dir:"right"},
+  {k:"parkdepot", name:"Park Depot Greenway",         re:/park depot/i,             dir:"right", course:"Honeycutt 4"},
   {k:"carldean",  name:"Carl Dean and Bass Lake",     re:/carl dean|bass lake/i,    dir:"left"},
   {k:"yates",     name:"Yates Mill Pond",             re:/yates|millpond|creekside/i, dir:"right"},
+  {k:"lakejohnson", name:"Lake Johnson East Loop",      re:/lake johnson/i,           dir:"right"},
 ];
+
+// Races not in the MapMyRun export, from official timing.
+const RACES = [{"id":"rtrt-MCM-HHALF-2025","date":"2025-05-18","start_local":"2025-05-18 06:04 EDT","type":"run","name":"Marine Corps Historic Half","source":"RTRT.me official results (chip time, preliminary), not in MapMyRun","dist_mi":13.1,"active_s":8118,"elapsed_s":8118,"pace_s":620,"hr_avg":null,"hr_max":null,"cadence_avg":null,"steps":null,"kcal":null,"elev_gain_ft":null,"elev_min_ft":null,"elev_max_ft":null,"start_ll":null,"end_ll":null,"t_1mi":null,"t_5k":1734,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Marine Corps Historic Half, Fredericksburg VA","area":"Fredericksburg, VA","race":{"name":"Marine Corps Historic Half","where":"Fredericksburg, VA","date":"2025-05-18","field":4419,"note":"All four started within 11 seconds. Bekah, Clifford and Rachel came through the 5K within a second of each other; Bekah and Clifford stayed together to the line, 1 second apart. Places are RTRT's preliminary numbers.","results":[{"name":"Benny","reg":"Benjamin Foreman","bib":3126,"div":"M 25-29","from":"Willow Spring, NC","time":"2:15:18","pace":"10:20","start":"6:04:39 am","finish_tod":"8:19:56 am","splits":[["5K","28:54","9:18"],["10K","58:28","9:31"],["15K","1:30:05","10:11"],["20K","2:06:54","11:51"],["Finish","2:15:18","12:20"]],"place":"1,832 of 4,419 overall · 1,343 of 2,559 men · 180 of 317 M 25-29"},{"name":"Clifford","reg":"Clifford Polheber","bib":3124,"div":"M 25-29","from":"Sneads Ferry, NC","time":"2:29:52","pace":"11:26","start":"6:04:50 am","finish_tod":"8:34:41 am","splits":[["5K","34:05","10:59"],["10K","1:11:38","12:06"],["15K","1:45:05","10:46"],["20K","2:22:36","12:05"],["Finish","2:29:52","10:40"]],"place":"2,684 of 4,419 overall · 1,821 of 2,559 men · 248 of 317 M 25-29"},{"name":"Bekah","reg":"Rebekah Hoskins","bib":3125,"div":"F 20-24","from":"Willow Spring, NC","time":"2:29:53","pace":"11:26","start":"6:04:49 am","finish_tod":"8:34:41 am","splits":[["5K","34:07","10:59"],["10K","1:11:39","12:05"],["15K","1:45:05","10:46"],["20K","2:22:37","12:05"],["Finish","2:29:53","10:40"]],"place":"2,685 of 4,419 overall · 863 of 1,855 women · 109 of 198 F 20-24"},{"name":"Rachel","reg":"Rachael Satalino","bib":2507,"div":"F 30-34","from":"West Palm Bch, FL","time":"2:59:30","pace":"13:42","start":"6:04:50 am","finish_tod":"9:04:19 am","splits":[["5K","34:07","10:59"],["10K","1:14:43","13:05"],["15K","2:02:46","15:28"],["20K","2:50:17","15:18"],["Finish","2:59:30","13:32"]],"place":"3,841 of 4,419 overall · 1,489 of 1,855 women · 219 of 261 F 30-34"}]}}];
+// Treadmill sessions from the old health tracker (R2 backup), deduped against MapMyRun.
+const TRACKER = [{"id":"ht-1","date":"2026-01-26","start_local":"2026-01-26 18:45 EST","type":"treadmill","name":"2.12 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":2.12,"active_s":1140,"elapsed_s":1140,"pace_s":537.7358490566038,"hr_avg":null,"hr_max":193,"cadence_avg":null,"kcal":253,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"TechnoGym treadmill (gym not named)","area":"Treadmill","note":"9:12/mi pace, 6.5 mph, 0.8% incline, TechnoGym"},{"id":"ht-2","date":"2026-01-27","start_local":"2026-01-27 13:41 EST","type":"treadmill","name":"4.04 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":4.04,"active_s":2460,"elapsed_s":2460,"pace_s":608.9108910891089,"hr_avg":null,"hr_max":205,"cadence_avg":null,"kcal":469,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Treadmill","area":"Treadmill","note":"10:16/mi pace, 5.8 mph, 0.6% grade, 9mph sprint at 3mi"},{"id":"ht-3","date":"2026-01-27","start_local":"2026-01-27 18:41 EST","type":"treadmill","name":"3.65 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":3.65,"active_s":2100,"elapsed_s":2100,"pace_s":575.3424657534247,"hr_avg":null,"hr_max":205,"cadence_avg":null,"kcal":425,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Treadmill","area":"Treadmill","note":"6.3 mph avg, 9:28/mi pace, 0.4% grade"},{"id":"ht-4","date":"2026-01-28","start_local":"2026-01-28 12:49 EST","type":"treadmill","name":"3 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":3,"active_s":1845,"elapsed_s":1845,"pace_s":615.0,"hr_avg":null,"hr_max":195,"cadence_avg":null,"kcal":369,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Treadmill","area":"Treadmill","note":"Treadmill - 10:15/mi pace, 1.3% incline, 5.85 mph avg"},{"id":"ht-5","date":"2026-01-29","start_local":"2026-01-29 15:22 EST","type":"treadmill","name":"4.19 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":4.19,"active_s":2435,"elapsed_s":2435,"pace_s":581.145584725537,"hr_avg":183,"hr_max":205,"cadence_avg":null,"kcal":538,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Surf City Fitness","area":"Treadmill","note":"Surf City Fitness - 9:40/mi pace, 6.2 mph avg"},{"id":"ht-7","date":"2026-01-31","start_local":"2026-01-31 11:53 EST","type":"treadmill","name":"3.11 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":3.11,"active_s":1980,"elapsed_s":1980,"pace_s":636.6559485530547,"hr_avg":null,"hr_max":195,"cadence_avg":null,"kcal":357,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"ClubWorx","area":"Treadmill","note":"Clubworks - 10:30/mi pace, 5.7 mph, 0.8% grade"},{"id":"ht-9","date":"2026-02-03","start_local":"2026-02-03 22:45 EST","type":"treadmill","name":"1.56 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":1.56,"active_s":882,"elapsed_s":882,"pace_s":565.3846153846154,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":224,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"Treadmill run - SOLE F80"},{"id":"ht-10","date":"2026-02-04","start_local":"2026-02-04 11:25 EST","type":"treadmill","name":"1.6 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":1.6,"active_s":1080,"elapsed_s":1080,"pace_s":675.0,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":239,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"SOLE F80 session"},{"id":"ht-11","date":"2026-02-04","start_local":"2026-02-04 14:10 EST","type":"treadmill","name":"3.52 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":3.52,"active_s":2280,"elapsed_s":2280,"pace_s":647.7272727272727,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":486,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Treadmill","area":"Treadmill","note":"Incline 0, ~5.0 mph avg"},{"id":"ht-12","date":"2026-02-05","start_local":"2026-02-05 10:25 EST","type":"treadmill","name":"2.74 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":2.74,"active_s":1780,"elapsed_s":1780,"pace_s":649.6350364963503,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":389,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"SOLE F80, incline 0"},{"id":"ht-13","date":"2026-02-05","start_local":"2026-02-05 12:45 EST","type":"treadmill","name":"1.76 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":1.76,"active_s":1116,"elapsed_s":1116,"pace_s":634.0909090909091,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":250,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"SOLE F80"},{"id":"ht-14","date":"2026-02-05","start_local":"2026-02-05 15:49 EST","type":"treadmill","name":"2.02 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":2.02,"active_s":1320,"elapsed_s":1320,"pace_s":653.4653465346535,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":282,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"SOLE F80, incline 0"}];
 
 /* ---------- helpers ---------- */
 const $ = id => document.getElementById(id);
@@ -653,6 +829,7 @@ const hrs = s => {const h=Math.floor(s/3600),m=Math.round(s%3600/60);return h+"h
 const D = d => new Date(d+"T12:00:00");
 const fmt = (d,o) => D(d).toLocaleDateString("en-US",o);
 const fmtDay = d => fmt(d,{month:"short",day:"numeric"});
+const fmtDayY = d => fmt(d,{month:"short",day:"numeric",year:"numeric"});
 const metric = (e,re) => (e.metrics||[]).find(([l])=>re.test(l))?.[1];
 const extraV = (e,re) => (e.extra||[]).find(([l])=>re.test(l))?.[1];
 const num = v => v==null?null:parseFloat(String(v).replace(/,/g,""));
@@ -670,117 +847,396 @@ function splitsOf(e){
   let prev=0;
   return t.rows.map(r=>{const mi=parseFloat(r[0]);const seg=mi-prev;prev=mi;return {label:r[0],mi,seg,pace:s2(r[ci]),paceS:r[ci],hr:hi>=0?num(r[hi]):null,cad:ki>=0?num(r[ki]):null,full:Math.abs(seg-1)<.02}});
 }
-const tip=$("tip");
-function showTip(html,x,y,host){const r=host.getBoundingClientRect();tip.innerHTML=html;tip.style.left=(r.left+x+scrollX)+"px";tip.style.top=(r.top+y+scrollY)+"px";tip.classList.add("on")}
-function hideTip(){tip.classList.remove("on")}
-
-const runs = entries.filter(isDistance);
+const MI = 1609.344;
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const today = new Date(); const todayISO = new Date(today.getTime()-today.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const iso = d => new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const monday = d => {const x=new Date(d);x.setHours(12,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+const daysBetween = (a,b) => Math.round((D(b)-D(a))/864e5);
+const routeName = k => ROUTES.find(r=>r.k===k)?.name || String(k||"").replace(/^n:/,"");
+const pctStr = v => (v>0?"+":"")+Math.round(v*100)+"%";
+
+/* time along a run: [[miles, seconds], ...] from the splits table */
+function timeline(e){
+  const t=e.table; if(!t) return null;
+  const pi=t.cols.findIndex(c=>/split pace/i.test(c)), ei=t.cols.findIndex(c=>/elapsed/i.test(c));
+  if(pi<0&&ei<0) return null;
+  const pts=[[0,0]]; let pm=0, pt=0;
+  for(const r of t.rows){ const mi=parseFloat(r[0]); if(!(mi>pm)) continue;
+    const tt = ei>=0&&r[ei] ? s2(r[ei]) : pt+s2(r[pi])*(mi-pm);
+    if(!(tt>pt)) continue; pts.push([mi,tt]); pm=mi; pt=tt; }
+  return pts.length>1?pts:null;
+}
+const lerpT = (pts,d) => { for(let i=1;i<pts.length;i++){const [m0,t0]=pts[i-1],[m1,t1]=pts[i]; if(d<=m1+1e-9) return t0+(t1-t0)*(d-m0)/((m1-m0)||1);} const [m0,t0]=pts.at(-2),[m1,t1]=pts.at(-1); return t1+(t1-t0)/((m1-m0)||1)*(d-m1); };
+const lerpD = (pts,t) => { if(t<=0) return 0; for(let i=1;i<pts.length;i++){const [m0,t0]=pts[i-1],[m1,t1]=pts[i]; if(t<=t1) return m0+(m1-m0)*(t-t0)/((t1-t0)||1);} return pts.at(-1)[0]; };
+/* seconds to cover d miles: an exact "N.NN mi time" metric wins, then the splits, then the average pace */
+function timeAt(e,d){
+  const m=(e.metrics||[]).find(([l])=>{const x=String(l).match(/^([\d.]+)\s*mi time$/i);return x&&Math.abs(+x[1]-d)<.005});
+  if(m) return {t:s2(String(m[1]).match(/[\d:]+/)[0]),how:"metric"};
+  if(Math.abs(e.dist-d)<.005&&e.dur) return {t:e.dur,how:"total"};
+  const tl=timeline(e);
+  if(tl&&tl.at(-1)[0]>=d-.005){ let t=lerpT(tl,d); const end=tl.at(-1); if(Math.abs(end[0]-e.dist)<.03&&e.dur) t*=e.dur/end[1]; return {t,how:"splits"}; }
+  return {t:e.dur*d/e.dist,how:"avg"};
+}
+
+/* ---------- Jack Daniels' VDOT (Daniels and Gilbert, 1979) ---------- */
+const vo2At = v => -4.60 + 0.182258*v + 0.000104*v*v;                      // v in m/min
+const pMax = t => 0.8 + 0.1894393*Math.exp(-0.012778*t) + 0.2989558*Math.exp(-0.1932605*t); // t in min
+const vdotOf = (m,s) => { const t=s/60; return vo2At(m/t)/pMax(t); };
+const velFor = VO2 => (-0.182258 + Math.sqrt(0.182258**2 + 4*0.000104*(4.60+VO2)))/(2*0.000104);
+const raceTime = (vd,m) => { let lo=m/1000*90, hi=m/1000*1500; for(let i=0;i<70;i++){const mid=(lo+hi)/2; if(vdotOf(m,mid)>vd) lo=mid; else hi=mid;} return (lo+hi)/2; };
+const paceAtFrac = (vd,f) => MI/velFor(vd*f)*60;                             // sec per mile
+function vdotEntry(e){
+  if(!isDistance(e)||e.type==="treadmill"||e.dist<1.5||!e.dur) return null;
+  const c=[{v:vdotOf(e.dist*MI,e.dur),how:`${e.dist} mi in ${clock(e.dur)}`}];
+  for(const d of [4, 5000/MI]) if(e.dist>=d+.005){const r=timeAt(e,d); if(r.how!=="avg") c.push({v:vdotOf(d*MI,r.t),how:`${d===4?"4.00 mi":"5K"} in ${clock(r.t)}`});}
+  if(Math.abs(e.dist-4)<.005) c.push({v:vdotOf(4*MI,timeAt(e,4).t),how:`4.00 mi in ${clock(timeAt(e,4).t)}`});
+  return c.reduce((a,b)=>b.v>a.v?b:a);
+}
+const effOf = e => { const h=avgHR(e); return h&&e.dist&&e.dur ? e.dist*MI/e.dur*60/h : null; };   // meters per heartbeat
+
+/* ---------- derived sets ---------- */
+const runs = entries.filter(isDistance);
+const outdoor = runs.filter(e=>e.type!=="treadmill");
+const VD = new Map(outdoor.map(e=>[e,vdotEntry(e)]).filter(([,v])=>v));
+const HRMAX_SRC = (()=>{ const c=[...entries.filter(maxHR).map(e=>({v:maxHR(e),d:e.date,src:"the chest strap"})),...TRACKER.filter(t=>t.hr_max).map(t=>({v:t.hr_max,d:t.date,src:"the old tracker"}))];
+  return c.length?c.reduce((a,b)=>b.v>a.v?b:a):{v:190,d:null,src:"a default"}; })();
+const HRMAX = HRMAX_SRC.v;
+
+/* courses: same route and a similar distance, compared over the shortest distance every attempt covered */
+const COURSES=[], courseOf=new Map();
+outdoor.forEach(e=>{
+  const k=routeKeyOf(e); if(!k) return;
+  let c=COURSES.find(c=>c.key===k&&Math.abs(e.dist-c.ref)/c.ref<=.12);
+  if(!c){c={key:k,ref:e.dist,runs:[]};COURSES.push(c)}
+  c.runs.push(e); courseOf.set(e,c);
+});
+COURSES.forEach(c=>{
+  c.bench=Math.floor(Math.min(...c.runs.map(r=>r.dist))*100+1e-6)/100;
+  c.time=new Map(c.runs.map(e=>[e,timeAt(e,c.bench).t]));
+  c.pr=c.runs.reduce((a,e)=>c.time.get(e)<c.time.get(a)?e:a);
+  c.first=c.runs[0]; c.last=c.runs.at(-1);
+  const R=ROUTES.find(r=>r.k===c.key);
+  c.name=R?.name||c.key.replace(/^n:/,""); c.alias=R?.course||"";
+  c.multi=c.runs.length>1;
+});
+
+/* badges, worked out in order so each one means "at the time" */
+const BADGES=new Map();
+(function(){
+  let longest=0, fastest=Infinity, effBest=0, vdBest=0, n=0; const pr=new Map();
+  outdoor.forEach(e=>{
+    const b=[], c=courseOf.get(e), p=s2(e.pace), ef=effOf(e), vd=VD.get(e)?.v||0;
+    if(c){const t=c.time.get(e), was=pr.get(c);
+      if(was==null){ if(c.multi) b.push({c:"base",t:"Baseline"}); pr.set(c,t); }
+      else if(t<was){ b.push({c:"pr",t:"Course PR"}); pr.set(c,t); } }
+    if(n&&e.dist>longest) b.unshift({c:"gold",t:"Longest yet"});
+    if(n&&e.dist>=2&&p<fastest) b.unshift({c:"gold",t:"Fastest pace yet"});
+    if(ef&&effBest&&ef>effBest) b.push({c:"pr",t:"Best efficiency"});
+    longest=Math.max(longest,e.dist); if(e.dist>=2) fastest=Math.min(fastest,p); if(ef) effBest=Math.max(effBest,ef); if(vd) vdBest=Math.max(vdBest,vd); n++;
+    const order={"Course PR":0,"Longest yet":1,"Fastest pace yet":2,"Best efficiency":3,"Best VDOT yet":4,"Baseline":5};
+    BADGES.set(e,b.sort((x,y)=>order[x.t]-order[y.t]).slice(0,2));
+  });
+})();
+const badgeHTML = e => (BADGES.get(e)||[]).map(b=>`<span class="badge ${b.c}">${esc(b.t)}</span>`).join("");
+
+/* ---------- tooltip (fixed, clamped to the screen) ---------- */
+const tip=$("tip");
+function showTipAt(el,html){
+  const r=el.getBoundingClientRect(); tip.innerHTML=html; tip.classList.add("on");
+  const w=tip.offsetWidth, h=tip.offsetHeight, x=r.left+r.width/2, y=r.top;
+  tip.style.left=Math.max(8,Math.min(innerWidth-w-8,x-w/2))+"px";
+  tip.style.top=(y-h-10<8? r.bottom+10 : y-h-10)+"px";
+}
+function hideTip(){tip.classList.remove("on")}
+addEventListener("scroll",hideTip,{passive:true});
+function hookTips(host,list){ host.querySelectorAll("[data-tip]").forEach(c=>{ const html=list[+c.dataset.tip];
+  const on=()=>showTipAt(c,html); c.addEventListener("pointerenter",on); c.addEventListener("pointerdown",on); c.addEventListener("pointerleave",hideTip); }); }
+const navOffset = () => ($("toc")?.offsetHeight||48)+12;
+function goTo(el,after){ const y=el.getBoundingClientRect().top+scrollY-navOffset(); scrollTo({top:Math.max(0,y),behavior:reduceMotion?"auto":"smooth"}); if(after) setTimeout(after,reduceMotion?0:650); }
 
 /* ---------- title + ledger ---------- */
+function curVdot(){
+  const cut=new Date(today); cut.setDate(cut.getDate()-42); const c=iso(cut);
+  let pool=[...VD.entries()].filter(([e])=>e.date>=c); if(!pool.length) pool=[...VD.entries()].slice(-3);
+  if(!pool.length) return null;
+  const [e,v]=pool.reduce((a,b)=>b[1].v>a[1].v?b:a); return {e,v:v.v,how:v.how};
+}
+const CUR=curVdot();
 (function(){
   const mi=runs.reduce((a,e)=>a+e.dist,0), sec=entries.filter(e=>e.dur).reduce((a,e)=>a+e.dur,0);
-  const dsec=runs.reduce((a,e)=>a+e.dur,0);
   const routes=new Set(runs.map(routeKeyOf).filter(Boolean)).size;
   $("tagline").textContent=`Benny Foreman, running the greenways of Wake County since ${fmt(entries[0].date,{month:"long",day:"numeric"})}. Every run, splits, heart rate, and the shoes that did it.`;
-  $("ledger").innerHTML=[[mi.toFixed(1),"miles"],[runs.length,"runs"],[routes,"routes"],[hrs(sec),"moving"],[clock(dsec/mi),"avg pace"]]
+  $("ledger").innerHTML=[[mi.toFixed(1),"miles"],[runs.length,"runs"],[routes,"routes"],[hrs(sec),"moving"],...(CUR?[[CUR.v.toFixed(1),"VDOT now"]]:[])]
     .map(([v,l])=>`<li><b>${v}</b>${l}</li>`).join("");
 })();
 
-/* ---------- week calendar ---------- */
-(function(){
-  const monday = d => {const x=new Date(d);x.setHours(12,0,0,0);x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
-  const iso = d => new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+/* ---------- 01 now ---------- */
+function weekStats(){
+  const by={}; runs.forEach(e=>{const k=iso(monday(D(e.date)));(by[k]??={n:0,mi:0}); by[k].n++; by[k].mi+=e.dist});
+  return by;
+}
+function renderNow(){
+  const by=weekStats(), wk0=iso(monday(today)), cur=by[wk0]||{n:0,mi:0};
+  const last=runs.at(-1), since=daysBetween(last.date,todayISO);
+  const weeks=[]; for(let i=5;i>=0;i--){const d=monday(today);d.setDate(d.getDate()-7*i);const k=iso(d);weeks.push({k,...(by[k]||{n:0,mi:0})})}
+  const mx=Math.max(...weeks.map(w=>w.mi),5), H=60;
+  $("nowWeek").innerHTML=`<div class="kick">This week</div>
+    <div class="big">${cur.n}<small>of 3 runs</small></div>
+    <div class="line"><span class="pips" aria-hidden="true">${[0,1,2].map(i=>`<i class="${i<cur.n?"on":""}"></i>`).join("")}${cur.n>3?[...Array(cur.n-3)].map(()=>`<i class="over"></i>`).join(""):""}</span>
+      <b style="margin-left:8px">${cur.mi.toFixed(1)} mi</b>${cur.n>=3?", goal hit":`, ${3-cur.n} to go`}</div>
+    <div class="line">${since===0?"Last run today":since===1?"Last run yesterday":`Last run ${since} days ago`}, ${esc(fmt(last.date,{weekday:"long"}))}.</div>
+    <div class="wk6" role="img" aria-label="Miles in each of the last six weeks">${weeks.map(w=>`<div class="col${w.k===wk0?" cur":""}" title="Week of ${esc(fmtDay(w.k))}: ${w.n} runs, ${w.mi.toFixed(1)} mi"><span class="n">${w.mi?w.mi.toFixed(1):""}</span><span class="bar" style="height:${(w.mi/mx*H).toFixed(1)}px"></span><span class="d">${esc(fmtDay(w.k))}</span></div>`).join("")}</div>
+    <div class="mini-cap">Miles per week, last six weeks.</div>`;
+
+  /* latest run */
+  const e=last, c=courseOf.get(e), sp=splitsOf(e), hr=avgHR(e), t=tempOf(e), ef=effOf(e), vd=VD.get(e);
+  let vs="";
+  if(c){const tt=c.time.get(e), i=c.runs.indexOf(e), prev=c.runs.slice(0,i), best=prev.length?Math.min(...prev.map(r=>c.time.get(r))):null, nm=c.alias||c.name;
+    if(!prev.length) vs=`First run on <b>${esc(nm)}</b>. <b>${clock(tt)}</b> over ${c.bench.toFixed(2)} mi is the time to beat.`;
+    else if(tt<best) vs=`Course PR on <b>${esc(nm)}</b>: <b>${clock(tt)}</b> over ${c.bench.toFixed(2)} mi, ${clock(best-tt)} under the old best.`;
+    else vs=`<b>${esc(nm)}</b>, attempt ${i+1}: ${clock(tt)} over ${c.bench.toFixed(2)} mi, ${clock(tt-c.time.get(c.pr))} off the PR (${clock(c.time.get(c.pr))}).`;}
+  const pres=extraV(e,/^prescribed$/i);
+  const parts=sp.filter(z=>z.seg>.05), pmin=Math.min(...parts.map(z=>z.pace)), prng=Math.max(60,Math.max(...parts.map(z=>z.pace))-pmin);
+  $("nowLatest").innerHTML=`<div class="kick">Latest, ${esc(fmt(e.date,{weekday:"short",month:"short",day:"numeric"}))}${e.time?", "+esc(e.time):""}</div>
+    <div class="ttl">${esc(e.title)}${badgeHTML(e)}</div>
+    <div class="stats"><div><b>${e.dist}</b>miles</div><div><b>${clock(e.dur)}</b>time</div><div><b>${esc(e.pace)}</b>per mile</div>${hr?`<div><b>${hr}</b>avg bpm</div>`:""}${t!=null?`<div><b>${t}°</b>F</div>`:""}</div>
+    ${parts.length>1?`<div class="mini" role="img" aria-label="Splits ${esc(parts.map(z=>z.paceS).join(", "))}">${parts.map(z=>`<i class="${z.full?"":"part"}" style="height:${(32-24*(z.pace-pmin)/prng).toFixed(1)}px" title="${esc(z.label)}: ${esc(z.paceS)}"></i>`).join("")}</div><div class="mini-cap">Splits ${esc(parts.map(z=>z.paceS).join(", "))}. Taller is faster.</div>`:""}
+    ${vs?`<div class="vs">${vs}</div>`:""}
+    ${pres?`<div class="pres"><b>Prescribed:</b> ${esc(pres)}</div>`:""}
+    <p style="margin:12px 0 0"><button class="maplink" data-open="${esc(e.date)}">Open in the log</button></p>`;
+  $("nowLatest").querySelector("[data-open]").onclick=()=>openSession(e);
+
+  /* fitness */
+  const vdots=[...VD.entries()];
+  $("nowFit").innerHTML = CUR ? `<div class="kick">Fitness</div>
+    <div class="big">${CUR.v.toFixed(1)}<small>VDOT</small></div>
+    <div class="line">From ${esc(CUR.how)} on ${esc(fmtDay(CUR.e.date))}, ${esc(routeName(routeKeyOf(CUR.e))||CUR.e.title)}. Best outdoor run of the last six weeks.</div>
+    <div class="line" id="bestSince"></div>
+    ${sparkVdot(vdots)}
+    ${(()=>{const s=outdoor.filter(effOf); if(s.length<2) return ""; const a=s[0], b=s.at(-1), best=s.reduce((x,y)=>effOf(y)>effOf(x)?y:x);
+      return `<div class="line">Efficiency <b>${effOf(b).toFixed(2)} m per beat</b> on ${esc(fmtDay(b.date))}, ${pctStr(effOf(b)/effOf(a)-1)} since ${esc(fmtDay(a.date))}${best===b?", the best yet":""}.</div>`})()}` : "";
+}
+function sparkVdot(list){
+  if(list.length<2) return "";
+  const W=300,H=64,P=4, xs=list.map(([e])=>D(e.date).getTime()), ys=list.map(([,v])=>v.v);
+  const x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys)-1, y1=Math.max(...ys)+1;
+  const X=t=>P+(W-2*P)*(t-x0)/((x1-x0)||1), Y=v=>H-14-(H-22)*(v-y0)/((y1-y0)||1);
+  const pts=list.map(([e,v])=>[X(D(e.date).getTime()),Y(v.v),e,v]);
+  const best=pts.reduce((a,b)=>b[3].v>a[3].v?b:a);
+  return `<svg class="sp" viewBox="0 0 ${W} ${H}" role="img" aria-label="VDOT for each outdoor run in the log">
+    <polyline points="${pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ")}" fill="none" stroke="var(--rule)" stroke-width="1.5"/>
+    ${pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${p===best?4.5:3}" fill="${p===best?"var(--trace)":"var(--ink2)"}"><title>${esc(fmtDay(p[2].date))}: ${p[3].v.toFixed(1)}</title></circle>`).join("")}
+    <text x="${P}" y="${H-1}">${esc(fmtDay(list[0][0].date))}</text><text x="${W-P}" y="${H-1}" text-anchor="end">${esc(fmtDay(list.at(-1)[0].date))}</text>
+    <text x="${Math.min(W-P,Math.max(P,best[0])).toFixed(1)}" y="${(best[1]-8).toFixed(1)}" text-anchor="${best[0]>W*.8?"end":best[0]<W*.2?"start":"middle"}" style="fill:var(--ink);font-weight:800">${best[3].v.toFixed(1)}</text></svg>`;
+}
+
+/* ---------- 02 time to beat ---------- */
+const RACE_UI=new Map();
+function renderBeat(){
+  const multi=COURSES.filter(c=>c.multi).sort((a,b)=>a.last.date<b.last.date?1:-1);
+  const singles=COURSES.filter(c=>!c.multi).sort((a,b)=>a.first.date<b.first.date?1:-1);
+  $("beatLede").textContent=`A rematch is timed over the shortest distance every attempt covered, so a walk-off at the end never counts. ${multi.length} ${multi.length===1?"course has":"courses have"} been run more than once. Press race to replay the attempts against each other, split by split.`;
+  $("courses").innerHTML=multi.map((c,ci)=>{
+    const pr=c.pr, prT=c.time.get(pr), firstT=c.time.get(c.first);
+    const sp=splitsOf(pr).filter(z=>z.mi<=c.bench+.06&&z.seg>.05);
+    return `<article class="course" id="course-${ci}" data-key="${esc(c.key)}">
+      <div class="nm">${esc(c.alias||c.name)}<small>${esc(c.alias?c.name+", ":"")}${c.bench.toFixed(2)} mi, ${c.runs.length} attempts</small></div>
+      <div class="pr"><span class="big">${clock(prT)}</span><span class="meta"><b>PR</b> on ${esc(fmtDay(pr.date))}<br>${pr===c.first?"":`${clock(firstT-prT)} faster than the first try`}</span></div>
+      <div class="seq">${c.runs.map(e=>`${e===pr?"<b>":""}${esc(fmtDay(e.date))} ${clock(c.time.get(e))}${e===pr?"</b>":""}`).join(" &rarr; ")}</div>
+      <div class="race" data-ci="${ci}"></div>
+      ${sp.length?`<div class="tobeat">Splits to beat: ${sp.map(z=>`<b>${esc(z.paceS)}</b>`).join(" · ")}</div>`:""}
+    </article>`}).join("") || `<p class="lede">Run any route a second time and it shows up here.</p>`;
+  multi.forEach((c,ci)=>{const host=$("courses").querySelector(`.race[data-ci="${ci}"]`); RACE_UI.set(c.key,ghostRace(host,c));});
+  if(singles.length) $("bases").innerHTML=`<h3>Baselines</h3><p>Routes run once. Each time is the one to beat on the next visit.</p>
+    <div class="tscroll"><table class="btab"><thead><tr><th>Route</th><th>Distance</th><th>Time</th><th class="pc">Pace</th><th></th></tr></thead><tbody>${singles.map(c=>{const e=c.first;
+      return `<tr><td class="r">${esc(c.alias||c.name)}<small>${esc(fmtDay(e.date))}</small></td><td>${e.dist.toFixed(2)} mi</td><td class="t">${clock(e.dur)}</td><td class="pc">${esc(e.pace)}</td><td>${ROUTES.some(r=>r.k===c.key)?`<button class="maplink" data-route="${esc(c.key)}">Map</button>`:""}</td></tr>`}).join("")}</tbody></table></div>`;
+  $("bases").onclick=ev=>{const b=ev.target.closest("[data-route]"); if(b&&routeLayers[b.dataset.route]){selectRoute(b.dataset.route,true); goTo($("map"))}};
+}
+function ghostRace(host,c){
+  const lanes=c.runs.map(e=>{
+    let pts=timeline(e)||[[0,0],[e.dist,e.dur]]; const T=c.time.get(e), at=lerpT(pts,c.bench), k=T/at;
+    pts=pts.map(([m,t])=>[m,t*k]); return {e,T,pts,pr:e===c.pr,last:e===c.last};
+  });
+  const Tmax=Math.max(...lanes.map(l=>l.T)), prL=lanes.find(l=>l.pr);
+  const behind=lanes.filter(l=>!l.pr).map(l=>({l,gap:c.bench-lerpD(l.pts,prL.T)}));
+  const afterTxt=behind.length?`When ${esc(fmtDay(prL.e.date))} reached ${c.bench.toFixed(2)} mi at ${clock(prL.T)}, ${behind.map(b=>`${esc(fmtDay(b.l.e.date))} was ${b.gap>=.1?b.gap.toFixed(2)+" mi":Math.round(b.gap*5280)+" ft"} back`).join(" and ")}.`:"";
+  host.innerHTML=`<div class="rsvg"></div><div class="ctl"><button class="btn solid" type="button">Race</button><input type="range" min="0" max="1000" value="${reduceMotion?1000:0}" aria-label="Scrub through the race"><span class="clk">0:00</span></div><div class="after" aria-live="polite"></div>`;
+  const svgHost=host.querySelector(".rsvg"), btn=host.querySelector("button"), rng=host.querySelector("input"), clk=host.querySelector(".clk"), aft=host.querySelector(".after");
+  let els=[], ghosts=[], W=0, L=58, R=62, playing=false, raf=0, t=reduceMotion?Tmax:0, t0=0, startT=0;
+  const DUR=11000;
+  function build(){
+    W=Math.max(280,svgHost.clientWidth||520); const lh=34, top=26, H=top+lanes.length*lh+6;
+    const X=d=>L+(W-L-R)*d/c.bench;
+    let ticks=""; const step=c.bench>6?2:1;
+    for(let m=0;m<=c.bench+1e-9;m+=step) ticks+=`<line x1="${X(m).toFixed(1)}" x2="${X(m).toFixed(1)}" y1="${top-6}" y2="${H-4}" stroke="var(--rule2)" stroke-width="1"/>${Math.abs(m-c.bench)<step*.45?"":`<text x="${X(m).toFixed(1)}" y="${top-11}" text-anchor="middle" font-size="11" fill="var(--muted)">${m}</text>`}`;
+    ticks+=`<text x="${X(c.bench).toFixed(1)}" y="${top-11}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink2)">${c.bench.toFixed(2)} mi</text><line x1="${X(c.bench).toFixed(1)}" x2="${X(c.bench).toFixed(1)}" y1="${top-6}" y2="${H-4}" stroke="var(--ink2)" stroke-width="1.5" stroke-dasharray="2 3"/>`;
+    const rows=lanes.map((l,i)=>{const y=top+i*lh+lh/2, col=l.pr?"var(--trace)":l.last?"var(--ink)":"var(--muted)";
+      return `<text x="0" y="${y+4}" font-size="12.5" font-weight="${l.pr?800:600}" fill="${l.pr?"var(--ink)":"var(--ink2)"}">${esc(fmtDay(l.e.date))}</text>
+        <line x1="${L}" x2="${X(c.bench)}" y1="${y}" y2="${y}" stroke="var(--rule)" stroke-width="3" stroke-linecap="round"/>
+        <line class="g-tr" x1="${L}" x2="${L}" y1="${y}" y2="${y}" stroke="${col}" stroke-width="3" stroke-linecap="round" opacity="${l.pr?1:.75}"/>
+        <circle class="g-dot" cx="${L}" cy="${y}" r="${l.pr?7:6}" fill="${col}" stroke="var(--surface)" stroke-width="2"/>
+        <text class="g-t" x="${W}" y="${y+4}" text-anchor="end" font-size="12.5" font-weight="${l.pr?800:600}" fill="${l.pr?"var(--trace)":"var(--ink2)"}"></text>
+        ${l.pr?"":(()=>{const g=c.bench-lerpD(l.pts,prL.T), gx=X(c.bench-g); return `<g class="g-gh" opacity="0"><circle cx="${gx.toFixed(1)}" cy="${y}" r="5" fill="var(--surface)" stroke="var(--trace)" stroke-width="2" stroke-dasharray="2 2"/><text x="${gx.toFixed(1)}" y="${y-9}" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--trace)">${g>=.1?"-"+g.toFixed(2)+" mi":"-"+Math.round(g*5280)+" ft"}</text></g>`})()}`}).join("");
+    svgHost.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Replay of ${lanes.length} attempts on ${esc(c.name)}: ${lanes.map(l=>fmtDay(l.e.date)+" "+clock(l.T)).join(", ")}">${ticks}${rows}</svg>`;
+    els=lanes.map((l,i)=>({tr:svgHost.querySelectorAll(".g-tr")[i],dot:svgHost.querySelectorAll(".g-dot")[i],tx:svgHost.querySelectorAll(".g-t")[i]}));
+    ghosts=[...svgHost.querySelectorAll(".g-gh")];
+    draw();
+  }
+  function draw(){
+    const X=d=>L+(W-L-R)*d/c.bench;
+    let lead=null;
+    lanes.forEach((l,i)=>{const d=Math.min(c.bench,lerpD(l.pts,Math.min(t,l.T))), x=X(d);
+      els[i].tr.setAttribute("x2",x.toFixed(1)); els[i].dot.setAttribute("cx",x.toFixed(1));
+      els[i].tx.textContent = t>=l.T ? clock(l.T) : "";
+      if(!lead||d>lead.d) lead={l,d}; });
+    clk.textContent=clock(t);
+    rng.value=Math.round(t/Tmax*1000);
+    aft.textContent = t>=prL.T ? afterTxt : "";
+    ghosts.forEach(g=>g.setAttribute("opacity", t>=prL.T?1:0));
+  }
+  function frame(now){ if(!playing) return; t=Math.min(Tmax,startT+(now-t0)/DUR*Tmax); draw(); if(t>=Tmax){stop();return} raf=requestAnimationFrame(frame); }
+  function play(){ if(t>=Tmax) t=0; playing=true; btn.textContent="Pause"; startT=t; t0=performance.now(); raf=requestAnimationFrame(frame); }
+  function stop(){ playing=false; cancelAnimationFrame(raf); btn.textContent=t>=Tmax?"Replay":"Race"; }
+  btn.onclick=()=>playing?stop():play();
+  rng.oninput=()=>{ if(playing) stop(); t=+rng.value/1000*Tmax; draw(); btn.textContent=t>=Tmax?"Replay":"Race"; };
+  build();
+  if(reduceMotion) btn.textContent="Replay";
+  return {rebuild:build, play:()=>{t=0;play()}, el:host.closest(".course")};
+}
+
+/* ---------- 03 engine ---------- */
+const tempColor = t => t==null ? "var(--muted)" : `color-mix(in oklab, var(--trace) ${Math.round(Math.max(0,Math.min(1,(t-55)/38))*100)}%, var(--water))`;
+function renderEngine(){
+  const ed=runs.filter(effOf).map(e=>({date:e.date,v:effOf(e),e}));
+  const od=ed.filter(d=>d.e.type!=="treadmill");
+  if(od.length>=2){const a=od[0], b=od.at(-1), best=od.reduce((x,y)=>y.v>x.v?y:x);
+    $("effLede").innerHTML=`Meters covered per heartbeat: average speed over average heart rate, from every run with the chest strap. It climbs when the same effort carries you faster. ${esc(fmtDay(a.date))} was ${a.v.toFixed(2)}${tempOf(a.e)!=null?` at ${tempOf(a.e)}°F`:""}, ${esc(fmtDay(b.date))} was ${b.v.toFixed(2)}${tempOf(b.e)!=null?` at ${tempOf(b.e)}°F`:""}, <b>${pctStr(b.v/a.v-1)}</b>${best===b?", the best yet":`, best ${best.v.toFixed(2)} on ${esc(fmtDay(best.date))}`}. Heat raises heart rate at any pace, so hot runs sit lower than the legs deserve.`;
+    const ts=od.map(d=>tempOf(d.e)).filter(t=>t!=null); if(ts.length) $("tkeyRange").textContent=`${Math.min(...ts)}°F to ${Math.max(...ts)}°F`;
+  } else $("effLede").textContent="Needs two runs with the chest strap.";
+  drawEff();
+
+  /* VDOT + paces */
+  if(CUR){
+    const v=CUR.v, P=f=>clock(paceAtFrac(v,f)), hr=(a,b)=>`${Math.round(HRMAX*a)} to ${Math.round(HRMAX*b)}`;
+    const mT=raceTime(v,42195), mP=clock(mT/(42195/MI)), mile=raceTime(v,MI);
+    const rP=clock(mile);
+    $("vdot").innerHTML=`<h3>VDOT and training paces</h3>
+      <div class="vd"><span class="big">${v.toFixed(1)}</span><span class="meta">Jack Daniels' effective VO2max, from ${esc(CUR.how)} on ${esc(fmtDay(CUR.e.date))}. <span id="bestSince2"></span></span></div>
+      <div class="tscroll"><table class="ptab"><thead><tr><th>Pace</th><th>Per mile</th><th>Heart rate</th></tr></thead><tbody>
+        <tr><td>Easy<small>Most of the miles. Conversational.</small></td><td class="p">${P(.70)} to ${P(.62)}</td><td class="h">${hr(.65,.79)}</td></tr>
+        <tr><td>Marathon<small>Long steady runs.</small></td><td class="p">${mP}</td><td class="h">${hr(.80,.90)}</td></tr>
+        <tr><td>Threshold<small>Tempo, 20 to 40 min total.</small></td><td class="p">${P(pMax(60))}</td><td class="h">${hr(.88,.92)}</td></tr>
+        <tr><td>Interval<small>3 to 5 min reps, equal jog rest.</small></td><td class="p">${P(pMax(11))}</td><td class="h">${hr(.97,1)} by the end of a rep</td></tr>
+        <tr><td>Norwegian 4x4<small>4 min hard, 3 min jog, four times.</small></td><td class="p">${P(pMax(60))} to ${P(pMax(11))}</td><td class="h">${hr(.90,.95)}, jog at ${Math.round(HRMAX*.7)}</td></tr>
+        <tr><td>Repetition<small>200 to 400 m, full rest.</small></td><td class="p">${rP}</td><td class="h">too short to steer by</td></tr>
+      </tbody></table></div>
+      <p class="note">Heart rates use ${HRMAX} bpm as max, the highest seen on any device (${HRMAX_SRC.src}${HRMAX_SRC.d?", "+fmt(HRMAX_SRC.d,{month:"short",year:"numeric"}):""}). If the real max is higher, every target moves up with it. VDOT uses the best outdoor run of the last six weeks, so an easy day never drags it down.</p>`;
+    const half=RACES.find(r=>/half/i.test(r.name));
+    const eq=[["Mile",MI,null],["5K",5000,null],["10K",10000,null],["Half",21097.5,half?`raced ${half.race?.results?.[0]?.time||clock(half.active_s)}, ${fmt(half.date,{month:"short",year:"numeric"})}`:null],["Marathon",42195,null]];
+    $("eqs").innerHTML=`<h3 class="sub-h">What ${v.toFixed(1)} predicts</h3><div class="eqs">${eq.map(([n,m,ref])=>`<div><b>${clock(raceTime(v,m))}</b>${n}${ref?`<i>${esc(ref)}</i>`:""}</div>`).join("")}</div>
+      <p class="note">Race equivalents assume training for the distance. The marathon number assumes the long runs to back it up.</p>`;
+  }
+
+  /* intensity */
+  const sd=runs.filter(avgHR).map(e=>({e,p:avgHR(e)/HRMAX}));
+  if(sd.length){
+    const Z=[["Easy",0,.8,"var(--water)"],["Marathon",.8,.88,"color-mix(in oklab,var(--water) 45%,var(--trace))"],["Threshold",.88,.92,"color-mix(in oklab,var(--water) 18%,var(--trace))"],["Hard",.92,9,"var(--trace)"]];
+    const bpm=p=>Math.round(p*HRMAX), rng=z=>z[1]===0?`under ${bpm(z[2])} bpm`:z[2]>2?`${bpm(z[1])} bpm and up`:`${bpm(z[1])} to ${bpm(z[2])} bpm`;
+    const tips=[]; let n=0;
+    const rows=Z.map(z=>{const inz=sd.filter(d=>d.p>=z[1]&&d.p<z[2]);
+      const dots=inz.map(d=>{tips.push(`<b>${esc(fmtDay(d.e.date))}</b> ${avgHR(d.e)} avg, ${Math.round(d.p*100)}% of max<br>${esc(d.e.title)}`); return `<i data-tip="${n++}" class="${d.e.type==="treadmill"?"tm":""}" tabindex="0" aria-label="${esc(fmtDay(d.e.date))}, ${avgHR(d.e)} bpm"></i>`}).join("");
+      return `<div class="z" style="--zc:${z[3]}"><span class="zn">${z[0]}<small>${rng(z)}</small></span><span class="zd">${dots}</span><b>${inz.length}</b></div>`}).join("");
+    const easy=sd.filter(d=>d.p<.8).length;
+    $("zones").innerHTML=`<h3>How hard the strap runs were</h3>
+      <p class="note" style="margin-top:6px">Each dot is one run's average heart rate, banded with the same ranges as the pace table. Hollow is treadmill.</p>
+      <div class="zr">${rows}</div>
+      <p class="note">${easy} of ${sd.length} averaged in the easy range. Daniels puts most weekly miles at easy pace, and that is where the aerobic base comes from.</p>`;
+    hookTips($("zones"),tips);
+  }
+}
+function drawEff(){
+  const ed=runs.filter(effOf).map(e=>({date:e.date,v:effOf(e),e}));
+  if(ed.length<2) return;
+  timeChart($("effChart"),ed,{h:230,pad:.06,step:.1,fmt:v=>v.toFixed(1),lfmt:v=>v.toFixed(2),axis:"meters per heartbeat",aria:"Meters per heartbeat for each strap run",
+    fill:d=>d.e.type==="treadmill"?"var(--surface)":tempColor(tempOf(d.e)),stroke:d=>d.e.type==="treadmill"?"var(--ink2)":"var(--halo)",r:()=>6,color:"var(--ink2)",
+    tip:d=>`${d.v.toFixed(2)} m per beat. ${avgHR(d.e)} bpm at ${d.e.pace} /mi${tempOf(d.e)!=null?`, ${tempOf(d.e)}°F`:""}`});
+}
+
+/* ---------- 04 weeks ---------- */
+function renderWeeks(){
   const byDay={};
-  entries.forEach(e=>{(byDay[e.date]??={mi:0,runs:0,other:[],items:[]}); const b=byDay[e.date]; b.items.push(e);
+  entries.forEach(e=>{(byDay[e.date]??={mi:0,runs:0,other:[]}); const b=byDay[e.date];
     if(isDistance(e)){b.mi+=e.dist;b.runs++} else if(e.type!=="weigh-in") b.other.push(e.type)});
   const first=monday(D(entries[0].date)), last=monday(today);
+  const wks=[]; for(let w=new Date(first); w<=last; w.setDate(w.getDate()+7)) wks.push(new Date(w));
+  const wkMi=wks.map(w=>{let s=0;for(let i=0;i<7;i++){const d=new Date(w);d.setDate(d.getDate()+i);s+=byDay[iso(d)]?.mi||0}return s});
+  const mx=Math.max(...wkMi,1);
   let html='<span></span>'+["M","T","W","T","F","S","S"].map(d=>`<span class="dow">${d}</span>`).join("")+'<span></span>';
   const lvl=mi=>mi>=5?4:mi>=4?3:mi>=2.5?2:1;
-  for(let w=new Date(first); w<=last; w.setDate(w.getDate()+7)){
-    let wmi=0,wr=0,cells="";
+  wks.forEach((w,wi)=>{
+    let wr=0,cells="";
     for(let i=0;i<7;i++){const d=new Date(w);d.setDate(d.getDate()+i);const k=iso(d);const b=byDay[k];
       const cls=["day"];let t=fmtDay(k);
       if(k<entries[0].date) cls.push("out");
       if(k>todayISO) cls.push("future");
       if(k===todayISO) cls.push("today");
-      if(b&&b.runs){cls.push("l"+lvl(b.mi));wmi+=b.mi;wr+=b.runs;t+=`: ${b.mi.toFixed(2)} mi`}
+      if(b&&b.runs){cls.push("l"+lvl(b.mi));wr+=b.runs;t+=`: ${b.mi.toFixed(2)} mi`}
       else if(b&&b.other.length){cls.push("other");t+=`: ${b.other.join(", ")}`}
       cells+=`<span class="${cls.join(" ")}" title="${esc(t)}" aria-label="${esc(t)}">${b&&b.runs?Math.round(b.mi):""}</span>`}
-    html+=`<span class="wk">${fmtDay(iso(w))}</span>${cells}<span class="tot">${wmi?wmi.toFixed(1)+' mi':'<span>rest</span>'}</span>`;
-  }
+    const mi=wkMi[wi];
+    html+=`<span class="wk">${fmtDay(iso(w))}</span>${cells}<span class="tot${wr>=3?" hit":""}">${mi?`<i style="width:${Math.max(4,mi/mx*34).toFixed(0)}px"></i>${mi.toFixed(1)}`:'<span>rest</span>'}</span>`;
+  });
   $("cal").innerHTML=html;
   $("calKey").innerHTML=`<span><i style="background:color-mix(in oklab,var(--trace) 30%,var(--paper))"></i>Under 2.5 mi</span><span><i style="background:color-mix(in oklab,var(--trace) 55%,var(--paper))"></i>2.5 to 4</span><span><i style="background:color-mix(in oklab,var(--trace) 78%,var(--paper))"></i>4 to 5</span><span><i style="background:var(--trace)"></i>5 plus</span><span><i style="border:2px solid var(--water);border-radius:50%;width:10px;height:10px"></i>Other training</span>`;
-  const wk0=iso(monday(today)), thisWeek=runs.filter(e=>e.date>=wk0&&e.date<=todayISO);
-  const n=thisWeek.length;
-  $("goal").innerHTML=`<span class="pips" aria-hidden="true">${[0,1,2].map(i=>`<i class="${i<n?"on":""}"></i>`).join("")}</span><span><b>${n} of 3</b> runs this week, ${thisWeek.reduce((a,e)=>a+e.dist,0).toFixed(1)} mi${n>3?". Over goal.":""}</span>`;
-})();
+  const by=weekStats(), wk0=iso(monday(today)), n=(by[wk0]||{n:0}).n;
+  const goalWeeks=Object.entries(by).filter(([k])=>k>="2026-09-28").filter(([,w])=>w.n>=3).length;
+  $("goal").innerHTML=`<span class="pips" aria-hidden="true">${[0,1,2].map(i=>`<i class="${i<n?"on":""}"></i>`).join("")}</span><span><b>${n} of 3</b> runs this week, ${(by[wk0]?.mi||0).toFixed(1)} mi. ${goalWeeks?`${goalWeeks} ${goalWeeks===1?"week":"weeks"} at three or more since October.`:"No week at three runs since October yet."}</span>`;
+}
 
-/* ---------- rematches ---------- */
-(function(){
-  const groups={};
-  runs.filter(e=>e.type!=="treadmill").forEach(e=>{const k=routeKeyOf(e);if(k)(groups[k]??=[]).push(e)});
-  const rows=Object.entries(groups).filter(([,g])=>g.length>1);
-  if(!rows.length){$("rm").innerHTML='<p class="lede">Run any route a second time and it shows up here.</p>';return}
-  const all=rows.flatMap(([,g])=>g.map(e=>s2(e.pace)));
-  const lo=Math.min(...all)-20, hi=Math.max(...all)+20;
-  const X=p=>8+(hi-p)/(hi-lo)*284; // faster to the right
-  $("rm").innerHTML=rows.map(([k,g])=>{
-    const a=g[0], b=g[g.length-1], d=s2(a.pace)-s2(b.pace);
-    const name=ROUTES.find(r=>r.k===k)?.name||k.replace(/^n:/,"");
-    const pts=g.map(e=>`<circle cx="${X(s2(e.pace)).toFixed(1)}" cy="24" r="${e===b?7:5}" fill="${e===b?"var(--trace)":"var(--surface)"}" stroke="${e===b?"var(--halo)":"var(--ink2)"}" stroke-width="2"/>`).join("");
-    return `<div class="rm-row"><div class="rm-name">${esc(name)}</div>
-      <div class="rm-meta">${g.map(e=>`${fmtDay(e.date)} ${e.pace}`).join(", then ")}</div>
-      <div class="rm-big">${d>0?clock(d)+" faster":clock(-d)+" slower"} <span>per mile</span></div>
-      <svg viewBox="0 0 300 50" role="img" aria-label="${esc(name)} pace, ${a.pace} to ${b.pace}">
-        <line x1="8" y1="24" x2="292" y2="24" stroke="var(--rule)" stroke-width="2" stroke-linecap="round"/>
-        <line x1="${X(s2(a.pace)).toFixed(1)}" y1="24" x2="${X(s2(b.pace)).toFixed(1)}" y2="24" stroke="var(--trace)" stroke-width="3" stroke-linecap="round"/>
-        ${pts}
-        <text x="${X(s2(a.pace)).toFixed(1)}" y="46" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="Overpass">${a.pace}</text>
-        <text x="${X(s2(b.pace)).toFixed(1)}" y="46" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)" font-family="Overpass">${b.pace}</text>
-      </svg></div>`}).join("")+`<p class="hint">Faster pace sits further right.</p>`;
-})();
-
-/* ---------- pace + HR charts ---------- */
+/* ---------- charts ---------- */
 function timeChart(host, data, opt){
-  const W=Math.max(320,host.clientWidth||720), H=opt.h||240, P={l:46,r:16,t:22,b:30};
-  const t0=D(entries[0].date).getTime()-864e5*2, t1=Math.max(today.getTime(),D(entries.at(-1).date).getTime())+864e5*2;
+  const W=Math.max(300,host.clientWidth||720), H=opt.h||240, P={l:46,r:16,t:24,b:30};
+  const t0=opt.t0??(D(data[0].date).getTime()-864e5*3), t1=opt.t1??(Math.max(today.getTime(),D(data.at(-1).date).getTime())+864e5*3);
   const x=d=>P.l+(D(d).getTime()-t0)/(t1-t0)*(W-P.l-P.r);
-  const vs=data.map(d=>d.v), lo=Math.min(...vs)-opt.pad, hi=Math.max(...vs)+opt.pad;
+  const vs=data.map(d=>d.v), lo=opt.lo??(Math.min(...vs)-opt.pad), hi=opt.hi??(Math.max(...vs)+opt.pad);
   const y=v=>opt.invert? P.t+(v-lo)/(hi-lo)*(H-P.t-P.b) : P.t+(hi-v)/(hi-lo)*(H-P.t-P.b);
   let g=`<g class="grid">`;
-  for(let v=Math.ceil(lo/opt.step)*opt.step; v<=hi; v+=opt.step) g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${P.l-8}" y="${y(v)+4}" text-anchor="end">${opt.fmt(v)}</text>`;
+  for(let v=Math.ceil(lo/opt.step-1e-9)*opt.step; v<=hi+1e-9; v+=opt.step) g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text x="${P.l-8}" y="${(y(v)+4).toFixed(1)}" text-anchor="end">${opt.fmt(v)}</text>`;
   g+=`</g>`;
-  const months=[];const s=new Date(t0);s.setDate(1);s.setMonth(s.getMonth()+1);
-  for(const m=new Date(s);m.getTime()<t1;m.setMonth(m.getMonth()+1)){const iso=m.toISOString().slice(0,10);months.push(`<line x1="${x(iso)}" x2="${x(iso)}" y1="${H-P.b}" y2="${H-P.b+5}" class="base"/><text x="${x(iso)+4}" y="${H-P.b+18}">${m.toLocaleDateString("en-US",{month:"short"})}</text>`)}
-  const pts=data.map(d=>[x(d.date),y(d.v)]);
-  let path="",gaps="";pts.forEach((p,i)=>{const gap=i&&(D(data[i].date)-D(data[i-1].date))>10*864e5;const seg=`M${pts[i-1]?.[0].toFixed(1)},${pts[i-1]?.[1].toFixed(1)}L${p[0].toFixed(1)},${p[1].toFixed(1)}`;if(i){if(gap)gaps+=seg;else path+=seg}});
+  const ticks=[];
+  if(opt.years){ for(let yr=new Date(t0).getFullYear()+1; ; yr++){const iso0=`${yr}-01-01`, tt=D(iso0).getTime(); if(tt>t1) break; const showLbl=(x(iso0)-x(`${yr-1}-01-01`))>26||yr%2===0; ticks.push(`<line x1="${x(iso0).toFixed(1)}" x2="${x(iso0).toFixed(1)}" y1="${H-P.b}" y2="${H-P.b+5}" class="base"/>${showLbl?`<text x="${(x(iso0)+3).toFixed(1)}" y="${H-P.b+18}">${yr}</text>`:""}`)} }
+  else { const s=new Date(t0);s.setDate(1);s.setMonth(s.getMonth()+1);
+    for(const m=new Date(s);m.getTime()<t1;m.setMonth(m.getMonth()+1)){const i0=iso(m);ticks.push(`<line x1="${x(i0).toFixed(1)}" x2="${x(i0).toFixed(1)}" y1="${H-P.b}" y2="${H-P.b+5}" class="base"/><text x="${(x(i0)+4).toFixed(1)}" y="${H-P.b+18}">${m.toLocaleDateString("en-US",{month:"short"})}</text>`)} }
+  const pts=data.map(d=>[x(d.date),y(Math.max(lo,Math.min(hi,d.v)))]);
+  let path="",gaps="";
+  if(opt.line!==false) pts.forEach((p,i)=>{if(!i)return;const gap=(D(data[i].date)-D(data[i-1].date))>(opt.gapDays||10)*864e5;const seg=`M${pts[i-1][0].toFixed(1)},${pts[i-1][1].toFixed(1)}L${p[0].toFixed(1)},${p[1].toFixed(1)}`;if(gap)gaps+=seg;else path+=seg});
   const best=opt.invert?data.reduce((a,b)=>b.v<a.v?b:a):data.reduce((a,b)=>b.v>a.v?b:a);
-  const labelled=new Set([data[0],data.at(-1),best]);
-  let marks=data.map((d,i)=>`<circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="${d.e.type==="treadmill"?4:5}" fill="${d.e.type==="treadmill"?"var(--surface)":opt.color}" stroke="${d.e.type==="treadmill"?opt.color:"var(--halo)"}" stroke-width="2"/>`).join("");
-  let labels=[...labelled].map(d=>{const i=data.indexOf(d);return `<text class="lbl" x="${pts[i][0]}" y="${pts[i][1]-11}" text-anchor="${i===0?"start":i===data.length-1?"end":"middle"}">${opt.fmt(d.v)}</text>`}).join("");
-  let hits=data.map((d,i)=>`<circle data-i="${i}" cx="${pts[i][0]}" cy="${pts[i][1]}" r="16" fill="transparent"/>`).join("");
-  host.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opt.aria)}">${g}<line class="base" x1="${P.l}" x2="${W-P.r}" y1="${H-P.b}" y2="${H-P.b}"/>${months.join("")}
-    <text x="${P.l}" y="12" font-weight="600">${esc(opt.axis)}</text>
+  const labelled=opt.labels===false?new Set():new Set(opt.labelSet?opt.labelSet(data):[data[0],data.at(-1),best]);
+  const fill=d=>opt.fill?opt.fill(d):(d.e?.type==="treadmill"?"var(--surface)":opt.color);
+  const stroke=d=>opt.stroke?opt.stroke(d):(d.e?.type==="treadmill"?opt.color:"var(--halo)");
+  const rr=d=>opt.r?opt.r(d):(d.e?.type==="treadmill"?4:5);
+  const marks=data.map((d,i)=>`<circle cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(1)}" r="${rr(d)}" fill="${fill(d)}" stroke="${stroke(d)}" stroke-width="${opt.sw??2}" ${opt.op?`opacity="${opt.op(d)}"`:""}/>`).join("");
+  const lf=opt.lfmt||opt.fmt; const labels=[...labelled].map(d=>{const i=data.indexOf(d); if(i<0) return ""; const xx=pts[i][0]; return `<text class="lbl" x="${xx.toFixed(1)}" y="${(pts[i][1]-11).toFixed(1)}" text-anchor="${xx<P.l+30?"start":xx>W-P.r-30?"end":"middle"}">${lf(d.v)}</text>`}).join("");
+  const hits=data.map((d,i)=>`<circle data-tip="${i}" cx="${pts[i][0].toFixed(1)}" cy="${pts[i][1].toFixed(1)}" r="${opt.hitR||14}" fill="transparent"/>`).join("");
+  host.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opt.aria)}">${g}<line class="base" x1="${P.l}" x2="${W-P.r}" y1="${H-P.b}" y2="${H-P.b}"/>${ticks.join("")}
+    <text x="${P.l}" y="12" font-weight="600">${esc(opt.axis)}</text>${opt.extra?opt.extra({x,y,W,H,P}):""}
     <path d="${path}" fill="none" stroke="${opt.color}" stroke-width="2" stroke-linejoin="round" opacity=".9"/><path d="${gaps}" fill="none" stroke="${opt.color}" stroke-width="1.5" stroke-dasharray="3 5" opacity=".6"/>${marks}${labels}${hits}</svg>`;
-  host.querySelectorAll("circle[data-i]").forEach(c=>{
-    const d=data[+c.dataset.i];
-    const on=()=>{const sc=host.clientWidth/W;showTip(`<b>${esc(fmtDay(d.date))}</b> ${esc(opt.tip(d))}<br>${esc(d.e.title)}`,+c.getAttribute("cx")*sc,+c.getAttribute("cy")*sc,host)};
-    c.addEventListener("pointerenter",on);c.addEventListener("pointerdown",on);c.addEventListener("pointerleave",hideTip);
-  });
+  hookTips(host,data.map(d=>`<b>${esc(fmtDayY(d.date))}</b> ${esc(opt.tip(d))}${d.e?.title?`<br>${esc(d.e.title)}`:d.name?`<br>${esc(d.name)}`:""}`));
 }
 function drawCharts(){
   const pd=runs.map(e=>({date:e.date,v:s2(e.pace),e}));
   const first=pd[0], last=pd.at(-1);
-  $("paceLede").textContent=`From ${first.e.pace} on ${fmtDay(first.date)} to ${last.e.pace} on ${fmtDay(last.date)}. Faster is higher. Hollow dots are treadmill sessions, dashed lines cross breaks of more than ten days.`;
-  timeChart($("paceChart"),pd,{invert:true,pad:25,step:60,fmt:v=>clock(v),color:"var(--trace)",axis:"min per mile",aria:"Average pace per run over time",tip:d=>`${d.e.pace} /mi, ${d.e.dist} mi`});
+  $("paceLede").textContent=`From ${first.e.pace} on ${fmtDay(first.date)} to ${last.e.pace} on ${fmtDay(last.date)}. Faster is higher, bigger dots are longer runs. Hollow dots are treadmill, dashed lines cross breaks of more than ten days.`;
+  timeChart($("paceChart"),pd,{invert:true,pad:25,step:60,fmt:v=>clock(v),color:"var(--trace)",axis:"min per mile",aria:"Average pace per run over time",
+    r:d=>d.e.type==="treadmill"?4:Math.min(8,3.5+d.e.dist*.45),tip:d=>`${d.e.pace} /mi, ${d.e.dist} mi`});
   const hd=runs.filter(avgHR).map(e=>({date:e.date,v:avgHR(e),e}));
   if(hd.length>1) timeChart($("hrChart"),hd,{h:170,pad:6,step:10,fmt:v=>Math.round(v),color:"var(--water)",axis:"bpm, since the chest strap",aria:"Average heart rate per run",tip:d=>`${d.v} avg, ${maxHR(d.e)??"?"} max`});
-  else {$("hrChart").previousElementSibling.remove();$("hrChart").remove()}
+  else {$("hrChart").previousElementSibling?.remove();$("hrChart").remove()}
 }
 
-/* ---------- pacing fingerprints ---------- */
-(function(){
+/* ---------- 06 pacing fingerprints ---------- */
+function renderFingerprints(){
   const withS=runs.map(e=>({e,s:splitsOf(e)})).filter(x=>x.s.filter(s=>s.full).length>=2);
   let m1=0;
   $("fp").innerHTML=withS.slice().reverse().map(({e,s})=>{
@@ -791,12 +1247,13 @@ function drawCharts(){
     const bars=s.map((z,i)=>{const d=avg-z.pace;const h=Math.min(Math.abs(d)/max,1)*28;const up=d>=0;
       return `<rect x="${(i*bw+bw*.12).toFixed(2)}" y="${up?32-h:32}" width="${(bw*.76).toFixed(2)}" height="${Math.max(h,1.5)}" rx="1.5" fill="${up?"var(--trace)":"var(--water)"}" opacity="${z.full?1:.45}"><title>Mile ${esc(z.label)}: ${esc(z.paceS)}</title></rect>`}).join("");
     return `<figure><svg viewBox="0 0 100 64" preserveAspectRatio="none" role="img" aria-label="Mile splits for ${esc(e.title)}"><line x1="0" x2="100" y1="32" y2="32" stroke="var(--ink2)" stroke-width="1" vector-effect="non-scaling-stroke"/>${bars}</svg>
-      <figcaption><b>${esc(fmtDay(e.date))}, ${e.dist} mi</b>${esc(s.map(z=>z.paceS).join(" "))}</figcaption></figure>`}).join("");
-  $("fpLede").textContent=`Each bar is a mile, newest run first. Mile 1 was the fastest full mile in ${m1} of ${withS.length} runs, then the back half slows down. Faded bars are partial last miles.`;
-})();
+      <figcaption><b>${esc(fmtDay(e.date))}, ${e.dist} mi</b><em>${esc(routeName(routeKeyOf(e))||e.title)}</em>${esc(s.map(z=>z.paceS).join(" "))}</figcaption></figure>`}).join("");
+  const neg=withS.filter(({s})=>{const f=s.filter(z=>z.full);return f.at(-1).pace<=f[0].pace}).length;
+  $("fpLede").textContent=`Each bar is a mile, newest run first. Mile 1 was the fastest full mile in ${m1} of ${withS.length} runs. ${neg?`${neg} ${neg===1?"run closed":"runs closed"} with a last full mile as fast as the first.`:"No run has closed faster than it opened yet."} Faded bars are partial last miles.`;
+}
 
-/* ---------- shoes ---------- */
-(function(){
+/* ---------- 07 shoes ---------- */
+function renderShoes(){
   const SHOES=[
     {k:"altra",name:"Altra Escalante 5",bought:"Aug 2026",img:"/assets/training-log/altra-escalante-5.webp",anim:"whole"},
     {k:"vivo",name:"Vivobarefoot Primus Lite III",bought:"Dec 2024",img:"/assets/training-log/vivo-primus-lite-3-white.webp",anim:"bend",preLog:"Worn out. Most of their miles came before this log started."},
@@ -816,46 +1273,59 @@ function drawCharts(){
         <div class="det">${es.length} ${es.length===1?"session":"sessions"}${lastE?`, last on ${fmtDay(lastE.date)}`:""}</div>
         ${s.preLog?`<div class="det">Bought ${esc(s.bought)}. ${esc(s.preLog)}</div>`:`<div class="wear" title="${mi.toFixed(1)} of a typical ${LIFE} mi"><i style="width:${Math.min(mi/LIFE*100,100).toFixed(1)}%"></i></div>
         <div class="det">Bought ${esc(s.bought)}. ${Math.round(mi/LIFE*100)}% of a typical ${LIFE} mi life.</div>`}</figcaption></figure>`}).join("");
-  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.querySelectorAll(".shoe").forEach(f=>{
     const c=f.querySelector(".count"), mi=+f.dataset.mi; let raf;
-    const run=()=>{ if(reduce) return; cancelAnimationFrame(raf); const t0=performance.now();
+    const run=()=>{ if(reduceMotion) return; cancelAnimationFrame(raf); const t0=performance.now();
       const step=t=>{const p=Math.min((t-t0)/900,1);c.textContent=(mi*(1-Math.pow(1-p,3))).toFixed(1);if(p<1)raf=requestAnimationFrame(step)};raf=requestAnimationFrame(step)};
     f.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse")run()});
     f.addEventListener("focus",run);
     f.addEventListener("click",()=>{f.classList.remove("go");void f.offsetWidth;f.classList.add("go");run()});
     f.addEventListener("animationend",e=>{if(e.target.classList.contains("ground"))f.classList.remove("go")});
   });
-})();
+}
 
-/* ---------- records ---------- */
-(function(){
+/* ---------- 08 records ---------- */
+function renderRecords(){
   const rows=[];
   const longest=runs.reduce((a,b)=>b.dist>a.dist?b:a);
   rows.push(["Longest run",`${longest.dist} mi`,`${fmtDay(longest.date)}, ${routeOf(longest)?.name||longest.title}`]);
-  const out=runs.filter(e=>e.type!=="treadmill"&&e.dist>=2);
+  const out=outdoor.filter(e=>e.dist>=2);
   const fast=out.reduce((a,b)=>s2(b.pace)<s2(a.pace)?b:a);
   rows.push(["Fastest average pace",`${fast.pace} /mi`,`${fmtDay(fast.date)}, ${fast.dist} mi on ${routeOf(fast)?.name||fast.title}`]);
   let fm=null; runs.forEach(e=>splitsOf(e).filter(s=>s.full).forEach(s=>{if(!fm||s.pace<fm.s.pace)fm={e,s}}));
   if(fm) rows.push(["Fastest mile",`${fm.s.paceS}`,`Mile ${fm.s.label}, ${fmtDay(fm.e.date)}`]);
+  if(VD.size){const [e,v]=[...VD.entries()].reduce((a,b)=>b[1].v>a[1].v?b:a); rows.push(["Best VDOT",v.v.toFixed(1),`${fmtDay(e.date)}, ${v.how}`])}
+  const ef=outdoor.filter(effOf); if(ef.length){const b=ef.reduce((a,x)=>effOf(x)>effOf(a)?x:a); rows.push(["Most meters per heartbeat",`${effOf(b).toFixed(2)} m`,`${fmtDay(b.date)}, ${b.pace} /mi at ${avgHR(b)} bpm`])}
+  const by=weekStats(), bw=Object.entries(by).reduce((a,b)=>b[1].mi>a[1].mi?b:a);
+  rows.push(["Biggest week",`${bw[1].mi.toFixed(1)} mi`,`Week of ${fmtDay(bw[0])}, ${bw[1].n} ${bw[1].n===1?"run":"runs"}`]);
   const climbs=runs.filter(e=>num(metric(e,/elev gain/i)));
   const climb=climbs.length?climbs.reduce((a,b)=>num(metric(b,/elev gain/i))>num(metric(a,/elev gain/i))?b:a):null;
   if(climb) rows.push(["Most climbing",metric(climb,/elev gain/i),`${fmtDay(climb.date)}, ${routeOf(climb)?.name||climb.title}`]);
-  const hrE=runs.filter(maxHR); if(hrE.length){const h=hrE.reduce((a,b)=>maxHR(b)>maxHR(a)?b:a);rows.push(["Highest heart rate",`${maxHR(h)} bpm`,`${fmtDay(h.date)}, highest seen so far, not a tested max`])}
+  const hrE=runs.filter(maxHR); if(hrE.length){const h=hrE.reduce((a,b)=>maxHR(b)>maxHR(a)?b:a);rows.push(["Highest heart rate",`${maxHR(h)} bpm`,`${fmtDay(h.date)}, highest on the strap so far, not a tested max`])}
   const hot=runs.filter(tempOf); if(hot.length){const h=hot.reduce((a,b)=>tempOf(b)>tempOf(a)?b:a);rows.push(["Hottest run",`${tempOf(h)}\u00b0F`,`${fmtDay(h.date)}, ${h.dist} mi`])}
   const wi=entries.filter(e=>e.type==="weigh-in"&&metric(e,/weight/i));
   if(wi.length){const l=wi.at(-1),f=wi[0];const d=num(metric(l,/weight/i))-num(metric(f,/weight/i));
     rows.push(["Latest weigh-in",metric(l,/weight/i),wi.length>1?`${fmtDay(l.date)}, ${d<0?"down":"up"} ${Math.abs(d).toFixed(1)} lbs since ${fmtDay(f.date)}`:fmtDay(l.date)])}
   $("rec").innerHTML=rows.map(([a,b,c])=>`<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd><small>${esc(c)}</small></div>`).join("");
-})();
+}
 
-/* ---------- sessions ---------- */
+/* ---------- 09 sessions ---------- */
 let filt={type:"all",route:null};
+const sid = e => `s-${e.date}-${entries.indexOf(e)}`;
 function spark(e){
   const s=splitsOf(e).filter(z=>z.full||z.seg>.4); if(s.length<2) return "";
   const ps=s.map(z=>z.pace), lo=Math.min(...ps), hi=Math.max(...ps), r=(hi-lo)||1;
   const pts=s.map((z,i)=>`${(2+i/(s.length-1)*60).toFixed(1)},${(4+(z.pace-lo)/r*22).toFixed(1)}`).join(" ");
   return `<svg class="spark" viewBox="0 0 64 30" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="var(--trace)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
+}
+function cmpHTML(e){
+  const c=courseOf.get(e); if(!c) return "";
+  const i=c.runs.indexOf(e), t=c.time.get(e), prev=c.runs.slice(0,i), best=prev.length?Math.min(...prev.map(r=>c.time.get(r))):null, nm=c.alias||c.name;
+  let s;
+  if(!prev.length) s=c.multi?`First run on ${esc(nm)}, the baseline: <b>${clock(t)}</b> over ${c.bench.toFixed(2)} mi.`:`Only run on ${esc(nm)} so far. <b>${clock(e.dur)}</b> is the time to beat.`;
+  else if(t<best) s=`Attempt ${i+1} on ${esc(nm)}: <b>${clock(t)}</b> over ${c.bench.toFixed(2)} mi, a course PR by ${clock(best-t)}.`;
+  else s=`Attempt ${i+1} on ${esc(nm)}: <b>${clock(t)}</b> over ${c.bench.toFixed(2)} mi, ${clock(t-best)} off the best at the time.`;
+  return `<div class="cmp">${s}${c.multi?` <button class="maplink" data-race="${esc(c.key)}">Race the attempts</button>`:""}</div>`;
 }
 function detail(e){
   let h="";
@@ -867,13 +1337,16 @@ function detail(e){
       t.rows.map((r,i)=>{let bar="";if(bc!=null){const f=t.barLowerIsBetter?1-(vals[i]-lo)/((hi-lo)||1):(vals[i]-lo)/((hi-lo)||1);bar=`<td class="bar"><i class="${sp[i]&&!sp[i].full&&f<.2?"walk":""}" style="width:${(18+f*82).toFixed(0)}%"></i></td>`}
         return `<tr>${r.map(c=>`<td>${esc(c)}</td>`).join("")}${bar}</tr>`}).join("")+`</tbody></table></div>`;
   }
+  h+=cmpHTML(e);
   if(e.notes) h+=`<p class="notes">${esc(e.notes)}</p>`;
   if(e.route){const r=e.route,rt=routeOf(e);
     h+=`<div class="route"><b>${esc(r.name)}</b>${r.src?`<span class="src">${esc(r.src)}</span>`:""}
       <dl>${(r.stats||[]).map(([l,v])=>`<div>${esc(l)}: <dd>${esc(v)}</dd></div>`).join("")}</dl>
       ${r.note?`<p>${esc(r.note)}</p>`:""}
       ${rt&&GEO?.routes?.[rt.k]?`<p><button class="maplink" data-route="${rt.k}">Show on the map</button></p>`:""}</div>`}
-  if(e.where||e.extra) h+=`<div class="kv">${e.where?`<div class="where">${esc(e.where)}</div>`:""}${(e.extra||[]).map(([l,v])=>`<div>${esc(l)}: <span>${esc(v)}</span></div>`).join("")}</div>`;
+  const vd=VD.get(e), ef=effOf(e);
+  const derived=[vd?`VDOT ${vd.v.toFixed(1)} (from ${vd.how})`:"",ef?`${ef.toFixed(2)} meters per heartbeat`:""].filter(Boolean).join(", ");
+  if(e.where||e.extra||derived) h+=`<div class="kv">${e.where?`<div class="where">${esc(e.where)}</div>`:""}${(e.extra||[]).map(([l,v])=>`<div>${esc(l)}: <span>${esc(v)}</span></div>`).join("")}${derived?`<div>Worked out: <span>${esc(derived)}</span></div>`:""}</div>`;
   if(e.source) h+=`<div class="srcline">Source: ${esc(e.source)}</div>`;
   return h;
 }
@@ -881,38 +1354,47 @@ function drawSessions(){
   const types=["all",...new Set(entries.map(e=>e.type))];
   const label={all:"Everything",run:"Runs",treadmill:"Treadmill","weigh-in":"Weigh-ins"};
   $("filters").innerHTML=types.map(t=>`<button class="btn" data-type="${esc(t)}" aria-pressed="${filt.type===t}">${esc(label[t]||t[0].toUpperCase()+t.slice(1))}</button>`).join("")
-    +(filt.route?`<button class="btn" data-clear aria-pressed="true">${esc(ROUTES.find(r=>r.k===filt.route)?.name)} &times;</button>`:"");
+    +(filt.route?`<button class="btn" data-clear aria-pressed="true">${esc(routeName(filt.route))} &times;</button>`:"");
   const list=[...entries].reverse().filter(e=>(filt.type==="all"||e.type===filt.type)&&(!filt.route||routeKeyOf(e)===filt.route));
   $("sessions").innerHTML=list.map(e=>{
     const hr=avgHR(e), t=tempOf(e);
     const k=[e.dist?`<b>${e.dist} mi</b>`:"",e.pace?`${e.pace} /mi`:"",(!e.dist&&e.dur)?Math.round(e.dur/60)+" min":"",hr?`${hr} bpm`:"",t?`${t}\u00b0F`:""].filter(Boolean).join(", ");
-    return `<details class="ses" id="s-${e.date}-${esc(e.type)}"><summary>
+    return `<details class="ses" id="${sid(e)}"><summary>
       <div class="d"><b>${D(e.date).getDate()}</b>${esc(fmt(e.date,{month:"short"}))} ${esc(fmt(e.date,{weekday:"short"}))}</div>
-      <div><div class="t">${esc(e.title)}<span class="type">${esc(e.type)}</span></div><div class="k">${k}${e.time?`, ${esc(e.time)}`:""}</div></div>
+      <div><div class="t">${esc(e.title)}<span class="type">${esc(e.type)}</span>${badgeHTML(e)}</div><div class="k">${k}${e.time?`, ${esc(e.time)}`:""}</div></div>
       <div>${spark(e)}<svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
     </summary><div class="body">${detail(e)}</div></details>`}).join("")||'<p class="lede">Nothing logged under this filter yet.</p>';
 }
+function openSession(e){ filt={type:"all",route:null}; drawSessions(); const d=$(sid(e)); if(d){d.open=true; goTo(d)} }
+function raceCourse(key){ const ui=RACE_UI.get(key); if(!ui) return; goTo(ui.el,()=>ui.play()); }
 $("filters").addEventListener("click",ev=>{const b=ev.target.closest("button");if(!b)return;if(b.hasAttribute("data-clear"))filt.route=null;else filt.type=b.dataset.type;drawSessions()});
-$("sessions").addEventListener("click",ev=>{const b=ev.target.closest(".maplink");if(b){selectRoute(b.dataset.route,true);$("map").scrollIntoView({behavior:"smooth",block:"center"})}});
+$("sessions").addEventListener("click",ev=>{
+  const r=ev.target.closest("[data-race]"); if(r){ev.preventDefault();raceCourse(r.dataset.race);return}
+  const b=ev.target.closest(".maplink[data-route]"); if(b){selectRoute(b.dataset.route,true);goTo($("map"))}
+});
 
 /* ---------- map ---------- */
 let GEO=null, MAP=null, routeLayers={}, pins={}, selected=null;
+function scrollChip(btn){ const c=$("chips"); if(!btn||!c) return; c.scrollTo({left:Math.max(0,btn.offsetLeft-(c.clientWidth-btn.offsetWidth)/2),behavior:reduceMotion?"auto":"smooth"}); }
 function selectRoute(k,fly){
   selected=k;
   Object.entries(routeLayers).forEach(([rk,ls])=>ls.forEach(l=>{const el=l.getElement?.();if(el){el.classList.toggle("dim",!!k&&rk!==k)}l.setStyle({weight:rk===k?6.5:4.5})}));
   Object.entries(pins).forEach(([rk,m])=>m.getElement()?.querySelector(".m-pin")?.classList.toggle("on",rk===k));
-  document.querySelectorAll("#chips .btn").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.route===k);if(b.dataset.route===k)b.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"})});
+  document.querySelectorAll("#chips .btn").forEach(b=>{b.setAttribute("aria-pressed",b.dataset.route===k);if(b.dataset.route===k)scrollChip(b)});
   const card=$("routeCard");
   if(!k){card.hidden=true;return}
-  const r=ROUTES.find(x=>x.k===k), es=entries.filter(e=>routeKeyOf(e)===k);
+  const es=entries.filter(e=>routeKeyOf(e)===k);
+  const cs=COURSES.filter(c=>c.key===k), mc=cs.find(c=>c.multi);
   const best=es.filter(e=>e.pace).reduce((a,b)=>!a||s2(b.pace)<s2(a.pace)?b:a,null);
   card.hidden=false;
-  card.innerHTML=`<h3>${esc(r.name)}</h3><div class="sub">${es.length} ${es.length===1?"run":"runs"}${best?`, best ${best.pace} /mi`:""}. Trail line from OpenStreetMap, not a GPS trace.</div>
-    <table class="splits"><thead><tr><th>Date</th><th>Distance</th><th>Pace</th><th>Avg HR</th></tr></thead><tbody>${es.map(e=>`<tr><td>${esc(fmtDay(e.date))}</td><td>${e.dist!=null?e.dist.toFixed(2):""} mi</td><td>${esc(e.pace||"")}</td><td>${avgHR(e)??""}</td></tr>`).join("")}</tbody></table>
-    <div class="acts"><button class="btn" id="showRuns">Show these in the log</button><button class="btn" id="closeRoute">Close</button></div>`;
-  $("showRuns").onclick=()=>{filt.route=k;filt.type="all";drawSessions();$("log").scrollIntoView({behavior:"smooth"})};
+  card.innerHTML=`<h3>${esc(routeName(k))}</h3><div class="sub">${es.length} ${es.length===1?"run":"runs"}${best?`, best pace ${best.pace} /mi`:""}. Trail line from OpenStreetMap, not a GPS trace.</div>
+    ${cs.map(c=>`<div class="ttb">Time to beat over ${c.bench.toFixed(2)} mi: <b>${clock(c.time.get(c.pr))}</b>, ${esc(fmtDay(c.pr.date))}${c.multi?`, best of ${c.runs.length}`:""}</div>`).join("")}
+    <div class="tscroll"><table class="splits"><thead><tr><th>Date</th><th>Distance</th><th>Time</th><th>Pace</th><th>Avg HR</th></tr></thead><tbody>${es.map(e=>`<tr><td>${esc(fmtDay(e.date))}</td><td>${e.dist!=null?e.dist.toFixed(2):""} mi</td><td>${e.dur?clock(e.dur):""}</td><td>${esc(e.pace||"")}</td><td>${avgHR(e)??""}</td></tr>`).join("")}</tbody></table></div>
+    <div class="acts">${mc?`<button class="btn solid" id="raceRoute">Race the attempts</button>`:""}<button class="btn" id="showRuns">Show these in the log</button><button class="btn" id="closeRoute">Close</button></div>`;
+  if(mc) $("raceRoute").onclick=()=>raceCourse(mc.key);
+  $("showRuns").onclick=()=>{filt.route=k;filt.type="all";drawSessions();goTo($("log"))};
   $("closeRoute").onclick=()=>selectRoute(null);
-  if(fly&&routeLayers[k]){const wide=innerWidth>=860,tb=document.querySelector(".title").getBoundingClientRect();MAP.flyToBounds(L.featureGroup(routeLayers[k]).getBounds(),{paddingTopLeft:wide?[tb.right+60,60]:[40,40],paddingBottomRight:wide?[200,60]:[40,40],maxZoom:14,duration:.8})}
+  if(fly&&routeLayers[k]){const wide=innerWidth>=860,tb=document.querySelector(".title").getBoundingClientRect();MAP.flyToBounds(L.featureGroup(routeLayers[k]).getBounds(),{paddingTopLeft:wide?[tb.right+60,60]:[40,40],paddingBottomRight:wide?[200,60]:[40,40],maxZoom:14,duration:reduceMotion?0:.8,animate:!reduceMotion})}
 }
 async function drawMap(){
   if(!window.L){$("map").innerHTML='<p class="lede" style="padding:20px">The map library did not load. Reload the page to try again.</p>';return}
@@ -940,18 +1422,20 @@ async function drawMap(){
       L.polyline(c,{pane:"routes",className:"m-hit",weight:22}).addTo(MAP).on("click",()=>selectRoute(r.k,false));pl.on("click",()=>selectRoute(r.k,false))});
     const b=L.featureGroup(routeLayers[r.k]).getBounds(); allB.push(b);
     const longest=lines.reduce((a,c)=>c.length>a.length?c:a); const mid=longest[Math.floor(longest.length/2)];
-    const best=es.filter(e=>e.pace).reduce((a,x)=>!a||s2(x.pace)<s2(a.pace)?x:a,null);
+    const cs=COURSES.filter(c=>c.key===r.k), mc=cs.find(c=>c.multi);
+    const bp=es.filter(e=>e.pace).reduce((a,x)=>!a||s2(x.pace)<s2(a.pace)?x:a,null);
+    const sub=mc?`PR ${clock(mc.time.get(mc.pr))}`:cs.length===1?`to beat ${clock(cs[0].time.get(cs[0].pr))}`:bp?`best ${bp.pace} /mi`:"";
     const lab=r.dir==="left"?`right:32px;top:-4px;text-align:right`:`left:32px;top:-4px`;
     pins[r.k]=L.marker(mid,{icon:L.divIcon({className:"",iconSize:[26,26],iconAnchor:[13,13],
-      html:`<button class="m-pin" aria-label="${esc(r.name)}, ${es.length} runs">${es.length}</button><span class="m-label" style="${lab}">${esc(r.name)}<small>${best?`best ${best.pace} /mi`:""}</small></span>`}),keyboard:true,riseOnHover:true}).addTo(MAP);
+      html:`<button class="m-pin" aria-label="${esc(r.name)}, ${es.length} runs">${es.length}</button><span class="m-label" style="${lab}">${esc(r.name)}<small>${esc(sub)}</small></span>`}),keyboard:true,riseOnHover:true}).addTo(MAP);
     pins[r.k].on("click",()=>selectRoute(r.k,true));
   });
   $("chips").innerHTML=ROUTES.filter(r=>routeLayers[r.k]).map(r=>`<button class="btn" data-route="${r.k}" aria-pressed="false"><b>${entries.filter(e=>routeKeyOf(e)===r.k).length}</b>${esc(r.name)}</button>`).join("");
   $("chips").onclick=ev=>{const b=ev.target.closest(".btn");if(b)selectRoute(selected===b.dataset.route?null:b.dataset.route,true)};
   const B=allB.reduce((a,b)=>a.extend(b),L.latLngBounds(allB[0].getSouthWest(),allB[0].getNorthEast()));
-  const wide=innerWidth>=860;
-  const tb=document.querySelector('.title').getBoundingClientRect();
-  MAP.fitBounds(B,{paddingTopLeft:wide?[tb.right+40,40]:[24,24],paddingBottomRight:wide?[150,60]:[40,40]});
+  const fit=()=>{const wide=innerWidth>=860, tb=document.querySelector('.title').getBoundingClientRect();
+    MAP.fitBounds(B,{paddingTopLeft:wide?[tb.right+40,40]:[24,24],paddingBottomRight:wide?[150,60]:[40,40]})};
+  fit();
   const lab=()=>$("map").classList.toggle("map-hide-labels",MAP.getZoom()<11.25&&innerWidth<860);
   const declutter=()=>{const pp=Object.values(pins).map(m=>MAP.latLngToContainerPoint(m.getLatLng()));
     const showL=!$("map").classList.contains("map-hide-labels");
@@ -960,212 +1444,214 @@ async function drawMap(){
       const hit=pp.some(o=>o.x>tb[0]-16&&o.x<tb[2]+16&&Math.abs(o.y-q.y)<22)||(showL&&boxes.some(b=>tb[0]<b[2]&&tb[2]>b[0]&&tb[1]<b[3]&&tb[3]>b[1]));const el=m.getElement();if(el)el.style.visibility=hit?"hidden":""})};
   MAP.on("zoomend",()=>{lab();declutter()});lab();declutter();
   MAP.on("click",e=>{if(!e.originalEvent.target.closest(".m-pin"))selectRoute(null)});
-  if(!matchMedia("(prefers-reduced-motion: reduce)").matches){
+  if(!reduceMotion){
     const order=ROUTES.filter(r=>routeLayers[r.k]).map(r=>({r,first:entries.find(e=>routeKeyOf(e)===r.k).date})).sort((a,b)=>a.first<b.first?-1:1);
     order.forEach(({r},i)=>routeLayers[r.k].forEach(l=>{const el=l.getElement();if(!el)return;const len=el.getTotalLength();
       el.style.strokeDasharray=len;el.style.strokeDashoffset=len;el.getBoundingClientRect();
       el.style.transition=`stroke-dashoffset 900ms cubic-bezier(.4,0,.2,1) ${250+i*180}ms`;el.style.strokeDashoffset=0;
       setTimeout(()=>{el.style.transition="";el.style.strokeDasharray="";el.style.strokeDashoffset=""},1300+i*180)}));
   }
-  if(touch){const pb=$("panbtn");pb.style.display="block";pb.style.bottom="auto";pb.style.top=($("map").offsetTop+10)+"px";
-    pb.onclick=()=>{const on=pb.getAttribute("aria-pressed")!=="true";pb.setAttribute("aria-pressed",on);pb.textContent=on?"Done":"Pan and zoom";
-      [MAP.dragging,MAP.touchZoom].forEach(h=>on?h.enable():h.disable())};}
+  if(touch){
+    const Pan=L.Control.extend({options:{position:"topright"},onAdd(){
+      const wrap=L.DomUtil.create("div","panctl"), b=L.DomUtil.create("button","btn",wrap);
+      b.type="button"; b.textContent="Pan and zoom"; b.setAttribute("aria-pressed","false");
+      L.DomEvent.disableClickPropagation(wrap); L.DomEvent.disableScrollPropagation(wrap);
+      b.onclick=()=>{const on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);b.textContent=on?"Done":"Pan and zoom";[MAP.dragging,MAP.touchZoom].forEach(h=>on?h.enable():h.disable())};
+      return wrap;}});
+    MAP.addControl(new Pan());
+  }
   drawSessions();
 }
 
-drawSessions();
+/* ---------- section nav ---------- */
+function setupToc(){
+  const links=[...document.querySelectorAll("#toc a")], box=$("toc");
+  const secs=links.map(a=>document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  let cur, ticking=false;
+  const mark=id=>{ if(id===cur) return; cur=id; links.forEach(a=>{const on=a.getAttribute("href")==="#"+id; a.classList.toggle("on",on);
+    if(on){a.setAttribute("aria-current","true"); box.scrollTo({left:Math.max(0,a.offsetLeft-(box.clientWidth-a.offsetWidth)/2),behavior:reduceMotion?"auto":"smooth"})} else a.removeAttribute("aria-current")}); };
+  const update=()=>{ ticking=false; const line=navOffset()+innerHeight*.22; let id=null, top=-Infinity;
+    for(const s of secs){ const t=s.getBoundingClientRect().top; if(t<=line&&t>top+4){id=s.id;top=t} }
+    mark(id); };
+  addEventListener("scroll",()=>{ if(!ticking){ticking=true; requestAnimationFrame(update)} },{passive:true});
+  addEventListener("resize",update);
+  update();
+  links.forEach(a=>a.addEventListener("click",ev=>{const t=document.querySelector(a.getAttribute("href")); if(!t) return; ev.preventDefault(); goTo(t); history.replaceState(null,"",a.getAttribute("href")); mark(t.id)}));
+}
+
+/* ---------- 10 seasons (MapMyRun export + races + old tracker + this log) ---------- */
+const H = {runs:[], seasons:[], gaps:[], sel:null, showAll:false};
+const ms = s => { if (s == null || !isFinite(s)) return "–"; s = Math.round(s); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return h ? `${h}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}` : `${m}:${String(x).padStart(2,"0")}`; };
+const MON = ["J","F","M","A","M","J","J","A","S","O","N","D"], MONL = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const median = a => { const s = [...a].sort((x,y)=>x-y); const n = s.length; return n ? (n % 2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2) : null; };
+const span = d => { if (d < 14) return d === 1 ? "1 day" : `${d} days`; if (d < 70) return `${Math.round(d/7)} weeks`; const mo = Math.round(d/30.4); return mo < 24 ? `${mo} months` : `${(d/365.25).toFixed(1).replace(/\.0$/,"")} years`; };
+const FLOOR = 30, K = 6, WIN = 6;
+const to24 = t => { const m=String(t||"").match(/(\d+):(\d+)\s*(am|pm)/i); if(!m) return "12:00"; let h=+m[1]%12; if(/pm/i.test(m[3])) h+=12; return String(h).padStart(2,"0")+":"+m[2]; };
+const vdotRec = r => { if(r.type==="treadmill"||!r.dist_mi) return null; const c=[];
+  if(r.t_5k) c.push({v:vdotOf(5000,r.t_5k),how:`5K in ${ms(r.t_5k)}`});
+  if(r.t_4mi) c.push({v:vdotOf(4*MI,r.t_4mi),how:`4 mi in ${ms(r.t_4mi)}`});
+  if(r.dist_mi>=1.5&&r.active_s) c.push({v:vdotOf(r.dist_mi*MI,r.active_s),how:`${r.dist_mi.toFixed(2)} mi in ${ms(r.active_s)}`});
+  const b=c.filter(x=>x.v>15&&x.v<60).reduce((a,x)=>!a||x.v>a.v?x:a,null); return b; };
+function logAsHist(){
+  return entries.filter(isDistance).map((e,i)=>{ const f=splitsOf(e).filter(z=>z.full);
+    return {id:"log-"+i,date:e.date,start_local:e.date+" "+to24(e.time),type:e.type==="treadmill"?"treadmill":"run",name:e.title,source:"This log",
+      dist_mi:e.dist,active_s:e.dur,elapsed_s:e.dur,pace_s:s2(e.pace),hr_avg:avgHR(e),hr_max:maxHR(e),
+      t_4mi:e.dist>=4-.005?timeAt(e,4).t:null,t_5k:e.dist>=5000/MI?timeAt(e,5000/MI).t:null,fastest_mile_s:f.length?Math.min(...f.map(z=>z.pace)):null,
+      has_gps:e.type!=="treadmill",place:e.type==="treadmill"?"treadmill":(routeName(routeKeyOf(e))||e.title),area:e.type==="treadmill"?"Treadmill":"Triangle, NC",fromLog:true}; });
+}
+const hLabel = s => { const a=D(s.start), b=D(s.end), ya=a.getFullYear(), yb=b.getFullYear();
+  if (s.start === s.end) return `${MONL[a.getMonth()]} ${a.getDate()}, ${ya}`;
+  if (ya === yb && a.getMonth() === b.getMonth()) return `${MONL[a.getMonth()]} ${ya}`;
+  if (ya === yb) return `${MONL[a.getMonth()]} to ${MONL[b.getMonth()]} ${ya}`;
+  return `${MONL[a.getMonth()]} ${ya} to ${MONL[b.getMonth()]} ${yb}`; };
+function hBuild(){
+  const runsH=H.runs, days=[...new Set(runsH.map(r=>r.date))];
+  const g=days.slice(1).map((d,i)=>daysBetween(days[i],d));
+  H.gaps=g.map((x,i)=>{const local=median([...g.slice(Math.max(0,i-WIN),i),...g.slice(i+1,i+1+WIN)])??x;const limit=Math.max(FLOOR,K*local);return {from:days[i],to:days[i+1],days:x,local,limit,brk:x>limit}});
+  const breakAt=new Set(H.gaps.filter(x=>x.brk).map(x=>x.to));
+  const seasons=[]; let cur=null;
+  for(const r of runsH){ if(!cur||(r.date!==cur.end&&breakAt.has(r.date))){ if(cur) seasons.push(cur); cur={runs:[],start:r.date,end:r.date}; } cur.runs.push(r); cur.end=r.date; }
+  if(cur) seasons.push(cur);
+  seasons.forEach((s,i)=>{
+    s.i=i; s.days=daysBetween(s.start,s.end)+1; s.miles=s.runs.reduce((a,r)=>a+r.dist_mi,0); s.perWeek=s.runs.length/Math.max(s.days,7)*7;
+    s.gapBefore=i?daysBetween(seasons[i-1].end,s.start):null;
+    s.medPace=median(s.runs.filter(r=>r.pace_s&&r.dist_mi>=1).map(r=>r.pace_s));
+    const b4=s.runs.filter(r=>r.t_4mi); s.best4=b4.length?b4.reduce((a,r)=>r.t_4mi<a.t_4mi?r:a):null;
+    const fm=s.runs.filter(r=>r.fastest_mile_s); s.fastMile=fm.length?Math.min(...fm.map(r=>r.fastest_mile_s)):null;
+    s.longest=s.runs.reduce((a,r)=>r.dist_mi>a.dist_mi?r:a);
+    const vds=s.runs.map(r=>({r,v:vdotRec(r)})).filter(x=>x.v); s.bestV=vds.length?vds.reduce((a,x)=>x.v.v>a.v.v?x:a):null;
+    const ar={}; s.runs.forEach(r=>{if(r.area) ar[r.area]=(ar[r.area]||0)+1}); s.area=Object.entries(ar).sort((a,b)=>b[1]-a[1]).map(e=>e[0]).slice(0,2).join(" + ")||"No GPS";
+    const tail=H.gaps.filter(x=>x.to<=s.end).slice(-WIN).map(x=>x.days);
+    s.now=i===seasons.length-1&&daysBetween(s.end,todayISO)<=Math.max(FLOOR,K*(median(tail)??0));
+    s.name=hLabel(s);
+  });
+  H.seasons=seasons;
+}
+function hFit(){
+  const pts=H.runs.map(r=>({r,v:vdotRec(r)})).filter(x=>x.v).map(x=>({date:x.r.date,v:x.v.v,how:x.v.how,name:x.r.place||x.r.name,r:x.r}));
+  if(pts.length<2) return;
+  const nowS=H.seasons.find(s=>s.now), inNow=d=>nowS&&d.date>=nowS.start;
+  const t0=D(pts[0].date).getTime()-864e5*40, t1=Math.max(today.getTime(),D(pts.at(-1).date).getTime())+864e5*40;
+  const best=pts.reduce((a,b)=>b.v>a.v?b:a), cur=pts.filter(inNow).reduce((a,b)=>!a||b.v>a.v?b:a,null);
+  const pftV=vdotOf(3*MI,19*60);
+  const latestBest=cur&&pts.filter(p=>p.date<cur.date&&p.v>=cur.v).at(-1);
+  $("hFitLede").textContent=`One dot per run, VDOT from its best stretch (first 5K, first 4 miles, or the whole run), so walk breaks pull a run down. ${cur?`This season peaks at ${cur.v.toFixed(1)} on ${fmtDayY(cur.date)}, ${latestBest?`the best since ${fmtDayY(latestBest.date)} (${latestBest.v.toFixed(1)})`:"the best on record"}.`:""} The 2019 PFT 3-mile in 19:00, from memory, works out to ${pftV.toFixed(1)}, off the top of the chart.`;
+  timeChart($("hFit"),pts,{h:220,lo:Math.max(15,Math.floor(Math.min(...pts.map(p=>p.v))-1)),hi:Math.ceil(best.v+2.5),step:5,fmt:v=>Math.round(v),lfmt:v=>v.toFixed(1),axis:"VDOT",aria:"VDOT of every run since 2017",years:true,line:false,t0,t1,
+    color:"var(--trace)",fill:d=>inNow(d)?"var(--trace)":"var(--ink2)",stroke:()=>"none",sw:0,r:d=>inNow(d)?4:2.6,op:d=>inNow(d)?1:.45,hitR:7,
+    labelSet:data=>[best,...(cur&&cur!==best?[cur]:[])],
+    extra:({x,y,P,W})=>{const xx=x("2019-04-01"); return `<path d="M${xx.toFixed(1)},${(P.t-9).toFixed(1)} l-4.5,7 h9 z" fill="var(--gold)"><title>2019 PFT 3-mile in 19:00, from memory: VDOT ${pftV.toFixed(1)}</title></path><text x="${(W-P.r).toFixed(1)}" y="12" text-anchor="end" style="fill:var(--gold);font-weight:700">\u25B2 2019 PFT 19:00 = ${pftV.toFixed(1)}, above the chart</text>`},
+    tip:d=>`VDOT ${d.v.toFixed(1)}, ${d.how}`});
+  if(cur&&CUR&&CUR.e.date===cur.date){ const t=latestBest?`Best since ${fmtDayY(latestBest.date)}, across every run back to 2017.`:"Best on record, across every run back to 2017."; [$("bestSince"),$("bestSince2")].forEach(el=>{if(el) el.textContent=t}); }
+}
+function hGap(){
+  const W = 380, Hh = 92, P = 20, lo = Math.log(1), hi = Math.log(1200);
+  const X = d => P + (W - 2 * P) * (Math.log(Math.max(1, d)) - lo) / (hi - lo);
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const dots = H.gaps.map(x => `<circle cx="${X(x.days).toFixed(1)}" cy="${(14 + rnd() * 44).toFixed(1)}" r="${x.brk ? 4 : 2.6}" fill="${x.brk ? "var(--trace)" : "var(--muted)"}" fill-opacity="${x.brk ? .9 : .35}"><title>${x.from} to ${x.to}: ${x.days} days off${x.brk ? ", ended a season" : ""} (runs around it were ${x.local} days apart)</title></circle>`).join("");
+  const ticks = [1, 7, 30, 90, 365, 1000].map(t => `<line x1="${X(t)}" x2="${X(t)}" y1="8" y2="64" stroke="var(--rule)"/><text x="${X(t)}" y="80" text-anchor="middle">${t === 1 ? "1 day" : t === 7 ? "1 wk" : t === 30 ? "1 mo" : t === 90 ? "3 mo" : t === 365 ? "1 yr" : "3 yr"}</text>`).join("");
+  const close = H.gaps.filter(x => x.days >= FLOOR && x.days <= 45);
+  const n3 = H.gaps.filter(x => !x.brk && x.days > 21).length;
+  $("hGap").innerHTML = `<p class="lede">A season ends when the break is longer than a month <em>and</em> at least ${K} times longer than the usual spacing of the runs around it, so the same break counts for more in a dense stretch than a sparse one. ${n3 ? `Only ${n3} break${n3 > 1 ? "s" : ""} over 3 weeks stayed inside a season.` : "No break over 3 weeks stayed inside a season."}${close.length ? ` The close calls, 30 to 45 days: ${close.map(x => `${x.days} days after ${fmtDayY(x.from)} (${x.brk ? "new season" : "same season"})`).join(", ")}.` : ""}</p>
+    <svg class="gapviz" viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Every break between running days on a log scale. Red dots ended a season.">${ticks}${dots}</svg>`;
+}
+function hHeat(){
+  const by={}; H.runs.forEach(r=>{const k=r.date.slice(0,7); by[k]=(by[k]||0)+r.dist_mi});
+  const y0=+H.runs[0].date.slice(0,4), y1=+todayISO.slice(0,4), nowM=todayISO.slice(0,7);
+  const selMonths=new Set(); if(H.sel!=null) H.seasons[H.sel].runs.forEach(r=>selMonths.add(r.date.slice(0,7)));
+  let h=`<span></span>`+MON.map(m=>`<span class="mo">${m}</span>`).join("")+`<span></span>`;
+  for(let y=y0;y<=y1;y++){ let tot=0,row="";
+    for(let m=1;m<=12;m++){ const k=`${y}-${String(m).padStart(2,"0")}`, v=by[k]||0; tot+=v;
+      const lv=v===0?"":v<10?"l1":v<25?"l2":v<50?"l3":"l4";
+      row+=`<span class="c ${lv}${k>nowM?" fut":""}${selMonths.has(k)?" sel":""}" title="${MONL[m-1]} ${y}: ${v.toFixed(1)} mi">${v>=1?Math.round(v):""}</span>`; }
+    h+=`<span class="yr">${y}</span>${row}<span class="ytot">${tot?tot.toFixed(0)+" mi":"–"}</span>`; }
+  $("hm").innerHTML=h;
+  const Kc=["color-mix(in oklab,var(--ink) 5%,var(--paper))","color-mix(in oklab,var(--trace) 28%,var(--paper))","color-mix(in oklab,var(--trace) 52%,var(--paper))","color-mix(in oklab,var(--trace) 76%,var(--paper))","var(--trace)"];
+  $("hmKey").innerHTML=["none","under 10 mi","10 to 25","25 to 50","50+"].map((t,n)=>`<span><i style="background:${Kc[n]}"></i>${t}</span>`).join("");
+}
+function h4(){
+  const w=H.seasons.filter(s=>s.best4); if(!w.length) return;
+  const best=Math.min(...w.map(s=>s.best4.t_4mi)), worst=Math.max(...w.map(s=>s.best4.t_4mi)), lo=best*.92;
+  $("h4").innerHTML=H.seasons.map(s=>s.best4
+    ?`<div class="r${s.best4.t_4mi===best?" best":""}"><span>${esc(s.name)}</span><div class="bar" style="width:${(8+92*(worst-s.best4.t_4mi)/Math.max(1,worst-lo)).toFixed(1)}%"></div><b>${ms(s.best4.t_4mi)}</b></div>`
+    :`<div class="r none"><span>${esc(s.name)}</span><span>never reached 4 mi</span><b></b></div>`).join("");
+}
+function hSpark(s){
+  const pts=s.runs.filter(r=>r.pace_s&&r.dist_mi>=1&&r.pace_s<1500); if(pts.length<2) return "";
+  const W=380,Hh=96,P=6, t0=D(s.start), t1=D(s.end), dt=Math.max(1,t1-t0);
+  const ps=pts.map(r=>r.pace_s), mn=Math.min(...ps), mx=Math.max(...ps), rg=Math.max(30,mx-mn);
+  const X=r=>P+(W-2*P)*(D(r.date)-t0)/dt, Y=p=>P+(Hh-2*P-12)*(p-mn)/rg;
+  const dots=pts.map(r=>`<circle cx="${X(r).toFixed(1)}" cy="${Y(r.pace_s).toFixed(1)}" r="${(2+Math.min(4,r.dist_mi/1.6)).toFixed(1)}" fill="var(--trace)" fill-opacity="${r.fromLog?.95:.7}"><title>${r.date}: ${r.dist_mi.toFixed(2)} mi at ${ms(r.pace_s)}/mi</title></circle>`).join("");
+  return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Pace of each run across the season, faster is higher">
+    <line x1="${P}" x2="${W-P}" y1="${Y(mn).toFixed(1)}" y2="${Y(mn).toFixed(1)}" stroke="var(--rule)"/><line x1="${P}" x2="${W-P}" y1="${Y(mx).toFixed(1)}" y2="${Y(mx).toFixed(1)}" stroke="var(--rule)"/>
+    ${dots}<text x="${W-P}" y="${(Y(mn)-2).toFixed(1)}" text-anchor="end">${ms(mn)}/mi</text><text x="${W-P}" y="${(Y(mx)+11).toFixed(1)}" text-anchor="end">${ms(mx)}/mi</text></svg>`;
+}
+function hSeasons(){
+  const all=[...H.seasons].reverse(), shown=H.showAll?all:all.slice(0,4);
+  $("hs").innerHTML=shown.map(s=>{
+    const rows=s.runs.map(r=>`<tr><td>${D(r.date).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</td><td>${r.type==="treadmill"?"treadmill":esc(r.place||"–")}${r.race?' <b style="color:var(--trace)">RACE</b>':""}</td><td>${r.dist_mi.toFixed(2)}</td><td>${ms(r.active_s)}</td><td>${ms(r.pace_s)}</td><td>${ms(r.t_4mi)}</td><td>${ms(r.fastest_mile_s)}</td></tr>`).join("");
+    return `<div class="hs-row${H.sel===s.i?" sel open":""}" data-i="${s.i}" tabindex="0" role="button" aria-expanded="${H.sel===s.i}">
+      <div class="hs-top"><div class="hs-name">${esc(s.name)}${s.now?`<span class="now">NOW</span>`:""}</div>
+      <div class="hs-meta">${esc(s.area)} · ${span(s.days)}${s.gapBefore!=null?` · after ${span(s.gapBefore)} off`:" · first season on record"}</div></div>
+      <div class="hs-stats">
+        <div><b>${s.runs.length}</b>runs</div><div><b>${s.miles.toFixed(1)}</b>miles</div><div><b>${s.perWeek.toFixed(1)}</b>runs a week</div>
+        <div><b>${ms(s.medPace)}</b>typical pace</div><div><b>${s.best4?ms(s.best4.t_4mi):"–"}</b>best 4 mi</div><div><b>${ms(s.fastMile)}</b>fastest mile</div>
+        <div><b>${s.longest.dist_mi.toFixed(2)}</b>longest (mi)</div><div><b>${s.bestV?s.bestV.v.v.toFixed(1):"–"}</b>best VDOT</div>
+      </div>${hSpark(s)}
+      <div class="hs-list"><div class="wrapx"><table><thead><tr><th>Date</th><th>Where</th><th>Mi</th><th>Time</th><th>Pace</th><th>4 mi</th><th>Best mi</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+    </div>`}).join("");
+  $("hs").querySelectorAll(".hs-row").forEach(el=>{
+    const go=()=>{const i=+el.dataset.i; H.sel=H.sel===i?null:i; hHeat(); hSeasons();};
+    el.onclick=e=>{if(e.target.closest(".hs-list")) return; go()};
+    el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}};
+  });
+  $("hsMore").innerHTML=all.length>4?`<button class="btn" type="button">${H.showAll?"Show the four most recent":`Show all ${all.length} seasons`}</button>`:"";
+  const mb=$("hsMore").querySelector("button"); if(mb) mb.onclick=()=>{H.showAll=!H.showAll; hSeasons(); if(!H.showAll) goTo($("hs"))};
+}
+function hRaces(){
+  const rs=H.runs.filter(r=>r.race);
+  const pft=`<div class="race"><h4>Marine Corps PFT, 3-mile run</h4><div class="rm">Presidio of Monterey, CA · PFT season, Jan to May 2019 · from memory</div>
+      <div class="wrapx"><table><thead><tr><th>Runner</th><th>3 mi</th><th>Pace</th></tr></thead><tbody><tr class="me"><td class="who">Benny<small>best PFT run</small></td><td>19:00</td><td><b>6:20</b></td></tr></tbody></table></div>
+      <p>His best 3-mile, run flat at 19:00 and checked against the track afterward because he couldn't believe it. Most likely his last PFT before leaving DLI in May 2019 (the PFT window is January through June). No scorecard on file, so there's no exact date; it isn't counted in the season stats.</p></div>`;
+  $("hRace").innerHTML=rs.map(r=>{
+    const R=r.race, pts=R.results[0].splits.map(x=>x[0]);
+    const head=`<tr><th>Runner</th>${pts.map(p=>`<th>${esc(p)}</th>`).join("")}<th>Pace</th></tr>`;
+    const rows=R.results.map((x,i)=>`<tr class="${i===0?"me":""}"><td class="who">${esc(x.name)}<small>${esc(x.reg)} · bib ${x.bib}</small></td>${x.splits.map(s=>`<td>${esc(s[1])}<br><span class="pl">${esc(s[2])}/mi</span></td>`).join("")}<td><b>${esc(x.pace)}</b></td></tr>`).join("");
+    const pl=R.results.map(x=>`<div class="pl"><b>${esc(x.name)}:</b> ${esc(x.place)}</div>`).join("");
+    return `<div class="race"><h4>${esc(R.name)}</h4><div class="rm">${esc(R.where)} · ${D(R.date).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} · 13.1 mi · ${R.field.toLocaleString()} finishers</div>
+      <div class="wrapx"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>
+      <p>${esc(R.note)}</p><div style="margin-top:8px">${pl}</div></div>`;
+  }).join("")+pft;
+}
+function hLede(){
+  const tot=H.runs.reduce((a,r)=>a+r.dist_mi,0), big=H.seasons.reduce((a,s)=>s.miles>a.miles?s:a);
+  const w4=H.seasons.filter(s=>s.best4), b4=w4.length?w4.reduce((a,s)=>s.best4.t_4mi<a.best4.t_4mi?s:a):null;
+  $("hLede").textContent=`${H.runs.length} runs, ${tot.toFixed(0)} miles, ${H.seasons.length} seasons since ${D(H.runs[0].date).getFullYear()}. Biggest season: ${big.name}, ${big.miles.toFixed(0)} mi.${b4?` Fastest 4 miles: ${ms(b4.best4.t_4mi)} in ${b4.name}.`:""} Tap a season to see its runs and light up its months.`;
+  const nLog=H.runs.filter(r=>r.fromLog).length;
+  $("hNote").textContent=`From the full MapMyRun export (${H.mmrN} workouts, ${fmt(H.mmrFirst,{month:"short",year:"numeric"})} to ${fmtDayY(H.mmrLast)}), plus race results pulled from the official timing (RTRT.me), 12 treadmill sessions from the old health tracker (Jan to Feb 2026; two of its entries were already in MapMyRun and were dropped), and ${nLog} ${nLog===1?"run":"runs"} from this log that aren\'t in the export. Tracker times are when the session was logged, not when it started. 4-mile and mile times come from the GPS track, so they can differ from the app by a second or two. Heart rate only exists from Aug 2026 on.`;
+}
+function hAll(){ hBuild(); hFit(); hGap(); hHeat(); h4(); hRaces(); hSeasons(); hLede(); }
+fetch("assets/training-log/history/mmr_runs.json").then(r=>r.json()).then(d=>{
+  H.mmrN=d.length; H.mmrFirst=d.reduce((a,r)=>r.date<a?r.date:a,"9999"); H.mmrLast=d.reduce((a,r)=>r.date>a?r.date:a,"0000");
+  [...RACES,...TRACKER].forEach(x=>{if(!d.some(r=>r.id===x.id)) d.push(x)});
+  logAsHist().forEach(x=>{ if(!d.some(r=>r.date===x.date&&Math.abs((r.dist_mi||0)-x.dist_mi)<.15)) d.push(x); });
+  H.runs=d.filter(r=>r.dist_mi>=.3&&r.type!=="walk").sort((a,b)=>a.start_local<b.start_local?-1:1);
+  if(H.runs.length) hAll();
+}).catch(err=>{ console.error(err); $("hLede").textContent="History data failed to load."; });
+
+/* ---------- boot ---------- */
+renderNow();
+renderBeat();
+renderEngine();
+renderWeeks();
 drawCharts();
-addEventListener("resize",(()=>{let t;return()=>{clearTimeout(t);t=setTimeout(drawCharts,150)}})());
+renderFingerprints();
+renderShoes();
+renderRecords();
+drawSessions();
+setupToc();
 drawMap();
+addEventListener("resize",(()=>{let t,w=innerWidth;return()=>{clearTimeout(t);t=setTimeout(()=>{if(Math.abs(innerWidth-w)<2) return; w=innerWidth; drawCharts(); renderEngine(); RACE_UI.forEach(u=>u.rebuild()); if(H.runs.length) hFit();},150)}})());
 $("stamp").textContent="Updated "+D(entries.at(-1).date).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"});
-</script>
-<script>
-(() => {
-  const SRC = "assets/training-log/history/mmr_runs.json";
-  const MON = ["J","F","M","A","M","J","J","A","S","O","N","D"];
-  const MONL = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const $ = id => document.getElementById(id);
-  const ms = s => { if (s == null || !isFinite(s)) return "–"; s = Math.round(s); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return h ? `${h}:${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}` : `${m}:${String(x).padStart(2,"0")}`; };
-  const day = d => new Date(d + "T12:00:00");
-  const daysBetween = (a, b) => Math.round((day(b) - day(a)) / 864e5);
-  const median = a => { const s = [...a].sort((x,y)=>x-y); const n = s.length; return n ? (n % 2 ? s[(n-1)/2] : (s[n/2-1]+s[n/2])/2) : null; };
-  const span = d => { if (d < 14) return d === 1 ? "1 day" : `${d} days`; if (d < 70) return `${Math.round(d/7)} weeks`; const mo = Math.round(d/30.4); return mo < 24 ? `${mo} months` : `${(d/365.25).toFixed(1).replace(/\.0$/,"")} years`; };
-  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-  // Races not in the MapMyRun export, from official timing.
-  const RACES = [{"id":"rtrt-MCM-HHALF-2025","date":"2025-05-18","start_local":"2025-05-18 06:04 EDT","type":"run","name":"Marine Corps Historic Half","source":"RTRT.me official results (chip time, preliminary), not in MapMyRun","dist_mi":13.1,"active_s":8118,"elapsed_s":8118,"pace_s":620,"hr_avg":null,"hr_max":null,"cadence_avg":null,"steps":null,"kcal":null,"elev_gain_ft":null,"elev_min_ft":null,"elev_max_ft":null,"start_ll":null,"end_ll":null,"t_1mi":null,"t_5k":1734,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Marine Corps Historic Half, Fredericksburg VA","area":"Fredericksburg, VA","race":{"name":"Marine Corps Historic Half","where":"Fredericksburg, VA","date":"2025-05-18","field":4419,"note":"All four started within 11 seconds. Bekah, Clifford and Rachel came through the 5K within a second of each other; Bekah and Clifford stayed together to the line, 1 second apart. Places are RTRT's preliminary numbers.","results":[{"name":"Benny","reg":"Benjamin Foreman","bib":3126,"div":"M 25-29","from":"Willow Spring, NC","time":"2:15:18","pace":"10:20","start":"6:04:39 am","finish_tod":"8:19:56 am","splits":[["5K","28:54","9:18"],["10K","58:28","9:31"],["15K","1:30:05","10:11"],["20K","2:06:54","11:51"],["Finish","2:15:18","12:20"]],"place":"1,832 of 4,419 overall · 1,343 of 2,559 men · 180 of 317 M 25-29"},{"name":"Clifford","reg":"Clifford Polheber","bib":3124,"div":"M 25-29","from":"Sneads Ferry, NC","time":"2:29:52","pace":"11:26","start":"6:04:50 am","finish_tod":"8:34:41 am","splits":[["5K","34:05","10:59"],["10K","1:11:38","12:06"],["15K","1:45:05","10:46"],["20K","2:22:36","12:05"],["Finish","2:29:52","10:40"]],"place":"2,684 of 4,419 overall · 1,821 of 2,559 men · 248 of 317 M 25-29"},{"name":"Bekah","reg":"Rebekah Hoskins","bib":3125,"div":"F 20-24","from":"Willow Spring, NC","time":"2:29:53","pace":"11:26","start":"6:04:49 am","finish_tod":"8:34:41 am","splits":[["5K","34:07","10:59"],["10K","1:11:39","12:05"],["15K","1:45:05","10:46"],["20K","2:22:37","12:05"],["Finish","2:29:53","10:40"]],"place":"2,685 of 4,419 overall · 863 of 1,855 women · 109 of 198 F 20-24"},{"name":"Rachel","reg":"Rachael Satalino","bib":2507,"div":"F 30-34","from":"West Palm Bch, FL","time":"2:59:30","pace":"13:42","start":"6:04:50 am","finish_tod":"9:04:19 am","splits":[["5K","34:07","10:59"],["10K","1:14:43","13:05"],["15K","2:02:46","15:28"],["20K","2:50:17","15:18"],["Finish","2:59:30","13:32"]],"place":"3,841 of 4,419 overall · 1,489 of 1,855 women · 219 of 261 F 30-34"}]}}];
-  // Treadmill sessions from the old health tracker (R2 backup), deduped against MapMyRun.
-  const TRACKER = [{"id":"ht-1","date":"2026-01-26","start_local":"2026-01-26 18:45 EST","type":"treadmill","name":"2.12 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":2.12,"active_s":1140,"elapsed_s":1140,"pace_s":537.7358490566038,"hr_avg":null,"hr_max":193,"cadence_avg":null,"kcal":253,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"TechnoGym treadmill (gym not named)","area":"Treadmill","note":"9:12/mi pace, 6.5 mph, 0.8% incline, TechnoGym"},{"id":"ht-2","date":"2026-01-27","start_local":"2026-01-27 13:41 EST","type":"treadmill","name":"4.04 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":4.04,"active_s":2460,"elapsed_s":2460,"pace_s":608.9108910891089,"hr_avg":null,"hr_max":205,"cadence_avg":null,"kcal":469,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Treadmill","area":"Treadmill","note":"10:16/mi pace, 5.8 mph, 0.6% grade, 9mph sprint at 3mi"},{"id":"ht-3","date":"2026-01-27","start_local":"2026-01-27 18:41 EST","type":"treadmill","name":"3.65 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":3.65,"active_s":2100,"elapsed_s":2100,"pace_s":575.3424657534247,"hr_avg":null,"hr_max":205,"cadence_avg":null,"kcal":425,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Treadmill","area":"Treadmill","note":"6.3 mph avg, 9:28/mi pace, 0.4% grade"},{"id":"ht-4","date":"2026-01-28","start_local":"2026-01-28 12:49 EST","type":"treadmill","name":"3 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":3,"active_s":1845,"elapsed_s":1845,"pace_s":615.0,"hr_avg":null,"hr_max":195,"cadence_avg":null,"kcal":369,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Treadmill","area":"Treadmill","note":"Treadmill - 10:15/mi pace, 1.3% incline, 5.85 mph avg"},{"id":"ht-5","date":"2026-01-29","start_local":"2026-01-29 15:22 EST","type":"treadmill","name":"4.19 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":4.19,"active_s":2435,"elapsed_s":2435,"pace_s":581.145584725537,"hr_avg":183,"hr_max":205,"cadence_avg":null,"kcal":538,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Surf City Fitness","area":"Treadmill","note":"Surf City Fitness - 9:40/mi pace, 6.2 mph avg"},{"id":"ht-7","date":"2026-01-31","start_local":"2026-01-31 11:53 EST","type":"treadmill","name":"3.11 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":3.11,"active_s":1980,"elapsed_s":1980,"pace_s":636.6559485530547,"hr_avg":null,"hr_max":195,"cadence_avg":null,"kcal":357,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"ClubWorx","area":"Treadmill","note":"Clubworks - 10:30/mi pace, 5.7 mph, 0.8% grade"},{"id":"ht-9","date":"2026-02-03","start_local":"2026-02-03 22:45 EST","type":"treadmill","name":"1.56 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":1.56,"active_s":882,"elapsed_s":882,"pace_s":565.3846153846154,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":224,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"Treadmill run - SOLE F80"},{"id":"ht-10","date":"2026-02-04","start_local":"2026-02-04 11:25 EST","type":"treadmill","name":"1.6 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":1.6,"active_s":1080,"elapsed_s":1080,"pace_s":675.0,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":239,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"SOLE F80 session"},{"id":"ht-11","date":"2026-02-04","start_local":"2026-02-04 14:10 EST","type":"treadmill","name":"3.52 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":3.52,"active_s":2280,"elapsed_s":2280,"pace_s":647.7272727272727,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":486,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"Treadmill","area":"Treadmill","note":"Incline 0, ~5.0 mph avg"},{"id":"ht-12","date":"2026-02-05","start_local":"2026-02-05 10:25 EST","type":"treadmill","name":"2.74 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":2.74,"active_s":1780,"elapsed_s":1780,"pace_s":649.6350364963503,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":389,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"SOLE F80, incline 0"},{"id":"ht-13","date":"2026-02-05","start_local":"2026-02-05 12:45 EST","type":"treadmill","name":"1.76 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":1.76,"active_s":1116,"elapsed_s":1116,"pace_s":634.0909090909091,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":250,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"SOLE F80"},{"id":"ht-14","date":"2026-02-05","start_local":"2026-02-05 15:49 EST","type":"treadmill","name":"2.02 mi treadmill","source":"Old health tracker (health.niggerfaggot.club), R2 backup; logged time, not start time","dist_mi":2.02,"active_s":1320,"elapsed_s":1320,"pace_s":653.4653465346535,"hr_avg":null,"hr_max":null,"cadence_avg":null,"kcal":282,"t_1mi":null,"t_5k":null,"t_4mi":null,"fastest_mile_s":null,"has_gps":false,"place":"SOLE F80 (home)","area":"Treadmill","note":"SOLE F80, incline 0"}];
-  const FLOOR = 30, K = 6, WIN = 6;
-  let runs = [], seasons = [], gaps = [], sel = null;
-
-  const label = s => {
-    const a = day(s.start), b = day(s.end);
-    const ya = a.getFullYear(), yb = b.getFullYear();
-    if (s.start === s.end) return `${MONL[a.getMonth()]} ${a.getDate()}, ${ya}`;
-    if (ya === yb && a.getMonth() === b.getMonth()) return `${MONL[a.getMonth()]} ${ya}`;
-    if (ya === yb) return `${MONL[a.getMonth()]} to ${MONL[b.getMonth()]} ${ya}`;
-    return `${MONL[a.getMonth()]} ${ya} to ${MONL[b.getMonth()]} ${yb}`;
-  };
-
-  function build() {
-    const days = [...new Set(runs.map(r => r.date))];
-    const g = days.slice(1).map((d, i) => daysBetween(days[i], d));
-    gaps = g.map((x, i) => {
-      const local = median([...g.slice(Math.max(0, i - WIN), i), ...g.slice(i + 1, i + 1 + WIN)]) ?? x;
-      const limit = Math.max(FLOOR, K * local);
-      return { from: days[i], to: days[i + 1], days: x, local, limit, brk: x > limit };
-    });
-    const breakAt = new Set(gaps.filter(x => x.brk).map(x => x.to));
-    seasons = [];
-    let cur = null;
-    for (const r of runs) {
-      if (!cur || (r.date !== cur.end && breakAt.has(r.date))) {
-        if (cur) seasons.push(cur);
-        cur = { runs: [], start: r.date, end: r.date };
-      }
-      cur.runs.push(r); cur.end = r.date;
-    }
-    if (cur) seasons.push(cur);
-    seasons.forEach((s, i) => {
-      s.i = i;
-      s.days = daysBetween(s.start, s.end) + 1;
-      s.miles = s.runs.reduce((a, r) => a + r.dist_mi, 0);
-      s.perWeek = s.runs.length / Math.max(s.days, 7) * 7;
-      s.gapBefore = i ? daysBetween(seasons[i-1].end, s.start) : null;
-      const paces = s.runs.filter(r => r.pace_s && r.dist_mi >= 1).map(r => r.pace_s);
-      s.medPace = median(paces);
-      const b4 = s.runs.filter(r => r.t_4mi); s.best4 = b4.length ? b4.reduce((a, r) => r.t_4mi < a.t_4mi ? r : a) : null;
-      const fm = s.runs.filter(r => r.fastest_mile_s); s.fastMile = fm.length ? Math.min(...fm.map(r => r.fastest_mile_s)) : null;
-      s.longest = s.runs.reduce((a, r) => r.dist_mi > a.dist_mi ? r : a);
-      const ar = {}; s.runs.forEach(r => { if (r.area) ar[r.area] = (ar[r.area] || 0) + 1; });
-      s.area = Object.entries(ar).sort((a, b) => b[1] - a[1]).map(e => e[0]).slice(0, 2).join(" + ") || "No GPS";
-      const tail = gaps.filter(x => x.to <= s.end).slice(-WIN).map(x => x.days);
-      s.now = i === seasons.length - 1 && daysBetween(s.end, todayISO) <= Math.max(FLOOR, K * (median(tail) ?? 0));
-      s.name = label(s);
-    });
-  }
-
-  const todayISO = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
-
-  function renderGap() {
-    const W = 380, H = 92, P = 20, lo = Math.log(1), hi = Math.log(1200);
-    const X = d => P + (W - 2 * P) * (Math.log(Math.max(1, d)) - lo) / (hi - lo);
-    let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-    const dots = gaps.map(x => `<circle cx="${X(x.days).toFixed(1)}" cy="${(14 + rnd() * 44).toFixed(1)}" r="${x.brk ? 4 : 2.6}" fill="${x.brk ? "var(--trace)" : "var(--muted)"}" fill-opacity="${x.brk ? .9 : .35}"><title>${x.from} to ${x.to}: ${x.days} days off${x.brk ? ", ended a season" : ""} (runs around it were ${x.local} days apart)</title></circle>`).join("");
-    const ticks = [1, 7, 30, 90, 365, 1000].map(t => `<line x1="${X(t)}" x2="${X(t)}" y1="8" y2="64" stroke="var(--rule)"/><text x="${X(t)}" y="80" text-anchor="middle">${t === 1 ? "1 day" : t === 7 ? "1 wk" : t === 30 ? "1 mo" : t === 90 ? "3 mo" : t === 365 ? "1 yr" : "3 yr"}</text>`).join("");
-    const close = gaps.filter(x => x.days >= FLOOR && x.days <= 45);
-    const fmtD = d => day(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-    const n3 = gaps.filter(x => !x.brk && x.days > 21).length;
-    $("hGap").innerHTML = `<p class="lede">A season ends when the break is longer than a month <em>and</em> at least ${K} times longer than the usual spacing of the runs around it, so the same break counts for more in a dense stretch than a sparse one. ${n3 ? `Only ${n3} break${n3 > 1 ? "s" : ""} over 3 weeks stayed inside a season.` : "No break over 3 weeks stayed inside a season."}${close.length ? ` The close calls, 30 to 45 days: ${close.map(x => `${x.days} days after ${fmtD(x.from)} (${x.brk ? "new season" : "same season"})`).join(", ")}.` : ""}</p>
-      <svg class="gapviz" viewBox="0 0 ${W} ${H}" role="img" aria-label="Every break between running days on a log scale. Red dots ended a season.">${ticks}${dots}</svg>`;
-  }
-
-  function renderHeat() {
-    const by = {};
-    runs.forEach(r => { const k = r.date.slice(0, 7); by[k] = (by[k] || 0) + r.dist_mi; });
-    const y0 = +runs[0].date.slice(0, 4), y1 = +todayISO.slice(0, 4), nowM = todayISO.slice(0, 7);
-    const selMonths = new Set();
-    if (sel != null) seasons[sel].runs.forEach(r => selMonths.add(r.date.slice(0, 7)));
-    let h = `<span></span>` + MON.map(m => `<span class="mo">${m}</span>`).join("") + `<span></span>`;
-    for (let y = y0; y <= y1; y++) {
-      let tot = 0, row = "";
-      for (let m = 1; m <= 12; m++) {
-        const k = `${y}-${String(m).padStart(2, "0")}`, v = by[k] || 0; tot += v;
-        const lv = v === 0 ? "" : v < 10 ? "l1" : v < 25 ? "l2" : v < 50 ? "l3" : "l4";
-        const fut = k > nowM ? " fut" : "";
-        row += `<span class="c ${lv}${fut}${selMonths.has(k) ? " sel" : ""}" title="${MONL[m-1]} ${y}: ${v.toFixed(1)} mi">${v >= 1 ? Math.round(v) : ""}</span>`;
-      }
-      h += `<span class="yr">${y}</span>${row}<span class="ytot">${tot ? tot.toFixed(0) + " mi" : "–"}</span>`;
-    }
-    $("hm").innerHTML = h;
-    const K = ["color-mix(in oklab,var(--ink) 5%,var(--paper))", "color-mix(in oklab,var(--trace) 28%,var(--paper))", "color-mix(in oklab,var(--trace) 52%,var(--paper))", "color-mix(in oklab,var(--trace) 76%,var(--paper))", "var(--trace)"];
-    $("hmKey").innerHTML = ["none", "under 10 mi", "10 to 25", "25 to 50", "50+"].map((t, n) => `<span><i style="background:${K[n]}"></i>${t}</span>`).join("");
-  }
-
-  function render4() {
-    const w = seasons.filter(s => s.best4);
-    const best = Math.min(...w.map(s => s.best4.t_4mi)), worst = Math.max(...w.map(s => s.best4.t_4mi));
-    const lo = best * 0.92;
-    $("h4").innerHTML = seasons.map(s => s.best4
-      ? `<div class="r${s.best4.t_4mi === best ? " best" : ""}"><span>${esc(s.name)}</span><div class="bar" style="width:${(8 + 92 * (worst - s.best4.t_4mi) / Math.max(1, worst - lo)).toFixed(1)}%"></div><b>${ms(s.best4.t_4mi)}</b></div>`
-      : `<div class="r none"><span>${esc(s.name)}</span><span>never reached 4 mi</span><b></b></div>`).join("");
-  }
-
-  function spark(s) {
-    const pts = s.runs.filter(r => r.pace_s && r.dist_mi >= 1 && r.pace_s < 1500);
-    if (pts.length < 2) return "";
-    const W = 380, H = 96, P = 6;
-    const t0 = day(s.start), t1 = day(s.end), dt = Math.max(1, t1 - t0);
-    const ps = pts.map(r => r.pace_s), mn = Math.min(...ps), mx = Math.max(...ps), rg = Math.max(30, mx - mn);
-    const X = r => P + (W - 2 * P) * (day(r.date) - t0) / dt;
-    const Y = p => P + (H - 2 * P - 12) * (p - mn) / rg;
-    const dots = pts.map(r => `<circle cx="${X(r).toFixed(1)}" cy="${Y(r.pace_s).toFixed(1)}" r="${(2 + Math.min(4, r.dist_mi / 1.6)).toFixed(1)}" fill="var(--trace)" fill-opacity=".75"><title>${r.date}: ${r.dist_mi.toFixed(2)} mi at ${ms(r.pace_s)}/mi</title></circle>`).join("");
-    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pace of each run across the season, faster is higher">
-      <line x1="${P}" x2="${W-P}" y1="${Y(mn).toFixed(1)}" y2="${Y(mn).toFixed(1)}" stroke="var(--rule)"/>
-      <line x1="${P}" x2="${W-P}" y1="${Y(mx).toFixed(1)}" y2="${Y(mx).toFixed(1)}" stroke="var(--rule)"/>
-      ${dots}
-      <text x="${W-P}" y="${(Y(mn)-2).toFixed(1)}" text-anchor="end">${ms(mn)}/mi</text>
-      <text x="${W-P}" y="${(Y(mx)+11).toFixed(1)}" text-anchor="end">${ms(mx)}/mi</text>
-    </svg>`;
-  }
-
-  function renderSeasons() {
-    $("hs").innerHTML = [...seasons].reverse().map(s => {
-      const rows = s.runs.map(r => `<tr><td>${day(r.date).toLocaleDateString("en-US",{month:"short",day:"numeric"})}</td><td>${r.type === "treadmill" ? "treadmill" : esc(r.place || "–")}${r.race ? " <b style=\"color:var(--trace)\">RACE</b>" : ""}</td><td>${r.dist_mi.toFixed(2)}</td><td>${ms(r.active_s)}</td><td>${ms(r.pace_s)}</td><td>${ms(r.t_4mi)}</td><td>${ms(r.fastest_mile_s)}</td></tr>`).join("");
-      return `<div class="hs-row${sel === s.i ? " sel open" : ""}" data-i="${s.i}" tabindex="0" role="button" aria-expanded="${sel === s.i}">
-        <div class="hs-top"><div class="hs-name">${esc(s.name)}${s.now ? `<span class="now">NOW</span>` : ""}</div>
-        <div class="hs-meta">${esc(s.area)} · ${span(s.days)}${s.gapBefore != null ? ` · after ${span(s.gapBefore)} off` : " · first season on record"}</div></div>
-        <div class="hs-stats">
-          <div><b>${s.runs.length}</b>runs</div>
-          <div><b>${s.miles.toFixed(1)}</b>miles</div>
-          <div><b>${s.perWeek.toFixed(1)}</b>runs a week</div>
-          <div><b>${ms(s.medPace)}</b>typical pace</div>
-          <div><b>${s.best4 ? ms(s.best4.t_4mi) : "–"}</b>best 4 mi</div>
-          <div><b>${ms(s.fastMile)}</b>fastest mile</div>
-          <div><b>${s.longest.dist_mi.toFixed(2)}</b>longest (mi)</div>
-        </div>
-        ${spark(s)}
-        <div class="hs-list"><div class="wrapx"><table><thead><tr><th>Date</th><th>Where</th><th>Mi</th><th>Time</th><th>Pace</th><th>4 mi</th><th>Best mi</th></tr></thead><tbody>${rows}</tbody></table></div></div>
-      </div>`;
-    }).join("");
-    $("hs").querySelectorAll(".hs-row").forEach(el => {
-      const go = () => { const i = +el.dataset.i; sel = sel === i ? null : i; renderHeat(); renderSeasons(); };
-      el.onclick = e => { if (e.target.closest(".hs-list")) return; go(); };
-      el.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
-    });
-  }
-
-  function renderLede() {
-    const tot = runs.reduce((a, r) => a + r.dist_mi, 0);
-    const big = seasons.reduce((a, s) => s.miles > a.miles ? s : a);
-    const w4 = seasons.filter(s => s.best4), b4 = w4.reduce((a, s) => s.best4.t_4mi < a.best4.t_4mi ? s : a);
-    $("hLede").textContent = `${runs.length} runs, ${tot.toFixed(0)} miles, ${seasons.length} seasons since ${day(runs[0].date).getFullYear()}. Biggest season: ${big.name}, ${big.miles.toFixed(0)} mi. Fastest 4 miles: ${ms(b4.best4.t_4mi)} in ${b4.name}. Tap a season to see its runs and light up its months.`;
-  }
-
-  function renderRaces() {
-    const rs = runs.filter(r => r.race);
-    const pft = `<div class="race"><h4>Marine Corps PFT, 3-mile run</h4><div class="rm">Presidio of Monterey, CA · PFT season, Jan to May 2019 · from memory</div>
-        <div class="wrapx"><table><thead><tr><th>Runner</th><th>3 mi</th><th>Pace</th></tr></thead><tbody><tr class="me"><td class="who">Benny<small>best PFT run</small></td><td>19:00</td><td><b>6:20</b></td></tr></tbody></table></div>
-        <p>His best 3-mile, run flat at 19:00 and checked against the track afterward because he couldn't believe it. Most likely his last PFT before leaving DLI in May 2019 (the PFT window is January through June). No scorecard on file, so there's no exact date; it isn't counted in the season stats.</p></div>`;
-    $("hRace").innerHTML = rs.map(r => {
-      const R = r.race, pts = R.results[0].splits.map(x => x[0]);
-      const head = `<tr><th>Runner</th>${pts.map(p => `<th>${esc(p)}</th>`).join("")}<th>Pace</th></tr>`;
-      const rows = R.results.map((x, i) => `<tr class="${i === 0 ? "me" : ""}"><td class="who">${esc(x.name)}<small>${esc(x.reg)} · bib ${x.bib}</small></td>${x.splits.map(s => `<td>${esc(s[1])}<br><span class="pl">${esc(s[2])}/mi</span></td>`).join("")}<td><b>${esc(x.pace)}</b></td></tr>`).join("");
-      const pl = R.results.map(x => `<div class="pl"><b>${esc(x.name)}:</b> ${esc(x.place)}</div>`).join("");
-      return `<div class="race"><h4>${esc(R.name)}</h4><div class="rm">${esc(R.where)} · ${day(R.date).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})} · 13.1 mi · ${R.field.toLocaleString()} finishers</div>
-        <div class="wrapx"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>
-        <p>${esc(R.note)}</p><div style="margin-top:8px">${pl}</div></div>`;
-    }).join("") + pft;
-  }
-
-  function all() { build(); renderGap(); renderHeat(); render4(); renderRaces(); renderSeasons(); renderLede(); }
-
-  fetch(SRC).then(r => r.json()).then(d => {
-    [...RACES, ...TRACKER].forEach(x => { if (!d.some(r => r.id === x.id)) d.push(x); });
-    runs = d.filter(r => r.dist_mi >= 0.3 && r.type !== "walk").sort((a, b) => a.start_local < b.start_local ? -1 : 1);
-    if (runs.length) all();
-  }).catch(() => { $("hLede").textContent = "History data failed to load."; });
-})();
 </script>
 </body>
 </html>
