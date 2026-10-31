@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="D662 + D664 Drill">
+<meta property="og:description" content="Combined HamStudy-style mastery drill for WGU D662 (POWC) and D664 (PAJJ): 90 real pre-assessment items plus course quiz and taxonomy items. Misses requeue until mastered.">
+<meta property="og:url" content="https://niggerfaggot.club/d662-d664-drill">
+<meta name="twitter:card" content="summary">
+<title>D662 + D664 Drill</title>
+<style>
+:root{--bg:#e9edf0;--panel:#fff;--ink:#2b3238;--dim:#7a8590;--teal:#159fc9;--green:#43a047;--red:#e23b3b;--line:#dde3e8}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;padding:14px}
+.wrap{max-width:640px;margin:0 auto}
+.head{background:var(--panel);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.head h1{font-size:17px;line-height:1.2}
+.head .sub{font-size:12px;color:var(--dim)}
+.rings{margin-left:auto;display:flex;gap:10px}
+.ring{width:52px;text-align:center;font-size:10px;color:var(--dim)}
+.ring svg{display:block;margin:0 auto 2px}
+.ring .val{font-weight:700;font-size:11px;color:var(--ink)}
+.bar{display:flex;gap:8px;align-items:center;margin:10px 0}
+select{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px;color:var(--ink)}
+.reset{font-size:12px;color:var(--dim);text-decoration:underline;cursor:pointer;background:none;border:none}
+.card{background:var(--panel);border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.qtopic{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--teal);font-weight:700;margin-bottom:6px}
+.qtext{font-size:16.5px;line-height:1.45;margin-bottom:14px}
+.ans{display:flex;gap:10px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:11px 12px;font-size:14.5px;line-height:1.4;margin-bottom:8px;cursor:pointer;color:var(--ink)}
+@media(hover:hover){.ans:hover{border-color:var(--teal)}}
+.ans .ltr{font-weight:700;color:var(--dim);flex:none}
+.ans.correct{border-color:var(--green);background:#eef7ee}
+.ans.wrong{border-color:var(--red);background:#fdeeee}
+.ans.reveal{border-color:var(--green)}
+.ans:disabled{cursor:default}
+.explain{display:none;margin-top:10px;border-left:3px solid var(--red);background:#fdf3f3;padding:10px 12px;font-size:13.5px;line-height:1.5;border-radius:0 6px 6px 0}
+.explain b{color:var(--green)}
+.explain .cont{display:block;margin-top:6px;font-size:12px;color:var(--dim)}
+.meta{margin-top:10px;font-size:12px;color:var(--dim);display:flex;justify-content:space-between}
+.done{background:var(--panel);border-radius:10px;padding:30px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.done h2{color:var(--green);margin-bottom:8px}
+.done p{color:var(--dim);font-size:14px;margin-bottom:16px}
+.done button{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>D662 + D664 Drill</h1>
+      <div class="sub">POWC + PAJJ · 369 questions, mastered twice each</div>
+    </div>
+    <div class="rings">
+      <div class="ring"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke="#e6ebef" stroke-width="5"/><circle id="seenArc" cx="22" cy="22" r="19" fill="none" stroke="var(--teal)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 22 22)"/></svg><span class="val" id="seenVal">0%</span>Seen</div>
+      <div class="ring"><svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="19" fill="none" stroke="#e6ebef" stroke-width="5"/><circle id="aptArc" cx="22" cy="22" r="19" fill="none" stroke="var(--green)" stroke-width="5" stroke-linecap="round" stroke-dasharray="119.4" stroke-dashoffset="119.4" transform="rotate(-90 22 22)"/></svg><span class="val" id="aptVal">0%</span>Apt</div>
+    </div>
+  </div>
+  <div class="bar">
+    <select id="topicSel"><option value="">Both courses (all 369)</option><option value="D662">D662 only (POWC)</option><option value="D664">D664 only (PAJJ)</option></select>
+    <button class="reset" id="resetBtn">reset</button>
+  </div>
+  <div id="stage"></div>
+</div>
+<script type="text/plain" id="engine">
+const LS_KEY='d662d664drill_v1';
+let state={};
+try{state=JSON.parse(localStorage.getItem(LS_KEY)||'{}')}catch(e){state={}}
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}}
+function st(i){if(!state[i])state[i]={c:0,hist:[]};return state[i]}
+
+let topic='';
+let queue=[],cur=-1,curOpts=[],waiting=false;
+
+function pool(){return MCQS.map((m,i)=>i).filter(i=>!topic||(MCQS[i][4]===topic||MCQS[i][4].startsWith(topic+' · ')))}
+function buildQueue(){
+  queue=pool().filter(i=>st(i).c<2);
+  for(let i=queue.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[queue[i],queue[j]]=[queue[j],queue[i]]}
+}
+function shuffleOpts(m){
+  const o=m[1].map((t,oi)=>({t,oi}));
+  for(let i=o.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[o[i],o[j]]=[o[j],o[i]]}
+  return o;
+}
+function uniqueWords(correct,others){
+  const otherSet=new Set(others.join(' ').toLowerCase().match(/[a-z0-9$%.,']+/g)||[]);
+  return correct.split(' ').map(w=>{
+    const k=w.toLowerCase();
+    return (k.length>2&&!otherSet.has(k))?'<b>'+w+'</b>':w;
+  }).join(' ');
+}
+function rings(){
+  const p=pool();
+  const seen=p.filter(i=>st(i).hist.length>0).length/(p.length||1);
+  const apt=p.reduce((a,i)=>a+Math.min(st(i).c,2)/2,0)/(p.length||1);
+  document.getElementById('seenArc').style.strokeDashoffset=119.4*(1-seen);
+  document.getElementById('aptArc').style.strokeDashoffset=119.4*(1-apt);
+  document.getElementById('seenVal').textContent=Math.round(seen*100)+'%';
+  document.getElementById('aptVal').textContent=Math.round(apt*100)+'%';
+}
+function render(){
+  rings();
+  const stage=document.getElementById('stage');
+  if(!queue.length){
+    stage.innerHTML='<div class="done"><h2>Set mastered.</h2><p>Every question in this filter answered correctly twice in a row. Book the OA.</p><button id="againBtn">Study again</button></div>';
+    document.getElementById('againBtn').onclick=()=>{pool().forEach(i=>{delete state[i]});save();buildQueue();render()};
+    return;
+  }
+  cur=queue[0];
+  const m=MCQS[cur];
+  curOpts=shuffleOpts(m);
+  const mastered=pool().filter(i=>st(i).c>=2).length;
+  stage.innerHTML='<div class="card"><div class="qtopic">'+m[4]+'</div><div class="qtext">'+m[0]+'</div>'+
+    curOpts.map((o,d)=>'<button class="ans" data-disp="'+d+'"><span class="ltr">'+'ABCD'[d]+'</span><span class="txt">'+o.t+'</span></button>').join('')+
+    '<div class="explain" id="explain"></div>'+
+    '<div class="meta"><span>'+mastered+' / '+pool().length+' mastered</span><span>streak: '+st(cur).c+'/2</span></div></div>';
+  document.querySelectorAll('#opts .ans, .ans').forEach(b=>b.onclick=()=>answer(+b.dataset.disp));
+}
+function answer(disp){
+  if(waiting)return;
+  const m=MCQS[cur],p=st(cur);
+  const picked=curOpts[disp],correctDisp=curOpts.findIndex(x=>x.oi===m[2]);
+  const ok=picked.oi===m[2];
+  p.hist.push(ok?1:0);
+  document.querySelectorAll('.ans').forEach(b=>b.disabled=true);
+  const btns=document.querySelectorAll('.ans');
+  if(ok){
+    p.c+=1;
+    btns[disp].classList.add('correct');
+    btns[disp].querySelector('.txt').innerHTML=uniqueWords(picked.t,m[1].filter((_,i)=>i!==m[2]));
+    queue.shift();
+    if(p.c<2)queue.splice(Math.min(10,queue.length),0,cur);
+    save();
+    waiting=true;
+    setTimeout(()=>{waiting=false;render()},420);
+  }else{
+    p.c=0;
+    btns[disp].classList.add('wrong');
+    btns[correctDisp].classList.add('reveal');
+    btns[correctDisp].querySelector('.txt').innerHTML=uniqueWords(m[1][m[2]],m[1].filter((_,i)=>i!==m[2]));
+    const ex=document.getElementById('explain');
+    ex.style.display='block';
+    ex.innerHTML=m[3]+'<span class="cont">tap anywhere or press space to continue</span>';
+    queue.shift();
+    queue.splice(Math.min(3,queue.length),0,cur);
+    save();
+    waiting=true;
+  }
+  rings();
+}
+function next(){if(!waiting)return;waiting=false;render()}
+document.addEventListener('keydown',e=>{
+  if(waiting&&(e.key===' '||e.key==='Enter')){e.preventDefault();next();return}
+  if(waiting)return;
+  const k=e.key.toUpperCase();
+  const i='1234'.indexOf(e.key)>-1?'1234'.indexOf(e.key):'ABCD'.indexOf(k);
+  if(i>-1&&i<curOpts.length)answer(i);
+});
+document.addEventListener('click',e=>{if(waiting&&!e.target.closest('.ans'))next()});
+const sel=document.getElementById('topicSel');
+[...new Set(MCQS.map(m=>m[4]))].forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o)});
+sel.onchange=()=>{topic=sel.value;buildQueue();render()};
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Wipe all drill progress?')){state={};save();buildQueue();render()}};
+buildQueue();render();
+</script>
+<script>
+(async()=>{
+ const grab=async(u,tag)=>{const t=await (await fetch(u,{cache:'no-store'})).text();
+  const m=/const MCQS=\s*/.exec(t);let i=m.index+m[0].length,d=0,q=null,j=i;
+  for(;j<t.length;j++){const c=t[j];if(q){if(c==='\\'){j++;continue}if(c===q)q=null;continue}
+   if(c==='"'||c==="'"||c==='`'){q=c;continue}if(c==='['||c==='{')d++;if(c===']'||c==='}'){d--;if(d===0){j++;break}}}
+  return (0,eval)('('+t.slice(i,j)+')').map(r=>[r[0],r[1],r[2],r[3],tag+' · '+r[4]])};
+ try{
+  const [a,b]=await Promise.all([grab('/powc-drill','D662'),grab('/d664-drill','D664')]);
+  window.MCQS=a.concat(b);
+  const s=document.createElement('script');s.textContent=document.getElementById('engine').textContent;document.body.appendChild(s);
+ }catch(e){document.getElementById('stage').innerHTML='<div class="card">Could not load questions: '+e+'</div>'}
+})();
+</script>
+</body>
+</html>
